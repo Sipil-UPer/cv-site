@@ -1,7 +1,7 @@
 {
  "prodi": "Teknik Sipil",
  "institusi": "Universitas Pertamina",
- "diperbarui": "05 September 2026",
+ "diperbarui": "12 September 2026",
  "dosen": [
   {
    "nama": "Adita Utami",
@@ -954,6 +954,28 @@
    ]
   },
   {
+   "judul": "Analisis Kinerja Simpang Bersinyal Pusat Grosir Cililitan (PGC) Jalan Dewi Sartika - Jalan Raya Bogor Dengan Metode PKJI 2014 Dan Pemodelan Menggunakan PTV VISSIM",
+   "tahun": 2023,
+   "tahun_ts": 2024,
+   "dari_kegiatan": null,
+   "jenis": "jurnal",
+   "terbitan": "Media Ilmiah Teknik Sipil",
+   "tingkat": "nasional",
+   "indeksasi": "sinta_3_4",
+   "doi": "https://doi.org/10.33084/mits.v11i3.4900",
+   "url": "https://journal.umpr.ac.id/index.php/mits/article/view/4900",
+   "mitra": [],
+   "mahasiswa": 1,
+   "penulis": [
+    {
+     "nama": "Adita Utami",
+     "slug": "adita-utami",
+     "peran": "anggota",
+     "korespondensi": true
+    }
+   ]
+  },
+  {
    "judul": "Compressive Strength Investigations Of Foamed Mortar Incorporating Sandblasting Waste As Supplementary Cementitious Materials",
    "tahun": 2023,
    "tahun_ts": 2024,
@@ -1109,6 +1131,28 @@
    ]
   },
   {
+   "judul": "Penerapan Metode Earned Value Dalam Analisis Kinerja Biaya dan Waktu Proyek Konstruksi RSU. Vina Estetica",
+   "tahun": 2023,
+   "tahun_ts": 2024,
+   "dari_kegiatan": null,
+   "jenis": "jurnal",
+   "terbitan": "Jurnal Teknik Sipil",
+   "tingkat": "nasional",
+   "indeksasi": "sinta_5_6",
+   "doi": "https://doi.org/10.31284/j.jts.2023.v4i2.5042",
+   "url": "https://ejurnal.itats.ac.id/jts/article/view/5042",
+   "mitra": [],
+   "mahasiswa": 1,
+   "penulis": [
+    {
+     "nama": "Adita Utami",
+     "slug": "adita-utami",
+     "peran": "anggota",
+     "korespondensi": true
+    }
+   ]
+  },
+  {
    "judul": "Risk-Based Inspection in Offshore Structures: A Systematic Approach",
    "tahun": 2023,
    "tahun_ts": 2023,
@@ -1133,6 +1177,28 @@
      "slug": "arianta",
      "peran": "anggota",
      "korespondensi": false
+    }
+   ]
+  },
+  {
+   "judul": "SKENARIO OPTIMASI KINERJA PADA SIMPANG BERSINYAL JALAN JOGLO RAYA–JALAN RAYA POS PENGUMBEN KEMBANGAN JAKARTA BARAT",
+   "tahun": 2023,
+   "tahun_ts": 2024,
+   "dari_kegiatan": null,
+   "jenis": "jurnal",
+   "terbitan": "JURNAL REKAYASA",
+   "tingkat": "nasional",
+   "indeksasi": "sinta_3_4",
+   "doi": null,
+   "url": "https://jurnalrekayasa.bunghatta.ac.id/index.php/JRFTSP/article/view/203",
+   "mitra": [],
+   "mahasiswa": 1,
+   "penulis": [
+    {
+     "nama": "Adita Utami",
+     "slug": "adita-utami",
+     "peran": "anggota",
+     "korespondensi": true
     }
    ]
   }
@@ -1978,6 +2044,13 @@
    "kategori": "pkm",
    "keterlibatan": 3,
    "mahasiswa_unik": 3
+  },
+  {
+   "tahun": 2023,
+   "tahun_ts": 2024,
+   "kategori": "publikasi",
+   "keterlibatan": 3,
+   "mahasiswa_unik": 3
   }
  ],
  "dtps": {
@@ -2297,7 +2370,7 @@
    {
     "tahun": 2024,
     "na1": 0,
-    "na2": 4,
+    "na2": 7,
     "na3": 0,
     "na4": 2,
     "nb1": 0,
@@ -2339,7 +2412,7 @@
    {
     "tahun": 2024,
     "na1": 0,
-    "na2": 4,
+    "na2": 7,
     "na3": 0,
     "na4": 0,
     "nb1": 0,
