@@ -449,17 +449,20 @@ function tampilForm(key){
         <div class="sub">Boleh dicentang meski Anda juga penulis pertama.</div>
       </div>` : ''}
 
-      <div class="fld full"><label for="f_bukti_url">Tautan berkas bukti</label>
-        <input id="f_bukti_url" type="url" placeholder="https://…" autocomplete="off">
-        <div class="sub">Untuk kontrak, laporan, atau berkas bermuatan dana:
-        setel berbagi OneDrive ke <b>"People in Universitas Pertamina"</b>,
-        bukan "anyone with the link". Artikel terbit / sertifikat publik
-        boleh tautan terbuka.</div>
-        <div class="sub">Simpan berkasnya di folder <b>bukti-lkps</b> pada OneDrive
-        atau Google Drive prodi, lalu tempelkan tautan berbaginya di sini.
-        Pastikan tautan dapat dibuka tanpa perlu meminta izin.
-        Sertakan hanya halaman yang menunjukkan judul, nama, dan tahun —
-        tutupi NIK, nomor rekening, dan tanda tangan.</div></div>
+      <div class="fld full"><label for="f_bukti_url">Berkas bukti</label>
+        <div class="mhs-baris" id="unggah_baris" hidden>
+          <input id="f_bukti_file" type="file">
+          <button type="button" class="btn ghost" id="btn_unggah">Unggah</button>
+        </div>
+        <span class="msg" id="unggah_msg"></span>
+        <input id="f_bukti_url" type="url" placeholder="https://… (terisi otomatis setelah unggah, atau tempel tautan)" autocomplete="off">
+        <div class="sub" id="unggah_sub" hidden>Pilih berkas lalu klik <b>Unggah</b>:
+        berkas tersimpan di Google Drive prodi dan tautannya terisi otomatis.
+        Tautan itu bisa dibuka siapa pun yang memegangnya (untuk asesor LKPS),
+        tetapi folder prodi tidak bisa dijelajahi.</div>
+        <div class="sub">Sudah punya tautan (DOI, halaman jurnal, sertifikat daring)?
+        Tempelkan saja di kolom tautan. Sertakan hanya halaman yang menunjukkan
+        judul, nama, dan tahun — tutupi NIK, nomor rekening, dan tanda tangan.</div></div>
 
       ${F.mitra ? `
       <div class="fld full"><label>Institusi mitra</label>
@@ -536,8 +539,66 @@ function tampilForm(key){
   isiInduk();
   isiDaftarIntegrasi();
   isiMataKuliah();
+  pasangUnggah();
   document.getElementById('frm').onsubmit = e=>{ e.preventDefault(); simpan(key); };
   muatKaryaSaya('daftar', 6);
+}
+
+// Unggah berkas bukti ke Google Drive prodi lewat Apps Script
+// (cv-data/apps-script/Code.gs). Server memeriksa ulang login, jenis, dan
+// ukuran; pemeriksaan di sini hanya supaya dosen cepat tahu. Tanpa
+// UPLOAD_URL di config.js bagian ini tidak tampil sama sekali.
+function pasangUnggah(){
+  const url = String(window.UPLOAD_URL || '').trim();
+  if(!url) return;
+  const ext = String(window.UPLOAD_EXT || '').toLowerCase().split(',')
+    .map(s=>s.trim()).filter(Boolean);
+  const maxMb = Number(window.UPLOAD_MAX_MB) || 0;
+  const berkas = document.getElementById('f_bukti_file'),
+        tombol = document.getElementById('btn_unggah'),
+        msg    = document.getElementById('unggah_msg'),
+        tautan = document.getElementById('f_bukti_url');
+  document.getElementById('unggah_baris').hidden = false;
+  document.getElementById('unggah_sub').hidden = false;
+  berkas.accept = ext.map(x=>'.'+x).join(',');
+  const tulis = (cls, t)=>{ msg.className = 'msg' + (cls ? ' '+cls : ''); msg.textContent = t; };
+
+  tombol.onclick = async()=>{
+    const f = berkas.files[0];
+    if(!f) return tulis('err', 'Pilih berkas dulu.');
+    const e = ((f.name.match(/\.([^.]+)$/) || [])[1] || '').toLowerCase();
+    if(!ext.includes(e)) return tulis('err', 'Jenis berkas tidak diterima. Gunakan: ' + ext.join(', ') + '.');
+    if(maxMb && f.size > maxMb*1024*1024) return tulis('err', `Berkas lebih dari ${maxMb} MB.`);
+    const tahun = document.getElementById('f_tahun')?.value || '';
+    if(!/^\d{4}$/.test(tahun)) return tulis('err', 'Pilih tahun pada isian dulu.');
+
+    tombol.disabled = true; tulis('', 'Mengunggah…');
+    try {
+      const { data:{ session } } = await sb.auth.getSession();
+      if(!session) throw new Error('Sesi login habis. Muat ulang halaman lalu masuk lagi.');
+      const data = await new Promise((ok, gagal)=>{
+        const r = new FileReader();
+        r.onload  = ()=> ok(String(r.result).split(',')[1] || '');
+        r.onerror = ()=> gagal(new Error('Berkas tidak bisa dibaca.'));
+        r.readAsDataURL(f);
+      });
+      // text/plain supaya browser tidak mengirim preflight CORS, yang tidak
+      // dilayani Apps Script.
+      const res = await fetch(url, { method:'POST',
+        headers:{ 'Content-Type':'text/plain;charset=utf-8' },
+        body: JSON.stringify({ token: session.access_token, filename: f.name,
+                               year: tahun, data }) });
+      const out = await res.json();
+      if(!out.ok) throw new Error(out.error || 'Unggah gagal.');
+      tautan.value = out.url;
+      berkas.value = '';
+      tulis('ok', 'Terunggah: ' + out.name);
+    } catch(err){
+      tulis('err', err.message || String(err));
+    } finally {
+      tombol.disabled = false;
+    }
+  };
 }
 
 // Dropdown "berasal dari kegiatan": kegiatan penelitian/PkM yang dosen
@@ -1008,6 +1069,7 @@ async function simpan(key){
     }
 
     frm.reset(); delete frm.dataset.lewati;
+    const um = document.getElementById('unggah_msg'); if(um){ um.className='msg'; um.textContent=''; }
     mhsSementara = []; pasangMahasiswa();
     mitraSementara = []; pasangMitra();
     if(key === 'kegiatan') pasangSkema();

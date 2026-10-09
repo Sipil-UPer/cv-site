@@ -39,3 +39,19 @@ window.SB_KEY = 'sb_publishable_jfOWUqB1DE5jVHdUeBh5tA_TD-s6BnK';
 window.PROFIL_SINTA  = 'https://sinta.kemdiktisaintek.go.id/authors/profile/';
 window.PROFIL_SCOPUS = 'https://www.scopus.com/pages/authors/';
 window.PROFIL_ORCID  = 'https://orcid.org/';
+
+/* ---------------------------------------------------------------------
+   UNGGAH BERKAS BUKTI ke Google Drive prodi (cv-data/apps-script).
+   UPLOAD_URL     URL Web App Apps Script, berakhiran /exec.
+                  Kosong = tombol unggah disembunyikan; dosen tetap bisa
+                  menempel tautan seperti sebelumnya.
+   UPLOAD_MAX_MB  batas ukuran satu berkas dalam MB. Samakan dengan MAX_MB
+                  di Script Properties (server yang menentukan).
+                  20: usulan Claude 2026-10-09, menunggu keputusan pemilik.
+   UPLOAD_EXT     ekstensi yang diterima, dipisah koma. Samakan dengan
+                  ALLOWED_EXT di Script Properties.
+                  Usulan Claude 2026-10-09, menunggu keputusan pemilik.
+   --------------------------------------------------------------------- */
+window.UPLOAD_URL    = 'https://script.google.com/macros/s/AKfycbxU4uvfazqq8xutoKayfY6R7UlGBE_nDbpohZ6_DC-jO-JBPKiyInvPLKuOSUcdaLyyLQ/exec';
+window.UPLOAD_MAX_MB = 20;
+window.UPLOAD_EXT    = 'pdf,jpg,jpeg,png,docx,xlsx';
