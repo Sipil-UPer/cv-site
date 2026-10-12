@@ -596,7 +596,9 @@ function bagianSyaratPerlu(){
     const sel = S.map(sa=>{
       const amb = (b.ambang||{})[sa.id];
       const kls = sa.utama ? ' class="utama"' : '';
-      if(amb === undefined) return `<td${kls}><span class="st tak">tanpa ambang</span></td>`;
+      // Ambang tidak ditulis = syarat tidak berlaku untuk sasaran ini (tanda x
+      // di Tabel 4.3.1), bukan data yang hilang; tidak ikut dihitung.
+      if(amb === undefined) return `<td${kls}><span class="st tak">tidak disyaratkan</span></td>`;
       if(cap === null || cap === undefined){
         hit[sa.id].tak++;
         return `<td${kls}><div class="an-amb">${b.arah==='max'?'≤':'≥'} ${fmt(amb, b.satuan)}</div>

@@ -1,7 +1,7 @@
 {
  "prodi": "Teknik Sipil",
  "institusi": "Universitas Pertamina",
- "diperbarui": "09 October 2026",
+ "diperbarui": "12 October 2026",
  "dosen": [
   {
    "nama": "Adita Utami",
@@ -2392,22 +2392,22 @@
    {
     "tahun": 2026,
     "na1": 0,
-    "na2": 3,
-    "na3": 0,
-    "na4": 0,
-    "nb1": 0,
-    "nb2": 0,
-    "nb3": 1
-   },
-   {
-    "tahun": 2025,
-    "na1": 1,
     "na2": 2,
     "na3": 0,
     "na4": 0,
     "nb1": 0,
     "nb2": 0,
-    "nb3": 1
+    "nb3": 0
+   },
+   {
+    "tahun": 2025,
+    "na1": 0,
+    "na2": 1,
+    "na3": 0,
+    "na4": 0,
+    "nb1": 0,
+    "nb2": 0,
+    "nb3": 0
    },
    {
     "tahun": 2024,

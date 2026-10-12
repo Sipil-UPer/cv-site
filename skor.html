@@ -115,6 +115,9 @@
   .total > div.utama{background:#F7F9F7;border-top:3px solid var(--biru);margin-top:-3px}
   .total > div.utama b{color:var(--biru)}
   .total b.mer{color:var(--merah)}
+  .total b.hij{color:var(--hijau)}
+  .total b.kun{color:#7A5A00}
+  .total b.status{font-family:var(--sans);font-size:18px;font-weight:600;line-height:1.25}
   .total b .dari{display:inline;font-size:14px;color:var(--muted);
     font-family:var(--mono);letter-spacing:0;text-transform:none}
   .total b{display:block;font-family:var(--mono);font-size:26px;font-weight:400;line-height:1}
@@ -320,7 +323,8 @@ import { BUTIR, isiPetaBukti, cariBukti, kolomBukti } from './rincian.js';
 import { BUTIR_MANUAL, SEKSI_MANUAL, kunciButir, kunciBuktiButir, skorManual }
   from './butir-manual.js';
 import { BOBOT_TOTAL, bobotButir } from './bobot.js';
-import { statusSyarat, syaratButir, SYARAT_UNGGUL } from './syarat-unggul.js';
+import { statusSyarat, syaratButir, SYARAT_UNGGUL, SYARAT_RERATA, SASARAN,
+         statusRerata, gabungSyarat, statusAkreditasi } from './syarat-unggul.js';
 
 // config.js mendefinisikan window.SB_URL dan window.SB_KEY — pemetaan di
 // bawah ini WAJIB ada. skor.html versi sebelumnya melewatkannya dan mati
@@ -344,7 +348,7 @@ const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 // Naikkan setiap kali skor.html / rincian.js / butir-manual.js / bobot.js
 // diubah. Ditampilkan di kaki halaman supaya ketahuan seketika kalau
 // peramban masih memakai salinan lama dari cache.
-const VERSI = '2026-09-03h';
+const VERSI = '2026-10-12a';
 // =====================================================================
 //  Kalkulator skor butir APS-AV 2025 1.0 (Program Sarjana) yang dapat
 //  dihitung dari data.json: 33, 34, 35, 42, 43, 46, 47, ditambah
@@ -539,10 +543,14 @@ function blokSyarat(no, skor){
     : ok ? '<span style="color:var(--hijau)">terpenuhi</span>'
          : '<span style="color:var(--merah)">BELUM terpenuhi</span>';
   const kls = !s.tahu ? '' : s.u5ok ? ' lolos' : ' gagal';
+  // Syarat Terakreditasi hanya tampil bila disyaratkan (saat ini butir 19).
+  const baris_t = s.skorMin.t == null ? '' :
+    `Terakreditasi: ${s.arah === 'max' ? '≤' : '≥'} ${amb('t')}
+    (setara skor ${f2(s.skorMin.t)}) &mdash; ${tanda(s.tok)} · `;
   return `<div class="syarat-ket${kls}">
-    <b>Syarat perlu peringkat &mdash; butir ${esc(s.syarat)} instrumen syarat
-    perlu (${esc(s.label)})</b><br>
-    Unggul 3 tahun: ${s.arah === 'max' ? '≤' : '≥'} ${amb('u3')}
+    <b>Syarat perlu &mdash; syarat ${esc(s.syarat)} Tabel 4.3.1 pedoman
+    penilaian (${esc(s.label)})</b><br>
+    ${baris_t}Unggul 3 tahun: ${s.arah === 'max' ? '≤' : '≥'} ${amb('u3')}
     (setara skor ${f2(s.skorMin.u3)}) &mdash; ${tanda(s.u3ok)} ·
     Unggul 5 tahun: ${s.arah === 'max' ? '≤' : '≥'} ${amb('u5')}
     (setara skor ${f2(s.skorMin.u5)}) &mdash; ${tanda(s.u5ok)}
@@ -557,7 +565,7 @@ function kartuButir(no, judul, isi, skor, catatan, lencana){
     <div>
       <div class="no">Butir ${no} · APS-AV 2025</div>
       <h3>${esc(judul)}${lencana || ''}${
-        syaratButir(no) ? '<span class="syarat">syarat perlu unggul</span>' : ''}</h3>
+        syaratButir(no) ? '<span class="syarat">syarat perlu</span>' : ''}</h3>
       ${isi}
       ${blokSyarat(no, skor)}
       ${catatan ? `<div class="ctt">${catatan}</div>` : ''}
@@ -619,7 +627,10 @@ function siapkanPrestasi(bidang){
   const P = D.prestasi_agregat || [];
   const t0 = TS - 4;
   let NI = 0, NN = 0, NW = 0;
-  P.filter(r => r.tahun >= t0 && r.tahun <= TS &&
+  // tahun_ts (TS: 1 Sep - 31 Agu) dari bangun.py; data lama tanpa kolom itu
+  // jatuh ke tahun kalender.
+  const tsDari = r => (r.tahun_ts != null ? r.tahun_ts : r.tahun);
+  P.filter(r => tsDari(r) >= t0 && tsDari(r) <= TS &&
                 (r.bidang || '').startsWith(bidang === 'akademik' ? 'akademik' : 'non'))
    .forEach(r => {
      const tg = (r.tingkat || '').toLowerCase();
@@ -653,8 +664,8 @@ function butir43(){
     (NM ? '' : `NM (jumlah mahasiswa saat TS) belum ada — isi kolom
       <code>jumlah_mahasiswa_aktif</code> di lembar <code>mahasiswa_ta</code>
       untuk TS ${esc(taDari(TS))}. `) +
-    'Jendela 5 tahun memakai tahun kalender ' + (TS - 4) + '–' + TS +
-    ' sebagai pendekatan TS, karena lembar prestasi mencatat tahun kalender. ' +
+    'Jendela 5 TS: TS ' + taDari(TS - 4) + ' s.d. ' + taDari(TS) +
+    ' (prestasi tanpa bulan dihitung menurut tahun kalendernya). ' +
     'Baris dengan tingkat selain internasional/nasional dihitung wilayah/lokal.');
 }
 
@@ -675,7 +686,8 @@ function butir46(){
     (NM ? '' : `NM belum ada — isi lembar <code>mahasiswa_ta</code> untuk TS
       ${esc(taDari(TS))}. `) +
     'Gabungan publikasi mandiri mahasiswa (lembar Excel) dan publikasi dosen ' +
-    'yang mencantumkan mahasiswa (form web), tahun ' + (TS - 2) + '–' + TS + '. ' +
+    'dengan mahasiswa sebagai PENULIS PERTAMA (form web; syarat Tabel 6.e.1), ' +
+    'TS ' + taDari(TS - 2) + ' s.d. ' + taDari(TS) + '. ' +
     'Kolom <code>indeksasi</code> pada lembar publikasi_mahasiswa menentukan ' +
     'kategori NA/NB; bila kosong, terhitung tidak terindeks.');
 }
@@ -1030,26 +1042,35 @@ function reratTA(kunci){
   const n = rows.reduce((a, r) => a + r.lulusan, 0);
   return rows.reduce((a, r) => a + r[kunci] * r.lulusan, 0) / n;
 }
-// Kohort (Tabel 6.d) adalah sumber utama butir 44/45. Kohort dianggap
-// SELESAI bila tahun masuk + 8 <= TS ujung jendela — angkatan yang masih
-// berjalan akan menurunkan angka secara palsu karena lulusannya belum
-// lengkap. Jendela: tiga kohort selesai terbaru.
-function kohortSelesai(){
+// Kohort (Tabel 6.d) adalah sumber utama butir 44/45. Tabel 6.d Sarjana
+// memuat kohort baris TS-7 s.d. TS. TS di halaman ini = tahun ujung TS
+// (TS 2025/2026 -> 2026), jadi angkatan yang masuk September 2025 adalah
+// baris TS: baris TS-k = tahun_masuk TS - 1 - k.
+// Tafsiran (keputusan pemilik 2026-10-12, docs/analisis... §4):
+//   butir 44: MS = rerata tertimbang lulusan seluruh kohort TS-7..TS;
+//             3 < MS <= 3,5 -> skor 4, MS > 8 -> skor 0 (celah rubrik);
+//   butir 45: PTW = b/a pada kohort bertanda (a)(b) di Tabel 6.d, yaitu
+//             baris TS-3: a = jumlah masuk, b = lulus 3,5 < MS <= 4,5.
+const tahunMasukBaris = k => TS - 1 - k;
+function kohort6d(){
   return (((D.akreditasi || {}).kohort) || [])
-    .filter(k => k.masuk > 0 && k.lulus > 0 && k.tahun_masuk + 8 <= TS)
-    .sort((a, b) => b.tahun_masuk - a.tahun_masuk).slice(0, 3);
+    .filter(k => k.tahun_masuk >= tahunMasukBaris(7) && k.tahun_masuk <= tahunMasukBaris(0))
+    .sort((a, b) => b.tahun_masuk - a.tahun_masuk);
+}
+function skorMS(MS){
+  if (MS > 3 && MS <= 4.5) return 4;          // 3 < MS <= 3,5: celah, diberi 4
+  if (MS > 4.5 && MS <= 8) return (55 - 6 * MS) / 7;
+  return 0;                                    // MS <= 3 atau MS > 8 (celah, diberi 0)
 }
 
 function butir44(){
-  const K = kohortSelesai();
+  const K = kohort6d().filter(k => k.lulus > 0);
   if (K.length){
     const n = K.reduce((a, k) => a + k.lulus, 0);
     const MS = K.reduce((a, k) => a + k.ms_tertimbang * k.lulus, 0) / n;
-    let skor = null, ket = '';
-    if (MS > 3.5 && MS <= 4.5) skor = 4;
-    else if (MS > 4.5 && MS <= 8) skor = (55 - 6 * MS) / 7;
-    else if (MS <= 3) skor = 0;
-    else ket = 'MS pada rentang 3–3,5 tahun tidak dicakup rumus instrumen. ';
+    const skor = skorMS(MS);
+    const ket = (MS > 3 && MS <= 3.5) || MS > 8
+      ? 'MS berada di celah rubrik instrumen; skor mengikuti tafsiran yang disepakati. ' : '';
     const isi = `
       <div class="gulir"><table class="rin"><thead><tr><th>Angkatan</th>
         <th>Masuk</th><th>Lulus</th><th>MS taksiran</th></tr></thead><tbody>
@@ -1057,11 +1078,12 @@ function butir44(){
           <td>${k.lulus}</td><td>${f2(k.ms_tertimbang)}</td></tr>`).join('')}
         <tr><td><b>Gabungan</b></td><td></td><td>${n}</td><td><b>${f2(MS)}</b></td></tr>
       </tbody></table></div>
-      <div class="rumus">3,5 &lt; MS ≤ 4,5 → 4 · 4,5 &lt; MS ≤ 8 → (55 − 6×MS)/7 · MS ≤ 3 → 0</div>`;
+      <div class="rumus">3,5 &lt; MS ≤ 4,5 → 4 · 4,5 &lt; MS ≤ 8 → (55 − 6×MS)/7 · MS ≤ 3 → 0
+        · celah: 3 &lt; MS ≤ 3,5 → 4, MS &gt; 8 → 0</div>`;
     return kartuButir(44, 'Masa studi (Tabel 6.d LKPS)', isi, skor, ket +
-      'Dari lembar kohort_lulusan, tiga angkatan selesai terbaru. MS ditaksir ' +
-      'dari titik tengah tiap pita masa studi (4,0 · 5,0 · 6,0 · 7,25) karena ' +
-      'tabel LKPS hanya memberi rentang, bukan nilai tunggal.');
+      `Kohort baris TS-7 s.d. TS Tabel 6.d: angkatan masuk ${tahunMasukBaris(7)}–${
+      tahunMasukBaris(0)}. MS ditaksir dari titik tengah tiap pita masa studi ` +
+      '(4,0 · 5,0 · 6,0 · 7,25) karena tabel LKPS hanya memberi rentang.');
   }
   const MS = reratTA('rerata_masa_studi');
   if (MS == null){
@@ -1069,48 +1091,44 @@ function butir44(){
     return kartuButir(44, 'Masa studi (Tabel 6.d LKPS)', `<p class="kosong">${
       adaKohort
         ? `Lembar <code>kohort_lulusan</code> sudah terisi, tetapi belum ada
-           angkatan yang selesai — butir ini memakai angkatan dengan
-           tahun masuk + 8 &le; ${TS}, yaitu ${TS - 8} ke bawah.`
+           lulusan dari angkatan masuk ${tahunMasukBaris(7)}–${tahunMasukBaris(0)}
+           (kohort baris TS-7 s.d. TS Tabel 6.d).`
         : `Isi lembar <code>kohort_lulusan</code>: jumlah masuk per angkatan
            dan jumlah lulusan pada tiap pita masa studi. Sebagai cadangan,
            <code>rerata_masa_studi_tahun</code> di lembar mahasiswa_ta juga
            dibaca.`}</p>`, null, '');
   }
-  let skor = null, ket = '';
-  if (MS > 3.5 && MS <= 4.5) skor = 4;
-  else if (MS > 4.5 && MS <= 8) skor = (55 - 6 * MS) / 7;
-  else if (MS <= 3) skor = 0;
-  else ket = 'MS berada pada rentang 3–3,5 tahun yang tidak dicakup rumus instrumen; skor perlu penetapan asesor.';
+  const skor = skorMS(MS);
+  const ket = (MS > 3 && MS <= 3.5) || MS > 8
+    ? 'MS berada di celah rubrik instrumen; skor mengikuti tafsiran yang disepakati.' : '';
   return kartuButir(44, 'Masa studi (Tabel 6.d LKPS)',
     `<div class="rumus">MS = ${f2(MS)} tahun · 3,5 &lt; MS ≤ 4,5 → 4 · 4,5 &lt; MS ≤ 8 → (55 − 6×MS)/7 · MS ≤ 3 → 0</div>`,
     skor, ket + ' Rerata tertimbang jumlah lulusan, 3 TS terakhir.');
 }
 function butir45(){
-  const K = kohortSelesai();
-  if (K.length){
-    const masuk = K.reduce((a, k) => a + k.masuk, 0);
-    const tepat = K.reduce((a, k) => a + k.lulus_3_5_sd_4_5, 0);
-    const fr = masuk ? tepat / masuk : 0;
+  const thm = tahunMasukBaris(3);
+  const k = kohort6d().find(x => x.tahun_masuk === thm && x.masuk > 0);
+  if (k){
+    const fr = k.lulus_3_5_sd_4_5 / k.masuk;
     const skor = fr >= 0.5 ? 4 : fr > 0 ? 1 + 6 * fr : 0;
     const isi = `
-      <div class="gulir"><table class="rin"><thead><tr><th>Angkatan</th>
-        <th>Masuk (a)</th><th>Lulus tepat waktu (b)</th></tr></thead><tbody>
-        ${K.map(k => `<tr><td>${k.tahun_masuk}</td><td>${k.masuk}</td>
-          <td>${k.lulus_3_5_sd_4_5}</td></tr>`).join('')}
-        <tr><td><b>Gabungan</b></td><td><b>${masuk}</b></td><td><b>${tepat}</b></td></tr>
+      <div class="gulir"><table class="rin"><thead><tr><th>Angkatan (baris TS-3)</th>
+        <th>Masuk (a)</th><th>Lulus 3,5 &lt; MS ≤ 4,5 (b)</th></tr></thead><tbody>
+        <tr><td>${k.tahun_masuk}</td><td>${k.masuk}</td><td>${k.lulus_3_5_sd_4_5}</td></tr>
       </tbody></table></div>
-      <div class="rumus">PTW = (b/a) × 100% = ${f2(fr * 100)}% · ≥ 50% → 4 · 0 &lt; PTW &lt; 50% → 1 + (6 × PTW)</div>`;
+      <div class="rumus">PTW = (b/a) × 100% = ${f2(fr * 100)}% · ≥ 50% → 4 · 0 &lt; PTW &lt; 50% → 1 + (6 × PTW) · 0 → 0</div>`;
     return kartuButir(45, 'Kelulusan tepat waktu (Tabel 6.d LKPS)', isi, skor,
-      'Tepat waktu = pita masa studi 3,5 < MS ≤ 4,5 pada lembar ' +
-      'kohort_lulusan; penyebutnya jumlah mahasiswa masuk angkatan itu.');
+      'a dan b mengikuti penanda (a)(b) Tabel 6.d pada kohort baris TS-3 ' +
+      `(angkatan masuk ${thm}). Rumus instrumen tidak mendefinisikan a dan b; ` +
+      'tafsiran ini keputusan pemilik 2026-10-12.');
   }
   const P = reratTA('persen_tepat_waktu');
   if (P == null){
     const adaKohort = (((D.akreditasi || {}).kohort) || []).length > 0;
     return kartuButir(45, 'Kelulusan tepat waktu (Tabel 6.d LKPS)', `<p class="kosong">${
       adaKohort
-        ? `Lembar <code>kohort_lulusan</code> sudah terisi, tetapi belum ada
-           angkatan yang selesai (tahun masuk + 8 &le; ${TS}).`
+        ? `Lembar <code>kohort_lulusan</code> sudah terisi, tetapi tidak ada
+           angkatan masuk ${tahunMasukBaris(3)} (kohort baris TS-3 Tabel 6.d).`
         : `Isi lembar <code>kohort_lulusan</code>: kolom
            <code>jumlah_masuk</code> dan <code>lulus_3_5_sd_4_5</code>
            menentukan butir ini. Cadangannya
@@ -1256,7 +1274,7 @@ function kelengkapanData(){
         && r.tahun_ts <= TS && r.lulusan > 0 && r.rerata_ipk > 0),
       butir: '42', cara: 'isi jumlah_lulusan dan rerata_ipk_lulusan' },
     { s: 'Lembar kohort_lulusan (Tabel 6.d)',
-      ada: kohortSelesai().length > 0, butir: '44, 45',
+      ada: kohort6d().length > 0, butir: '44, 45',
       cara: 'isi per angkatan: jumlah masuk dan lulusan per pita masa studi' },
     { s: `Lembar tracer_lulusan — tahun lulus ${TS - 2}–${TS - 1}`,
       ada: J.terlacak > 0, butir: '49, 50',
@@ -1432,17 +1450,42 @@ function render(){
     .map(x => ({ ...x, sisa: (4 - x.n) * x.b }))
     .sort((p, q) => q.sisa - p.sisa);
 
-  // Syarat perlu peringkat diperiksa terhadap sasaran Unggul 5 tahun, sasaran
-  // yang ditandai `utama` di ambang.js. Tidak ikut dirata-ratakan: ia lulus
-  // atau tidak, dan satu butir gagal menggugurkan sasarannya secara mutlak.
-  const sySemua = Object.keys(SYARAT_UNGGUL).map(no => {
+  // Syarat perlu (Tabel 4.3.1) dan status akreditasi (Tabel 3), pedoman
+  // penilaian LAM Teknik 2025; aturannya di syarat-unggul.js. Syarat tidak
+  // ikut dirata-ratakan ke NA: satu syarat gagal menggugurkan sasarannya.
+  const syButir = Object.keys(SYARAT_UNGGUL).map(no => {
     const { n, ada } = skorDari(kartu[no] || '');
-    const st = statusSyarat(no, ada ? n : null);
-    return { no, n, ada, ...st, min: st.skorMin.u5 };
+    return { no, n, ada, ...statusSyarat(no, ada ? n : null) };
   });
-  const syTahu  = sySemua.filter(x => x.ada);
-  const syGagal = syTahu.filter(x => !x.u5ok);
-  const syBelum = sySemua.filter(x => !x.ada).map(x => x.no);
+  // Indikator syarat rerata: komponen I/II butir manual, atau skor butir utuh.
+  const nilaiIndikator = ind => {
+    if (ind.komponen) {
+      const v = IS(`b${ind.butir}_${ind.komponen}`);
+      return v == null || !Number.isFinite(v) ? null : Math.max(0, Math.min(4, v));
+    }
+    const b = BUTIR_MANUAL.find(x => x.no === ind.butir);
+    return b ? skorManual(b, IS).skor : null;
+  };
+  const syRerata = SYARAT_RERATA.map(d => statusRerata(d, nilaiIndikator));
+  const semuaSy = [...syButir, ...syRerata];
+  const okSasaran = sa => gabungSyarat(semuaSy.map(x => x[sa + 'ok']));
+  // NA = poinBobot (Σ bobot × skor, skala 0–400). Butir kosong bernilai 0,
+  // jadi selama cakupan < 100% status ini adalah perkiraan bawah.
+  const st = statusAkreditasi(poinBobot, okSasaran('t'), okSasaran('u3'), okSasaran('u5'));
+  const stKls = st.status.startsWith('Terakreditasi Unggul') ? 'hij'
+              : st.status === 'Terakreditasi' ? 'kun'
+              : st.status === 'Tidak Terakreditasi' ? 'mer' : '';
+  const NAMA_SASARAN = { t: 'Terakreditasi', u3: 'Unggul 3 th', u5: 'Unggul 5 th' };
+  const uraiSyarat = (x, sa) => x.indikator
+    ? `${x.label} ${x.rerata == null ? 'belum lengkap' : f2(x.rerata)}, perlu ${f2(x[sa])}`
+    : `butir ${x.no} ${x.ada ? f2(x.n) : 'kosong'}, perlu ${f2(x.skorMin[sa])}`;
+  const daftarGagal = SASARAN.map(sa => {
+    const g = semuaSy.filter(x => x[sa + 'ok'] === false);
+    return g.length ? `<b>${NAMA_SASARAN[sa]} belum terpenuhi:</b> ` +
+      g.map(x => uraiSyarat(x, sa)).join('; ') + '.' : '';
+  }).filter(Boolean);
+  const syBelum = semuaSy.filter(x => SASARAN.some(sa => x[sa + 'ok'] == null))
+    .map(x => x.indikator ? x.label : `butir ${x.no}`);
   const seksi = (id, judul, ket, nomor) =>
     seksiLipat(id, judul, ket, nomor.map(n => kartu[n]).join(''));
   // Nomor butir manual per seksi, diurutkan angka.
@@ -1489,19 +1532,15 @@ function render(){
         <b>${kosongData.length} berumus</b> menunggu data: ${
           kosongData.length ? kosongData.join(', ') : '—'}.</i></div>
 
-      <div><b class="${syGagal.length ? 'mer' : syTahu.length ? 'hij' : ''}"
-        >${syTahu.length - syGagal.length} <span class="dari">/ ${
-        Object.keys(SYARAT_UNGGUL).length}</span></b>
-        <span>Syarat perlu Unggul</span>
-        <i>${syGagal.length
-          ? '<b>BELUM terpenuhi:</b> ' + syGagal.map(x =>
-              `butir ${x.no} (${f2(x.n)}, perlu ${f2(x.min)})`).join('; ')
-            + '. Satu saja gagal menggugurkan sasaran Unggul 5 tahun.'
-          : syTahu.length ? 'Seluruh syarat yang terpetakan terpenuhi.'
-                          : 'Belum ada yang terhitung.'}
-        ${syBelum.length ? `Butir ${syBelum.join(', ')} belum terhitung.` : ''}
-        Syarat tata pamong, kurikulum, dan penjaminan mutu belum dipetakan —
-        lihat <code>syarat-unggul.js</code>.</i></div>
+      <div><b class="status ${stKls}">${esc(st.status)}${
+          st.durasi ? ` <span class="dari">${st.durasi} tahun</span>` : ''}</b>
+        <span>Perkiraan status akreditasi</span>
+        <i>NA ${f2(poinBobot)} (Unggul ≥ 361 atau ≥ 331, Terakreditasi ≥ 200).
+        ${esc(st.catatan)}
+        ${cakupan < 99.99 ? 'Butir kosong dihitung 0, jadi ini perkiraan bawah. ' : ''}
+        ${daftarGagal.join(' ')}
+        ${syBelum.length ? `Belum terhitung: ${esc(syBelum.join(', '))}.` : ''}
+        Syarat perlu: pedoman penilaian Tabel 4.3.1; status: Tabel 3.</i></div>
 
       <div><b class="${lemah.length ? 'mer' : ''}">${lemah.length}</b>
         <span>Butir di bawah 2,50</span>
