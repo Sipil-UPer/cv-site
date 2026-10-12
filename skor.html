@@ -253,7 +253,7 @@
 
 <div class="hero"><div class="hero-in">
   <a class="balik" href="monitoring.html">&#8592; Monitoring</a>
-  <h1>Kalkulator Skor Akreditasi <span class="versi-statis">v2026-09-03h</span></h1>
+  <h1>Kalkulator Skor Akreditasi <span class="versi-statis">v2026-10-12a</span></h1>
   <div class="prodi" id="nama-prodi">Memuat&hellip;</div>
   <div class="periode" id="pilih-ts"></div>
   <div class="nav-atas">
@@ -349,6 +349,8 @@ const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 // diubah. Ditampilkan di kaki halaman supaya ketahuan seketika kalau
 // peramban masih memakai salinan lama dari cache.
 const VERSI = '2026-10-12a';
+// Label versi di judul diisi dari VERSI supaya keduanya tidak bisa berbeda.
+{ const el = document.querySelector('.versi-statis'); if (el) el.textContent = 'v' + VERSI; }
 // =====================================================================
 //  Kalkulator skor butir APS-AV 2025 1.0 (Program Sarjana) yang dapat
 //  dihitung dari data.json: 33, 34, 35, 42, 43, 46, 47, ditambah

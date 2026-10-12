@@ -581,7 +581,11 @@ function bagianSyaratPerlu(){
     let cap, rinci;
     if(b.manual){
       cap = (b.capaian === undefined) ? null : b.capaian;
-      rinci = 'diisi manual di ambang.js';
+      // Syarat rerata (1, 2, 9) dihitung dari skor butir manual yang ada di
+      // balik login; halaman publik ini tidak membacanya.
+      rinci = (cap == null && b.satuan === 'skor')
+        ? 'rerata skor dihitung di halaman skor (khusus dosen terdaftar)'
+        : 'diisi manual di ambang.js';
     } else {
       const r = capaianSyarat(b);
       if(r === undefined){ cap = null; rinci = 'id butir tidak dikenal monitoring.html'; }
