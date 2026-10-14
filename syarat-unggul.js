@@ -167,5 +167,20 @@ export function statusAkreditasi(NA, t, u3, u5){
               : 'Tabel 3 baris 5 (200 ≤ NA < 331).');
 }
 
+/** Status bila sebagian butir belum dinilai. NA yang terhitung hanyalah
+ *  batas bawah (butir kosong = 0); batas atasnya NA bila semua butir kosong
+ *  bernilai 4. Status dinyatakan hanya bila kedua batas memberi status yang
+ *  sama; selain itu "Belum dapat disimpulkan" beserta rentangnya. */
+export function statusRentang(NAmin, NAmax, t, u3, u5){
+  const a = statusAkreditasi(NAmin, t, u3, u5);
+  const b = statusAkreditasi(NAmax, t, u3, u5);
+  if (a.status === b.status && a.durasi === b.durasi)
+    return { ...a, pasti: a.pasti && b.pasti, NAmin, NAmax };
+  const nama = s => s.status + (s.durasi ? ` ${s.durasi} tahun` : '');
+  return { status: 'Belum dapat disimpulkan', durasi: null, pasti: false, NAmin, NAmax,
+    catatan: `Dengan butir yang belum dinilai, NA bisa ${NAmin.toFixed(2)}–${NAmax.toFixed(2)}, ` +
+             `jadi status bisa ${nama(a)} sampai ${nama(b)}.` };
+}
+
 export const JUMLAH_SYARAT_TERPETAKAN =
   Object.keys(SYARAT_UNGGUL).length + SYARAT_RERATA.length;
