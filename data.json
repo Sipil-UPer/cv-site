@@ -954,28 +954,6 @@
    ]
   },
   {
-   "judul": "UPer-RRM Versi 0.0.1: Model Hujan-Limpasan Berbasis Python",
-   "tahun": 2024,
-   "tahun_ts": 2025,
-   "dari_kegiatan": null,
-   "jenis": "jurnal",
-   "terbitan": "Journal of Sustainable Infrastructure",
-   "tingkat": "nasional",
-   "indeksasi": "sinta_3_4",
-   "doi": "10.61078/jsi.v3i2.32",
-   "url": "https://jsi.universitaspertamina.ac.id/index.php/jsi/article/view/32",
-   "mitra": [],
-   "mahasiswa": 0,
-   "penulis": [
-    {
-     "nama": "Nurul Fajar Januriyadi",
-     "slug": "nurul-fajar-januriyadi",
-     "peran": "penulis_pertama",
-     "korespondensi": true
-    }
-   ]
-  },
-  {
    "judul": "Analisis Kinerja Simpang Bersinyal Pusat Grosir Cililitan (PGC) Jalan Dewi Sartika - Jalan Raya Bogor Dengan Metode PKJI 2014 Dan Pemodelan Menggunakan PTV VISSIM",
    "tahun": 2023,
    "tahun_ts": 2024,
@@ -2382,7 +2360,7 @@
    {
     "tahun": 2025,
     "na1": 2,
-    "na2": 3,
+    "na2": 2,
     "na3": 0,
     "na4": 3,
     "nb1": 0,
