@@ -45,6 +45,9 @@ window.PROFIL_ORCID  = 'https://orcid.org/';
    UPLOAD_URL     URL Web App Apps Script, berakhiran /exec.
                   Kosong = tombol unggah disembunyikan; dosen tetap bisa
                   menempel tautan seperti sebelumnya.
+                  Deployment aktif sejak 2026-10-14 (yang lama di-archive dan
+                  mati). Perbarui kode lewat Manage deployments > pensil >
+                  New version supaya URL ini tetap; jangan archive.
    UPLOAD_MAX_MB  batas ukuran satu berkas dalam MB. Samakan dengan MAX_MB
                   di Script Properties (server yang menentukan).
                   20: usulan Claude 2026-10-09, menunggu keputusan pemilik.
@@ -52,6 +55,6 @@ window.PROFIL_ORCID  = 'https://orcid.org/';
                   ALLOWED_EXT di Script Properties.
                   Usulan Claude 2026-10-09, menunggu keputusan pemilik.
    --------------------------------------------------------------------- */
-window.UPLOAD_URL    = 'https://script.google.com/macros/s/AKfycbxU4uvfazqq8xutoKayfY6R7UlGBE_nDbpohZ6_DC-jO-JBPKiyInvPLKuOSUcdaLyyLQ/exec';
+window.UPLOAD_URL    = 'https://script.google.com/macros/s/AKfycbyjS_eMYhFXDWNUeFW7zTHpN-NdVJBqVmtyK6zlmfm8XjqfsZjwwzkIQ9BUYXm6cVtLBA/exec';
 window.UPLOAD_MAX_MB = 20;
 window.UPLOAD_EXT    = 'pdf,jpg,jpeg,png,docx,xlsx';
