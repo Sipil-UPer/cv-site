@@ -355,7 +355,7 @@ const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 // Naikkan setiap kali skor.html / rincian.js / butir-manual.js / bobot.js
 // diubah. Ditampilkan di kaki halaman supaya ketahuan seketika kalau
 // peramban masih memakai salinan lama dari cache.
-const VERSI = '2026-10-14a';
+const VERSI = '2026-10-14b';
 // Label versi di judul diisi dari VERSI supaya keduanya tidak bisa berbeda.
 { const el = document.querySelector('.versi-statis'); if (el) el.textContent = 'v' + VERSI; }
 // =====================================================================
@@ -411,15 +411,16 @@ function pasangSeksi(){
 
 let D = null;
 let TS = null;
-// Jendela data. TS berjalan (Sep-Agu) belum tutup buku sampai 31 Agustus,
-// sehingga BAWAAN-nya seluruh jendela perhitungan berakhir di TS-1:
-// memilih TS 2025/2026 menghitung dari data s.d. 2024/2025. Sakelar di
-// kop halaman mengubahnya bila ingin TS berjalan ikut dihitung.
-// Jendela = 3 TS terakhir TERMASUK TS terpilih (TS-2..TS): memilih
-// 2025/2026 menghitung 2023/2024 + 2024/2025 + 2025/2026. Sakelar
-// "Data s.d. TS-1" tersedia bila TS berjalan sengaja tak diikutkan.
+// Jendela data. BAWAAN = jendela LKPS: 3 TS termasuk TS terpilih
+// (TS-2..TS), sama dengan kolom TS-2 / TS-1 / TS di tabel LKPS; memilih
+// 2025/2026 menghitung 2023/2024 + 2024/2025 + 2025/2026. Butir lain
+// memakai jendelanya sendiri dari TS yang sama (5 TS prestasi, tracer
+// TS-2..TS-1, kohort TS-7..TS). "Mundur 1 TS" (JENDELA_OFS = 1) menggeser
+// SELURUH jendela setahun ke belakang: alat bantu internal, BUKAN
+// definisi LKPS (keputusan pemilik 2026-10-14). Kunci penyimpanan diganti
+// dari 'jendelaOfs' supaya semua pengguna mulai lagi dari jendela LKPS.
 let JENDELA_OFS = (function(){
-  try { return sessionStorage.getItem('jendelaOfs') === '1' ? 1 : 0; }
+  try { return sessionStorage.getItem('jendelaOfsLkps') === '1' ? 1 : 0; }
   catch { return 0; }
 })();
 let PENG = {};        // pengaturan skor dari Supabase (di belakang RLS)
@@ -1256,12 +1257,22 @@ function bagianKeterlibatan(){
 // ---------------------------------------------------------------------
 //  Rangka halaman
 // ---------------------------------------------------------------------
+// TS berjalan menurut tanggal hari ini. TS = 1 September s.d. 31 Agustus,
+// ditulis sebagai tahun ujung (Oktober 2026 -> 2027 = TS 2026/2027).
+function tsBerjalan(){
+  const d = new Date();
+  return d.getMonth() >= 8 ? d.getFullYear() + 1 : d.getFullYear();
+}
+// Pilihan TS: TS berjalan selalu ada (meski datanya belum masuk), ditambah
+// TS yang punya data. Publikasi memakai tahun_ts, bukan tahun kalender.
+// TS setelah TS berjalan (salah ketik data) tidak ditampilkan.
 function daftarTS(){
-  const th = new Set();
+  const kini = tsBerjalan();
+  const th = new Set([kini]);
   (((D.akreditasi || {}).ta) || []).forEach(r => th.add(r.tahun_ts));
-  (D.publikasi || []).forEach(p => th.add(+p.tahun));
-  if (!th.size) th.add(new Date().getFullYear());
-  return [...th].sort((a, b) => b - a).slice(0, 6);
+  (D.publikasi || []).forEach(p => th.add(+(p.tahun_ts ?? p.tahun)));
+  return [...th].filter(t => Number.isFinite(t) && t <= kini)
+    .sort((a, b) => b - a).slice(0, 6);
 }
 
 // ---------------------------------------------------------------------
@@ -1713,8 +1724,14 @@ function render(){
 
 
     <h2>Ringkasan — TS ${esc(taDari(TS_PILIH))}</h2>
-    <p class="ket">Jendela data berakhir di <b>TS ${esc(taDari(TS_DATA))}</b>${
-      JENDELA_OFS ? ' (TS berjalan belum tutup buku, tidak ikut dihitung)' : ''} ·
+    <p class="ket">${JENDELA_OFS
+      ? `<b>Mundur 1 TS:</b> jendela 3 TS = ${esc(taDari(TS_DATA - 2))} s.d.
+         ${esc(taDari(TS_DATA))}. Ini <b>bukan</b> jendela LKPS untuk TS
+         ${esc(taDari(TS_PILIH))}; pilih "LKPS (TS-2…TS)" untuk simulasi akreditasi.`
+      : `<b>Jendela LKPS:</b> TS-2 ${esc(taDari(TS_DATA - 2))} s.d. TS
+         ${esc(taDari(TS_DATA))} (prestasi 5 TS, tracer TS-2 s.d. TS-1, kohort
+         TS-7 s.d. TS).`}${TS_PILIH === tsBerjalan()
+      ? ' TS berjalan belum tutup buku (berakhir 31 Agustus); datanya bisa belum lengkap.' : ''} ·
       ${semuaSkor.length} dari ${daftar.length} butir terhitung.
       Hijau ≥ 3,50 · kuning 2,00–3,49 · merah &lt; 2,00 · abu belum ada nilainya
       (ditampilkan 0,00).</p>
@@ -1796,20 +1813,24 @@ function render(){
 function pasangTS(){
   const wadah = document.getElementById('pilih-ts');
   const daftar = daftarTS();
-  if (TS == null) TS = daftar[0];
+  // Bawaan: TS terakhir yang sudah tutup buku (TS berjalan - 1), bila ada.
+  const kini = tsBerjalan();
+  if (TS == null) TS = daftar.includes(kini - 1) ? kini - 1 : daftar[0];
   wadah.innerHTML = `<span class="lbl">TS</span>` + daftar.map(t =>
-    `<button aria-pressed="${t === TS}" data-ts="${t}">${taDari(t)}</button>`).join('')
-    + `<span class="lbl" style="margin-left:14px">Data s.d.</span>
+    `<button aria-pressed="${t === TS}" data-ts="${t}"${t === kini
+       ? ' title="TS berjalan: belum tutup buku sampai 31 Agustus"' : ''}>${taDari(t)}${
+       t === kini ? ' · berjalan' : ''}</button>`).join('')
+    + `<span class="lbl" style="margin-left:14px">Jendela</span>
        <button aria-pressed="${JENDELA_OFS === 0}" data-ofs="0"
-         title="Jendela memasukkan TS terpilih: TS-2, TS-1, dan TS">TS</button>
+         title="Sama dengan kolom TS-2, TS-1, TS di tabel LKPS">LKPS (TS-2…TS)</button>
        <button aria-pressed="${JENDELA_OFS === 1}" data-ofs="1"
-         title="TS berjalan tidak diikutkan; jendela berakhir setahun sebelumnya">TS&minus;1</button>`;
+         title="Seluruh jendela digeser setahun ke belakang. Alat bantu internal, BUKAN definisi LKPS">Mundur 1 TS</button>`;
   wadah.querySelectorAll('button[data-ts]').forEach(b =>
     b.addEventListener('click', () => { TS = +b.dataset.ts; pasangTS(); render(); pasangSeksi(); angkaNaik('.ringkas b'); }));
   wadah.querySelectorAll('button[data-ofs]').forEach(b =>
     b.addEventListener('click', () => {
       JENDELA_OFS = +b.dataset.ofs;
-      try { sessionStorage.setItem('jendelaOfs', String(JENDELA_OFS)); } catch {}
+      try { sessionStorage.setItem('jendelaOfsLkps', String(JENDELA_OFS)); } catch {}
       pasangTS(); render(); pasangSeksi(); angkaNaik('.ringkas b');
     }));
 }
