@@ -355,7 +355,7 @@ const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 // Naikkan setiap kali skor.html / rincian.js / butir-manual.js / bobot.js
 // diubah. Ditampilkan di kaki halaman supaya ketahuan seketika kalau
 // peramban masih memakai salinan lama dari cache.
-const VERSI = '2026-10-14b';
+const VERSI = '2026-10-15a';
 // Label versi di judul diisi dari VERSI supaya keduanya tidak bisa berbeda.
 { const el = document.querySelector('.versi-statis'); if (el) el.textContent = 'v' + VERSI; }
 // =====================================================================
@@ -1731,7 +1731,9 @@ function render(){
       : `<b>Jendela LKPS:</b> TS-2 ${esc(taDari(TS_DATA - 2))} s.d. TS
          ${esc(taDari(TS_DATA))} (prestasi 5 TS, tracer TS-2 s.d. TS-1, kohort
          TS-7 s.d. TS).`}${TS_PILIH === tsBerjalan()
-      ? ' TS berjalan belum tutup buku (berakhir 31 Agustus); datanya bisa belum lengkap.' : ''} ·
+      ? ` <b>TS ${esc(taDari(TS_PILIH))} masih berjalan</b> sampai 31 Agustus
+         ${TS_PILIH}: angka TS ini masih akan bertambah, jadi yang tampil sekarang
+         adalah posisi sementara.` : ''} ·
       ${semuaSkor.length} dari ${daftar.length} butir terhitung.
       Hijau ≥ 3,50 · kuning 2,00–3,49 · merah &lt; 2,00 · abu belum ada nilainya
       (ditampilkan 0,00).</p>
@@ -1813,9 +1815,11 @@ function render(){
 function pasangTS(){
   const wadah = document.getElementById('pilih-ts');
   const daftar = daftarTS();
-  // Bawaan: TS terakhir yang sudah tutup buku (TS berjalan - 1), bila ada.
+  // Bawaan: TS berjalan (dari tanggal hari ini), supaya tahun berjalan
+  // terpantau sejak awal; TS yang sudah tutup tetap bisa dipilih
+  // (keputusan pemilik 2026-10-15).
   const kini = tsBerjalan();
-  if (TS == null) TS = daftar.includes(kini - 1) ? kini - 1 : daftar[0];
+  if (TS == null) TS = daftar.includes(kini) ? kini : daftar[0];
   wadah.innerHTML = `<span class="lbl">TS</span>` + daftar.map(t =>
     `<button aria-pressed="${t === TS}" data-ts="${t}"${t === kini
        ? ' title="TS berjalan: belum tutup buku sampai 31 Agustus"' : ''}>${taDari(t)}${

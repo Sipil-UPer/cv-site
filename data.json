@@ -2173,6 +2173,16 @@
  "akreditasi": {
   "ta": [
    {
+    "ta": "2026/2027",
+    "tahun_ts": 2027,
+    "mahasiswa_aktif": 259,
+    "lulusan": 0,
+    "rerata_ipk": 0.0,
+    "mahasiswa_asing": 0,
+    "rerata_masa_studi": 0.0,
+    "persen_tepat_waktu": 0.0
+   },
+   {
     "ta": "2025/2026",
     "tahun_ts": 2026,
     "mahasiswa_aktif": 205,
