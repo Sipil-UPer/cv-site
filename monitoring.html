@@ -284,18 +284,31 @@ muatAmbang()
        Jalankan <code>python bangun.py</code> lalu unggah hasilnya.</p>`;
   });
 
+// Periode berjalan menurut tanggal hari ini: tahun kalender, atau TS
+// (1 Sep - 31 Agu, ditulis tahun ujung). Selalu ada di pemilih supaya
+// tahun berjalan terpantau meski datanya belum masuk (pemilik 2026-10-15).
+function periodeBerjalan(){
+  const d = new Date();
+  return MODE === 'ts' ? (d.getMonth() >= 8 ? d.getFullYear() + 1 : d.getFullYear())
+                       : d.getFullYear();
+}
+
 function tahunTersedia(){
+  const kini = periodeBerjalan();
   return [...new Set([
+    kini,
     ...D.publikasi.map(thn),
     ...D.kegiatan.map(thn),
     ...(D.prestasi_agregat||[]).map(thn),
-  ])].sort((a,b)=>b-a);
+  ])].filter(t => Number.isFinite(t) && t <= kini).sort((a,b)=>b-a);
 }
 
 function rentang(){
   const th = tahunTersedia();
   if(periode==='semua' || !th.length) return null;      // null = tanpa saring
-  if(periode==='ts3') return th.slice(0,3);
+  // 3 periode BERURUTAN yang berakhir di periode berjalan (seperti jendela
+  // LKPS TS-2..TS), bukan tiga tahun yang kebetulan ada datanya.
+  if(periode==='ts3') return [th[0], th[0] - 1, th[0] - 2];
   return [+periode];
 }
 
@@ -305,7 +318,8 @@ function awal(){
 
   const th = tahunTersedia();
   const opsi = [['ts3', MODE === 'ts' ? '3 TS terakhir' : '3 tahun terakhir'],
-                ...th.map(t=>[String(t), labelThn(t)]),
+                ...th.map(t=>[String(t), labelThn(t) +
+                  (t === periodeBerjalan() ? ' · berjalan' : '')]),
                 ['semua', MODE === 'ts' ? 'Semua TS' : 'Semua tahun']];
   document.getElementById('periode').innerHTML =
     `<button data-m="kal" aria-pressed="${MODE==='kal'}"
