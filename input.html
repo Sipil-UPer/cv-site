@@ -162,6 +162,20 @@
 <div class="wrap" id="app"></div>
 
 <script src="config.js"></script>
+<script>
+// Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
+// halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
+addEventListener('error', function (e) {
+  if (document.getElementById('galat-muat')) return;
+  var d = document.createElement('div');
+  d.id = 'galat-muat';
+  d.style.cssText = 'margin:16px;padding:12px 14px;border:1px solid #C8102E;' +
+    'background:#FBE5E8;color:#14212E;font:14px/1.5 system-ui,sans-serif';
+  d.textContent = 'Halaman gagal dimuat: ' + (e.message || 'galat skrip') +
+    '. Tekan Ctrl+Shift+R untuk memuat ulang tanpa cache; bila tetap muncul, kirim pesan ini ke admin.';
+  document.body.insertBefore(d, document.body.firstChild);
+});
+</script>
 <script type="module">
 // =====================================================================
 //  Konfigurasi dibaca dari config.js supaya berkas ini bisa ditimpa
@@ -171,7 +185,7 @@ const SUPABASE_URL = window.SB_URL;
 const SUPABASE_ANON_KEY = window.SB_KEY;
 
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { JENIS_BUKTI_KARYA, namaJenisBukti } from './rencana-bukti.js';
+import { JENIS_BUKTI_KARYA, namaJenisBukti } from './rencana-bukti.js?v=2026-11-03k';
 
 const app = document.getElementById('app');
 if (!SUPABASE_URL || !SUPABASE_ANON_KEY

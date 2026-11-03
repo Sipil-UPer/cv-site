@@ -99,9 +99,23 @@
 <main class="wrap" id="isi"></main>
 
 <script src="config.js"></script>
+<script>
+// Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
+// halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
+addEventListener('error', function (e) {
+  if (document.getElementById('galat-muat')) return;
+  var d = document.createElement('div');
+  d.id = 'galat-muat';
+  d.style.cssText = 'margin:16px;padding:12px 14px;border:1px solid #C8102E;' +
+    'background:#FBE5E8;color:#14212E;font:14px/1.5 system-ui,sans-serif';
+  d.textContent = 'Halaman gagal dimuat: ' + (e.message || 'galat skrip') +
+    '. Tekan Ctrl+Shift+R untuk memuat ulang tanpa cache; bila tetap muncul, kirim pesan ini ke admin.';
+  document.body.insertBefore(d, document.body.firstChild);
+});
+</script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { BUTIR, isiPetaBukti, cariBukti, daftarBukti, kolomBukti } from './rincian.js';
+import { BUTIR, isiPetaBukti, cariBukti, daftarBukti, kolomBukti } from './rincian.js?v=2026-11-03k';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g,
   c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
