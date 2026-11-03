@@ -298,7 +298,6 @@
     <a href="rincian.html?butir=23">&#128203;&nbsp; Data per butir</a>
     <a href="data-prodi.html">&#128202;&nbsp; Data prodi (admin)</a>
   </div>
-  <div id="perbarui"></div>
 </div></div>
 
 <main class="wrap" id="isi"><p class="kosong" style="margin-top:30px">Memuat data&hellip;</p></main>
@@ -378,7 +377,6 @@ import { BUTIR_MANUAL, SEKSI_MANUAL, kunciButir, kunciBuktiButir, skorManual }
 import { BOBOT_TOTAL, bobotButir } from './bobot.js?v=2026-11-03v';
 import { htmlRencana, buktiButir } from './rencana-bukti.js?v=2026-11-03v';
 import { htmlPanel, pasangPanel } from './panel-bukti.js?v=2026-11-03v';
-import { pasangPerbarui } from './perbarui.js?v=2026-11-03v';
 import { statusSyarat, syaratButir, SYARAT_UNGGUL, SYARAT_RERATA, SASARAN,
          statusRerata, gabungSyarat, statusRentang } from './syarat-unggul.js?v=2026-11-03v';
 
@@ -2042,7 +2040,6 @@ async function mulai(){
   PER_DOSEN = ['admin', 'pimpinan'].includes(saya.peran);
   ADMIN = saya.peran === 'admin';
   SAYA_EMAIL = saya.email;
-  if (ADMIN) pasangPerbarui(sb, document.getElementById('perbarui'));
 
   document.getElementById('nama-prodi').textContent = 'Memuat data\u2026';
   const [jsonR, danaR, pengR, buktiR, dokR, bbR, kbR] = await Promise.all([

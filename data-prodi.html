@@ -77,7 +77,6 @@
     <a class="balik" href="input-butir.html">Isian butir &amp; dokumen</a>
     <h1>Data prodi</h1>
     <div class="sub" id="hSub">Memuat&hellip;</div>
-    <div id="perbarui"></div>
   </div>
 </header>
 
@@ -101,7 +100,6 @@ addEventListener('error', function (e) {
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-03v';
-import { pasangPerbarui } from './perbarui.js?v=2026-11-03v';
 
 /* =====================================================================
    DATA PRODI — data kuantitatif LKPS diisi admin di situs (keputusan
@@ -308,7 +306,6 @@ async function mulai(){
     return;
   }
   $('hSub').textContent = `Masuk sebagai ${saya.nama} (admin)`;
-  pasangPerbarui(sb, $('perbarui'));
   // Pilihan dosen (BKD, pembimbing): tanpa admin/asesor yang bukan DTPS
   // (admin staf/tendik bukan dosen).
   const { data: ds } = await sb.from('dosen').select('nidn,nama,peran,dtps').order('nama');
