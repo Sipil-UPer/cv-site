@@ -82,6 +82,13 @@
   .ringkas > a.ke-butir:hover{background:var(--line-soft)}
   .ringkas > a.ke-butir:hover span{color:var(--biru)}
   table a.ke-butir{color:var(--biru);text-decoration:underline dotted}
+  .urut-ringkas{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:14px;
+                font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;
+                text-transform:uppercase;color:var(--muted)}
+  .urut-ringkas button{font:inherit;letter-spacing:inherit;text-transform:inherit;
+                padding:4px 10px;border:1px solid var(--line);background:var(--panel);
+                color:var(--biru);cursor:pointer;border-radius:2px}
+  .urut-ringkas button[aria-pressed="true"]{background:var(--biru);color:#fff;border-color:var(--biru)}
   .kartu[id^="butir-"]{scroll-margin-top:16px;transition:box-shadow .3s}
   .kartu.sorot{box-shadow:0 0 0 3px var(--emas)}
   .tchip{display:inline-block;font-family:var(--mono);font-size:12.5px;
@@ -361,7 +368,7 @@ const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 // Naikkan setiap kali skor.html / rincian.js / butir-manual.js / bobot.js
 // diubah. Ditampilkan di kaki halaman supaya ketahuan seketika kalau
 // peramban masih memakai salinan lama dari cache.
-const VERSI = '2026-11-03b';
+const VERSI = '2026-11-03c';
 // Label versi di judul diisi dari VERSI supaya keduanya tidak bisa berbeda.
 { const el = document.querySelector('.versi-statis'); if (el) el.textContent = 'v' + VERSI; }
 // =====================================================================
@@ -1724,7 +1731,8 @@ function render(){
     const { n, ada } = skorDari(kartu[x.no]);
     if (ada) semuaSkor.push(n);
     const kls = !ada ? 'kos' : n >= 3.5 ? 'hij' : n >= 2 ? 'kun' : 'mer';
-    return `<a class="${kls} ke-butir" href="#butir-${x.no}" title="${ada ? 'Klik: kartu butir dan buktinya' : 'Klik untuk kartu butir. Belum ada nilai — dihitung 0'}">
+    return `<a class="${kls} ke-butir" href="#butir-${x.no}" data-no="${x.no}"
+      data-n="${ada ? n : 0}" data-b="${bobotButir(x.no)}" title="${ada ? 'Klik: kartu butir dan buktinya' : 'Klik untuk kartu butir. Belum ada nilai — dihitung 0'}">
       <b>${f2(ada ? n : 0)}</b><span>Butir ${x.no}${ada ? '' : ' \u00b7 kosong'}</span></a>`;
   }).join('');
   const kosong = daftar.length - semuaSkor.length;
@@ -1873,6 +1881,10 @@ function render(){
           : 'Tidak ada butir terisi yang bernilai di bawah 2,50.'}</i></div>
     </div>
 
+    <div class="urut-ringkas" id="urut-ringkas">Urutkan
+      <button data-urut="no">Nomor butir</button>
+      <button data-urut="nilai">Nilai terendah</button>
+      <button data-urut="bobot">Bobot terbesar</button></div>
     <div class="ringkas">${ring}</div>
     <div class="kontrol-seksi" id="seksi-semua"></div>
 
@@ -1910,7 +1922,30 @@ function render(){
     diisi tangan dan ditandai &ldquo;diisi manual&rdquo; ·
     Versi halaman <code>${esc(VERSI)}</code></footer>`;
   pasangSimulasi(ctxJalan);
+  urutkanRingkas();
 }
+
+// Urutan chip ringkasan (permintaan pemilik 2026-11-03). Bawaan = nomor
+// butir; skor tidak dihitung ulang, hanya urutan elemen yang diganti.
+const URUT_RINGKAS = {
+  no:    (a, b) => a.dataset.no - b.dataset.no,
+  nilai: (a, b) => a.dataset.n - b.dataset.n || a.dataset.no - b.dataset.no,
+  bobot: (a, b) => b.dataset.b - a.dataset.b || a.dataset.no - b.dataset.no,
+};
+function urutkanRingkas(cara){
+  if (cara) simpanAman.set('urutRingkas', cara);
+  cara = simpanAman.get('urutRingkas');
+  if (!URUT_RINGKAS[cara]) cara = 'no';
+  const wadah = document.querySelector('.ringkas');
+  if (!wadah) return;
+  [...wadah.children].sort(URUT_RINGKAS[cara]).forEach(c => wadah.appendChild(c));
+  document.querySelectorAll('#urut-ringkas button').forEach(b =>
+    b.setAttribute('aria-pressed', String(b.dataset.urut === cara)));
+}
+document.addEventListener('click', e => {
+  const b = e.target.closest('#urut-ringkas button[data-urut]');
+  if (b) urutkanRingkas(b.dataset.urut);
+});
 
 function pasangTS(){
   const wadah = document.getElementById('pilih-ts');
