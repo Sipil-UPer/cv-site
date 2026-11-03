@@ -79,6 +79,13 @@
   .ringkas > *.mer{border-top-color:var(--merah)}
   .ringkas > *.kos b{color:var(--muted)}
   a.ke-butir{color:inherit;text-decoration:none;cursor:pointer}
+  /* daftar periksa bukti per butir (rencana-bukti.js) */
+  details.rencana-bukti{margin:12px 0 0;border-left:3px solid var(--emas);
+    background:#FFFBEF;padding:6px 12px;font-size:13px}
+  details.rencana-bukti summary{cursor:pointer;font-weight:600;color:var(--biru)}
+  details.rencana-bukti ul{margin:6px 0;padding-left:20px}
+  details.rencana-bukti p{margin:6px 0}
+  details.rencana-bukti .rb-ket{font-size:12px;color:var(--muted)}
   .ringkas > a.ke-butir:hover{background:var(--line-soft)}
   .ringkas > a.ke-butir:hover span{color:var(--biru)}
   table a.ke-butir{color:var(--biru);text-decoration:underline dotted}
@@ -343,6 +350,7 @@ import { BUTIR, isiPetaBukti, cariBukti, kolomBukti } from './rincian.js';
 import { BUTIR_MANUAL, SEKSI_MANUAL, kunciButir, kunciBuktiButir, skorManual }
   from './butir-manual.js';
 import { BOBOT_TOTAL, bobotButir } from './bobot.js';
+import { htmlRencana } from './rencana-bukti.js';
 import { statusSyarat, syaratButir, SYARAT_UNGGUL, SYARAT_RERATA, SASARAN,
          statusRerata, gabungSyarat, statusRentang } from './syarat-unggul.js';
 
@@ -368,7 +376,7 @@ const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 // Naikkan setiap kali skor.html / rincian.js / butir-manual.js / bobot.js
 // diubah. Ditampilkan di kaki halaman supaya ketahuan seketika kalau
 // peramban masih memakai salinan lama dari cache.
-const VERSI = '2026-11-03e';
+const VERSI = '2026-11-03f';
 // Label versi di judul diisi dari VERSI supaya keduanya tidak bisa berbeda.
 { const el = document.querySelector('.versi-statis'); if (el) el.textContent = 'v' + VERSI; }
 // =====================================================================
@@ -660,7 +668,7 @@ function blokBuktiData(no){
 function kartuButir(no, judul, isi, skor, catatan, lencana){
   const pct = skor == null ? 0 : (skor / 4) * 100;
   const sy = statusSyarat(no, skor);
-  isi = isi + blokBuktiData(no);
+  isi = isi + blokBuktiData(no) + htmlRencana(no);
   return `<div class="kartu${sy && sy.tahu && !sy.u5ok ? ' syarat-gagal' : ''}" id="butir-${no}">
     <div class="butir">
     <div>

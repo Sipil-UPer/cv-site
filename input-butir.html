@@ -23,6 +23,13 @@
        font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
   .wrap{max-width:960px;margin:0 auto;padding:0 20px 120px}
   a{color:var(--biru-2)}
+  /* daftar periksa bukti per butir (rencana-bukti.js) */
+  details.rencana-bukti{margin:10px 0;border-left:3px solid var(--emas);
+    background:#FFFBEF;padding:6px 12px;font-size:13.5px}
+  details.rencana-bukti summary{cursor:pointer;font-weight:600;color:var(--biru)}
+  details.rencana-bukti ul{margin:6px 0;padding-left:20px}
+  details.rencana-bukti p{margin:6px 0}
+  details.rencana-bukti .rb-ket{font-size:12.5px;color:var(--muted)}
   .hero{background:var(--biru);color:#fff;border-bottom:4px solid var(--merah)}
   .hero-in{max-width:960px;margin:0 auto;padding:26px 20px 24px}
   .balik{display:inline-flex;gap:7px;align-items:center;text-decoration:none;
@@ -100,6 +107,7 @@ import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 import { BUTIR_MANUAL, SEKSI_MANUAL, kunciButir, kunciBuktiButir, skorManual }
   from './butir-manual.js';
 import { BUTIR_DATA } from './butir-data.js';
+import { htmlRencana } from './rencana-bukti.js';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g,
   c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -267,7 +275,7 @@ function kartuData(b){
 // Kolom tautan bukti + unggah berkas/folder ke Drive prodi.
 function blokBukti(no){
   const kb = `bukti_b${no}`;
-  return `<div class="fld">
+  return htmlRencana(no) + `<div class="fld">
       <label for="i-${esc(kb)}">Tautan bukti <span class="kn">· ${esc(kb)}</span></label>
       <input type="url" id="i-${esc(kb)}" data-kunci="${esc(kb)}"
              value="${esc(NILAI[kb] ?? '')}" placeholder="https://… (atau unggah berkas/folder di bawah)">
