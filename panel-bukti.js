@@ -8,9 +8,9 @@
    supabase/14-patch-bukti-jamak.sql):
      - tautan ke pustaka dokumen tanpa unggah ulang (jenis tunggal selalu
        versi berlaku, tahun terbaru <= TS);
-     - berkas/folder yang diunggah di panel ini — Apps Script kind 'butir'
-       menyimpan ke data-lkps/butir-manual/butir-NN/[subfolder]/, tiap berkas
-       menjadi satu bukti;
+     - berkas yang diunggah di panel ini (boleh beberapa sekaligus, tanpa
+       folder — pemilik 2026-11-03) — Apps Script kind 'butir' menyimpan ke
+       data-lkps/butir-manual/butir-NN/, tiap berkas menjadi satu bukti;
      - tautan manual (judul + URL).
    Hak tulis ditegakkan RLS (admin saja); panel hanya tampil bagi admin.
 
@@ -23,7 +23,7 @@
      unggah = {url, ext[], maxMb, accept} dari config.js, atau null.
    ===================================================================== */
 
-import { JENIS_DOKUMEN, infoJenis, buktiButir } from './rencana-bukti.js?v=2026-11-03p';
+import { JENIS_DOKUMEN, infoJenis, buktiButir } from './rencana-bukti.js?v=2026-11-03r';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g,
   c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -56,7 +56,6 @@ export function htmlPanel(no, k){
       <button type="button" class="kecil" data-pb="lepas" data-id="${esc(x.id)}">Lepas</button></li>`).join('')}</ul>`
       : '<p class="pb-ket">Belum ada bukti tertaut.</p>'}
     ${u ? `<div class="pb-a"><label>Berkas <input type="file" id="pbf-${esc(no)}" accept="${esc(u.accept)}" multiple></label>
-      <label>Folder <input type="file" id="pbd-${esc(no)}" webkitdirectory></label>
       <button type="button" data-pb="unggah" data-no="${esc(no)}">Unggah</button></div>` : ''}
     <div class="pb-a">${pilihan}</div>
     <div class="pb-a"><input type="text" id="mj-${esc(no)}" placeholder="Judul bukti (mis. Rekap PDDikti mahasiswa aktif 2025/2026)">
@@ -108,8 +107,8 @@ export function pasangPanel(c){
     async unggah(no, tombol){
       const u = c.keadaan().unggah;
       if (!u) return;
-      const semua = [$('pbf-' + no), $('pbd-' + no)].flatMap(i => i ? [...i.files] : []);
-      if (!semua.length) return tulis(no, 'buruk', 'Pilih berkas atau folder dulu.');
+      const semua = [...(($('pbf-' + no) || {}).files || [])];
+      if (!semua.length) return tulis(no, 'buruk', 'Pilih berkas dulu.');
       const dilewati = [], unggah = [];
       semua.forEach(f => {
         const e = ((f.name.match(/\.([^.]+)$/) || [])[1] || '').toLowerCase();
@@ -127,18 +126,15 @@ export function pasangPanel(c){
         for (let i = 0; i < unggah.length; i++) {
           const f = unggah[i];
           tulis(no, '', `Mengunggah ${i + 1} dari ${unggah.length}: ${f.name}…`);
-          // 'Folder A/Sub/x.pdf' -> subfolder 'Folder A/Sub'; berkas biasa tanpa subfolder.
-          const rel = f.webkitRelativePath || '';
-          const path = rel.includes('/') ? rel.slice(0, rel.lastIndexOf('/')) : '';
           try {
             // text/plain: tanpa preflight CORS (tidak dilayani Apps Script).
             const res = await fetch(u.url, { method: 'POST',
               headers: { 'Content-Type': 'text/plain;charset=utf-8' },
               body: JSON.stringify({ token: session.access_token, kind: 'butir', butir: no,
-                                     path, filename: f.name, data: await keB64(f) }) });
+                                     filename: f.name, data: await keB64(f) }) });
             const out = await res.json();
             if (!out.ok) throw new Error(out.error || 'Unggah gagal.');
-            baris.push({ judul: rel || f.name, url: out.url });
+            baris.push({ judul: f.name, url: out.url });
           } catch (err) {
             gagal.push(`${f.name}: ${err.message || err}`);
             if (/Sesi login/.test(err.message || '')) break;

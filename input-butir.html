@@ -138,10 +138,10 @@ addEventListener('error', function (e) {
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 import { BUTIR_MANUAL, SEKSI_MANUAL, kunciButir, kunciBuktiButir, skorManual }
-  from './butir-manual.js?v=2026-11-03p';
-import { BUTIR_DATA } from './butir-data.js?v=2026-11-03p';
-import { htmlRencana, JENIS_DOKUMEN, infoJenis, buktiButir } from './rencana-bukti.js?v=2026-11-03p';
-import { htmlPanel, pasangPanel } from './panel-bukti.js?v=2026-11-03p';
+  from './butir-manual.js?v=2026-11-03r';
+import { BUTIR_DATA } from './butir-data.js?v=2026-11-03r';
+import { htmlRencana, JENIS_DOKUMEN, infoJenis, buktiButir } from './rencana-bukti.js?v=2026-11-03r';
+import { htmlPanel, pasangPanel } from './panel-bukti.js?v=2026-11-03r';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g,
   c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -263,7 +263,9 @@ function render(){
     muncul di butir terkait, kartu skor, dan draf LED. Jenis <b>tunggal</b>
     (statuta, kurikulum, …): tahun sama = <b>mengganti</b> (versi lama ke folder
     <code>_arsip</code>), tahun beda = versi lain. Jenis <b>banyak</b> (SK,
-    notulen, …): isi judul/nomor; judul dan tahun sama = mengganti. Publikasi,
+    notulen, …): isi judul/nomor; judul dan tahun sama = mengganti. Satu entri =
+    satu berkas; dokumen yang terdiri dari beberapa berkas diunggah sebagai entri
+    terpisah atau digabung menjadi satu PDF. Publikasi,
     penelitian, PkM, HKI, dan rekognisi tetap lewat form karya dosen.</div>
     ${formDokumen()}
     <div class="b" id="daftar-dok"></div>`;
@@ -376,8 +378,7 @@ function formDokumen(){
     <div class="fld" id="dok-judul-w"><label for="dok-judul">Judul/nomor</label>
       <input type="text" id="dok-judul" maxlength="120"></div>
     <div class="unggah">
-      <input type="file" id="dok-file" accept="${esc(UNGGAH.accept)}" multiple>
-      <label><input type="checkbox" id="dok-tambah"> tambah berkas (jangan ganti)</label>
+      <input type="file" id="dok-file" accept="${esc(UNGGAH.accept)}">
       <button type="button" id="dok-unggah">Unggah</button>
     </div>
     <div class="msg-unggah" id="dok-msg"></div>
@@ -417,7 +418,7 @@ async function unggahDokumen(tombol){
   const j = infoJenis($('dok-jenis').value);
   const tahun = +$('dok-tahun').value;
   const judul = j.tunggal ? '' : $('dok-judul').value.trim();
-  const tambah = $('dok-tambah').checked;
+  const tambah = false;   // satu berkas per entri; tahun sama = mengganti
   const berkas = [...$('dok-file').files];
   const msg = $('dok-msg');
   const tulis = (cls, t) => { msg.className = 'msg-unggah' + (cls ? ' ' + cls : ''); msg.textContent = t; };
@@ -456,7 +457,7 @@ async function unggahDokumen(tombol){
       berhasil++; url = out.url; folderUrl = out.folderUrl || folderUrl;
     }
     // Satu berkas yang mengganti -> tautan berkas; selain itu tautan folder.
-    const tautan = berkas.length === 1 && !tambah ? url : folderUrl || url;
+    const tautan = url;     // selalu tautan berkas, bukan folder
     const { error } = await sb.from('dokumen').upsert({
       jenis: j.id, tahun, judul, url: tautan, folder_url: folderUrl,
       nama_berkas: berkas.map(f => f.name).join('; ').slice(0, 500),

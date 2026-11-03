@@ -374,14 +374,14 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { BUTIR, isiPetaBukti, cariBukti, daftarBukti, kolomBukti } from './rincian.js?v=2026-11-03p';
+import { BUTIR, isiPetaBukti, cariBukti, daftarBukti, kolomBukti } from './rincian.js?v=2026-11-03r';
 import { BUTIR_MANUAL, SEKSI_MANUAL, kunciButir, kunciBuktiButir, skorManual }
-  from './butir-manual.js?v=2026-11-03p';
-import { BOBOT_TOTAL, bobotButir } from './bobot.js?v=2026-11-03p';
-import { htmlRencana, buktiButir } from './rencana-bukti.js?v=2026-11-03p';
-import { htmlPanel, pasangPanel } from './panel-bukti.js?v=2026-11-03p';
+  from './butir-manual.js?v=2026-11-03r';
+import { BOBOT_TOTAL, bobotButir } from './bobot.js?v=2026-11-03r';
+import { htmlRencana, buktiButir } from './rencana-bukti.js?v=2026-11-03r';
+import { htmlPanel, pasangPanel } from './panel-bukti.js?v=2026-11-03r';
 import { statusSyarat, syaratButir, SYARAT_UNGGUL, SYARAT_RERATA, SASARAN,
-         statusRerata, gabungSyarat, statusRentang } from './syarat-unggul.js?v=2026-11-03p';
+         statusRerata, gabungSyarat, statusRentang } from './syarat-unggul.js?v=2026-11-03r';
 
 // config.js mendefinisikan window.SB_URL dan window.SB_KEY — pemetaan di
 // bawah ini WAJIB ada. skor.html versi sebelumnya melewatkannya dan mati
@@ -405,7 +405,7 @@ const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 // Naikkan setiap kali skor.html / rincian.js / butir-manual.js / bobot.js
 // diubah. Ditampilkan di kaki halaman supaya ketahuan seketika kalau
 // peramban masih memakai salinan lama dari cache.
-const VERSI = '2026-11-03p';
+const VERSI = '2026-11-03r';
 // Label versi di judul diisi dari VERSI supaya keduanya tidak bisa berbeda.
 { const el = document.querySelector('.versi-statis'); if (el) el.textContent = 'v' + VERSI; }
 // =====================================================================
@@ -494,7 +494,7 @@ async function unduhLED(){
   const asli = a.textContent;
   a.textContent = 'Menyusun draf LED…';
   try {
-    const { buatLED } = await import('./led.js?v=2026-11-03p');
+    const { buatLED } = await import('./led.js?v=2026-11-03r');
     const ts = CTX_LED.tsData;
     const hasil = await buatLED({
       D, ts, taDari, f2, versi: VERSI,
@@ -1705,7 +1705,7 @@ function bagianJalanUnggul(ctx){
 
 // ---------------------------------------------------------------------
 //  Rekap bukti: satu baris per butir (60). Bukti butir = kunci
-//  bukti_b<NN> (berkas atau folder Drive); bukti karya = tautan bukti tiap
+//  bukti_b<NN> (tautan lama) dan butir_bukti; bukti karya = tautan bukti tiap
 //  karya pembentuk butir, memakai peta yang sama dengan halaman rincian
 //  (rincian.js), jadi angkanya sama dengan kartu dan rincian.html.
 // ---------------------------------------------------------------------
@@ -1754,7 +1754,7 @@ function bagianRekapBukti(ctx){
               : 'tidak ada karya di jendela') : '—'}</td>
         <td>${chip[x.status]}</td></tr>`).join('')}
     </tbody></table></div>
-    <p class="ket">Bukti butir diunggah (berkas atau folder) di
+    <p class="ket">Bukti butir diunggah (berkas, satu per satu atau beberapa sekaligus) di
       <a href="input-butir.html">halaman isi butir</a>; bukti karya diunggah dosen
       di form karya. Status "lengkap" = bukti butir ada dan, bila butir itu
       dibentuk karya, semua karyanya berbukti.</p>`;

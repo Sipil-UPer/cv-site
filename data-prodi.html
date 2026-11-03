@@ -305,8 +305,10 @@ async function mulai(){
     return;
   }
   $('hSub').textContent = `Masuk sebagai ${saya.nama} (admin)`;
-  const { data: ds } = await sb.from('dosen').select('nidn,nama').order('nama');
-  DOSEN = (ds || []).filter(d => d.nidn);
+  // Pilihan dosen (BKD, pembimbing): tanpa admin/asesor yang bukan DTPS
+  // (admin staf/tendik bukan dosen).
+  const { data: ds } = await sb.from('dosen').select('nidn,nama,peran,dtps').order('nama');
+  DOSEN = (ds || []).filter(d => d.nidn && (d.dtps || ['dosen', 'pimpinan'].includes(d.peran)));
   const awal = new URLSearchParams(location.search).get('tab');
   AKTIF = TABEL.find(t => t.id === awal) || TABEL[0];
   $('isi').innerHTML = `
