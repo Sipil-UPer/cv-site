@@ -368,7 +368,7 @@ const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 // Naikkan setiap kali skor.html / rincian.js / butir-manual.js / bobot.js
 // diubah. Ditampilkan di kaki halaman supaya ketahuan seketika kalau
 // peramban masih memakai salinan lama dari cache.
-const VERSI = '2026-11-03d';
+const VERSI = '2026-11-03e';
 // Label versi di judul diisi dari VERSI supaya keduanya tidak bisa berbeda.
 { const el = document.querySelector('.versi-statis'); if (el) el.textContent = 'v' + VERSI; }
 // =====================================================================
@@ -1636,8 +1636,8 @@ function bagianRekapBukti(ctx){
     return { no, manual, u, karya, status, bobot: bobotButir(no),
              judul: judulButir[no] || '' };
   });
-  const URUT = { kosong: 0, sebagian: 1, lengkap: 2 };
-  baris.sort((a, b) => URUT[a.status] - URUT[b.status] || b.bobot - a.bobot);
+  // Urut nomor butir 1–60 (pemilik 2026-11-03); status tetap terlihat dari chip.
+  baris.sort((a, b) => a.no - b.no);
   const jml = s => baris.filter(x => x.status === s);
   const bobotAda = baris.filter(x => x.status !== 'kosong').reduce((a, x) => a + x.bobot, 0);
   const chip = { lengkap: '<span class="tchip hij">lengkap</span>',
@@ -1647,7 +1647,7 @@ function bagianRekapBukti(ctx){
     <p class="ket"><b>${jml('lengkap').length}</b> butir lengkap ·
       <b>${jml('sebagian').length}</b> sebagian · <b>${jml('kosong').length}</b> tanpa bukti ·
       butir berbukti mencakup <b>${f2(bobotAda / BOBOT_TOTAL * 100)}%</b> bobot.
-      Urutan: tanpa bukti dulu, bobot terbesar di atas. Bukti karya dihitung pada
+      Urutan: nomor butir. Bukti karya dihitung pada
       jendela TS ${esc(taDari(tsData - 2))} s.d. ${esc(taDari(tsData))}.</p>
     <div class="gulir" style="max-height:520px"><table class="rin"><thead><tr>
       <th>Butir</th><th>Judul</th><th>Bobot</th><th>Bukti butir</th>
