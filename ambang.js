@@ -115,7 +115,7 @@ window.AMBANG = {
       ambang: { u3: 30, u5: 40 }, satuan: '%', arah: 'min',
       sumber: 'Syarat 4; tidak disyaratkan untuk Terakreditasi',
       catatan: 'Persentase DTPS berpendidikan tertinggi Doktor/Doktor Terapan. ' +
-               'Dihitung dari kolom pendidikan = S3 di lembar dosen.',
+               'Dihitung dari pendidikan S3 pada data dosen.',
     },
     {
       no: 5, id: 'dtps_lektor_keatas',
@@ -123,7 +123,7 @@ window.AMBANG = {
       ambang: { u3: 40, u5: 50 }, satuan: '%', arah: 'min',
       sumber: 'Syarat 5; tidak disyaratkan untuk Terakreditasi',
       catatan: 'Persentase DTPS berjabatan Guru Besar, Lektor Kepala, atau Lektor. ' +
-               'Dihitung dari kolom jabatan di lembar dosen.',
+               'Dihitung dari jabatan pada data dosen.',
     },
     {
       no: 6, id: 'karya_utama_internasional',

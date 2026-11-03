@@ -312,9 +312,8 @@ async function mulai(){
   const awal = new URLSearchParams(location.search).get('tab');
   AKTIF = TABEL.find(t => t.id === awal) || TABEL[0];
   $('isi').innerHTML = `
-    <div class="info">Data di halaman ini menggantikan lembar Excel kuantitatif. Perubahan tampil di
-      halaman skor setelah <b>bangun berikutnya</b> (bangun-dan-push.bat; kelak otomatis).
-      Lembar <code>dosen</code> tetap di data-prodi.xlsx.</div>
+    <div class="info">Data di halaman ini dipakai untuk skor, rincian, dan LKPS. Perubahan
+      tampil di halaman skor setelah data dibangun ulang.</div>
     <nav class="tabs" id="tabs">${TABEL.map(t =>
       `<button data-tab="${t.id}" aria-selected="${t === AKTIF}">${esc(t.judul)}</button>`).join('')}</nav>
     <div class="b" id="panel"></div>`;

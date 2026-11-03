@@ -1,11 +1,9 @@
 /* =====================================================================
    BUTIR MANUAL — APS-AV 2025 1.0, Program Sarjana (LAM Teknik)
    ---------------------------------------------------------------------
-   Butir yang TIDAK dapat dihitung dari data.json. Nilainya diisi tangan
-   di lembar `pengaturan` pada data-prodi.xlsx, lalu dikirim ke tabel
-   `pengaturan` di Supabase dengan:
-
-       python bangun.py --sinkron-pengaturan
+   Butir yang TIDAK dapat dihitung dari data.json. Nilainya diisi admin di
+   input-butir.html dan disimpan di tabel `pengaturan` Supabase (sejak
+   2026-11-03 tidak lagi lewat data-prodi.xlsx).
 
    Tiap butir punya satu atau dua komponen. Butir berkomponen dua memakai
    rumus gabungan yang tertulis di matriks; rumusnya disalin apa adanya di

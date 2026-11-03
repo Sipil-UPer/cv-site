@@ -19,7 +19,7 @@
    bukti), mhs, dana, ket1, ket2.
    ===================================================================== */
 
-import { namaJenisBukti } from './rencana-bukti.js?v=2026-11-03r';
+import { namaJenisBukti } from './rencana-bukti.js?v=2026-11-03t';
 
 const rapi = s => String(s ?? '').replace(/_/g, ' ');
 
@@ -114,9 +114,9 @@ export const BUTIR = {
       return j.internasional + j.nasional + j.wilayah + j.tanpa_tingkat;
     },
     labelPenyebut: 'jumlah N1+N2+N3',
-    catatan: 'Baris dari lembar `kerjasama` di Excel (pendidikan dan MoU ' +
-      'payung) tidak ada di data.json, jadi tidak muncul di sini. Kalau ' +
-      'lembar itu terisi, daftar ini akan lebih sedikit daripada angka kartu.',
+    catatan: 'Kerja sama dari Data prodi (pendidikan dan MoU payung) tidak ' +
+      'tercantum per baris di sini. Kalau data itu terisi, daftar ini akan ' +
+      'lebih sedikit daripada angka kartu.',
   },
 
   '23': {

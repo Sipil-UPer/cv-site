@@ -213,8 +213,7 @@ fetch('data.json?v=' + Date.now())
   .catch(() => {
     document.getElementById('hProdi').textContent = 'Data belum tersedia';
     document.getElementById('isi').innerHTML =
-      `<p class="kosong">Berkas <code>data.json</code> belum ada di folder ini.
-       Jalankan <code>python bangun.py</code> lalu unggah hasilnya.</p>`;
+      `<p class="kosong">Data belum tersedia. Hubungi admin prodi.</p>`;
   });
 
 // =====================================================================

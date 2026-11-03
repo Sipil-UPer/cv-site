@@ -280,8 +280,7 @@ muatAmbang()
   .then(d=>{ D=d; awal(); pasangSeksi(); angkaNaik('.ringkas b'); })
   .catch(()=>{
     document.getElementById('isi').innerHTML =
-      `<p class="kosong">Berkas <code>data.json</code> belum tersedia.
-       Jalankan <code>python bangun.py</code> lalu unggah hasilnya.</p>`;
+      `<p class="kosong">Data belum tersedia. Hubungi admin prodi.</p>`;
   });
 
 // Periode berjalan menurut tanggal hari ini: tahun kalender, atau TS
@@ -607,7 +606,7 @@ function bagianSyaratPerlu(){
       else {
         cap = r.nilai; rinci = r.rinci;
         if(r.rusak){ adaRusak = true;
-          rinci += ' — jalankan ulang bangun.py agar terbatas jendela instrumen'; }
+          rinci += ' — perlu bangun ulang data agar terbatas jendela instrumen'; }
       }
     }
 
@@ -656,8 +655,7 @@ function bagianSyaratPerlu(){
       &ldquo;seluruh butir terpenuhi&rdquo; di bawah karena itu belum sahih.`);
   if(adaRusak)
     peringatan.push(`<b>Angka karya utama internasional dihitung tanpa batas tahun.</b>
-      Berkas <code>data.json</code> berasal dari <code>bangun.py</code> versi lama.
-      Jalankan ulang <code>bangun.py</code> lalu unggah hasilnya.`);
+      Data dibangun dengan versi lama; minta admin membangun ulang data.`);
 
   return `
     ${peringatan.map(x=>`<div class="peringatan">${x}</div>`).join('')}
@@ -816,7 +814,7 @@ function bagianMahasiswa(H){
                  margin:0 0 12px">Prestasi menurut bidang dan tingkat</h3>
       ${pAka + pNon === 0
         ? `<p class="kosong">Belum ada prestasi tercatat pada periode ini.
-           Diisi lewat lembar <code>prestasi_mahasiswa</code> di Excel.</p>`
+           Diisi admin di <a href="data-prodi.html?tab=prestasi">Data prodi › Prestasi mahasiswa</a>.</p>`
         : `<div class="gulir"><table class="rin"><thead><tr>
         <th style="text-align:left">Tingkat</th><th>Akademik</th>
         <th>Non-akademik</th><th>Jumlah</th></tr></thead><tbody>
