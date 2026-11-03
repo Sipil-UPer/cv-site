@@ -23,7 +23,8 @@
      unggah = {url, ext[], maxMb, accept} dari config.js, atau null.
    ===================================================================== */
 
-import { JENIS_DOKUMEN, infoJenis, buktiButir } from './rencana-bukti.js?v=2026-11-03t';
+import { JENIS_DOKUMEN, infoJenis, buktiButir } from './rencana-bukti.js?v=2026-11-03u';
+import { buangBerkas, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-03u';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g,
   c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -53,7 +54,9 @@ export function htmlPanel(no, k){
         ? `<a href="${esc(x.url)}" target="_blank" rel="noopener nofollow">${esc(x.label)}</a>`
         : `${esc(x.label)} <span class="pb-kos">· ${esc(x.ket)}</span>`}
       <span class="pb-ket">${esc(x.ket)}</span>
-      <button type="button" class="kecil" data-pb="lepas" data-id="${esc(x.id)}">Lepas</button></li>`).join('')}</ul>`
+      ${x.sumber === 'url'
+        ? `<button type="button" class="kecil" data-pb="lepas" data-id="${esc(x.id)}" data-url="${esc(x.url)}">Hapus</button>`
+        : `<button type="button" class="kecil" data-pb="lepas" data-id="${esc(x.id)}">Lepas</button>`}</li>`).join('')}</ul>`
       : '<p class="pb-ket">Belum ada bukti tertaut.</p>'}
     ${u ? `<div class="pb-a"><label>Berkas <input type="file" id="pbf-${esc(no)}" accept="${esc(u.accept)}" multiple></label>
       <button type="button" data-pb="unggah" data-no="${esc(no)}">Unggah</button></div>` : ''}
@@ -98,8 +101,16 @@ export function pasangPanel(c){
       if (!/^https?:\/\/\S+$/i.test(url)) return tulis(no, 'buruk', 'Isi tautan https://… yang sah.');
       await simpan(no, { judul: judul || 'Tautan bukti', url });
     },
-    async lepas(no, id){
-      if (!confirm('Lepas bukti ini dari butir? Berkas di Drive dan dokumen di pustaka tidak dihapus.')) return;
+    // Berkas yang diunggah di butir: dibuang ke Sampah Drive lalu
+    // catatannya dihapus (pemilik 2026-11-03). Tautan pustaka: dilepas saja.
+    async lepas(no, b){
+      const id = +b.dataset.id, url = b.dataset.url;
+      if (!confirm(url ? 'Hapus bukti ini? ' + PESAN_SAMPAH
+                       : 'Lepas bukti ini dari butir? Dokumen di pustaka tidak dihapus.')) return;
+      if (url) {
+        try { await buangBerkas(c.sb, url); }
+        catch (err) { alert('Gagal membuang berkas: ' + (err.message || err)); return; }
+      }
       const { error } = await c.sb.from('butir_bukti').delete().eq('id', id);
       if (error) { alert('Gagal: ' + error.message); return; }
       await selesai();
@@ -158,6 +169,6 @@ export function pasangPanel(c){
     if (!b) return;
     const no = b.dataset.no || (b.closest('.pb') || { id: '' }).id.replace(/^pb-/, '');
     const f = aksi[b.dataset.pb];
-    if (f) f(no, b.dataset.pb === 'lepas' ? +b.dataset.id : b);
+    if (f) f(no, b);
   });
 }

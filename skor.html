@@ -371,14 +371,14 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { BUTIR, isiPetaBukti, cariBukti, daftarBukti, kolomBukti } from './rincian.js?v=2026-11-03t';
+import { BUTIR, isiPetaBukti, cariBukti, daftarBukti, kolomBukti } from './rincian.js?v=2026-11-03u';
 import { BUTIR_MANUAL, SEKSI_MANUAL, kunciButir, kunciBuktiButir, skorManual }
-  from './butir-manual.js?v=2026-11-03t';
-import { BOBOT_TOTAL, bobotButir } from './bobot.js?v=2026-11-03t';
-import { htmlRencana, buktiButir } from './rencana-bukti.js?v=2026-11-03t';
-import { htmlPanel, pasangPanel } from './panel-bukti.js?v=2026-11-03t';
+  from './butir-manual.js?v=2026-11-03u';
+import { BOBOT_TOTAL, bobotButir } from './bobot.js?v=2026-11-03u';
+import { htmlRencana, buktiButir } from './rencana-bukti.js?v=2026-11-03u';
+import { htmlPanel, pasangPanel } from './panel-bukti.js?v=2026-11-03u';
 import { statusSyarat, syaratButir, SYARAT_UNGGUL, SYARAT_RERATA, SASARAN,
-         statusRerata, gabungSyarat, statusRentang } from './syarat-unggul.js?v=2026-11-03t';
+         statusRerata, gabungSyarat, statusRentang } from './syarat-unggul.js?v=2026-11-03u';
 
 // config.js mendefinisikan window.SB_URL dan window.SB_KEY — pemetaan di
 // bawah ini WAJIB ada. skor.html versi sebelumnya melewatkannya dan mati
@@ -402,7 +402,7 @@ const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 // Naikkan setiap kali skor.html / rincian.js / butir-manual.js / bobot.js
 // diubah. Ditampilkan di kaki halaman supaya ketahuan seketika kalau
 // peramban masih memakai salinan lama dari cache.
-const VERSI = '2026-11-03t';
+const VERSI = '2026-11-03u';
 // Label versi di judul diisi dari VERSI supaya keduanya tidak bisa berbeda.
 { const el = document.querySelector('.versi-statis'); if (el) el.textContent = 'v' + VERSI; }
 // =====================================================================
@@ -491,7 +491,7 @@ async function unduhLED(){
   const asli = a.textContent;
   a.textContent = 'Menyusun draf LED…';
   try {
-    const { buatLED } = await import('./led.js?v=2026-11-03t');
+    const { buatLED } = await import('./led.js?v=2026-11-03u');
     const ts = CTX_LED.tsData;
     const hasil = await buatLED({
       D, ts, taDari, f2, versi: VERSI,

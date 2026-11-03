@@ -138,10 +138,11 @@ addEventListener('error', function (e) {
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 import { BUTIR_MANUAL, SEKSI_MANUAL, kunciButir, kunciBuktiButir, skorManual }
-  from './butir-manual.js?v=2026-11-03t';
-import { BUTIR_DATA } from './butir-data.js?v=2026-11-03t';
-import { htmlRencana, JENIS_DOKUMEN, infoJenis, buktiButir } from './rencana-bukti.js?v=2026-11-03t';
-import { htmlPanel, pasangPanel } from './panel-bukti.js?v=2026-11-03t';
+  from './butir-manual.js?v=2026-11-03u';
+import { BUTIR_DATA } from './butir-data.js?v=2026-11-03u';
+import { htmlRencana, JENIS_DOKUMEN, infoJenis, buktiButir } from './rencana-bukti.js?v=2026-11-03u';
+import { htmlPanel, pasangPanel } from './panel-bukti.js?v=2026-11-03u';
+import { buangBerkas, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-03u';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g,
   c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -493,12 +494,15 @@ function gambarDaftarDokumen(){
       <td>${esc(String(r.diperbarui || '').slice(0, 10))}</td>
       <td><button type="button" class="kecil" data-hapus-dok="${esc(r.id)}">Hapus</button></td>
     </tr>`).join('')}</tbody></table></div>
-    <p class="b-ket">Hapus hanya menghapus catatan di sini; berkasnya tetap di Drive prodi.</p>`;
+    <p class="b-ket">Hapus menghapus catatan di sini dan memindah berkasnya ke Sampah Drive prodi
+      (bisa dipulihkan 30 hari). Butir yang menautkan dokumen ini kehilangan buktinya.</p>`;
 }
 
 async function hapusDokumen(id){
   const r = DOK.find(x => x.id === id);
-  if (!r || !confirm(`Hapus catatan ${infoJenis(r.jenis).nama}${r.judul ? ' "' + r.judul + '"' : ''} ${r.tahun}? Berkas di Drive tidak dihapus.`)) return;
+  if (!r || !confirm(`Hapus ${infoJenis(r.jenis).nama}${r.judul ? ' "' + r.judul + '"' : ''} ${r.tahun}? ${PESAN_SAMPAH}`)) return;
+  try { await buangBerkas(sb, r.url); }
+  catch (err) { alert('Gagal membuang berkas: ' + (err.message || err)); return; }
   const { error } = await sb.from('dokumen').delete().eq('id', id);
   if (error) { alert('Gagal menghapus: ' + error.message); return; }
   await muatDokumen();

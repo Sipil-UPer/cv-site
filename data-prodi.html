@@ -99,6 +99,7 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-03u';
 
 /* =====================================================================
    DATA PRODI — data kuantitatif LKPS diisi admin di situs (keputusan
@@ -487,7 +488,11 @@ async function klikPanel(e){
   const h = e.target.closest('[data-hapus]');
   if (h) {
     const r = BARIS.find(x => x.id === +h.dataset.hapus);
-    if (!r || !confirm(`Hapus baris "${AKTIF.label(r)}"? Berkas bukti di Drive tidak dihapus.`)) return;
+    const urls = buktiBaris(r || {}).map(x => x.url);
+    if (!r || !confirm(`Hapus baris "${AKTIF.label(r)}"?` +
+      (urls.length ? ` ${urls.length} berkas buktinya ikut dihapus. ${PESAN_SAMPAH}` : ''))) return;
+    try { await buangSemua(sb, urls); }
+    catch (err) { return tulis('buruk', 'Gagal membuang berkas bukti: ' + (err.message || err)); }
     const { error } = await sb.from(AKTIF.tabel).delete().eq('id', r.id);
     if (error) return tulis('buruk', 'Gagal menghapus: ' + error.message);
     await sb.from('lkps_bukti').delete().eq('tabel', AKTIF.tabel).eq('baris_id', r.id);
@@ -509,7 +514,9 @@ async function klikPanel(e){
   if (ha) { ANTREAN.splice(+ha.dataset.hapusAntrean, 1); return gambarBukti(); }
   const hb = e.target.closest('[data-hapus-bukti]');
   if (hb) {
-    if (!confirm('Hapus bukti ini dari baris? Berkas di Drive tidak dihapus.')) return;
+    if (!confirm('Hapus bukti ini dari baris? ' + PESAN_SAMPAH)) return;
+    try { await buangBerkas(sb, hb.dataset.url); }
+    catch (err) { return tulis('buruk', 'Gagal membuang berkas: ' + (err.message || err)); }
     const { error } = await sb.from('lkps_bukti').delete().eq('id', +hb.dataset.hapusBukti);
     if (error) return tulis('buruk', 'Gagal: ' + error.message);
     await muatBaris(); gambarBukti();
@@ -529,7 +536,7 @@ function gambarBukti(){
   if (LB_GAGAL) { ul.innerHTML = `<li class="kosong">Tabel lkps_bukti belum bisa dibaca (${esc(LB_GAGAL)}).
     Jalankan supabase/17-patch-lkps-bukti.sql.</li>`; return; }
   const r = SUNTING ? BARIS.find(x => x.id === SUNTING) : null;
-  const xs = r ? buktiBaris(r).map(x => ({ ...x, hapus: x.id ? `data-hapus-bukti="${x.id}"` : '' }))
+  const xs = r ? buktiBaris(r).map(x => ({ ...x, hapus: x.id ? `data-hapus-bukti="${x.id}" data-url="${esc(x.url)}"` : '' }))
                : ANTREAN.map((x, i) => ({ ...x, hapus: `data-hapus-antrean="${i}"` }));
   ul.innerHTML = xs.length ? xs.map(x => `<li><a href="${esc(x.url)}" target="_blank" rel="noopener nofollow">${esc(x.judul)}</a>
     ${x.hapus ? `<button type="button" class="btn bahaya kecil" ${x.hapus}>×</button>` : ''}</li>`).join('')
