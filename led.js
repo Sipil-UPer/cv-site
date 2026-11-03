@@ -1,0 +1,703 @@
+/* =====================================================================
+   DRAF LED — Laporan Evaluasi Diri Program Studi (LAM Teknik)
+   ---------------------------------------------------------------------
+   Mengisi template resmi `led-template.docx` (LEDPS LAM Teknik, instrumen
+   2025 ver. 2, "pasca akreditasi pertama dan unggul") di browser, dari
+   angka yang sudah dihitung halaman skor. Dipanggil dari tombol "Unduh
+   draf LED" di skor.html (keputusan pemilik 2026-11-03: tombol di halaman
+   skor, narasi = kalimat + angka + [isi]).
+
+   Cara kerja: tiap SLOT mencari judul subbagian di template (berurutan,
+   dari atas ke bawah), lalu kalimat petunjuk biru "(… disampaikan oleh
+   pengusul …)" sesudahnya, lalu menyisipkan draf SETELAH petunjuk dan
+   kotak isiannya. Petunjuk resmi LAM tidak dihapus.
+
+   Penandaan di dokumen:
+     sorot kuning        = narasi buatan mesin, harus diperiksa
+     [isi: …] merah      = fakta yang hanya diketahui prodi, wajib diisi
+     tanpa sorot         = tabel, dasar perhitungan, dan tautan bukti yang
+                           diambil langsung dari sistem
+   Peta subbagian LED ke butir: docs/led-peta-butir.md.
+   ===================================================================== */
+
+const NS = {
+  w:  'http://schemas.openxmlformats.org/wordprocessingml/2006/main',
+  r:  'http://schemas.openxmlformats.org/officeDocument/2006/relationships',
+  wp: 'http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing',
+  pr: 'http://schemas.openxmlformats.org/package/2006/relationships',
+};
+const TEMPLATE = 'led-template.docx';
+const LOGO = 'logo-uper.png';
+const JSZIP = 'https://cdn.jsdelivr.net/npm/jszip@3.10.1/+esm';
+// Template: A4 11906 twip, margin kiri 1440, kanan 1106; isi subbagian
+// menjorok ±840. Lebar tabel = 11906 − 1440 − 1106 − 840.
+const INDEN = 840;
+const LEBAR = 8520;
+const LOGO_LEBAR_EMU = 1800000;       // 5 cm
+
+// ---------------------------------------------------------------------
+//  Pembangun XML WordprocessingML (string)
+// ---------------------------------------------------------------------
+const xe = s => String(s ?? '').replace(/[&<>"]/g,
+  c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+function run(t, o = {}){
+  const pr = [
+    o.gaya ? `<w:rStyle w:val="${o.gaya}"/>` : '',
+    o.b ? '<w:b/>' : '', o.i ? '<w:i/>' : '',
+    o.warna ? `<w:color w:val="${o.warna}"/>` : '',
+    o.sz ? `<w:sz w:val="${o.sz}"/><w:szCs w:val="${o.sz}"/>` : '',
+    o.sorot ? `<w:highlight w:val="${o.sorot}"/>` : '',
+  ].join('');
+  return `<w:r>${pr ? `<w:rPr>${pr}</w:rPr>` : ''}<w:t xml:space="preserve">${xe(t)}</w:t></w:r>`;
+}
+
+// Narasi mesin: sorot kuning; potongan [isi: …] merah tebal.
+function auto(t, o = {}){
+  return String(t).split(/(\[isi:[^\]]*\])/).filter(Boolean).map(s =>
+    s.startsWith('[isi:')
+      ? run(s, { ...o, b: true, warna: 'C00000', sorot: 'yellow' })
+      : run(s, { ...o, sorot: 'yellow' })).join('');
+}
+
+function para(isi, o = {}){
+  const kotak = ['top', 'left', 'bottom', 'right'].map(s =>
+    `<w:${s} w:val="dashed" w:sz="4" w:space="4" w:color="808080"/>`).join('');
+  const pr = [
+    o.keep ? '<w:keepNext/>' : '',
+    o.kotak ? `<w:pBdr>${kotak}</w:pBdr><w:shd w:val="clear" w:color="auto" w:fill="${o.kotak}"/>` : '',
+    `<w:spacing w:before="${o.before ?? 60}" w:after="${o.after ?? 120}"/>`,
+    `<w:ind w:left="${o.ind ?? INDEN}"/>`,
+    `<w:jc w:val="${o.jc || 'both'}"/>`,
+  ].join('');
+  return `<w:p><w:pPr>${pr}</w:pPr>${isi}</w:p>`;
+}
+const paraAuto = (t, o) => para(auto(t), o);
+
+function tautan(P, url, label, o = {}){
+  return `<w:hyperlink r:id="${P.link(url)}" w:history="1">${
+    run(label || url, { ...o, gaya: 'Hyperlink' })}</w:hyperlink>`;
+}
+
+const gambar = ket => para(run(`[Gambar: ${ket} — sisipkan gambar di sini]`,
+  { i: true, warna: '7F7F7F' }), { kotak: 'F2F2F2', jc: 'center', before: 120, after: 160 });
+
+// baris: [[sel]], sel = teks | {t, url, span}. o.kepala = jumlah baris kepala.
+function tabel(P, baris, o = {}){
+  const B = baris.map(r => r.map(c => c && typeof c === 'object' ? c : { t: String(c ?? '') }));
+  const n = Math.max(1, ...B.map(r => r.reduce((a, c) => a + (c.span || 1), 0)));
+  // Lebar kolom sebanding panjang teks terpanjang (4–40 karakter).
+  const pj = Array(n).fill(4);
+  B.forEach(r => { let k = 0; r.forEach(c => {
+    if ((c.span || 1) === 1)
+      pj[k] = Math.max(pj[k], Math.min(40, (c.url ? (c.t || 'buka') : c.t || '').length));
+    k += c.span || 1; }); });
+  const tot = pj.reduce((a, b) => a + b, 0);
+  const w = pj.map(x => Math.floor(LEBAR * x / tot));
+  w[n - 1] += LEBAR - w.reduce((a, b) => a + b, 0);
+  const nKepala = o.kepala ?? 1;
+  const garis = ['top', 'left', 'bottom', 'right', 'insideH', 'insideV'].map(s =>
+    `<w:${s} w:val="single" w:sz="4" w:space="0" w:color="808080"/>`).join('');
+  const rows = B.map((r, i) => {
+    const kepala = i < nKepala;
+    let k = 0;
+    const sel = r.map(c => {
+      const sp = c.span || 1;
+      const cw = w.slice(k, k + sp).reduce((a, b) => a + b, 0);
+      k += sp;
+      const isi = c.url ? tautan(P, c.url, c.t || 'buka', { sz: 18 })
+                        : run(c.t, { b: kepala, sz: 18 });
+      return `<w:tc><w:tcPr><w:tcW w:w="${cw}" w:type="dxa"/>${
+        sp > 1 ? `<w:gridSpan w:val="${sp}"/>` : ''}${
+        kepala ? '<w:shd w:val="clear" w:color="auto" w:fill="DCE6F1"/>' : ''}</w:tcPr>` +
+        `<w:p><w:pPr><w:spacing w:before="0" w:after="0"/></w:pPr>${isi}</w:p></w:tc>`;
+    });
+    for (; k < n; k++)
+      sel.push(`<w:tc><w:tcPr><w:tcW w:w="${w[k]}" w:type="dxa"/></w:tcPr><w:p/></w:tc>`);
+    return `<w:tr>${kepala ? '<w:trPr><w:tblHeader/></w:trPr>' : ''}${sel.join('')}</w:tr>`;
+  }).join('');
+  return `<w:tbl><w:tblPr><w:tblW w:w="${LEBAR}" w:type="dxa"/>` +
+    `<w:tblInd w:w="${INDEN}" w:type="dxa"/><w:tblBorders>${garis}</w:tblBorders>` +
+    `<w:tblLayout w:type="fixed"/><w:tblCellMar><w:left w:w="80" w:type="dxa"/>` +
+    `<w:right w:w="80" w:type="dxa"/></w:tblCellMar></w:tblPr>` +
+    `<w:tblGrid>${w.map(x => `<w:gridCol w:w="${x}"/>`).join('')}</w:tblGrid>${rows}</w:tbl>` +
+    para('', { before: 0, after: 60 });
+}
+
+function paraLogo(cx, cy){
+  return `<w:p><w:pPr><w:spacing w:before="0" w:after="240"/><w:jc w:val="center"/></w:pPr>` +
+    `<w:r><w:drawing><wp:inline distT="0" distB="0" distL="0" distR="0">` +
+    `<wp:extent cx="${cx}" cy="${cy}"/><wp:docPr id="9001" name="Logo Universitas Pertamina"/>` +
+    `<wp:cNvGraphicFramePr><a:graphicFrameLocks xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" noChangeAspect="1"/></wp:cNvGraphicFramePr>` +
+    `<a:graphic xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main">` +
+    `<a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture">` +
+    `<pic:pic xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture">` +
+    `<pic:nvPicPr><pic:cNvPr id="0" name="${LOGO}"/><pic:cNvPicPr/></pic:nvPicPr>` +
+    `<pic:blipFill><a:blip r:embed="rIdLedLogo"/><a:stretch><a:fillRect/></a:stretch></pic:blipFill>` +
+    `<pic:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="${cx}" cy="${cy}"/></a:xfrm>` +
+    `<a:prstGeom prst="rect"><a:avLst/></a:prstGeom></pic:spPr></pic:pic>` +
+    `</a:graphicData></a:graphic></wp:inline></w:drawing></w:r></w:p>`;
+}
+
+// ---------------------------------------------------------------------
+//  Isi: kriteria, narasi butir kualitatif, gambar
+// ---------------------------------------------------------------------
+const rentangNo = (a, b) => Array.from({ length: b - a + 1 }, (_, i) => String(a + i));
+const KRITERIA = {
+  C1: { nama: 'Diferensiasi Misi (Visi, Misi, Tujuan, dan Strategi)', butir: rentangNo(1, 3),
+        contoh: 'Statuta, Renstra PT dan UPPS, SK penetapan VMTS, dokumen visi keilmuan program studi' },
+  C2: { nama: 'Akuntabilitas (tata pamong, tata kelola, kerja sama, dan keuangan)', butir: rentangNo(4, 11),
+        contoh: 'Statuta, peraturan organisasi dan tata kerja, pedoman kerja sama, peraturan keuangan' },
+  C3: { nama: 'Relevansi Pendidikan, Penelitian, dan PkM', butir: rentangNo(12, 25),
+        contoh: 'pedoman kurikulum, peraturan akademik, pedoman penelitian dan PkM, peta jalan penelitian dan PkM' },
+  C4: { nama: 'Sumber Daya Manusia', butir: rentangNo(26, 37),
+        contoh: 'peraturan kepegawaian, rencana pengembangan SDM, pedoman beban kerja dosen' },
+  C5: { nama: 'Sarana, Prasarana, dan K3L', butir: rentangNo(38, 39),
+        contoh: 'pedoman pengelolaan sarana prasarana, kebijakan dan SOP K3L, SOP laboratorium' },
+  C6: { nama: 'Mahasiswa dan Luaran Mahasiswa', butir: rentangNo(40, 52),
+        contoh: 'peraturan akademik, pedoman kemahasiswaan, pedoman tracer study' },
+  C7: { nama: 'Sistem Penjaminan Mutu', butir: rentangNo(53, 57),
+        contoh: 'kebijakan SPMI, manual mutu, standar SPMI, pedoman AMI dan RTM' },
+};
+
+// Kerangka narasi butir yang tidak dihitung dari data. Butir berkomponen
+// dua memakai [[komponen I], [komponen II]]. Isinya mengikuti uraian
+// subbagian template LED dan rubrik matriks; fakta prodi selalu [isi: …].
+const NARASI = {
+  '1': P => [
+    `Visi keilmuan ${P.ps} adalah “[isi: rumusan visi keilmuan prodi]”. Visi ini linear dengan visi ${P.pt} “[isi: visi PT]” dan visi UPPS “[isi: nama UPPS dan visinya]”.`,
+    `Kekhasan VMTS terletak pada [isi: bidang kekhasan dan keunggulan kompetitif prodi], yang tertuang dalam Renstra [isi: nomor dan periode Renstra] dan diwujudkan dalam kurikulum melalui [isi: CPL atau mata kuliah yang mencerminkan kekhasan].`,
+    `VMTS ditinjau ulang secara berkala; peninjauan terakhir dilakukan pada [isi: tahun dan forum peninjauan].`],
+  '2': P => [
+    `VMTS disusun melalui [isi: tahapan penyusunan, misalnya lokakarya, rapat, survei] dengan melibatkan pemangku kepentingan internal (dosen, mahasiswa, tenaga kependidikan) dan eksternal (alumni, pengguna lulusan, pakar).`,
+    `Keterlibatan tiap pihak dibuktikan dengan [isi: notulen, daftar hadir, SK tim, dan tahun pelaksanaan].`],
+  '3': P => [
+    `VMTS disosialisasikan kepada [isi: sasaran sosialisasi] melalui [isi: media dan kegiatan sosialisasi].`,
+    `Tingkat pemahaman diukur dengan [isi: metode, misalnya survei pemahaman VMTS] pada [isi: tahun], dengan hasil [isi: persentase responden yang memahami].`,
+    `Capaian jangka pendek dan menengah yang telah diraih: [isi: daftar capaian konkret beserta tahunnya].`],
+  '4': P => [[
+    `Struktur organisasi UPPS dan ${P.ps} ditetapkan dengan [isi: nomor SK atau peraturan] dan berpedoman pada Statuta ${P.pt} [isi: nomor statuta].`,
+    `Kebijakan operasional, wewenang, dan tugas tiap organ diatur dalam [isi: dokumen organisasi dan tata kerja atau SOP].`], [
+    `Penerapan Good University Governance tampak pada [isi: bukti kredibilitas, transparansi, akuntabilitas, tanggung jawab, dan keadilan, misalnya laporan kinerja, rapat terbuka, mekanisme pengaduan].`]],
+  '5': P => [[
+    `Komitmen pimpinan UPPS ditunjukkan melalui [isi: kebijakan atau program terkait visi dan tujuan strategis], penegakan integritas dan kode etik [isi: dokumen kode etik], serta pengembangan SDM [isi: program studi lanjut, pelatihan, sertifikasi].`], [
+    `Kemampuan manajerial pimpinan UPPS tampak pada [isi: contoh pengambilan keputusan dan penyelesaian konflik beserta dampaknya bagi organisasi].`]],
+  '7': P => [
+    `Kerja sama yang terlaksana memberikan manfaat bagi ${P.ps} dalam pembelajaran, penelitian, dan PkM, antara lain [isi: contoh manfaat konkret].`,
+    `Kerja sama meningkatkan kinerja tridharma dan fasilitas pendukung, misalnya [isi: contoh].`,
+    `Kepuasan mitra diukur dengan [isi: instrumen survei kepuasan mitra] dengan hasil [isi: ringkasan hasil].`],
+  '8': P => [
+    `Pengelolaan keuangan UPPS mengikuti [isi: peraturan keuangan PT] dengan prinsip akuntabel, transparan, efektif, dan efisien.`,
+    `Anggaran disusun melalui [isi: mekanisme perencanaan anggaran], diaudit oleh [isi: auditor internal atau eksternal dan tahun audit], dan risiko keuangan dikelola dengan [isi: mekanisme].`],
+  '12': P => [
+    `Kurikulum ${P.ps} dievaluasi dan dimutakhirkan secara berkala; pemutakhiran terakhir dilakukan pada [isi: tahun] dan ditetapkan dengan [isi: nomor SK kurikulum].`,
+    `Pemutakhiran melibatkan [isi: pemangku kepentingan internal dan eksternal yang terlibat] dan direviu oleh pakar [isi: nama dan instansi pakar], dengan memperhatikan perkembangan iptek dan kebutuhan pengguna.`],
+  '13': P => [[
+    `Profil lulusan ${P.ps} adalah [isi: daftar profil lulusan], ditetapkan dengan mempertimbangkan visi UPPS, visi keilmuan prodi, kebutuhan pengguna, sumber daya yang dimiliki, serta kepentingan lokal, nasional, dan global.`], [
+    `CPL ${P.ps} berjumlah [isi: jumlah CPL] dan dipetakan ke profil lulusan seperti pada gambar berikut. CPL disusun sesuai kebutuhan pengguna, perkembangan iptek dan industri, serta daya saing global, dan diukur melalui [isi: mekanisme pengukuran CPL, misalnya laporan capaian CPL per semester].`]],
+  '14': P => [[
+    `CPL mencakup konsep rekayasa khas bidang teknik sipil, kemampuan teknis dan adaptasi teknologi baru, komunikasi dan kerja tim, serta etika profesi, sebagaimana tampak pada [isi: nomor CPL untuk tiap aspek].`], [
+    `Pencapaian CPL ditinjau secara rutin [isi: frekuensi] melalui [isi: forum tinjauan] yang melibatkan [isi: pemangku kepentingan internal dan eksternal]; hasil tinjauan terakhir: [isi: ringkasan].`]],
+  '15': P => [[
+    `[isi: jumlah] dari [isi: jumlah] mata kuliah memiliki RPS yang memuat 9 komponen, dan RPS dapat diakses mahasiswa melalui [isi: sistem atau tautan].`], [
+    `RPS ditinjau secara berkala [isi: frekuensi dan mekanisme]; tinjauan terakhir pada [isi: semester dan tahun].`]],
+  '16': P => [[
+    `Proses pembelajaran menggunakan metode [isi: metode, misalnya PBL atau studi kasus], media dan sumber belajar [isi: LMS, laboratorium], interaksi dosen dan mahasiswa [isi: bentuk], serta tugas yang meningkatkan daya analisis kritis [isi: contoh].`], [
+    `Pemantauan proses pembelajaran dilakukan [isi: frekuensi] melalui [isi: instrumen, misalnya monitoring kesesuaian materi dengan RPS dan EDOM], dan temuan ditindaklanjuti dengan [isi: contoh tindakan perbaikan].`]],
+  '17': P => [
+    `Hasil penelitian dan PkM DTPS diintegrasikan ke dalam pembelajaran pada [isi: jumlah] mata kuliah (Tabel 3.a.3 LKPS), misalnya [isi: contoh mata kuliah dan topik].`,
+    `Integrasi ini relevan dengan CPL, mendukung keunggulan kompetitif prodi, mengandung kebaruan ilmiah, dan berdampak sosial: [isi: uraian singkat].`],
+  '18': P => [
+    `Pembelajaran dalam bentuk penugasan, praktikum, praktik bengkel, atau praktik lapangan dilaksanakan pada [isi: daftar mata kuliah atau kegiatan]. Rasio jam penugasan dan praktik terhadap jam pembelajaran total disajikan pada tabel berikut.`],
+  '20': P => [
+    `Capstone design dilaksanakan pada mata kuliah [isi: nama mata kuliah dan SKS] dengan mata kuliah penunjang [isi: daftar mata kuliah] (Tabel 3.a.5 LKPS).`,
+    `Pelaksanaannya diatur dalam [isi: panduan capstone], memiliki CPMK [isi: rumusan CPMK], serta menggunakan standar keteknikan [isi: standar yang dipakai, misalnya SNI] dan batasan realistis. Bukti pelaksanaan: [isi: laporan, poster, atau dokumen].`],
+  '21': P => [[
+    `Suasana akademik dikelola melalui kebijakan [isi: dokumen], program [isi: seminar, kuliah tamu, kelompok studi], dan fasilitas [isi: ruang diskusi, laboratorium], yang dievaluasi secara berkala melalui [isi: mekanisme evaluasi].`], [
+    `Kebebasan akademik, mimbar akademik, dan otonomi keilmuan dilaksanakan melalui kegiatan terjadwal seperti [isi: contoh kegiatan dan jadwalnya].`]],
+  '22': P => [
+    `UPPS memiliki peta jalan penelitian [isi: periode] yang mendukung VMTS UPPS dan visi keilmuan ${P.ps}, dengan tema [isi: tema utama].`,
+    `Peta jalan memayungi tema penelitian dosen dan mahasiswa, dievaluasi secara berkala [isi: mekanisme evaluasi], dan berdampak bagi masyarakat [isi: contoh dampak].`],
+  '24': P => [
+    `UPPS memiliki peta jalan PkM [isi: periode] yang mendukung VMTS UPPS dan visi keilmuan ${P.ps}, dengan tema [isi: tema utama].`,
+    `Peta jalan memayungi tema PkM dosen dan mahasiswa, dievaluasi secara berkala [isi: mekanisme evaluasi], dan berdampak bagi masyarakat [isi: contoh dampak].`],
+  '29': P => [
+    `Tenaga kependidikan pendukung prodi terdiri atas [isi: jumlah laboran, teknisi, dan administrator] dengan kualifikasi [isi: pendidikan dan sertifikat kompetensi] (Tabel 4.b LKPS). Kecukupannya dinilai terhadap [isi: jumlah laboratorium dan beban layanan].`],
+  '30': P => [
+    `Rerata beban kerja DTPS dihitung dari data BKD (Tabel 4.c LKPS) dan disajikan pada tabel berikut. [isi: analisis sebaran beban pendidikan, penelitian, PkM, dan tugas tambahan].`],
+  '38': P => [[
+    `Sarana akademik meliputi [isi: ruang kelas, laboratorium sesuai panduan asosiasi, perpustakaan, media pembelajaran, perangkat lunak] (Tabel 5.a LKPS); kelayakan dan kemudahan aksesnya: [isi: uraian].`], [
+    `Sarana nonakademik meliputi pusat kesehatan, layanan konseling, layanan karier, dan fasilitas ibadah: [isi: uraian, kelayakan, dan kemudahan akses].`]],
+  '39': P => [
+    `Kebijakan dan tata kelola K3L ditetapkan dalam [isi: dokumen], didukung sarana [isi: APAR, jalur evakuasi, P3K, APD laboratorium] (Tabel 5.b dan 5.c LKPS).`,
+    `Pelaksanaan K3L dibuktikan dengan [isi: inspeksi, pelatihan, simulasi] dan ditinjau secara berkala [isi: frekuensi].`],
+  '48': P => [
+    `Tracer study dikoordinasikan oleh [isi: unit tingkat PT], dilaksanakan setiap tahun [isi: periode], memakai kuesioner yang memuat pertanyaan inti tracer study DIKTI, dan menyasar seluruh lulusan TS-2 s.d. TS-1 dengan tingkat respons [isi: persentase].`,
+    `Hasilnya disosialisasikan kepada [isi: sasaran] dan digunakan untuk [isi: contoh perbaikan kurikulum dan pembelajaran].`],
+  '52': P => [
+    `Kepuasan pengguna lulusan diukur pada tujuh aspek (Tabel 6.g.2 LKPS) melalui [isi: instrumen dan jumlah responden]; hasilnya disajikan pada tabel berikut. [isi: aspek terkuat, aspek terlemah, dan tindak lanjutnya].`],
+  '53': P => [[
+    `Unit penjaminan mutu UPPS dibentuk dengan [isi: nomor SK]; auditor bersifat independen [isi: dasar]; audit mutu internal dilaksanakan [isi: tahun atau siklus], dan hasilnya dibahas dalam Rapat Tinjauan Manajemen [isi: tanggal RTM].`], [
+    `Perangkat SPMI terdiri atas kebijakan SPMI, pedoman PPEPP, standar, dan tata cara pendokumentasian [isi: nomor dokumen]. Pengakuan mutu eksternal: [isi: akreditasi, sertifikasi, atau audit eksternal].`]],
+  '54': P => [
+    `IKT ${P.ps} adalah [isi: daftar IKT beserta target], disusun dari tujuan strategis, berdampak dan terukur, menunjukkan daya saing internasional, dan telah diukur pada [isi: tahun] dengan hasil [isi: capaian].`],
+  '55': P => [
+    `Dokumen IKU dan IKT tersedia dalam [isi: dokumen]. Siklus PPEPP terlaksana, misalnya [isi: satu siklus lengkap dari penetapan sampai peningkatan standar]. Bukti efektivitas: [isi: temuan AMI dan tindak lanjutnya].`],
+  '56': P => [
+    `Capaian kinerja diukur dengan [isi: metode]; indikator yang tidak tercapai dianalisis akar masalahnya [isi: contoh], ditinjau rutin dalam [isi: forum], dan hasilnya disebarluaskan melalui [isi: media].`],
+  '57': P => [
+    `Kepuasan pemangku kepentingan (mahasiswa, dosen, tenaga kependidikan, lulusan, pengguna, dan mitra) terhadap layanan manajemen diukur dengan [isi: instrumen dan periode], dengan hasil [isi: ringkasan per kelompok] dan tindak lanjut [isi: uraian].`],
+  '58': P => [[
+    `Lingkungan makro yang memengaruhi pengembangan ${P.ps}: [isi: kebijakan nasional, perkembangan iptek bidang teknik sipil, isu strategis]. Lingkungan mikro: [isi: pesaing, pengguna lulusan, kebutuhan dunia usaha dan industri].`,
+    `Dari analisis ini, alternatif pengembangan yang relevan adalah [isi: uraian].`], [
+    `Rangkuman SWOT seluruh kriteria disajikan di bawah. Posisi UPPS dan prodi berdasarkan analisis SWOT: [isi: kuadran dan alasannya].`]],
+  '59': P => [
+    `Tujuan strategis pengembangan ${P.ps} untuk jangka pendek dan menengah adalah [isi: daftar tujuan strategis], diturunkan dari analisis SWOT, Renstra [isi: nomor dan periode], dan aspirasi pemangku kepentingan.`],
+  '60': P => [
+    `Program pengembangan berkelanjutan disusun dari tujuan strategis dengan memperhatikan alokasi sumber daya, kemampuan pelaksanaan, rencana penjaminan mutu, dan dukungan eksternal: [isi: program, target, indikator, dan tahun].`,
+    `Sebagai bahan, tabel berikut mengurutkan butir menurut tambahan NA terbesar yang mungkin dicapai, yaitu (4 − skor) × bobot, sama dengan bagian "Jalan menuju Unggul" di halaman skor.`],
+};
+
+const GAMBAR = {
+  '2': [0, 'Alur penyusunan VMTS'],
+  '4': [0, 'Struktur organisasi UPPS dan program studi'],
+  '12': [0, 'Alur evaluasi dan pemutakhiran kurikulum'],
+  '13': [1, 'Pemetaan CPL terhadap profil lulusan'],
+  '22': [0, 'Peta jalan penelitian'],
+  '24': [0, 'Peta jalan PkM'],
+  '53': [0, 'Struktur unit penjaminan mutu'],
+  '55': [0, 'Siklus PPEPP'],
+};
+
+// ---------------------------------------------------------------------
+//  Blok per butir dan per kriteria
+// ---------------------------------------------------------------------
+const bersih = s => String(s || '').replace(/\s+/g, ' ').trim();
+
+function tabelDariHtml(t, maks = 40){
+  const rows = [...t.rows].map(tr => [...tr.cells].map(c => ({
+    t: bersih(c.textContent.replace(/kunci:\s*\S+/g, '')), span: c.colSpan || 1 })));
+  const kepala = t.tHead ? t.tHead.rows.length : 0;
+  if (rows.length > kepala + maks){
+    const sisa = rows.length - kepala - maks;
+    rows.splice(kepala + maks);
+    rows.push([{ t: `… ${sisa} baris lagi, lihat halaman skor atau rincian butir`, span: 99 }]);
+  }
+  return { rows, kepala };
+}
+
+function dariKartu(el){
+  if (!el) return { tabel: [], rumus: [], syarat: '' };
+  const luar = x => !x.closest('details.rinci');
+  return {
+    tabel: [...el.querySelectorAll('table')].filter(luar).map(t => tabelDariHtml(t)),
+    rumus: [...el.querySelectorAll('.rumus')].filter(luar).map(x => bersih(x.textContent)).filter(Boolean),
+    syarat: bersih(el.querySelector('.syarat-ket')?.textContent),
+  };
+}
+
+function blokButir(C, P, no, k = 0){
+  const s = C.skorButir[no] || { n: 0, ada: false };
+  const judul = C.judulButir[no] || `Butir ${no}`;
+  const jd = judul.replace(/\s*\((Tabel[^)]*)\)\s*$/, '');
+  const tbl = (judul.match(/\((Tabel[^)]*)\)\s*$/) || [])[1];
+  const nar = NARASI[no] ? NARASI[no](C.P) : null;
+  const dua = Array.isArray(nar?.[0]);
+  const bagian = dua ? nar[k] || [] : (k === 0 ? nar || [] : []);
+  const gb = GAMBAR[no] && GAMBAR[no][0] === k ? gambar(GAMBAR[no][1]) : '';
+  const out = [];
+
+  if (k > 0){
+    out.push(paraAuto(`Butir ${no} komponen II. Skor, data, dan bukti butir ini disajikan pada komponen I di atas.`));
+    bagian.forEach(t => out.push(paraAuto(t)));
+    return out.join('') + gb;
+  }
+
+  out.push(para(
+    run(`Butir ${no} · ${judul}`, { b: true, warna: '1F3864', sorot: 'yellow' }) +
+    run(` — skor ${s.ada ? C.angka(s.n) : 'belum ada'} dari 4,00 · bobot ${C.angka(C.bobotButir(no))}` +
+        (C.manual.has(no) ? ' · penilaian sendiri' : ''), { warna: '595959', sorot: 'yellow' }),
+    { keep: true, before: 120 }));
+  if (dua) out.push(paraAuto('Komponen I.'));
+  if (bagian.length) bagian.forEach(t => out.push(paraAuto(t)));
+  else out.push(paraAuto(s.ada
+    ? `Untuk TS ${C.ta}, butir ${no} (${jd}) memperoleh skor ${C.angka(s.n)} dari 4,00 menurut matriks penilaian APS-AV 2025${tbl ? `, dihitung dari data ${tbl}` : ''}; datanya disajikan pada tabel berikut. [isi: analisis capaian: faktor pendukung dan, bila skor di bawah 4,00, penyebab serta langkah perbaikannya].`
+    : `Data butir ${no} (${jd}) belum tersedia di sistem sehingga skornya belum terhitung. [isi: lengkapi data${tbl ? ` ${tbl}` : ''}, lalu uraikan capaiannya].`));
+
+  const kr = dariKartu(C.kartu(no));
+  kr.tabel.forEach(t => { if (t.rows.length) out.push(tabel(P, t.rows, { kepala: t.kepala })); });
+  kr.rumus.forEach(r => out.push(para(run('Dasar perhitungan: ', { b: true, sz: 18 }) + run(r, { sz: 18 }))));
+  if (kr.syarat) out.push(para(run(kr.syarat, { sz: 18, warna: '595959' })));
+
+  const u = C.buktiButir(no);
+  out.push(para(run('Bukti butir: ', { b: true }) +
+    (u ? tautan(P, u) : auto('[isi: tautan folder bukti butir di Drive prodi]'))));
+  const rk = C.rekapKarya(no);
+  if (rk && rk.n) out.push(para(
+    run(`Bukti karya: ${rk.ada} dari ${rk.n} karya memiliki tautan bukti; daftar lengkap di `) +
+    tautan(P, C.urlRincian(no), `rincian butir ${no}`) + run('.')));
+  return out.join('') + gb;
+}
+
+function nilaiKriteria(C, K){
+  return K.butir.map(no => ({ no, ...(C.skorButir[no] || { n: 0, ada: false }),
+    judul: C.judulButir[no] || '', b: C.bobotButir(no) }));
+}
+const daftarButir = (C, xs) => xs.length
+  ? xs.map(x => `butir ${x.no}${x.ada ? ` (${C.angka(x.n)})` : ''}`).join(', ') : 'tidak ada';
+
+const latar = K => (C, P) => paraAuto(
+  `Kriteria ${K.nama} bertujuan [isi: tujuan kriteria bagi UPPS dan prodi]. [isi: latar belakang dan rasional, dikaitkan dengan VMTS UPPS dan visi keilmuan ${C.P.ps}].`);
+
+const kebijakan = K => (C, P) => paraAuto(
+  `Dokumen formal kebijakan yang diacu: [isi: daftar nomor, judul, dan tahun dokumen]. Dokumen yang lazim untuk kriteria ini: ${K.contoh}.`);
+
+const analisis = K => (C, P) => {
+  const xs = nilaiKriteria(C, K);
+  const kuat = xs.filter(x => x.ada && x.n >= 3.5);
+  const lemah = xs.filter(x => x.ada && x.n < 3);
+  const kosong = xs.filter(x => !x.ada);
+  return paraAuto(`Berdasarkan skor butir kriteria ini pada TS ${C.ta}: capaian tinggi (≥ 3,50) pada ${daftarButir(C, kuat)}; capaian di bawah 3,00 pada ${daftarButir(C, lemah)}; belum dinilai atau belum ada data: ${daftarButir(C, kosong)}.`) +
+    tabel(P, [['Butir', 'Judul', 'Skor', 'Bobot'],
+      ...xs.map(x => [x.no, x.judul, x.ada ? C.angka(x.n) : '—', C.angka(x.b)])]) +
+    paraAuto('Faktor pendukung keberhasilan: [isi: uraian]. Akar masalah butir yang belum optimal: [isi: hasil analisis akar masalah, misalnya diagram tulang ikan].');
+};
+
+const swot = K => (C, P) => {
+  const xs = nilaiKriteria(C, K);
+  const kuat = xs.filter(x => x.ada && x.n >= 3.5);
+  const lemah = xs.filter(x => !x.ada || x.n < 3);
+  return [
+    `Kekuatan: [isi: uraian], antara lain tercermin pada ${daftarButir(C, kuat)}.`,
+    `Kelemahan: [isi: uraian], antara lain tercermin pada ${daftarButir(C, lemah)}.`,
+    'Peluang: [isi: uraian].',
+    'Ancaman: [isi: uraian].',
+    'Strategi perbaikan dan pengembangan (SO, WO, ST, WT): [isi: uraian].',
+  ].map(t => paraAuto(t)).join('');
+};
+
+const namaSyarat = x => x.indikator ? x.label : `butir ${x.no}`;
+function kalimatStatus(C){
+  const st = C.st;
+  const rentang = C.NAmax > C.NA + 0.005
+    ? ` (rentang ${C.angka(C.NA)}–${C.angka(C.NAmax)} karena sebagian butir belum dinilai)` : '';
+  return `Berdasarkan data TS ${C.ta}, perkiraan nilai akreditasi (NA) hasil penilaian sendiri adalah ${C.angka(C.NA)} dari 400${rentang}, dengan perkiraan status ${st.status}${st.durasi ? ` ${st.durasi} tahun` : ''}. Angka ini penilaian sendiri, bukan penilaian asesor.`;
+}
+function kalimatSyarat(C){
+  const gagal = sa => C.semuaSy.filter(x => x[sa + 'ok'] === false).map(namaSyarat);
+  const belum = C.semuaSy.filter(x => ['t', 'u3', 'u5'].some(sa => x[sa + 'ok'] == null)).map(namaSyarat);
+  const kal = (nama, xs) => `${nama}: ${xs.length ? 'belum terpenuhi pada ' + xs.join(', ') : 'tidak ada yang gagal'}.`;
+  return [kal('Syarat perlu Terakreditasi', gagal('t')), kal('Syarat perlu Unggul 3 tahun', gagal('u3')),
+    kal('Syarat perlu Unggul 5 tahun', gagal('u5')),
+    belum.length ? `Belum terhitung: ${[...new Set(belum)].join(', ')}.` : ''].filter(Boolean).join(' ');
+}
+
+const blokRingkasan = (C, P) => [
+  `Laporan Evaluasi Diri ini disusun oleh ${C.P.ps} ${C.P.pt} untuk akreditasi dengan instrumen APS-AV 2025 LAM Teknik. [isi: ringkasan proses penyusunan].`,
+  kalimatStatus(C), kalimatSyarat(C),
+  'Kekuatan utama: [isi: uraian]. Tantangan utama: [isi: uraian]. Rencana pengembangan: [isi: uraian].',
+].map(t => paraAuto(t)).join('');
+
+function blokPrioritas(C, P){
+  const xs = Object.keys(C.skorButir).map(no => {
+    const s = C.skorButir[no]; const n = s.ada ? s.n : 0; const b = C.bobotButir(no);
+    return { no, n, ada: s.ada, b, sisa: (4 - n) * b, judul: C.judulButir[no] || '' };
+  }).sort((p, q) => q.sisa - p.sisa).slice(0, 10);
+  return tabel(P, [['Butir', 'Judul', 'Skor', 'Bobot', 'Tambahan NA maks.'],
+    ...xs.map(x => [x.no, x.judul, x.ada ? C.angka(x.n) : '—', C.angka(x.b), C.angka(x.sisa)])]);
+}
+
+function blokLampiran(C, P){
+  const baris = Object.keys(C.skorButir).sort((a, b) => a - b).map(no => {
+    const u = C.buktiButir(no);
+    const rk = C.rekapKarya(no);
+    return [no, C.judulButir[no] || '',
+      u ? { url: u, t: 'buka bukti butir' } : 'belum ada',
+      rk && rk.n ? { url: C.urlRincian(no), t: `${rk.ada}/${rk.n} karya` } : '—'];
+  });
+  return para(run('Daftar tautan bukti per butir', { b: true }), { keep: true, before: 200 }) +
+    tabel(P, [['Butir', 'Judul', 'Bukti butir', 'Bukti karya'], ...baris]) +
+    para(run('Tautan "bukti karya" membuka halaman rincian di situs prodi (perlu masuk); ' +
+      'tiap karya di sana bertautan ke berkas atau folder buktinya di Drive.', { sz: 18, warna: '595959' }));
+}
+
+// ---------------------------------------------------------------------
+//  Titik sisip, berurutan seperti di template. `cari` = awal teks judul
+//  subbagian; `k` = komponen butir (0 = I, 1 = II); `penanda` mengganti
+//  kalimat petunjuk bila subbagian tidak memilikinya.
+// ---------------------------------------------------------------------
+const B = (cari, no, k = 0) => ({ cari, isi: (C, P) => blokButir(C, P, no, k) });
+const KR = (kode) => {
+  const K = KRITERIA[kode];
+  return [
+    { cari: 'Latar Belakang', isi: latar(K) },
+    { cari: 'Kebijakan', isi: kebijakan(K) },
+  ];
+};
+const AKHIR = kode => [
+  { cari: 'Analisis Faktor Keberhasilan', isi: analisis(KRITERIA[kode]) },
+  { cari: 'Strategi perbaikan dan pengembangan', isi: swot(KRITERIA[kode]) },
+];
+
+const SLOT = [
+  { cari: 'KATA PENGANTAR', isi: () => paraAuto('[isi: kata pengantar dari pimpinan UPPS atau ketua program studi, termasuk ucapan terima kasih kepada tim penyusun dan pemangku kepentingan].') },
+  { cari: 'RINGKASAN EKSEKUTIF', isi: blokRingkasan },
+  { cari: 'BAB I PENDAHULUAN', isi: C => paraAuto(`Bab ini menguraikan [isi: dasar penyusunan LED, tujuan, ruang lingkup, dan sistematika laporan]. Data LED ini mengacu pada TS ${C.ta}, dengan jendela tiga tahun TS-2 s.d. TS (${C.ta2} s.d. ${C.ta}).`) },
+  { cari: 'Struktur Tim Penyusun dan Mekanisme Kerja', isi: C => [
+      `Tim penyusun LED ${C.P.ps} ditetapkan dengan [isi: nomor dan tanggal SK tim] dan melibatkan [isi: unit dan pemangku kepentingan internal dan eksternal].`,
+      'Mekanisme kerja: pengumpulan data dari [isi: sumber data], verifikasi dan validasi oleh [isi: penanggung jawab], pengecekan konsistensi data LED dan LKPS, analisis data, identifikasi akar masalah, dan penetapan strategi pengembangan. Data dosen dan bukti karya dihimpun melalui sistem data dosen prodi, dengan berkas bukti di Google Drive prodi.',
+      'Jadwal kerja tim: [isi: tahapan dan tanggal].'].map(t => paraAuto(t)).join('') + gambar('Struktur tim penyusun LED') },
+  B('Analisis Lingkungan Eksternal dalam Pengembangan', '58', 0),
+  // C.1
+  ...KR('C1'),
+  B('Kekhasan VMTS', '1'), B('Mekanisme Penyusunan VMTS', '2'),
+  B('Tingkat pemahaman dan pencapaian VMTS', '3'),
+  ...AKHIR('C1'),
+  // C.2
+  ...KR('C2'),
+  B('Sistem Tata Pamong', '4', 0), B('Bagian ini menjelaskan perwujudan Good University', '4', 1),
+  B('Komitmen pimpinan dan kemampuan', '5', 0), B('Bagian ini menjelaskan kemampuan manajerial', '5', 1),
+  B('Relevansi kerja sama', '6'), B('Pelaksanaan kerja sama', '7'),
+  B('Pengelolaan Keuangan', '8'), B('Biaya Operasional Pendidikan', '9'),
+  B('Dana Penelitian', '10'), B('Dana PkM', '11'),
+  ...AKHIR('C2'),
+  // C.3
+  ...KR('C3'),
+  B('Pemutakhiran kurikulum', '12'),
+  B('Profil lulusan', '13', 0), B('Kesesuaian CPL dengan profil lulusan', '13', 1),
+  B('Kesesuaian CPL dengan standar kompetensi', '14', 0), B('Proses tinjauan rutin CPL', '14', 1),
+  B('Ketersediaan dan kelengkapan dokumen RPS', '15', 0), B('Proses tinjauan rutin RPS', '15', 1),
+  B('Proses pembelajaran untuk memastikan', '16', 0), B('Proses tinjauan rutin proses pembelajaran', '16', 1),
+  B('Integrasi penelitian dan PkM dalam pembelajaran', '17'),
+  B('Pembelajaran yang dilaksanakan dalam bentuk penugasan', '18'),
+  B('Basic Sciences dan matematika', '19'),
+  B('Proyek Rekayasa Penciri', '20'),
+  B('Pengelolaan suasana akademik', '21', 0), B('Integritas dan kebebasan ilmiah', '21', 1),
+  B('Kesesuaian penelitian dalam mendukung VMTS', '22'),
+  B('Penelitian DTPS yang sesuai dengan Peta jalan', '23'),
+  B('Kesesuaian PkM dalam mendukung VMTS', '24'),
+  B('PkM DTPS yang sesuai dengan Peta jalan', '25'),
+  ...AKHIR('C3'),
+  // C.4
+  ...KR('C4'),
+  B('Kecukupan jumlah dosen tetap yang ditugaskan', '26'),
+  B('Kualifikasi akademik DTPS', '27'), B('Jabatan akademik DTPS', '28'),
+  B('Tenaga Kependidikan', '29'), B('Beban kerja DTPS', '30'),
+  B('Kegiatan Penelitian', '31'), B('Kegiatan PkM', '32'),
+  B('Publikasi ilmiah DTPS', '33'), B('Luaran penelitian dan PkM DTPS', '34'),
+  B('Kinerja DTPS dalam mendukung keunggulan', '35'),
+  B('Karya ilmiah DTPS yang disitasi', '36'),
+  B('Pengakuan / rekognisi atas prestasi', '37'),
+  ...AKHIR('C4'),
+  // C.5
+  ...KR('C5'),
+  B('Sarana dan Prasarana', '38', 0),
+  B('Bagian ini berisi deskripsi kecukupan serta mutu sarana dan prasarana untuk mendukung kegiatan non akademik', '38', 1),
+  B('Keselamatan, Kesehatan Kerja', '39'),
+  ...AKHIR('C5'),
+  // C.6
+  ...KR('C6'),
+  B('Rasio jumlah mahasiswa terhadap jumlah DTPS', '40'), B('Persentase mahasiswa asing', '41'),
+  B('IPK lulusan', '42'), B('Prestasi mahasiswa', '43'), B('Masa studi', '44'),
+  B('Lulusan tepat waktu', '45'), B('Publikasi ilmiah mahasiswa', '46'),
+  B('Luaran penelitian dan PkM yang dihasilkan mahasiswa', '47'),
+  B('Tracer study', '48'), B('Waktu tunggu', '49'), B('Kesesuaian bidang kerja', '50'),
+  B('Tingkat dan ukuran tempat kerja', '51'), B('Tingkat kepuasan pengguna lulusan', '52'),
+  ...AKHIR('C6'),
+  // C.7
+  ...KR('C7'),
+  B('Keberadaan unit penjaminan', '53', 0), B('Ketersediaan Perangkat SPMI', '53', 1),
+  B('Indikator Kinerja Tambahan (IKT)', '54'),
+  B('Keterlaksanaan penjaminan mutu', '55'), B('Evaluasi capaian kinerja', '56'),
+  B('Kepuasan Pemangku kepentingan', '57'),
+  ...AKHIR('C7'),
+  // Bab III, IV, lampiran
+  { cari: 'Analisis SWOT Semua', isi: (C, P) => blokButir(C, P, '58', 1) +
+      Object.values(KRITERIA).map(K => para(run(K.nama, { b: true }), { keep: true }) + swot(K)(C, P)).join('') },
+  B('Tujuan Strategis Pengembangan', '59'),
+  { cari: 'Program Pengembangan Keberlanjutan', isi: (C, P) => blokButir(C, P, '60') + blokPrioritas(C, P) },
+  { cari: 'BAB IV. PENUTUP', isi: C => paraAuto(kalimatStatus(C)) +
+      paraAuto('[isi: kesimpulan akhir: temuan utama, kekuatan, kelemahan yang perlu diperbaiki, serta peluang dan ancaman yang harus dikelola].') },
+  { cari: 'LAMPIRAN', penanda: /dari LKPS/, isi: blokLampiran },
+];
+
+// ---------------------------------------------------------------------
+//  Penelusuran dokumen
+// ---------------------------------------------------------------------
+const norm = s => String(s || '').replace(/\s+/g, ' ').replace(/\s*\/\s*/g, '/').trim()
+  .replace(/^([ivx]+|[a-z]|\d+)\.\s+/i, '').toLowerCase();
+const teks = p => [...p.getElementsByTagNameNS(NS.w, 't')].map(t => t.textContent).join('');
+const adalahP = n => n.namespaceURI === NS.w && n.localName === 'p';
+const gayaP = p => p.getElementsByTagNameNS(NS.w, 'pStyle')[0]?.getAttributeNS(NS.w, 'val') || '';
+const adalahKotak = n => adalahP(n) && !teks(n).trim() &&
+  (n.getElementsByTagNameNS(NS.w, 'drawing').length || n.getElementsByTagNameNS(NS.w, 'pict').length);
+const PETUNJUK = /disampaikan oleh pengusul|diisi oleh pengusul/i;
+
+function cari(mulai, uji, maks = Infinity){
+  for (let n = mulai, i = 0; n && i < maks; n = n.nextElementSibling){
+    if (!adalahP(n) || /^TOC/i.test(gayaP(n))) continue;
+    i++;
+    if (uji(n)) return n;
+  }
+  return null;
+}
+
+function fragmen(doc, xml){
+  const f = new DOMParser().parseFromString(
+    `<x xmlns:w="${NS.w}" xmlns:r="${NS.r}" xmlns:wp="${NS.wp}">${xml}</x>`, 'application/xml');
+  if (f.getElementsByTagName('parsererror').length)
+    throw new Error('XML sisipan tidak sah: ' + f.getElementsByTagName('parsererror')[0].textContent);
+  return [...f.documentElement.childNodes].map(n => doc.importNode(n, true));
+}
+
+function sisipSetelah(doc, ref, xml){
+  for (const n of fragmen(doc, xml)){ ref.parentNode.insertBefore(n, ref.nextSibling); ref = n; }
+  return ref;
+}
+
+// Sorot kuning pada run yang sudah ada (isian sampul dan identitas).
+// Urutan anak w:rPr diatur skema; highlight sebelum u … oMath.
+const SESUDAH_SOROT = ['u', 'effect', 'bdr', 'shd', 'fitText', 'vertAlign', 'rtl', 'cs', 'em',
+                       'lang', 'eastAsianLayout', 'specVanish', 'oMath'];
+function sorotRun(r){
+  const doc = r.ownerDocument;
+  let pr = [...r.children].find(n => n.localName === 'rPr');
+  if (!pr){ pr = doc.createElementNS(NS.w, 'w:rPr'); r.insertBefore(pr, r.firstChild); }
+  if ([...pr.children].some(n => n.localName === 'highlight')) return;
+  const h = doc.createElementNS(NS.w, 'w:highlight');
+  h.setAttributeNS(NS.w, 'w:val', 'yellow');
+  pr.insertBefore(h, [...pr.children].find(n => SESUDAH_SOROT.includes(n.localName)) || null);
+}
+
+function gantiTeksParagraf(p, isi){
+  const ts = [...p.getElementsByTagNameNS(NS.w, 't')];
+  if (!ts.length) return;
+  ts.forEach((t, i) => { t.textContent = i ? '' : isi; });
+  sorotRun(ts[0].parentNode);
+}
+
+function isiSampul(doc, C){
+  const semua = [...doc.getElementsByTagNameNS(NS.w, 'p')];
+  const prodi = C.D.prodi || '', pt = C.D.institusi || '';
+  for (const p of semua){
+    const n = norm(teks(p));
+    if (prodi && n === 'program dan nama program studi')
+      gantiTeksParagraf(p, `PROGRAM SARJANA ${prodi.toUpperCase()}`);
+    else if (pt && n.startsWith('universitas/institut/'))
+      gantiTeksParagraf(p, pt.toUpperCase());
+    else if (/^tahun \.{3,}/.test(n))
+      gantiTeksParagraf(p, `TAHUN ${new Date().getFullYear()}`);
+  }
+  // Identitas pengusul: hanya fakta yang ada di data.json.
+  const isian = [['Perguruan Tinggi', pt], ['Jenis Program', 'Sarjana'], ['Nama Program Studi', prodi]];
+  for (const [label, nilai] of isian){
+    if (!nilai) continue;
+    const p = semua.find(p => teks(p).startsWith(label) && /\.{5,}/.test(teks(p)));
+    const t = p && [...p.getElementsByTagNameNS(NS.w, 't')].find(t => /\.{5,}/.test(t.textContent));
+    if (!t) continue;
+    t.textContent = t.textContent.replace(/\.{5,}/, nilai);
+    sorotRun(t.parentNode);
+  }
+}
+
+function ukuranPng(buf){
+  const dv = new DataView(buf);
+  return { w: dv.getUint32(16), h: dv.getUint32(20) };
+}
+
+// ---------------------------------------------------------------------
+//  Utama
+// ---------------------------------------------------------------------
+export async function buatLED(C, opsi = {}){
+  const { default: JSZip } = await import(JSZIP);
+  const [tR, lR] = await Promise.all([fetch(TEMPLATE), fetch(LOGO)]);
+  if (!tR.ok) throw new Error(`${TEMPLATE} tidak terbaca (HTTP ${tR.status})`);
+  const zip = await JSZip.loadAsync(await tR.arrayBuffer());
+  const doc = new DOMParser().parseFromString(
+    await zip.file('word/document.xml').async('string'), 'application/xml');
+  const relsPath = 'word/_rels/document.xml.rels';
+  const rels = new DOMParser().parseFromString(await zip.file(relsPath).async('string'), 'application/xml');
+  if (doc.getElementsByTagName('parsererror').length || rels.getElementsByTagName('parsererror').length)
+    throw new Error('Template LED tidak bisa dibaca sebagai XML.');
+
+  C = { ...C,
+    angka: v => C.f2(v).replace('.', ','),
+    ta: C.taDari(C.ts), ta2: C.taDari(C.ts - 2),
+    P: { ps: `Program Studi ${C.D.prodi || '[isi: nama program studi]'}`,
+         pt: C.D.institusi || '[isi: nama perguruan tinggi]' } };
+  const P = { daftar: [], link(url){ const id = `rIdLed${this.daftar.length + 1}`;
+    this.daftar.push({ id, url }); return id; } };
+  const body = doc.getElementsByTagNameNS(NS.w, 'body')[0];
+
+  isiSampul(doc, C);
+
+  // Logo di sampul menggantikan kotak "Logo Perguruan Tinggi".
+  let logoOk = false;
+  if (lR.ok){
+    const buf = await lR.arrayBuffer();
+    const kotak = [...body.children].find(n => adalahP(n) && teks(n).includes('Logo Perguruan Tinggi'));
+    if (kotak){
+      const { w, h } = ukuranPng(buf);
+      const [baru] = fragmen(doc, paraLogo(LOGO_LEBAR_EMU, Math.round(LOGO_LEBAR_EMU * h / w)));
+      body.replaceChild(baru, kotak);
+      zip.file('word/media/logo_uper_led.png', buf);
+      logoOk = true;
+    }
+  }
+
+  const gagal = [];
+  let kursor = body.firstElementChild;
+  for (const s of SLOT){
+    const kunci = norm(s.cari);
+    const h = cari(kursor, p => norm(teks(p)).startsWith(kunci));
+    if (!h){ gagal.push(s.cari); continue; }
+    let a = cari(h, p => (s.penanda || PETUNJUK).test(teks(p)), 30);
+    if (!a){ gagal.push(`${s.cari} (kalimat petunjuk)`); kursor = h.nextElementSibling; continue; }
+    // Petunjuk yang terpecah dua paragraf ("… Doktor Terapan" lalu
+    // "/ Program Profesi Insinyur).") dilewati sampai habis, lalu kotak isian.
+    while (a.nextElementSibling && adalahP(a.nextElementSibling) &&
+           teks(a.nextElementSibling).trim().startsWith('/')) a = a.nextElementSibling;
+    while (a.nextElementSibling && adalahKotak(a.nextElementSibling)) a = a.nextElementSibling;
+    const xml = s.isi(C, P);
+    kursor = (xml ? sisipSetelah(doc, a, xml) : a).nextElementSibling;
+  }
+
+  // Catatan draf di halaman pertama.
+  const catatan = para(
+    run('DRAF OTOMATIS — hapus paragraf ini sebelum dikirim. ', { b: true, warna: 'C00000' }) +
+    run(`Dibuat ${new Date().toLocaleString('id-ID')} dari halaman skor (versi ${C.versi}), TS ${C.ta}. ` +
+      'Teks bersorot kuning adalah draf yang wajib diperiksa; [isi: …] merah wajib diisi prodi; ' +
+      'tabel, dasar perhitungan, dan tautan bukti diambil langsung dari sistem. ' +
+      'Perbarui daftar isi lewat klik kanan > Update Field.' +
+      (gagal.length ? ` Subbagian yang tidak ditemukan di template dan belum terisi: ${gagal.join('; ')}.` : '') +
+      (logoOk ? '' : ' Logo belum terpasang.'), { sz: 18 }),
+    { kotak: 'FDE9E7', ind: 0 });
+  for (const n of fragmen(doc, catatan).reverse()) body.insertBefore(n, body.firstChild);
+
+  // Relasi: tautan luar dan logo.
+  const akar = rels.documentElement;
+  const tambahRel = (id, type, target, luar) => {
+    const e = rels.createElementNS(NS.pr, 'Relationship');
+    e.setAttribute('Id', id); e.setAttribute('Type', type); e.setAttribute('Target', target);
+    if (luar) e.setAttribute('TargetMode', 'External');
+    akar.appendChild(e);
+  };
+  const RT = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/';
+  P.daftar.forEach(x => tambahRel(x.id, RT + 'hyperlink', x.url, true));
+  if (logoOk) tambahRel('rIdLedLogo', RT + 'image', 'media/logo_uper_led.png', false);
+
+  const ser = new XMLSerializer();
+  zip.file('word/document.xml', ser.serializeToString(doc));
+  zip.file(relsPath, ser.serializeToString(rels));
+  const blob = await zip.generateAsync({ type: 'blob', compression: 'DEFLATE',
+    mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
+
+  const tgl = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+  const nama = `LED-draf-${(C.D.prodi || 'prodi').replace(/\s+/g, '-')}-TS${C.ts}-${tgl}.docx`;
+  if (opsi.unduh === false) return { nama, gagal, logoOk, blob };
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = nama;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 10000);
+  return { nama, gagal, logoOk };
+}
