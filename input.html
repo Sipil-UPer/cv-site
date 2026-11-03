@@ -121,6 +121,9 @@
   .rec-m{font-family:var(--mono);font-size:11px;letter-spacing:.05em;color:var(--muted);
          margin-top:3px;display:flex;gap:10px;flex-wrap:wrap}
   .rec-a{display:flex;gap:8px;align-items:flex-start;flex-wrap:wrap}
+  .bukti-saya{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:4px}
+  .bukti-saya a{color:var(--accent);word-break:break-all}
+  .bukti-saya .btn.sm{padding:2px 9px;font-size:11.5px}
   .tag{font-family:var(--mono);font-size:10px;letter-spacing:.09em;text-transform:uppercase;
        padding:2px 7px;border-radius:2px;background:var(--pending-soft);color:var(--pending);
        white-space:nowrap}
@@ -1161,7 +1164,7 @@ const daftarPenulis = kp => (kp||[]).map(p=>{
   return tanda ? `${n} (${tanda})` : n;
 }).filter(Boolean);
 
-function barisKarya(k, aksi=''){
+function barisKarya(k, aksi='', ekstra=''){
   const nama = daftarPenulis(k.karya_penulis);
   const nMhs = (k.karya_mahasiswa||[]).length;
   const mitra = (k.karya_mitra||[]).map(m=>m.institusi).filter(Boolean);
@@ -1176,9 +1179,40 @@ function barisKarya(k, aksi=''){
       <div class="rec-m">${meta.map(x=>`<span>${esc(x)}</span>`).join('')}</div>
       ${nama.length?`<div class="rec-m"><span>${esc(nama.join(' · '))}</span></div>`:''}
       ${k.catatan?`<div class="rec-m"><span>Catatan: ${esc(k.catatan)}</span></div>`:''}
+      ${ekstra}
     </div>
     <div class="rec-a"><span class="tag">${rapi(k.status)}</span>${aksi}</div>
   </div>`;
+}
+
+// Tautan bukti milik dosen, ditampilkan utuh dengan tombol salin supaya
+// bisa langsung ditempel ke SISTER/BKD (permintaan pemilik 2026-11-03).
+function tautanBukti(u){
+  if(!u) return `<div class="rec-m bukti-saya"><span>Bukti: belum ada tautan</span></div>`;
+  return `<div class="rec-m bukti-saya"><span>Bukti:</span>
+    <a href="${esc(u)}" target="_blank" rel="noopener">${esc(u)}</a>
+    <button type="button" class="btn ghost sm" data-salin="${esc(u)}">Salin</button></div>`;
+}
+
+async function salinTeks(t){
+  try { await navigator.clipboard.writeText(t); return true; }
+  catch {
+    const ta = document.createElement('textarea');
+    ta.value = t; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    let ok = false; try { ok = document.execCommand('copy'); } catch {}
+    ta.remove(); return ok;
+  }
+}
+
+function pasangSalin(box){
+  box.querySelectorAll('[data-salin]').forEach(b=>{
+    b.onclick = async()=>{
+      const asli = b.textContent;
+      b.textContent = await salinTeks(b.dataset.salin) ? 'Tersalin' : 'Gagal menyalin';
+      setTimeout(()=>{ b.textContent = asli; }, 1500);
+    };
+  });
 }
 
 async function muatKaryaSaya(wadahId, batas){
@@ -1194,10 +1228,21 @@ async function muatKaryaSaya(wadahId, batas){
   const { data, error } = await q;
   if(error){ box.className='kosong'; box.textContent=error.message; return; }
 
+  const semua = document.getElementById('salin-semua');
+  if(semua){
+    const ada = data.filter(k=>k.bukti_url);
+    semua.hidden = !ada.length;
+    semua.dataset.salin = ada.map(k=>`${k.tahun} — ${k.judul}\n${k.bukti_url}`).join('\n\n');
+    semua.textContent = `Salin semua tautan bukti (${ada.length})`;
+    pasangSalin(semua.parentElement);
+  }
+
   box.className='';
   box.innerHTML = data.map(k => barisKarya(k,
     k.status!=='terverifikasi' && k.dilaporkan_oleh===saya.id
-      ? `<button class="btn danger sm" data-h="${k.id}">Hapus</button>` : '')).join('');
+      ? `<button class="btn danger sm" data-h="${k.id}">Hapus</button>` : '',
+    tautanBukti(k.bukti_url))).join('');
+  pasangSalin(box);
   box.querySelectorAll('[data-h]').forEach(b=>{
     b.onclick = async()=>{
       if(!confirm('Hapus entri ini?')) return;
@@ -1211,7 +1256,10 @@ function karyaSaya(){
   document.getElementById('isi').innerHTML = `<div class="panel">
     <h2>Karya saya</h2>
     <p class="hint">Semua karya yang mencantumkan Anda sebagai penulis.
-    Entri terverifikasi terkunci dan tidak bisa diubah.</p>
+    Entri terverifikasi terkunci dan tidak bisa diubah. Tautan bukti di bawah
+    tiap karya bisa disalin dan ditempel ke SISTER/BKD; tautan folder membuka
+    semua berkas di dalamnya.</p>
+    <p><button type="button" class="btn ghost sm" id="salin-semua" hidden></button></p>
     <div id="dsaya" class="kosong">Memuat…</div></div>`;
   muatKaryaSaya('dsaya', null);
 }
