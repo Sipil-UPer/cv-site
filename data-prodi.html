@@ -47,6 +47,9 @@
   .fld input.salah,.fld select.salah{border-color:var(--merah);background:#FDF3F4}
   .fld.lebar{grid-column:1/-1}
   .unggah-baris{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:5px;font-size:12.5px}
+  .unggah-baris input[type=text],.unggah-baris input[type=url]{flex:1 1 200px;width:auto}
+  ul.bukti-l{margin:2px 0 4px;padding-left:18px;font-size:13px}
+  ul.bukti-l li{margin:2px 0;word-break:break-word}
   .aksi{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:14px}
   button.btn{font:inherit;font-size:13px;padding:7px 14px;border:1px solid var(--biru);
     background:var(--biru);color:#fff;cursor:pointer;border-radius:2px}
@@ -281,6 +284,13 @@ const TABEL = [
 ];
 
 let SAYA = null, DOSEN = [], AKTIF = TABEL[0], BARIS = [], SUNTING = null;
+// Bukti jamak per baris (tabel lkps_bukti, supabase/17-patch-lkps-bukti.sql).
+// LB: baris_id -> [bukti]; ANTREAN: bukti baris BARU yang menunggu disimpan.
+let LB = new Map(), LB_GAGAL = '', ANTREAN = [];
+// Kolom tautan lama (bukti_url / tautan_bukti) tidak lagi diisi di form;
+// isinya tetap tampil sebagai "Bukti (lama)".
+const kolomForm = T => T.kolom.filter(c => c.t !== 'url');
+const kolomLama = T => (T.kolom.find(c => c.t === 'url') || {}).k;
 
 async function mulai(){
   const { data: { session } } = await sb.auth.getSession();
@@ -323,14 +333,23 @@ async function bukaTab(){
   SUNTING = null;
   const T = AKTIF;
   $('panel').innerHTML = `<p class="ket"><b>Butir ${esc(T.butir)}.</b> ${esc(T.ket)}</p>
-    <form id="form" novalidate><div class="grid">${T.kolom.map(isian).join('')}</div>
+    <form id="form" novalidate><div class="grid">${kolomForm(T).map(isian).join('')}
+      <div class="fld lebar"><label>Bukti baris ini (boleh lebih dari satu)</label>
+        <ul class="bukti-l" id="bukti-l"></ul>
+        ${UNGGAH ? `<div class="unggah-baris"><input type="file" id="bk_berkas" accept="${esc(UNGGAH.accept)}" multiple>
+          <button type="button" class="btn ghost kecil" data-unggah="1">Unggah berkas</button></div>` : ''}
+        <div class="unggah-baris"><input type="text" id="bk_judul" placeholder="Judul tautan (mis. Laporan tracer 2025)">
+          <input type="url" id="bk_url" placeholder="https://…">
+          <button type="button" class="btn ghost kecil" data-tautan="1">Tambah tautan</button></div></div></div>
       <div class="aksi"><button type="submit" class="btn" id="simpan">Tambah baris</button>
         <button type="button" class="btn ghost" id="batal" hidden>Batal ubah</button>
         <span class="msg" id="msg"></span></div></form>
     <div class="gulir" id="daftar"><p class="kosong">Memuat…</p></div>`;
   $('form').onsubmit = e => { e.preventDefault(); simpan(); };
   $('batal').onclick = () => isiForm(null);
+  ANTREAN = [];
   await muatBaris();
+  gambarBukti();
 }
 
 function isian(c){
@@ -357,7 +376,7 @@ function isian(c){
 // Baca dan periksa isian; hasil {nilai, galat}. Aturan = batasan SQL patch 16.
 function bacaForm(){
   const nilai = {}, galat = [];
-  for (const c of AKTIF.kolom) {
+  for (const c of kolomForm(AKTIF)) {
     const el = $('f_' + c.k), v = el.value.trim();
     el.classList.remove('salah');
     const salah = p => { galat.push(`${c.l}: ${p}`); el.classList.add('salah'); };
@@ -388,7 +407,8 @@ function bacaForm(){
 
 function isiForm(r){
   SUNTING = r ? r.id : null;
-  AKTIF.kolom.forEach(c => {
+  ANTREAN = [];
+  kolomForm(AKTIF).forEach(c => {
     const el = $('f_' + c.k);
     el.value = r && r[c.k] != null ? String(r[c.k]) : '';
     el.classList.remove('salah');
@@ -397,6 +417,7 @@ function isiForm(r){
   $('batal').hidden = !r;
   tulis('', r ? 'Mengubah baris terpilih.' : '');
   document.querySelectorAll('#daftar tr').forEach(tr => tr.classList.toggle('sunting', !!r && tr.dataset.id === String(r.id)));
+  gambarBukti();
   if (r) $('form').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
@@ -414,15 +435,21 @@ async function muatBaris(){
     return;
   }
   BARIS = data || [];
+  const lb = await sb.from('lkps_bukti').select('id,baris_id,judul,url').eq('tabel', T.tabel).order('id');
+  LB_GAGAL = lb.error ? lb.error.message : '';
+  LB = new Map();
+  (lb.data || []).forEach(x => { if (!LB.has(x.baris_id)) LB.set(x.baris_id, []); LB.get(x.baris_id).push(x); });
   if (!BARIS.length) { box.innerHTML = '<p class="kosong">Belum ada baris.</p>'; return; }
   const tampil = (c, v) => v == null || v === '' ? '—'
     : c.t === 'url' ? `<a href="${esc(v)}" target="_blank" rel="noopener nofollow">buka</a>`
     : c.t === 'bulan' ? esc(BULAN[v - 1] || v)
     : c.t === 'nidn' ? esc((DOSEN.find(d => d.nidn === v) || {}).nama || v)
     : c.t === 'pilihan' ? esc((c.o.find(o => o[0] === v) || [v, v])[1]) : esc(v);
-  box.innerHTML = `<table class="t"><thead><tr>${T.kolom.map(c => `<th>${esc(c.l)}</th>`).join('')}
-      <th>Diperbarui</th><th></th></tr></thead><tbody>${BARIS.map(r => `<tr data-id="${r.id}">
-      ${T.kolom.map(c => `<td>${tampil(c, r[c.k])}</td>`).join('')}
+  box.innerHTML = `<table class="t"><thead><tr>${kolomForm(T).map(c => `<th>${esc(c.l)}</th>`).join('')}
+      <th>Bukti</th><th>Diperbarui</th><th></th></tr></thead><tbody>${BARIS.map(r => `<tr data-id="${r.id}">
+      ${kolomForm(T).map(c => `<td>${tampil(c, r[c.k])}</td>`).join('')}
+      <td>${buktiBaris(r).map(x => `<a href="${esc(x.url)}" target="_blank" rel="noopener nofollow"
+        title="${esc(x.judul)}">${esc(x.judul.length > 24 ? x.judul.slice(0, 22) + '…' : x.judul)}</a>`).join('<br>') || '—'}</td>
       <td>${esc(String(r.diperbarui || '').slice(0, 10))}</td>
       <td><button type="button" class="btn ghost kecil" data-ubah="${r.id}">Ubah</button>
           <button type="button" class="btn bahaya kecil" data-hapus="${r.id}">Hapus</button></td></tr>`).join('')}
@@ -434,15 +461,22 @@ async function simpan(){
   if (galat.length) return tulis('buruk', galat.join(' · '));
   const isi = { ...nilai, oleh: SAYA.email, diperbarui: new Date().toISOString() };
   $('simpan').disabled = true;
-  const q = SUNTING ? sb.from(AKTIF.tabel).update(isi).eq('id', SUNTING) : sb.from(AKTIF.tabel).insert(isi);
-  const { error } = await q;
+  const q = SUNTING ? sb.from(AKTIF.tabel).update(isi).eq('id', SUNTING)
+                    : sb.from(AKTIF.tabel).insert(isi).select('id').single();
+  const { data: hasil, error } = await q;
   $('simpan').disabled = false;
+  let catatan = '';
+  if (!error && !SUNTING && ANTREAN.length) {
+    const { error: eB } = await sb.from('lkps_bukti').insert(ANTREAN.map(b => ({
+      tabel: AKTIF.tabel, baris_id: hasil.id, judul: b.judul, url: b.url, oleh: SAYA.email })));
+    if (eB) catatan = ' Bukti gagal dicatat (' + eB.message + '); ubah baris lalu tambahkan lagi.';
+  }
   if (error) return tulis('buruk', /duplicate|unique/i.test(error.message)
     ? 'Baris dengan kunci yang sama sudah ada (mis. tahun yang sama). Ubah baris itu saja.'
     : 'Gagal menyimpan: ' + error.message);
   const ubah = !!SUNTING;
   isiForm(null);
-  tulis('ok', ubah ? 'Perubahan tersimpan.' : 'Baris ditambahkan.');
+  tulis(catatan ? 'buruk' : 'ok', (ubah ? 'Perubahan tersimpan.' : 'Baris ditambahkan.') + catatan);
   await muatBaris();
 }
 
@@ -455,12 +489,59 @@ async function klikPanel(e){
     if (!r || !confirm(`Hapus baris "${AKTIF.label(r)}"? Berkas bukti di Drive tidak dihapus.`)) return;
     const { error } = await sb.from(AKTIF.tabel).delete().eq('id', r.id);
     if (error) return tulis('buruk', 'Gagal menghapus: ' + error.message);
+    await sb.from('lkps_bukti').delete().eq('tabel', AKTIF.tabel).eq('baris_id', r.id);
     if (SUNTING === r.id) isiForm(null);
     tulis('ok', 'Baris dihapus.');
     return muatBaris();
   }
   const g = e.target.closest('[data-unggah]');
-  if (g) unggah(g.dataset.unggah, g);
+  if (g) return unggah(g);
+  const tl = e.target.closest('[data-tautan]');
+  if (tl) {
+    const url = $('bk_url').value.trim(), judul = $('bk_judul').value.trim();
+    if (!/^https?:\/\/\S+$/i.test(url)) return tulis('buruk', 'Isi tautan bukti https://… yang sah.');
+    await tambahBukti([{ judul: judul || 'Tautan bukti', url }]);
+    $('bk_url').value = ''; $('bk_judul').value = '';
+    return;
+  }
+  const ha = e.target.closest('[data-hapus-antrean]');
+  if (ha) { ANTREAN.splice(+ha.dataset.hapusAntrean, 1); return gambarBukti(); }
+  const hb = e.target.closest('[data-hapus-bukti]');
+  if (hb) {
+    if (!confirm('Hapus bukti ini dari baris? Berkas di Drive tidak dihapus.')) return;
+    const { error } = await sb.from('lkps_bukti').delete().eq('id', +hb.dataset.hapusBukti);
+    if (error) return tulis('buruk', 'Gagal: ' + error.message);
+    await muatBaris(); gambarBukti();
+  }
+}
+
+// Semua bukti satu baris: kolom tautan lama + lkps_bukti.
+function buktiBaris(r){
+  const lama = r[kolomLama(AKTIF)];
+  return [...(lama ? [{ judul: 'Bukti (lama)', url: lama }] : []), ...(LB.get(r.id) || [])];
+}
+
+// Bukti di form: baris yang diubah (tersimpan) atau baris baru (antrean).
+function gambarBukti(){
+  const ul = $('bukti-l');
+  if (!ul) return;
+  if (LB_GAGAL) { ul.innerHTML = `<li class="kosong">Tabel lkps_bukti belum bisa dibaca (${esc(LB_GAGAL)}).
+    Jalankan supabase/17-patch-lkps-bukti.sql.</li>`; return; }
+  const r = SUNTING ? BARIS.find(x => x.id === SUNTING) : null;
+  const xs = r ? buktiBaris(r).map(x => ({ ...x, hapus: x.id ? `data-hapus-bukti="${x.id}"` : '' }))
+               : ANTREAN.map((x, i) => ({ ...x, hapus: `data-hapus-antrean="${i}"` }));
+  ul.innerHTML = xs.length ? xs.map(x => `<li><a href="${esc(x.url)}" target="_blank" rel="noopener nofollow">${esc(x.judul)}</a>
+    ${x.hapus ? `<button type="button" class="btn bahaya kecil" ${x.hapus}>×</button>` : ''}</li>`).join('')
+    : `<li class="kosong">${r ? 'Belum ada bukti.' : 'Belum ada bukti; yang diunggah akan tersimpan bersama baris ini.'}</li>`;
+}
+
+async function tambahBukti(items){
+  if (!SUNTING) { ANTREAN.push(...items); gambarBukti(); return tulis('ok', `${items.length} bukti siap; tersimpan saat baris disimpan.`); }
+  const { error } = await sb.from('lkps_bukti').insert(items.map(b => ({
+    tabel: AKTIF.tabel, baris_id: SUNTING, judul: b.judul, url: b.url, oleh: SAYA.email })));
+  if (error) return tulis('buruk', 'Bukti gagal dicatat: ' + error.message);
+  await muatBaris(); gambarBukti();
+  tulis('ok', `${items.length} bukti ditambahkan.`);
 }
 
 const keB64 = f => new Promise((ok, gagal) => {
@@ -471,29 +552,43 @@ const keB64 = f => new Promise((ok, gagal) => {
 });
 
 // Bukti baris -> Drive data-lkps/dokumen/<tabel>/<tahun>/<label>/ (Apps
-// Script kind 'dokumen', mode 'tambah': tidak mengarsipkan berkas lain).
-async function unggah(k, tombol){
-  const f = ($('f_' + k + '_berkas').files || [])[0];
-  if (!f) return tulis('buruk', 'Pilih berkas bukti dulu.');
-  const e = ((f.name.match(/\.([^.]+)$/) || [])[1] || '').toLowerCase();
-  if (!UNGGAH.ext.includes(e) || (UNGGAH.maxMb && f.size > UNGGAH.maxMb * 1024 * 1024))
-    return tulis('buruk', `Berkas ditolak. Diterima: ${UNGGAH.ext.join(', ')}, maksimal ${UNGGAH.maxMb} MB.`);
-  const { nilai } = bacaForm();
-  const tahun = AKTIF.tahun(nilai) || new Date().getFullYear();
+// Script kind 'dokumen', mode 'tambah'). Beberapa berkas sekaligus; tiap
+// berkas menjadi satu bukti (lkps_bukti).
+async function unggah(tombol){
+  const semua = [...($('bk_berkas').files || [])];
+  if (!semua.length) return tulis('buruk', 'Pilih berkas bukti dulu.');
+  const ditolak = semua.filter(f => {
+    const e = ((f.name.match(/\.([^.]+)$/) || [])[1] || '').toLowerCase();
+    return !UNGGAH.ext.includes(e) || (UNGGAH.maxMb && f.size > UNGGAH.maxMb * 1024 * 1024);
+  });
+  if (ditolak.length) return tulis('buruk', `Ditolak: ${ditolak.map(f => f.name).join(', ')}. ` +
+    `Diterima: ${UNGGAH.ext.join(', ')}, maksimal ${UNGGAH.maxMb} MB.`);
+  const r = SUNTING ? BARIS.find(x => x.id === SUNTING) : bacaForm().nilai;
+  const tahun = AKTIF.tahun(r || {}) || new Date().getFullYear();
   tombol.disabled = true;
-  tulis('', `Mengunggah ${f.name}…`);
+  const items = [], gagal = [];
   try {
     const { data: { session } } = await sb.auth.getSession();
     if (!session) throw new Error('Sesi login habis. Muat ulang halaman.');
-    const res = await fetch(UNGGAH.url, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify({ token: session.access_token, kind: 'dokumen', jenis: AKTIF.tabel,
-        tahun: String(tahun), judul: AKTIF.label(nilai).slice(0, 80), mode: 'tambah',
-        filename: f.name, data: await keB64(f) }) });
-    const out = await res.json();
-    if (!out.ok) throw new Error(out.error || 'Unggah gagal.');
-    $('f_' + k).value = out.url;
-    $('f_' + k + '_berkas').value = '';
-    tulis('ok', 'Berkas terunggah; tautannya terisi. Klik simpan untuk menyimpan baris.');
+    for (let i = 0; i < semua.length; i++) {
+      const f = semua[i];
+      tulis('', `Mengunggah ${i + 1} dari ${semua.length}: ${f.name}…`);
+      try {
+        const res = await fetch(UNGGAH.url, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({ token: session.access_token, kind: 'dokumen', jenis: AKTIF.tabel,
+            tahun: String(tahun), judul: AKTIF.label(r || {}).slice(0, 80), mode: 'tambah',
+            filename: f.name, data: await keB64(f) }) });
+        const out = await res.json();
+        if (!out.ok) throw new Error(out.error || 'Unggah gagal.');
+        items.push({ judul: f.name, url: out.url });
+      } catch (err) {
+        gagal.push(`${f.name}: ${err.message || err}`);
+        if (/Sesi login/.test(err.message || '')) break;
+      }
+    }
+    $('bk_berkas').value = '';
+    if (items.length) await tambahBukti(items);
+    if (gagal.length) tulis('buruk', `${items.length} dari ${semua.length} terunggah. Gagal: ${gagal.join('; ')}`);
   } catch (err) {
     tulis('buruk', err.message || String(err));
   } finally {
