@@ -347,11 +347,11 @@ setTimeout(function(){
 <script src="config.js"></script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { BUTIR, isiPetaBukti, cariBukti, kolomBukti } from './rincian.js';
+import { BUTIR, isiPetaBukti, cariBukti, daftarBukti, kolomBukti } from './rincian.js';
 import { BUTIR_MANUAL, SEKSI_MANUAL, kunciButir, kunciBuktiButir, skorManual }
   from './butir-manual.js';
 import { BOBOT_TOTAL, bobotButir } from './bobot.js';
-import { htmlRencana } from './rencana-bukti.js';
+import { htmlRencana, buktiButir } from './rencana-bukti.js';
 import { statusSyarat, syaratButir, SYARAT_UNGGUL, SYARAT_RERATA, SASARAN,
          statusRerata, gabungSyarat, statusRentang } from './syarat-unggul.js';
 
@@ -377,7 +377,7 @@ const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 // Naikkan setiap kali skor.html / rincian.js / butir-manual.js / bobot.js
 // diubah. Ditampilkan di kaki halaman supaya ketahuan seketika kalau
 // peramban masih memakai salinan lama dari cache.
-const VERSI = '2026-11-03i';
+const VERSI = '2026-11-03j';
 // Label versi di judul diisi dari VERSI supaya keduanya tidak bisa berbeda.
 { const el = document.querySelector('.versi-statis'); if (el) el.textContent = 'v' + VERSI; }
 // =====================================================================
@@ -476,6 +476,7 @@ async function unduhLED(){
       manual: new Set(BUTIR_MANUAL.map(b => b.no)),
       buktiButir: no => ISteks(`bukti_b${no}`),
       dokumen: DOK,
+      butirBukti: BB,
       rekapKarya: no => {
         if (!BUTIR[no]) return null;
         const rows = BUTIR[no].baris(D, ts) || [];
@@ -489,7 +490,7 @@ async function unduhLED(){
         if (!def) return null;
         const kb = kolomBukti(def);
         return (def.baris(D, ts) || []).map(r => ({
-          tahun: r.tahun, judul: r[kb] || r.judul, url: cariBukti(r) }));
+          tahun: r.tahun, judul: r[kb] || r.judul, bukti: daftarBukti(r) }));
       },
       kartu: no => document.getElementById(`butir-${no}`),
     });
@@ -520,6 +521,8 @@ let JENDELA_OFS = (function(){
 })();
 let PENG = {};        // pengaturan skor dari Supabase (di belakang RLS)
 let DOK = [];         // tabel `dokumen` (supabase/13-patch-dokumen.sql); kosong bila belum ada
+let BB = [];          // tabel `butir_bukti` (supabase/14-patch-bukti-jamak.sql)
+const opsiBukti = ts => ({ dokumen: DOK, butirBukti: BB, ts });
 let PENG_GAGAL = false; // true bila tabel pengaturan tak terbaca (patch 09 belum jalan)
 let PER_DOSEN = false; // peran 'admin' atau 'pimpinan' di tabel dosen: rincian kontribusi per dosen
 let DANA = [];        // {tahun, bulan, kategori, besaran_dana} karya terverifikasi          // tahun ujung TS terpilih, mis. 2026
@@ -567,9 +570,9 @@ function rincianButir(no){
   const sel = (r, c) => {
     let v = esc(r[c.kunci] ?? '\u2014');
     if (c.kunci === kb){
-      const u = cariBukti(r);
-      v += u ? ` <a class="bukti-sel" href="${esc(u)}" target="_blank"
-             rel="noopener nofollow">&#128206; Bukti</a>`
+      const xs = daftarBukti(r);
+      v += xs.length ? xs.map(x => ` <a class="bukti-sel" href="${esc(x.url)}" target="_blank"
+             rel="noopener nofollow" title="${esc(x.label)}">&#128206; ${esc(x.label)}</a>`).join('')
              : ` <span class="bukti-kos">tanpa bukti</span>`;
       if (r.doi) v += ` <a class="bukti-sel" href="https://doi.org/${esc(r.doi)}"
              target="_blank" rel="noopener">DOI</a>`;
@@ -680,7 +683,7 @@ function blokBuktiData(no){
 function kartuButir(no, judul, isi, skor, catatan, lencana){
   const pct = skor == null ? 0 : (skor / 4) * 100;
   const sy = statusSyarat(no, skor);
-  isi = isi + blokBuktiData(no) + htmlRencana(no, { dokumen: DOK, ts: TS });
+  isi = isi + blokBuktiData(no) + htmlRencana(no, opsiBukti(TS));
   return `<div class="kartu${sy && sy.tahu && !sy.u5ok ? ' syarat-gagal' : ''}" id="butir-${no}">
     <div class="butir">
     <div>
@@ -1644,7 +1647,10 @@ function bagianRekapBukti(ctx){
   const { skorButir, judulButir, tsData } = ctx;
   const baris = Object.keys(skorButir).map(no => {
     const manual = BUTIR_MANUAL.some(m => m.no === no);
-    const u = ISteks(`bukti_b${no}`);
+    // Bukti butir: tautan folder lama (bukti_b<NN>) dan/atau bukti tertaut
+    // di tabel butir_bukti (sejak 2026-11-03).
+    const tertaut = buktiButir(no, opsiBukti(tsData)).filter(x => x.url).length;
+    const u = ISteks(`bukti_b${no}`) || (tertaut ? `${tertaut} tertaut` : '');
     let karya = null;
     if (BUTIR[no]) {
       const rows = BUTIR[no].baris(D, tsData) || [];
@@ -1675,8 +1681,8 @@ function bagianRekapBukti(ctx){
       ${baris.map(x => `<tr>
         <td><a class="ke-butir" href="#butir-${esc(x.no)}">${esc(x.no)}</a></td><td>${esc(x.judul)}${x.manual ? ' <span class="tchip">kualitatif</span>' : ''}</td>
         <td>${f2(x.bobot)}</td>
-        <td>${x.u ? `<a class="bukti-sel" href="${esc(x.u)}" target="_blank"
-               rel="noopener nofollow">buka &#8599;</a>` : '—'}</td>
+        <td>${!x.u ? '—' : /^https?:/i.test(x.u) ? `<a class="bukti-sel" href="${esc(x.u)}" target="_blank"
+               rel="noopener nofollow">buka &#8599;</a>` : `<a class="ke-butir" href="#butir-${esc(x.no)}">${esc(x.u)}</a>`}</td>
         <td>${x.karya ? (x.karya.n
               ? `<a href="rincian.html?butir=${esc(x.no)}">${x.karya.ada} dari ${x.karya.n} karya</a>`
               : 'tidak ada karya di jendela') : '—'}</td>
@@ -2046,14 +2052,16 @@ async function mulai(){
   PER_DOSEN = ['admin', 'pimpinan'].includes(saya.peran);
 
   document.getElementById('nama-prodi').textContent = 'Memuat data\u2026';
-  const [jsonR, danaR, pengR, buktiR, dokR] = await Promise.all([
+  const [jsonR, danaR, pengR, buktiR, dokR, bbR, kbR] = await Promise.all([
     fetch('data.json?v=' + Date.now()),
-    sb.from('karya').select('tahun,bulan,kategori,besaran_dana,judul,bukti_url')
+    sb.from('karya').select('id,induk_id,tahun,bulan,kategori,besaran_dana,judul,bukti_url')
       .eq('status', 'terverifikasi').in('kategori', ['penelitian', 'pkm']),
     sb.from('pengaturan').select('kunci,nilai'),
-    sb.from('karya').select('tahun,kategori,judul,bukti_url')
+    sb.from('karya').select('id,induk_id,tahun,kategori,judul,bukti_url')
       .eq('status', 'terverifikasi').in('kategori', ['publikasi', 'rekognisi']),
     sb.from('dokumen').select('*'),
+    sb.from('butir_bukti').select('*'),
+    sb.from('karya_bukti').select('karya_id,jenis,judul,url'),
   ]);
   if (!jsonR.ok) throw new Error('data.json ' + jsonR.status);
   D = await jsonR.json();
@@ -2061,10 +2069,13 @@ async function mulai(){
   // Bukti digabung dari dua query karya: penelitian/PkM (ikut query dana)
   // dan publikasi/rekognisi. Keduanya lewat RLS, jadi hanya terbaca oleh
   // pengguna yang sudah login dan terdaftar di tabel `dosen`.
-  isiPetaBukti([...(danaR.data || []), ...(buktiR.data || [])]);
+  isiPetaBukti([...(danaR.data || []), ...(buktiR.data || [])], kbR.data || []);
   (pengR.data || []).forEach(r => PENG[r.kunci] = r.nilai);
   PENG_GAGAL = !!pengR.error;
   DOK = dokR.data || [];
+  BB = bbR.data || [];
+  if (bbR.error || kbR.error) console.warn('Bukti jamak tidak terbaca (patch 14?):',
+    (bbR.error || kbR.error).message);
   if (dokR.error) console.warn('Tabel dokumen tidak terbaca:', dokR.error.message);
 
   document.getElementById('nama-prodi').innerHTML =

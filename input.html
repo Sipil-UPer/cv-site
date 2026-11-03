@@ -122,6 +122,14 @@
          margin-top:3px;display:flex;gap:10px;flex-wrap:wrap}
   .rec-a{display:flex;gap:8px;align-items:flex-start;flex-wrap:wrap}
   .bukti-saya{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:4px}
+  details.kb{margin-top:6px;font-size:13px}
+  details.kb summary{cursor:pointer;color:var(--accent);font-weight:500}
+  details.kb ul{margin:6px 0;padding-left:18px}
+  details.kb li{margin:3px 0;word-break:break-word}
+  details.kb .btn.sm{padding:2px 9px;font-size:11.5px;margin-left:4px}
+  .kb-f{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:6px 0}
+  .kb-f select, .kb-f input[type=text], .kb-f input[type=url]{flex:1 1 180px;padding:5px 7px;font:inherit}
+  .kb-m, .kb-kos{font-size:12px;color:var(--muted)}
   .bukti-saya a{color:var(--accent);word-break:break-all}
   .bukti-saya .btn.sm{padding:2px 9px;font-size:11.5px}
   .tag{font-family:var(--mono);font-size:10px;letter-spacing:.09em;text-transform:uppercase;
@@ -163,6 +171,7 @@ const SUPABASE_URL = window.SB_URL;
 const SUPABASE_ANON_KEY = window.SB_KEY;
 
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+import { JENIS_BUKTI_KARYA, namaJenisBukti } from './rencana-bukti.js';
 
 const app = document.getElementById('app');
 if (!SUPABASE_URL || !SUPABASE_ANON_KEY
@@ -1187,13 +1196,6 @@ function barisKarya(k, aksi='', ekstra=''){
 
 // Tautan bukti milik dosen, ditampilkan utuh dengan tombol salin supaya
 // bisa langsung ditempel ke SISTER/BKD (permintaan pemilik 2026-11-03).
-function tautanBukti(u){
-  if(!u) return `<div class="rec-m bukti-saya"><span>Bukti: belum ada tautan</span></div>`;
-  return `<div class="rec-m bukti-saya"><span>Bukti:</span>
-    <a href="${esc(u)}" target="_blank" rel="noopener">${esc(u)}</a>
-    <button type="button" class="btn ghost sm" data-salin="${esc(u)}">Salin</button></div>`;
-}
-
 async function salinTeks(t){
   try { await navigator.clipboard.writeText(t); return true; }
   catch {
@@ -1215,6 +1217,89 @@ function pasangSalin(box){
   });
 }
 
+// Bukti jamak per karya (tabel karya_bukti, supabase/14-patch-bukti-jamak.sql;
+// keputusan pemilik 2026-11-03). Bukti penelitian/PkM induk (karya.induk_id)
+// ikut tampil pada publikasi/luaran/integrasi turunannya tanpa disalin.
+// Dosen penulis boleh menambah bukti walau karya sudah terverifikasi dan
+// menghapus bukti miliknya sendiri; aturan ditegakkan RLS.
+let KB = new Map(), INDUK = new Map(), KB_GAGAL = '';
+const keB64 = f => new Promise((ok, gagal) => {
+  const r = new FileReader();
+  r.onload = () => ok(String(r.result).split(',')[1] || '');
+  r.onerror = () => gagal(new Error('Berkas tidak bisa dibaca: ' + f.name));
+  r.readAsDataURL(f);
+});
+
+function daftarBuktiKarya(k){
+  const xs = [];
+  if(k.bukti_url) xs.push({ url: k.bukti_url, label: 'Bukti (isian awal)' });
+  (KB.get(k.id) || []).forEach(b => xs.push({ url: b.url, id: b.id, milik: b.oleh === saya.id,
+    label: namaJenisBukti(b.jenis) + (b.judul ? ': ' + b.judul : '') }));
+  const ind = k.induk_id && INDUK.get(k.induk_id);
+  if(ind){
+    const aw = `dari ${ind.kategori === 'pkm' ? 'PkM' : 'penelitian'} "${ind.judul}": `;
+    if(ind.bukti_url) xs.push({ url: ind.bukti_url, label: aw + 'Bukti' });
+    (KB.get(ind.id) || []).forEach(b => xs.push({ url: b.url,
+      label: aw + namaJenisBukti(b.jenis) + (b.judul ? ': ' + b.judul : '') }));
+  }
+  return xs;
+}
+
+function panelBuktiKarya(k){
+  const xs = daftarBuktiKarya(k);
+  const bisaUnggah = !!String(window.UPLOAD_URL || '').trim();
+  const terima = String(window.UPLOAD_EXT || '').split(',').map(s => '.' + s.trim()).join(',');
+  return `<details class="kb"><summary>Bukti (${xs.length})</summary>
+    ${xs.length ? `<ul>${xs.map(x => `<li><a href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.label)}</a>
+        <button type="button" class="btn ghost sm" data-salin="${esc(x.url)}">Salin</button>
+        ${x.milik ? `<button type="button" class="btn ghost sm" data-kb-hapus="${esc(x.id)}">Hapus</button>` : ''}</li>`).join('')}</ul>`
+      : '<p class="kb-kos">Belum ada bukti.</p>'}
+    ${KB_GAGAL ? `<p class="kb-kos">Tambah bukti belum tersedia (${esc(KB_GAGAL)}).</p>` : `<div class="kb-f">
+      <select id="kbj-${esc(k.id)}">${JENIS_BUKTI_KARYA.map(([v, l]) => `<option value="${v}">${esc(l)}</option>`).join('')}</select>
+      <input type="text" id="kbt-${esc(k.id)}" placeholder="Judul (mis. Surat accepted, SK No. ...)">
+      ${bisaUnggah ? `<input type="file" id="kbf-${esc(k.id)}" accept="${esc(terima)}" multiple>` : ''}
+      <input type="url" id="kbu-${esc(k.id)}" placeholder="atau tempel tautan https://...">
+      <button type="button" class="btn sm" data-kb-tambah="${esc(k.id)}">Tambah bukti</button>
+      <span class="kb-m" id="kbm-${esc(k.id)}"></span></div>`}
+  </details>`;
+}
+
+async function tambahBuktiKarya(k, muatUlang){
+  const id = k.id, m = document.getElementById('kbm-' + id);
+  const jenis = document.getElementById('kbj-' + id).value;
+  const judul = document.getElementById('kbt-' + id).value.trim();
+  const url = document.getElementById('kbu-' + id).value.trim();
+  const fEl = document.getElementById('kbf-' + id);
+  const berkas = fEl ? [...fEl.files] : [];
+  const tulis = t => { m.textContent = t; };
+  if(!berkas.length && !url) return tulis('Pilih berkas atau tempel tautan.');
+  if(url && !/^https?:\/\/\S+$/i.test(url)) return tulis('Tautan harus https://...');
+  const baris = [];
+  try{
+    if(berkas.length){
+      const { data: { session } } = await sb.auth.getSession();
+      if(!session) throw new Error('Sesi login habis. Muat ulang halaman.');
+      for(let i = 0; i < berkas.length; i++){
+        const f = berkas[i];
+        tulis(`Mengunggah ${i + 1}/${berkas.length}: ${f.name}...`);
+        // Folder Drive per karya: <tahun>/<nama dosen>/<judul karya>/ (Code.gs kind 'karya').
+        const res = await fetch(window.UPLOAD_URL, { method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({ token: session.access_token, kind: 'karya', year: k.tahun,
+                                 group: k.judul, filename: f.name, data: await keB64(f) }) });
+        const out = await res.json();
+        if(!out.ok) throw new Error(out.error || 'Unggah gagal.');
+        const nama = berkas.length > 1 || !judul ? (judul ? judul + ' — ' : '') + f.name : judul;
+        baris.push({ karya_id: id, jenis, judul: nama, url: out.url });
+      }
+    }
+    if(url) baris.push({ karya_id: id, jenis, judul, url });
+    const { error } = await sb.from('karya_bukti').insert(baris);
+    if(error) throw new Error('Catatan bukti gagal disimpan: ' + error.message);
+    muatUlang();
+  }catch(e){ tulis(e.message || String(e)); }
+}
+
 async function muatKaryaSaya(wadahId, batas){
   const box = document.getElementById(wadahId);
   const { data:milik } = await sb.from('karya_penulis')
@@ -1228,12 +1313,26 @@ async function muatKaryaSaya(wadahId, batas){
   const { data, error } = await q;
   if(error){ box.className='kosong'; box.textContent=error.message; return; }
 
+  // Karya induk (penelitian/PkM asal) dan semua bukti jamak yang relevan.
+  INDUK = new Map(data.map(k => [k.id, k]));
+  const indukIds = [...new Set(data.map(k => k.induk_id).filter(i => i && !INDUK.has(i)))];
+  if(indukIds.length){
+    const { data: ind } = await sb.from('karya').select('id,judul,kategori,bukti_url').in('id', indukIds);
+    (ind || []).forEach(k => INDUK.set(k.id, k));
+  }
+  const { data: kb, error: eKb } = await sb.from('karya_bukti')
+    .select('id,karya_id,jenis,judul,url,oleh').in('karya_id', [...INDUK.keys()]);
+  KB_GAGAL = eKb ? eKb.message : '';
+  KB = new Map();
+  (kb || []).forEach(b => { if(!KB.has(b.karya_id)) KB.set(b.karya_id, []); KB.get(b.karya_id).push(b); });
+
   const semua = document.getElementById('salin-semua');
   if(semua){
-    const ada = data.filter(k=>k.bukti_url);
+    const ada = data.map(k => [k, daftarBuktiKarya(k)]).filter(([, xs]) => xs.length);
     semua.hidden = !ada.length;
-    semua.dataset.salin = ada.map(k=>`${k.tahun} — ${k.judul}\n${k.bukti_url}`).join('\n\n');
-    semua.textContent = `Salin semua tautan bukti (${ada.length})`;
+    semua.dataset.salin = ada.map(([k, xs]) => `${k.tahun} — ${k.judul}\n` +
+      xs.map(x => `${x.label}: ${x.url}`).join('\n')).join('\n\n');
+    semua.textContent = `Salin semua tautan bukti (${ada.length} karya)`;
     pasangSalin(semua.parentElement);
   }
 
@@ -1241,8 +1340,20 @@ async function muatKaryaSaya(wadahId, batas){
   box.innerHTML = data.map(k => barisKarya(k,
     k.status!=='terverifikasi' && k.dilaporkan_oleh===saya.id
       ? `<button class="btn danger sm" data-h="${k.id}">Hapus</button>` : '',
-    tautanBukti(k.bukti_url))).join('');
+    panelBuktiKarya(k))).join('');
   pasangSalin(box);
+  const muatUlang = () => muatKaryaSaya(wadahId, batas);
+  box.querySelectorAll('[data-kb-tambah]').forEach(b => {
+    b.onclick = () => { b.disabled = true;
+      tambahBuktiKarya(data.find(k => k.id === b.dataset.kbTambah), muatUlang).finally(() => b.disabled = false); };
+  });
+  box.querySelectorAll('[data-kb-hapus]').forEach(b => {
+    b.onclick = async () => {
+      if(!confirm('Hapus bukti ini? Berkas di Drive tidak dihapus.')) return;
+      const { error } = await sb.from('karya_bukti').delete().eq('id', +b.dataset.kbHapus);
+      if(error) alert('Gagal: ' + error.message); else muatUlang();
+    };
+  });
   box.querySelectorAll('[data-h]').forEach(b=>{
     b.onclick = async()=>{
       if(!confirm('Hapus entri ini?')) return;

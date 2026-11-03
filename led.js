@@ -20,7 +20,7 @@
    Peta subbagian LED ke butir: docs/led-peta-butir.md.
    ===================================================================== */
 
-import { RENCANA_BUKTI, LKPS_TABEL, kelompokDokumen, butirDokumen } from './rencana-bukti.js';
+import { RENCANA_BUKTI, LKPS_TABEL, kelompokDokumen, buktiButir, saranDokumen } from './rencana-bukti.js';
 
 const NS = {
   w:  'http://schemas.openxmlformats.org/wordprocessingml/2006/main',
@@ -108,7 +108,8 @@ function tabel(P, baris, o = {}){
       const sp = c.span || 1;
       const cw = w.slice(k, k + sp).reduce((a, b) => a + b, 0);
       k += sp;
-      const isi = c.url ? tautan(P, c.url, c.t || 'buka', { sz: 18 })
+      const isi = c.links ? c.links.map(l => tautan(P, l.url, l.t, { sz: 18 })).join(run('; ', { sz: 18 }))
+                : c.url ? tautan(P, c.url, c.t || 'buka', { sz: 18 })
                 : c.auto ? auto(c.t, { sz: 18 })
                 : run(c.t, { b: kepala, sz: 18 });
       return `<w:tc><w:tcPr><w:tcW w:w="${cw}" w:type="dxa"/>${
@@ -349,18 +350,15 @@ function blokButir(C, P, no, k = 0){
     // Dokumen induk terkait lebih dulu (tautan terisi bila sudah diunggah),
     // lalu butir daftar periksa lainnya.
     const tautanSel = u => u ? { url: u, t: 'buka' } : { t: '[isi: tautan]', auto: true };
-    // Jenis tunggal: versi berlaku (tahun terbaru <= TS) + tahun versi lain;
-    // jenis banyak: satu baris per judul.
+    // Bukti tertaut di butir (tabel butir_bukti: pustaka versi berlaku,
+    // entri pustaka, unggahan di butir), lalu saran pustaka yang belum
+    // ditautkan, lalu daftar bukti yang dianjurkan matriks.
+    const opsi = { dokumen: C.dokumen, butirBukti: C.butirBukti, ts: C.ts };
     const baris = [];
-    kelompokDokumen(C.dokumen, no, C.ts).forEach(g => {
-      if (g.tunggal)
-        baris.push([`${g.nama}${g.utama ? ` (${g.utama.tahun})` : ''}${g.lain.length
-          ? `; versi lain: ${g.lain.map(x => x.tahun).join(', ')}` : ''}`,
-          tautanSel(g.utama && g.utama.url)]);
-      else if (g.lain.length)
-        g.lain.forEach(x => baris.push([`${g.nama}: ${x.judul} (${x.tahun})`, tautanSel(x.url)]));
-      else baris.push([g.nama, tautanSel('')]);
-    });
+    buktiButir(no, opsi).forEach(x => baris.push([
+      x.label + (x.lain.length ? `; versi lain: ${x.lain.map(v => v.tahun).join(', ')}` : ''),
+      tautanSel(x.url)]));
+    saranDokumen(no, C.butirBukti).forEach(j => baris.push([`${j.nama} (saran dari pustaka)`, tautanSel('')]));
     rb.bukti.forEach(b => baris.push([b, tautanSel('')]));
     out.push(para(run('Daftar bukti sahih', { b: true }), { keep: true }));
     out.push(tabel(P, [['No', 'Bukti sahih', 'Tautan'],
@@ -458,8 +456,11 @@ function blokLampiran(C, P){
   out.push(tabel(P, [['Butir', 'Judul', 'Skor', 'Bukti butir', 'Bukti karya'],
     ...Object.keys(C.skorButir).sort((a, b) => a - b).map(no => {
       const s = C.skorButir[no], u = C.buktiButir(no), rk = C.rekapKarya(no);
+      const tertaut = buktiButir(no, { dokumen: C.dokumen, butirBukti: C.butirBukti, ts: C.ts })
+        .filter(x => x.url).map(x => ({ url: x.url, t: x.label }));
+      const sel = u ? [{ url: u, t: 'folder butir' }, ...tertaut] : tertaut;
       return [no, C.judulButir[no] || '', s.ada ? C.angka(s.n) : '—',
-        u ? { url: u, t: 'buka folder' } : { t: '[isi: tautan]', auto: true },
+        sel.length ? { links: sel, t: sel.map(l => l.t).join('; ') } : { t: '[isi: tautan]', auto: true },
         rk && rk.n ? `${rk.ada}/${rk.n} karya (Lampiran B)` : '—'];
     })]));
 
@@ -479,7 +480,9 @@ function blokLampiran(C, P){
     }
     out.push(tabel(P, [['Th', 'Karya', 'Bukti'],
       ...baru.map(x => [String(x.tahun ?? ''), x.judul || '',
-        x.url ? { url: x.url, t: 'buka' } : { t: '[isi: tautan]', auto: true }])]));
+        x.bukti && x.bukti.length
+          ? { links: x.bukti.map(b => ({ url: b.url, t: b.label })), t: x.bukti.map(b => b.label).join('; ') }
+          : { t: '[isi: tautan]', auto: true }])]));
     if (baru.length < xs.length)
       out.push(para(run(`${xs.length - baru.length} karya lain butir ini sudah tercantum pada butir sebelumnya.`, { sz: 18 })));
   });
@@ -494,7 +497,9 @@ function blokLampiran(C, P){
     const semua = g.utama ? [g.utama, ...g.lain] : g.lain;
     semua.forEach(r => dok.push([g.nama, String(r.tahun), r.judul || '—',
       g.tunggal ? (r === g.utama ? 'berlaku' : 'versi lain') : '—',
-      butirDokumen(r).join(', '), { url: r.url, t: 'buka' }]));
+      [...new Set((C.butirBukti || []).filter(b => b.dokumen_id === r.id || b.jenis_dokumen === r.jenis)
+        .map(b => b.butir))].sort((a, b) => a - b).join(', ') || '—',
+      { url: r.url, t: 'buka' }]));
   });
   out.push(dok.length
     ? tabel(P, [['Jenis', 'Tahun', 'Judul/nomor', 'Status', 'Butir', 'Tautan'], ...dok])

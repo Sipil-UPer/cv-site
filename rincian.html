@@ -101,7 +101,7 @@
 <script src="config.js"></script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { BUTIR, isiPetaBukti, cariBukti, kolomBukti } from './rincian.js';
+import { BUTIR, isiPetaBukti, cariBukti, daftarBukti, kolomBukti } from './rincian.js';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g,
   c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -138,14 +138,17 @@ async function mulai(){
     return;
   }
 
-  const [jsonR, buktiR] = await Promise.all([
+  const [jsonR, buktiR, kbR] = await Promise.all([
     fetch('data.json?v=' + Date.now()),
-    sb.from('karya').select('tahun,kategori,judul,bukti_url')
+    sb.from('karya').select('id,induk_id,tahun,kategori,judul,bukti_url')
       .eq('status', 'terverifikasi'),
+    sb.from('karya_bukti').select('karya_id,jenis,judul,url'),
   ]);
   if (!jsonR.ok) throw new Error('data.json ' + jsonR.status);
   D = await jsonR.json();
-  isiPetaBukti(buktiR.data || []);
+  // karya_bukti kosong (bukan galat fatal) bila patch 14 belum dijalankan.
+  isiPetaBukti(buktiR.data || [], kbR.data || []);
+  if (kbR.error) console.warn('karya_bukti tidak terbaca:', kbR.error.message);
   if (buktiR.error)
     console.warn('Bukti tidak terbaca:', buktiR.error.message);
 
@@ -196,9 +199,9 @@ function render(saya){
       return `<td class="mhs${r.mhs ? ' ya' : ''}">${r.mhs || '&ndash;'}</td>`;
     let v = esc(r[c.kunci] ?? '\u2014');
     if (c.kunci === kb){
-      const u = cariBukti(r);
-      v += u ? ` <a class="bukti" href="${esc(u)}" target="_blank"
-             rel="noopener nofollow">&#128206; Bukti</a>`
+      const xs = daftarBukti(r);
+      v += xs.length ? xs.map(x => ` <a class="bukti" href="${esc(x.url)}" target="_blank"
+             rel="noopener nofollow" title="${esc(x.label)}">&#128206; ${esc(x.label)}</a>`).join('')
              : ` <span class="bukti-kos">tanpa bukti</span>`;
       if (r.doi) v += ` <a class="bukti" href="https://doi.org/${esc(r.doi)}"
              target="_blank" rel="noopener">DOI</a>`;

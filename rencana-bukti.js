@@ -820,25 +820,70 @@ export function kelompokDokumen(rows, no, ts){
 
 const aTautan = (u, t) => `<a href="${esc(u)}" target="_blank" rel="noopener nofollow">${esc(t)}</a>`;
 
+// Jenis bukti karya (tabel karya_bukti, supabase/14-patch-bukti-jamak.sql).
+export const JENIS_BUKTI_KARYA = [
+  ['naskah', 'Naskah/halaman publikasi'],
+  ['sk', 'SK/kontrak/surat tugas'],
+  ['korespondensi', 'Bukti korespondensi'],
+  ['laporan', 'Laporan'],
+  ['sertifikat', 'Sertifikat/piagam'],
+  ['foto', 'Foto/daftar hadir'],
+  ['lainnya', 'Lainnya'],
+];
+export const namaJenisBukti = id => (JENIS_BUKTI_KARYA.find(j => j[0] === id) || [id, id])[1];
+
+// Bukti satu butir dari tabel butir_bukti (keputusan pemilik 2026-11-03):
+//   jenis_dokumen -> jenis tunggal di pustaka, SELALU versi berlaku (tahun
+//                    terbaru <= ts), versi lain sebagai riwayat;
+//   dokumen_id    -> satu entri dokumen (jenis banyak);
+//   url           -> berkas/tautan yang diunggah langsung di butir.
+// Hasil: [{id, sumber, label, url, lain: [{tahun, url}], ket}].
+export function buktiButir(no, opsi = {}){
+  const dok = opsi.dokumen || [];
+  return (opsi.butirBukti || []).filter(b => String(b.butir) === String(no)).map(b => {
+    if (b.jenis_dokumen) {
+      const j = infoJenis(b.jenis_dokumen);
+      const g = kelompokDokumen(dok.filter(d => d.jenis === b.jenis_dokumen), null, opsi.ts)[0];
+      const u = g && g.utama;
+      return { id: b.id, sumber: 'jenis', label: u ? `${j.nama} (${u.tahun})` : j.nama,
+        url: u ? u.url : '', lain: g ? g.lain.map(x => ({ tahun: x.tahun, url: x.url })) : [],
+        ket: u ? 'pustaka, versi berlaku' : 'belum ada versi dengan tahun ≤ TS di pustaka' };
+    }
+    if (b.dokumen_id) {
+      const d = dok.find(x => x.id === b.dokumen_id);
+      return { id: b.id, sumber: 'dokumen', lain: [], ket: d ? 'pustaka' : 'entri pustaka tidak ditemukan',
+        label: d ? `${infoJenis(d.jenis).nama}: ${d.judul || '—'} (${d.tahun})` : 'Dokumen terhapus',
+        url: d ? d.url : '' };
+    }
+    return { id: b.id, sumber: 'url', label: b.judul || 'Berkas bukti', url: b.url, lain: [], ket: 'diunggah di butir' };
+  });
+}
+
+// Jenis pustaka yang lazim untuk butir ini (JENIS_DOKUMEN.butir) tetapi
+// belum ditautkan — ditampilkan sebagai saran, bukan bukti.
+export function saranDokumen(no, butirBuktiRows){
+  const sudah = new Set((butirBuktiRows || []).filter(b => String(b.butir) === String(no))
+    .map(b => b.jenis_dokumen).filter(Boolean));
+  return JENIS_DOKUMEN.filter(j => j.tunggal && j.butir.includes(String(no)) && !sudah.has(j.id));
+}
+
 // Blok lipat "Bukti yang disiapkan" untuk satu butir; '' bila tidak ada data.
-// opsi.dokumen = baris tabel `dokumen` (bila ada), opsi.ts = TS acuan versi.
+// opsi = {dokumen, butirBukti, ts}: baris tabel dokumen dan butir_bukti
+// (bila ada) dan TS acuan versi.
 export function htmlRencana(no, opsi = {}){
   const r = RENCANA_BUKTI[String(no)];
   if (!r) return '';
-  const grup = kelompokDokumen(opsi.dokumen || [], no, opsi.ts);
-  const daftarDok = !grup.length ? '' : `<p><b>Dokumen:</b></p><ul>${grup.map(g => {
-    if (g.tunggal && g.utama)
-      return `<li>${aTautan(g.utama.url, `${g.nama} (${g.utama.tahun})`)}${g.lain.length
-        ? ` <span class="rb-ket">· versi lain: ${g.lain.map(x => aTautan(x.url, x.tahun)).join(', ')}</span>` : ''}</li>`;
-    if (!g.tunggal && g.lain.length)
-      return `<li>${esc(g.nama)}: ${g.lain.map(x => aTautan(x.url, `${x.judul} (${x.tahun})`)).join('; ')}</li>`;
-    return `<li>${esc(g.nama)} <span class="rb-kos">· belum diunggah${g.lain.length
-      ? ` untuk TS ini (ada: ${g.lain.map(x => x.tahun).join(', ')})` : ''}</span></li>`;
-  }).join('')}</ul>`;
+  const xs = buktiButir(no, opsi);
+  const saran = saranDokumen(no, opsi.butirBukti);
+  const daftarDok = (xs.length ? `<p><b>Bukti tertaut (${xs.length}):</b></p><ul>${xs.map(x =>
+      `<li>${x.url ? aTautan(x.url, x.label) : `${esc(x.label)} <span class="rb-kos">· ${esc(x.ket)}</span>`}${
+        x.lain.length ? ` <span class="rb-ket">· versi lain: ${x.lain.map(v => aTautan(v.url, v.tahun)).join(', ')}</span>` : ''}</li>`
+    ).join('')}</ul>` : `<p class="rb-kos">Belum ada bukti tertaut.</p>`)
+    + (saran.length ? `<p class="rb-ket">Saran dari pustaka dokumen: ${saran.map(j => esc(j.nama)).join('; ')}.</p>` : '');
   return `<details class="rencana-bukti">
-    <summary>Bukti yang disiapkan untuk skor 4 (${r.bukti.length})</summary>
+    <summary>Bukti yang disiapkan untuk skor 4 (${xs.length} tertaut, ${r.bukti.length} dianjurkan)</summary>
     <p><b>Yang dinilai:</b> ${esc(r.skor4).replace(/\n/g, '<br>')}</p>
-    ${daftarDok}<p><b>Bukti lain:</b></p>
+    ${daftarDok}<p><b>Bukti yang dianjurkan:</b></p>
     <ul>${r.bukti.map(b => `<li>${esc(b)}</li>`).join('')}</ul>
     <p class="rb-ket">${r.lkps ? `Tabel LKPS: ${esc(r.lkps)} · ` : ''}Bagian LED: ${esc(r.bagian)} ·
       Sumber: ${esc(r.unit)}<br>Narasi: ${esc(r.narasi)}</p>

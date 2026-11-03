@@ -19,6 +19,8 @@
    bukti), mhs, dana, ket1, ket2.
    ===================================================================== */
 
+import { namaJenisBukti } from './rencana-bukti.js';
+
 const rapi = s => String(s ?? '').replace(/_/g, ' ');
 
 export function jumlahJendela(baris, kunci, n, TS){
@@ -221,29 +223,56 @@ export const BUTIR = {
 
 // Bukti dari Supabase; kosong selama belum login. Kunci kategori|tahun|judul
 // karena judul di data.json dan di tabel karya berasal dari kolom yang sama.
+// Nilai: daftar tautan [{url, label}] — sejak 2026-11-03 satu karya bisa
+// punya banyak bukti (tabel karya_bukti), ditambah bukti karya induknya
+// (karya.induk_id: publikasi/luaran/integrasi yang berasal dari penelitian
+// atau PkM ikut menampilkan bukti penelitian/PkM itu tanpa disalin).
 export const BUKTI = new Map();
 export function kunciBukti(kategori, tahun, judul){
   return `${kategori}|${tahun}|${String(judul || '').trim().toLowerCase()}`;
 }
-export function isiPetaBukti(baris){
+// karya: baris tabel karya (kategori, tahun, judul, bukti_url; id dan
+// induk_id bila ada). buktiKarya: baris tabel karya_bukti.
+export function isiPetaBukti(karya, buktiKarya = []){
   BUKTI.clear();
-  (baris || []).forEach(r => {
+  const perId = new Map((karya || []).filter(r => r.id).map(r => [r.id, r]));
+  const ekstra = new Map();
+  (buktiKarya || []).forEach(b => {
+    if (!ekstra.has(b.karya_id)) ekstra.set(b.karya_id, []);
+    ekstra.get(b.karya_id).push(b);
+  });
+  const milik = (r, awalan) => {
+    const xs = [];
     const u = (r.bukti_url || '').trim();
-    if (!u) return;
+    if (u) xs.push({ url: u, label: awalan + 'Bukti' });
+    (ekstra.get(r.id) || []).forEach(b =>
+      xs.push({ url: b.url, label: awalan + namaJenisBukti(b.jenis) + (b.judul ? ': ' + b.judul : '') }));
+    return xs;
+  };
+  (karya || []).forEach(r => {
+    const xs = milik(r, '');
+    const induk = r.induk_id && perId.get(r.induk_id);
+    if (induk) xs.push(...milik(induk, `dari ${induk.kategori === 'pkm' ? 'PkM' : 'penelitian'}: `));
+    if (!xs.length) return;
     const k = kunciBukti(r.kategori, r.tahun, r.judul);
-    if (BUKTI.has(k) && BUKTI.get(k) !== u)
-      console.warn('Dua karya berbagi kunci bukti yang sama:', k);
-    BUKTI.set(k, u);
+    if (BUKTI.has(k)) console.warn('Dua karya berbagi kunci bukti yang sama:', k);
+    BUKTI.set(k, xs);
   });
 }
-export function cariBukti(baris){
+// Semua tautan bukti satu baris rincian.
+export function daftarBukti(baris){
   // `sumber` dipakai bila baris ini bukan karyanya sendiri — misalnya baris
   // mitra pada butir 6, yang buktinya melekat pada karya induknya.
   const s = baris.sumber;
-  if (s) return BUKTI.get(kunciBukti(s.kategori, s.tahun, s.judul)) || '';
-  if (!baris.kategori) return baris.bukti_cadangan || '';
-  return BUKTI.get(kunciBukti(baris.kategori, baris.tahun, baris.judul))
-         || baris.bukti_cadangan || '';
+  const cad = baris.bukti_cadangan ? [{ url: baris.bukti_cadangan, label: 'Bukti' }] : [];
+  if (s) return BUKTI.get(kunciBukti(s.kategori, s.tahun, s.judul)) || [];
+  if (!baris.kategori) return cad;
+  return BUKTI.get(kunciBukti(baris.kategori, baris.tahun, baris.judul)) || cad;
+}
+// Tautan pertama (kompatibel dengan pemakai lama yang butuh satu tautan).
+export function cariBukti(baris){
+  const xs = daftarBukti(baris);
+  return xs.length ? xs[0].url : '';
 }
 
 // Kolom mana yang membawa tombol bukti. Default kolom `judul`; butir 6
