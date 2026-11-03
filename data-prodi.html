@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Data prodi — Kinerja Program Studi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --biru:#0C2A4D; --biru-2:#17436F; --biru-3:#5C86B0;
+    --merah:#C8102E; --hijau:#00954E; --emas:#B8860B;
+    --bg:#F2F4F2; --panel:#fff; --ink:#14212E; --muted:#5D6B78;
+    --line:#D9DFDA; --line-soft:#EBEEEB;
+    --sans:'IBM Plex Sans',system-ui,sans-serif;
+    --mono:'IBM Plex Mono',ui-monospace,monospace;
+    --serif:'IBM Plex Serif',Georgia,serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
+       font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1100px;margin:0 auto;padding:0 20px 80px}
+  a{color:var(--biru-2)}
+  .hero{background:var(--biru);color:#fff;border-bottom:4px solid var(--merah)}
+  .hero-in{max-width:1100px;margin:0 auto;padding:26px 20px 24px}
+  .balik{display:inline-flex;gap:7px;align-items:center;text-decoration:none;
+    font-family:var(--mono);font-size:11px;letter-spacing:.1em;
+    text-transform:uppercase;color:#9FC2E0;margin:0 18px 16px 0}
+  .balik:hover{color:#fff}
+  h1{font-family:var(--serif);font-size:clamp(21px,3.4vw,28px);font-weight:600;margin:0;color:#fff}
+  .sub{color:#B9CCDE;font-size:14px;margin-top:6px}
+  .info{margin-top:18px;padding:10px 14px;border-left:3px solid var(--emas);
+        background:#FFFBEF;font-size:13.5px}
+  .tabs{display:flex;flex-wrap:wrap;gap:4px;margin-top:18px;border-bottom:2px solid var(--biru)}
+  .tabs button{font:inherit;font-size:13px;padding:7px 12px;border:1px solid var(--line);
+    border-bottom:0;background:#fff;color:var(--biru);cursor:pointer}
+  .tabs button[aria-selected="true"]{background:var(--biru);color:#fff;border-color:var(--biru)}
+  .b{background:var(--panel);border:1px solid var(--line);border-top:0;padding:16px 18px}
+  .ket{font-size:13px;color:var(--muted);margin:0 0 10px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px 14px}
+  .fld label{display:block;font-size:12.5px;margin-bottom:3px}
+  .fld .wj{color:var(--merah)}
+  .fld input,.fld select{width:100%;padding:7px 9px;border:1px solid var(--line);
+    border-radius:2px;font:inherit;font-size:13.5px;background:#fff}
+  .fld input.salah,.fld select.salah{border-color:var(--merah);background:#FDF3F4}
+  .fld.lebar{grid-column:1/-1}
+  .unggah-baris{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:5px;font-size:12.5px}
+  .aksi{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:14px}
+  button.btn{font:inherit;font-size:13px;padding:7px 14px;border:1px solid var(--biru);
+    background:var(--biru);color:#fff;cursor:pointer;border-radius:2px}
+  button.btn.ghost{background:#fff;color:var(--biru)}
+  button.btn.bahaya{background:#fff;color:var(--merah);border-color:var(--merah)}
+  button.btn.kecil{font-size:12px;padding:3px 9px}
+  button:disabled{opacity:.5;cursor:default}
+  .msg{font-size:13px}
+  .msg.ok{color:var(--hijau)} .msg.buruk{color:var(--merah)}
+  .gulir{overflow-x:auto;margin-top:18px}
+  table.t{border-collapse:collapse;font-size:12.5px;min-width:100%}
+  table.t th,table.t td{border-bottom:1px solid var(--line-soft);padding:5px 7px;text-align:left;vertical-align:top;white-space:nowrap}
+  table.t th{font-family:var(--mono);font-size:10px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+  table.t tr.sunting{background:#FFFBEF}
+  .kosong{color:var(--muted);font-size:13.5px;padding:12px 0}
+  .masuk{max-width:420px;margin:40px auto;background:#fff;border:1px solid var(--line);padding:20px}
+  .masuk input{width:100%;padding:8px 10px;margin:8px 0;font:inherit}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-in">
+    <a class="balik" href="skor.html">&larr; Halaman skor</a>
+    <a class="balik" href="input-butir.html">Isian butir &amp; dokumen</a>
+    <h1>Data prodi</h1>
+    <div class="sub" id="hSub">Memuat&hellip;</div>
+  </div>
+</header>
+
+<main class="wrap" id="isi"></main>
+
+<script src="config.js"></script>
+<script>
+// Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
+// halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
+addEventListener('error', function (e) {
+  if (document.getElementById('galat-muat')) return;
+  var d = document.createElement('div');
+  d.id = 'galat-muat';
+  d.style.cssText = 'margin:16px;padding:12px 14px;border:1px solid #C8102E;' +
+    'background:#FBE5E8;color:#14212E;font:14px/1.5 system-ui,sans-serif';
+  d.textContent = 'Halaman gagal dimuat: ' + (e.message || 'galat skrip') +
+    '. Tekan Ctrl+Shift+R untuk memuat ulang tanpa cache; bila tetap muncul, kirim pesan ini ke admin.';
+  document.body.insertBefore(d, document.body.firstChild);
+});
+</script>
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+
+/* =====================================================================
+   DATA PRODI — data kuantitatif LKPS diisi admin di situs (keputusan
+   pemilik 2026-11-03). data-prodi.xlsx hanya untuk data induk (dosen).
+   Tabel lkps_* (supabase/16-patch-data-lkps.sql) memakai kolom yang sama
+   dengan lembar Excel lama; bangun.py membacanya sebagai pengganti lembar,
+   jadi skor berubah setelah bangun berikutnya. Khusus admin (RLS).
+   Satu entri TABEL = satu tab. Jenis isian:
+     tahun | ta (2025/2026) | bulan | int (>= 0) | num (>= 0, opsional maks)
+     teks | pilihan | nidn (daftar dosen) | url (+ unggah bukti)
+   ===================================================================== */
+
+const esc = s => String(s ?? '').replace(/[&<>"']/g,
+  c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const $ = id => document.getElementById(id);
+
+const SB_URL = window.SB_URL || '', SB_KEY = window.SB_KEY || '';
+if (!SB_URL || !SB_KEY || SB_URL.includes('xxxx')) {
+  $('isi').innerHTML = '<p class="kosong">config.js belum diisi.</p>';
+  throw new Error('config.js belum diisi');
+}
+const sb = createClient(SB_URL, SB_KEY);
+const UNGGAH = (() => {
+  const url = String(window.UPLOAD_URL || '').trim();
+  if (!url) return null;
+  const ext = String(window.UPLOAD_EXT || '').toLowerCase().split(',').map(s => s.trim()).filter(Boolean);
+  return { url, ext, maxMb: Number(window.UPLOAD_MAX_MB) || 0, accept: ext.map(x => '.' + x).join(',') };
+})();
+
+const BULAN = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus',
+               'September', 'Oktober', 'November', 'Desember'];
+const TINGKAT_3 = [['internasional', 'Internasional'], ['nasional', 'Nasional'], ['wilayah', 'Wilayah/lokal']];
+
+const TABEL = [
+  { id: 'tracer', tabel: 'lkps_tracer_lulusan', judul: 'Tracer study', butir: '48–51',
+    ket: 'Satu baris per TAHUN LULUS, angka gabungan tanpa nama (Tabel 6.f.1, 6.f.2, 6.g.1). '
+       + 'Butir 49–51 memakai lulusan TS-2 s.d. TS-1; responden minimal 30% lulusan.',
+    label: r => `Tracer lulusan ${r.tahun_lulus || ''}`, tahun: r => r.tahun_lulus,
+    kolom: [
+      { k: 'tahun_lulus', l: 'Tahun lulus', t: 'tahun', wajib: true },
+      { k: 'jumlah_lulusan', l: 'Jumlah lulusan', t: 'int' },
+      { k: 'jumlah_terlacak', l: 'Jumlah terlacak (responden)', t: 'int' },
+      { k: 'rata_rata_waktu_tunggu_bulan', l: 'Rata-rata waktu tunggu (bulan)', t: 'num' },
+      { k: 'bekerja_sesuai_bidang', l: 'Bekerja sesuai bidang (orang)', t: 'int' },
+      { k: 'kerja_internasional', l: 'Tempat kerja multinasional/internasional', t: 'int' },
+      { k: 'kerja_nasional', l: 'Tempat kerja nasional/wirausaha berizin', t: 'int' },
+      { k: 'kerja_wilayah', l: 'Tempat kerja wilayah/lokal', t: 'int' },
+      { k: 'bukti_url', l: 'Bukti (laporan tracer)', t: 'url' },
+    ],
+    cek: r => {
+      if (r.jumlah_terlacak != null && r.jumlah_lulusan != null && r.jumlah_terlacak > r.jumlah_lulusan)
+        return 'Jumlah terlacak melebihi jumlah lulusan.';
+      const kerja = (r.kerja_internasional || 0) + (r.kerja_nasional || 0) + (r.kerja_wilayah || 0);
+      if (r.jumlah_terlacak != null && kerja > r.jumlah_terlacak)
+        return 'Jumlah menurut tingkat tempat kerja melebihi jumlah terlacak.';
+      if (r.bekerja_sesuai_bidang != null && r.jumlah_terlacak != null && r.bekerja_sesuai_bidang > r.jumlah_terlacak)
+        return 'Bekerja sesuai bidang melebihi jumlah terlacak.';
+      return '';
+    } },
+  { id: 'kohort', tabel: 'lkps_kohort_lulusan', judul: 'Kohort lulusan', butir: '44–45',
+    ket: 'Meniru Tabel 6.d LKPS: satu baris per TAHUN MASUK (angkatan), mundur s.d. TS-7. '
+       + 'Masa studi (butir 44) dan lulus tepat waktu (butir 45) dihitung dari sini.',
+    label: r => `Kohort masuk ${r.tahun_masuk || ''}`, tahun: r => r.tahun_masuk,
+    kolom: [
+      { k: 'tahun_masuk', l: 'Tahun masuk', t: 'tahun', wajib: true },
+      { k: 'jumlah_masuk', l: 'Jumlah mahasiswa masuk', t: 'int' },
+      { k: 'lulus_3_5_sd_4_5', l: 'Lulus 3,5 < MS ≤ 4,5 th', t: 'int' },
+      { k: 'lulus_4_5_sd_5_5', l: 'Lulus 4,5 < MS ≤ 5,5 th', t: 'int' },
+      { k: 'lulus_5_5_sd_6_5', l: 'Lulus 5,5 < MS ≤ 6,5 th', t: 'int' },
+      { k: 'lulus_6_5_sd_8', l: 'Lulus 6,5 < MS ≤ 8 th', t: 'int' },
+      { k: 'bukti_url', l: 'Bukti (ekspor SIAKAD)', t: 'url' },
+    ],
+    cek: r => {
+      const lulus = ['lulus_3_5_sd_4_5', 'lulus_4_5_sd_5_5', 'lulus_5_5_sd_6_5', 'lulus_6_5_sd_8']
+        .reduce((a, k) => a + (r[k] || 0), 0);
+      return r.jumlah_masuk != null && lulus > r.jumlah_masuk ? 'Jumlah lulusan melebihi jumlah masuk.' : '';
+    } },
+  { id: 'kerjasama', tabel: 'lkps_kerjasama', judul: 'Kerja sama', butir: '6–7',
+    ket: 'Kerja sama yang TIDAK melekat pada karya dosen: terutama pendidikan (magang/MBKM, praktisi '
+       + 'mengajar, pertukaran) dan MoU penelitian/PkM payung. Jangan mengulang mitra yang sudah tercatat '
+       + 'pada karya (terhitung ganda). Bukti: IA/MoA DAN bukti pelaksanaan (MoU saja bukan bukti realisasi).',
+    label: r => `${r.mitra || 'Kerja sama'}`, tahun: r => r.tahun_mulai,
+    kolom: [
+      { k: 'mitra', l: 'Mitra', t: 'teks', wajib: true },
+      { k: 'jenis', l: 'Jenis', t: 'pilihan', wajib: true,
+        o: [['pendidikan', 'Pendidikan'], ['penelitian', 'Penelitian'], ['pkm', 'PkM']] },
+      { k: 'tingkat', l: 'Tingkat', t: 'pilihan', wajib: true, o: TINGKAT_3 },
+      { k: 'kegiatan', l: 'Kegiatan', t: 'teks', lebar: true },
+      { k: 'tahun_mulai', l: 'Tahun mulai', t: 'tahun', wajib: true },
+      { k: 'tahun_selesai', l: 'Tahun selesai', t: 'tahun' },
+      { k: 'tautan_bukti', l: 'Bukti (IA/MoA + pelaksanaan)', t: 'url' },
+    ],
+    cek: r => r.tahun_selesai != null && r.tahun_selesai < r.tahun_mulai
+      ? 'Tahun selesai lebih awal dari tahun mulai.' : '' },
+  { id: 'mahasiswa', tabel: 'lkps_mahasiswa_ta', judul: 'Mahasiswa per TS', butir: '40–45',
+    ket: 'Satu baris per TAHUN AKADEMIK (TS = 1 Sep s.d. 31 Agu), angka gabungan. Mahasiswa aktif = NM '
+       + '(butir 40, 43, 46); lulusan + rerata IPK = butir 42; mahasiswa asing = butir 41. Masa studi dan '
+       + 'tepat waktu tidak perlu diisi bila tab Kohort lulusan terisi.',
+    label: r => `Mahasiswa TS ${r.tahun_akademik || ''}`,
+    tahun: r => r.tahun_akademik ? +String(r.tahun_akademik).slice(5) : null,
+    kolom: [
+      { k: 'tahun_akademik', l: 'Tahun akademik (mis. 2025/2026)', t: 'ta', wajib: true },
+      { k: 'jumlah_mahasiswa_aktif', l: 'Mahasiswa aktif', t: 'int' },
+      { k: 'jumlah_lulusan', l: 'Jumlah lulusan', t: 'int' },
+      { k: 'rerata_ipk_lulusan', l: 'Rerata IPK lulusan', t: 'num', maks: 4 },
+      { k: 'jumlah_mahasiswa_asing', l: 'Mahasiswa asing', t: 'int' },
+      { k: 'rerata_masa_studi_tahun', l: 'Rerata masa studi (tahun, opsional)', t: 'num', maks: 15 },
+      { k: 'persen_lulus_tepat_waktu', l: 'Lulus tepat waktu (%, opsional)', t: 'num', maks: 100 },
+      { k: 'bukti_url', l: 'Bukti (rekap PDDikti/SIAKAD)', t: 'url' },
+    ],
+    cek: r => r.jumlah_mahasiswa_asing != null && r.jumlah_mahasiswa_aktif != null
+      && r.jumlah_mahasiswa_asing > r.jumlah_mahasiswa_aktif ? 'Mahasiswa asing melebihi mahasiswa aktif.' : '' },
+  { id: 'bkd', tabel: 'lkps_bkd', judul: 'Beban kerja dosen', butir: '30',
+    ket: 'Satu baris per dosen per semester (Tabel 4.c). Tidak pernah dipublikasikan.',
+    label: r => `BKD ${r.nidn || ''} ${r.tahun_akademik || ''} ${r.semester || ''}`,
+    tahun: r => r.tahun_akademik ? +String(r.tahun_akademik).slice(5) : null,
+    kolom: [
+      { k: 'nidn', l: 'Dosen', t: 'nidn', wajib: true },
+      { k: 'tahun_akademik', l: 'Tahun akademik', t: 'ta', wajib: true },
+      { k: 'semester', l: 'Semester', t: 'pilihan', wajib: true, o: [['ganjil', 'Ganjil'], ['genap', 'Genap']] },
+      { k: 'status', l: 'Status', t: 'pilihan',
+        o: [['dtps', 'DTPS'], ['dosen_tetap', 'Dosen tetap'], ['dosen_tidak_tetap', 'Dosen tidak tetap']] },
+      { k: 'jabatan_akademik', l: 'Jabatan akademik', t: 'pilihan',
+        o: [['tenaga_pengajar', 'Tenaga pengajar'], ['asisten_ahli', 'Asisten ahli'], ['lektor', 'Lektor'],
+            ['lektor_kepala', 'Lektor kepala'], ['guru_besar', 'Guru besar']] },
+      { k: 'pendidikan_tertinggi', l: 'Pendidikan tertinggi', t: 'pilihan', o: [['s2', 'S2'], ['s3', 'S3']] },
+      { k: 'sks_pendidikan', l: 'SKS pendidikan', t: 'num' },
+      { k: 'sks_penelitian', l: 'SKS penelitian', t: 'num' },
+      { k: 'sks_pkm', l: 'SKS PkM', t: 'num' },
+      { k: 'sks_penunjang', l: 'SKS penunjang', t: 'num' },
+      { k: 'bukti_url', l: 'Bukti (BKD/SISTER)', t: 'url' },
+    ] },
+  { id: 'prestasi', tabel: 'lkps_prestasi_mahasiswa', judul: 'Prestasi mahasiswa', butir: '43',
+    ket: 'Satu baris per prestasi (Tabel 6.c.1 akademik, 6.c.2 nonakademik), 5 tahun terakhir. '
+       + 'Nama dan NIM tidak dipublikasikan; situs hanya menampilkan jumlah.',
+    label: r => `${r.nama_kegiatan || 'Prestasi'}`, tahun: r => r.tahun,
+    kolom: [
+      { k: 'nama_kegiatan', l: 'Nama kegiatan', t: 'teks', wajib: true, lebar: true },
+      { k: 'nama_mahasiswa', l: 'Nama mahasiswa', t: 'teks' },
+      { k: 'nim', l: 'NIM', t: 'teks' },
+      { k: 'penyelenggara', l: 'Penyelenggara', t: 'teks' },
+      { k: 'bidang', l: 'Bidang', t: 'pilihan', wajib: true, o: [['akademik', 'Akademik'], ['non_akademik', 'Nonakademik']] },
+      { k: 'tingkat', l: 'Tingkat', t: 'pilihan', wajib: true,
+        o: [['internasional', 'Internasional'], ['nasional', 'Nasional'], ['wilayah_lokal', 'Wilayah/lokal']] },
+      { k: 'capaian', l: 'Capaian (mis. Juara 2)', t: 'teks' },
+      { k: 'tahun', l: 'Tahun', t: 'tahun', wajib: true },
+      { k: 'bulan', l: 'Bulan (dianjurkan)', t: 'bulan' },
+      { k: 'nidn_pembimbing', l: 'Dosen pembimbing', t: 'nidn' },
+      { k: 'tautan_bukti', l: 'Bukti (sertifikat/piagam)', t: 'url' },
+    ] },
+  { id: 'publikasi', tabel: 'lkps_publikasi_mahasiswa', judul: 'Publikasi mahasiswa', butir: '46',
+    ket: 'Publikasi MANDIRI mahasiswa tanpa dosen (Tabel 6.e.1). Publikasi bersama dosen sudah masuk lewat '
+       + 'form karya dosen. Indeksasi dipakai butir 46.',
+    label: r => `${r.judul || 'Publikasi'}`, tahun: r => r.tahun,
+    kolom: [
+      { k: 'judul', l: 'Judul', t: 'teks', wajib: true, lebar: true },
+      { k: 'nama_mahasiswa', l: 'Nama mahasiswa', t: 'teks' },
+      { k: 'nim', l: 'NIM', t: 'teks' },
+      { k: 'jenis', l: 'Jenis', t: 'pilihan',
+        o: [['jurnal', 'Jurnal'], ['prosiding', 'Prosiding'], ['buku', 'Buku'], ['lainnya', 'Lainnya']] },
+      { k: 'tingkat', l: 'Tingkat', t: 'pilihan', o: [['internasional', 'Internasional'], ['nasional', 'Nasional'], ['wilayah', 'Wilayah']] },
+      { k: 'indeksasi', l: 'Indeksasi', t: 'pilihan',
+        o: [['scopus', 'Scopus'], ['wos', 'WoS'], ['bereputasi', 'Bereputasi lain'], ['sinta', 'SINTA'], ['tidak_terindeks', 'Tidak terindeks']] },
+      { k: 'tahun', l: 'Tahun', t: 'tahun', wajib: true },
+      { k: 'bulan', l: 'Bulan (dianjurkan)', t: 'bulan' },
+      { k: 'bukti_url', l: 'Bukti (DOI/URL)', t: 'url' },
+    ] },
+  { id: 'luaran', tabel: 'lkps_luaran_mahasiswa', judul: 'Luaran mahasiswa', butir: '47',
+    ket: 'HKI, TTG, produk, dan buku karya mahasiswa (Tabel 6.e.3). Beberapa mahasiswa dipisah titik koma.',
+    label: r => `${r.judul || 'Luaran'}`, tahun: r => r.tahun,
+    kolom: [
+      { k: 'judul', l: 'Judul', t: 'teks', wajib: true, lebar: true },
+      { k: 'jenis', l: 'Jenis', t: 'pilihan', wajib: true,
+        o: [['paten', 'Paten'], ['paten_sederhana', 'Paten sederhana'], ['hak_cipta', 'Hak cipta'],
+            ['desain_industri', 'Desain industri'], ['merek', 'Merek'], ['ttg', 'TTG'], ['produk', 'Produk'],
+            ['buku_isbn', 'Buku ber-ISBN'], ['book_chapter', 'Book chapter']] },
+      { k: 'nama_mahasiswa', l: 'Nama mahasiswa', t: 'teks' },
+      { k: 'nim', l: 'NIM', t: 'teks' },
+      { k: 'tahun', l: 'Tahun', t: 'tahun', wajib: true },
+      { k: 'bulan', l: 'Bulan (dianjurkan)', t: 'bulan' },
+      { k: 'bukti_url', l: 'Bukti (sertifikat/ISBN)', t: 'url' },
+    ] },
+];
+
+let SAYA = null, DOSEN = [], AKTIF = TABEL[0], BARIS = [], SUNTING = null;
+
+async function mulai(){
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) return layarMasuk();
+  const { data: saya } = await sb.from('dosen').select('nama,email,peran')
+    .ilike('email', session.user.email).maybeSingle();
+  if (!saya) { $('hSub').textContent = 'Tidak terdaftar'; $('isi').innerHTML = '<p class="kosong">Email belum terdaftar.</p>'; return; }
+  SAYA = saya;
+  if (saya.peran !== 'admin') {
+    $('hSub').textContent = `Masuk sebagai ${saya.nama}`;
+    $('isi').innerHTML = '<p class="kosong">Halaman ini khusus admin prodi.</p>';
+    return;
+  }
+  $('hSub').textContent = `Masuk sebagai ${saya.nama} (admin)`;
+  const { data: ds } = await sb.from('dosen').select('nidn,nama').order('nama');
+  DOSEN = (ds || []).filter(d => d.nidn);
+  const awal = new URLSearchParams(location.search).get('tab');
+  AKTIF = TABEL.find(t => t.id === awal) || TABEL[0];
+  $('isi').innerHTML = `
+    <div class="info">Data di halaman ini menggantikan lembar Excel kuantitatif. Perubahan tampil di
+      halaman skor setelah <b>bangun berikutnya</b> (bangun-dan-push.bat; kelak otomatis).
+      Lembar <code>dosen</code> tetap di data-prodi.xlsx.</div>
+    <nav class="tabs" id="tabs">${TABEL.map(t =>
+      `<button data-tab="${t.id}" aria-selected="${t === AKTIF}">${esc(t.judul)}</button>`).join('')}</nav>
+    <div class="b" id="panel"></div>`;
+  // Sekali saja: panel tetap ada antar tab, isinya yang diganti.
+  $('panel').addEventListener('click', klikPanel);
+  $('tabs').onclick = e => {
+    const b = e.target.closest('[data-tab]');
+    if (!b) return;
+    AKTIF = TABEL.find(t => t.id === b.dataset.tab);
+    history.replaceState(null, '', '?tab=' + AKTIF.id);
+    document.querySelectorAll('#tabs button').forEach(x => x.setAttribute('aria-selected', String(x === b)));
+    bukaTab();
+  };
+  bukaTab();
+}
+
+async function bukaTab(){
+  SUNTING = null;
+  const T = AKTIF;
+  $('panel').innerHTML = `<p class="ket"><b>Butir ${esc(T.butir)}.</b> ${esc(T.ket)}</p>
+    <form id="form" novalidate><div class="grid">${T.kolom.map(isian).join('')}</div>
+      <div class="aksi"><button type="submit" class="btn" id="simpan">Tambah baris</button>
+        <button type="button" class="btn ghost" id="batal" hidden>Batal ubah</button>
+        <span class="msg" id="msg"></span></div></form>
+    <div class="gulir" id="daftar"><p class="kosong">Memuat…</p></div>`;
+  $('form').onsubmit = e => { e.preventDefault(); simpan(); };
+  $('batal').onclick = () => isiForm(null);
+  await muatBaris();
+}
+
+function isian(c){
+  const id = 'f_' + c.k, wj = c.wajib ? ' <span class="wj">*</span>' : '';
+  let el;
+  if (c.t === 'pilihan' || c.t === 'bulan' || c.t === 'nidn') {
+    const o = c.t === 'bulan' ? BULAN.map((b, i) => [String(i + 1), b])
+            : c.t === 'nidn' ? DOSEN.map(d => [d.nidn, `${d.nama} (${d.nidn})`]) : c.o;
+    el = `<select id="${id}"><option value="">—</option>${o.map(([v, l]) =>
+      `<option value="${esc(v)}">${esc(l)}</option>`).join('')}</select>`;
+  } else if (c.t === 'url') {
+    el = `<input type="url" id="${id}" placeholder="https://…">
+      ${UNGGAH ? `<div class="unggah-baris"><input type="file" id="${id}_berkas" accept="${esc(UNGGAH.accept)}">
+        <button type="button" class="btn ghost kecil" data-unggah="${c.k}">Unggah</button></div>` : ''}`;
+  } else {
+    const jenis = ['int', 'num', 'tahun'].includes(c.t) ? 'number' : 'text';
+    const atr = c.t === 'num' ? ' step="any" min="0"' : c.t === 'int' ? ' step="1" min="0"'
+              : c.t === 'tahun' ? ' step="1" min="1990" max="2100"' : '';
+    el = `<input type="${jenis}" id="${id}"${atr}${c.t === 'ta' ? ' placeholder="2025/2026"' : ''}>`;
+  }
+  return `<div class="fld${c.lebar || c.t === 'url' ? ' lebar' : ''}"><label for="${id}">${esc(c.l)}${wj}</label>${el}</div>`;
+}
+
+// Baca dan periksa isian; hasil {nilai, galat}. Aturan = batasan SQL patch 16.
+function bacaForm(){
+  const nilai = {}, galat = [];
+  for (const c of AKTIF.kolom) {
+    const el = $('f_' + c.k), v = el.value.trim();
+    el.classList.remove('salah');
+    const salah = p => { galat.push(`${c.l}: ${p}`); el.classList.add('salah'); };
+    if (!v) { if (c.wajib) salah('wajib diisi'); nilai[c.k] = null; continue; }
+    if (c.t === 'tahun' || c.t === 'int' || c.t === 'bulan') {
+      const n = Number(v);
+      if (!Number.isInteger(n)) { salah('harus bilangan bulat'); continue; }
+      if (c.t === 'tahun' && (n < 1990 || n > 2100)) { salah('tahun 1990–2100'); continue; }
+      if (c.t === 'int' && n < 0) { salah('tidak boleh negatif'); continue; }
+      nilai[c.k] = n;
+    } else if (c.t === 'num') {
+      const n = Number(v.replace(',', '.'));
+      if (!Number.isFinite(n) || n < 0) { salah('angka ≥ 0 (desimal memakai titik)'); continue; }
+      if (c.maks != null && n > c.maks) { salah(`maksimal ${c.maks}`); continue; }
+      nilai[c.k] = n;
+    } else if (c.t === 'ta') {
+      const m = v.match(/^(\d{4})\/(\d{4})$/);
+      if (!m || +m[2] !== +m[1] + 1) { salah('tulis seperti 2025/2026'); continue; }
+      nilai[c.k] = v;
+    } else if (c.t === 'url') {
+      if (!/^https?:\/\/\S+$/i.test(v)) { salah('tautan https://…'); continue; }
+      nilai[c.k] = v;
+    } else nilai[c.k] = v;
+  }
+  if (!galat.length && AKTIF.cek) { const g = AKTIF.cek(nilai); if (g) galat.push(g); }
+  return { nilai, galat };
+}
+
+function isiForm(r){
+  SUNTING = r ? r.id : null;
+  AKTIF.kolom.forEach(c => {
+    const el = $('f_' + c.k);
+    el.value = r && r[c.k] != null ? String(r[c.k]) : '';
+    el.classList.remove('salah');
+  });
+  $('simpan').textContent = r ? 'Simpan perubahan' : 'Tambah baris';
+  $('batal').hidden = !r;
+  tulis('', r ? 'Mengubah baris terpilih.' : '');
+  document.querySelectorAll('#daftar tr').forEach(tr => tr.classList.toggle('sunting', !!r && tr.dataset.id === String(r.id)));
+  if (r) $('form').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+const tulis = (cls, t) => { const m = $('msg'); m.className = 'msg' + (cls ? ' ' + cls : ''); m.textContent = t; };
+
+async function muatBaris(){
+  const T = AKTIF;
+  const { data, error } = await sb.from(T.tabel).select('*').order('id', { ascending: false });
+  const box = $('daftar');
+  if (T !== AKTIF) return;
+  if (error) {
+    box.innerHTML = `<p class="kosong">Tabel <code>${esc(T.tabel)}</code> belum bisa dibaca (${esc(error.message)}).
+      Jalankan <code>supabase/16-patch-data-lkps.sql</code>.</p>`;
+    $('simpan').disabled = true;
+    return;
+  }
+  BARIS = data || [];
+  if (!BARIS.length) { box.innerHTML = '<p class="kosong">Belum ada baris.</p>'; return; }
+  const tampil = (c, v) => v == null || v === '' ? '—'
+    : c.t === 'url' ? `<a href="${esc(v)}" target="_blank" rel="noopener nofollow">buka</a>`
+    : c.t === 'bulan' ? esc(BULAN[v - 1] || v)
+    : c.t === 'nidn' ? esc((DOSEN.find(d => d.nidn === v) || {}).nama || v)
+    : c.t === 'pilihan' ? esc((c.o.find(o => o[0] === v) || [v, v])[1]) : esc(v);
+  box.innerHTML = `<table class="t"><thead><tr>${T.kolom.map(c => `<th>${esc(c.l)}</th>`).join('')}
+      <th>Diperbarui</th><th></th></tr></thead><tbody>${BARIS.map(r => `<tr data-id="${r.id}">
+      ${T.kolom.map(c => `<td>${tampil(c, r[c.k])}</td>`).join('')}
+      <td>${esc(String(r.diperbarui || '').slice(0, 10))}</td>
+      <td><button type="button" class="btn ghost kecil" data-ubah="${r.id}">Ubah</button>
+          <button type="button" class="btn bahaya kecil" data-hapus="${r.id}">Hapus</button></td></tr>`).join('')}
+    </tbody></table>`;
+}
+
+async function simpan(){
+  const { nilai, galat } = bacaForm();
+  if (galat.length) return tulis('buruk', galat.join(' · '));
+  const isi = { ...nilai, oleh: SAYA.email, diperbarui: new Date().toISOString() };
+  $('simpan').disabled = true;
+  const q = SUNTING ? sb.from(AKTIF.tabel).update(isi).eq('id', SUNTING) : sb.from(AKTIF.tabel).insert(isi);
+  const { error } = await q;
+  $('simpan').disabled = false;
+  if (error) return tulis('buruk', /duplicate|unique/i.test(error.message)
+    ? 'Baris dengan kunci yang sama sudah ada (mis. tahun yang sama). Ubah baris itu saja.'
+    : 'Gagal menyimpan: ' + error.message);
+  const ubah = !!SUNTING;
+  isiForm(null);
+  tulis('ok', ubah ? 'Perubahan tersimpan.' : 'Baris ditambahkan.');
+  await muatBaris();
+}
+
+async function klikPanel(e){
+  const u = e.target.closest('[data-ubah]');
+  if (u) return isiForm(BARIS.find(r => r.id === +u.dataset.ubah));
+  const h = e.target.closest('[data-hapus]');
+  if (h) {
+    const r = BARIS.find(x => x.id === +h.dataset.hapus);
+    if (!r || !confirm(`Hapus baris "${AKTIF.label(r)}"? Berkas bukti di Drive tidak dihapus.`)) return;
+    const { error } = await sb.from(AKTIF.tabel).delete().eq('id', r.id);
+    if (error) return tulis('buruk', 'Gagal menghapus: ' + error.message);
+    if (SUNTING === r.id) isiForm(null);
+    tulis('ok', 'Baris dihapus.');
+    return muatBaris();
+  }
+  const g = e.target.closest('[data-unggah]');
+  if (g) unggah(g.dataset.unggah, g);
+}
+
+const keB64 = f => new Promise((ok, gagal) => {
+  const r = new FileReader();
+  r.onload = () => ok(String(r.result).split(',')[1] || '');
+  r.onerror = () => gagal(new Error('Berkas tidak bisa dibaca: ' + f.name));
+  r.readAsDataURL(f);
+});
+
+// Bukti baris -> Drive data-lkps/dokumen/<tabel>/<tahun>/<label>/ (Apps
+// Script kind 'dokumen', mode 'tambah': tidak mengarsipkan berkas lain).
+async function unggah(k, tombol){
+  const f = ($('f_' + k + '_berkas').files || [])[0];
+  if (!f) return tulis('buruk', 'Pilih berkas bukti dulu.');
+  const e = ((f.name.match(/\.([^.]+)$/) || [])[1] || '').toLowerCase();
+  if (!UNGGAH.ext.includes(e) || (UNGGAH.maxMb && f.size > UNGGAH.maxMb * 1024 * 1024))
+    return tulis('buruk', `Berkas ditolak. Diterima: ${UNGGAH.ext.join(', ')}, maksimal ${UNGGAH.maxMb} MB.`);
+  const { nilai } = bacaForm();
+  const tahun = AKTIF.tahun(nilai) || new Date().getFullYear();
+  tombol.disabled = true;
+  tulis('', `Mengunggah ${f.name}…`);
+  try {
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) throw new Error('Sesi login habis. Muat ulang halaman.');
+    const res = await fetch(UNGGAH.url, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ token: session.access_token, kind: 'dokumen', jenis: AKTIF.tabel,
+        tahun: String(tahun), judul: AKTIF.label(nilai).slice(0, 80), mode: 'tambah',
+        filename: f.name, data: await keB64(f) }) });
+    const out = await res.json();
+    if (!out.ok) throw new Error(out.error || 'Unggah gagal.');
+    $('f_' + k).value = out.url;
+    $('f_' + k + '_berkas').value = '';
+    tulis('ok', 'Berkas terunggah; tautannya terisi. Klik simpan untuk menyimpan baris.');
+  } catch (err) {
+    tulis('buruk', err.message || String(err));
+  } finally {
+    tombol.disabled = false;
+  }
+}
+
+function layarMasuk(){
+  $('hSub').textContent = 'Perlu masuk';
+  $('isi').innerHTML = `<div class="masuk"><p>Masukkan email kampus Anda — tautan masuk dikirim tanpa kata sandi.</p>
+    <input id="em" type="email" placeholder="nama@kampus.ac.id" autocomplete="email">
+    <button class="btn" id="kirim">Kirim tautan masuk</button><p class="ket" id="pesan"></p></div>`;
+  $('kirim').onclick = async () => {
+    const em = $('em').value.trim();
+    if (!em) return;
+    const { error } = await sb.auth.signInWithOtp({ email: em, options: { emailRedirectTo: location.href } });
+    $('pesan').textContent = error ? 'Gagal: ' + error.message : 'Tautan masuk sudah dikirim. Periksa email Anda.';
+  };
+}
+
+sb.auth.onAuthStateChange(ev => { if (ev === 'SIGNED_IN' && !SAYA) mulai(); });
+mulai().catch(e => { $('isi').innerHTML = `<p class="kosong">${esc(e.message)}</p>`; });
+</script>
+</body>
+</html>

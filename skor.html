@@ -87,6 +87,18 @@
   details.rencana-bukti p{margin:6px 0}
   details.rencana-bukti .rb-ket{font-size:12px;color:var(--muted)}
   details.rencana-bukti .rb-kos{color:var(--merah);font-size:11.5px}
+  /* panel kelola bukti (panel-bukti.js), khusus admin */
+  .pb{margin:10px 0 0;padding:8px 12px;border:1px solid var(--line);background:#FAFBFA;font-size:13px}
+  .pb-j{font-weight:600;color:var(--biru);margin-bottom:4px}
+  .pb-l{margin:4px 0 8px;padding-left:20px}
+  .pb-l li{margin:3px 0}
+  .pb-a{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:6px;font-size:12.5px}
+  .pb-a select, .pb-a input[type=text], .pb-a input[type=url]{flex:1 1 200px;padding:5px 7px;font:inherit;border:1px solid var(--line);background:#fff}
+  .pb button{font:inherit;font-size:12px;padding:4px 10px;border:1px solid var(--biru);background:#fff;color:var(--biru);cursor:pointer}
+  .pb button.kecil{padding:2px 8px;margin-left:6px}
+  .pb-ket{font-size:11.5px;color:var(--muted);margin-left:4px}
+  .pb-kos{color:var(--merah);font-size:11.5px}
+  .pb-m{font-size:12px;margin-top:6px} .pb-m.ok{color:var(--hijau)} .pb-m.buruk{color:var(--merah)}
   .ringkas > a.ke-butir:hover{background:var(--line-soft)}
   .ringkas > a.ke-butir:hover span{color:var(--biru)}
   table a.ke-butir{color:var(--biru);text-decoration:underline dotted}
@@ -287,6 +299,7 @@
   <div class="nav-atas">
     <a href="input-butir.html">&#9998;&nbsp; Isi butir manual</a>
     <a href="rincian.html?butir=23">&#128203;&nbsp; Data per butir</a>
+    <a href="data-prodi.html">&#128202;&nbsp; Data prodi (admin)</a>
   </div>
 </div></div>
 
@@ -361,13 +374,14 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { BUTIR, isiPetaBukti, cariBukti, daftarBukti, kolomBukti } from './rincian.js?v=2026-11-03m';
+import { BUTIR, isiPetaBukti, cariBukti, daftarBukti, kolomBukti } from './rincian.js?v=2026-11-03o';
 import { BUTIR_MANUAL, SEKSI_MANUAL, kunciButir, kunciBuktiButir, skorManual }
-  from './butir-manual.js?v=2026-11-03m';
-import { BOBOT_TOTAL, bobotButir } from './bobot.js?v=2026-11-03m';
-import { htmlRencana, buktiButir } from './rencana-bukti.js?v=2026-11-03m';
+  from './butir-manual.js?v=2026-11-03o';
+import { BOBOT_TOTAL, bobotButir } from './bobot.js?v=2026-11-03o';
+import { htmlRencana, buktiButir } from './rencana-bukti.js?v=2026-11-03o';
+import { htmlPanel, pasangPanel } from './panel-bukti.js?v=2026-11-03o';
 import { statusSyarat, syaratButir, SYARAT_UNGGUL, SYARAT_RERATA, SASARAN,
-         statusRerata, gabungSyarat, statusRentang } from './syarat-unggul.js?v=2026-11-03m';
+         statusRerata, gabungSyarat, statusRentang } from './syarat-unggul.js?v=2026-11-03o';
 
 // config.js mendefinisikan window.SB_URL dan window.SB_KEY — pemetaan di
 // bawah ini WAJIB ada. skor.html versi sebelumnya melewatkannya dan mati
@@ -391,7 +405,7 @@ const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 // Naikkan setiap kali skor.html / rincian.js / butir-manual.js / bobot.js
 // diubah. Ditampilkan di kaki halaman supaya ketahuan seketika kalau
 // peramban masih memakai salinan lama dari cache.
-const VERSI = '2026-11-03m';
+const VERSI = '2026-11-03o';
 // Label versi di judul diisi dari VERSI supaya keduanya tidak bisa berbeda.
 { const el = document.querySelector('.versi-statis'); if (el) el.textContent = 'v' + VERSI; }
 // =====================================================================
@@ -480,7 +494,7 @@ async function unduhLED(){
   const asli = a.textContent;
   a.textContent = 'Menyusun draf LED…';
   try {
-    const { buatLED } = await import('./led.js?v=2026-11-03m');
+    const { buatLED } = await import('./led.js?v=2026-11-03o');
     const ts = CTX_LED.tsData;
     const hasil = await buatLED({
       D, ts, taDari, f2, versi: VERSI,
@@ -538,6 +552,16 @@ let DOK = [];         // tabel `dokumen` (supabase/13-patch-dokumen.sql); kosong
 let BB = [];          // tabel `butir_bukti` (supabase/14-patch-bukti-jamak.sql)
 const opsiBukti = ts => ({ dokumen: DOK, butirBukti: BB, ts });
 let PENG_GAGAL = false; // true bila tabel pengaturan tak terbaca (patch 09 belum jalan)
+let ADMIN = false;     // peran 'admin': panel kelola bukti di kartu butir (panel-bukti.js)
+let SAYA_EMAIL = '';
+let BB_GAGAL = '';
+// Pengaturan unggah dari config.js (sama dengan input-butir.html).
+const UNGGAH = (() => {
+  const url = String(window.UPLOAD_URL || '').trim();
+  if (!url) return null;
+  const ext = String(window.UPLOAD_EXT || '').toLowerCase().split(',').map(s => s.trim()).filter(Boolean);
+  return { url, ext, maxMb: Number(window.UPLOAD_MAX_MB) || 0, accept: ext.map(x => '.' + x).join(',') };
+})();
 let PER_DOSEN = false; // peran 'admin' atau 'pimpinan' di tabel dosen: rincian kontribusi per dosen
 let DANA = [];        // {tahun, bulan, kategori, besaran_dana} karya terverifikasi          // tahun ujung TS terpilih, mis. 2026
 
@@ -684,20 +708,48 @@ function blokSyarat(no, skor){
 // Tautan bukti tingkat butir untuk butir BERUMUS (kunci bukti_b<NN>, diisi
 // di input-butir.html bagian "Bukti butir berumus"). Kartu butir manual
 // sudah menampilkan buktinya sendiri lewat butirManual().
+// Panel kelola bukti butir di kartu (admin). Setelah bukti berubah, muat
+// ulang dokumen + butir_bukti lalu perbarui daftar periksa dan panel tiap
+// kartu tanpa menggambar ulang seluruh halaman.
+const keadaanPanel = () => ({ ...opsiBukti(TS), gagal: BB_GAGAL, unggah: UNGGAH });
+async function muatUlangBukti(){
+  const [d, b] = await Promise.all([sb.from('dokumen').select('*'), sb.from('butir_bukti').select('*')]);
+  DOK = d.data || [];
+  BB = b.data || [];
+  BB_GAGAL = b.error ? b.error.message : '';
+}
+function segarkanKartuBukti(){
+  document.querySelectorAll('.kartu[id^="butir-"]').forEach(k => {
+    const no = k.id.slice(6);
+    const lama = k.querySelector('details.rencana-bukti');
+    if (lama) {
+      const buka = lama.open;
+      lama.outerHTML = htmlRencana(no, opsiBukti(TS));
+      if (buka) k.querySelector('details.rencana-bukti').open = true;
+    }
+    const pb = document.getElementById('pb-' + no);
+    if (pb) pb.outerHTML = htmlPanel(no, keadaanPanel());
+  });
+}
+pasangPanel({ sb, keadaan: keadaanPanel, oleh: () => SAYA_EMAIL,
+              muatUlang: muatUlangBukti, segarkan: segarkanKartuBukti });
+
 function blokBuktiData(no){
   if (BUTIR_MANUAL.some(m => m.no === String(no))) return '';
   const u = ISteks(`bukti_b${no}`);
   return u ? `<a class="tbl-bukti" href="${esc(u)}" target="_blank"
       rel="noopener nofollow">&#128206;&nbsp; Bukti butir ${esc(no)} &#8599;</a>`
-    : `<p class="isian" style="margin-top:10px">Bukti butir belum ditautkan — unggah
-       atau tempel di <a href="input-butir.html">halaman isi butir</a>, bagian
-       "Bukti butir berumus".</p>`;
+    : buktiButir(no, opsiBukti(TS)).length ? ''
+    : `<p class="isian" style="margin-top:10px">Bukti butir belum ditautkan${ADMIN
+       ? ' — unggah atau tautkan di panel "Kelola bukti" di bawah.'
+       : '. Admin dapat mengunggahnya dari kartu ini.'}</p>`;
 }
 
 function kartuButir(no, judul, isi, skor, catatan, lencana){
   const pct = skor == null ? 0 : (skor / 4) * 100;
   const sy = statusSyarat(no, skor);
-  isi = isi + blokBuktiData(no) + htmlRencana(no, opsiBukti(TS));
+  isi = isi + blokBuktiData(no) + htmlRencana(no, opsiBukti(TS))
+    + (ADMIN ? htmlPanel(no, keadaanPanel()) : '');
   return `<div class="kartu${sy && sy.tahu && !sy.u5ok ? ' syarat-gagal' : ''}" id="butir-${no}">
     <div class="butir">
     <div>
@@ -2064,6 +2116,8 @@ async function mulai(){
     .ilike('email', session.user.email).maybeSingle();
   if (!saya) return layarTidakTerdaftar(session.user.email);
   PER_DOSEN = ['admin', 'pimpinan'].includes(saya.peran);
+  ADMIN = saya.peran === 'admin';
+  SAYA_EMAIL = saya.email;
 
   document.getElementById('nama-prodi').textContent = 'Memuat data\u2026';
   const [jsonR, danaR, pengR, buktiR, dokR, bbR, kbR] = await Promise.all([
@@ -2088,6 +2142,7 @@ async function mulai(){
   PENG_GAGAL = !!pengR.error;
   DOK = dokR.data || [];
   BB = bbR.data || [];
+  BB_GAGAL = bbR.error ? bbR.error.message : '';
   if (bbR.error || kbR.error) console.warn('Bukti jamak tidak terbaca (patch 14?):',
     (bbR.error || kbR.error).message);
   if (dokR.error) console.warn('Tabel dokumen tidak terbaca:', dokR.error.message);

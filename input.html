@@ -122,6 +122,8 @@
          margin-top:3px;display:flex;gap:10px;flex-wrap:wrap}
   .rec-a{display:flex;gap:8px;align-items:flex-start;flex-wrap:wrap}
   .bukti-saya{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:4px}
+  ul.antrean{margin:6px 0;padding-left:18px;font-size:13px}
+  ul.antrean li{margin:2px 0;word-break:break-word}
   details.kb{margin-top:6px;font-size:13px}
   details.kb summary{cursor:pointer;color:var(--accent);font-weight:500}
   details.kb ul{margin:6px 0;padding-left:18px}
@@ -188,7 +190,7 @@ const SUPABASE_URL = window.SB_URL;
 const SUPABASE_ANON_KEY = window.SB_KEY;
 
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { JENIS_BUKTI_KARYA, namaJenisBukti } from './rencana-bukti.js?v=2026-11-03m';
+import { JENIS_BUKTI_KARYA, namaJenisBukti } from './rencana-bukti.js?v=2026-11-03o';
 
 const app = document.getElementById('app');
 if (!SUPABASE_URL || !SUPABASE_ANON_KEY
@@ -492,22 +494,22 @@ function tampilForm(key){
         <div class="sub">Boleh dicentang meski Anda juga penulis pertama.</div>
       </div>` : ''}
 
-      <div class="fld full"><label for="f_bukti_url">Berkas bukti</label>
+      <div class="fld full"><label for="f_bukti_file">Berkas bukti</label>
         <div class="mhs-baris" id="unggah_baris" hidden>
-          <label class="sub" style="display:inline-flex;gap:6px;align-items:center">Berkas
-            <input id="f_bukti_file" type="file" multiple></label>
-          <label class="sub" style="display:inline-flex;gap:6px;align-items:center">Folder
-            <input id="f_bukti_folder" type="file" webkitdirectory></label>
+          <select id="f_bukti_jenis" title="Jenis bukti">${JENIS_BUKTI_KARYA.map(([v, l]) =>
+            `<option value="${v}">${esc(l)}</option>`).join('')}</select>
+          <input id="f_bukti_file" type="file" multiple>
           <button type="button" class="btn ghost" id="btn_unggah">Unggah</button>
         </div>
         <span class="msg" id="unggah_msg"></span>
-        <input id="f_bukti_url" type="url" placeholder="https://… (terisi otomatis setelah unggah, atau tempel tautan)" autocomplete="off">
-        <div class="sub" id="unggah_sub" hidden>Pilih satu atau beberapa berkas, atau
-        satu folder, lalu klik <b>Unggah</b>: berkas tersimpan di Google Drive prodi
-        dan tautannya terisi otomatis. Banyak berkas disimpan dalam satu folder
-        karya (dinamai dari judul) dan tautannya ke folder itu. Tautan bisa dibuka
+        <ul class="antrean" id="antrean_bukti"></ul>
+        <div class="sub" id="unggah_sub" hidden>Pilih jenis bukti, lalu satu atau
+        beberapa berkas, lalu klik <b>Unggah</b>; ulangi untuk jenis lain (mis. naskah,
+        lalu SK atau bukti korespondensi). Setiap berkas tersimpan di Google Drive prodi
+        dan menjadi satu bukti tersendiri saat karya disimpan. Tautannya bisa dibuka
         siapa pun yang memegangnya (untuk asesor LKPS), tetapi folder prodi tidak
         bisa dijelajahi.</div>
+        <input id="f_bukti_url" type="url" placeholder="atau tempel satu tautan bukti https://…" autocomplete="off">
         <div class="sub">Sudah punya tautan (DOI, halaman jurnal, sertifikat daring)?
         Tempelkan saja di kolom tautan. Sertakan hanya halaman yang menunjukkan
         judul, nama, dan tahun — tutupi NIK, nomor rekening, dan tanda tangan.</div></div>
@@ -597,35 +599,31 @@ function tampilForm(key){
 // ukuran; pemeriksaan di sini hanya supaya dosen cepat tahu. Tanpa
 // UPLOAD_URL di config.js bagian ini tidak tampil sama sekali.
 function pasangUnggah(){
+  // Antrean dikosongkan setiap kali form dibuka.
+  antreanBukti = []; gambarAntrean();
   const url = String(window.UPLOAD_URL || '').trim();
   if(!url) return;
   const ext = String(window.UPLOAD_EXT || '').toLowerCase().split(',')
     .map(s=>s.trim()).filter(Boolean);
   const maxMb = Number(window.UPLOAD_MAX_MB) || 0;
   const berkas = document.getElementById('f_bukti_file'),
-        folderIn = document.getElementById('f_bukti_folder'),
+        jenisEl = document.getElementById('f_bukti_jenis'),
         tombol = document.getElementById('btn_unggah'),
-        msg    = document.getElementById('unggah_msg'),
-        tautan = document.getElementById('f_bukti_url');
+        msg    = document.getElementById('unggah_msg');
   document.getElementById('unggah_baris').hidden = false;
   document.getElementById('unggah_sub').hidden = false;
   berkas.accept = ext.map(x=>'.'+x).join(',');
   const tulis = (cls, t)=>{ msg.className = 'msg' + (cls ? ' '+cls : ''); msg.textContent = t; };
-  const keBase64 = f => new Promise((ok, gagal)=>{
-    const r = new FileReader();
-    r.onload  = ()=> ok(String(r.result).split(',')[1] || '');
-    r.onerror = ()=> gagal(new Error('Berkas tidak bisa dibaca: ' + f.name));
-    r.readAsDataURL(f);
-  });
 
-  // Satu berkas: seperti sebelumnya, tautan langsung ke berkas itu. Banyak
-  // berkas atau folder: semuanya masuk satu folder karya (judul karya) dan
-  // tautan bukti menunjuk folder itu; subfolder dari "Folder" ikut dibuat.
+  // Beberapa berkas sekaligus (pemilik 2026-11-03; pilihan folder dihapus).
+  // Tiap berkas diunggah ke folder karya <tahun>/<dosen>/<judul>/ lalu masuk
+  // antrean; saat karya disimpan, tiap berkas menjadi satu baris karya_bukti.
   tombol.onclick = async()=>{
-    const semua = [...berkas.files, ...folderIn.files];
-    if(!semua.length) return tulis('err', 'Pilih berkas atau folder dulu.');
+    const semua = [...berkas.files];
+    if(!semua.length) return tulis('err', 'Pilih berkas dulu.');
     const tahun = document.getElementById('f_tahun')?.value || '';
     if(!/^\d{4}$/.test(tahun)) return tulis('err', 'Pilih tahun pada isian dulu.');
+    const judul = (document.getElementById('f_judul')?.value || '').trim();
     const dilewati = [], unggah = [];
     semua.forEach(f=>{
       const e = ((f.name.match(/\.([^.]+)$/) || [])[1] || '').toLowerCase();
@@ -636,13 +634,8 @@ function pasangUnggah(){
     if(!unggah.length)
       return tulis('err', `Tidak ada berkas yang bisa diunggah. Diterima: ${ext.join(', ')}, ` +
                           `maksimal ${maxMb} MB. Dilewati: ${dilewati.join('; ')}.`);
-    const banyak = unggah.length > 1 || folderIn.files.length > 0;
-    const judul = (document.getElementById('f_judul')?.value || '').trim();
-    if(banyak && !judul)
-      return tulis('err', 'Isi judul karya dulu: banyak berkas disimpan dalam folder bernama judul itu.');
-
     tombol.disabled = true;
-    let berhasil = 0, folderUrl = null, berkasUrl = null, namaTerakhir = '';
+    let berhasil = 0;
     const gagal = [];
     try {
       const { data:{ session } } = await sb.auth.getSession();
@@ -650,36 +643,29 @@ function pasangUnggah(){
       for(let i = 0; i < unggah.length; i++){
         const f = unggah[i];
         tulis('', `Mengunggah ${i + 1} dari ${unggah.length}: ${f.name}…`);
-        const rel = f.webkitRelativePath || '';
-        const path = rel.includes('/') ? rel.slice(0, rel.lastIndexOf('/')) : '';
         try {
           // text/plain supaya browser tidak mengirim preflight CORS, yang tidak
           // dilayani Apps Script.
           const body = { token: session.access_token, filename: f.name, year: tahun,
-                         data: await keBase64(f) };
-          if(banyak){ body.group = judul; body.path = path; }
+                         data: await keB64(f) };
+          if(judul) body.group = judul;
           const res = await fetch(url, { method:'POST',
             headers:{ 'Content-Type':'text/plain;charset=utf-8' },
             body: JSON.stringify(body) });
           const out = await res.json();
           if(!out.ok) throw new Error(out.error || 'Unggah gagal.');
-          berhasil++; berkasUrl = out.url; namaTerakhir = out.name;
-          folderUrl = out.folderUrl || folderUrl;
+          antreanBukti.push({ jenis: jenisEl.value, judul: f.name, url: out.url });
+          berhasil++;
         } catch(err){
           gagal.push(`${f.name}: ${err.message || err}`);
           if(/Sesi login/.test(err.message || '')) break;
         }
       }
-      const tautanBaru = banyak ? folderUrl : berkasUrl;
-      if(tautanBaru) tautan.value = tautanBaru;
-      berkas.value = ''; folderIn.value = '';
-      const ringkas = banyak
-        ? [`${berhasil} dari ${unggah.length} berkas terunggah ke folder "${judul}"`]
-        : [berhasil ? 'Terunggah: ' + namaTerakhir : 'Unggah gagal'];
+      berkas.value = '';
+      gambarAntrean();
+      const ringkas = [`${berhasil} dari ${unggah.length} berkas terunggah; tersimpan sebagai bukti saat karya disimpan`];
       if(dilewati.length) ringkas.push('dilewati: ' + dilewati.join('; '));
       if(gagal.length) ringkas.push('gagal: ' + gagal.join('; '));
-      if(banyak && berhasil && !folderUrl)
-        ringkas.push('Apps Script belum mengirim tautan folder; minta admin memperbarui kodenya');
       tulis(gagal.length || !berhasil ? 'err' : 'ok', ringkas.join('. ') + '.');
     } catch(err){
       tulis('err', err.message || String(err));
@@ -687,6 +673,18 @@ function pasangUnggah(){
       tombol.disabled = false;
     }
   };
+}
+
+// Daftar berkas yang sudah terunggah tetapi karyanya belum disimpan.
+function gambarAntrean(){
+  const ul = document.getElementById('antrean_bukti');
+  if(!ul) return;
+  ul.innerHTML = antreanBukti.map((b, i) => `<li>${esc(namaJenisBukti(b.jenis))}:
+    <a href="${esc(b.url)}" target="_blank" rel="noopener">${esc(b.judul)}</a>
+    <button type="button" class="btn ghost sm" data-antrean="${i}" title="Tidak jadi dipakai (berkas tetap di Drive)">×</button></li>`).join('');
+  ul.querySelectorAll('[data-antrean]').forEach(b => b.onclick = () => {
+    antreanBukti.splice(+b.dataset.antrean, 1); gambarAntrean();
+  });
 }
 
 // Dropdown "berasal dari kegiatan": kegiatan penelitian/PkM yang dosen
@@ -790,6 +788,8 @@ function bacaRekan(){
 // Daftar mahasiswa disusun di memori dulu, baru disimpan bersama karya.
 // Ini mencegah baris mahasiswa yatim bila penyimpanan karya gagal.
 let mhsSementara = [];
+// Berkas bukti terunggah yang menunggu karya disimpan (pasangUnggah).
+let antreanBukti = [];
 let mitraSementara = [];
 
 function pasangMahasiswa(){
@@ -1156,13 +1156,23 @@ async function simpan(key){
       if(eMt) throw eMt;
     }
 
+    // Berkas bukti dari antrean: satu baris karya_bukti per berkas.
+    let catatanBukti = '';
+    if(antreanBukti.length){
+      const { error:eB } = await sb.from('karya_bukti').insert(
+        antreanBukti.map(b=>({ karya_id:k.id, jenis:b.jenis, judul:b.judul, url:b.url })));
+      if(eB) catatanBukti = ' Bukti berkas gagal dicatat (' + eB.message
+        + '); tambahkan lewat Karya saya > Bukti.';
+    }
+
     frm.reset(); delete frm.dataset.lewati;
+    antreanBukti = []; gambarAntrean();
     const um = document.getElementById('unggah_msg'); if(um){ um.className='msg'; um.textContent=''; }
     mhsSementara = []; pasangMahasiswa();
     mitraSementara = []; pasangMitra();
     if(key === 'kegiatan') pasangSkema();
     document.getElementById('dupBox').innerHTML = '';
-    fm.className='msg ok'; fm.textContent='Tersimpan. Menunggu verifikasi admin prodi.';
+    fm.className='msg ok'; fm.textContent='Tersimpan. Menunggu verifikasi admin prodi.' + catatanBukti;
     muatKaryaSaya('daftar', 6);
   }catch(err){
     fm.className='msg err';

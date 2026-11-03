@@ -44,7 +44,10 @@
   .pb-l li{margin:3px 0}
   .pb-l .kn{margin-left:6px}
   .pb-a{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:6px}
-  .pb-a select, .pb-a input{flex:1 1 220px;padding:6px 8px;font:inherit;border:1px solid var(--line);background:#fff}
+  .pb-a select, .pb-a input[type=text], .pb-a input[type=url]{flex:1 1 220px;padding:6px 8px;font:inherit;border:1px solid var(--line);background:#fff}
+  .pb-ket{font-size:12px;color:var(--muted);margin-left:4px}
+  .pb-kos{color:var(--merah);font-size:12px}
+  .pb-m{font-size:12.5px;margin-top:6px} .pb-m.ok{color:var(--hijau)} .pb-m.buruk{color:var(--merah)}
   .hero{background:var(--biru);color:#fff;border-bottom:4px solid var(--merah)}
   .hero-in{max-width:960px;margin:0 auto;padding:26px 20px 24px}
   .balik{display:inline-flex;gap:7px;align-items:center;text-decoration:none;
@@ -109,6 +112,7 @@
 <header class="hero">
   <div class="hero-in">
     <a class="balik" href="skor.html">&larr; Kembali ke halaman skor</a>
+    <a class="balik" href="data-prodi.html" style="margin-left:18px">Data prodi (mahasiswa, tracer, kerja sama, BKD) &rarr;</a>
     <h1 id="hJudul">Isian butir manual</h1>
     <div class="sub" id="hSub">Memuat&hellip;</div>
   </div>
@@ -134,9 +138,10 @@ addEventListener('error', function (e) {
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 import { BUTIR_MANUAL, SEKSI_MANUAL, kunciButir, kunciBuktiButir, skorManual }
-  from './butir-manual.js?v=2026-11-03m';
-import { BUTIR_DATA } from './butir-data.js?v=2026-11-03m';
-import { htmlRencana, JENIS_DOKUMEN, infoJenis, buktiButir } from './rencana-bukti.js?v=2026-11-03m';
+  from './butir-manual.js?v=2026-11-03o';
+import { BUTIR_DATA } from './butir-data.js?v=2026-11-03o';
+import { htmlRencana, JENIS_DOKUMEN, infoJenis, buktiButir } from './rencana-bukti.js?v=2026-11-03o';
+import { htmlPanel, pasangPanel } from './panel-bukti.js?v=2026-11-03o';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g,
   c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -283,17 +288,12 @@ function render(){
     tandaiUbah();
   });
   $('isi').addEventListener('click', e => {
-    const t = e.target.closest('[data-unggah]');
-    if (t && UNGGAH) unggahBukti(t.dataset.unggah, t);
     const h = e.target.closest('[data-hapus-dok]');
     if (h) hapusDokumen(+h.dataset.hapusDok);
-    const tk = e.target.closest('[data-tautkan]');
-    if (tk) tautkanPustaka(tk.dataset.tautkan);
-    const tm = e.target.closest('[data-tautan-manual]');
-    if (tm) tautanManual(tm.dataset.tautanManual);
-    const hb = e.target.closest('[data-hapus-bb]');
-    if (hb) hapusBuktiButir(+hb.dataset.hapusBb);
   });
+  // Panel bukti per butir (panel-bukti.js): tautkan, unggah, tautan, lepas.
+  pasangPanel({ sb, keadaan: keadaanPanel, oleh: () => SAYA && SAYA.email,
+                muatUlang: muatDokumen, segarkan: segarkanRencana });
   pasangFormDokumen();
   gambarDaftarDokumen();
   $('simpan').onclick = simpan;
@@ -340,18 +340,15 @@ function kartuData(b){
   </div>`;
 }
 
-// Kolom tautan bukti + unggah berkas/folder ke Drive prodi.
+// Daftar periksa + panel bukti (panel-bukti.js) + tautan folder lama.
+// Unggah berkas/folder kini lewat panel: tiap berkas jadi satu bukti.
+const keadaanPanel = () => ({ ...opsiBukti(), gagal: BB_GAGAL, unggah: UNGGAH });
 function blokBukti(no){
   const kb = `bukti_b${no}`;
-  return htmlRencana(no, opsiBukti()) + panelBuktiButir(no) + `<div class="fld">
+  return htmlRencana(no, opsiBukti()) + htmlPanel(no, keadaanPanel()) + `<div class="fld">
       <label for="i-${esc(kb)}">Tautan folder bukti (lama, opsional) <span class="kn">· ${esc(kb)}</span></label>
       <input type="url" id="i-${esc(kb)}" data-kunci="${esc(kb)}"
-             value="${esc(NILAI[kb] ?? '')}" placeholder="https://… (atau unggah berkas/folder di bawah)">
-      ${UNGGAH ? `<div class="unggah">
-        <label>Berkas <input type="file" id="f-${esc(kb)}" accept="${esc(UNGGAH.accept)}" multiple></label>
-        <label>Folder <input type="file" id="d-${esc(kb)}" webkitdirectory></label>
-        <button type="button" data-unggah="${esc(no)}">Unggah ke Drive prodi</button>
-        <span class="msg-unggah" id="m-${esc(kb)}"></span></div>` : ''}
+             value="${esc(NILAI[kb] ?? '')}" placeholder="https://…">
     </div>`;
 }
 
@@ -520,7 +517,7 @@ function segarkanRencana(){
       if (buka) k.querySelector('details.rencana-bukti').open = true;
     }
     const pb = $('pb-' + no);
-    if (pb) pb.outerHTML = panelBuktiButir(no);
+    if (pb) pb.outerHTML = htmlPanel(no, keadaanPanel());
   });
   gambarDaftarDokumen();
 }
@@ -529,173 +526,12 @@ function segarkanRencana(){
 const butirPemakai = r => [...new Set(BB.filter(b => b.dokumen_id === r.id || b.jenis_dokumen === r.jenis)
   .map(b => b.butir))].sort((a, b) => a - b);
 
-// Panel bukti satu butir (keputusan pemilik 2026-11-03): banyak bukti per
-// butir — tautan ke pustaka dokumen (tanpa unggah ulang; jenis tunggal
-// selalu versi berlaku), berkas yang diunggah di sini (tombol unggah di
-// bawah; tiap berkas jadi satu bukti), atau tautan manual.
-function panelBuktiButir(no){
-  if (BB_GAGAL) return `<div class="pb" id="pb-${esc(no)}"><p class="b-ket">Tabel
-    <code>butir_bukti</code> belum bisa dibaca (${esc(BB_GAGAL)}). Jalankan
-    <code>supabase/14-patch-bukti-jamak.sql</code>.</p></div>`;
-  const xs = buktiButir(no, opsiBukti());
-  const tunggal = JENIS_DOKUMEN.filter(j => j.tunggal && DOK.some(d => d.jenis === j.id));
-  const banyak = DOK.filter(d => !infoJenis(d.jenis).tunggal)
-    .sort((a, b) => b.tahun - a.tahun || String(a.judul).localeCompare(String(b.judul)));
-  const pilihan = (tunggal.length || banyak.length) ? `<select id="pp-${esc(no)}">
-      <option value="">— pilih dokumen dari pustaka —</option>
-      ${tunggal.length ? `<optgroup label="Jenis tunggal (otomatis versi berlaku)">${tunggal.map(j =>
-        `<option value="j:${esc(j.id)}">${esc(j.nama)}</option>`).join('')}</optgroup>` : ''}
-      ${banyak.length ? `<optgroup label="Entri dokumen">${banyak.map(d =>
-        `<option value="d:${esc(d.id)}">${esc(infoJenis(d.jenis).nama)}: ${esc(d.judul)} (${esc(d.tahun)})</option>`).join('')}</optgroup>` : ''}
-    </select><button type="button" data-tautkan="${esc(no)}">Tautkan</button>`
-    : '<span class="b-ket">Pustaka dokumen masih kosong.</span>';
-  return `<div class="pb" id="pb-${esc(no)}">
-    <div class="pb-j">Bukti butir ${esc(no)} (${xs.length})</div>
-    ${xs.length ? `<ul class="pb-l">${xs.map(x => `<li>${x.url
-        ? `<a href="${esc(x.url)}" target="_blank" rel="noopener nofollow">${esc(x.label)}</a>`
-        : `${esc(x.label)} <span class="rb-kos">· ${esc(x.ket)}</span>`}
-      <span class="kn">${esc(x.ket)}</span>
-      <button type="button" class="kecil" data-hapus-bb="${esc(x.id)}">Lepas</button></li>`).join('')}</ul>`
-      : '<p class="b-ket">Belum ada bukti tertaut.</p>'}
-    <div class="pb-a">${pilihan}</div>
-    <div class="pb-a"><input type="text" id="mj-${esc(no)}" placeholder="Judul bukti (mis. Notulen lokakarya kurikulum 2025)">
-      <input type="url" id="mu-${esc(no)}" placeholder="https://…">
-      <button type="button" data-tautan-manual="${esc(no)}">Tambah tautan</button></div>
-    <div class="msg-unggah" id="pm-${esc(no)}"></div>
-  </div>`;
-}
-
-async function simpanBuktiButir(no, baris){
-  const m = $('pm-' + no);
-  const { error } = await sb.from('butir_bukti').insert({ butir: +no, oleh: SAYA && SAYA.email, ...baris });
-  if (error) {
-    m.className = 'msg-unggah buruk';
-    m.textContent = /duplicate|unique/i.test(error.message)
-      ? 'Dokumen itu sudah tertaut di butir ini.' : 'Gagal menautkan: ' + error.message;
-    return;
-  }
-  await muatDokumen();
-  segarkanRencana();
-}
-
-function tautkanPustaka(no){
-  const v = ($('pp-' + no) || {}).value || '';
-  if (!v) return;
-  return simpanBuktiButir(no, v.startsWith('j:') ? { jenis_dokumen: v.slice(2) } : { dokumen_id: +v.slice(2) });
-}
-
-function tautanManual(no){
-  const judul = $('mj-' + no).value.trim(), url = $('mu-' + no).value.trim();
-  const m = $('pm-' + no);
-  if (!/^https?:\/\/\S+$/i.test(url)) { m.className = 'msg-unggah buruk'; m.textContent = 'Isi tautan https://… yang sah.'; return; }
-  return simpanBuktiButir(no, { judul: judul || 'Tautan bukti', url });
-}
-
-async function hapusBuktiButir(id){
-  const b = BB.find(x => x.id === id);
-  if (!b || !confirm('Lepas bukti ini dari butir? Berkas di Drive dan dokumen di pustaka tidak dihapus.')) return;
-  const { error } = await sb.from('butir_bukti').delete().eq('id', id);
-  if (error) { alert('Gagal: ' + error.message); return; }
-  await muatDokumen();
-  segarkanRencana();
-}
-
 const keBase64 = f => new Promise((ok, gagal) => {
   const r = new FileReader();
   r.onload  = () => ok(String(r.result).split(',')[1] || '');
   r.onerror = () => gagal(new Error('Berkas tidak bisa dibaca: ' + f.name));
   r.readAsDataURL(f);
 });
-
-// Unggah berkas-berkas bukti satu butir, satu per satu. Berkas dari "Folder"
-// membawa subfoldernya (webkitRelativePath) supaya strukturnya ikut di Drive.
-// Setelah selesai, kolom bukti diisi tautan FOLDER butir-NN (semua berkas
-// butir itu), lalu admin menyimpan seperti biasa. Server memeriksa ulang
-// login, peran admin, jenis, dan ukuran tiap berkas.
-async function unggahBukti(no, tombol){
-  const kb = `bukti_b${no}`;
-  const msg = $('m-' + kb), tautan = $('i-' + kb);
-  const masukan = [$('f-' + kb), $('d-' + kb)];
-  const tulis = (cls, t) => { msg.className = 'msg-unggah' + (cls ? ' ' + cls : ''); msg.textContent = t; };
-  const semua = masukan.flatMap(i => [...i.files]);
-  if (!semua.length) return tulis('buruk', 'Pilih berkas atau folder dulu.');
-
-  const dilewati = [], unggah = [];
-  semua.forEach(f => {
-    const e = ((f.name.match(/\.([^.]+)$/) || [])[1] || '').toLowerCase();
-    if (!UNGGAH.ext.includes(e)) dilewati.push(`${f.name} (jenis)`);
-    else if (UNGGAH.maxMb && f.size > UNGGAH.maxMb * 1024 * 1024) dilewati.push(`${f.name} (> ${UNGGAH.maxMb} MB)`);
-    else unggah.push(f);
-  });
-  if (!unggah.length)
-    return tulis('buruk', `Tidak ada berkas yang bisa diunggah. Diterima: ${UNGGAH.ext.join(', ')}, ` +
-                          `maksimal ${UNGGAH.maxMb} MB. Dilewati: ${dilewati.join('; ')}.`);
-
-  tombol.disabled = true;
-  let folderUrl = null, berkasUrl = null, berhasil = 0;
-  const gagal = [], terunggah = [];
-  try {
-    const { data: { session } } = await sb.auth.getSession();
-    if (!session) throw new Error('Sesi login habis. Muat ulang halaman lalu masuk lagi.');
-    for (let i = 0; i < unggah.length; i++) {
-      const f = unggah[i];
-      tulis('', `Mengunggah ${i + 1} dari ${unggah.length}: ${f.name}…`);
-      // 'Folder A/Sub/x.pdf' -> 'Folder A/Sub'; berkas biasa tanpa subfolder.
-      const rel = f.webkitRelativePath || '';
-      const path = rel.includes('/') ? rel.slice(0, rel.lastIndexOf('/')) : '';
-      try {
-        // text/plain supaya browser tidak mengirim preflight CORS (tidak dilayani Apps Script).
-        const res = await fetch(UNGGAH.url, { method: 'POST',
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify({ token: session.access_token, kind: 'butir', butir: no,
-                                 path, filename: f.name, data: await keBase64(f) }) });
-        const out = await res.json();
-        if (!out.ok) {
-          // Apps Script versi lama tidak mengenal kind 'butir' dan meminta tahun.
-          if (/Pilih tahun/.test(out.error || ''))
-            throw new Error('Apps Script di akun prodi belum diperbarui untuk bukti butir. ' +
-                            'Lihat apps-script/README.md, bagian "Memperbarui kode".');
-          throw new Error(out.error || 'Unggah gagal.');
-        }
-        berhasil++;
-        berkasUrl = out.url;
-        folderUrl = out.folderUrl || folderUrl;
-        terunggah.push({ butir: +no, judul: rel || f.name, url: out.url,
-                         oleh: SAYA && SAYA.email });
-      } catch (err) {
-        gagal.push(`${f.name}: ${err.message || err}`);
-        if (/belum diperbarui|Sesi login/.test(err.message || '')) break;
-      }
-    }
-    // Tautan folder bila Apps Script mengirimnya; versi lama hanya berkas
-    // terakhir (cukup bila memang satu berkas).
-    const tautanBaru = folderUrl || (berhasil === 1 ? berkasUrl : null);
-    if (tautanBaru) {
-      tautan.value = tautanBaru;
-      NILAI[kb] = tautanBaru;
-      periksaSatu(tautan);
-      tandaiUbah();
-    }
-    masukan.forEach(i => i.value = '');
-    // Setiap berkas jadi satu bukti tertaut di butir ini (tabel butir_bukti).
-    if (terunggah.length && !BB_GAGAL) {
-      const { error } = await sb.from('butir_bukti').insert(terunggah);
-      if (error) gagal.push('catatan bukti: ' + error.message);
-      else { await muatDokumen(); segarkanRencana(); }
-    }
-    const ringkas = [`${berhasil} dari ${unggah.length} berkas terunggah`];
-    if (dilewati.length) ringkas.push(`dilewati: ${dilewati.join('; ')}`);
-    if (gagal.length) ringkas.push(`gagal: ${gagal.join('; ')}`);
-    if (tautanBaru) ringkas.push('klik "Simpan perubahan" untuk menyimpan tautan '
-                                 + (folderUrl ? 'folder butir ini' : 'berkasnya'));
-    else if (berhasil > 1) ringkas.push('Apps Script belum mengirim tautan folder; perbarui kodenya');
-    tulis(gagal.length || !berhasil ? 'buruk' : 'ok', ringkas.join('. ') + '.');
-  } catch (err) {
-    tulis('buruk', err.message || String(err));
-  } finally {
-    tombol.disabled = false;
-  }
-}
 
 function periksaSatu(el){
   const v = el.value.trim();
