@@ -318,6 +318,11 @@ async function mulai(){
     .ilike('email', session.user.email).maybeSingle();
   if(!data) return layarTidakTerdaftar(session.user.email);
   saya = data;
+  // Asesor, dan pimpinan (dekan) yang bukan DTPS prodi ini, hanya melihat
+  // skor; tidak mengisi karya. Dekan yang DTPS (aktif) mengisi seperti dosen.
+  // Batas tampilan, sama seperti tab Verifikasi untuk admin.
+  if(saya.peran === 'asesor' || (saya.peran === 'pimpinan' && !saya.aktif))
+    return layarHanyaLihat();
 
   const [ds, kl, sk] = await Promise.all([
     sb.from('dosen').select('id,nama').eq('aktif', true).order('nama'),
@@ -363,6 +368,15 @@ function layarTidakTerdaftar(email){
   app.innerHTML = `<div class="masuk"><div class="panel"><h2>Email belum terdaftar</h2>
     <p class="hint"><strong>${esc(email)}</strong> belum ada di daftar dosen prodi.
     Hubungi admin prodi untuk didaftarkan.</p>
+    <button class="btn ghost" id="kl">Keluar</button></div></div>`;
+  document.getElementById('kl').onclick = async()=>{ await sb.auth.signOut(); location.reload(); };
+}
+
+function layarHanyaLihat(){
+  app.innerHTML = `<div class="masuk"><div class="panel"><h2>Akun hanya untuk melihat</h2>
+    <p class="hint"><strong>${esc(saya.nama)}</strong> terdaftar sebagai ${esc(saya.peran)}.
+    Akun ini tidak mengisi karya. Silakan buka
+    <a href="skor.html">halaman skor</a> atau <a href="monitoring.html">monitoring</a>.</p>
     <button class="btn ghost" id="kl">Keluar</button></div></div>`;
   document.getElementById('kl').onclick = async()=>{ await sb.auth.signOut(); location.reload(); };
 }

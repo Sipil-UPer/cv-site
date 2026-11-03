@@ -67,6 +67,7 @@
   .bar .st.baik{color:var(--hijau)} .bar .st.buruk{color:var(--merah)}
   .unggah{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:6px;font-size:12.5px}
   .unggah button{font:inherit;font-size:12px;padding:5px 11px;cursor:pointer}
+  .unggah label{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)}
   .unggah .msg-unggah{color:var(--muted)}
   .unggah .msg-unggah.ok{color:var(--hijau)} .unggah .msg-unggah.buruk{color:var(--merah)}
   .kosong{color:var(--muted);font-size:13.5px}
@@ -98,6 +99,7 @@
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 import { BUTIR_MANUAL, SEKSI_MANUAL, kunciButir, kunciBuktiButir, skorManual }
   from './butir-manual.js';
+import { BUTIR_DATA } from './butir-data.js';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g,
   c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -189,7 +191,13 @@ function render(){
       + isi.map(kartu).join('');
   }).join('');
 
-  $('isi').innerHTML = bagian + `
+  const bagianData = `<h2>Bukti butir berumus</h2>
+    <div class="b-ket" style="margin-bottom:10px">Skor butir ini dihitung dari data
+    (halaman skor). Di sini cukup unggah atau tempel bukti pendukungnya, mis. SK
+    dosen (27, 28), laporan tracer (49–51), rekap PDDikti (40, 41).</div>`
+    + BUTIR_DATA.map(kartuData).join('');
+
+  $('isi').innerHTML = bagian + bagianData + `
     <div class="awas"><b>Nilai di halaman ini adalah penilaian sendiri.</b>
     Ia masuk ke ringkasan skor bersama butir yang terhitung dari data, dan
     ikut menjadi bahan dokumen akreditasi. Isi hanya butir yang sudah benar
@@ -240,61 +248,119 @@ function kartu(b){
       <input type="number"${batas} id="i-${esc(k)}" data-kunci="${esc(k)}"
              value="${esc(NILAI[k] ?? '')}" placeholder="kosongkan bila belum dinilai">
     </div>`).join('')}
-    <div class="fld">
-      <label for="i-${esc(kb)}">Tautan bukti <span class="kn">· ${esc(kb)}</span></label>
-      <input type="url" id="i-${esc(kb)}" data-kunci="${esc(kb)}"
-             value="${esc(NILAI[kb] ?? '')}" placeholder="https://… (atau unggah berkas di bawah)">
-      ${UNGGAH ? `<div class="unggah">
-        <input type="file" id="f-${esc(kb)}" accept="${esc(UNGGAH.accept)}">
-        <button type="button" data-unggah="${esc(b.no)}">Unggah ke Drive prodi</button>
-        <span class="msg-unggah" id="m-${esc(kb)}"></span></div>` : ''}
-    </div>
+    ${blokBukti(b.no)}
   </div>`;
 }
 
-// Unggah satu berkas bukti butir; tautannya mengisi kolom bukti, lalu admin
-// menyimpan seperti biasa. Server memeriksa ulang login, peran, jenis, ukuran.
+// Kartu bukti untuk butir berumus (butir-data.js): skornya dihitung dari
+// data di skor.html, di sini hanya tautan dan unggah bukti.
+function kartuData(b){
+  return `<div class="b" id="bd-${esc(b.no)}">
+    <div class="b-kep">
+      <span class="b-no">Butir ${esc(b.no)}</span>
+      <span class="b-jd">${esc(b.judul)}</span>
+    </div>
+    ${blokBukti(b.no)}
+  </div>`;
+}
+
+// Kolom tautan bukti + unggah berkas/folder ke Drive prodi.
+function blokBukti(no){
+  const kb = `bukti_b${no}`;
+  return `<div class="fld">
+      <label for="i-${esc(kb)}">Tautan bukti <span class="kn">· ${esc(kb)}</span></label>
+      <input type="url" id="i-${esc(kb)}" data-kunci="${esc(kb)}"
+             value="${esc(NILAI[kb] ?? '')}" placeholder="https://… (atau unggah berkas/folder di bawah)">
+      ${UNGGAH ? `<div class="unggah">
+        <label>Berkas <input type="file" id="f-${esc(kb)}" accept="${esc(UNGGAH.accept)}" multiple></label>
+        <label>Folder <input type="file" id="d-${esc(kb)}" webkitdirectory></label>
+        <button type="button" data-unggah="${esc(no)}">Unggah ke Drive prodi</button>
+        <span class="msg-unggah" id="m-${esc(kb)}"></span></div>` : ''}
+    </div>`;
+}
+
+const keBase64 = f => new Promise((ok, gagal) => {
+  const r = new FileReader();
+  r.onload  = () => ok(String(r.result).split(',')[1] || '');
+  r.onerror = () => gagal(new Error('Berkas tidak bisa dibaca: ' + f.name));
+  r.readAsDataURL(f);
+});
+
+// Unggah berkas-berkas bukti satu butir, satu per satu. Berkas dari "Folder"
+// membawa subfoldernya (webkitRelativePath) supaya strukturnya ikut di Drive.
+// Setelah selesai, kolom bukti diisi tautan FOLDER butir-NN (semua berkas
+// butir itu), lalu admin menyimpan seperti biasa. Server memeriksa ulang
+// login, peran admin, jenis, dan ukuran tiap berkas.
 async function unggahBukti(no, tombol){
   const kb = `bukti_b${no}`;
-  const berkas = $('f-' + kb), msg = $('m-' + kb), tautan = $('i-' + kb);
+  const msg = $('m-' + kb), tautan = $('i-' + kb);
+  const masukan = [$('f-' + kb), $('d-' + kb)];
   const tulis = (cls, t) => { msg.className = 'msg-unggah' + (cls ? ' ' + cls : ''); msg.textContent = t; };
-  const f = berkas.files[0];
-  if (!f) return tulis('buruk', 'Pilih berkas dulu.');
-  const e = ((f.name.match(/\.([^.]+)$/) || [])[1] || '').toLowerCase();
-  if (!UNGGAH.ext.includes(e))
-    return tulis('buruk', 'Jenis berkas tidak diterima. Gunakan: ' + UNGGAH.ext.join(', ') + '.');
-  if (UNGGAH.maxMb && f.size > UNGGAH.maxMb * 1024 * 1024)
-    return tulis('buruk', `Berkas lebih dari ${UNGGAH.maxMb} MB.`);
+  const semua = masukan.flatMap(i => [...i.files]);
+  if (!semua.length) return tulis('buruk', 'Pilih berkas atau folder dulu.');
 
-  tombol.disabled = true; tulis('', 'Mengunggah…');
+  const dilewati = [], unggah = [];
+  semua.forEach(f => {
+    const e = ((f.name.match(/\.([^.]+)$/) || [])[1] || '').toLowerCase();
+    if (!UNGGAH.ext.includes(e)) dilewati.push(`${f.name} (jenis)`);
+    else if (UNGGAH.maxMb && f.size > UNGGAH.maxMb * 1024 * 1024) dilewati.push(`${f.name} (> ${UNGGAH.maxMb} MB)`);
+    else unggah.push(f);
+  });
+  if (!unggah.length)
+    return tulis('buruk', `Tidak ada berkas yang bisa diunggah. Diterima: ${UNGGAH.ext.join(', ')}, ` +
+                          `maksimal ${UNGGAH.maxMb} MB. Dilewati: ${dilewati.join('; ')}.`);
+
+  tombol.disabled = true;
+  let folderUrl = null, berkasUrl = null, berhasil = 0;
+  const gagal = [];
   try {
     const { data: { session } } = await sb.auth.getSession();
     if (!session) throw new Error('Sesi login habis. Muat ulang halaman lalu masuk lagi.');
-    const data = await new Promise((ok, gagal) => {
-      const r = new FileReader();
-      r.onload  = () => ok(String(r.result).split(',')[1] || '');
-      r.onerror = () => gagal(new Error('Berkas tidak bisa dibaca.'));
-      r.readAsDataURL(f);
-    });
-    // text/plain supaya browser tidak mengirim preflight CORS (tidak dilayani Apps Script).
-    const res = await fetch(UNGGAH.url, { method: 'POST',
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify({ token: session.access_token, kind: 'butir', butir: no,
-                             filename: f.name, data }) });
-    const out = await res.json();
-    if (!out.ok) {
-      // Apps Script versi lama tidak mengenal kind 'butir' dan meminta tahun.
-      if (/Pilih tahun/.test(out.error || ''))
-        throw new Error('Apps Script di akun prodi belum diperbarui untuk bukti butir. ' +
-                        'Lihat apps-script/README.md, bagian "Memperbarui kode".');
-      throw new Error(out.error || 'Unggah gagal.');
+    for (let i = 0; i < unggah.length; i++) {
+      const f = unggah[i];
+      tulis('', `Mengunggah ${i + 1} dari ${unggah.length}: ${f.name}…`);
+      // 'Folder A/Sub/x.pdf' -> 'Folder A/Sub'; berkas biasa tanpa subfolder.
+      const rel = f.webkitRelativePath || '';
+      const path = rel.includes('/') ? rel.slice(0, rel.lastIndexOf('/')) : '';
+      try {
+        // text/plain supaya browser tidak mengirim preflight CORS (tidak dilayani Apps Script).
+        const res = await fetch(UNGGAH.url, { method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({ token: session.access_token, kind: 'butir', butir: no,
+                                 path, filename: f.name, data: await keBase64(f) }) });
+        const out = await res.json();
+        if (!out.ok) {
+          // Apps Script versi lama tidak mengenal kind 'butir' dan meminta tahun.
+          if (/Pilih tahun/.test(out.error || ''))
+            throw new Error('Apps Script di akun prodi belum diperbarui untuk bukti butir. ' +
+                            'Lihat apps-script/README.md, bagian "Memperbarui kode".');
+          throw new Error(out.error || 'Unggah gagal.');
+        }
+        berhasil++;
+        berkasUrl = out.url;
+        folderUrl = out.folderUrl || folderUrl;
+      } catch (err) {
+        gagal.push(`${f.name}: ${err.message || err}`);
+        if (/belum diperbarui|Sesi login/.test(err.message || '')) break;
+      }
     }
-    tautan.value = out.url;
-    NILAI[kb] = out.url;
-    periksaSatu(tautan);
-    tandaiUbah();
-    berkas.value = '';
-    tulis('ok', `Terunggah: ${out.name}. Klik "Simpan perubahan" untuk menyimpan tautannya.`);
+    // Tautan folder bila Apps Script mengirimnya; versi lama hanya berkas
+    // terakhir (cukup bila memang satu berkas).
+    const tautanBaru = folderUrl || (berhasil === 1 ? berkasUrl : null);
+    if (tautanBaru) {
+      tautan.value = tautanBaru;
+      NILAI[kb] = tautanBaru;
+      periksaSatu(tautan);
+      tandaiUbah();
+    }
+    masukan.forEach(i => i.value = '');
+    const ringkas = [`${berhasil} dari ${unggah.length} berkas terunggah`];
+    if (dilewati.length) ringkas.push(`dilewati: ${dilewati.join('; ')}`);
+    if (gagal.length) ringkas.push(`gagal: ${gagal.join('; ')}`);
+    if (tautanBaru) ringkas.push('klik "Simpan perubahan" untuk menyimpan tautan '
+                                 + (folderUrl ? 'folder butir ini' : 'berkasnya'));
+    else if (berhasil > 1) ringkas.push('Apps Script belum mengirim tautan folder; perbarui kodenya');
+    tulis(gagal.length || !berhasil ? 'buruk' : 'ok', ringkas.join('. ') + '.');
   } catch (err) {
     tulis('buruk', err.message || String(err));
   } finally {
@@ -317,9 +383,11 @@ function periksaSatu(el){
 }
 
 function perbaruiSkor(kartuEl){
-  if (!kartuEl) return;
+  // Kartu bukti butir berumus (id "bd-NN") tidak punya skor di halaman ini.
+  if (!kartuEl || !kartuEl.id.startsWith('b-')) return;
   const no = kartuEl.id.slice(2);
   const b = BUTIR_MANUAL.find(x => x.no === no);
+  if (!b) return;
   const el = kartuEl.querySelector('[data-sk]');
   const { skor } = skorManual(b, bacaAngka);
   el.textContent = skor == null ? '—' : f2(skor);

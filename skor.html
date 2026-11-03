@@ -355,7 +355,7 @@ const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 // Naikkan setiap kali skor.html / rincian.js / butir-manual.js / bobot.js
 // diubah. Ditampilkan di kaki halaman supaya ketahuan seketika kalau
 // peramban masih memakai salinan lama dari cache.
-const VERSI = '2026-10-15a';
+const VERSI = '2026-11-03a';
 // Label versi di judul diisi dari VERSI supaya keduanya tidak bisa berbeda.
 { const el = document.querySelector('.versi-statis'); if (el) el.textContent = 'v' + VERSI; }
 // =====================================================================
@@ -425,7 +425,7 @@ let JENDELA_OFS = (function(){
 })();
 let PENG = {};        // pengaturan skor dari Supabase (di belakang RLS)
 let PENG_GAGAL = false; // true bila tabel pengaturan tak terbaca (patch 09 belum jalan)
-let ADMIN = false;    // peran 'admin' di tabel dosen: rincian kontribusi per dosen
+let PER_DOSEN = false; // peran 'admin' atau 'pimpinan' di tabel dosen: rincian kontribusi per dosen
 let DANA = [];        // {tahun, bulan, kategori, besaran_dana} karya terverifikasi          // tahun ujung TS terpilih, mis. 2026
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g,
@@ -568,9 +568,23 @@ function blokSyarat(no, skor){
     <span class="tur">${esc(s.turunan)}</span></div>`;
 }
 
+// Tautan bukti tingkat butir untuk butir BERUMUS (kunci bukti_b<NN>, diisi
+// di input-butir.html bagian "Bukti butir berumus"). Kartu butir manual
+// sudah menampilkan buktinya sendiri lewat butirManual().
+function blokBuktiData(no){
+  if (BUTIR_MANUAL.some(m => m.no === String(no))) return '';
+  const u = ISteks(`bukti_b${no}`);
+  return u ? `<a class="tbl-bukti" href="${esc(u)}" target="_blank"
+      rel="noopener nofollow">&#128206;&nbsp; Bukti butir ${esc(no)} &#8599;</a>`
+    : `<p class="isian" style="margin-top:10px">Bukti butir belum ditautkan — unggah
+       atau tempel di <a href="input-butir.html">halaman isi butir</a>, bagian
+       "Bukti butir berumus".</p>`;
+}
+
 function kartuButir(no, judul, isi, skor, catatan, lencana){
   const pct = skor == null ? 0 : (skor / 4) * 100;
   const sy = statusSyarat(no, skor);
+  isi = isi + blokBuktiData(no);
   return `<div class="kartu${sy && sy.tahu && !sy.u5ok ? ' syarat-gagal' : ''}">
     <div class="butir">
     <div>
@@ -1473,10 +1487,10 @@ function bagianJalanUnggul(ctx){
       <button type="button" id="sim-reset">Kosongkan simulasi</button></div>
     <div id="sim-hasil" class="ket" style="margin-top:8px"></div>`;
 
-  // D. Kontribusi per dosen (khusus admin). data.json memang publik; batas
-  // admin di sini untuk tampilan, bukan pengaman data.
-  let tabelD = '<p class="ket">Rincian kontribusi per dosen hanya tampil untuk peran admin.</p>';
-  if (ADMIN) {
+  // D. Kontribusi per dosen (khusus admin dan pimpinan). data.json memang
+  // publik; batas peran di sini untuk tampilan, bukan pengaman data.
+  let tabelD = '<p class="ket">Rincian kontribusi per dosen hanya tampil untuk peran admin dan pimpinan.</p>';
+  if (PER_DOSEN) {
     const t0 = tsData - 2;
     const utama = {};
     ((D.dtps || {}).karya_utama_rinci || []).filter(r => r.tahun >= t0 && r.tahun <= tsData)
@@ -1522,6 +1536,60 @@ function bagianJalanUnggul(ctx){
       Isi kolom simulasi untuk melihat dampaknya pada NA dan status; tidak ada yang disimpan.</p>
     ${tabelB}
     <h3 class="sub-jalan">C. Kontribusi per dosen</h3>${tabelD}`;
+}
+
+// ---------------------------------------------------------------------
+//  Rekap bukti: satu baris per butir (60). Bukti butir = kunci
+//  bukti_b<NN> (berkas atau folder Drive); bukti karya = tautan bukti tiap
+//  karya pembentuk butir, memakai peta yang sama dengan halaman rincian
+//  (rincian.js), jadi angkanya sama dengan kartu dan rincian.html.
+// ---------------------------------------------------------------------
+function bagianRekapBukti(ctx){
+  const { skorButir, judulButir, tsData } = ctx;
+  const baris = Object.keys(skorButir).map(no => {
+    const manual = BUTIR_MANUAL.some(m => m.no === no);
+    const u = ISteks(`bukti_b${no}`);
+    let karya = null;
+    if (BUTIR[no]) {
+      const rows = BUTIR[no].baris(D, tsData) || [];
+      karya = { n: rows.length, ada: rows.filter(r => cariBukti(r)).length };
+    }
+    const karyaLengkap = !karya || karya.n === 0 || karya.ada === karya.n;
+    const status = u && karyaLengkap ? 'lengkap'
+                 : u || (karya && karya.ada > 0) ? 'sebagian' : 'kosong';
+    return { no, manual, u, karya, status, bobot: bobotButir(no),
+             judul: judulButir[no] || '' };
+  });
+  const URUT = { kosong: 0, sebagian: 1, lengkap: 2 };
+  baris.sort((a, b) => URUT[a.status] - URUT[b.status] || b.bobot - a.bobot);
+  const jml = s => baris.filter(x => x.status === s);
+  const bobotAda = baris.filter(x => x.status !== 'kosong').reduce((a, x) => a + x.bobot, 0);
+  const chip = { lengkap: '<span class="tchip hij">lengkap</span>',
+                 sebagian: '<span class="tchip kun">sebagian</span>',
+                 kosong: '<span class="tchip mer">kosong</span>' };
+  return `
+    <p class="ket"><b>${jml('lengkap').length}</b> butir lengkap ·
+      <b>${jml('sebagian').length}</b> sebagian · <b>${jml('kosong').length}</b> tanpa bukti ·
+      butir berbukti mencakup <b>${f2(bobotAda / BOBOT_TOTAL * 100)}%</b> bobot.
+      Urutan: tanpa bukti dulu, bobot terbesar di atas. Bukti karya dihitung pada
+      jendela TS ${esc(taDari(tsData - 2))} s.d. ${esc(taDari(tsData))}.</p>
+    <div class="gulir" style="max-height:520px"><table class="rin"><thead><tr>
+      <th>Butir</th><th>Judul</th><th>Bobot</th><th>Bukti butir</th>
+      <th>Bukti karya</th><th>Status</th></tr></thead><tbody>
+      ${baris.map(x => `<tr>
+        <td>${esc(x.no)}</td><td>${esc(x.judul)}${x.manual ? ' <span class="tchip">kualitatif</span>' : ''}</td>
+        <td>${f2(x.bobot)}</td>
+        <td>${x.u ? `<a class="bukti-sel" href="${esc(x.u)}" target="_blank"
+               rel="noopener nofollow">buka &#8599;</a>` : '—'}</td>
+        <td>${x.karya ? (x.karya.n
+              ? `<a href="rincian.html?butir=${esc(x.no)}">${x.karya.ada} dari ${x.karya.n} karya</a>`
+              : 'tidak ada karya di jendela') : '—'}</td>
+        <td>${chip[x.status]}</td></tr>`).join('')}
+    </tbody></table></div>
+    <p class="ket">Bukti butir diunggah (berkas atau folder) di
+      <a href="input-butir.html">halaman isi butir</a>; bukti karya diunggah dosen
+      di form karya. Status "lengkap" = bukti butir ada dan, bila butir itu
+      dibentuk karya, semua karyanya berbukti.</p>`;
 }
 
 function pasangSimulasi(ctx){
@@ -1784,6 +1852,10 @@ function render(){
         'penghalang status · peluang poin · simulasi · kontribusi dosen',
         bagianJalanUnggul(ctxJalan), true)}
 
+    ${seksiLipat('rekap-bukti', 'Rekap bukti',
+        'bukti tiap butir · bukti karya · yang belum ada',
+        bagianRekapBukti(ctxJalan))}
+
     ${seksi('vmts', 'Visi, misi, tujuan, dan sasaran', rentang(man('vmts')), man('vmts'))}
     ${(() => { const n = gab(['6','9','10','11'], man('kerjasama'));
        return seksi('kerjasama', 'Tata pamong, kerja sama, dan keuangan', rentang(n), n); })()}
@@ -1846,7 +1918,7 @@ async function mulai(){
   const { data: saya } = await sb.from('dosen').select('id,nama,email,peran')
     .ilike('email', session.user.email).maybeSingle();
   if (!saya) return layarTidakTerdaftar(session.user.email);
-  ADMIN = saya.peran === 'admin';
+  PER_DOSEN = ['admin', 'pimpinan'].includes(saya.peran);
 
   document.getElementById('nama-prodi').textContent = 'Memuat data\u2026';
   const [jsonR, danaR, pengR, buktiR] = await Promise.all([

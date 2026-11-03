@@ -123,7 +123,8 @@ let D = null, TS = null;
 
 // Gerbang yang sama dengan skor.html: harus login DAN terdaftar di tabel
 // `dosen`. Asesor masuk lewat baris dosen dengan peran 'asesor' dan
-// aktif=tidak, supaya tidak ikut terhitung sebagai DTPS.
+// aktif=tidak, supaya tidak ikut terhitung sebagai DTPS. Dekan memakai peran
+// 'pimpinan'; aktif=ya hanya bila dekan juga DTPS prodi ini.
 async function mulai(){
   const { data: { session } } = await sb.auth.getSession();
   if (!session) return layarMasuk();
