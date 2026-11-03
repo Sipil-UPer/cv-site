@@ -172,9 +172,6 @@
 
 <header class="hero">
   <div class="hero-in">
-    <a class="balik" href="skor.html" style="float:right;margin-left:16px">Kalkulator skor &#8594;</a>
-  <a class="balik" href="grafik.html" style="float:right">Grafik untuk LED &#8594;</a>
-  <a class="balik" href="index.html">&larr; Kembali ke dashboard</a>
     <h1>Monitoring kinerja</h1>
     <div class="prodi" id="hProdi"></div>
     <div class="periode" id="periode"></div>
@@ -274,7 +271,8 @@ function muatAmbang(){
   });
 }
 
-muatAmbang()
+// Dipanggil skrip modul di akhir halaman setelah gerbang login (menu.js) lolos.
+window.mulaiHalaman = () => muatAmbang()
   .then(()=>fetch('data.json?v=' + Date.now()))
   .then(r=>{ if(!r.ok) throw new Error(r.status); return r.json(); })
   .then(d=>{ D=d; awal(); pasangSeksi(); angkaNaik('.ringkas b'); })
@@ -876,6 +874,28 @@ function kartuRinci(judul, peta){
       <div class="tr"><i style="width:${v/maks*100}%"></i></div>
       <div class="an">${v}</div></div>`).join('')}</div>`;
 }
+</script>
+<script src="config.js?v=2026-11-04-db6e5d"></script>
+<script>
+// Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
+// halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
+addEventListener('error', function (e) {
+  if (document.getElementById('galat-muat')) return;
+  var d = document.createElement('div');
+  d.id = 'galat-muat';
+  d.style.cssText = 'margin:16px;padding:12px 14px;border:1px solid #C8102E;' +
+    'background:#FBE5E8;color:#14212E;font:14px/1.5 system-ui,sans-serif';
+  d.textContent = 'Halaman gagal dimuat: ' + (e.message || 'galat skrip') +
+    '. Tekan Ctrl+Shift+R untuk memuat ulang tanpa cache; bila tetap muncul, kirim pesan ini ke admin.';
+  document.body.insertBefore(d, document.body.firstChild);
+});
+</script>
+<script type="module">
+// Ruang kerja, khusus email terdaftar (pemilik 2026-11-04).
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+import { gerbang } from './menu.js?v=2026-11-04-db6e5d';
+await gerbang(createClient(window.SB_URL, window.SB_KEY));
+window.mulaiHalaman();
 </script>
 </body>
 </html>

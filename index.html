@@ -51,6 +51,9 @@
   h1{font-family:var(--serif);font-size:clamp(27px,4.6vw,40px);font-weight:600;
      letter-spacing:-.018em;margin:10px 0 0;line-height:1.12;color:#fff}
   .inst{color:#B9CCDE;font-size:15px;margin-top:7px}
+  .logo-kampus{display:inline-block;background:#fff;border-radius:6px;padding:8px 12px;
+               line-height:0;margin-bottom:16px}
+  .logo-kampus img{height:64px}
   .garis-aksen{width:52px;height:3px;background:var(--merah);margin:18px 0 0}
 
   .cta{display:inline-flex;align-items:center;gap:9px;text-decoration:none;
@@ -168,20 +171,17 @@
   <div class="hero-in">
     <div class="hero-atas">
       <div class="hero-teks">
+        <div class="logo-kampus"><img src="logo-uper.png" alt="" id="hLogo"></div>
         <div class="eyebrow">Kinerja program studi</div>
         <h1 id="hProdi">Memuat…</h1>
         <div class="inst" id="hInst"></div>
         <div class="garis-aksen"></div>
       </div>
       <div>
-        <a class="cta" href="input.html">Input data <span>&rarr;</span></a>
-        <a class="cta2" href="monitoring.html">Monitoring kinerja <span>&rarr;</span></a>
+        <a class="cta" href="ruang-kerja.html">Masuk ruang kerja <span>&rarr;</span></a>
         <a class="cta2" href="mitra.html">Mitra kerja sama <span>&rarr;</span></a>
-        <a class="cta2" href="skor.html">Skor akreditasi <span>&rarr;</span></a>
-        <a class="cta2" href="input-butir.html">Isi butir manual <span>&rarr;</span></a>
-        <div class="cta-cat">Input data dan butir manual khusus dosen prodi,
-          masuk dengan email kampus; butir manual hanya untuk admin.
-          Monitoring dan mitra terbuka untuk semua.</div>
+        <div class="cta-cat">Ruang kerja (input data, monitoring, akreditasi)
+          khusus email yang didaftarkan prodi, sesuai perannya.</div>
       </div>
     </div>
     <div class="angka" id="angka"></div>
@@ -359,8 +359,10 @@ function bangunGrafik(){
 
 // =====================================================================
 function render(){
-  document.getElementById('hProdi').textContent = D.prodi;
+  document.getElementById('hProdi').textContent = 'Program Studi ' + D.prodi;
   document.getElementById('hInst').textContent = D.institusi || '';
+  if (D.institusi) document.getElementById('hLogo').alt = D.institusi;
+  document.title = ['Kinerja Program Studi ' + D.prodi, D.institusi].filter(Boolean).join(' — ');
 
   const totalPrestasi = (D.prestasi_agregat||[]).reduce((a,b)=>a+b.jumlah,0);
   document.getElementById('angka').innerHTML = [
@@ -426,13 +428,9 @@ function render(){
       Diperbarui ${esc(D.diperbarui)}. Halaman ini hanya menampilkan data yang
       telah diverifikasi program studi. Beban kerja dosen, nominal pendanaan,
       dan identitas mahasiswa tidak dipublikasikan.
-      <br><br>Dosen prodi dapat menambahkan karya melalui <a href="input.html">halaman input</a>,
-      melihat perkiraan skor akreditasi di <a href="skor.html">halaman skor</a>, dan —
-      bagi admin — mengisi butir kualitatif di
-      <a href="input-butir.html">halaman butir manual</a>.
-      Rekap per dosen dan sebaran per kategori tersedia di
-      <a href="monitoring.html">halaman monitoring</a>, dan daftar mitra di
-      <a href="mitra.html">halaman mitra</a>.
+      <br><br>Daftar mitra ada di <a href="mitra.html">halaman mitra</a>.
+      Dosen dan pengelola prodi mengisi data, memantau kinerja, dan menyiapkan
+      akreditasi di <a href="ruang-kerja.html">ruang kerja</a>.
     </footer>`;
 
   ['fTahun','fTingkat','fCari'].forEach(id=>

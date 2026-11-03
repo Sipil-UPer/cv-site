@@ -146,6 +146,8 @@ function tombol(wadah, opsi, aktif, ubah){
 }
 
 function awal(){
+  document.title = ['Mitra Kerja Sama', [D.prodi, D.institusi].filter(Boolean).join(' ')]
+    .filter(Boolean).join(' — ');
   document.getElementById('hProdi').textContent =
     [D.prodi, D.institusi].filter(Boolean).join(' · ');
 

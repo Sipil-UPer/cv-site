@@ -35,12 +35,6 @@
   .balik:hover{color:#fff}
   .versi-statis{font-family:var(--mono);font-size:11px;font-weight:400;
     letter-spacing:.06em;color:#7FA5C6;vertical-align:middle;margin-left:10px}
-  .nav-atas{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
-  .nav-atas a{font-family:var(--mono);font-size:11.5px;letter-spacing:.07em;
-    text-transform:uppercase;text-decoration:none;color:#fff;
-    background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.4);
-    padding:9px 15px;border-radius:2px}
-  .nav-atas a:hover{background:#fff;color:var(--biru);border-color:#fff}
   h1{font-family:var(--serif);font-size:clamp(24px,4vw,32px);font-weight:600;
      letter-spacing:-.018em;margin:0;color:#fff}
   .prodi{color:#B9CCDE;font-size:14.5px;margin-top:6px}
@@ -289,16 +283,9 @@
 <body>
 
 <div class="hero"><div class="hero-in">
-  <a class="balik" href="monitoring.html">&#8592; Monitoring</a>
   <h1>Kalkulator Skor Akreditasi <span class="versi-statis">v2026-10-14a</span></h1>
   <div class="prodi" id="nama-prodi">Memuat&hellip;</div>
   <div class="periode" id="pilih-ts"></div>
-  <div class="nav-atas">
-    <a href="input-butir.html">&#9998;&nbsp; Isi butir manual</a>
-    <a href="rincian.html?butir=23">&#128203;&nbsp; Data per butir</a>
-    <a href="data-prodi.html">&#128202;&nbsp; Data prodi (admin)</a>
-    <a href="kelola-dosen.html">&#128101;&nbsp; Dosen (admin)</a>
-  </div>
 </div></div>
 
 <main class="wrap" id="isi"><p class="kosong" style="margin-top:30px">Memuat data&hellip;</p></main>
@@ -355,7 +342,7 @@ setTimeout(function(){
   });
 }, 8000);
 </script>
-<script src="config.js"></script>
+<script src="config.js?v=2026-11-04-db6e5d"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -372,14 +359,15 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { BUTIR, isiPetaBukti, cariBukti, daftarBukti, kolomBukti } from './rincian.js?v=2026-11-03w';
+import { BUTIR, isiPetaBukti, cariBukti, daftarBukti, kolomBukti } from './rincian.js?v=2026-11-04-db6e5d';
 import { BUTIR_MANUAL, SEKSI_MANUAL, kunciButir, kunciBuktiButir, skorManual }
-  from './butir-manual.js?v=2026-11-03w';
-import { BOBOT_TOTAL, bobotButir } from './bobot.js?v=2026-11-03w';
-import { htmlRencana, buktiButir } from './rencana-bukti.js?v=2026-11-03w';
-import { htmlPanel, pasangPanel } from './panel-bukti.js?v=2026-11-03w';
+  from './butir-manual.js?v=2026-11-04-db6e5d';
+import { BOBOT_TOTAL, bobotButir } from './bobot.js?v=2026-11-04-db6e5d';
+import { htmlRencana, buktiButir } from './rencana-bukti.js?v=2026-11-04-db6e5d';
+import { htmlPanel, pasangPanel } from './panel-bukti.js?v=2026-11-04-db6e5d';
+import { pasangMenu } from './menu.js?v=2026-11-04-db6e5d';
 import { statusSyarat, syaratButir, SYARAT_UNGGUL, SYARAT_RERATA, SASARAN,
-         statusRerata, gabungSyarat, statusRentang } from './syarat-unggul.js?v=2026-11-03w';
+         statusRerata, gabungSyarat, statusRentang } from './syarat-unggul.js?v=2026-11-04-db6e5d';
 
 // config.js mendefinisikan window.SB_URL dan window.SB_KEY — pemetaan di
 // bawah ini WAJIB ada. skor.html versi sebelumnya melewatkannya dan mati
@@ -403,7 +391,7 @@ const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 // Naikkan setiap kali skor.html / rincian.js / butir-manual.js / bobot.js
 // diubah. Ditampilkan di kaki halaman supaya ketahuan seketika kalau
 // peramban masih memakai salinan lama dari cache.
-const VERSI = '2026-11-03w';
+const VERSI = '2026-11-04-db6e5d';
 // Label versi di judul diisi dari VERSI supaya keduanya tidak bisa berbeda.
 { const el = document.querySelector('.versi-statis'); if (el) el.textContent = 'v' + VERSI; }
 // =====================================================================
@@ -492,7 +480,7 @@ async function unduhLED(){
   const asli = a.textContent;
   a.textContent = 'Menyusun draf LED…';
   try {
-    const { buatLED } = await import('./led.js?v=2026-11-03w');
+    const { buatLED } = await import('./led.js?v=2026-11-04-db6e5d');
     const ts = CTX_LED.tsData;
     const hasil = await buatLED({
       D, ts, taDari, f2, versi: VERSI,
@@ -2038,6 +2026,7 @@ async function mulai(){
   const { data: saya } = await sb.from('dosen').select('id,nama,email,peran')
     .ilike('email', session.user.email).maybeSingle();
   if (!saya) return layarTidakTerdaftar(session.user.email);
+  pasangMenu(sb);
   PER_DOSEN = ['admin', 'pimpinan'].includes(saya.peran);
   ADMIN = saya.peran === 'admin';
   SAYA_EMAIL = saya.email;

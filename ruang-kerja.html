@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ruang kerja — Kinerja Program Studi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --biru:#0C2A4D; --biru-2:#17436F; --merah:#C8102E; --hijau:#00954E;
+    --bg:#F2F4F2; --panel:#fff; --ink:#14212E; --muted:#5D6B78;
+    --line:#D9DFDA; --line-soft:#EBEEEB;
+    --sans:'IBM Plex Sans',system-ui,sans-serif;
+    --mono:'IBM Plex Mono',ui-monospace,monospace;
+    --serif:'IBM Plex Serif',Georgia,serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
+       font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+  .hero{background:var(--biru);color:#fff;border-bottom:4px solid var(--merah)}
+  .hero-in{max-width:1180px;margin:0 auto;padding:34px 24px 30px}
+  .hero-baris{display:flex;gap:20px;align-items:center;margin-top:14px;flex-wrap:wrap}
+  .logo-kampus{background:#fff;border-radius:6px;padding:8px 12px;line-height:0}
+  .logo-kampus img{height:72px}
+  .eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.12em;
+           text-transform:uppercase;color:#A9C0D6}
+  h1{font-family:var(--serif);font-weight:600;font-size:30px;margin:6px 0 4px}
+  .sub{color:#C9D7E4;font-size:14px}
+  .balik{color:#C9D7E4;font-size:13px;text-decoration:none}
+  .balik:hover{color:#fff}
+  .wrap{max-width:1180px;margin:0 auto;padding:26px 24px 60px}
+  .modul{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:18px}
+  .m{background:var(--panel);border:1px solid var(--line);border-top:3px solid var(--biru);
+     border-radius:4px;padding:18px 20px}
+  .m h2{font-family:var(--serif);font-size:19px;margin:0 0 2px;color:var(--biru)}
+  .m>p{margin:0 0 12px;color:var(--muted);font-size:13.5px}
+  .m a{display:block;text-decoration:none;color:var(--ink);padding:9px 10px;margin:0 -10px;
+       border-radius:3px}
+  .m a:hover{background:var(--line-soft)}
+  .m a b{color:var(--biru-2)}
+  .m a span{display:block;color:var(--muted);font-size:13px}
+  .info{background:#FFF8E5;border:1px solid #E8D9A8;border-radius:4px;padding:10px 14px;
+        margin-bottom:18px;font-size:14px}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:4px;
+         padding:22px 24px;max-width:440px}
+  .panel h2{margin:0 0 6px;font-family:var(--serif)}
+  .hint{color:var(--muted);font-size:14px}
+  label{display:block;font-size:13px;font-weight:600;margin:12px 0 4px}
+  input{width:100%;font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:3px}
+  .btn{font:inherit;font-weight:600;background:var(--biru);color:#fff;border:0;border-radius:3px;
+       padding:8px 16px;cursor:pointer;margin-top:14px}
+  .btn.ghost{background:none;color:var(--biru);border:1px solid var(--line)}
+  .msg{margin-left:10px;font-size:13.5px}
+  .msg.err{color:var(--merah)} .msg.ok{color:var(--hijau)}
+  @media(max-width:640px){.hero-in,.wrap{padding-left:16px;padding-right:16px}
+    .modul{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-in">
+    <a class="balik" href="index.html">&larr; Beranda umum</a>
+    <div class="hero-baris">
+      <div class="logo-kampus"><img src="logo-uper.png" alt="" id="hLogo"></div>
+      <div>
+        <div class="eyebrow" id="hInst">&nbsp;</div>
+        <h1 id="hProdi">Ruang kerja</h1>
+        <div class="sub"><b>Ruang kerja</b> &middot; <span id="hSub">khusus email yang didaftarkan admin prodi.</span></div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main class="wrap" id="isi"><p class="hint">Memuat&hellip;</p></main>
+
+<script src="config.js?v=2026-11-04-db6e5d"></script>
+<script>
+// Galat saat memuat skrip (mis. modul lama dari cache) tampil sebagai pesan.
+addEventListener('error', function (e) {
+  if (document.getElementById('galat-muat')) return;
+  var d = document.createElement('div');
+  d.id = 'galat-muat';
+  d.style.cssText = 'margin:16px;padding:12px 14px;border:1px solid #C8102E;' +
+    'background:#FBE5E8;color:#14212E;font:14px/1.5 system-ui,sans-serif';
+  d.textContent = 'Halaman gagal dimuat: ' + (e.message || 'galat skrip') +
+    '. Tekan Ctrl+Shift+R untuk memuat ulang tanpa cache; bila tetap muncul, kirim pesan ini ke admin.';
+  document.body.insertBefore(d, document.body.firstChild);
+});
+</script>
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+import { pengguna, pasangMenu, halamanBoleh, bolehBuka, identitas, pasangJudul } from './menu.js?v=2026-11-04-db6e5d';
+
+const sb = createClient(window.SB_URL, window.SB_KEY);
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c =>
+  ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const q = new URLSearchParams(location.search);
+// ?ke= : halaman yang diminta sebelum login (dari gerbang di menu.js).
+// ?tolak= : halaman yang tidak boleh dibuka peran ini.
+const KE = q.get('ke'), TOLAK = q.get('tolak');
+let siap = false;
+
+// Merek institusi di kepala halaman, juga di layar masuk.
+identitas().then(({ prodi, institusi }) => {
+  if (institusi) { $('hInst').textContent = institusi; $('hLogo').alt = institusi; }
+  if (prodi) $('hProdi').textContent = 'Program Studi ' + prodi;
+});
+pasangJudul();
+
+async function mulai(){
+  const u = await pengguna(sb);
+  if (!u) return layarMasuk();
+  if (!u.saya) return layarTidakTerdaftar(u.email);
+  siap = true;
+  // Hanya halaman ruang kerja yang dikenal menu.js, supaya ?ke= tidak bisa
+  // dipakai mengalihkan ke situs lain.
+  if (KE && bolehBuka(u.saya, KE)) return location.replace(KE);
+  await pasangMenu(sb);
+  $('hSub').textContent = `Masuk sebagai ${u.saya.nama} (${u.saya.peran}).`;
+  const tolak = TOLAK || (KE && bolehBuka(u.saya, KE) === false ? KE : '');
+  $('isi').innerHTML = (tolak ? `<div class="info">Halaman <code>${esc(tolak.split('?')[0])}</code>
+      tidak tersedia untuk peran ${esc(u.saya.peran)}. Hubungi admin prodi bila perlu akses.</div>` : '')
+    + `<div class="modul">${halamanBoleh(u.saya).map(m => `<section class="m">
+        <h2>${esc(m.judul)}</h2><p>${esc(m.ket)}</p>
+        ${m.halaman.map(h => `<a href="${esc(h.href)}"><b>${esc(h.judul)}</b>
+          <span>${esc(h.ket)}</span></a>`).join('')}</section>`).join('')}</div>`;
+}
+
+function layarMasuk(){
+  $('isi').innerHTML = `<div class="panel"><h2>Masuk</h2>
+    <p class="hint">Gunakan email kampus yang sudah didaftarkan admin prodi.
+    Kami kirimkan tautan masuk — tidak ada kata sandi yang perlu diingat.</p>
+    <label for="em">Alamat email</label>
+    <input id="em" type="email" autocomplete="email" placeholder="nama@kampus.ac.id">
+    <button class="btn" id="kirim">Kirim tautan masuk</button><span class="msg" id="m"></span></div>`;
+  const em = $('em'), m = $('m'), kirim = $('kirim');
+  em.onkeydown = e => { if (e.key === 'Enter') kirim.click(); };
+  kirim.onclick = async () => {
+    m.className = 'msg';
+    if (!em.value.includes('@')) { m.className = 'msg err'; m.textContent = 'Masukkan email yang valid.'; return; }
+    kirim.disabled = true; m.textContent = 'Mengirim…';
+    const { error } = await sb.auth.signInWithOtp({ email: em.value.trim(),
+      options: { emailRedirectTo: location.href.split('#')[0] } });
+    kirim.disabled = false;
+    if (error) { m.className = 'msg err'; m.textContent = error.message; }
+    else { m.className = 'msg ok'; m.textContent = 'Tautan terkirim. Periksa kotak masuk Anda.'; }
+  };
+}
+
+function layarTidakTerdaftar(email){
+  $('isi').innerHTML = `<div class="panel"><h2>Email belum terdaftar</h2>
+    <p class="hint"><strong>${esc(email)}</strong> belum ada di daftar prodi.
+    Hubungi admin prodi untuk didaftarkan.</p>
+    <button class="btn ghost" id="kl">Keluar</button></div>`;
+  $('kl').onclick = async () => { await sb.auth.signOut(); location.reload(); };
+}
+
+sb.auth.onAuthStateChange(ev => {
+  if (ev === 'SIGNED_IN' && !siap) { pengguna(sb, true); mulai(); }
+});
+mulai().catch(e => { $('isi').innerHTML = `<p class="hint">${esc(e.message)}</p>`; });
+</script>
+</body>
+</html>

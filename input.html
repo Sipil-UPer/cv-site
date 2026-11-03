@@ -157,16 +157,12 @@
       <div class="mark">Input <span>Kinerja</span></div>
       <div class="kop-sub">Publikasi, penelitian, pengabdian</div>
     </div>
-    <div class="kop-user" id="kopUser" hidden>
-      <span id="userNama"></span>
-      <button class="btn ghost sm" id="btnKeluar">Keluar</button>
-    </div>
   </div>
 </header>
 
 <div class="wrap" id="app"></div>
 
-<script src="config.js"></script>
+<script src="config.js?v=2026-11-04-db6e5d"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -190,8 +186,9 @@ const SUPABASE_URL = window.SB_URL;
 const SUPABASE_ANON_KEY = window.SB_KEY;
 
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { JENIS_BUKTI_KARYA, namaJenisBukti } from './rencana-bukti.js?v=2026-11-03w';
-import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-03w';
+import { JENIS_BUKTI_KARYA, namaJenisBukti } from './rencana-bukti.js?v=2026-11-04-db6e5d';
+import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-04-db6e5d';
+import { pasangMenu } from './menu.js?v=2026-11-04-db6e5d';
 
 const app = document.getElementById('app');
 if (!SUPABASE_URL || !SUPABASE_ANON_KEY
@@ -350,6 +347,7 @@ async function mulai(){
     .ilike('email', session.user.email).maybeSingle();
   if(!data) return layarTidakTerdaftar(session.user.email);
   saya = data;
+  pasangMenu(sb);
   // Asesor, dan pimpinan (dekan) yang bukan DTPS prodi ini, hanya melihat
   // skor; tidak mengisi karya. Dekan yang DTPS (aktif) mengisi seperti dosen.
   // Batas tampilan, sama seperti tab Verifikasi untuk admin.
@@ -366,11 +364,6 @@ async function mulai(){
   ]);
   dosenList = ds.data || []; refKelompok = kl.data || []; refSkema = sk.data || [];
 
-  document.getElementById('kopUser').hidden = false;
-  document.getElementById('userNama').textContent = saya.nama;
-  document.getElementById('btnKeluar').onclick = async()=>{
-    await sb.auth.signOut(); location.reload();
-  };
   layarUtama();
 }
 

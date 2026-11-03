@@ -146,7 +146,8 @@ function render(D){
     return;
   }
 
-  document.title = `${dosen.nama} — Kinerja Program Studi`;
+  document.title = [dosen.nama, [D.prodi, D.institusi].filter(Boolean).join(' ')]
+    .filter(Boolean).join(' — ');
   document.getElementById('hNama').textContent = dosen.nama;
   document.getElementById('hProdi').textContent =
     [D.prodi, D.institusi].filter(Boolean).join(' · ');

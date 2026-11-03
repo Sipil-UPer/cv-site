@@ -73,9 +73,6 @@
 
 <header class="hero">
   <div class="hero-in">
-    <a class="balik" href="skor.html">&larr; Halaman skor</a>
-    <a class="balik" href="input-butir.html">Isian butir &amp; dokumen</a>
-    <a class="balik" href="kelola-dosen.html">Kelola dosen</a>
     <h1>Data prodi</h1>
     <div class="sub" id="hSub">Memuat&hellip;</div>
   </div>
@@ -83,7 +80,7 @@
 
 <main class="wrap" id="isi"></main>
 
-<script src="config.js"></script>
+<script src="config.js?v=2026-11-04-db6e5d"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -100,7 +97,8 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-03w';
+import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-04-db6e5d';
+import { pasangMenu } from './menu.js?v=2026-11-04-db6e5d';
 
 /* =====================================================================
    DATA PRODI — data kuantitatif LKPS diisi admin di situs (keputusan
@@ -301,6 +299,7 @@ async function mulai(){
     .ilike('email', session.user.email).maybeSingle();
   if (!saya) { $('hSub').textContent = 'Tidak terdaftar'; $('isi').innerHTML = '<p class="kosong">Email belum terdaftar.</p>'; return; }
   SAYA = saya;
+  pasangMenu(sb);
   if (saya.peran !== 'admin') {
     $('hSub').textContent = `Masuk sebagai ${saya.nama}`;
     $('isi').innerHTML = '<p class="kosong">Halaman ini khusus admin prodi.</p>';

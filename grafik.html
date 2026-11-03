@@ -74,7 +74,6 @@
 <body>
 
 <div class="hero"><div class="hero-in">
-  <a class="balik" href="monitoring.html">&#8592; Monitoring</a>
   <h1>Grafik untuk LED</h1>
   <div class="prodi" id="nama-prodi">Memuat&hellip;</div>
   <div class="kendali" id="kendali"></div>
@@ -673,7 +672,8 @@ function pasangKendali(){
     SKALA = +b.dataset.s; pasangKendali(); });
 }
 
-fetch('data.json?v=' + Date.now())
+// Dipanggil skrip modul di akhir halaman setelah gerbang login (menu.js) lolos.
+window.mulaiHalaman = () => fetch('data.json?v=' + Date.now())
   .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
   .then(d => {
     D = d;
@@ -685,6 +685,28 @@ fetch('data.json?v=' + Date.now())
     document.getElementById('isi').innerHTML =
       `<p class="kosong">Data belum tersedia. Hubungi admin prodi.</p>`;
   });
+</script>
+<script src="config.js?v=2026-11-04-db6e5d"></script>
+<script>
+// Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
+// halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
+addEventListener('error', function (e) {
+  if (document.getElementById('galat-muat')) return;
+  var d = document.createElement('div');
+  d.id = 'galat-muat';
+  d.style.cssText = 'margin:16px;padding:12px 14px;border:1px solid #C8102E;' +
+    'background:#FBE5E8;color:#14212E;font:14px/1.5 system-ui,sans-serif';
+  d.textContent = 'Halaman gagal dimuat: ' + (e.message || 'galat skrip') +
+    '. Tekan Ctrl+Shift+R untuk memuat ulang tanpa cache; bila tetap muncul, kirim pesan ini ke admin.';
+  document.body.insertBefore(d, document.body.firstChild);
+});
+</script>
+<script type="module">
+// Ruang kerja, khusus email terdaftar (pemilik 2026-11-04).
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+import { gerbang } from './menu.js?v=2026-11-04-db6e5d';
+await gerbang(createClient(window.SB_URL, window.SB_KEY));
+window.mulaiHalaman();
 </script>
 </body>
 </html>
