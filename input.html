@@ -190,8 +190,8 @@ const SUPABASE_URL = window.SB_URL;
 const SUPABASE_ANON_KEY = window.SB_KEY;
 
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { JENIS_BUKTI_KARYA, namaJenisBukti } from './rencana-bukti.js?v=2026-11-03v';
-import { buangBerkas, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-03v';
+import { JENIS_BUKTI_KARYA, namaJenisBukti } from './rencana-bukti.js?v=2026-11-03w';
+import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-03w';
 
 const app = document.getElementById('app');
 if (!SUPABASE_URL || !SUPABASE_ANON_KEY
@@ -1290,6 +1290,12 @@ async function muatBuktiUntuk(data){
 }
 
 // Daftar tautan bukti tanpa formulir (tab Verifikasi).
+// Tautan berkas milik karya ini sendiri (isian awal + karya_bukti), tanpa
+// bukti warisan induk: berkas warisan masih dipakai karya induknya.
+function berkasMilikKarya(k){
+  return daftarBuktiKarya(k).filter(x => x.id || x.lama).map(x => x.url);
+}
+
 // hapus=true (layar admin): tombol Hapus pada bukti milik karya ini
 // (bukan bukti warisan induk); berkasnya dibuang ke Sampah Drive.
 function htmlDaftarBukti(k, hapus = false){
@@ -1417,7 +1423,14 @@ async function muatKaryaSaya(wadahId, batas){
   });
   box.querySelectorAll('[data-h]').forEach(b=>{
     b.onclick = async()=>{
-      if(!confirm('Hapus entri ini?')) return;
+      const k = (data || []).find(x => String(x.id) === String(b.dataset.h));
+      const admin = saya.peran === 'admin';
+      const urls = k ? berkasMilikKarya(k) : [];
+      if(!confirm('Hapus entri ini?' + (admin && urls.length ? ` ${urls.length} berkas buktinya ikut dihapus. ${PESAN_SAMPAH}` : ''))) return;
+      if(admin){
+        try{ await buangSemua(sb, urls); }
+        catch(err){ alert('Gagal membuang berkas: ' + (err.message || err)); return; }
+      }
       const { error } = await sb.from('karya').delete().eq('id', b.dataset.h);
       if(error) alert('Gagal menghapus: ' + error.message);
       muatKaryaSaya(wadahId, batas);
@@ -1548,7 +1561,11 @@ async function muatAjuanHapus(){
   box.querySelectorAll('[data-sh]').forEach(b => {
     b.onclick = async () => {
       const k = perId.get(b.dataset.sh);
-      if(!confirm(`Hapus permanen karya "${k.judul}"? Penulis, bukti, dan ajuannya ikut terhapus; berkas di Drive tetap.`)) return;
+      const urls = berkasMilikKarya(k);
+      if(!confirm(`Hapus permanen karya "${k.judul}"? Penulis, bukti, dan ajuannya ikut terhapus` +
+        (urls.length ? `; ${urls.length} berkas buktinya dipindah ke Sampah Drive (bisa dipulihkan 30 hari).` : '.'))) return;
+      try{ await buangSemua(sb, urls); }
+      catch(err){ alert('Gagal membuang berkas: ' + (err.message || err)); return; }
       const { error: e } = await sb.from('karya').delete().eq('id', k.id);
       if(e) alert('Gagal menghapus: ' + e.message);
       muatAjuanHapus();

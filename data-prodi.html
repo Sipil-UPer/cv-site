@@ -75,6 +75,7 @@
   <div class="hero-in">
     <a class="balik" href="skor.html">&larr; Halaman skor</a>
     <a class="balik" href="input-butir.html">Isian butir &amp; dokumen</a>
+    <a class="balik" href="kelola-dosen.html">Kelola dosen</a>
     <h1>Data prodi</h1>
     <div class="sub" id="hSub">Memuat&hellip;</div>
   </div>
@@ -99,11 +100,11 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-03v';
+import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-03w';
 
 /* =====================================================================
    DATA PRODI — data kuantitatif LKPS diisi admin di situs (keputusan
-   pemilik 2026-11-03). data-prodi.xlsx hanya untuk data induk (dosen).
+   pemilik 2026-11-03). Daftar dosen di kelola-dosen.html; Excel dipensiunkan.
    Tabel lkps_* (supabase/16-patch-data-lkps.sql) memakai kolom yang sama
    dengan lembar Excel lama; bangun.py membacanya sebagai pengganti lembar,
    jadi skor berubah setelah bangun berikutnya. Khusus admin (RLS).

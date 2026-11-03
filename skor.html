@@ -297,6 +297,7 @@
     <a href="input-butir.html">&#9998;&nbsp; Isi butir manual</a>
     <a href="rincian.html?butir=23">&#128203;&nbsp; Data per butir</a>
     <a href="data-prodi.html">&#128202;&nbsp; Data prodi (admin)</a>
+    <a href="kelola-dosen.html">&#128101;&nbsp; Dosen (admin)</a>
   </div>
 </div></div>
 
@@ -371,14 +372,14 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { BUTIR, isiPetaBukti, cariBukti, daftarBukti, kolomBukti } from './rincian.js?v=2026-11-03v';
+import { BUTIR, isiPetaBukti, cariBukti, daftarBukti, kolomBukti } from './rincian.js?v=2026-11-03w';
 import { BUTIR_MANUAL, SEKSI_MANUAL, kunciButir, kunciBuktiButir, skorManual }
-  from './butir-manual.js?v=2026-11-03v';
-import { BOBOT_TOTAL, bobotButir } from './bobot.js?v=2026-11-03v';
-import { htmlRencana, buktiButir } from './rencana-bukti.js?v=2026-11-03v';
-import { htmlPanel, pasangPanel } from './panel-bukti.js?v=2026-11-03v';
+  from './butir-manual.js?v=2026-11-03w';
+import { BOBOT_TOTAL, bobotButir } from './bobot.js?v=2026-11-03w';
+import { htmlRencana, buktiButir } from './rencana-bukti.js?v=2026-11-03w';
+import { htmlPanel, pasangPanel } from './panel-bukti.js?v=2026-11-03w';
 import { statusSyarat, syaratButir, SYARAT_UNGGUL, SYARAT_RERATA, SASARAN,
-         statusRerata, gabungSyarat, statusRentang } from './syarat-unggul.js?v=2026-11-03v';
+         statusRerata, gabungSyarat, statusRentang } from './syarat-unggul.js?v=2026-11-03w';
 
 // config.js mendefinisikan window.SB_URL dan window.SB_KEY — pemetaan di
 // bawah ini WAJIB ada. skor.html versi sebelumnya melewatkannya dan mati
@@ -402,7 +403,7 @@ const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 // Naikkan setiap kali skor.html / rincian.js / butir-manual.js / bobot.js
 // diubah. Ditampilkan di kaki halaman supaya ketahuan seketika kalau
 // peramban masih memakai salinan lama dari cache.
-const VERSI = '2026-11-03v';
+const VERSI = '2026-11-03w';
 // Label versi di judul diisi dari VERSI supaya keduanya tidak bisa berbeda.
 { const el = document.querySelector('.versi-statis'); if (el) el.textContent = 'v' + VERSI; }
 // =====================================================================
@@ -491,7 +492,7 @@ async function unduhLED(){
   const asli = a.textContent;
   a.textContent = 'Menyusun draf LED…';
   try {
-    const { buatLED } = await import('./led.js?v=2026-11-03v');
+    const { buatLED } = await import('./led.js?v=2026-11-03w');
     const ts = CTX_LED.tsData;
     const hasil = await buatLED({
       D, ts, taDari, f2, versi: VERSI,

@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Kelola dosen — Kinerja Program Studi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --biru:#0C2A4D; --biru-2:#17436F; --biru-3:#5C86B0;
+    --merah:#C8102E; --hijau:#00954E; --emas:#B8860B;
+    --bg:#F2F4F2; --panel:#fff; --ink:#14212E; --muted:#5D6B78;
+    --line:#D9DFDA; --line-soft:#EBEEEB;
+    --sans:'IBM Plex Sans',system-ui,sans-serif;
+    --mono:'IBM Plex Mono',ui-monospace,monospace;
+    --serif:'IBM Plex Serif',Georgia,serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
+       font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1100px;margin:0 auto;padding:0 20px 80px}
+  a{color:var(--biru-2)}
+  .hero{background:var(--biru);color:#fff;border-bottom:4px solid var(--merah)}
+  .hero-in{max-width:1100px;margin:0 auto;padding:26px 20px 24px}
+  .balik{display:inline-flex;gap:7px;align-items:center;text-decoration:none;
+    font-family:var(--mono);font-size:11px;letter-spacing:.1em;
+    text-transform:uppercase;color:#9FC2E0;margin:0 18px 16px 0}
+  .balik:hover{color:#fff}
+  h1{font-family:var(--serif);font-size:clamp(21px,3.4vw,28px);font-weight:600;margin:0;color:#fff}
+  h2{font-family:var(--serif);font-size:18px;margin:22px 0 8px;color:var(--biru)}
+  .sub{color:#B9CCDE;font-size:14px;margin-top:6px}
+  .info{margin-top:18px;padding:10px 14px;border-left:3px solid var(--emas);
+        background:#FFFBEF;font-size:13.5px}
+  .b{background:var(--panel);border:1px solid var(--line);padding:16px 18px;margin-top:14px}
+  .ket{font-size:13px;color:var(--muted);margin:0 0 10px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px 14px}
+  .fld label{display:block;font-size:12.5px;margin-bottom:3px}
+  .fld .wj{color:var(--merah)}
+  .fld input,.fld select{width:100%;padding:7px 9px;border:1px solid var(--line);
+    border-radius:2px;font:inherit;font-size:13.5px;background:#fff}
+  .fld input[type=checkbox]{width:auto;margin-right:6px}
+  .fld .cek{display:flex;align-items:center;font-size:13.5px;padding-top:6px}
+  .fld small{display:block;color:var(--muted);font-size:11.5px;margin-top:2px}
+  .aksi{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:14px}
+  button.btn{font:inherit;font-size:13px;padding:7px 14px;border:1px solid var(--biru);
+    background:var(--biru);color:#fff;cursor:pointer;border-radius:2px}
+  button.btn.ghost{background:#fff;color:var(--biru)}
+  button.btn.kecil{font-size:12px;padding:3px 9px}
+  button:disabled{opacity:.5;cursor:default}
+  .msg{font-size:13px}
+  .msg.ok{color:var(--hijau)} .msg.buruk{color:var(--merah)}
+  .gulir{overflow-x:auto}
+  table.t{border-collapse:collapse;font-size:12.5px;min-width:100%}
+  table.t th,table.t td{border-bottom:1px solid var(--line-soft);padding:5px 7px;text-align:left;vertical-align:top;white-space:nowrap}
+  table.t th{font-family:var(--mono);font-size:10px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+  table.t tr.sunting{background:#FFFBEF}
+  table.t tr.nonaktif td{color:var(--muted)}
+  .kosong{color:var(--muted);font-size:13.5px;padding:12px 0}
+  .masuk{max-width:420px;margin:40px auto;background:#fff;border:1px solid var(--line);padding:20px}
+  .masuk input{width:100%;padding:8px 10px;margin:8px 0;font:inherit}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-in">
+    <a class="balik" href="skor.html">&larr; Halaman skor</a>
+    <a class="balik" href="data-prodi.html">Data prodi</a>
+    <h1>Kelola dosen</h1>
+    <div class="sub" id="hSub">Memuat&hellip;</div>
+  </div>
+</header>
+
+<main class="wrap" id="isi"></main>
+
+<script src="config.js"></script>
+<script>
+// Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
+// halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
+addEventListener('error', function (e) {
+  if (document.getElementById('galat-muat')) return;
+  var d = document.createElement('div');
+  d.id = 'galat-muat';
+  d.style.cssText = 'margin:16px;padding:12px 14px;border:1px solid #C8102E;' +
+    'background:#FBE5E8;color:#14212E;font:14px/1.5 system-ui,sans-serif';
+  d.textContent = 'Halaman gagal dimuat: ' + (e.message || 'galat skrip') +
+    '. Tekan Ctrl+Shift+R untuk memuat ulang tanpa cache; bila tetap muncul, kirim pesan ini ke admin.';
+  document.body.insertBefore(d, document.body.firstChild);
+});
+</script>
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+
+/* =====================================================================
+   KELOLA DOSEN — daftar dosen prodi diisi admin di situs (keputusan
+   pemilik 2026-11-03), menggantikan lembar `dosen` di data-prodi.xlsx dan
+   `bangun.py --sinkron-dosen`. Tabel `dosen` (supabase/01-skema.sql;
+   kolom pendidikan + jabatan sejak supabase/18-patch-dosen-web.sql).
+   Hak tulis: policy dosen_admin (admin saja). Aturan isian sama dengan
+   sinkron_dosen() di bangun.py:
+     - nidn, nama, email wajib; nidn dan email unik; admin staf tanpa NIDN
+       memakai NIP/NUP atau kode STAF-001;
+     - asesor tidak pernah DTPS;
+     - dosen tidak dihapus (karya merujuk ke barisnya): set aktif = tidak.
+   Pengaman: admin tidak bisa mencabut peran admin/aktif dirinya sendiri,
+   dan selalu tersisa minimal satu admin aktif.
+   ===================================================================== */
+
+const esc = s => String(s ?? '').replace(/[&<>"']/g,
+  c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const $ = id => document.getElementById(id);
+
+const SB_URL = window.SB_URL || '', SB_KEY = window.SB_KEY || '';
+if (!SB_URL || !SB_KEY || SB_URL.includes('xxxx')) {
+  $('isi').innerHTML = '<p class="kosong">config.js belum diisi.</p>';
+  throw new Error('config.js belum diisi');
+}
+const sb = createClient(SB_URL, SB_KEY);
+
+// Nilai sah; sama dengan PERAN_SAH, PETUNJUK_EXCEL dan validasi() di bangun.py.
+const PERAN = [['dosen', 'Dosen'], ['admin', 'Admin'], ['pimpinan', 'Pimpinan'], ['asesor', 'Asesor']];
+const PERAN_BUKAN_DTPS = ['asesor'];
+const PENDIDIKAN = [['', '—'], ['S2', 'S2'], ['S3', 'S3']];
+const JABATAN = [['', 'Belum punya jabatan'], ['tenaga_pengajar', 'Tenaga pengajar'],
+  ['asisten_ahli', 'Asisten ahli'], ['lektor', 'Lektor'], ['lektor_kepala', 'Lektor kepala'],
+  ['guru_besar', 'Guru besar']];
+const POLA = {
+  sinta_id: [/^[0-9]+$/, 'hanya angka'],
+  scopus_id: [/^[0-9]+$/, 'hanya angka'],
+  orcid: [/^[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{3}[0-9X]$/i, 'format 0000-0000-0000-0000'],
+};
+const KOLOM = 'id,nidn,nama,email,peran,pendidikan,jabatan,sinta_id,scopus_id,orcid,aktif,dtps';
+
+let SAYA = null, DOSEN = [], SUNTING = null;
+
+const nama = (daftar, v) => (daftar.find(x => x[0] === (v || '')) || [, v || '—'])[1];
+const opsi = (daftar, v) => daftar.map(([k, l]) =>
+  `<option value="${esc(k)}"${k === (v || '') ? ' selected' : ''}>${esc(l)}</option>`).join('');
+
+function tulis(jenis, teks){ const m = $('pesan'); m.className = 'msg ' + jenis; m.textContent = teks; }
+
+// Tempel URL profil -> ambil ID-nya (sama dengan id_saja() di bangun.py).
+function idSaja(v){
+  let s = String(v || '').trim();
+  if (!s || ['nan', 'none', '-'].includes(s.toLowerCase())) return '';
+  if (/http/i.test(s)) {
+    s = s.slice(s.toLowerCase().lastIndexOf('http'));
+    const m = s.match(/authorId=([0-9]+)/i);
+    if (m) return m[1];
+    s = s.replace(/\/+$/, '').split('?')[0].split('#')[0].split('/').pop();
+  }
+  return s.trim();
+}
+
+async function mulai(){
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) return layarMasuk();
+  const { data: saya } = await sb.from('dosen').select('id,nama,email,peran')
+    .ilike('email', session.user.email).maybeSingle();
+  if (!saya) { $('hSub').textContent = 'Tidak terdaftar'; $('isi').innerHTML = '<p class="kosong">Email belum terdaftar.</p>'; return; }
+  SAYA = saya;
+  if (saya.peran !== 'admin') {
+    $('hSub').textContent = `Masuk sebagai ${saya.nama}`;
+    $('isi').innerHTML = '<p class="kosong">Halaman ini khusus admin prodi.</p>';
+    return;
+  }
+  $('hSub').textContent = `Masuk sebagai ${saya.nama} (admin)`;
+  $('isi').innerHTML = `
+    <div class="info">Daftar dosen prodi. <b>aktif</b> = boleh masuk situs; <b>DTPS</b> = dihitung
+      sebagai dosen tetap prodi (pembagi NDTPS, daftar dosen publik). Admin staf, dekan yang bukan
+      DTPS prodi ini, dan asesor: aktif ya, DTPS tidak. Dosen yang pindah tidak dihapus, cukup
+      dinonaktifkan. Skor berubah setelah situs dibangun ulang (otomatis tiap jam).</div>
+    <div class="b" id="form"></div>
+    <h2>Daftar dosen</h2>
+    <div class="gulir" id="daftar"><p class="kosong">Memuat&hellip;</p></div>`;
+  await muat();
+}
+
+async function muat(){
+  const { data, error } = await sb.from('dosen').select(KOLOM).order('nama');
+  if (error) {
+    const kolomHilang = /pendidikan|jabatan|column/i.test(error.message);
+    $('daftar').innerHTML = `<p class="kosong">Daftar dosen tidak bisa dibaca: ${esc(error.message)}${
+      kolomHilang ? '. Jalankan supabase/18-patch-dosen-web.sql di Supabase.' : ''}</p>`;
+    $('form').innerHTML = '';
+    return;
+  }
+  DOSEN = data || [];
+  gambarDaftar();
+  isiForm(SUNTING ? DOSEN.find(d => d.id === SUNTING) : null);
+}
+
+function gambarDaftar(){
+  const n = DOSEN.filter(d => d.dtps && d.aktif !== false).length;
+  $('daftar').innerHTML = `<p class="ket">${DOSEN.length} orang; ${n} dihitung DTPS.</p>
+    <table class="t"><thead><tr><th>Nama</th><th>NIDN/kode</th><th>Email</th><th>Peran</th>
+      <th>Pendidikan</th><th>Jabatan</th><th>Aktif</th><th>DTPS</th><th></th></tr></thead><tbody>${
+    DOSEN.map(d => `<tr class="${d.id === SUNTING ? 'sunting' : ''}${d.aktif ? '' : ' nonaktif'}">
+      <td>${esc(d.nama)}</td><td>${esc(d.nidn)}</td><td>${esc(d.email)}</td>
+      <td>${esc(nama(PERAN, d.peran))}</td><td>${esc(d.pendidikan || '—')}</td>
+      <td>${esc(nama(JABATAN, d.jabatan))}</td><td>${d.aktif ? 'ya' : 'tidak'}</td>
+      <td>${d.dtps ? 'ya' : 'tidak'}</td>
+      <td><button class="btn ghost kecil" data-ubah="${esc(d.id)}">Ubah</button></td></tr>`).join('')
+  }</tbody></table>`;
+  $('daftar').querySelectorAll('[data-ubah]').forEach(b => {
+    b.onclick = () => { SUNTING = b.dataset.ubah; gambarDaftar(); isiForm(DOSEN.find(d => d.id === SUNTING));
+                        $('form').scrollIntoView({ behavior: 'smooth' }); };
+  });
+}
+
+function isiForm(d){
+  const r = d || { peran: 'dosen', aktif: true, dtps: true };
+  const diriSendiri = d && d.id === SAYA.id;
+  $('form').innerHTML = `
+    <p class="ket"><b>${d ? 'Ubah: ' + esc(d.nama) : 'Tambah dosen atau admin'}</b>${
+      diriSendiri ? ' — ini akun Anda sendiri: peran admin dan aktif tidak bisa dicabut di sini.' : ''}</p>
+    <div class="grid">
+      <div class="fld"><label>Nama lengkap <span class="wj">*</span></label><input id="f_nama" value="${esc(r.nama)}"></div>
+      <div class="fld"><label>NIDN <span class="wj">*</span></label><input id="f_nidn" value="${esc(r.nidn)}">
+        <small>Admin staf tanpa NIDN: NIP/NUP, atau kode STAF-001.</small></div>
+      <div class="fld"><label>Email kampus <span class="wj">*</span></label><input id="f_email" type="email" value="${esc(r.email)}">
+        <small>Dipakai untuk masuk situs.</small></div>
+      <div class="fld"><label>Peran</label><select id="f_peran"${diriSendiri ? ' disabled' : ''}>${opsi(PERAN, r.peran)}</select>
+        <small>Admin: verifikasi dan data prodi. Pimpinan: skor + rincian per dosen. Asesor: lihat skor.</small></div>
+      <div class="fld"><label>Pendidikan tertinggi</label><select id="f_pendidikan">${opsi(PENDIDIKAN, r.pendidikan)}</select></div>
+      <div class="fld"><label>Jabatan akademik</label><select id="f_jabatan">${opsi(JABATAN, r.jabatan)}</select></div>
+      <div class="fld"><label>SINTA ID</label><input id="f_sinta_id" value="${esc(r.sinta_id)}"></div>
+      <div class="fld"><label>Scopus ID</label><input id="f_scopus_id" value="${esc(r.scopus_id)}"></div>
+      <div class="fld"><label>ORCID</label><input id="f_orcid" value="${esc(r.orcid)}"></div>
+      <div class="fld"><label>Status</label>
+        <label class="cek"><input type="checkbox" id="f_aktif"${r.aktif ? ' checked' : ''}${diriSendiri ? ' disabled' : ''}>Aktif (boleh masuk situs)</label>
+        <label class="cek"><input type="checkbox" id="f_dtps"${r.dtps ? ' checked' : ''}>Dihitung DTPS prodi</label></div>
+    </div>
+    <div class="aksi"><button class="btn" id="simpan">${d ? 'Simpan perubahan' : 'Tambah'}</button>
+      ${d ? '<button class="btn ghost" id="batal">Batal</button>' : ''}<span class="msg" id="pesan"></span></div>`;
+  const sinkronDtps = () => {
+    const asesor = PERAN_BUKAN_DTPS.includes($('f_peran').value);
+    $('f_dtps').disabled = asesor;
+    if (asesor) $('f_dtps').checked = false;
+  };
+  $('f_peran').onchange = sinkronDtps;
+  sinkronDtps();
+  $('simpan').onclick = simpan;
+  if (d) $('batal').onclick = () => { SUNTING = null; gambarDaftar(); isiForm(null); };
+}
+
+async function simpan(){
+  const v = k => $('f_' + k).value.trim();
+  const isi = {
+    nama: v('nama'), nidn: v('nidn'), email: v('email').toLowerCase(), peran: $('f_peran').value,
+    pendidikan: v('pendidikan') || null, jabatan: v('jabatan') || null,
+    sinta_id: idSaja(v('sinta_id')) || null, scopus_id: idSaja(v('scopus_id')) || null,
+    orcid: idSaja(v('orcid')) || null,
+    aktif: $('f_aktif').checked, dtps: $('f_dtps').checked,
+  };
+  if (!isi.nama || !isi.nidn || !isi.email) return tulis('buruk', 'Nama, NIDN/kode, dan email wajib diisi.');
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(isi.email)) return tulis('buruk', 'Email tidak sah.');
+  if (PERAN_BUKAN_DTPS.includes(isi.peran)) isi.dtps = false;
+  const lain = DOSEN.filter(d => d.id !== SUNTING);
+  if (lain.some(d => String(d.nidn).toLowerCase() === isi.nidn.toLowerCase()))
+    return tulis('buruk', `NIDN/kode ${isi.nidn} sudah dipakai.`);
+  if (lain.some(d => String(d.email).toLowerCase() === isi.email))
+    return tulis('buruk', `Email ${isi.email} sudah terdaftar.`);
+  if (SUNTING === SAYA.id) { isi.peran = 'admin'; isi.aktif = true; }
+  const adminTersisa = lain.some(d => d.peran === 'admin' && d.aktif) || (isi.peran === 'admin' && isi.aktif);
+  if (!adminTersisa) return tulis('buruk', 'Harus tersisa minimal satu admin aktif.');
+  const ingat = Object.entries(POLA)
+    .filter(([k, [re]]) => isi[k] && !re.test(isi[k]))
+    .map(([k, [, ket]]) => `${k} (${ket})`);
+  if (ingat.length && !confirm(`Format ${ingat.join(', ')} tidak sesuai; tautan profil mungkin tidak berfungsi. Tetap simpan?`)) return;
+
+  $('simpan').disabled = true;
+  const { error } = SUNTING
+    ? await sb.from('dosen').update({ ...isi, diubah_pada: new Date().toISOString() }).eq('id', SUNTING)
+    : await sb.from('dosen').insert(isi);
+  if (error) { $('simpan').disabled = false; return tulis('buruk', 'Gagal menyimpan: ' + error.message); }
+  const baru = !SUNTING;
+  SUNTING = null;
+  await muat();
+  tulis('ok', baru ? `${isi.nama} ditambahkan. Ia sekarang bisa masuk dengan ${isi.email}.` : 'Perubahan tersimpan.');
+}
+
+function layarMasuk(){
+  $('hSub').textContent = 'Perlu masuk';
+  $('isi').innerHTML = `<div class="masuk"><p>Masukkan email kampus Anda — tautan masuk dikirim tanpa kata sandi.</p>
+    <input id="em" type="email" placeholder="nama@kampus.ac.id" autocomplete="email">
+    <button class="btn" id="kirim">Kirim tautan masuk</button><p class="ket" id="pesan"></p></div>`;
+  $('kirim').onclick = async () => {
+    const em = $('em').value.trim();
+    if (!em) return;
+    const { error } = await sb.auth.signInWithOtp({ email: em, options: { emailRedirectTo: location.href } });
+    $('pesan').textContent = error ? 'Gagal: ' + error.message : 'Tautan masuk sudah dikirim. Periksa email Anda.';
+  };
+}
+
+sb.auth.onAuthStateChange(ev => { if (ev === 'SIGNED_IN' && !SAYA) mulai(); });
+mulai().catch(e => { $('isi').innerHTML = `<p class="kosong">${esc(e.message)}</p>`; });
+</script>
+</body>
+</html>
