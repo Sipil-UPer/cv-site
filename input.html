@@ -130,6 +130,9 @@
   .kb-f{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:6px 0}
   .kb-f select, .kb-f input[type=text], .kb-f input[type=url]{flex:1 1 180px;padding:5px 7px;font:inherit}
   .kb-m, .kb-kos{font-size:12px;color:var(--muted)}
+  .vb{display:block;margin-top:4px}
+  .vb ul{margin:2px 0 0;padding-left:18px;text-transform:none;letter-spacing:0}
+  .vb a{color:var(--accent);word-break:break-word}
   .bukti-saya a{color:var(--accent);word-break:break-all}
   .bukti-saya .btn.sm{padding:2px 9px;font-size:11.5px}
   .tag{font-family:var(--mono);font-size:10px;letter-spacing:.09em;text-transform:uppercase;
@@ -185,7 +188,7 @@ const SUPABASE_URL = window.SB_URL;
 const SUPABASE_ANON_KEY = window.SB_KEY;
 
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { JENIS_BUKTI_KARYA, namaJenisBukti } from './rencana-bukti.js?v=2026-11-03k';
+import { JENIS_BUKTI_KARYA, namaJenisBukti } from './rencana-bukti.js?v=2026-11-03l';
 
 const app = document.getElementById('app');
 if (!SUPABASE_URL || !SUPABASE_ANON_KEY
@@ -1244,6 +1247,32 @@ const keB64 = f => new Promise((ok, gagal) => {
   r.readAsDataURL(f);
 });
 
+// Muat karya induk (penelitian/PkM asal) dan semua bukti jamak untuk daftar
+// karya ini; dipakai tab Karya saya dan Verifikasi.
+async function muatBuktiUntuk(data){
+  INDUK = new Map(data.map(k => [k.id, k]));
+  const indukIds = [...new Set(data.map(k => k.induk_id).filter(i => i && !INDUK.has(i)))];
+  if(indukIds.length){
+    const { data: ind } = await sb.from('karya').select('id,judul,kategori,bukti_url').in('id', indukIds);
+    (ind || []).forEach(k => INDUK.set(k.id, k));
+  }
+  const ids = [...INDUK.keys()];
+  KB = new Map();
+  if(!ids.length){ KB_GAGAL = ''; return; }
+  const { data: kb, error: eKb } = await sb.from('karya_bukti')
+    .select('id,karya_id,jenis,judul,url,oleh').in('karya_id', ids);
+  KB_GAGAL = eKb ? eKb.message : '';
+  (kb || []).forEach(b => { if(!KB.has(b.karya_id)) KB.set(b.karya_id, []); KB.get(b.karya_id).push(b); });
+}
+
+// Daftar tautan bukti tanpa formulir (tab Verifikasi).
+function htmlDaftarBukti(k){
+  const xs = daftarBuktiKarya(k);
+  if(!xs.length) return '';
+  return `<div class="rec-m vb"><span>Bukti (${xs.length}):</span><ul>${xs.map(x =>
+    `<li><a href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.label)}</a></li>`).join('')}</ul></div>`;
+}
+
 function daftarBuktiKarya(k){
   const xs = [];
   if(k.bukti_url) xs.push({ url: k.bukti_url, label: 'Bukti (isian awal)' });
@@ -1327,18 +1356,7 @@ async function muatKaryaSaya(wadahId, batas){
   const { data, error } = await q;
   if(error){ box.className='kosong'; box.textContent=error.message; return; }
 
-  // Karya induk (penelitian/PkM asal) dan semua bukti jamak yang relevan.
-  INDUK = new Map(data.map(k => [k.id, k]));
-  const indukIds = [...new Set(data.map(k => k.induk_id).filter(i => i && !INDUK.has(i)))];
-  if(indukIds.length){
-    const { data: ind } = await sb.from('karya').select('id,judul,kategori,bukti_url').in('id', indukIds);
-    (ind || []).forEach(k => INDUK.set(k.id, k));
-  }
-  const { data: kb, error: eKb } = await sb.from('karya_bukti')
-    .select('id,karya_id,jenis,judul,url,oleh').in('karya_id', [...INDUK.keys()]);
-  KB_GAGAL = eKb ? eKb.message : '';
-  KB = new Map();
-  (kb || []).forEach(b => { if(!KB.has(b.karya_id)) KB.set(b.karya_id, []); KB.get(b.karya_id).push(b); });
+  await muatBuktiUntuk(data);
 
   const semua = document.getElementById('salin-semua');
   if(semua){
@@ -1464,19 +1482,20 @@ async function tampilVerifikasi(){
   const box = document.getElementById('vf');
   if(!data?.length){ box.className='kosong'; box.textContent='Tidak ada entri yang menunggu.'; }
   else {
+    // Semua bukti: isian awal, karya_bukti, dan bukti penelitian/PkM induk.
+    await muatBuktiUntuk(data);
     box.className='';
     box.innerHTML = data.map(k=>barisKarya(k,
       `<label class="cek" style="margin-right:6px" title="Karya mendukung visi keilmuan prodi. Hilangkan centang bila di luar bidang — karya tetap tampil di profil dosen, hanya tidak dihitung pada butir akreditasi prodi.">
          <input type="checkbox" data-r="${k.id}" ${k.relevan_visi === false ? '' : 'checked'}>
          sesuai visi</label>
        ${mungkinLuar(k) ? '<span class="tag" style="background:#FFF3D6;color:#7A5A00" title="Judul tidak memuat satu pun kata kunci visi keilmuan — periksa relevansinya.">periksa relevansi</span>' : ''}
-       ${k.bukti_url
-          ? `<a class="btn ghost sm" href="${esc(k.bukti_url)}" target="_blank" rel="noopener">Bukti</a>`
-          : (k.bukti_path
-              ? `<button class="btn ghost sm" data-f="${k.bukti_path}">Bukti lama</button>`
-              : '<span class="tag">tanpa bukti</span>')}
+       ${k.bukti_path
+          ? `<button class="btn ghost sm" data-f="${k.bukti_path}">Bukti lama</button>`
+          : (daftarBuktiKarya(k).length ? '' : '<span class="tag">tanpa bukti</span>')}
        <button class="btn sm" data-v="${k.id}">Verifikasi</button>
-       <button class="btn danger sm" data-x="${k.id}">Tolak</button>`)).join('');
+       <button class="btn danger sm" data-x="${k.id}">Tolak</button>`,
+      htmlDaftarBukti(k))).join('');
 
     // Entri lama masih menyimpan berkasnya di bucket Supabase.
     box.querySelectorAll('[data-f]').forEach(b=>{
