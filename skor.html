@@ -86,6 +86,7 @@
   details.rencana-bukti ul{margin:6px 0;padding-left:20px}
   details.rencana-bukti p{margin:6px 0}
   details.rencana-bukti .rb-ket{font-size:12px;color:var(--muted)}
+  details.rencana-bukti .rb-kos{color:var(--merah);font-size:11.5px}
   .ringkas > a.ke-butir:hover{background:var(--line-soft)}
   .ringkas > a.ke-butir:hover span{color:var(--biru)}
   table a.ke-butir{color:var(--biru);text-decoration:underline dotted}
@@ -376,7 +377,7 @@ const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 // Naikkan setiap kali skor.html / rincian.js / butir-manual.js / bobot.js
 // diubah. Ditampilkan di kaki halaman supaya ketahuan seketika kalau
 // peramban masih memakai salinan lama dari cache.
-const VERSI = '2026-11-03f';
+const VERSI = '2026-11-03i';
 // Label versi di judul diisi dari VERSI supaya keduanya tidak bisa berbeda.
 { const el = document.querySelector('.versi-statis'); if (el) el.textContent = 'v' + VERSI; }
 // =====================================================================
@@ -474,12 +475,22 @@ async function unduhLED(){
       bobotButir,
       manual: new Set(BUTIR_MANUAL.map(b => b.no)),
       buktiButir: no => ISteks(`bukti_b${no}`),
+      dokumen: DOK,
       rekapKarya: no => {
         if (!BUTIR[no]) return null;
         const rows = BUTIR[no].baris(D, ts) || [];
         return { n: rows.length, ada: rows.filter(r => cariBukti(r)).length };
       },
       urlRincian: no => new URL(`rincian.html?butir=${no}&ts=${ts}`, location.href).href,
+      // Lampiran B: karya per butir dengan tautan Drive langsung (asesor
+      // tidak bisa membuka situs yang perlu login).
+      daftarKarya: no => {
+        const def = BUTIR[no];
+        if (!def) return null;
+        const kb = kolomBukti(def);
+        return (def.baris(D, ts) || []).map(r => ({
+          tahun: r.tahun, judul: r[kb] || r.judul, url: cariBukti(r) }));
+      },
       kartu: no => document.getElementById(`butir-${no}`),
     });
     a.textContent = hasil.gagal.length
@@ -508,6 +519,7 @@ let JENDELA_OFS = (function(){
   catch { return 0; }
 })();
 let PENG = {};        // pengaturan skor dari Supabase (di belakang RLS)
+let DOK = [];         // tabel `dokumen` (supabase/13-patch-dokumen.sql); kosong bila belum ada
 let PENG_GAGAL = false; // true bila tabel pengaturan tak terbaca (patch 09 belum jalan)
 let PER_DOSEN = false; // peran 'admin' atau 'pimpinan' di tabel dosen: rincian kontribusi per dosen
 let DANA = [];        // {tahun, bulan, kategori, besaran_dana} karya terverifikasi          // tahun ujung TS terpilih, mis. 2026
@@ -668,7 +680,7 @@ function blokBuktiData(no){
 function kartuButir(no, judul, isi, skor, catatan, lencana){
   const pct = skor == null ? 0 : (skor / 4) * 100;
   const sy = statusSyarat(no, skor);
-  isi = isi + blokBuktiData(no) + htmlRencana(no);
+  isi = isi + blokBuktiData(no) + htmlRencana(no, { dokumen: DOK, ts: TS });
   return `<div class="kartu${sy && sy.tahu && !sy.u5ok ? ' syarat-gagal' : ''}" id="butir-${no}">
     <div class="butir">
     <div>
@@ -2034,13 +2046,14 @@ async function mulai(){
   PER_DOSEN = ['admin', 'pimpinan'].includes(saya.peran);
 
   document.getElementById('nama-prodi').textContent = 'Memuat data\u2026';
-  const [jsonR, danaR, pengR, buktiR] = await Promise.all([
+  const [jsonR, danaR, pengR, buktiR, dokR] = await Promise.all([
     fetch('data.json?v=' + Date.now()),
     sb.from('karya').select('tahun,bulan,kategori,besaran_dana,judul,bukti_url')
       .eq('status', 'terverifikasi').in('kategori', ['penelitian', 'pkm']),
     sb.from('pengaturan').select('kunci,nilai'),
     sb.from('karya').select('tahun,kategori,judul,bukti_url')
       .eq('status', 'terverifikasi').in('kategori', ['publikasi', 'rekognisi']),
+    sb.from('dokumen').select('*'),
   ]);
   if (!jsonR.ok) throw new Error('data.json ' + jsonR.status);
   D = await jsonR.json();
@@ -2051,6 +2064,8 @@ async function mulai(){
   isiPetaBukti([...(danaR.data || []), ...(buktiR.data || [])]);
   (pengR.data || []).forEach(r => PENG[r.kunci] = r.nilai);
   PENG_GAGAL = !!pengR.error;
+  DOK = dokR.data || [];
+  if (dokR.error) console.warn('Tabel dokumen tidak terbaca:', dokR.error.message);
 
   document.getElementById('nama-prodi').innerHTML =
     esc([D.prodi, D.institusi].filter(Boolean).join(' — ')) +

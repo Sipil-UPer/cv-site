@@ -727,15 +727,432 @@ export const RENCANA_BUKTI = {
 const esc = s => String(s ?? '').replace(/[&<>"']/g,
   c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
+// Jenis dokumen bukti bernama (keputusan pemilik 2026-11-03). Diunggah di
+// input-butir.html bagian "Dokumen", disimpan di tabel Supabase `dokumen`
+// (supabase/13-patch-dokumen.sql), berkasnya di Drive
+// data-lkps/dokumen/<jenis>/<tahun>/[<judul>/].
+//   tunggal: true  -> satu dokumen per tahun (statuta, kurikulum, renstra,
+//                     laporan tahunan). Tahun sama = mengganti, tahun beda =
+//                     versi lain. Yang dipakai: tahun terbaru <= TS.
+//   tunggal: false -> banyak per tahun; judul/nomor wajib (SK, notulen, ...).
+// butir: butir bawaan; saat mengunggah bisa diubah per dokumen.
+// id: huruf kecil, angka, garis bawah (juga nama folder Drive).
+// Publikasi, penelitian, PkM, HKI, rekognisi TIDAK di sini: tetap lewat form
+// karya dosen (input.html) supaya terhitung di skor.
+export const JENIS_DOKUMEN = [
+  { id: 'statuta', nama: 'Statuta Universitas Pertamina', tunggal: true, butir: ['1', '4'] },
+  { id: 'renstra_pt', nama: 'Renstra Universitas Pertamina', tunggal: true, butir: ['1', '59', '60'] },
+  { id: 'renstra_upps', nama: 'Renstra fakultas/UPPS', tunggal: true, butir: ['1', '59', '60'] },
+  { id: 'sk_vmts', nama: 'SK penetapan VMTS UPPS dan visi keilmuan prodi', tunggal: true, butir: ['1', '2'] },
+  { id: 'laporan_vmts', nama: 'Laporan sosialisasi dan survei pemahaman VMTS', tunggal: true, butir: ['3'] },
+  { id: 'otk', nama: 'Peraturan organisasi dan tata kerja (OTK) dan struktur organisasi', tunggal: true, butir: ['4'] },
+  { id: 'kode_etik', nama: 'Kode etik dosen, tendik, dan mahasiswa', tunggal: true, butir: ['5'] },
+  { id: 'pedoman_sdm', nama: 'Peraturan dan rencana pengembangan SDM', tunggal: true, butir: ['5', '26', '27', '28', '29'] },
+  { id: 'pedoman_kerjasama', nama: 'Pedoman/standar kerja sama', tunggal: true, butir: ['6', '7'] },
+  { id: 'survei_mitra', nama: 'Laporan survei kepuasan mitra kerja sama', tunggal: true, butir: ['7', '57'] },
+  { id: 'pedoman_keuangan', nama: 'Pedoman keuangan dan penganggaran', tunggal: true, butir: ['8'] },
+  { id: 'laporan_keuangan', nama: 'Laporan realisasi anggaran prodi', tunggal: true, butir: ['8', '9', '10', '11'] },
+  { id: 'laporan_audit_keuangan', nama: 'Laporan audit keuangan internal dan eksternal', tunggal: true, butir: ['8'] },
+  { id: 'kurikulum', nama: 'Dokumen kurikulum (profil lulusan, CPL, struktur MK)', tunggal: true, butir: ['12', '13', '14', '18', '19', '20'] },
+  { id: 'sk_kurikulum', nama: 'SK penetapan kurikulum', tunggal: true, butir: ['12'] },
+  { id: 'evaluasi_kurikulum', nama: 'Laporan evaluasi dan pemutakhiran kurikulum', tunggal: true, butir: ['12'] },
+  { id: 'peraturan_akademik', nama: 'Peraturan akademik', tunggal: true, butir: ['15', '16', '21', '44', '45'] },
+  { id: 'pedoman_integrasi', nama: 'Pedoman integrasi penelitian dan PkM dalam pembelajaran', tunggal: true, butir: ['17'] },
+  { id: 'panduan_capstone', nama: 'Panduan capstone design/tugas akhir perancangan', tunggal: true, butir: ['20'] },
+  { id: 'peta_jalan_penelitian', nama: 'Peta jalan penelitian', tunggal: true, butir: ['22', '23'] },
+  { id: 'peta_jalan_pkm', nama: 'Peta jalan PkM', tunggal: true, butir: ['24', '25'] },
+  { id: 'pedoman_sarpras', nama: 'Pedoman sarana prasarana dan daftar laboratorium/alat', tunggal: true, butir: ['38'] },
+  { id: 'kebijakan_k3l', nama: 'Kebijakan dan SOP K3L', tunggal: true, butir: ['39'] },
+  { id: 'pedoman_kemahasiswaan', nama: 'Pedoman kemahasiswaan dan pembinaan prestasi', tunggal: true, butir: ['43'] },
+  { id: 'laporan_tracer', nama: 'Laporan tracer study', tunggal: true, butir: ['48', '49', '50', '51'] },
+  { id: 'survei_pengguna', nama: 'Laporan survei kepuasan pengguna lulusan', tunggal: true, butir: ['52'] },
+  { id: 'kebijakan_spmi', nama: 'Kebijakan SPMI', tunggal: true, butir: ['53'] },
+  { id: 'manual_spmi', nama: 'Manual/pedoman PPEPP SPMI', tunggal: true, butir: ['53', '55'] },
+  { id: 'standar_spmi', nama: 'Standar SPMI', tunggal: true, butir: ['53', '55'] },
+  { id: 'sk_unit_pm', nama: 'SK unit/gugus penjaminan mutu', tunggal: true, butir: ['53'] },
+  { id: 'laporan_ami', nama: 'Laporan audit mutu internal (AMI)', tunggal: true, butir: ['53', '55'] },
+  { id: 'dokumen_iku_ikt', nama: 'Dokumen IKU dan IKT', tunggal: true, butir: ['54', '55', '56'] },
+  { id: 'laporan_kinerja', nama: 'Laporan kinerja tahunan prodi', tunggal: true, butir: ['3', '56'] },
+  { id: 'survei_kepuasan', nama: 'Laporan survei kepuasan pemangku kepentingan', tunggal: true, butir: ['16', '57'] },
+  { id: 'analisis_swot', nama: 'Analisis lingkungan eksternal dan SWOT', tunggal: true, butir: ['58'] },
+  // ---- banyak per tahun: judul/nomor wajib ------------------------------
+  { id: 'laporan_cpl', nama: 'Laporan pengukuran capaian CPL', tunggal: false, butir: ['13', '14'], contoh: 'Semester Ganjil 2025/2026' },
+  { id: 'rps', nama: 'RPS mata kuliah', tunggal: false, butir: ['15'], contoh: 'TS2101 Mekanika Teknik' },
+  { id: 'monev_pembelajaran', nama: 'Laporan monitoring dan evaluasi pembelajaran', tunggal: false, butir: ['15', '16'], contoh: 'Semester Genap 2024/2025' },
+  { id: 'kegiatan_ilmiah', nama: 'Kegiatan ilmiah (seminar, kuliah tamu, diskusi)', tunggal: false, butir: ['21'], contoh: 'Kuliah tamu BIM, 12 Mar 2026' },
+  { id: 'rekap_bkd', nama: 'Rekap BKD/SISTER DTPS', tunggal: false, butir: ['30'], contoh: 'Semester Ganjil 2025/2026' },
+  { id: 'sk_auditor', nama: 'SK auditor AMI', tunggal: false, butir: ['53'], contoh: 'No. 0347/UP-R/SK/HK.01/XI/2022' },
+  { id: 'laporan_rtm', nama: 'Laporan Rapat Tinjauan Manajemen (RTM)', tunggal: false, butir: ['53', '55'], contoh: 'RTM Semester Ganjil' },
+  { id: 'sk', nama: 'SK lainnya', tunggal: false, butir: [], contoh: 'SK Tim Kurikulum No. 012/2025' },
+  { id: 'notulen', nama: 'Notulen rapat', tunggal: false, butir: [], contoh: 'Rapat tinjauan CPL, 5 Feb 2026' },
+  { id: 'laporan_kegiatan', nama: 'Laporan kegiatan', tunggal: false, butir: [], contoh: 'Lokakarya kurikulum 2025' },
+  { id: 'sertifikat', nama: 'Sertifikat/piagam', tunggal: false, butir: [], contoh: 'Sertifikat K3 laboran A' },
+  { id: 'lainnya', nama: 'Dokumen lain', tunggal: false, butir: [], contoh: 'Judul dokumen' },
+];
+const JENIS = Object.fromEntries(JENIS_DOKUMEN.map(j => [j.id, j]));
+export const infoJenis = id => JENIS[id] || { id, nama: id, tunggal: false, butir: [] };
+// Butir sebuah baris dokumen: yang diisi saat unggah, atau bawaan jenisnya.
+export const butirDokumen = r =>
+  (r.butir && r.butir.length) ? r.butir.map(String) : infoJenis(r.jenis).butir;
+
+// Kelompok dokumen untuk satu butir (no) atau semua (no = null), per jenis.
+// Jenis tunggal: `utama` = tahun terbaru <= ts (atau terbaru bila ts kosong),
+// `lain` = versi lain. Jenis banyak: `lain` = semua entri, tanpa utama.
+// Jenis bawaan butir itu yang belum punya dokumen ikut dengan daftar kosong.
+export function kelompokDokumen(rows, no, ts){
+  const cocok = r => no == null || butirDokumen(r).includes(String(no));
+  const per = new Map();
+  if (no != null)
+    JENIS_DOKUMEN.filter(j => j.butir.includes(String(no))).forEach(j => per.set(j.id, []));
+  (rows || []).filter(cocok).forEach(r => {
+    if (!per.has(r.jenis)) per.set(r.jenis, []);
+    per.get(r.jenis).push(r);
+  });
+  const urut = id => { const i = JENIS_DOKUMEN.findIndex(j => j.id === id); return i < 0 ? 999 : i; };
+  return [...per.entries()].sort((a, b) => urut(a[0]) - urut(b[0])).map(([jenis, xs]) => {
+    const j = infoJenis(jenis);
+    xs = xs.slice().sort((a, b) => b.tahun - a.tahun || String(a.judul).localeCompare(String(b.judul)));
+    if (!j.tunggal) return { jenis, nama: j.nama, tunggal: false, utama: null, lain: xs };
+    const utama = xs.find(r => !ts || r.tahun <= ts) || null;
+    return { jenis, nama: j.nama, tunggal: true, utama, lain: xs.filter(r => r !== utama) };
+  });
+}
+
+const aTautan = (u, t) => `<a href="${esc(u)}" target="_blank" rel="noopener nofollow">${esc(t)}</a>`;
+
 // Blok lipat "Bukti yang disiapkan" untuk satu butir; '' bila tidak ada data.
-export function htmlRencana(no){
+// opsi.dokumen = baris tabel `dokumen` (bila ada), opsi.ts = TS acuan versi.
+export function htmlRencana(no, opsi = {}){
   const r = RENCANA_BUKTI[String(no)];
   if (!r) return '';
+  const grup = kelompokDokumen(opsi.dokumen || [], no, opsi.ts);
+  const daftarDok = !grup.length ? '' : `<p><b>Dokumen:</b></p><ul>${grup.map(g => {
+    if (g.tunggal && g.utama)
+      return `<li>${aTautan(g.utama.url, `${g.nama} (${g.utama.tahun})`)}${g.lain.length
+        ? ` <span class="rb-ket">· versi lain: ${g.lain.map(x => aTautan(x.url, x.tahun)).join(', ')}</span>` : ''}</li>`;
+    if (!g.tunggal && g.lain.length)
+      return `<li>${esc(g.nama)}: ${g.lain.map(x => aTautan(x.url, `${x.judul} (${x.tahun})`)).join('; ')}</li>`;
+    return `<li>${esc(g.nama)} <span class="rb-kos">· belum diunggah${g.lain.length
+      ? ` untuk TS ini (ada: ${g.lain.map(x => x.tahun).join(', ')})` : ''}</span></li>`;
+  }).join('')}</ul>`;
   return `<details class="rencana-bukti">
     <summary>Bukti yang disiapkan untuk skor 4 (${r.bukti.length})</summary>
     <p><b>Yang dinilai:</b> ${esc(r.skor4).replace(/\n/g, '<br>')}</p>
+    ${daftarDok}<p><b>Bukti lain:</b></p>
     <ul>${r.bukti.map(b => `<li>${esc(b)}</li>`).join('')}</ul>
     <p class="rb-ket">${r.lkps ? `Tabel LKPS: ${esc(r.lkps)} · ` : ''}Bagian LED: ${esc(r.bagian)} ·
       Sumber: ${esc(r.unit)}<br>Narasi: ${esc(r.narasi)}</p>
   </details>`;
 }
+
+// Indeks tabel LKPS yang berlaku untuk Sarjana: bukti per baris menurut
+// panduan LKPS ("(usulan)" = tidak disebut panduan) dan butir pemakainya.
+// Sama dengan sheet "LKPS per tabel" di docs/rencana-bukti-led-lkps.xlsx.
+export const LKPS_TABEL = [
+ {
+  "tabel": "Identitas + PS di UPPS",
+  "sheet": "Menu, PS",
+  "isi": "SK pendirian PT, SK pembukaan PS, akreditasi, jumlah mahasiswa aktif",
+  "jendela": "saat TS (31 Agustus)",
+  "bukti": "Salinan SK pendirian PT, SK pembukaan PS, SK akreditasi terbaru",
+  "unit": "Rektorat/hukum, akademik",
+  "butir": "—"
+ },
+ {
+  "tabel": "1 VMTS",
+  "sheet": "1",
+  "isi": "Pernyataan VMTS PT, UPPS, visi keilmuan PS",
+  "jendela": "yang berlaku",
+  "bukti": "Nomor SK + tautan dokumen",
+  "unit": "Rektorat, fakultas, prodi",
+  "butir": "1"
+ },
+ {
+  "tabel": "2.a Kerja sama",
+  "sheet": "2a1, 2a2, 2a3",
+  "isi": "Mitra, tingkat, judul, manfaat, tanggal awal/akhir, status, bukti",
+  "jendela": "matriks 3 tahun; Excel valid bila beririsan TS-4..TS",
+  "bukti": "Surat penugasan, SPK, bukti pelaksanaan (laporan, hasil, luaran), publikasi bersama. MoU/MoA BUKAN bukti realisasi",
+  "unit": "Kantor kerja sama, prodi",
+  "butir": "6, 7"
+ },
+ {
+  "tabel": "2.b Penggunaan dana",
+  "sheet": "2b",
+  "isi": "Biaya dosen, tendik, operasional, investasi, kemahasiswaan, penelitian, PkM",
+  "jendela": "TS-2..TS",
+  "bukti": "(usulan) laporan realisasi anggaran per TA",
+  "unit": "Keuangan",
+  "butir": "9, 10, 11"
+ },
+ {
+  "tabel": "3.a.1 Kurikulum",
+  "sheet": "3a1",
+  "isi": "MK, MK kompetensi, SKS kuliah/seminar/praktikum, dokumen RPS, unit penyelenggara",
+  "jendela": "kurikulum berlaku saat TS",
+  "bukti": "Nama dokumen RPS per MK (tautan RPS)",
+  "unit": "Prodi, SIAKAD",
+  "butir": "13, 15, 18"
+ },
+ {
+  "tabel": "3.a.3 Integrasi penelitian/PkM",
+  "sheet": "3a3",
+  "isi": "Dosen, judul, MK, bentuk integrasi, tahun, kesesuaian peta jalan, bukti",
+  "jendela": "TS-2..TS",
+  "bukti": "Naskah hibah, laporan akhir, atau publikasi; judul tercatat di LPPM",
+  "unit": "LPPM, prodi",
+  "butir": "17"
+ },
+ {
+  "tabel": "3.a.4 Basic sciences dan matematika",
+  "sheet": "3a4",
+  "isi": "MK, semester, SKS",
+  "jendela": "kurikulum berlaku",
+  "bukti": "(usulan) dokumen kurikulum + RPS",
+  "unit": "Prodi",
+  "butir": "19"
+ },
+ {
+  "tabel": "3.a.5 Capstone design",
+  "sheet": "3a5",
+  "isi": "MK pendukung dan capstone, SKS, semester, cakupan",
+  "jendela": "kurikulum berlaku",
+  "bukti": "(usulan) RPS, panduan capstone, contoh laporan",
+  "unit": "Prodi",
+  "butir": "20"
+ },
+ {
+  "tabel": "3.b Penelitian DTPS",
+  "sheet": "3b",
+  "isi": "Jumlah judul per sumber dana",
+  "jendela": "TS-2..TS",
+  "bukti": "Tercatat di LPPM; (usulan) kontrak/SK hibah, laporan akhir",
+  "unit": "LPPM",
+  "butir": "31"
+ },
+ {
+  "tabel": "3.c PkM DTPS",
+  "sheet": "3c",
+  "isi": "Jumlah judul per sumber dana",
+  "jendela": "TS-2..TS",
+  "bukti": "Tercatat di LPPM; (usulan) kontrak/SK hibah, laporan akhir",
+  "unit": "LPPM",
+  "butir": "32"
+ },
+ {
+  "tabel": "4.a Profil dosen",
+  "sheet": "4a",
+  "isi": "NIDN/NUPTK, pendidikan, keahlian, kesesuaian kompetensi inti, jabatan, serdos, MK diampu",
+  "jendela": "saat TS; MK TS-2..TS",
+  "bukti": "Nomor sertifikat pendidik; DTPS dibuktikan mengajar (beban kerja); (usulan) ijazah, SK jabatan",
+  "unit": "SDM, PDDikti",
+  "butir": "26, 27, 28, 40"
+ },
+ {
+  "tabel": "4.b Tendik",
+  "sheet": "4b",
+  "isi": "Nama, pendidikan, sertifikat kompetensi, unit kerja",
+  "jendela": "saat TS",
+  "bukti": "(usulan) ijazah, sertifikat kompetensi",
+  "unit": "SDM",
+  "butir": "29"
+ },
+ {
+  "tabel": "4.c Beban kerja DTPS",
+  "sheet": "4c",
+  "isi": "SKS pendidikan, penelitian, PkM, tugas tambahan",
+  "jendela": "saat TS",
+  "bukti": "(usulan) BKD/SISTER",
+  "unit": "SDM",
+  "butir": "30"
+ },
+ {
+  "tabel": "4.d Publikasi DTPS",
+  "sheet": "4d",
+  "isi": "Jumlah judul per jenis",
+  "jendela": "TS-2..TS",
+  "bukti": "Konfirmasi sesuai SINTA",
+  "unit": "SINTA, LPPM",
+  "butir": "33"
+ },
+ {
+  "tabel": "4.f Luaran DTPS",
+  "sheet": "4f-1 .. 4f-4",
+  "isi": "Paten, HKI, TTG/produk, buku ISBN/book chapter",
+  "jendela": "TS-2..TS",
+  "bukti": "Sertifikat paten (Kemenkum), sertifikat HKI, sertifikat TKT, ISBN; konfirmasi SINTA",
+  "unit": "Sentra HKI, SINTA",
+  "butir": "34"
+ },
+ {
+  "tabel": "4.h Karya internasional DTPS",
+  "sheet": "4h",
+  "isi": "Per DTPS jumlah karya penulis pertama/korespondensi",
+  "jendela": "TS-2..TS",
+  "bukti": "Status penulis pertama/korespondensi; konfirmasi SINTA",
+  "unit": "Scopus/SINTA",
+  "butir": "35"
+ },
+ {
+  "tabel": "4.i Sitasi",
+  "sheet": "4i",
+  "isi": "Artikel dan jumlah sitasi",
+  "jendela": "TS-2..TS",
+  "bukti": "Panduan tidak konsisten: teks = pengindeks internasional, kolom = Google Scholar. Simpan tangkapan bertanggal",
+  "unit": "Scopus/GS",
+  "butir": "36"
+ },
+ {
+  "tabel": "4.j Rekognisi",
+  "sheet": "4j",
+  "isi": "Jenis rekognisi, bukti pendukung, tingkat, tahun",
+  "jendela": "TS-2..TS",
+  "bukti": "Kolom bukti pendukung (surat undangan/SK/sertifikat); satu DTPS diakui satu rekognisi",
+  "unit": "Dosen, SDM",
+  "butir": "37"
+ },
+ {
+  "tabel": "5.a Prasarana dan alat",
+  "sheet": "5a",
+  "isi": "Prasarana, alat, kepemilikan, kondisi",
+  "jendela": "saat TS",
+  "bukti": "Daftar alat utama tiap laboratorium",
+  "unit": "Sarpras, laboratorium",
+  "butir": "38"
+ },
+ {
+  "tabel": "5.b, 5.c K3L",
+  "sheet": "5b, 5c",
+  "isi": "Dokumen K3L dan riwayat pengesahan; sarana K3L, fungsi, kondisi",
+  "jendela": "saat TS",
+  "bukti": "(usulan) dokumen K3L bertanggal, foto dan inventaris",
+  "unit": "Unit K3L, sarpras",
+  "butir": "39"
+ },
+ {
+  "tabel": "6.a Mahasiswa",
+  "sheet": "6a",
+  "isi": "Mahasiswa aktif, asing penuh/paruh waktu",
+  "jendela": "TS-2..TS",
+  "bukti": "Kolom asing wajib diisi walau nol; (usulan) data PDDikti",
+  "unit": "Akademik, PDDikti",
+  "butir": "40, 41"
+ },
+ {
+  "tabel": "6.b IPK lulusan",
+  "sheet": "6b",
+  "isi": "Jumlah lulusan, IPK min/rata/maks",
+  "jendela": "TS-2..TS",
+  "bukti": "(usulan) data yudisium",
+  "unit": "Akademik",
+  "butir": "42"
+ },
+ {
+  "tabel": "6.c.1, 6.c.2 Prestasi",
+  "sheet": "6c1, 6c2",
+  "isi": "Kegiatan, waktu, tingkat, prestasi",
+  "jendela": "5 tahun (TS-4..TS)",
+  "bukti": "(usulan) sertifikat/piagam, berita",
+  "unit": "Kemahasiswaan",
+  "butir": "43"
+ },
+ {
+  "tabel": "6.d Masa studi",
+  "sheet": "6d (blok Sarjana)",
+  "isi": "Kohort masuk dan lulus per pita masa studi",
+  "jendela": "kohort TS-7..TS; (a)(b) di TS-3",
+  "bukti": "(usulan) ekspor SIAKAD",
+  "unit": "Akademik",
+  "butir": "44, 45"
+ },
+ {
+  "tabel": "6.e.1 Publikasi mahasiswa",
+  "sheet": "6e1",
+  "isi": "Jumlah judul per jenis, mahasiswa penulis pertama",
+  "jendela": "TS-2..TS",
+  "bukti": "(usulan) DOI/URL",
+  "unit": "Prodi, SINTA",
+  "butir": "46"
+ },
+ {
+  "tabel": "6.e.3 Luaran mahasiswa",
+  "sheet": "6e3-1 .. 6e3-4",
+  "isi": "Paten, HKI, TKT, ISBN",
+  "jendela": "TS-2..TS",
+  "bukti": "Surat Kemenkum, sertifikat HKI/TKT, ISBN",
+  "unit": "Sentra HKI",
+  "butir": "47"
+ },
+ {
+  "tabel": "6.f.1 Waktu tunggu",
+  "sheet": "6f1 (blok Sarjana)",
+  "isi": "Lulusan, terlacak, WT < 3 / 3–18 / > 18 bulan",
+  "jendela": "lulusan TS-2..TS-1",
+  "bukti": "Laporan tracer study (responden ≥ 30%)",
+  "unit": "Tracer PT",
+  "butir": "48, 49"
+ },
+ {
+  "tabel": "6.f.2 Kesesuaian bidang kerja",
+  "sheet": "6f2",
+  "isi": "Rendah/sedang/tinggi",
+  "jendela": "TS-2..TS-1",
+  "bukti": "Laporan tracer study",
+  "unit": "Tracer PT",
+  "butir": "50"
+ },
+ {
+  "tabel": "6.g.1 Tempat kerja",
+  "sheet": "6g1",
+  "isi": "Lokal/nasional/multinasional",
+  "jendela": "TS-2..TS-1",
+  "bukti": "Laporan tracer study",
+  "unit": "Tracer PT",
+  "butir": "51"
+ },
+ {
+  "tabel": "6.g.2 Kepuasan pengguna",
+  "sheet": "6g2",
+  "isi": "7 aspek (%) dan rencana tindak lanjut",
+  "jendela": "TS-2..TS-1",
+  "bukti": "Laporan survei pengguna",
+  "unit": "Tracer PT",
+  "butir": "52"
+ },
+ {
+  "tabel": "6.h.1 Penelitian DTPS + mahasiswa",
+  "sheet": "6h1",
+  "isi": "Dosen, tema peta jalan, mahasiswa, judul",
+  "jendela": "TS-2..TS",
+  "bukti": "(usulan) SK pembimbing, laporan",
+  "unit": "LPPM, prodi",
+  "butir": "23"
+ },
+ {
+  "tabel": "6.i PkM DTPS + mahasiswa",
+  "sheet": "6i",
+  "isi": "Dosen, tema, mahasiswa, judul",
+  "jendela": "TS-2..TS",
+  "bukti": "KKN dan kegiatan kurikuler tidak dihitung; (usulan) laporan PkM + daftar hadir",
+  "unit": "LPPM",
+  "butir": "25"
+ },
+ {
+  "tabel": "7.a Dokumen SPMI",
+  "sheet": "7a",
+  "isi": "Kebijakan, pedoman PPEPP, standar, tata dokumentasi",
+  "jendela": "yang berlaku",
+  "bukti": "Nomor dan tanggal dokumen",
+  "unit": "LPM",
+  "butir": "53"
+ },
+ {
+  "tabel": "7.b Pelaksanaan SPMI",
+  "sheet": "7b",
+  "isi": "Per tahap PPEPP: dokumen, laporan audit, RTM, peningkatan",
+  "jendela": "TS-2..TS",
+  "bukti": "Semua kolom berupa tautan dokumen",
+  "unit": "LPM",
+  "butir": "55"
+ }
+];

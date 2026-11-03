@@ -20,6 +20,8 @@
    Peta subbagian LED ke butir: docs/led-peta-butir.md.
    ===================================================================== */
 
+import { RENCANA_BUKTI, LKPS_TABEL, kelompokDokumen, butirDokumen } from './rencana-bukti.js';
+
 const NS = {
   w:  'http://schemas.openxmlformats.org/wordprocessingml/2006/main',
   r:  'http://schemas.openxmlformats.org/officeDocument/2006/relationships',
@@ -86,8 +88,9 @@ const gambar = ket => para(run(`[Gambar: ${ket} — sisipkan gambar di sini]`,
 function tabel(P, baris, o = {}){
   const B = baris.map(r => r.map(c => c && typeof c === 'object' ? c : { t: String(c ?? '') }));
   const n = Math.max(1, ...B.map(r => r.reduce((a, c) => a + (c.span || 1), 0)));
-  // Lebar kolom sebanding panjang teks terpanjang (4–40 karakter).
-  const pj = Array(n).fill(4);
+  // Lebar kolom sebanding panjang teks terpanjang (7–40 karakter); di bawah
+  // 7 kolom angka seperti "2,90" atau judul "Butir" terpotong.
+  const pj = Array(n).fill(7);
   B.forEach(r => { let k = 0; r.forEach(c => {
     if ((c.span || 1) === 1)
       pj[k] = Math.max(pj[k], Math.min(40, (c.url ? (c.t || 'buka') : c.t || '').length));
@@ -106,7 +109,8 @@ function tabel(P, baris, o = {}){
       const cw = w.slice(k, k + sp).reduce((a, b) => a + b, 0);
       k += sp;
       const isi = c.url ? tautan(P, c.url, c.t || 'buka', { sz: 18 })
-                        : run(c.t, { b: kepala, sz: 18 });
+                : c.auto ? auto(c.t, { sz: 18 })
+                : run(c.t, { b: kepala, sz: 18 });
       return `<w:tc><w:tcPr><w:tcW w:w="${cw}" w:type="dxa"/>${
         sp > 1 ? `<w:gridSpan w:val="${sp}"/>` : ''}${
         kepala ? '<w:shd w:val="clear" w:color="auto" w:fill="DCE6F1"/>' : ''}</w:tcPr>` +
@@ -321,7 +325,7 @@ function blokButir(C, P, no, k = 0){
   if (dua) out.push(paraAuto('Komponen I.'));
   if (bagian.length) bagian.forEach(t => out.push(paraAuto(t)));
   else out.push(paraAuto(s.ada
-    ? `Untuk TS ${C.ta}, butir ${no} (${jd}) memperoleh skor ${C.angka(s.n)} dari 4,00 menurut matriks penilaian APS-AV 2025${tbl ? `, dihitung dari data ${tbl}` : ''}; datanya disajikan pada tabel berikut. [isi: analisis capaian: faktor pendukung dan, bila skor di bawah 4,00, penyebab serta langkah perbaikannya].`
+    ? `Untuk TS ${C.ta}, butir ${no} (${jd}) memperoleh skor ${C.angka(s.n)} dari 4,00 menurut matriks penilaian APS-AV 2025${tbl ? `, dihitung dari data ${tbl}` : ''}; datanya disajikan pada tabel berikut.`
     : `Data butir ${no} (${jd}) belum tersedia di sistem sehingga skornya belum terhitung. [isi: lengkapi data${tbl ? ` ${tbl}` : ''}, lalu uraikan capaiannya].`));
 
   const kr = dariKartu(C.kartu(no));
@@ -334,8 +338,37 @@ function blokButir(C, P, no, k = 0){
     (u ? tautan(P, u) : auto('[isi: tautan folder bukti butir di Drive prodi]'))));
   const rk = C.rekapKarya(no);
   if (rk && rk.n) out.push(para(
-    run(`Bukti karya: ${rk.ada} dari ${rk.n} karya memiliki tautan bukti; daftar lengkap di `) +
-    tautan(P, C.urlRincian(no), `rincian butir ${no}`) + run('.')));
+    run(`Bukti karya: ${rk.ada} dari ${rk.n} karya memiliki tautan bukti; tautan tiap karya ada pada Lampiran B.`)));
+
+  // Daftar periksa bukti (rencana-bukti.js) dengan kolom tautan untuk diisi,
+  // lalu kerangka capaian–analisis–tindak lanjut (pola narasi 6 langkah).
+  const rb = RENCANA_BUKTI[no];
+  if (rb){
+    out.push(para(run(`Acuan skor 4 (matriks): ${rb.skor4.replace(/\n/g, ' ')}`,
+      { i: true, sz: 18, warna: '7F7F7F' })));
+    // Dokumen induk terkait lebih dulu (tautan terisi bila sudah diunggah),
+    // lalu butir daftar periksa lainnya.
+    const tautanSel = u => u ? { url: u, t: 'buka' } : { t: '[isi: tautan]', auto: true };
+    // Jenis tunggal: versi berlaku (tahun terbaru <= TS) + tahun versi lain;
+    // jenis banyak: satu baris per judul.
+    const baris = [];
+    kelompokDokumen(C.dokumen, no, C.ts).forEach(g => {
+      if (g.tunggal)
+        baris.push([`${g.nama}${g.utama ? ` (${g.utama.tahun})` : ''}${g.lain.length
+          ? `; versi lain: ${g.lain.map(x => x.tahun).join(', ')}` : ''}`,
+          tautanSel(g.utama && g.utama.url)]);
+      else if (g.lain.length)
+        g.lain.forEach(x => baris.push([`${g.nama}: ${x.judul} (${x.tahun})`, tautanSel(x.url)]));
+      else baris.push([g.nama, tautanSel('')]);
+    });
+    rb.bukti.forEach(b => baris.push([b, tautanSel('')]));
+    out.push(para(run('Daftar bukti sahih', { b: true }), { keep: true }));
+    out.push(tabel(P, [['No', 'Bukti sahih', 'Tautan'],
+      ...baris.map((r, i) => [String(i + 1), ...r])]));
+  }
+  out.push(paraAuto(`Capaian TS ${C.ta2} s.d. ${C.ta}: [isi: angka per tahun dibanding target dan ambang skor 4]. ` +
+    'Analisis: [isi: faktor pendukung dan akar masalah bila belum mencapai skor 4]. ' +
+    'Tindak lanjut: [isi: kegiatan, penanggung jawab, tenggat, indikator keberhasilan].'));
   return out.join('') + gb;
 }
 
@@ -407,18 +440,66 @@ function blokPrioritas(C, P){
     ...xs.map(x => [x.no, x.judul, x.ada ? C.angka(x.n) : '—', C.angka(x.b), C.angka(x.sisa)])]);
 }
 
+// Lampiran untuk asesor: semua tautan langsung ke Drive (situs prodi perlu
+// login, jadi tidak dipakai di sini). A = per butir, B = per karya,
+// C = per tabel LKPS.
+const judulLampiran = t => para(run(t, { b: true, warna: '1F3864' }), { keep: true, before: 240 });
 function blokLampiran(C, P){
-  const baris = Object.keys(C.skorButir).sort((a, b) => a - b).map(no => {
-    const u = C.buktiButir(no);
-    const rk = C.rekapKarya(no);
-    return [no, C.judulButir[no] || '',
-      u ? { url: u, t: 'buka bukti butir' } : 'belum ada',
-      rk && rk.n ? { url: C.urlRincian(no), t: `${rk.ada}/${rk.n} karya` } : '—'];
+  const out = [];
+  out.push(paraAuto(`Seluruh bukti sahih LED dan LKPS ${C.P.ps} disimpan di Google Drive akun prodi, folder induk [isi: nama dan tautan folder induk]. ` +
+    'Folder disusun mengikuti struktur penilaian: (1) bukti tingkat butir di subfolder butir-NN sesuai no urut 1–60 matriks APS-AV 2025; ' +
+    '(2) bukti karya dosen dan mahasiswa (penelitian, PkM, publikasi, luaran, rekognisi) di subfolder per tahun dan per dosen, satu subfolder atau berkas per karya; ' +
+    '(3) dokumen bernama (statuta, renstra, kurikulum, SK, perangkat SPMI, laporan, dan sebagainya) di subfolder per jenis dan tahun; dokumen tahun berbeda disimpan sebagai versi tersendiri, dan versi yang diganti pada tahun yang sama dipindah ke subfolder _arsip. ' +
+    'Setiap folder bukti dan berkasnya dibagikan dengan akses "siapa pun yang memiliki tautan: Viewer", sehingga dapat dibuka asesor tanpa masuk akun. ' +
+    'Rekapitulasi disajikan pada Lampiran A (per butir LED), Lampiran B (per karya), Lampiran C (per tabel LKPS), dan Lampiran D (dokumen). ' +
+    'Narahubung verifikasi bukti: [isi: nama, jabatan, surel, telepon].'));
+
+  out.push(judulLampiran('Lampiran A. Indeks bukti per butir LED'));
+  out.push(tabel(P, [['Butir', 'Judul', 'Skor', 'Bukti butir', 'Bukti karya'],
+    ...Object.keys(C.skorButir).sort((a, b) => a - b).map(no => {
+      const s = C.skorButir[no], u = C.buktiButir(no), rk = C.rekapKarya(no);
+      return [no, C.judulButir[no] || '', s.ada ? C.angka(s.n) : '—',
+        u ? { url: u, t: 'buka folder' } : { t: '[isi: tautan]', auto: true },
+        rk && rk.n ? `${rk.ada}/${rk.n} karya (Lampiran B)` : '—'];
+    })]));
+
+  out.push(judulLampiran('Lampiran B. Bukti karya per butir'));
+  out.push(para(run(`Karya mengikuti jendela TS yang sama dengan LKPS (TS ${C.ta}). Karya yang dihitung pada lebih dari satu butir hanya dicantumkan pada butir pertama.`,
+    { sz: 18, warna: '595959' })));
+  const sudah = new Set();
+  Object.keys(C.skorButir).sort((a, b) => a - b).forEach(no => {
+    const xs = C.daftarKarya(no);
+    if (!xs || !xs.length) return;
+    const baru = xs.filter(x => { const k = `${x.tahun}|${x.judul}`;
+      if (sudah.has(k)) return false; sudah.add(k); return true; });
+    out.push(para(run(`Butir ${no} · ${C.judulButir[no] || ''}`, { b: true }), { keep: true, before: 160 }));
+    if (!baru.length){
+      out.push(para(run(`Seluruh ${xs.length} karya butir ini sudah tercantum pada butir sebelumnya.`, { sz: 18 })));
+      return;
+    }
+    out.push(tabel(P, [['Th', 'Karya', 'Bukti'],
+      ...baru.map(x => [String(x.tahun ?? ''), x.judul || '',
+        x.url ? { url: x.url, t: 'buka' } : { t: '[isi: tautan]', auto: true }])]));
+    if (baru.length < xs.length)
+      out.push(para(run(`${xs.length - baru.length} karya lain butir ini sudah tercantum pada butir sebelumnya.`, { sz: 18 })));
   });
-  return para(run('Daftar tautan bukti per butir', { b: true }), { keep: true, before: 200 }) +
-    tabel(P, [['Butir', 'Judul', 'Bukti butir', 'Bukti karya'], ...baris]) +
-    para(run('Tautan "bukti karya" membuka halaman rincian di situs prodi (perlu masuk); ' +
-      'tiap karya di sana bertautan ke berkas atau folder buktinya di Drive.', { sz: 18, warna: '595959' }));
+
+  out.push(judulLampiran('Lampiran C. Indeks bukti LKPS per tabel'));
+  out.push(tabel(P, [['Tabel LKPS', 'Bukti per baris', 'Butir', 'Tautan folder'],
+    ...LKPS_TABEL.map(t => [t.tabel, t.bukti, t.butir, { t: '[isi: tautan]', auto: true }])]));
+
+  out.push(judulLampiran('Lampiran D. Dokumen'));
+  const dok = [];
+  kelompokDokumen(C.dokumen, null, C.ts).forEach(g => {
+    const semua = g.utama ? [g.utama, ...g.lain] : g.lain;
+    semua.forEach(r => dok.push([g.nama, String(r.tahun), r.judul || '—',
+      g.tunggal ? (r === g.utama ? 'berlaku' : 'versi lain') : '—',
+      butirDokumen(r).join(', '), { url: r.url, t: 'buka' }]));
+  });
+  out.push(dok.length
+    ? tabel(P, [['Jenis', 'Tahun', 'Judul/nomor', 'Status', 'Butir', 'Tautan'], ...dok])
+    : paraAuto('[isi: belum ada dokumen yang diunggah di halaman isi butir, bagian Dokumen].'));
+  return out.join('');
 }
 
 // ---------------------------------------------------------------------
@@ -667,6 +748,7 @@ export async function buatLED(C, opsi = {}){
     run('DRAF OTOMATIS — hapus paragraf ini sebelum dikirim. ', { b: true, warna: 'C00000' }) +
     run(`Dibuat ${new Date().toLocaleString('id-ID')} dari halaman skor (versi ${C.versi}), TS ${C.ta}. ` +
       'Teks bersorot kuning adalah draf yang wajib diperiksa; [isi: …] merah wajib diisi prodi; ' +
+      'baris abu-abu miring "Acuan skor 4" adalah panduan penulisan, hapus sebelum dikirim; ' +
       'tabel, dasar perhitungan, dan tautan bukti diambil langsung dari sistem. ' +
       'Perbarui daftar isi lewat klik kanan > Update Field.' +
       (gagal.length ? ` Subbagian yang tidak ditemukan di template dan belum terisi: ${gagal.join('; ')}.` : '') +
