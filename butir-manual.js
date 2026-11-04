@@ -150,7 +150,18 @@ export const BUTIR_MANUAL = [
    hitung:{kunci:['tk_total'],
            label:['ΣTKi — jumlah tingkat kepuasan 7 aspek'],
            rumus:'Skor = ΣTKi / 7 · TKi = (4×a) + (3×b) + (2×c) + d, dalam pecahan',
-           f:(t)=>t == null ? null : Math.max(0, Math.min(4, t/7))}},
+           f:(t)=>t == null ? null : Math.max(0, Math.min(4, t/7))},
+   // ΣTKi diambil dari Data prodi › Kepuasan pengguna bila ketujuh aspek TS
+   // itu terisi (tkKepuasan); isian tk_total hanya cadangan (pemilik 2026-11-04).
+   konteks:(D, ts)=>{
+     const n = new Set(barisKepuasan(D, ts).map(r => r.aspek)).size;
+     const tk = tkKepuasan(D, ts);
+     return tk != null
+       ? `ΣTKi = ${tk.toFixed(3)} dari Data prodi › Kepuasan pengguna (TS ${ts - 1}/${ts}).`
+       : `Data prodi › Kepuasan pengguna TS ${ts - 1}/${ts}: ${n} dari 7 aspek terisi`
+         + (n ? ' (atau persentasenya tidak berjumlah 100)' : '')
+         + '; skor memakai isian tk_total bila ada.';
+   }},
 
   // ---- VII. Sistem Penjaminan Mutu ----------------------------------
   {no:'53', judul:'Unit penjaminan mutu dan perangkat SPMI',
@@ -203,6 +214,39 @@ export function kunciBuktiButir(b){ return `bukti_b${b.no}`; }
 
 // Menghitung skor satu butir manual dari peta pengaturan.
 // Mengembalikan {skor, nilai[], lengkap} — skor null bila belum lengkap.
+// Tujuh aspek kepuasan pengguna lulusan (Tabel 6.g.2 LKPS). Nilai = kunci di
+// tabel lkps_kepuasan_pengguna (supabase/21-patch-kepuasan-pengguna.sql);
+// sama dengan ASPEK di bangun.py.
+export const ASPEK_KEPUASAN = [
+  ['etika', 'Etika'],
+  ['keahlian_bidang_ilmu', 'Keahlian bidang ilmu (kompetensi utama)'],
+  ['bahasa_asing', 'Kemampuan berbahasa asing'],
+  ['teknologi_informasi', 'Penggunaan teknologi informasi'],
+  ['komunikasi', 'Kemampuan berkomunikasi'],
+  ['kerja_sama_tim', 'Kerja sama tim'],
+  ['pengembangan_diri', 'Pengembangan diri'],
+];
+
+function barisKepuasan(D, ts){
+  return (((D || {}).akreditasi || {}).kepuasan || []).filter(r => r.tahun_ts === ts);
+}
+
+// ΣTKi untuk satu TS, atau null bila belum lengkap: ketujuh aspek harus ada
+// dan keempat persentase tiap aspek berjumlah 100 (±1, sama dengan patch 21).
+// TKi = 4a + 3b + 2c + d dengan a..d dalam pecahan.
+export function tkKepuasan(D, ts){
+  const per = new Map(barisKepuasan(D, ts).map(r => [r.aspek, r]));
+  if (!ASPEK_KEPUASAN.every(([a]) => per.has(a))) return null;
+  let total = 0;
+  for (const [a] of ASPEK_KEPUASAN){
+    const r = per.get(a);
+    const p = [r.sangat_baik, r.baik, r.cukup, r.kurang].map(Number);
+    if (p.some(x => !Number.isFinite(x)) || Math.abs(p[0] + p[1] + p[2] + p[3] - 100) > 1) return null;
+    total += (4 * p[0] + 3 * p[1] + 2 * p[2] + p[3]) / 100;
+  }
+  return total;
+}
+
 export function skorManual(b, ambil){
   const kunci = kunciButir(b);
   const nilai = kunci.map(k => ambil(k));

@@ -68,7 +68,7 @@
   .masuk{max-width:420px;margin:40px auto;background:#fff;border:1px solid var(--line);padding:20px}
   .masuk input{width:100%;padding:8px 10px;margin:8px 0;font:inherit}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-04-30d844">
+<link rel="stylesheet" href="kepala.css?v=2026-11-04-ed7af2">
 </head>
 <body>
 
@@ -82,7 +82,7 @@
 
 <main class="wrap" id="isi"></main>
 
-<script src="config.js?v=2026-11-04-30d844"></script>
+<script src="config.js?v=2026-11-04-ed7af2"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -99,8 +99,9 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-04-30d844';
-import { pasangMenu } from './menu.js?v=2026-11-04-30d844';
+import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-04-ed7af2';
+import { pasangMenu } from './menu.js?v=2026-11-04-ed7af2';
+import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-04-ed7af2';
 
 /* =====================================================================
    DATA PRODI — data kuantitatif LKPS diisi admin di situs (keputusan
@@ -159,6 +160,26 @@ const TABEL = [
       if (r.bekerja_sesuai_bidang != null && r.jumlah_terlacak != null && r.bekerja_sesuai_bidang > r.jumlah_terlacak)
         return 'Bekerja sesuai bidang melebihi jumlah terlacak.';
       return '';
+    } },
+  { id: 'kepuasan', tabel: 'lkps_kepuasan_pengguna', judul: 'Kepuasan pengguna', butir: '52',
+    ket: 'Tabel 6.g.2 LKPS: tujuh baris per TAHUN AKADEMIK, satu per aspek, persentase jawaban '
+       + 'pengguna lulusan (sangat baik + baik + cukup + kurang = 100). Skor 52 = ΣTKi / 7 dengan '
+       + 'TKi = 4a + 3b + 2c + d, dihitung otomatis bila ketujuh aspek TS itu terisi.',
+    label: r => `Kepuasan ${ASPEK_KEPUASAN.find(([v]) => v === r.aspek)?.[1] || r.aspek || ''} ${r.tahun_akademik || ''}`,
+    tahun: r => r.tahun_akademik ? +String(r.tahun_akademik).slice(5) : null,
+    kolom: [
+      { k: 'tahun_akademik', l: 'Tahun akademik survei (mis. 2025/2026)', t: 'ta', wajib: true },
+      { k: 'aspek', l: 'Aspek', t: 'pilihan', wajib: true, o: ASPEK_KEPUASAN },
+      { k: 'sangat_baik', l: 'Sangat baik (%)', t: 'num', maks: 100, wajib: true },
+      { k: 'baik', l: 'Baik (%)', t: 'num', maks: 100, wajib: true },
+      { k: 'cukup', l: 'Cukup (%)', t: 'num', maks: 100, wajib: true },
+      { k: 'kurang', l: 'Kurang (%)', t: 'num', maks: 100, wajib: true },
+      { k: 'rencana_tindak_lanjut', l: 'Rencana tindak lanjut', t: 'teks', lebar: true },
+      { k: 'bukti_url', l: 'Bukti (laporan survei)', t: 'url' },
+    ],
+    cek: r => {
+      const j = ['sangat_baik', 'baik', 'cukup', 'kurang'].reduce((a, k) => a + (r[k] || 0), 0);
+      return Math.abs(j - 100) > 1 ? `Keempat persentase berjumlah ${j}, seharusnya 100.` : '';
     } },
   { id: 'kohort', tabel: 'lkps_kohort_lulusan', judul: 'Kohort lulusan', butir: '44–45',
     ket: 'Meniru Tabel 6.d LKPS: satu baris per TAHUN MASUK (angkatan), mundur s.d. TS-7. '

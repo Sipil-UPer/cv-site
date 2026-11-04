@@ -279,7 +279,7 @@
   :focus-visible{outline:2px solid var(--biru-2);outline-offset:1px}
   @media(prefers-reduced-motion:reduce){.kartu{transition:none}.kartu:hover{transform:none}}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-04-30d844">
+<link rel="stylesheet" href="kepala.css?v=2026-11-04-ed7af2">
 </head>
 <body>
 
@@ -344,7 +344,7 @@ setTimeout(function(){
   });
 }, 8000);
 </script>
-<script src="config.js?v=2026-11-04-30d844"></script>
+<script src="config.js?v=2026-11-04-ed7af2"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -361,15 +361,15 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { BUTIR, isiPetaBukti, cariBukti, daftarBukti, kolomBukti } from './rincian.js?v=2026-11-04-30d844';
-import { BUTIR_MANUAL, SEKSI_MANUAL, kunciButir, kunciBuktiButir, skorManual }
-  from './butir-manual.js?v=2026-11-04-30d844';
-import { BOBOT_TOTAL, bobotButir } from './bobot.js?v=2026-11-04-30d844';
-import { htmlRencana, buktiButir } from './rencana-bukti.js?v=2026-11-04-30d844';
-import { htmlPanel, pasangPanel } from './panel-bukti.js?v=2026-11-04-30d844';
-import { pasangMenu } from './menu.js?v=2026-11-04-30d844';
+import { BUTIR, isiPetaBukti, cariBukti, daftarBukti, kolomBukti } from './rincian.js?v=2026-11-04-ed7af2';
+import { BUTIR_MANUAL, SEKSI_MANUAL, kunciButir, kunciBuktiButir, skorManual, tkKepuasan }
+  from './butir-manual.js?v=2026-11-04-ed7af2';
+import { BOBOT_TOTAL, bobotButir } from './bobot.js?v=2026-11-04-ed7af2';
+import { htmlRencana, buktiButir } from './rencana-bukti.js?v=2026-11-04-ed7af2';
+import { htmlPanel, pasangPanel } from './panel-bukti.js?v=2026-11-04-ed7af2';
+import { pasangMenu } from './menu.js?v=2026-11-04-ed7af2';
 import { statusSyarat, syaratButir, SYARAT_UNGGUL, SYARAT_RERATA, SASARAN,
-         statusRerata, gabungSyarat, statusRentang } from './syarat-unggul.js?v=2026-11-04-30d844';
+         statusRerata, gabungSyarat, statusRentang } from './syarat-unggul.js?v=2026-11-04-ed7af2';
 
 // config.js mendefinisikan window.SB_URL dan window.SB_KEY — pemetaan di
 // bawah ini WAJIB ada. skor.html versi sebelumnya melewatkannya dan mati
@@ -393,7 +393,7 @@ const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 // Naikkan setiap kali skor.html / rincian.js / butir-manual.js / bobot.js
 // diubah. Ditampilkan di kaki halaman supaya ketahuan seketika kalau
 // peramban masih memakai salinan lama dari cache.
-const VERSI = '2026-11-04-30d844';
+const VERSI = '2026-11-04-ed7af2';
 // Label versi di judul diisi dari VERSI supaya keduanya tidak bisa berbeda.
 { const el = document.querySelector('.versi-statis'); if (el) el.textContent = 'v' + VERSI; }
 // =====================================================================
@@ -482,7 +482,7 @@ async function unduhLED(){
   const asli = a.textContent;
   a.textContent = 'Menyusun draf LED…';
   try {
-    const { buatLED } = await import('./led.js?v=2026-11-04-30d844');
+    const { buatLED } = await import('./led.js?v=2026-11-04-ed7af2');
     const ts = CTX_LED.tsData;
     const hasil = await buatLED({
       D, ts, taDari, f2, versi: VERSI,
@@ -962,7 +962,12 @@ function butir35(){
 // ---------------------------------------------------------------------
 //  Butir tambahan: kerja sama, keuangan, kegiatan, SDM, mahasiswa
 // ---------------------------------------------------------------------
-function IS(k){ return (PENG[k] == null || PENG[k] === '' ? null : +PENG[k]); }
+function IS(k){
+  // Butir 52: ΣTKi dari Data prodi › Kepuasan pengguna untuk TS ini bila
+  // ketujuh aspek lengkap; isian tk_total hanya cadangan (pemilik 2026-11-04).
+  if (k === 'tk_total') { const tk = tkKepuasan(D, TS); if (tk != null) return tk; }
+  return (PENG[k] == null || PENG[k] === '' ? null : +PENG[k]);
+}
 function ISteks(k){ return PENG[k] == null ? '' : String(PENG[k]).trim(); }
 function taRange(n){ return `TS ${taDari(TS - n + 1)} s.d. ${taDari(TS)}`; }
 function ndtps(){ return (D.dtps || {}).jumlah || 0; }
