@@ -26,11 +26,11 @@
    Peta subbagian LED ke butir: docs/led-peta-butir.md.
    ===================================================================== */
 
-import { RENCANA_BUKTI, LKPS_TABEL, kelompokDokumen, buktiButir, saranDokumen } from './rencana-bukti.js?v=2026-11-05-a0f72a';
-import { grafikButir, tabelGrafik, tabelPendukung } from './led-data.js?v=2026-11-05-a0f72a';
-import { gambarGrafik } from './led-grafik.js?v=2026-11-05-a0f72a';
+import { RENCANA_BUKTI, LKPS_TABEL, kelompokDokumen, buktiButir, saranDokumen } from './rencana-bukti.js?v=2026-11-05-b4cb9a';
+import { grafikButir, tabelGrafik, tabelPendukung } from './led-data.js?v=2026-11-05-b4cb9a';
+import { gambarGrafik } from './led-grafik.js?v=2026-11-05-b4cb9a';
 import { faktaNarasi, kalimatTren, buktiOtomatis, dokumenBelumAda, periksaTersisa, buktiLembar, tabelPenjelas,
-         dokumenKriteria, labelDokumenLED, tokenTautan } from './led-isi.js?v=2026-11-05-a0f72a';
+         dokumenKriteria, labelDokumenLED, tokenTautan } from './led-isi.js?v=2026-11-05-b4cb9a';
 
 const NS = {
   w:  'http://schemas.openxmlformats.org/wordprocessingml/2006/main',

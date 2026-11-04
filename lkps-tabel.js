@@ -12,7 +12,7 @@
    merusak hitungan LKPS. Sel kosong di dalam blok aman bila ditempel dengan
    Skip Blanks.
    ===================================================================== */
-import { petaLKPS, indeksKolom, JSZIP } from './lkps.js?v=2026-11-05-a0f72a';
+import { petaLKPS, indeksKolom, JSZIP } from './lkps.js?v=2026-11-05-b4cb9a';
 
 const OUTLINE = 'lkps-outline.json';
 const XLSX_MIME = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
@@ -326,7 +326,10 @@ export async function buatTabelLKPS(C, opsi = {}){
   const { default: JSZip } = await import(JSZIP);
   const r = await fetch(OUTLINE, { cache: 'no-cache' });
   if (!r.ok) throw new Error(`${OUTLINE} tidak terbaca (${r.status})`);
-  const { bagian, daftar } = susunBagian(petaLKPS(C), await r.json(), C);
+  const kerangka = await r.json();
+  // Halaman lama yang masih terbuka + kerangka baru menghasilkan berkas tanpa kepala tabel.
+  if (kerangka.versi !== 2) throw new Error('Halaman ini versi lama. Tekan Ctrl+Shift+R lalu unduh lagi.');
+  const { bagian, daftar } = susunBagian(petaLKPS(C), kerangka, C);
   const zip = new JSZip();
   for (const [p, isi] of Object.entries(bagian)) zip.file(p, isi);
   const blob = await zip.generateAsync({ type: 'blob', compression: 'DEFLATE', mimeType: XLSX_MIME });

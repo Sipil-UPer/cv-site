@@ -15,8 +15,8 @@
    angka yang sama dengan halaman skor. Lembar lain dibiarkan untuk diisi
    prodi; kolom yang tidak disimpan situs (mis. pita waktu tunggu) kosong.
    ===================================================================== */
-import { versiUntukTS } from './pustaka-dokumen.js?v=2026-11-05-a0f72a';
-import { teksPendidikan } from './profil-dosen.js?v=2026-11-05-a0f72a';
+import { versiUntukTS } from './pustaka-dokumen.js?v=2026-11-05-b4cb9a';
+import { teksPendidikan } from './profil-dosen.js?v=2026-11-05-b4cb9a';
 
 const TEMPLATE = 'lkps-template.xlsx';
 export const JSZIP = 'https://cdn.jsdelivr.net/npm/jszip@3.10.1/+esm';
@@ -329,7 +329,9 @@ export function petaDaftar(C){
   karya.filter(k => k.kategori === 'rekognisi').sort(urut).forEach((k, i) => {
     const r = 12 + i;
     set('4j', `B${r}`, ketua(k)); set('4j', `D${r}`, REKOGNISI[k.sub_jenis]);
-    set('4j', `E${r}`, k.judul);
+    // Bukti Pendukung: teks bebas, jadi tautan bukti ikut ditulis.
+    const u = (X.buktiKarya || []).find(b => b.karya_id === k.id)?.url;
+    set('4j', `E${r}`, u ? `${k.judul} (${u})` : k.judul);
     const t = tingkatKe(k.tingkat);
     if (t >= 0) set('4j', `${'FGH'[t]}${r}`, 'V');         // F wilayah, G nasional, H internasional
     set('4j', `I${r}`, +k.tahun);
