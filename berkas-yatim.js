@@ -1,5 +1,5 @@
 /* =====================================================================
-   BERKAS YATIM — berkas di folder bukti prodi yang tidak dirujuk catatan
+   BERKAS TAK TERPAKAI — berkas di folder bukti prodi yang tidak dirujuk catatan
    mana pun di situs (keputusan pemilik 2026-11-03). Terjadi bila dosen
    menghapus bukti/karyanya sendiri (dosen tidak bisa membuang berkas
    Drive) atau dari karya lama. Admin memilih, lalu berkas dipindah ke
@@ -7,7 +7,7 @@
 
    Rujukan dikumpulkan dari SEMUA tabel yang menyimpan tautan bukti; satu
    tabel gagal dibaca = berhenti, karena daftar rujukan yang tidak lengkap
-   membuat berkas yang masih dipakai tampak yatim. Berkas dianggap dirujuk
+   membuat berkas yang masih dipakai tampak tak terpakai. Berkas dianggap dirujuk
    bila id-nya ATAU salah satu folder induknya disebut (bukti lama berupa
    tautan folder). Dilewati: berkas < 24 jam (catatannya mungkin belum
    tersimpan) dan folder _arsip (dilewati Apps Script).
@@ -15,10 +15,10 @@
    Pemakaian: pasangYatim(sb, elemenWadah)
    ===================================================================== */
 
-import { buangBerkas, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-04-13a0aa';
+import { buangBerkas, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-04-31f604';
 
 // Tabel yang bisa memuat tautan Drive. Tambahkan tabel baru yang
-// menyimpan tautan bukti di sini, kalau tidak berkasnya tampak yatim.
+// menyimpan tautan bukti di sini, kalau tidak berkasnya tampak tak terpakai.
 const TABEL_RUJUKAN = ['karya', 'karya_bukti', 'butir_bukti', 'dokumen', 'lkps_bukti', 'pengaturan',
   'lkps_mahasiswa_ta', 'lkps_kohort_lulusan', 'lkps_tracer_lulusan', 'lkps_kerjasama', 'lkps_bkd',
   'lkps_prestasi_mahasiswa', 'lkps_publikasi_mahasiswa', 'lkps_luaran_mahasiswa'];
@@ -73,7 +73,7 @@ export function pasangYatim(sb, wadah){
   wadah.innerHTML = `<p class="b-ket">Berkas di folder bukti prodi yang tidak dirujuk catatan mana pun di
     situs, misalnya karena dosen menghapus bukti atau karyanya sendiri. Periksa dulu, lalu pilih yang
     dibuang. ${PESAN_SAMPAH}</p>
-    <button type="button" id="yatim-cari">Cari berkas yatim</button>
+    <button type="button" id="yatim-cari">Cari berkas tak terpakai</button>
     <span class="b-ket" id="yatim-status"></span><div id="yatim-hasil"></div>`;
   const status = wadah.querySelector('#yatim-status');
   const hasil = wadah.querySelector('#yatim-hasil');
@@ -90,8 +90,8 @@ export function pasangYatim(sb, wadah){
       const yatim = berkas.filter(f => !dirujuk(f) && kini - Date.parse(f.dibuat) >= BARU_MS)
         .sort((a, b) => (a.jalur + a.nama).localeCompare(b.jalur + b.nama));
       status.textContent = `${berkas.length} berkas di Drive; ${berkas.length - yatim.length - baru.length} dirujuk;`
-        + ` ${baru.length} baru (< 24 jam, dilewati); ${yatim.length} yatim.`;
-      if (!yatim.length) { hasil.innerHTML = '<p class="b-ket">Tidak ada berkas yatim.</p>'; return; }
+        + ` ${baru.length} baru (< 24 jam, dilewati); ${yatim.length} tak terpakai.`;
+      if (!yatim.length) { hasil.innerHTML = '<p class="b-ket">Tidak ada berkas tak terpakai.</p>'; return; }
       hasil.innerHTML = `<div class="gulir"><table class="dok-t"><thead><tr><th><input type="checkbox" id="yatim-semua"></th>
         <th>Folder</th><th>Berkas</th><th>Ukuran</th><th>Diunggah</th></tr></thead><tbody>${yatim.map((f, i) => `
         <tr><td><input type="checkbox" data-yatim="${i}"></td><td>${esc(f.jalur || '/')}</td>
