@@ -23,9 +23,9 @@
    Peta subbagian LED ke butir: docs/led-peta-butir.md.
    ===================================================================== */
 
-import { RENCANA_BUKTI, LKPS_TABEL, kelompokDokumen, buktiButir, saranDokumen } from './rencana-bukti.js?v=2026-11-04-9476e3';
-import { grafikButir, tabelGrafik, tabelPendukung } from './led-data.js?v=2026-11-04-9476e3';
-import { gambarGrafik } from './led-grafik.js?v=2026-11-04-9476e3';
+import { RENCANA_BUKTI, LKPS_TABEL, kelompokDokumen, buktiButir, saranDokumen } from './rencana-bukti.js?v=2026-11-04-e202c6';
+import { grafikButir, tabelGrafik, tabelPendukung } from './led-data.js?v=2026-11-04-e202c6';
+import { gambarGrafik } from './led-grafik.js?v=2026-11-04-e202c6';
 
 const NS = {
   w:  'http://schemas.openxmlformats.org/wordprocessingml/2006/main',
@@ -36,10 +36,10 @@ const NS = {
 const TEMPLATE = 'led-template.docx';
 const LOGO = 'logo-uper.png';
 const JSZIP = 'https://cdn.jsdelivr.net/npm/jszip@3.10.1/+esm';
-// Template: A4 11906 twip, margin kiri 1440, kanan 1106; isi subbagian
-// menjorok ±840. Lebar tabel = 11906 − 1440 − 1106 − 840.
-const INDEN = 840;
-const LEBAR = 8520;
+// Template sendiri (tools/make_led_template.py): A4 11906 twip, margin
+// kiri 1440, kanan 1106; isi rata dengan kolom teks, lebar 9360.
+const INDEN = 0;
+const LEBAR = 9360;
 const LOGO_LEBAR_EMU = 1800000;       // 5 cm
 
 // ---------------------------------------------------------------------
@@ -691,8 +691,21 @@ function isiSampul(doc, C){
   }
   // Identitas pengusul: hanya fakta yang ada di data.json.
   const isian = [['Perguruan Tinggi', pt], ['Jenis Program', 'Sarjana'], ['Nama Program Studi', prodi]];
+  // Template sendiri: tabel label | : | nilai.
+  const barisTabel = [...doc.getElementsByTagNameNS(NS.w, 'tr')];
   for (const [label, nilai] of isian){
     if (!nilai) continue;
+    const tr = barisTabel.find(r => {
+      const tc = r.getElementsByTagNameNS(NS.w, 'tc');
+      return tc.length === 3 && teks(tc[0]).trim() === label;
+    });
+    if (tr){
+      const p = tr.getElementsByTagNameNS(NS.w, 'tc')[2].getElementsByTagNameNS(NS.w, 'p')[0];
+      const rr = doc.createElementNS(NS.w, 'w:r'), t = doc.createElementNS(NS.w, 'w:t');
+      t.textContent = nilai; rr.appendChild(t); p.appendChild(rr); sorotRun(rr);
+      continue;
+    }
+    // Template LAM lama: "Perguruan Tinggi : ......"
     const p = semua.find(p => teks(p).startsWith(label) && /\.{5,}/.test(teks(p)));
     const t = p && [...p.getElementsByTagNameNS(NS.w, 't')].find(t => /\.{5,}/.test(t.textContent));
     if (!t) continue;
@@ -711,7 +724,7 @@ function ukuranPng(buf){
 // ---------------------------------------------------------------------
 export async function buatLED(C, opsi = {}){
   const { default: JSZip } = await import(JSZIP);
-  const [tR, lR] = await Promise.all([fetch(TEMPLATE), fetch(LOGO)]);
+  const [tR, lR] = await Promise.all([fetch(TEMPLATE, { cache: 'no-cache' }), fetch(LOGO)]);
   if (!tR.ok) throw new Error(`${TEMPLATE} tidak terbaca (HTTP ${tR.status})`);
   const zip = await JSZip.loadAsync(await tR.arrayBuffer());
   const doc = new DOMParser().parseFromString(
