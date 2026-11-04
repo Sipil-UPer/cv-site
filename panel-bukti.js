@@ -12,6 +12,10 @@
        folder — pemilik 2026-11-03) — Apps Script kind 'butir' menyimpan ke
        data-lkps/butir-manual/butir-NN/, tiap berkas menjadi satu bukti;
      - tautan manual (judul + URL).
+   Satu dokumen tidak pernah tercatat dua kali (pemilik 2026-11-05): dokumen
+   yang sudah ada cukup ditautkan. Pilihan hanya memuat yang belum tertaut di
+   butir ini, termasuk berkas yang diunggah di butir lain; tautan manual ke
+   berkas yang sudah ada menjadi tautan ke dokumen itu.
    Hak tulis ditegakkan RLS (admin saja); panel hanya tampil bagi admin.
 
    Pemakaian:
@@ -23,31 +27,66 @@
      unggah = {url, ext[], maxMb, accept} dari config.js, atau null.
    ===================================================================== */
 
-import { JENIS_DOKUMEN, infoJenis, buktiButir } from './rencana-bukti.js?v=2026-11-05-c87389';
-import { buangBerkas, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-05-c87389';
-import { periksaBerkas, kolomSidik, teksTemuan } from './sidik-berkas.js?v=2026-11-05-c87389';
+import { JENIS_DOKUMEN, infoJenis, buktiButir } from './rencana-bukti.js?v=2026-11-05-a0f72a';
+import { buangBerkas, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-05-a0f72a';
+import { periksaBerkas, kolomSidik, teksTemuan } from './sidik-berkas.js?v=2026-11-05-a0f72a';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g,
   c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
 
+// Dokumen yang bisa ditautkan ke butir `no`: tanpa yang sudah tertaut di butir ini.
+//   j:<jenis> dokumen jenis tunggal (selalu versi berlaku), d:<id> entri pustaka,
+//   u:<id> berkas yang diunggah di butir lain (baris butir_bukti).
+export function pilihanBukti(no, k){
+  const dok = k.dokumen || [], bb = k.butirBukti || [];
+  const di = bb.filter(b => String(b.butir) === String(no));
+  const jenis = new Set(di.map(b => b.jenis_dokumen).filter(Boolean));
+  const dokId = new Set(di.map(b => b.dokumen_id).filter(Boolean));
+  const url = new Set(di.map(b => b.url).filter(Boolean));
+  const tertaut = d => dokId.has(d.id) || jenis.has(d.jenis) || url.has(d.url);
+  const cocok = j => (j.butir || []).includes(String(no));
+  const tunggal = JENIS_DOKUMEN.filter(j => j.tunggal && dok.some(d => d.jenis === j.id)
+    && !dok.some(d => d.jenis === j.id && tertaut(d)))
+    .map(j => ({ nilai: `j:${j.id}`, label: j.nama, saran: cocok(j) }));
+  const banyak = dok.filter(d => !infoJenis(d.jenis).tunggal && !tertaut(d))
+    .sort((a, b) => b.tahun - a.tahun || String(a.judul).localeCompare(String(b.judul)))
+    .map(d => ({ nilai: `d:${d.id}`, label: `${infoJenis(d.jenis).nama}: ${d.judul} (${d.tahun})`, saran: cocok(infoJenis(d.jenis)) }));
+  const semua = [...tunggal, ...banyak];
+  const dikenal = new Set(dok.map(d => d.url));
+  const sudah = new Set();
+  const berkas = bb.filter(b => b.url && String(b.butir) !== String(no) && !url.has(b.url) && !dikenal.has(b.url))
+    .filter(b => !sudah.has(b.url) && sudah.add(b.url))
+    .map(b => ({ nilai: `u:${b.id}`, label: `${b.judul || 'Berkas bukti'} (butir ${b.butir})` }));
+  return { saran: semua.filter(x => x.saran), lain: semua.filter(x => !x.saran), berkas };
+}
+
+// Baris butir_bukti untuk dokumen yang sudah tersimpan, atau null bila sudah tertaut di butir ini.
+export function barisTaut(no, k, b){
+  const dok = k.dokumen || [];
+  const di = (k.butirBukti || []).filter(x => String(x.butir) === String(no));
+  const d = b.dokumen_id ? dok.find(x => x.id === b.dokumen_id) : dok.find(x => b.url && x.url === b.url);
+  if (d) {
+    const ada = di.some(x => x.dokumen_id === d.id || x.jenis_dokumen === d.jenis || x.url === d.url);
+    return ada ? null : { dokumen_id: d.id };
+  }
+  return di.some(x => b.url && x.url === b.url) ? null : b;
+}
+
 export function htmlPanel(no, k){
   if (k.gagal) return `<div class="pb" id="pb-${esc(no)}"><p class="pb-ket">Tabel
     <code>butir_bukti</code> belum bisa dibaca (${esc(k.gagal)}). Jalankan
     <code>supabase/14-patch-bukti-jamak.sql</code>.</p></div>`;
-  const dok = k.dokumen || [];
   const xs = buktiButir(no, k);
-  const tunggal = JENIS_DOKUMEN.filter(j => j.tunggal && dok.some(d => d.jenis === j.id));
-  const banyak = dok.filter(d => !infoJenis(d.jenis).tunggal)
-    .sort((a, b) => b.tahun - a.tahun || String(a.judul).localeCompare(String(b.judul)));
-  const pilihan = (tunggal.length || banyak.length) ? `<select id="pp-${esc(no)}">
-      <option value="">— pilih dokumen dari pustaka —</option>
-      ${tunggal.length ? `<optgroup label="Jenis tunggal (otomatis versi berlaku)">${tunggal.map(j =>
-        `<option value="j:${esc(j.id)}">${esc(j.nama)}</option>`).join('')}</optgroup>` : ''}
-      ${banyak.length ? `<optgroup label="Entri dokumen">${banyak.map(d =>
-        `<option value="d:${esc(d.id)}">${esc(infoJenis(d.jenis).nama)}: ${esc(d.judul)} (${esc(d.tahun)})</option>`).join('')}</optgroup>` : ''}
+  const P = pilihanBukti(no, k);
+  const opsi = (label, ys) => ys.length ? `<optgroup label="${esc(label)}">${ys.map(y =>
+    `<option value="${esc(y.nilai)}">${esc(y.label)}</option>`).join('')}</optgroup>` : '';
+  const pilihan = P.saran.length + P.lain.length + P.berkas.length ? `<select id="pp-${esc(no)}">
+      <option value="">— pilih dokumen yang sudah diunggah —</option>
+      ${opsi('Disarankan untuk butir ini', P.saran)}${opsi('Dokumen lain di pustaka', P.lain)}${opsi('Berkas di butir lain', P.berkas)}
     </select><button type="button" data-pb="tautkan" data-no="${esc(no)}">Tautkan</button>`
-    : '<span class="pb-ket">Pustaka dokumen masih kosong (unggah di halaman isi butir, bagian Dokumen).</span>';
+    : `<span class="pb-ket">${(k.dokumen || []).length ? 'Semua dokumen pustaka sudah tertaut di butir ini.'
+        : 'Pustaka dokumen masih kosong (unggah di halaman isi butir, bagian Dokumen).'}</span>`;
   const u = k.unggah;
   return `<div class="pb" id="pb-${esc(no)}">
     <div class="pb-j">Kelola bukti butir ${esc(no)} (${xs.length})</div>
@@ -59,9 +98,9 @@ export function htmlPanel(no, k){
         ? `<button type="button" class="kecil" data-pb="lepas" data-id="${esc(x.id)}" data-url="${esc(x.url)}">Hapus</button>`
         : `<button type="button" class="kecil" data-pb="lepas" data-id="${esc(x.id)}">Lepas</button>`}</li>`).join('')}</ul>`
       : '<p class="pb-ket">Belum ada bukti tertaut.</p>'}
-    ${u ? `<div class="pb-a"><label>Berkas <input type="file" id="pbf-${esc(no)}" accept="${esc(u.accept)}" multiple></label>
-      <button type="button" data-pb="unggah" data-no="${esc(no)}">Unggah</button></div>` : ''}
     <div class="pb-a">${pilihan}</div>
+    ${u ? `<div class="pb-a"><label>Berkas baru (hanya bila belum pernah diunggah) <input type="file" id="pbf-${esc(no)}" accept="${esc(u.accept)}" multiple></label>
+      <button type="button" data-pb="unggah" data-no="${esc(no)}">Unggah</button></div>` : ''}
     <div class="pb-a"><input type="text" id="mj-${esc(no)}" placeholder="Judul bukti (mis. Rekap PDDikti mahasiswa aktif 2025/2026)">
       <input type="url" id="mu-${esc(no)}" placeholder="https://…">
       <button type="button" data-pb="manual" data-no="${esc(no)}">Tambah tautan</button></div>
@@ -95,12 +134,19 @@ export function pasangPanel(c){
     async tautkan(no){
       const v = ($('pp-' + no) || {}).value || '';
       if (!v) return tulis(no, 'buruk', 'Pilih dokumen dulu.');
+      if (v.startsWith('u:')) {
+        const b = (c.keadaan().butirBukti || []).find(x => x.id === +v.slice(2));
+        return simpan(no, { judul: b.judul, url: b.url, ...kolomSidik(b.sha256) });
+      }
       await simpan(no, v.startsWith('j:') ? { jenis_dokumen: v.slice(2) } : { dokumen_id: +v.slice(2) });
     },
     async manual(no){
       const judul = $('mj-' + no).value.trim(), url = $('mu-' + no).value.trim();
       if (!/^https?:\/\/\S+$/i.test(url)) return tulis(no, 'buruk', 'Isi tautan https://… yang sah.');
-      await simpan(no, { judul: judul || 'Tautan bukti', url });
+      // Tautan ke berkas yang sudah ada: tautkan berkas itu, jangan catat dua kali.
+      const baris = barisTaut(no, c.keadaan(), { judul: judul || 'Tautan bukti', url });
+      if (!baris) return tulis(no, 'buruk', 'Dokumen itu sudah tertaut di butir ini.');
+      await simpan(no, baris);
     },
     // Berkas yang diunggah di butir: dibuang ke Sampah Drive lalu
     // catatannya dihapus (pemilik 2026-11-03). Tautan pustaka: dilepas saja.
@@ -161,7 +207,15 @@ export function pasangPanel(c){
             if (/Sesi login/.test(err.message || '')) break;
           }
         }
-        if (baris.length && !(await simpan(no, baris))) return;
+        // Berkas yang sudah tertaut di butir ini dilewati, tidak menggagalkan yang lain.
+        const k = c.keadaan(), sudah = new Set();
+        const tautBaru = baris.map(b => barisTaut(no, k, b)).filter(Boolean).filter(b => {
+          const id = b.dokumen_id ? `d${b.dokumen_id}` : b.url;
+          return !sudah.has(id) && sudah.add(id);
+        });
+        const lewat = baris.length - tautBaru.length;
+        if (lewat) ulang.push(`${lewat} berkas sudah tertaut di butir ini`);
+        if (tautBaru.length && !(await simpan(no, tautBaru))) return;
         const ringkas = [`${baris.length} dari ${unggah.length} berkas tertaut`];
         if (ulang.length) ringkas.push(`tidak diunggah ulang (${ulang.join('; ')})`);
         if (dilewati.length) ringkas.push(`dilewati: ${dilewati.join('; ')}`);

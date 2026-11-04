@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-05-c87389">
+<link rel="stylesheet" href="tema.css?v=2026-11-05-a0f72a">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
@@ -271,7 +271,7 @@
   :focus-visible{outline:2px solid var(--biru-2);outline-offset:1px}
   @media(prefers-reduced-motion:reduce){.kartu{transition:none}.kartu:hover{transform:none}}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-05-c87389">
+<link rel="stylesheet" href="kepala.css?v=2026-11-05-a0f72a">
 </head>
 <body>
 
@@ -336,7 +336,7 @@ setTimeout(function(){
   });
 }, 8000);
 </script>
-<script src="config.js?v=2026-11-05-c87389"></script>
+<script src="config.js?v=2026-11-05-a0f72a"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -353,16 +353,16 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { BUTIR, isiPetaBukti, cariBukti, daftarBukti, kolomBukti } from './rincian.js?v=2026-11-05-c87389';
+import { BUTIR, isiPetaBukti, cariBukti, daftarBukti, kolomBukti } from './rincian.js?v=2026-11-05-a0f72a';
 import { BUTIR_MANUAL, SEKSI_MANUAL, kunciButir, kunciBuktiButir, skorManual, tkKepuasan }
-  from './butir-manual.js?v=2026-11-05-c87389';
-import { BOBOT_TOTAL, bobotButir } from './bobot.js?v=2026-11-05-c87389';
-import { cekPitaWT, adaTingkat, sesuaiTracer } from './tracer-skor.js?v=2026-11-05-c87389';
-import { htmlRencana, buktiButir } from './rencana-bukti.js?v=2026-11-05-c87389';
-import { htmlPanel, pasangPanel } from './panel-bukti.js?v=2026-11-05-c87389';
-import { pasangMenu } from './menu.js?v=2026-11-05-c87389';
+  from './butir-manual.js?v=2026-11-05-a0f72a';
+import { BOBOT_TOTAL, bobotButir } from './bobot.js?v=2026-11-05-a0f72a';
+import { cekPitaWT, adaTingkat, sesuaiTracer } from './tracer-skor.js?v=2026-11-05-a0f72a';
+import { htmlRencana, buktiButir } from './rencana-bukti.js?v=2026-11-05-a0f72a';
+import { htmlPanel, pasangPanel } from './panel-bukti.js?v=2026-11-05-a0f72a';
+import { pasangMenu } from './menu.js?v=2026-11-05-a0f72a';
 import { statusSyarat, syaratButir, SYARAT_UNGGUL, SYARAT_RERATA, SASARAN,
-         statusRerata, gabungSyarat, statusRentang } from './syarat-unggul.js?v=2026-11-05-c87389';
+         statusRerata, gabungSyarat, statusRentang } from './syarat-unggul.js?v=2026-11-05-a0f72a';
 
 // config.js mendefinisikan window.SB_URL dan window.SB_KEY — pemetaan di
 // bawah ini WAJIB ada. skor.html versi sebelumnya melewatkannya dan mati
@@ -386,7 +386,7 @@ const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 // Naikkan setiap kali skor.html / rincian.js / butir-manual.js / bobot.js
 // diubah. Ditampilkan di kaki halaman supaya ketahuan seketika kalau
 // peramban masih memakai salinan lama dari cache.
-const VERSI = '2026-11-05-c87389';
+const VERSI = '2026-11-05-a0f72a';
 // Label versi di judul diisi dari VERSI supaya keduanya tidak bisa berbeda.
 { const el = document.querySelector('.versi-statis'); if (el) el.textContent = 'v' + VERSI; }
 // =====================================================================
@@ -473,6 +473,88 @@ document.addEventListener('click', e => {
 // LKPS (lkps.js, pemilik 2026-11-04): templat resmi diisi di browser admin,
 // TS sama dengan ringkasan. Rencana tindak lanjut 6.g.2 hanya ada di tabel
 // lkps_kepuasan_pengguna (admin), tidak di data.json.
+// Data Data prodi yang dipakai LKPS dan draf LED (hanya di browser pemakai yang login;
+// tabel yang belum boleh dibaca atau belum ada cukup kosong).
+async function ambilDaftarLKPS(){
+  // Tahap 2: lembar daftar (lkps.js petaDaftar). Tabel yang belum ada
+  // (patch belum dijalankan) cukup kosong.
+  const ambil = async q => { const { data, error } = await q; if (error) console.warn(error.message); return data || []; };
+  // Dosen dengan profil LKPS 4.a (22-patch-profil-dosen.sql); tanpa patch: kolom dasar.
+  const DOSEN_DASAR = 'nama,nidn,peran,pendidikan,jabatan,aktif,dtps';
+  const { KOLOM_PROFIL } = await import('./profil-dosen.js?v=2026-11-05-a0f72a');
+  const ambilDosen = async () => {
+    const { data, error } = await sb.from('dosen').select(DOSEN_DASAR + ',' + KOLOM_PROFIL);
+    return error ? ambil(sb.from('dosen').select(DOSEN_DASAR)) : (data || []);
+  };
+  // Mata kuliah untuk 3.a.1/3.a.4/3.a.5 dan 4.a kolom 15 (23-patch-kurikulum.sql);
+  // tanpa patch: kolom lama (kode, nama, sks, semester, inti).
+  const MK_DASAR = 'kode,nama,sks,semester,inti,aktif,urutan';
+  const ambilMK = async () => {
+    const { data, error } = await sb.from('ref_mata_kuliah').select(MK_DASAR +
+      ',sks_kuliah,sks_seminar,sks_praktikum,rps_ada,unit_penyelenggara,basic_science,capstone,' +
+      'capstone_cakupan,capstone_pendukung,pengampu');
+    return error ? ambil(sb.from('ref_mata_kuliah').select(MK_DASAR)) : (data || []);
+  };
+  // Kerja sama induk (24-patch-kerjasama-induk.sql): kolom baru + karya.kerjasama_id;
+  // tanpa patch: kolom lama.
+  const KARYA_DASAR = 'id,kategori,judul,tahun,bulan,sub_jenis,jenis,tingkat,indeksasi,nama_terbitan,doi,' +
+    'mata_kuliah,induk_id,status,' +
+    'karya_penulis(peran,korespondensi,dosen(nama)),karya_mitra(institusi,tingkat),karya_mahasiswa(nama)';
+  // Kolom isian tambahan (25-patch-isian-karya.sql): 4.f.3, 4.i, 3.a.3, 6.h.1, 6.i.
+  const KARYA_25 = ',tkt,nomor_tkt,jumlah_sitasi,tema_id,keterlibatan_mhs,bukti_integrasi,sesuai_rps';
+  const ambilKarya = async () => {
+    const q = kol => sb.from('karya').select(kol).eq('status', 'terverifikasi').limit(5000);
+    for (const kol of [KARYA_DASAR + ',kerjasama_id' + KARYA_25, KARYA_DASAR + ',kerjasama_id']) {
+      const { data, error } = await q(kol);
+      if (!error) return data || [];
+    }
+    return ambil(q(KARYA_DASAR));
+  };
+  const KS_DASAR = 'mitra,jenis,tingkat,kegiatan,tahun_mulai,tahun_selesai';
+  const ambilKS = async () => {
+    const { data, error } = await sb.from('lkps_kerjasama')
+      .select('id,' + KS_DASAR + ',manfaat,tanggal_mulai,tanggal_selesai,jenis_bukti');
+    return error ? ambil(sb.from('lkps_kerjasama').select(KS_DASAR)) : (data || []);
+  };
+  const [dosen, karya, kerjasama, bkd, prestasi, luaranMhs, mk, tema, mhs, tracer,
+         vmts, prodiUpps, dana, tendik, buktiVmts, prasarana, dokK3l, fasK3l, dokumen, ppepp, buktiBaris] = await Promise.all([
+    ambilDosen(),
+    ambilKarya(),
+    ambilKS(),
+    ambil(sb.from('lkps_bkd').select('nidn,tahun_akademik,semester,sks_pendidikan,sks_penelitian,sks_pkm,sks_penunjang')),
+    ambil(sb.from('lkps_prestasi_mahasiswa').select('nama_kegiatan,bidang,bulan,tahun,tingkat,capaian')),
+    // select('*'): kolom patch 26 (status/nomor/TKT) ikut bila sudah ada; hanya di browser admin.
+    ambil(sb.from('lkps_luaran_mahasiswa').select('*')),
+    ambilMK(),
+    ambil(sb.from('ref_tema_peta_jalan').select('id,nama,jenis')),
+    // 6.a/6.b/6.f.1/6.f.2: kolom patch 26 dari Data prodi (Mahasiswa per TS, Tracer study).
+    ambil(sb.from('lkps_mahasiswa_ta').select('*')),
+    ambil(sb.from('lkps_tracer_lulusan').select('*')),
+    // PS / Tabel 1 / 2.b / 4.b (27-patch-institusi-upps.sql); bukti VMTS = Link Dokumen Tabel 1.
+    ambil(sb.from('lkps_vmts').select('*')),
+    ambil(sb.from('lkps_prodi_upps').select('*')),
+    ambil(sb.from('lkps_penggunaan_dana').select('*')),
+    ambil(sb.from('lkps_tendik').select('*')),
+    // Bukti VMTS: tautan luar atau dokumen pustaka (29-patch-pustaka-dokumen.sql).
+    (async () => { const q = kol => sb.from('lkps_bukti').select(kol).eq('tabel', 'lkps_vmts').order('id');
+      const { data, error } = await q('baris_id,url,dokumen(url)');
+      return error ? ambil(q('baris_id,url')) : (data || []); })(),
+    // 5.a / 5.b / 5.c (28-patch-sarana-k3l.sql).
+    ambil(sb.from('lkps_prasarana').select('*')),
+    ambil(sb.from('lkps_dokumen_k3l').select('*')),
+    ambil(sb.from('lkps_fasilitas_k3l').select('*')),
+    // 7.a dari pustaka dokumen, 7.b tahap PPEPP (30-patch-spmi.sql).
+    ambil(sb.from('dokumen').select('*')),
+    ambil(sb.from('lkps_spmi_ppepp').select('*')),
+    // Bukti baris Data prodi untuk tabel bukti LED (29-patch-pustaka-dokumen.sql).
+    (async () => { const q = kol => sb.from('lkps_bukti').select(kol).order('id');
+      const { data, error } = await q('tabel,baris_id,judul,url,dokumen(jenis,tahun,judul,nomor,url)');
+      return error ? ambil(q('tabel,baris_id,judul,url')) : (data || []); })(),
+  ]);
+  return { dosen, karya, kerjasama, bkd, prestasi, luaranMhs, mk, tema, mhs, tracer,
+           vmts, prodiUpps, dana, tendik, buktiVmts, prasarana, dokK3l, fasK3l, dokumen, ppepp, buktiBaris };
+}
+
 // idTombol: unduhLKPS = templat resmi terisi; unduhTabelLKPS = workbook sendiri
 // (lkps-tabel.js, pemilik 2026-11-05). Data yang diambil sama.
 async function unduhLKPS(idTombol){
@@ -487,83 +569,12 @@ async function unduhLKPS(idTombol){
       .select('aspek, rencana_tindak_lanjut').eq('tahun_akademik', taDari(ts));
     const rencanaKepuasan = Object.fromEntries((kp || [])
       .filter(r => r.rencana_tindak_lanjut).map(r => [r.aspek, r.rencana_tindak_lanjut]));
-    // Tahap 2: lembar daftar (lkps.js petaDaftar). Tabel yang belum ada
-    // (patch belum dijalankan) cukup kosong.
-    const ambil = async q => { const { data, error } = await q; if (error) console.warn(error.message); return data || []; };
-    // Dosen dengan profil LKPS 4.a (22-patch-profil-dosen.sql); tanpa patch: kolom dasar.
-    const DOSEN_DASAR = 'nama,nidn,peran,pendidikan,jabatan,aktif,dtps';
-    const { KOLOM_PROFIL } = await import('./profil-dosen.js?v=2026-11-05-c87389');
-    const ambilDosen = async () => {
-      const { data, error } = await sb.from('dosen').select(DOSEN_DASAR + ',' + KOLOM_PROFIL);
-      return error ? ambil(sb.from('dosen').select(DOSEN_DASAR)) : (data || []);
-    };
-    // Mata kuliah untuk 3.a.1/3.a.4/3.a.5 dan 4.a kolom 15 (23-patch-kurikulum.sql);
-    // tanpa patch: kolom lama (kode, nama, sks, semester, inti).
-    const MK_DASAR = 'kode,nama,sks,semester,inti,aktif,urutan';
-    const ambilMK = async () => {
-      const { data, error } = await sb.from('ref_mata_kuliah').select(MK_DASAR +
-        ',sks_kuliah,sks_seminar,sks_praktikum,rps_ada,unit_penyelenggara,basic_science,capstone,' +
-        'capstone_cakupan,capstone_pendukung,pengampu');
-      return error ? ambil(sb.from('ref_mata_kuliah').select(MK_DASAR)) : (data || []);
-    };
-    // Kerja sama induk (24-patch-kerjasama-induk.sql): kolom baru + karya.kerjasama_id;
-    // tanpa patch: kolom lama.
-    const KARYA_DASAR = 'id,kategori,judul,tahun,bulan,sub_jenis,jenis,tingkat,indeksasi,nama_terbitan,doi,' +
-      'mata_kuliah,induk_id,status,' +
-      'karya_penulis(peran,korespondensi,dosen(nama)),karya_mitra(institusi,tingkat),karya_mahasiswa(nama)';
-    // Kolom isian tambahan (25-patch-isian-karya.sql): 4.f.3, 4.i, 3.a.3, 6.h.1, 6.i.
-    const KARYA_25 = ',tkt,nomor_tkt,jumlah_sitasi,tema_id,keterlibatan_mhs,bukti_integrasi,sesuai_rps';
-    const ambilKarya = async () => {
-      const q = kol => sb.from('karya').select(kol).eq('status', 'terverifikasi').limit(5000);
-      for (const kol of [KARYA_DASAR + ',kerjasama_id' + KARYA_25, KARYA_DASAR + ',kerjasama_id']) {
-        const { data, error } = await q(kol);
-        if (!error) return data || [];
-      }
-      return ambil(q(KARYA_DASAR));
-    };
-    const KS_DASAR = 'mitra,jenis,tingkat,kegiatan,tahun_mulai,tahun_selesai';
-    const ambilKS = async () => {
-      const { data, error } = await sb.from('lkps_kerjasama')
-        .select('id,' + KS_DASAR + ',manfaat,tanggal_mulai,tanggal_selesai,jenis_bukti');
-      return error ? ambil(sb.from('lkps_kerjasama').select(KS_DASAR)) : (data || []);
-    };
-    const [dosen, karya, kerjasama, bkd, prestasi, luaranMhs, mk, tema, mhs, tracer,
-           vmts, prodiUpps, dana, tendik, buktiVmts, prasarana, dokK3l, fasK3l, dokumen, ppepp] = await Promise.all([
-      ambilDosen(),
-      ambilKarya(),
-      ambilKS(),
-      ambil(sb.from('lkps_bkd').select('nidn,tahun_akademik,semester,sks_pendidikan,sks_penelitian,sks_pkm,sks_penunjang')),
-      ambil(sb.from('lkps_prestasi_mahasiswa').select('nama_kegiatan,bidang,bulan,tahun,tingkat,capaian')),
-      // select('*'): kolom patch 26 (status/nomor/TKT) ikut bila sudah ada; hanya di browser admin.
-      ambil(sb.from('lkps_luaran_mahasiswa').select('*')),
-      ambilMK(),
-      ambil(sb.from('ref_tema_peta_jalan').select('id,nama,jenis')),
-      // 6.a/6.b/6.f.1/6.f.2: kolom patch 26 dari Data prodi (Mahasiswa per TS, Tracer study).
-      ambil(sb.from('lkps_mahasiswa_ta').select('*')),
-      ambil(sb.from('lkps_tracer_lulusan').select('*')),
-      // PS / Tabel 1 / 2.b / 4.b (27-patch-institusi-upps.sql); bukti VMTS = Link Dokumen Tabel 1.
-      ambil(sb.from('lkps_vmts').select('*')),
-      ambil(sb.from('lkps_prodi_upps').select('*')),
-      ambil(sb.from('lkps_penggunaan_dana').select('*')),
-      ambil(sb.from('lkps_tendik').select('*')),
-      // Bukti VMTS: tautan luar atau dokumen pustaka (29-patch-pustaka-dokumen.sql).
-      (async () => { const q = kol => sb.from('lkps_bukti').select(kol).eq('tabel', 'lkps_vmts').order('id');
-        const { data, error } = await q('baris_id,url,dokumen(url)');
-        return error ? ambil(q('baris_id,url')) : (data || []); })(),
-      // 5.a / 5.b / 5.c (28-patch-sarana-k3l.sql).
-      ambil(sb.from('lkps_prasarana').select('*')),
-      ambil(sb.from('lkps_dokumen_k3l').select('*')),
-      ambil(sb.from('lkps_fasilitas_k3l').select('*')),
-      // 7.a dari pustaka dokumen, 7.b tahap PPEPP (30-patch-spmi.sql).
-      ambil(sb.from('dokumen').select('*')),
-      ambil(sb.from('lkps_spmi_ppepp').select('*')),
-    ]);
+    const daftar = await ambilDaftarLKPS();
     const buat = idTombol === 'unduhTabelLKPS'
-      ? (await import('./lkps-tabel.js?v=2026-11-05-c87389')).buatTabelLKPS
-      : (await import('./lkps.js?v=2026-11-05-c87389')).buatLKPS;
+      ? (await import('./lkps-tabel.js?v=2026-11-05-a0f72a')).buatTabelLKPS
+      : (await import('./lkps.js?v=2026-11-05-a0f72a')).buatLKPS;
     const hasil = await buat({ D, ts, prodi: D.prodi, institusi: D.institusi, rencanaKepuasan,
-      daftar: { dosen, karya, kerjasama, bkd, prestasi, luaranMhs, mk, tema, mhs, tracer,
-                vmts, prodiUpps, dana, tendik, buktiVmts, prasarana, dokK3l, fasK3l, dokumen, ppepp } });
+      daftar });
     a.textContent = `LKPS terunduh (${hasil.sel} sel pada ${hasil.lembar.length} lembar)`;
   } catch (e) {
     console.error(e);
@@ -584,7 +595,7 @@ async function unduhLED(){
   const asli = a.textContent;
   a.textContent = 'Menyusun draf LED…';
   try {
-    const { buatLED } = await import('./led.js?v=2026-11-05-c87389');
+    const { buatLED } = await import('./led.js?v=2026-11-05-a0f72a');
     const ts = CTX_LED.tsData;
     const hasil = await buatLED({
       D, ts, taDari, f2, versi: VERSI,
@@ -596,6 +607,7 @@ async function unduhLED(){
       buktiButir: no => ISteks(`bukti_b${no}`),
       dokumen: DOK,
       butirBukti: BB,
+      daftar: await ambilDaftarLKPS(),
       rekapKarya: no => {
         if (!BUTIR[no]) return null;
         const rows = BUTIR[no].baris(D, ts) || [];
