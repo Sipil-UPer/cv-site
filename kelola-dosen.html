@@ -62,7 +62,7 @@
   .masuk{max-width:420px;margin:40px auto;background:#fff;border:1px solid var(--line);padding:20px}
   .masuk input{width:100%;padding:8px 10px;margin:8px 0;font:inherit}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-04-ed7af2">
+<link rel="stylesheet" href="kepala.css?v=2026-11-04-13a0aa">
 </head>
 <body>
 
@@ -76,7 +76,7 @@
 
 <main class="wrap" id="isi"></main>
 
-<script src="config.js?v=2026-11-04-ed7af2"></script>
+<script src="config.js?v=2026-11-04-13a0aa"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -93,15 +93,15 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { pasangMenu } from './menu.js?v=2026-11-04-ed7af2';
+import { pasangMenu } from './menu.js?v=2026-11-04-13a0aa';
 
 /* =====================================================================
    KELOLA DOSEN — daftar dosen prodi diisi admin di situs (keputusan
    pemilik 2026-11-03), menggantikan lembar `dosen` di data-prodi.xlsx dan
    `bangun.py --sinkron-dosen`. Tabel `dosen` (supabase/01-skema.sql;
    kolom pendidikan + jabatan sejak supabase/18-patch-dosen-web.sql).
-   Hak tulis: policy dosen_admin (admin saja). Aturan isian sama dengan
-   sinkron_dosen() di bangun.py:
+   Hak tulis: policy dosen_admin (admin saja). Aturan isian (dulu juga di
+   sinkron_dosen() bangun.py, dipensiunkan 2026-11-04):
      - nidn, nama, email wajib; nidn dan email unik; admin staf tanpa NIDN
        memakai NIP/NUP atau kode STAF-001;
      - asesor tidak pernah DTPS;

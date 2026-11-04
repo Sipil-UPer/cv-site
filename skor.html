@@ -279,7 +279,7 @@
   :focus-visible{outline:2px solid var(--biru-2);outline-offset:1px}
   @media(prefers-reduced-motion:reduce){.kartu{transition:none}.kartu:hover{transform:none}}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-04-ed7af2">
+<link rel="stylesheet" href="kepala.css?v=2026-11-04-13a0aa">
 </head>
 <body>
 
@@ -344,7 +344,7 @@ setTimeout(function(){
   });
 }, 8000);
 </script>
-<script src="config.js?v=2026-11-04-ed7af2"></script>
+<script src="config.js?v=2026-11-04-13a0aa"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -361,15 +361,15 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { BUTIR, isiPetaBukti, cariBukti, daftarBukti, kolomBukti } from './rincian.js?v=2026-11-04-ed7af2';
+import { BUTIR, isiPetaBukti, cariBukti, daftarBukti, kolomBukti } from './rincian.js?v=2026-11-04-13a0aa';
 import { BUTIR_MANUAL, SEKSI_MANUAL, kunciButir, kunciBuktiButir, skorManual, tkKepuasan }
-  from './butir-manual.js?v=2026-11-04-ed7af2';
-import { BOBOT_TOTAL, bobotButir } from './bobot.js?v=2026-11-04-ed7af2';
-import { htmlRencana, buktiButir } from './rencana-bukti.js?v=2026-11-04-ed7af2';
-import { htmlPanel, pasangPanel } from './panel-bukti.js?v=2026-11-04-ed7af2';
-import { pasangMenu } from './menu.js?v=2026-11-04-ed7af2';
+  from './butir-manual.js?v=2026-11-04-13a0aa';
+import { BOBOT_TOTAL, bobotButir } from './bobot.js?v=2026-11-04-13a0aa';
+import { htmlRencana, buktiButir } from './rencana-bukti.js?v=2026-11-04-13a0aa';
+import { htmlPanel, pasangPanel } from './panel-bukti.js?v=2026-11-04-13a0aa';
+import { pasangMenu } from './menu.js?v=2026-11-04-13a0aa';
 import { statusSyarat, syaratButir, SYARAT_UNGGUL, SYARAT_RERATA, SASARAN,
-         statusRerata, gabungSyarat, statusRentang } from './syarat-unggul.js?v=2026-11-04-ed7af2';
+         statusRerata, gabungSyarat, statusRentang } from './syarat-unggul.js?v=2026-11-04-13a0aa';
 
 // config.js mendefinisikan window.SB_URL dan window.SB_KEY — pemetaan di
 // bawah ini WAJIB ada. skor.html versi sebelumnya melewatkannya dan mati
@@ -393,7 +393,7 @@ const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 // Naikkan setiap kali skor.html / rincian.js / butir-manual.js / bobot.js
 // diubah. Ditampilkan di kaki halaman supaya ketahuan seketika kalau
 // peramban masih memakai salinan lama dari cache.
-const VERSI = '2026-11-04-ed7af2';
+const VERSI = '2026-11-04-13a0aa';
 // Label versi di judul diisi dari VERSI supaya keduanya tidak bisa berbeda.
 { const el = document.querySelector('.versi-statis'); if (el) el.textContent = 'v' + VERSI; }
 // =====================================================================
@@ -482,7 +482,7 @@ async function unduhLED(){
   const asli = a.textContent;
   a.textContent = 'Menyusun draf LED…';
   try {
-    const { buatLED } = await import('./led.js?v=2026-11-04-ed7af2');
+    const { buatLED } = await import('./led.js?v=2026-11-04-13a0aa');
     const ts = CTX_LED.tsData;
     const hasil = await buatLED({
       D, ts, taDari, f2, versi: VERSI,
