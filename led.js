@@ -23,9 +23,9 @@
    Peta subbagian LED ke butir: docs/led-peta-butir.md.
    ===================================================================== */
 
-import { RENCANA_BUKTI, LKPS_TABEL, kelompokDokumen, buktiButir, saranDokumen } from './rencana-bukti.js?v=2026-11-05-07cc4d';
-import { grafikButir, tabelGrafik, tabelPendukung } from './led-data.js?v=2026-11-05-07cc4d';
-import { gambarGrafik } from './led-grafik.js?v=2026-11-05-07cc4d';
+import { RENCANA_BUKTI, LKPS_TABEL, kelompokDokumen, buktiButir, saranDokumen } from './rencana-bukti.js?v=2026-11-05-cb1d94';
+import { grafikButir, tabelGrafik, tabelPendukung } from './led-data.js?v=2026-11-05-cb1d94';
+import { gambarGrafik } from './led-grafik.js?v=2026-11-05-cb1d94';
 
 const NS = {
   w:  'http://schemas.openxmlformats.org/wordprocessingml/2006/main',

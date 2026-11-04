@@ -15,11 +15,11 @@
    angka yang sama dengan halaman skor. Lembar lain dibiarkan untuk diisi
    prodi; kolom yang tidak disimpan situs (mis. pita waktu tunggu) kosong.
    ===================================================================== */
-import { versiUntukTS } from './pustaka-dokumen.js?v=2026-11-05-07cc4d';
-import { teksPendidikan } from './profil-dosen.js?v=2026-11-05-07cc4d';
+import { versiUntukTS } from './pustaka-dokumen.js?v=2026-11-05-cb1d94';
+import { teksPendidikan } from './profil-dosen.js?v=2026-11-05-cb1d94';
 
 const TEMPLATE = 'lkps-template.xlsx';
-const JSZIP = 'https://cdn.jsdelivr.net/npm/jszip@3.10.1/+esm';
+export const JSZIP = 'https://cdn.jsdelivr.net/npm/jszip@3.10.1/+esm';
 
 // Urutan baris 6.g.2 di templat (B7..B13), kunci = ASPEK_KEPUASAN.
 const BARIS_KEPUASAN = ['etika', 'keahlian_bidang_ilmu', 'bahasa_asing', 'teknologi_informasi',
@@ -354,7 +354,10 @@ export function petaDaftar(C){
     if (!k) continue;
     const r = 41 - kk;
     set('6d', `B${r}`, k.masuk);
+    // Kolom masa studi berbentuk tangga (rentang isian templat: B34:F35, B36:E36,
+    // B37:D37, B38:C38, B39:B41): angkatan muda belum bisa lulus di kolom panjang.
     ['lulus_3_5_sd_4_5', 'lulus_4_5_sd_5_5', 'lulus_5_5_sd_6_5', 'lulus_6_5_sd_8']
+      .slice(0, Math.max(0, Math.min(4, kk - 2)))
       .forEach((p, j) => set('6d', `${'CDEF'[j]}${r}`, +k[p] || 0));
   }
 

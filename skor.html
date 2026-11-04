@@ -279,7 +279,7 @@
   :focus-visible{outline:2px solid var(--biru-2);outline-offset:1px}
   @media(prefers-reduced-motion:reduce){.kartu{transition:none}.kartu:hover{transform:none}}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-05-07cc4d">
+<link rel="stylesheet" href="kepala.css?v=2026-11-05-cb1d94">
 </head>
 <body>
 
@@ -344,7 +344,7 @@ setTimeout(function(){
   });
 }, 8000);
 </script>
-<script src="config.js?v=2026-11-05-07cc4d"></script>
+<script src="config.js?v=2026-11-05-cb1d94"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -361,16 +361,16 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { BUTIR, isiPetaBukti, cariBukti, daftarBukti, kolomBukti } from './rincian.js?v=2026-11-05-07cc4d';
+import { BUTIR, isiPetaBukti, cariBukti, daftarBukti, kolomBukti } from './rincian.js?v=2026-11-05-cb1d94';
 import { BUTIR_MANUAL, SEKSI_MANUAL, kunciButir, kunciBuktiButir, skorManual, tkKepuasan }
-  from './butir-manual.js?v=2026-11-05-07cc4d';
-import { BOBOT_TOTAL, bobotButir } from './bobot.js?v=2026-11-05-07cc4d';
-import { cekPitaWT, adaTingkat, sesuaiTracer } from './tracer-skor.js?v=2026-11-05-07cc4d';
-import { htmlRencana, buktiButir } from './rencana-bukti.js?v=2026-11-05-07cc4d';
-import { htmlPanel, pasangPanel } from './panel-bukti.js?v=2026-11-05-07cc4d';
-import { pasangMenu } from './menu.js?v=2026-11-05-07cc4d';
+  from './butir-manual.js?v=2026-11-05-cb1d94';
+import { BOBOT_TOTAL, bobotButir } from './bobot.js?v=2026-11-05-cb1d94';
+import { cekPitaWT, adaTingkat, sesuaiTracer } from './tracer-skor.js?v=2026-11-05-cb1d94';
+import { htmlRencana, buktiButir } from './rencana-bukti.js?v=2026-11-05-cb1d94';
+import { htmlPanel, pasangPanel } from './panel-bukti.js?v=2026-11-05-cb1d94';
+import { pasangMenu } from './menu.js?v=2026-11-05-cb1d94';
 import { statusSyarat, syaratButir, SYARAT_UNGGUL, SYARAT_RERATA, SASARAN,
-         statusRerata, gabungSyarat, statusRentang } from './syarat-unggul.js?v=2026-11-05-07cc4d';
+         statusRerata, gabungSyarat, statusRentang } from './syarat-unggul.js?v=2026-11-05-cb1d94';
 
 // config.js mendefinisikan window.SB_URL dan window.SB_KEY — pemetaan di
 // bawah ini WAJIB ada. skor.html versi sebelumnya melewatkannya dan mati
@@ -394,7 +394,7 @@ const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 // Naikkan setiap kali skor.html / rincian.js / butir-manual.js / bobot.js
 // diubah. Ditampilkan di kaki halaman supaya ketahuan seketika kalau
 // peramban masih memakai salinan lama dari cache.
-const VERSI = '2026-11-05-07cc4d';
+const VERSI = '2026-11-05-cb1d94';
 // Label versi di judul diisi dari VERSI supaya keduanya tidak bisa berbeda.
 { const el = document.querySelector('.versi-statis'); if (el) el.textContent = 'v' + VERSI; }
 // =====================================================================
@@ -446,9 +446,11 @@ function pasangSeksi(){
   const tsBerkas = CTX_LED ? ` TS ${taDari(CTX_LED.tsData)}` : '';
   if (k) k.innerHTML = `<a id="unduhLED" title="Template LED LAM Teknik terisi tabel data, grafik, tautan bukti, dan kerangka narasi (tanpa skor penilaian sendiri)">Unduh draf LED${tsBerkas} (.docx)</a>`
     + (ADMIN ? `<a id="unduhLKPS" title="Templat LKPS resmi LAM Teknik terisi data situs">Unduh LKPS${tsBerkas} (.xlsx)</a>` : '')
+    + (ADMIN ? `<a id="unduhTabelLKPS" title="Workbook sendiri berisi data situs, untuk disalin ke templat LAM; lembar Petunjuk memuat blok salin">Unduh tabel LKPS${tsBerkas} (.xlsx)</a>` : '')
     + `<a id="bukaSemua">Buka semua</a><a id="tutupSemua">Tutup semua</a>`;
   document.getElementById('unduhLED')?.addEventListener('click', unduhLED);
-  document.getElementById('unduhLKPS')?.addEventListener('click', unduhLKPS);
+  document.getElementById('unduhLKPS')?.addEventListener('click', () => unduhLKPS('unduhLKPS'));
+  document.getElementById('unduhTabelLKPS')?.addEventListener('click', () => unduhLKPS('unduhTabelLKPS'));
   const semua = v => document.querySelectorAll('details.seksi').forEach(d => d.open = v);
   document.getElementById('bukaSemua')?.addEventListener('click', () => semua(true));
   document.getElementById('tutupSemua')?.addEventListener('click', () => semua(false));
@@ -479,8 +481,10 @@ document.addEventListener('click', e => {
 // LKPS (lkps.js, pemilik 2026-11-04): templat resmi diisi di browser admin,
 // TS sama dengan ringkasan. Rencana tindak lanjut 6.g.2 hanya ada di tabel
 // lkps_kepuasan_pengguna (admin), tidak di data.json.
-async function unduhLKPS(){
-  const a = document.getElementById('unduhLKPS');
+// idTombol: unduhLKPS = templat resmi terisi; unduhTabelLKPS = workbook sendiri
+// (lkps-tabel.js, pemilik 2026-11-05). Data yang diambil sama.
+async function unduhLKPS(idTombol){
+  const a = document.getElementById(idTombol);
   if (!a || !CTX_LED || a.dataset.sibuk) return;
   a.dataset.sibuk = '1';
   const asli = a.textContent;
@@ -496,7 +500,7 @@ async function unduhLKPS(){
     const ambil = async q => { const { data, error } = await q; if (error) console.warn(error.message); return data || []; };
     // Dosen dengan profil LKPS 4.a (22-patch-profil-dosen.sql); tanpa patch: kolom dasar.
     const DOSEN_DASAR = 'nama,nidn,peran,pendidikan,jabatan,aktif,dtps';
-    const { KOLOM_PROFIL } = await import('./profil-dosen.js?v=2026-11-05-07cc4d');
+    const { KOLOM_PROFIL } = await import('./profil-dosen.js?v=2026-11-05-cb1d94');
     const ambilDosen = async () => {
       const { data, error } = await sb.from('dosen').select(DOSEN_DASAR + ',' + KOLOM_PROFIL);
       return error ? ambil(sb.from('dosen').select(DOSEN_DASAR)) : (data || []);
@@ -562,8 +566,10 @@ async function unduhLKPS(){
       ambil(sb.from('dokumen').select('*')),
       ambil(sb.from('lkps_spmi_ppepp').select('*')),
     ]);
-    const { buatLKPS } = await import('./lkps.js?v=2026-11-05-07cc4d');
-    const hasil = await buatLKPS({ D, ts, prodi: D.prodi, institusi: D.institusi, rencanaKepuasan,
+    const buat = idTombol === 'unduhTabelLKPS'
+      ? (await import('./lkps-tabel.js?v=2026-11-05-cb1d94')).buatTabelLKPS
+      : (await import('./lkps.js?v=2026-11-05-cb1d94')).buatLKPS;
+    const hasil = await buat({ D, ts, prodi: D.prodi, institusi: D.institusi, rencanaKepuasan,
       daftar: { dosen, karya, kerjasama, bkd, prestasi, luaranMhs, mk, tema, mhs, tracer,
                 vmts, prodiUpps, dana, tendik, buktiVmts, prasarana, dokK3l, fasK3l, dokumen, ppepp } });
     a.textContent = `LKPS terunduh (${hasil.sel} sel pada ${hasil.lembar.length} lembar)`;
@@ -586,7 +592,7 @@ async function unduhLED(){
   const asli = a.textContent;
   a.textContent = 'Menyusun draf LED…';
   try {
-    const { buatLED } = await import('./led.js?v=2026-11-05-07cc4d');
+    const { buatLED } = await import('./led.js?v=2026-11-05-cb1d94');
     const ts = CTX_LED.tsData;
     const hasil = await buatLED({
       D, ts, taDari, f2, versi: VERSI,
