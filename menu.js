@@ -22,6 +22,8 @@ export const MODUL = [
       ket: 'Publikasi, penelitian, PkM, luaran, rekognisi, dan buktinya. Admin juga memverifikasi di sini.' },
     { href: 'data-prodi.html', judul: 'Data prodi', boleh: admin,
       ket: 'Mahasiswa, lulusan, tracer, kerja sama, BKD, prestasi mahasiswa.' },
+    { href: 'profil.html', judul: 'Profil saya',
+      ket: 'Nama, SINTA, Scopus, ORCID, pendidikan, jabatan; perubahan disetujui admin.' },
     { href: 'kelola-dosen.html', judul: 'Kelola dosen', boleh: admin,
       ket: 'Email yang terdaftar dan perannya.' },
   ]},
@@ -88,6 +90,14 @@ export function identitas(){
   return IDENTITAS;
 }
 
+// Baris institusi di kepala halaman (kepala.css, elemen [data-identitas]),
+// diisi saat modul dimuat, jadi tampil juga di layar masuk.
+identitas().then(({ prodi, institusi }) => {
+  const teks = [prodi && 'Program Studi ' + prodi, institusi].filter(Boolean).join(' · ');
+  document.querySelectorAll('[data-identitas]').forEach(el => { el.textContent = teks; });
+  if (document.querySelector('[data-identitas]')) pasangJudul();
+});
+
 // "Skor & LED — Kinerja Program Studi" -> "Skor & LED — Teknik Sipil Universitas Pertamina"
 export async function pasangJudul(){
   const { prodi, institusi } = await identitas();
@@ -98,8 +108,7 @@ export async function pasangJudul(){
 const CSS = `
 .rk-menu{background:#081D36;color:#DCE6F0;font:13px/1.4 'IBM Plex Sans',system-ui,sans-serif;
   border-bottom:1px solid rgba(255,255,255,.08)}
-.rk-in{max-width:1180px;margin:0 auto;padding:8px 24px;display:flex;flex-wrap:wrap;
-  align-items:center;gap:6px 22px}
+.rk-in{padding:7px 24px;display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px}
 .rk-menu a{color:#DCE6F0;text-decoration:none;padding:3px 7px;border-radius:3px}
 .rk-menu a:hover{background:rgba(255,255,255,.1);color:#fff}
 .rk-menu a.rk-merek{display:flex;align-items:center;gap:9px;padding:2px 4px 2px 0}
@@ -109,14 +118,24 @@ const CSS = `
 .rk-merek b{color:#fff;font-weight:700;letter-spacing:.01em}
 .rk-merek small{color:#A9C0D6;font-size:11px}
 .rk-menu a[aria-current="page"]{background:#fff;color:#0C2A4D;font-weight:600}
-.rk-grup{display:flex;flex-wrap:wrap;align-items:center;gap:2px}
-.rk-grup>span{font:10.5px 'IBM Plex Mono',ui-monospace,monospace;letter-spacing:.09em;
-  text-transform:uppercase;color:#7F9BB8;margin-right:4px}
+.rk-grup{position:relative}
+.rk-grup>summary{list-style:none;cursor:pointer;padding:3px 9px;border-radius:3px;color:#DCE6F0}
+.rk-grup>summary::-webkit-details-marker{display:none}
+.rk-grup>summary::after{content:'';display:inline-block;margin-left:7px;vertical-align:2px;
+  border:4px solid transparent;border-top-color:currentColor;border-bottom:0}
+.rk-grup>summary:hover,.rk-grup[open]>summary{background:rgba(255,255,255,.1);color:#fff}
+.rk-grup.rk-ini>summary{color:#fff;font-weight:600;box-shadow:inset 0 -2px 0 #C8102E}
+.rk-isi{position:absolute;top:calc(100% + 6px);left:0;z-index:50;min-width:240px;background:#fff;
+  border:1px solid #D9DFDA;border-radius:4px;box-shadow:0 8px 24px rgba(8,29,54,.18);padding:6px}
+.rk-menu .rk-isi a{display:block;color:#14212E;padding:7px 10px}
+.rk-menu .rk-isi a:hover{background:#EBEEEB;color:#0C2A4D}
+.rk-menu .rk-isi a[aria-current="page"]{background:#0C2A4D;color:#fff}
 .rk-user{margin-left:auto;display:flex;align-items:center;gap:10px;color:#A9C0D6}
 .rk-user button{font:inherit;color:#DCE6F0;background:none;border:1px solid rgba(255,255,255,.3);
   border-radius:3px;padding:2px 10px;cursor:pointer}
 .rk-user button:hover{background:rgba(255,255,255,.12)}
-@media(max-width:760px){.rk-in{padding:8px 16px}.rk-user{margin-left:0;width:100%}}
+@media(max-width:760px){.rk-in{padding:8px 16px}.rk-user{margin-left:0;width:100%}
+  .rk-isi{min-width:210px}}
 @media print{.rk-menu{display:none}}`;
 
 // Menu atas untuk pengguna terdaftar; tidak tampil bila belum login atau
@@ -124,13 +143,20 @@ const CSS = `
 export async function pasangMenu(sb){
   let u = await pengguna(sb);
   if (!u?.saya) u = await pengguna(sb, true);   // mis. dipanggil lagi setelah SIGNED_IN
-  if (!u?.saya || document.querySelector('.rk-menu')) return u?.saya || null;
+  if (!u?.saya) return null;
   const ini = berkasIni();
   const { prodi, institusi } = await identitas();
+  // Diperiksa SETELAH semua await: halaman bisa memanggil pasangMenu dua kali
+  // hampir bersamaan (muat awal + SIGNED_IN); tanpa ini menu terpasang dua kali.
+  if (document.querySelector('.rk-menu')) return u.saya;
   pasangJudul();
-  const grup = halamanBoleh(u.saya).map(m => `<div class="rk-grup"><span>${esc(m.judul)}</span>${
-    m.halaman.map(h => `<a href="${esc(h.href)}"${berkas(h.href) === ini ? ' aria-current="page"' : ''}>${
-      esc(h.judul)}</a>`).join('')}</div>`).join('');
+  // Satu menu tarik-turun per modul, supaya menu tetap satu baris.
+  const grup = halamanBoleh(u.saya).map(m => {
+    const diSini = m.halaman.some(h => berkas(h.href) === ini);
+    return `<details class="rk-grup${diSini ? ' rk-ini' : ''}"><summary>${esc(m.judul)}</summary>
+      <div class="rk-isi">${m.halaman.map(h => `<a href="${esc(h.href)}"${
+        berkas(h.href) === ini ? ' aria-current="page"' : ''}>${esc(h.judul)}</a>`).join('')}</div></details>`;
+  }).join('');
   const gaya = document.createElement('style');
   gaya.textContent = CSS;
   document.head.appendChild(gaya);
@@ -148,6 +174,14 @@ export async function pasangMenu(sb){
     await sb.auth.signOut();
     location.href = 'index.html';
   };
+  // Satu menu terbuka sekaligus; klik di luar menu menutupnya.
+  const grupEl = [...nav.querySelectorAll('.rk-grup')];
+  grupEl.forEach(d => d.addEventListener('toggle', () => {
+    if (d.open) grupEl.forEach(x => { if (x !== d) x.open = false; });
+  }));
+  document.addEventListener('click', e => {
+    if (!nav.contains(e.target)) grupEl.forEach(x => { x.open = false; });
+  });
   document.body.prepend(nav);
   return u.saya;
 }

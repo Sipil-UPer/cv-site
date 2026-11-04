@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Daftar — Kinerja Program Studi</title>
+<meta name="description" content="Daftar dosen, publikasi, penelitian, pengabdian, dan prestasi mahasiswa program studi.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  /* Daftar publik (pemilik 2026-11-04): beranda hanya grafik; tiap angka
+     rekap membuka daftarnya di sini. Masyarakat umum melihat daftar saja —
+     tidak ada tautan bukti maupun tautan karya. Warna sama dengan index.html. */
+  :root{
+    --biru:#0C2A4D; --biru-2:#17436F; --biru-3:#5C86B0; --merah:#C8102E; --hijau:#00954E;
+    --bg:#F2F4F2; --panel:#fff; --ink:#14212E; --muted:#5D6B78;
+    --line:#D9DFDA; --line-soft:#EBEEEB;
+    --sans:'IBM Plex Sans',system-ui,sans-serif;
+    --mono:'IBM Plex Mono',ui-monospace,monospace;
+    --serif:'IBM Plex Serif',Georgia,serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
+       font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1040px;margin:0 auto;padding:0 20px 90px}
+  a{color:var(--biru-2)}
+
+  .hero{background:var(--biru);color:#fff;border-bottom:4px solid var(--merah)}
+  .hero-in{max-width:1040px;margin:0 auto;padding:22px 20px 0}
+  .balik{color:#C9D7E4;font-size:13px;text-decoration:none}
+  .balik:hover{color:#fff}
+  .hero-baris{display:flex;gap:16px;align-items:center;margin-top:14px;flex-wrap:wrap}
+  .logo-kampus{background:#fff;border-radius:5px;padding:5px 8px;line-height:0}
+  .logo-kampus img{height:44px}
+  .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.12em;
+           text-transform:uppercase;color:#A9C0D6}
+  h1{font-family:var(--serif);font-size:clamp(22px,3.4vw,28px);font-weight:600;
+     margin:4px 0 0;line-height:1.2;color:#fff}
+  nav.jenis{display:flex;flex-wrap:wrap;gap:2px;margin-top:20px}
+  nav.jenis a{color:#C9D7E4;text-decoration:none;font-family:var(--mono);font-size:11.5px;
+    letter-spacing:.08em;text-transform:uppercase;padding:9px 12px 10px;border-bottom:3px solid transparent}
+  nav.jenis a:hover{color:#fff}
+  nav.jenis a[aria-current="page"]{color:#fff;border-bottom-color:var(--merah)}
+
+  .bar{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin:30px 0 4px}
+  .bar .jml{flex:1;font-family:var(--mono);font-size:12px;color:var(--muted)}
+  select,input[type=search]{font-family:var(--sans);font-size:13.5px;padding:7px 10px;
+    border:1px solid var(--line);border-radius:2px;background:#fff;color:var(--ink)}
+  input[type=search]{min-width:200px}
+  :focus-visible{outline:2px solid var(--biru-2);outline-offset:1px}
+
+  .list{background:var(--panel);border:1px solid var(--line);border-radius:2px;
+        padding:4px 22px;margin-top:14px}
+  .e{display:flex;gap:16px;padding:15px 0;border-top:1px solid var(--line-soft)}
+  .e:first-child{border-top:0}
+  .thn{font-family:var(--mono);font-size:13px;color:var(--muted);flex:none;width:42px;padding-top:1px}
+  .e-b{flex:1;min-width:0}
+  .e-j{font-weight:500;line-height:1.4}
+  .e-m{font-size:13px;color:var(--muted);margin-top:3px}
+  .e-p{font-family:var(--mono);font-size:11.5px;color:var(--muted);margin-top:5px}
+  .e-p a{color:var(--muted);text-decoration:none;border-bottom:1px dotted var(--line)}
+  .e-p a:hover{color:var(--biru-2);border-bottom-color:var(--biru-3)}
+  .pill{font-family:var(--mono);font-size:9.5px;letter-spacing:.09em;text-transform:uppercase;
+        padding:3px 8px;border-radius:2px;background:#E7EDF3;color:var(--biru);
+        white-space:nowrap;align-self:flex-start;margin-top:2px}
+  .pill.pkm{background:#E6F3EC;color:var(--hijau)}
+  .kosong{color:var(--muted);font-size:13.5px;padding:22px 0}
+
+  table{width:100%;border-collapse:collapse;font-size:13.5px}
+  th{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+     color:var(--muted);text-align:left;font-weight:400;padding:12px 10px 10px 0;
+     border-bottom:1px solid var(--line)}
+  td{padding:10px 10px 10px 0;border-bottom:1px solid var(--line-soft)}
+  td.num,th.num{text-align:right;font-family:var(--mono);padding-right:0}
+  .dsn{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:0}
+  .dsn div{padding:13px 16px 13px 0}
+  .dsn b{font-weight:500;display:block}
+  .dsn b a{color:var(--ink);text-decoration:none}
+  .dsn b a:hover{color:var(--biru-2);text-decoration:underline}
+  .dsn span a{font-family:var(--mono);font-size:11px;margin-right:10px;text-decoration:none}
+
+  footer{margin-top:48px;padding-top:20px;border-top:3px solid var(--biru);
+         font-size:12.5px;color:var(--muted)}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-in">
+    <a class="balik" href="index.html">&larr; Beranda</a>
+    <div class="hero-baris">
+      <div class="logo-kampus"><img src="logo-uper.png" alt="" id="hLogo"></div>
+      <div>
+        <div class="eyebrow" id="hInst">&nbsp;</div>
+        <h1 id="hJudul">Memuat&hellip;</h1>
+      </div>
+    </div>
+    <nav class="jenis" id="nav" aria-label="Jenis daftar"></nav>
+  </div>
+</header>
+
+<main class="wrap" id="isi"></main>
+
+<script>
+const SINTA  = window.PROFIL_SINTA  || 'https://sinta.kemdiktisaintek.go.id/authors/profile/';
+const SCOPUS = window.PROFIL_SCOPUS || 'https://www.scopus.com/pages/authors/';
+const ORCID  = window.PROFIL_ORCID  || 'https://orcid.org/';
+const esc = s => String(s ?? '').replace(/[&<>"']/g,c=>
+  ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const rapi = s => s ? String(s).replace(/_/g,' ') : '';
+const $ = id => document.getElementById(id);
+// Nama penulis menuju profil dosen (bukan tautan bukti).
+const tautanPenulis = a => (a||[]).map(x =>
+  `<a href="dosen.html?d=${encodeURIComponent(x.slug)}">${esc(x.nama)}</a>`).join(' · ');
+
+const JENIS = [
+  ['dosen', 'Dosen'], ['publikasi', 'Publikasi'], ['penelitian', 'Penelitian'],
+  ['pkm', 'Pengabdian'], ['prestasi', 'Prestasi mahasiswa'], ['mitra', 'Mitra kerja sama'],
+];
+const pilih = (() => {
+  const j = new URLSearchParams(location.search).get('jenis');
+  return JENIS.some(([k]) => k === j) && j !== 'mitra' ? j : 'publikasi';
+})();
+let D = null;
+
+fetch('data.json?v=' + Date.now())
+  .then(r => { if(!r.ok) throw new Error(r.status); return r.json(); })
+  .then(d => { D = d; render(); })
+  .catch(() => {
+    $('hJudul').textContent = 'Data belum tersedia';
+    $('isi').innerHTML = `<p class="kosong">Data belum tersedia. Hubungi admin prodi.</p>`;
+  });
+
+function render(){
+  const judul = JENIS.find(([k]) => k === pilih)[1];
+  const inst = [D.prodi && 'Program Studi ' + D.prodi, D.institusi].filter(Boolean).join(' · ');
+  $('hInst').textContent = inst;
+  if (D.institusi) $('hLogo').alt = D.institusi;
+  $('hJudul').textContent = judul;
+  document.title = [judul, [D.prodi, D.institusi].filter(Boolean).join(' ')].filter(Boolean).join(' — ');
+  $('nav').innerHTML = JENIS.map(([k, l]) => `<a href="${k === 'mitra' ? 'mitra.html' : 'daftar.html?jenis=' + k}"${
+    k === pilih ? ' aria-current="page"' : ''}>${l}</a>`).join('');
+  ({ dosen, publikasi, penelitian: () => kegiatan('penelitian'), pkm: () => kegiatan('pkm'), prestasi })[pilih]();
+  $('isi').insertAdjacentHTML('beforeend', `<footer>Diperbarui ${esc(D.diperbarui)}. Daftar ini
+    hanya memuat data yang telah diverifikasi program studi. Berkas bukti, beban kerja dosen,
+    nominal pendanaan, dan identitas mahasiswa tidak dipublikasikan.</footer>`);
+}
+
+function dosen(){
+  $('isi').innerHTML = `<div class="bar"><span class="jml">${D.dosen.length} dosen</span></div>
+    <div class="list"><div class="dsn">${D.dosen.map(d => `<div>
+      <b><a href="dosen.html?d=${encodeURIComponent(d.slug)}">${esc(d.nama)}</a></b>
+      <span>${[d.sinta_id && `<a href="${SINTA}${esc(d.sinta_id)}" rel="noopener">SINTA</a>`,
+               d.scopus_id && `<a href="${SCOPUS}${esc(d.scopus_id)}" rel="noopener">Scopus</a>`,
+               d.orcid && `<a href="${ORCID}${esc(d.orcid)}" rel="noopener">ORCID</a>`]
+               .filter(Boolean).join('')}</span></div>`).join('')}</div></div>`;
+}
+
+function publikasi(){
+  const tahun = [...new Set(D.publikasi.map(p => p.tahun))].sort((a, b) => b - a);
+  $('isi').innerHTML = `<div class="bar"><span class="jml" id="jml"></span>
+      <select id="fTahun"><option value="">Semua tahun</option>
+        ${tahun.map(t => `<option>${t}</option>`).join('')}</select>
+      <select id="fTingkat"><option value="">Semua tingkat</option>
+        <option value="internasional">Internasional</option>
+        <option value="nasional">Nasional</option>
+        <option value="wilayah_lokal">Wilayah / lokal</option></select>
+      <input type="search" id="fCari" placeholder="Cari judul atau penulis"></div>
+    <div class="list" id="lst"></div>`;
+  const isi = () => {
+    const t = $('fTahun').value, g = $('fTingkat').value, q = $('fCari').value.trim().toLowerCase();
+    const d = D.publikasi.filter(p => (!t || String(p.tahun) === t) && (!g || p.tingkat === g) &&
+      (!q || (p.judul + ' ' + p.penulis.map(a => a.nama).join(' ')).toLowerCase().includes(q)));
+    $('jml').textContent = `${d.length} publikasi`;
+    // Judul tanpa tautan: daftar publik tidak membuka tautan karya maupun bukti.
+    $('lst').innerHTML = d.length ? d.map(p => `<div class="e">
+        <div class="thn">${p.tahun}</div>
+        <div class="e-b"><div class="e-j">${esc(p.judul)}</div>
+          <div class="e-m">${[rapi(p.jenis), p.terbitan, p.doi && ('DOI ' + p.doi)]
+            .filter(Boolean).map(esc).join(' · ')}</div>
+          ${p.penulis.length ? `<div class="e-p">${tautanPenulis(p.penulis)}</div>` : ''}</div>
+        <span class="pill">${esc(rapi(p.indeksasi || p.tingkat))}</span></div>`).join('')
+      : `<p class="kosong">Tidak ada publikasi yang cocok dengan penyaring ini.</p>`;
+  };
+  ['fTahun', 'fTingkat'].forEach(id => $(id).addEventListener('change', isi));
+  $('fCari').addEventListener('input', isi);
+  isi();
+}
+
+function kegiatan(kat){
+  const semua = D.kegiatan.filter(x => x.kategori === kat);
+  const tahun = [...new Set(semua.map(x => x.tahun))].sort((a, b) => b - a);
+  const kelompok = [...new Set(semua.map(x => x.kelompok).filter(Boolean))].sort();
+  $('isi').innerHTML = `<div class="bar"><span class="jml" id="jml"></span>
+      <select id="kTahun"><option value="">Semua tahun</option>
+        ${tahun.map(t => `<option>${t}</option>`).join('')}</select>
+      <select id="kKel"><option value="">Semua sumber dana</option>
+        ${kelompok.map(k => `<option>${esc(k)}</option>`).join('')}</select></div>
+    <div class="list" id="lst"></div>`;
+  const isi = () => {
+    const t = $('kTahun').value, kl = $('kKel').value;
+    const d = semua.filter(x => (!t || String(x.tahun) === t) && (!kl || x.kelompok === kl));
+    $('jml').textContent = `${d.length} kegiatan`;
+    $('lst').innerHTML = d.length ? d.map(x => `<div class="e">
+        <div class="thn">${x.tahun}</div>
+        <div class="e-b"><div class="e-j">${esc(x.judul)}</div>
+          <div class="e-m">${[rapi(x.tingkat), x.skema,
+            (x.mitra || []).length && ('mitra: ' + x.mitra.map(m => m.nama).join(', '))]
+            .filter(Boolean).map(esc).join(' · ')}</div>
+          ${x.penulis.length ? `<div class="e-p">${tautanPenulis(x.penulis)}</div>` : ''}</div>
+        <span class="pill ${kat === 'pkm' ? 'pkm' : ''}">${kat === 'pkm' ? 'Pengabdian' : 'Penelitian'}</span>
+      </div>`).join('')
+      : `<p class="kosong">Belum ada kegiatan terverifikasi.</p>`;
+  };
+  ['kTahun', 'kKel'].forEach(id => $(id).addEventListener('change', isi));
+  isi();
+}
+
+function prestasi(){
+  const a = D.prestasi_agregat || [];
+  $('isi').innerHTML = `<div class="bar"><span class="jml">${a.reduce((s, r) => s + r.jumlah, 0)} capaian</span></div>
+    <div class="list">${a.length ? `<table><thead><tr>
+      <th>Tahun</th><th>Tingkat</th><th>Bidang</th><th class="num">Jumlah</th>
+    </tr></thead><tbody>${a.map(r => `<tr><td>${r.tahun}</td><td>${esc(rapi(r.tingkat))}</td>
+      <td>${esc(rapi(r.bidang))}</td><td class="num">${r.jumlah}</td></tr>`).join('')}</tbody></table>`
+      : `<p class="kosong">Belum ada data prestasi.</p>`}</div>`;
+}
+</script>
+</body>
+</html>

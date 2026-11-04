@@ -167,11 +167,13 @@
   :focus-visible{outline:2px solid var(--biru-2);outline-offset:1px}
   @media(prefers-reduced-motion:reduce){.kartu{transition:none}.kartu:hover{transform:none}}
 </style>
+<link rel="stylesheet" href="kepala.css?v=2026-11-04-30d844">
 </head>
 <body>
 
 <header class="hero">
   <div class="hero-in">
+    <div class="hero-inst" data-identitas></div>
     <h1>Monitoring kinerja</h1>
     <div class="prodi" id="hProdi"></div>
     <div class="periode" id="periode"></div>
@@ -310,8 +312,8 @@ function rentang(){
 }
 
 function awal(){
-  document.getElementById('hProdi').textContent =
-    [D.prodi, D.institusi].filter(Boolean).join(' · ');
+  // Prodi dan institusi tampil di baris atas kepala (kepala.css).
+  document.getElementById('hProdi').textContent = '';
 
   const th = tahunTersedia();
   const opsi = [['ts3', MODE === 'ts' ? '3 TS terakhir' : '3 tahun terakhir'],
@@ -875,7 +877,7 @@ function kartuRinci(judul, peta){
       <div class="an">${v}</div></div>`).join('')}</div>`;
 }
 </script>
-<script src="config.js?v=2026-11-04-db6e5d"></script>
+<script src="config.js?v=2026-11-04-30d844"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -893,7 +895,7 @@ addEventListener('error', function (e) {
 <script type="module">
 // Ruang kerja, khusus email terdaftar (pemilik 2026-11-04).
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { gerbang } from './menu.js?v=2026-11-04-db6e5d';
+import { gerbang } from './menu.js?v=2026-11-04-30d844';
 await gerbang(createClient(window.SB_URL, window.SB_KEY));
 window.mulaiHalaman();
 </script>

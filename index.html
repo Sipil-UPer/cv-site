@@ -73,9 +73,13 @@
   /* angka utama — satu pita data, bukan kartu terpisah */
   .angka{display:flex;flex-wrap:wrap;margin-top:36px;
          border-top:1px solid rgba(255,255,255,.18)}
-  .angka div{flex:1 1 148px;padding:18px 20px 20px;
-             border-right:1px solid rgba(255,255,255,.12)}
-  .angka div:last-child{border-right:0}
+  .angka>*{flex:1 1 148px;padding:18px 20px 20px;
+           border-right:1px solid rgba(255,255,255,.12)}
+  .angka>*:last-child{border-right:0}
+  /* kotak yang bisa diklik (Mitra -> mitra.html, pemilik 2026-11-04) */
+  .angka a{text-decoration:none;transition:background .15s}
+  .angka a:hover{background:rgba(255,255,255,.08)}
+  .angka a span::after{content:' \2192'}
   .angka b{display:block;font-family:var(--mono);font-size:32px;font-weight:400;
            letter-spacing:-.02em;line-height:1;color:#fff}
   .angka span{font-family:var(--mono);font-size:10px;letter-spacing:.12em;
@@ -152,7 +156,7 @@
   footer{margin-top:54px;padding-top:22px;border-top:3px solid var(--biru);
          font-size:12.5px;color:var(--muted)}
   footer a{font-weight:500}
-  @media(max-width:560px){.angka div{flex-basis:50%}}
+  @media(max-width:560px){.angka>*{flex-basis:50%}}
 
   /* ---------- polesan ---------- */
   .kartu{transition:box-shadow .18s, transform .18s}
@@ -179,7 +183,6 @@
       </div>
       <div>
         <a class="cta" href="ruang-kerja.html">Masuk ruang kerja <span>&rarr;</span></a>
-        <a class="cta2" href="mitra.html">Mitra kerja sama <span>&rarr;</span></a>
         <div class="cta-cat">Ruang kerja (input data, monitoring, akreditasi)
           khusus email yang didaftarkan prodi, sesuai perannya.</div>
       </div>
@@ -192,17 +195,9 @@
 
 <script>
 const N = n => new Intl.NumberFormat('id-ID').format(n);
-// Alamat dasar profil luar; dapat diubah lewat config.js tanpa
-// menyentuh berkas ini. Nilai cadangan dipakai bila config.js lama.
-const SINTA  = window.PROFIL_SINTA  || 'https://sinta.kemdiktisaintek.go.id/authors/profile/';
-const SCOPUS = window.PROFIL_SCOPUS || 'https://www.scopus.com/pages/authors/';
-const ORCID  = window.PROFIL_ORCID  || 'https://orcid.org/';
 const esc = s => String(s ?? '').replace(/[&<>"']/g,c=>
   ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const rapi = s => s ? String(s).replace(/_/g,' ') : '';
-// Nama penulis menjadi tautan ke halaman profilnya masing-masing.
-const tautanPenulis = a => (a||[]).map(x =>
-  `<a href="dosen.html?d=${encodeURIComponent(x.slug)}">${esc(x.nama)}</a>`).join(' · ');
 const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
 
 let D = null;
@@ -357,6 +352,17 @@ function bangunGrafik(){
     </div>`;
 }
 
+// Mitra unik dari publikasi, penelitian, dan PkM; aturan sama dengan
+// kumpulkan() di mitra.html (nama tanpa beda huruf besar-kecil).
+function jumlahMitra(){
+  const nama = new Set();
+  [...D.publikasi, ...D.kegiatan].forEach(x => (x.mitra || []).forEach(m => {
+    const n = (m.nama || '').trim().toLowerCase();
+    if (n) nama.add(n);
+  }));
+  return nama.size;
+}
+
 // =====================================================================
 function render(){
   document.getElementById('hProdi').textContent = 'Program Studi ' + D.prodi;
@@ -366,132 +372,27 @@ function render(){
 
   const totalPrestasi = (D.prestasi_agregat||[]).reduce((a,b)=>a+b.jumlah,0);
   document.getElementById('angka').innerHTML = [
-    [D.dosen.length,     'Dosen'],
-    [D.publikasi.length, 'Publikasi'],
-    [D.kegiatan.filter(k=>k.kategori==='penelitian').length, 'Penelitian'],
-    [D.kegiatan.filter(k=>k.kategori==='pkm').length,        'Pengabdian'],
-    [totalPrestasi,      'Prestasi mahasiswa'],
-  ].map(([v,l])=>`<div><b>${N(v)}</b><span>${l}</span></div>`).join('');
+    [D.dosen.length,     'Dosen',              'daftar.html?jenis=dosen'],
+    [D.publikasi.length, 'Publikasi',          'daftar.html?jenis=publikasi'],
+    [D.kegiatan.filter(k=>k.kategori==='penelitian').length, 'Penelitian', 'daftar.html?jenis=penelitian'],
+    [D.kegiatan.filter(k=>k.kategori==='pkm').length,        'Pengabdian', 'daftar.html?jenis=pkm'],
+    [totalPrestasi,      'Prestasi mahasiswa', 'daftar.html?jenis=prestasi'],
+    [jumlahMitra(),      'Mitra kerja sama',   'mitra.html'],
+  ].map(([v,l,href])=>`<a href="${href}"><b>${N(v)}</b><span>${l}</span></a>`).join('');
 
-  const tahunPub = [...new Set(D.publikasi.map(p=>p.tahun))].sort((a,b)=>b-a);
-  const tahunKeg = [...new Set(D.kegiatan.map(p=>p.tahun))].sort((a,b)=>b-a);
-  const kelompok = [...new Set(D.kegiatan.map(k=>k.kelompok).filter(Boolean))].sort();
-
+  // Beranda hanya grafik; daftarnya dibuka lewat angka rekap di atas
+  // (daftar.html, mitra.html), pemilik 2026-11-04.
   document.getElementById('isi').innerHTML = `
     ${bangunGrafik()}
 
-    <section>
-      <div class="bar">
-        <h2>Publikasi</h2>
-        <select id="fTahun"><option value="">Semua tahun</option>
-          ${tahunPub.map(t=>`<option>${t}</option>`).join('')}</select>
-        <select id="fTingkat"><option value="">Semua tingkat</option>
-          <option value="internasional">Internasional</option>
-          <option value="nasional">Nasional</option>
-          <option value="wilayah_lokal">Wilayah / lokal</option></select>
-        <input type="search" id="fCari" placeholder="Cari judul atau penulis">
-      </div>
-      <div class="list" id="lPub"></div>
-    </section>
-
-    <section>
-      <div class="bar">
-        <h2>Penelitian &amp; pengabdian</h2>
-        <select id="kTahun"><option value="">Semua tahun</option>
-          ${tahunKeg.map(t=>`<option>${t}</option>`).join('')}</select>
-        <select id="kKat"><option value="">Semua jenis</option>
-          <option value="penelitian">Penelitian</option>
-          <option value="pkm">Pengabdian</option></select>
-        <select id="kKel"><option value="">Semua sumber</option>
-          ${kelompok.map(k=>`<option>${esc(k)}</option>`).join('')}</select>
-      </div>
-      <div class="list" id="lKeg"></div>
-    </section>
-
-    <section>
-      <div class="bar"><h2>Prestasi mahasiswa</h2></div>
-      <div class="list" id="lPres"></div>
-    </section>
-
-    <section>
-      <div class="bar"><h2>Dosen</h2></div>
-      <div class="list"><div class="dsn">${
-        D.dosen.map(d=>`<div><b><a href="dosen.html?d=${
-          encodeURIComponent(d.slug)}" style="text-decoration:none">${esc(d.nama)}</a></b>
-          ${d.sinta_id?`<a href="${SINTA}${esc(d.sinta_id)}" rel="noopener">SINTA</a>`:''}
-          ${d.scopus_id?`<a href="${SCOPUS}${esc(d.scopus_id)}" rel="noopener">Scopus</a>`:''}
-          ${d.orcid?`<a href="${ORCID}${esc(d.orcid)}" rel="noopener">ORCID</a>`:''}
-        </div>`).join('')}</div></div>
-    </section>
-
     <footer>
       Diperbarui ${esc(D.diperbarui)}. Halaman ini hanya menampilkan data yang
-      telah diverifikasi program studi. Beban kerja dosen, nominal pendanaan,
-      dan identitas mahasiswa tidak dipublikasikan.
-      <br><br>Daftar mitra ada di <a href="mitra.html">halaman mitra</a>.
-      Dosen dan pengelola prodi mengisi data, memantau kinerja, dan menyiapkan
+      telah diverifikasi program studi. Klik angka di atas untuk melihat daftarnya.
+      Berkas bukti, beban kerja dosen, nominal pendanaan, dan identitas mahasiswa
+      tidak dipublikasikan.
+      <br><br>Dosen dan pengelola prodi mengisi data, memantau kinerja, dan menyiapkan
       akreditasi di <a href="ruang-kerja.html">ruang kerja</a>.
     </footer>`;
-
-  ['fTahun','fTingkat','fCari'].forEach(id=>
-    document.getElementById(id).addEventListener(id==='fCari'?'input':'change', pub));
-  ['kTahun','kKat','kKel'].forEach(id=>
-    document.getElementById(id).addEventListener('change', keg));
-
-  pub(); keg(); pres();
-}
-
-function pub(){
-  const t=fTahun.value, g=fTingkat.value, q=fCari.value.trim().toLowerCase();
-  const d = D.publikasi.filter(p =>
-    (!t || String(p.tahun)===t) && (!g || p.tingkat===g) &&
-    (!q || (p.judul+' '+p.penulis.map(a=>a.nama).join(' ')).toLowerCase().includes(q)));
-
-  lPub.innerHTML = d.length ? d.map(p=>`
-    <div class="e">
-      <div class="thn">${p.tahun}</div>
-      <div class="e-b">
-        <div class="e-j">${p.url
-          ? `<a href="${esc(p.url)}" rel="noopener">${esc(p.judul)}</a>` : esc(p.judul)}</div>
-        <div class="e-m">${[rapi(p.jenis), p.terbitan, p.doi && ('DOI '+p.doi)]
-          .filter(Boolean).map(esc).join(' · ')}</div>
-        ${p.penulis.length?`<div class="e-p">${tautanPenulis(p.penulis)}</div>`:''}
-      </div>
-      <span class="pill">${esc(rapi(p.indeksasi || p.tingkat))}</span>
-    </div>`).join('')
-    : `<p class="kosong">Tidak ada publikasi yang cocok dengan penyaring ini.</p>`;
-}
-
-function keg(){
-  const t=kTahun.value, k=kKat.value, kl=kKel.value;
-  const d = D.kegiatan.filter(x =>
-    (!t || String(x.tahun)===t) && (!k || x.kategori===k) && (!kl || x.kelompok===kl));
-
-  lKeg.innerHTML = d.length ? d.map(x=>`
-    <div class="e">
-      <div class="thn">${x.tahun}</div>
-      <div class="e-b">
-        <div class="e-j">${esc(x.judul)}</div>
-        <div class="e-m">${[rapi(x.tingkat), x.skema, (x.mitra||[]).length && ('mitra: '+x.mitra.map(m=>m.nama).join(', '))]
-          .filter(Boolean).map(esc).join(' · ')}</div>
-        ${x.penulis.length?`<div class="e-p">${tautanPenulis(x.penulis)}</div>`:''}
-      </div>
-      <span class="pill ${x.kategori==='pkm'?'pkm':''}">${
-        x.kategori==='pkm'?'Pengabdian':'Penelitian'}</span>
-    </div>`).join('')
-    : `<p class="kosong">Belum ada kegiatan terverifikasi.</p>`;
-}
-
-function pres(){
-  const a = D.prestasi_agregat || [];
-  lPres.innerHTML = a.length ? `
-    <table><thead><tr>
-      <th>Tahun</th><th>Tingkat</th><th>Bidang</th><th class="num">Jumlah</th>
-    </tr></thead><tbody>${a.map(r=>`<tr>
-      <td>${r.tahun}</td><td>${esc(rapi(r.tingkat))}</td>
-      <td>${esc(rapi(r.bidang))}</td><td class="num">${r.jumlah}</td>
-    </tr>`).join('')}</tbody></table>`
-    : `<p class="kosong">Belum ada data prestasi.</p>`;
 }
 
 // Angka pita/ringkasan naik perlahan saat pertama tampil (hormati

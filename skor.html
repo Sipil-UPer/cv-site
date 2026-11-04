@@ -279,10 +279,12 @@
   :focus-visible{outline:2px solid var(--biru-2);outline-offset:1px}
   @media(prefers-reduced-motion:reduce){.kartu{transition:none}.kartu:hover{transform:none}}
 </style>
+<link rel="stylesheet" href="kepala.css?v=2026-11-04-30d844">
 </head>
 <body>
 
 <div class="hero"><div class="hero-in">
+  <div class="hero-inst" data-identitas></div>
   <h1>Kalkulator Skor Akreditasi <span class="versi-statis">v2026-10-14a</span></h1>
   <div class="prodi" id="nama-prodi">Memuat&hellip;</div>
   <div class="periode" id="pilih-ts"></div>
@@ -342,7 +344,7 @@ setTimeout(function(){
   });
 }, 8000);
 </script>
-<script src="config.js?v=2026-11-04-db6e5d"></script>
+<script src="config.js?v=2026-11-04-30d844"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -359,15 +361,15 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { BUTIR, isiPetaBukti, cariBukti, daftarBukti, kolomBukti } from './rincian.js?v=2026-11-04-db6e5d';
+import { BUTIR, isiPetaBukti, cariBukti, daftarBukti, kolomBukti } from './rincian.js?v=2026-11-04-30d844';
 import { BUTIR_MANUAL, SEKSI_MANUAL, kunciButir, kunciBuktiButir, skorManual }
-  from './butir-manual.js?v=2026-11-04-db6e5d';
-import { BOBOT_TOTAL, bobotButir } from './bobot.js?v=2026-11-04-db6e5d';
-import { htmlRencana, buktiButir } from './rencana-bukti.js?v=2026-11-04-db6e5d';
-import { htmlPanel, pasangPanel } from './panel-bukti.js?v=2026-11-04-db6e5d';
-import { pasangMenu } from './menu.js?v=2026-11-04-db6e5d';
+  from './butir-manual.js?v=2026-11-04-30d844';
+import { BOBOT_TOTAL, bobotButir } from './bobot.js?v=2026-11-04-30d844';
+import { htmlRencana, buktiButir } from './rencana-bukti.js?v=2026-11-04-30d844';
+import { htmlPanel, pasangPanel } from './panel-bukti.js?v=2026-11-04-30d844';
+import { pasangMenu } from './menu.js?v=2026-11-04-30d844';
 import { statusSyarat, syaratButir, SYARAT_UNGGUL, SYARAT_RERATA, SASARAN,
-         statusRerata, gabungSyarat, statusRentang } from './syarat-unggul.js?v=2026-11-04-db6e5d';
+         statusRerata, gabungSyarat, statusRentang } from './syarat-unggul.js?v=2026-11-04-30d844';
 
 // config.js mendefinisikan window.SB_URL dan window.SB_KEY — pemetaan di
 // bawah ini WAJIB ada. skor.html versi sebelumnya melewatkannya dan mati
@@ -391,7 +393,7 @@ const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 // Naikkan setiap kali skor.html / rincian.js / butir-manual.js / bobot.js
 // diubah. Ditampilkan di kaki halaman supaya ketahuan seketika kalau
 // peramban masih memakai salinan lama dari cache.
-const VERSI = '2026-11-04-db6e5d';
+const VERSI = '2026-11-04-30d844';
 // Label versi di judul diisi dari VERSI supaya keduanya tidak bisa berbeda.
 { const el = document.querySelector('.versi-statis'); if (el) el.textContent = 'v' + VERSI; }
 // =====================================================================
@@ -480,7 +482,7 @@ async function unduhLED(){
   const asli = a.textContent;
   a.textContent = 'Menyusun draf LED…';
   try {
-    const { buatLED } = await import('./led.js?v=2026-11-04-db6e5d');
+    const { buatLED } = await import('./led.js?v=2026-11-04-30d844');
     const ts = CTX_LED.tsData;
     const hasil = await buatLED({
       D, ts, taDari, f2, versi: VERSI,
@@ -2059,11 +2061,8 @@ async function mulai(){
     (bbR.error || kbR.error).message);
   if (dokR.error) console.warn('Tabel dokumen tidak terbaca:', dokR.error.message);
 
-  document.getElementById('nama-prodi').innerHTML =
-    esc([D.prodi, D.institusi].filter(Boolean).join(' — ')) +
-    ` · ${esc(saya.nama)} <a href="#" id="keluar" style="color:#9FC2E0">keluar</a>`;
-  document.getElementById('keluar').onclick = async e => {
-    e.preventDefault(); await sb.auth.signOut(); location.reload(); };
+  // Prodi dan institusi tampil di baris atas kepala (kepala.css); Keluar ada di menu.
+  document.getElementById('nama-prodi').textContent = `Masuk sebagai ${saya.nama}`;
   pasangTS(); render(); pasangSeksi(); angkaNaik('.ringkas b');
   if (location.hash.startsWith('#butir-')) lompatKeButir(location.hash.slice(1));
 }

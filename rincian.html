@@ -84,11 +84,13 @@
   @media print{.hero{background:#fff;color:#000;border-bottom:2px solid #000}
     h1,.sub,.no{color:#000}.balik,.tautan{display:none}}
 </style>
+<link rel="stylesheet" href="kepala.css?v=2026-11-04-30d844">
 </head>
 <body>
 
 <header class="hero">
   <div class="hero-in">
+    <div class="hero-inst" data-identitas></div>
     <div class="no" id="hNo"></div>
     <h1 id="hJudul">Memuat&hellip;</h1>
     <div class="sub" id="hSub"></div>
@@ -97,7 +99,7 @@
 
 <main class="wrap" id="isi"></main>
 
-<script src="config.js?v=2026-11-04-db6e5d"></script>
+<script src="config.js?v=2026-11-04-30d844"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -114,8 +116,8 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { BUTIR, isiPetaBukti, cariBukti, daftarBukti, kolomBukti } from './rincian.js?v=2026-11-04-db6e5d';
-import { pasangMenu } from './menu.js?v=2026-11-04-db6e5d';
+import { BUTIR, isiPetaBukti, cariBukti, daftarBukti, kolomBukti } from './rincian.js?v=2026-11-04-30d844';
+import { pasangMenu } from './menu.js?v=2026-11-04-30d844';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g,
   c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -176,8 +178,8 @@ async function mulai(){
 
 function render(saya){
   const def = BUTIR[NO];
-  $('hSub').textContent = [D.prodi, D.institusi].filter(Boolean).join(' — ')
-    + ` · masuk sebagai ${saya.nama}${saya.peran && saya.peran !== 'dosen'
+  // Prodi dan institusi tampil di baris atas kepala (kepala.css).
+  $('hSub').textContent = `Masuk sebagai ${saya.nama}${saya.peran && saya.peran !== 'dosen'
       ? ' (' + saya.peran + ')' : ''}`;
 
   const nav = `<div class="tautan">${Object.keys(BUTIR).map(n =>

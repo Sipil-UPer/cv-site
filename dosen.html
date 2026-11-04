@@ -182,8 +182,7 @@ function render(D){
     return `<div class="e">
       <div class="thn">${p.tahun}</div>
       <div class="e-b">
-        <div class="e-j">${p.url
-          ? `<a href="${esc(p.url)}" rel="noopener">${esc(p.judul)}</a>` : esc(p.judul)}
+        <div class="e-j">${esc(p.judul)}
           ${tandaPeran(saya)}</div>
         <div class="e-m">${[rapi(p.jenis), p.terbitan, p.doi && ('DOI '+p.doi)]
           .filter(Boolean).map(esc).join(' · ')}</div>

@@ -62,11 +62,13 @@
   .masuk{max-width:420px;margin:40px auto;background:#fff;border:1px solid var(--line);padding:20px}
   .masuk input{width:100%;padding:8px 10px;margin:8px 0;font:inherit}
 </style>
+<link rel="stylesheet" href="kepala.css?v=2026-11-04-30d844">
 </head>
 <body>
 
 <header class="hero">
   <div class="hero-in">
+    <div class="hero-inst" data-identitas></div>
     <h1>Kelola dosen</h1>
     <div class="sub" id="hSub">Memuat&hellip;</div>
   </div>
@@ -74,7 +76,7 @@
 
 <main class="wrap" id="isi"></main>
 
-<script src="config.js?v=2026-11-04-db6e5d"></script>
+<script src="config.js?v=2026-11-04-30d844"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -91,7 +93,7 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { pasangMenu } from './menu.js?v=2026-11-04-db6e5d';
+import { pasangMenu } from './menu.js?v=2026-11-04-30d844';
 
 /* =====================================================================
    KELOLA DOSEN — daftar dosen prodi diisi admin di situs (keputusan
@@ -173,10 +175,62 @@ async function mulai(){
       sebagai dosen tetap prodi (pembagi NDTPS, daftar dosen publik). Admin staf, dekan yang bukan
       DTPS prodi ini, dan asesor: aktif ya, DTPS tidak. Dosen yang pindah tidak dihapus, cukup
       dinonaktifkan. Skor berubah setelah situs dibangun ulang (otomatis tiap jam).</div>
+    <h2>Ajuan perubahan profil</h2>
+    <div class="b" id="ajuanProfil"><p class="kosong">Memuat&hellip;</p></div>
     <div class="b" id="form"></div>
     <h2>Daftar dosen</h2>
     <div class="gulir" id="daftar"><p class="kosong">Memuat&hellip;</p></div>`;
   await muat();
+  await muatAjuanProfil();
+}
+
+// Ajuan perubahan profil dari profil.html (supabase/20-patch-ajuan-ubah.sql,
+// pemilik 2026-11-04). Setujui -> rpc setujui_ajuan_ubah menerapkan kolom
+// "Diajukan" ke tabel dosen; Tolak -> alasan dilihat dosen di profil.html.
+const ISIAN_PROFIL = [['nama', 'Nama lengkap'], ['pendidikan', 'Pendidikan'], ['jabatan', 'Jabatan'],
+  ['sinta_id', 'SINTA ID'], ['scopus_id', 'Scopus ID'], ['orcid', 'ORCID']];
+
+async function muatAjuanProfil(){
+  const box = $('ajuanProfil');
+  const { data: aj, error } = await sb.from('ajuan_ubah')
+    .select('id,dosen_id,data,lama,alasan,dibuat_pada')
+    .eq('jenis', 'profil').eq('status', 'menunggu').order('dibuat_pada');
+  if (error) { box.innerHTML = `<p class="kosong">Tabel ajuan_ubah belum bisa dibaca (${esc(error.message)}).
+    Jalankan supabase/20-patch-ajuan-ubah.sql.</p>`; return; }
+  if (!aj?.length) { box.innerHTML = '<p class="kosong">Tidak ada ajuan perubahan profil.</p>'; return; }
+  const tampil = (k, v) => k === 'jabatan' ? nama(JABATAN, v) : (v || '—');
+  box.innerHTML = aj.map(a => {
+    const d = DOSEN.find(x => x.id === a.dosen_id) || {};
+    return `<div style="margin-bottom:16px"><p class="ket"><b>${esc(d.nama || 'dosen')}</b>,
+      ${esc(String(a.dibuat_pada).slice(0, 10))}. Keterangan: ${esc(a.alasan || '-')}</p>
+      <table class="t"><thead><tr><th>Isian</th><th>Sekarang</th><th>Diajukan</th></tr></thead><tbody>${
+        ISIAN_PROFIL.filter(([k]) => k in (a.data || {})).map(([k, l]) =>
+          `<tr><td>${esc(l)}</td><td>${esc(tampil(k, d.id ? d[k] : a.lama?.[k]))}</td>
+            <td style="background:#EAF4EC">${esc(tampil(k, a.data[k]))}</td></tr>`).join('')
+      }</tbody></table>
+      <div class="aksi"><button class="btn kecil" data-su="${a.id}">Setujui</button>
+        <button class="btn ghost kecil" data-tu="${a.id}">Tolak</button></div></div>`;
+  }).join('');
+  box.querySelectorAll('[data-su]').forEach(b => {
+    b.onclick = async () => {
+      if (!confirm('Terapkan perubahan profil ini?')) return;
+      b.disabled = true;
+      const { error: e } = await sb.rpc('setujui_ajuan_ubah', { a: +b.dataset.su });
+      if (e) alert('Gagal menerapkan: ' + e.message);
+      await muat();
+      await muatAjuanProfil();
+    };
+  });
+  box.querySelectorAll('[data-tu]').forEach(b => {
+    b.onclick = async () => {
+      const c = prompt('Alasan penolakan (akan dilihat dosen):');
+      if (c === null) return;
+      const { error: e } = await sb.from('ajuan_ubah')
+        .update({ status: 'ditolak', catatan_admin: c.trim() || '-' }).eq('id', +b.dataset.tu);
+      if (e) alert('Gagal: ' + e.message);
+      await muatAjuanProfil();
+    };
+  });
 }
 
 async function muat(){

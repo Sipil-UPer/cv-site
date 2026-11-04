@@ -11,7 +11,7 @@
   :root{
     --bg:#EEF0ED; --panel:#fff; --ink:#161E26; --muted:#616C76;
     --line:#D8DDD8; --line-soft:#E8EBE7;
-    --accent:#0E534C; --accent-soft:#E2ECEA;
+    --accent:#0C2A4D; --accent-soft:#E3EAF2;   /* biru UPer (pemilik 2026-11-04) */
     --pending:#8A5A00; --pending-soft:#FAF0DC;
     --reject:#8C2F2F; --reject-soft:#F7E7E7;
     --sans:'IBM Plex Sans',system-ui,sans-serif;
@@ -22,14 +22,7 @@
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
        font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
   .wrap{max-width:960px;margin:0 auto;padding:0 20px 80px}
-  header.kop{border-bottom:1px solid var(--line);background:var(--panel)}
-  .kop-in{max-width:960px;margin:0 auto;padding:18px 20px;display:flex;
-          align-items:baseline;gap:16px;flex-wrap:wrap}
-  .mark{font-family:var(--serif);font-weight:600;font-size:19px;letter-spacing:-.01em}
-  .mark span{color:var(--accent)}
-  .kop-sub{font-family:var(--mono);font-size:11px;letter-spacing:.12em;
-           text-transform:uppercase;color:var(--muted)}
-  .kop-user{margin-left:auto;display:flex;align-items:center;gap:12px;font-size:13px}
+  .hero-in{max-width:960px}
 
   nav.tabs{display:flex;gap:2px;flex-wrap:wrap;margin:26px 0 20px;border-bottom:1px solid var(--line)}
   nav.tabs button{appearance:none;border:0;background:none;cursor:pointer;
@@ -146,23 +139,32 @@
 
   .masuk{max-width:400px;margin:64px auto}
   code{font-family:var(--mono);font-size:12.5px;background:var(--bg);padding:1px 5px}
-  @media(max-width:640px){.grid{grid-template-columns:1fr}.kop-user{width:100%;margin-left:0}}
+  /* ajuan perubahan (tab Verifikasi) */
+  .ajuan-ubah{border:1px solid var(--line);border-radius:3px;padding:12px 14px;margin-bottom:12px}
+  table.beda{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:10px}
+  table.beda th,table.beda td{border-bottom:1px solid var(--line-soft);padding:6px 8px;
+    text-align:left;vertical-align:top}
+  table.beda th{font-family:var(--mono);font-size:11px;letter-spacing:.08em;
+    text-transform:uppercase;color:var(--muted)}
+  table.beda td:first-child{width:24%;color:var(--muted)}
+  table.beda td:nth-child(3){background:#EAF4EC}
+  @media(max-width:640px){.grid{grid-template-columns:1fr}}
 </style>
+<link rel="stylesheet" href="kepala.css?v=2026-11-04-30d844">
 </head>
 <body>
 
-<header class="kop">
-  <div class="kop-in">
-    <div>
-      <div class="mark">Input <span>Kinerja</span></div>
-      <div class="kop-sub">Publikasi, penelitian, pengabdian</div>
-    </div>
+<header class="hero">
+  <div class="hero-in">
+    <div class="hero-inst" data-identitas></div>
+    <h1>Karya dosen</h1>
+    <div class="sub">Publikasi, penelitian, PkM, luaran, rekognisi, dan integrasi mata kuliah</div>
   </div>
 </header>
 
 <div class="wrap" id="app"></div>
 
-<script src="config.js?v=2026-11-04-db6e5d"></script>
+<script src="config.js?v=2026-11-04-30d844"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -186,9 +188,9 @@ const SUPABASE_URL = window.SB_URL;
 const SUPABASE_ANON_KEY = window.SB_KEY;
 
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { JENIS_BUKTI_KARYA, namaJenisBukti } from './rencana-bukti.js?v=2026-11-04-db6e5d';
-import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-04-db6e5d';
-import { pasangMenu } from './menu.js?v=2026-11-04-db6e5d';
+import { JENIS_BUKTI_KARYA, namaJenisBukti } from './rencana-bukti.js?v=2026-11-04-30d844';
+import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-04-30d844';
+import { pasangMenu } from './menu.js?v=2026-11-04-30d844';
 
 const app = document.getElementById('app');
 if (!SUPABASE_URL || !SUPABASE_ANON_KEY
@@ -436,6 +438,13 @@ const buka = t => FORM[t]
   ? tampilForm(t)
   : ({saya:karyaSaya, semua:karyaProdi, verifikasi:tampilVerifikasi})[t]();
 
+// Tandai tab t lalu buka isinya (dipakai form ubah: Batal / selesai).
+function tandaiTab(t){
+  app.querySelectorAll('nav.tabs button').forEach(x =>
+    x.setAttribute('aria-selected', String(x.dataset.t === t)));
+}
+function bukaTab(t){ tandaiTab(t); buka(t); }
+
 // ---------------------------------------------------------------------
 //  Form input
 // ---------------------------------------------------------------------
@@ -471,12 +480,25 @@ function fieldHTML(f){
   </div>`;
 }
 
-function tampilForm(key){
+// ubah = { k: baris karya lengkap, mode: 'langsung' | 'ajuan' } untuk mengubah
+// karya yang sudah ada (pemilik 2026-11-04, patch 20): pelapor mengubah langsung
+// karya yang belum terverifikasi; selain itu lewat ajuan yang disetujui admin.
+function tampilForm(key, ubah = null){
   const F = FORM[key];
+  const ajuan = ubah?.mode === 'ajuan';
+  // Rekan: dosen aktif, ditambah penulis lama yang tidak ada di daftar itu
+  // (mis. sudah nonaktif) supaya tidak terhapus diam-diam saat disimpan.
+  const rekanList = dosenList.filter(d=>d.id!==saya.id);
+  (ubah?.k.karya_penulis || []).forEach(p => {
+    if(p.dosen_id !== saya.id && !rekanList.some(d => d.id === p.dosen_id))
+      rekanList.push({ id: p.dosen_id, nama: p.dosen?.nama || 'dosen' });
+  });
   document.getElementById('isi').innerHTML = `
   <div class="panel">
-    <h2>Tambah ${F.judul.toLowerCase()}</h2>
-    <p class="hint">${F.hint}</p>
+    <h2>${ubah ? (ajuan ? 'Ajukan perubahan ' : 'Ubah ') : 'Tambah '}${F.judul.toLowerCase()}</h2>
+    <p class="hint">${!ubah ? F.hint : ajuan
+      ? 'Ubah isian yang perlu diperbaiki. Perubahan baru berlaku setelah disetujui admin prodi; sampai saat itu data lama tetap tampil. Bukti dikelola lewat tombol Bukti di Karya saya.'
+      : 'Karya ini belum terverifikasi, jadi perubahan langsung tersimpan dan karya kembali menunggu verifikasi admin. Bukti dikelola lewat tombol Bukti di Karya saya.'}</p>
     <form id="frm" class="grid">
       ${F.f.map(fieldHTML).join('')}
 
@@ -491,7 +513,7 @@ function tampilForm(key){
         <div class="sub">Boleh dicentang meski Anda juga penulis pertama.</div>
       </div>` : ''}
 
-      <div class="fld full"><label for="f_bukti_file">Berkas bukti</label>
+      ${ubah ? '' : `<div class="fld full"><label for="f_bukti_file">Berkas bukti</label>
         <div class="mhs-baris" id="unggah_baris" hidden>
           <select id="f_bukti_jenis" title="Jenis bukti">${JENIS_BUKTI_KARYA.map(([v, l]) =>
             `<option value="${v}">${esc(l)}</option>`).join('')}</select>
@@ -509,7 +531,7 @@ function tampilForm(key){
         <input id="f_bukti_url" type="url" placeholder="atau tempel satu tautan bukti https://…" autocomplete="off">
         <div class="sub">Sudah punya tautan (DOI, halaman jurnal, sertifikat daring)?
         Tempelkan saja di kolom tautan. Sertakan hanya halaman yang menunjukkan
-        judul, nama, dan tahun — tutupi NIK, nomor rekening, dan tanda tangan.</div></div>
+        judul, nama, dan tahun — tutupi NIK, nomor rekening, dan tanda tangan.</div></div>`}
 
       ${F.mitra ? `
       <div class="fld full"><label>Institusi mitra</label>
@@ -554,7 +576,7 @@ function tampilForm(key){
       </div>` : ''}
 
       <div class="fld full"><label>Penulis lain dari prodi ini</label>
-        <div class="rekan">${dosenList.filter(d=>d.id!==saya.id).map(d=>`
+        <div class="rekan">${rekanList.map(d=>`
           <div class="rekan-item">
             <label class="cek"><input type="checkbox" class="r-ikut" value="${d.id}"> ${esc(d.nama)}</label>
             <select class="r-peran" disabled>${F.peran.map(([v,l])=>
@@ -568,24 +590,34 @@ function tampilForm(key){
           bersangkutan. Rekan yang dipilih tidak perlu menginput ulang
           karya ini.</div></div>
 
+      ${ajuan ? `<div class="fld full"><label for="f_alasan">Alasan perubahan <span class="req">*</span></label>
+        <input id="f_alasan" type="text" required autocomplete="off"
+               placeholder="Contoh: judul salah ketik; DOI baru terbit">
+        <div class="sub">Dibaca admin saat memutuskan ajuan.</div></div>` : ''}
+
       <div id="dupBox"></div>
 
       <div class="aksi full">
-        <button class="btn" type="submit" id="sub">Simpan</button>
+        <button class="btn" type="submit" id="sub">${ubah ? (ajuan ? 'Kirim ajuan' : 'Simpan perubahan') : 'Simpan'}</button>
+        ${ubah ? '<button class="btn ghost" type="button" id="batalUbah">Batal</button>' : ''}
         <span class="msg" id="fm"></span>
       </div>
     </form>
   </div>
-  <div class="panel"><h2>Isian terakhir saya</h2>
-    <div id="daftar" class="kosong">Memuat…</div></div>`;
+  ${ubah ? '' : `<div class="panel"><h2>Isian terakhir saya</h2>
+    <div id="daftar" class="kosong">Memuat…</div></div>`}`;
 
   if(key === 'kegiatan') pasangSkema();
-  pasangMahasiswa();
-  pasangMitra();
+  pasangMahasiswa(ubah ? (ubah.k.karya_mahasiswa || []) : []);
+  pasangMitra(ubah ? (ubah.k.karya_mitra || []) : []);
   pasangRekan();
-  isiInduk();
-  isiDaftarIntegrasi();
-  isiMataKuliah();
+  const muat = [isiInduk(), isiDaftarIntegrasi(), isiMataKuliah()];
+  if(ubah){
+    Promise.all(muat).then(() => isiUbah(key, ubah.k));
+    document.getElementById('batalUbah').onclick = () => bukaTab('saya');
+    document.getElementById('frm').onsubmit = e=>{ e.preventDefault(); simpanUbah(key, ubah); };
+    return;
+  }
   pasangUnggah();
   document.getElementById('frm').onsubmit = e=>{ e.preventDefault(); simpan(key); };
   muatKaryaSaya('daftar', 6);
@@ -746,7 +778,7 @@ async function isiMataKuliah(){
     // Tabel acuan belum diisi: jangan mengunci dosen, kembalikan isian
     // bebas agar input tetap bisa jalan.
     const ganti = document.createElement('input');
-    ganti.type = 'text'; ganti.id = el.id; ganti.required = el.required;
+    ganti.type = 'text'; ganti.id = el.id; ganti.name = el.name; ganti.required = el.required;
     ganti.placeholder = 'Nama mata kuliah';
     el.replaceWith(ganti);
     const sub = ganti.parentElement.querySelector('.sub');
@@ -789,8 +821,10 @@ let mhsSementara = [];
 let antreanBukti = [];
 let mitraSementara = [];
 
-function pasangMahasiswa(){
-  mhsSementara = [];
+// awal: daftar yang sudah tercatat (form ubah); kosong untuk entri baru.
+function pasangMahasiswa(awal = []){
+  mhsSementara = awal.map(m => ({ nim: m.nim, nama: m.nama, peran: m.peran,
+                                  korespondensi: !!m.korespondensi }));
   const nim = document.getElementById('mhs_nim');
   const nama = document.getElementById('mhs_nama');
   const peran = document.getElementById('mhs_peran');
@@ -866,8 +900,9 @@ function kunciMitra(nama){
     .replace(/\s+/g, ' ').trim();
 }
 
-function pasangMitra(){
-  mitraSementara = [];
+function pasangMitra(awal = []){
+  mitraSementara = awal.map(m => ({ institusi: m.institusi, tingkat: m.tingkat,
+                                    negara: m.negara || null }));
   const nama = document.getElementById('mtr_nama');
   const tingkat = document.getElementById('mtr_tingkat');
   const negara = document.getElementById('mtr_negara');
@@ -1180,6 +1215,281 @@ async function simpan(key){
 }
 
 // ---------------------------------------------------------------------
+//  Ubah karya dan ajuan perubahan (pemilik 2026-11-04, patch 20)
+//    pelapor + belum terverifikasi -> Ubah langsung (rpc ubah_karya);
+//    selain itu (terverifikasi, atau penulis bukan pelapor) -> ajuan_ubah,
+//    diputuskan admin di tab Verifikasi (rpc setujui_ajuan_ubah).
+//  Yang dikirim hanya isian yang berubah; daftar penulis/mitra/mahasiswa
+//  yang berubah dikirim utuh dan menggantikan daftar lama.
+// ---------------------------------------------------------------------
+const KUNCI_FORM = { publikasi:'publikasi', penelitian:'kegiatan', pkm:'kegiatan',
+  luaran:'luaran', rekognisi:'rekognisi', integrasi:'integrasi' };
+
+// Kolom karya yang diisi form `key`.
+function kolomForm(key){
+  const out = FORM[key].f.map(f => f.t === 'skema' ? 'skema_kode' : f.n);
+  if(key === 'integrasi') out.push('judul');   // disalin dari kegiatan induk
+  return out;
+}
+
+async function bukaUbah(id, mode){
+  const { data: k, error } = await sb.from('karya')
+    .select('*, karya_penulis(dosen_id, peran, korespondensi, dosen(nama)), '
+          + 'karya_mitra(institusi, tingkat, negara), karya_mahasiswa(nim, nama, peran, korespondensi)')
+    .eq('id', id).single();
+  if(error || !k){ alert('Karya tidak bisa dimuat: ' + (error?.message || 'tidak ditemukan')); return; }
+  const key = KUNCI_FORM[k.kategori];
+  if(!key){ alert('Kategori karya ini belum punya form ubah.'); return; }
+  // Kegiatan induk yang bukan atas nama dosen ini tidak ada di dropdown-nya.
+  if(k.induk_id){
+    const { data: ind } = await sb.from('karya').select('judul').eq('id', k.induk_id).maybeSingle();
+    k._judulInduk = ind?.judul || '';
+  }
+  tandaiTab(key);
+  tampilForm(key, { k, mode });
+  window.scrollTo(0, 0);
+}
+
+// Isi form ubah dari baris karya; dipanggil setelah dropdown asinkron terisi.
+function isiUbah(key, k){
+  const frm = document.getElementById('frm');
+  if(!frm) return;
+  // Nilai lama yang tidak ada di pilihan (skema nonaktif, tahun lama) tetap
+  // ditambahkan, supaya tidak berubah tanpa sengaja.
+  const setel = (el, v) => {
+    if(!el) return;
+    const s = v == null ? '' : String(v);
+    if(el.tagName === 'SELECT' && s && ![...el.options].some(o => o.value === s))
+      el.insertAdjacentHTML('beforeend', `<option value="${esc(s)}">${esc(rapi(s))}</option>`);
+    el.value = s;
+  };
+  FORM[key].f.forEach(f => {
+    if(f.t === 'skema'){
+      const s = refSkema.find(x => x.kode === k.skema_kode);
+      const kel = document.getElementById('f_kelompok');
+      if(s){ kel.value = s.kelompok; kel.dispatchEvent(new Event('change')); }
+      const sk = document.getElementById('f_skema_kode');
+      if(k.skema_kode){ sk.disabled = false; setel(sk, k.skema_kode); }
+      return;
+    }
+    if(f.n === 'induk_id' && k.induk_id){
+      const el = document.getElementById('f_induk_id');
+      if(el && ![...el.options].some(o => o.value === k.induk_id))
+        el.insertAdjacentHTML('beforeend', `<option value="${esc(k.induk_id)}">${
+          esc('Saat ini: ' + (k._judulInduk || 'kegiatan lain'))}</option>`);
+      if(!(k.induk_id in JUDUL_INDUK)) JUDUL_INDUK[k.induk_id] = k._judulInduk || k.judul;
+    }
+    setel(document.getElementById('f_' + f.n), k[f.n]);
+  });
+  const sendiri = (k.karya_penulis || []).find(p => p.dosen_id === saya.id);
+  if(sendiri){
+    setel(document.getElementById('f_peran'), sendiri.peran);
+    const kr = document.getElementById('f_koresponden');
+    if(kr) kr.checked = !!sendiri.korespondensi;
+  }
+  (k.karya_penulis || []).filter(p => p.dosen_id !== saya.id).forEach(p => {
+    const c = frm.querySelector(`.r-ikut[value="${p.dosen_id}"]`);
+    if(!c) return;
+    c.checked = true; c.dispatchEvent(new Event('change'));
+    const it = c.closest('.rekan-item');
+    setel(it.querySelector('.r-peran'), p.peran);
+    const kr = it.querySelector('.r-koresp');
+    if(kr) kr.checked = !!p.korespondensi;
+  });
+}
+
+async function simpanUbah(key, { k, mode }){
+  const frm = document.getElementById('frm'), fm = document.getElementById('fm'),
+        sub = document.getElementById('sub');
+  const gagal = t => { fm.className = 'msg err'; fm.textContent = t; };
+  fm.className = 'msg'; fm.textContent = '';
+
+  const isi = Object.fromEntries(new FormData(frm).entries());
+  Object.keys(isi).forEach(x => { if(isi[x] === '') isi[x] = null; });
+  if(key === 'integrasi'){
+    if(!isi.induk_id) return gagal('Pilih penelitian atau PkM yang diintegrasikan.');
+    isi.judul = JUDUL_INDUK[isi.induk_id] || k.judul;
+  }
+  if(key === 'kegiatan'){
+    if(!isi.skema_kode) return gagal('Pilih kelompok pendanaan dan skema dulu.');
+    if(/lainnya/i.test(isi.skema_kode) && !isi.keterangan)
+      return gagal('Skema "lainnya" wajib disertai nama skema di kolom keterangan.');
+  }
+  if(document.getElementById('mtr_nama')?.value.trim())
+    return gagal('Ada institusi mitra yang belum ditekan "Tambah".');
+  if(document.getElementById('mhs_nim')?.value.trim() || document.getElementById('mhs_nama')?.value.trim())
+    return gagal('Ada mahasiswa yang belum ditekan "Tambah".');
+  const alasan = (document.getElementById('f_alasan')?.value || '').trim();
+  if(mode === 'ajuan' && !alasan) return gagal('Alasan perubahan wajib diisi.');
+
+  // Hanya yang berubah. Angka dari basis data dibandingkan sebagai teks.
+  const sama = (a, b) => String(a ?? '') === String(b ?? '');
+  const data = {}, lama = {};
+  const kBaru = {}, kLama = {};
+  kolomForm(key).forEach(c => {
+    if(!(c in isi)) return;   // select nonaktif tidak terkirim
+    if(!sama(isi[c], k[c])){ kBaru[c] = isi[c]; kLama[c] = k[c] ?? null; }
+  });
+  if(Object.keys(kBaru).length){ data.karya = kBaru; lama.karya = kLama; }
+
+  const peran = document.getElementById('f_peran').value;
+  const koresp = document.getElementById('f_koresponden')?.checked || false;
+  const penulis = [{ dosen_id: saya.id, peran, korespondensi: koresp }, ...bacaRekan()];
+  const penulisLama = (k.karya_penulis || []).map(p => ({ dosen_id: p.dosen_id, peran: p.peran,
+                                                          korespondensi: !!p.korespondensi }));
+  const kunciP = xs => xs.map(p => `${p.dosen_id}|${p.peran}|${!!p.korespondensi}`).sort().join(';');
+  if(kunciP(penulis) !== kunciP(penulisLama)){ data.penulis = penulis; lama.penulis = penulisLama; }
+
+  if(FORM[key].mitra){
+    const mLama = (k.karya_mitra || []).map(m => ({ institusi: m.institusi, tingkat: m.tingkat,
+                                                    negara: m.negara || null }));
+    const kunciM = xs => xs.map(m => `${(m.institusi || '').trim().toLowerCase()}|${m.tingkat || ''}|${
+      (m.negara || '').trim()}`).sort().join(';');
+    if(kunciM(mitraSementara) !== kunciM(mLama)){ data.mitra = mitraSementara; lama.mitra = mLama; }
+  }
+  if(FORM[key].mahasiswa){
+    const sLama = (k.karya_mahasiswa || []).map(m => ({ nim: m.nim, nama: m.nama, peran: m.peran,
+                                                        korespondensi: !!m.korespondensi }));
+    const kunciS = xs => xs.map(m => `${m.nim}|${m.nama}|${m.peran}|${!!m.korespondensi}`).sort().join(';');
+    if(kunciS(mhsSementara) !== kunciS(sLama)){ data.mahasiswa = mhsSementara; lama.mahasiswa = sLama; }
+  }
+  if(!Object.keys(data).length) return gagal('Tidak ada isian yang berubah.');
+
+  const pertama = penulis.filter(r => r.peran === 'penulis_pertama' || r.peran === 'ketua').length;
+  if(data.penulis && pertama > 1 && !confirm(
+      'Ada lebih dari satu orang berperan penulis pertama/ketua pada entri ini. '
+      + 'Itu sah untuk co-first author, tetapi sering juga salah pilih. Lanjutkan?')) return;
+
+  sub.disabled = true;
+  fm.textContent = mode === 'ajuan' ? 'Mengirim ajuan…' : 'Menyimpan…';
+  try{
+    const { error } = mode === 'ajuan'
+      ? await sb.from('ajuan_ubah').insert({ jenis: 'karya', karya_id: k.id, data, lama,
+                                             alasan, oleh: saya.id })
+      : await sb.rpc('ubah_karya', { k: k.id, d: data });
+    if(error) throw error;
+    alert(mode === 'ajuan'
+      ? 'Ajuan perubahan terkirim. Perubahan berlaku setelah disetujui admin prodi.'
+      : 'Perubahan tersimpan. Karya kembali menunggu verifikasi admin prodi.');
+    bukaTab('saya');
+  }catch(err){
+    gagal(err.code === '23505'
+      ? (mode === 'ajuan' ? 'Karya ini sudah punya ajuan perubahan yang menunggu.'
+                          : 'DOI ini sudah terdaftar pada karya lain.')
+      : (err.message || 'Gagal menyimpan.'));
+  }finally{ sub.disabled = false; }
+}
+
+// Tombol ubah per karya di Karya saya.
+function aksiUbah(k){
+  if(AJUAN_UBAH_GAGAL) return '';   // patch 20 belum dijalankan
+  const xs = AJUAN_UBAH.get(k.id) || [];
+  const tunggu = xs.find(a => a.status === 'menunggu');
+  if(tunggu) return `<span class="tag" style="background:#FFF3D6;color:#7A5A00" title="Alasan: ${
+      esc(tunggu.alasan || '-')}">menunggu persetujuan perubahan</span>`
+    + (tunggu.oleh === saya.id ? `<button class="btn ghost sm" data-ub="${tunggu.id}">Batalkan ajuan</button>` : '');
+  const tolak = xs.find(a => a.status === 'ditolak' && a.oleh === saya.id);
+  const h = tolak ? `<span class="tag" style="background:#F7E7E7;color:#8C2F2F" title="Alasan admin: ${
+      esc(tolak.catatan_admin || '-')}">perubahan ditolak</span>
+    <button class="btn ghost sm" data-ut="${tolak.id}" data-alasan="${esc(tolak.catatan_admin || '-')}">Lihat alasan</button>` : '';
+  return h + (k.dilaporkan_oleh === saya.id && k.status !== 'terverifikasi'
+    ? `<button class="btn ghost sm" data-ubah="${k.id}">Ubah</button>`
+    : `<button class="btn ghost sm" data-aju="${k.id}" title="Perubahan berlaku setelah disetujui admin">Ajukan perubahan</button>`);
+}
+
+// Label isian untuk tabel perbandingan admin.
+function labelKolom(c){
+  const khusus = { kategori: 'Jenis kegiatan', skema_kode: 'Skema', judul: 'Judul' };
+  if(khusus[c]) return khusus[c];
+  for(const F of Object.values(FORM)){
+    const f = F.f.find(x => x.n === c);
+    if(f?.l) return f.l;
+  }
+  return rapi(c);
+}
+
+function tabelBeda(a, nama, karya){
+  const kosong = '<span class="kosong">—</span>';
+  const nilai = (c, v) => {
+    if(v == null || v === '') return kosong;
+    if(c === 'skema_kode') return esc(namaSkema(v) || v);
+    if(c === 'induk_id') return esc(karya.get(v)?.judul || v);
+    return esc(rapi(String(v)));
+  };
+  const daftar = xs => xs.length ? xs.map(esc).join('<br>') : kosong;
+  const tanda = p => rapi(p.peran) + (p.korespondensi ? ', korespondensi' : '');
+  const pen = xs => (xs || []).map(p => `${nama.get(p.dosen_id) || 'dosen'} (${tanda(p)})`);
+  const mtr = xs => (xs || []).map(m => [m.institusi, rapi(m.tingkat), m.negara].filter(Boolean).join(', '));
+  const mhs = xs => (xs || []).map(m => `${m.nim} ${m.nama} (${tanda(m)})`);
+  const baris = Object.keys(a.data?.karya || {}).map(c =>
+    [labelKolom(c), nilai(c, a.lama?.karya?.[c]), nilai(c, a.data.karya[c])]);
+  if(a.data?.penulis)   baris.push(['Penulis dari prodi', daftar(pen(a.lama?.penulis)), daftar(pen(a.data.penulis))]);
+  if(a.data?.mitra)     baris.push(['Institusi mitra', daftar(mtr(a.lama?.mitra)), daftar(mtr(a.data.mitra))]);
+  if(a.data?.mahasiswa) baris.push(['Mahasiswa terlibat', daftar(mhs(a.lama?.mahasiswa)), daftar(mhs(a.data.mahasiswa))]);
+  return `<table class="beda"><thead><tr><th>Isian</th><th>Lama</th><th>Baru</th></tr></thead><tbody>${
+    baris.map(([l, x, y]) => `<tr><td>${esc(l)}</td><td>${x}</td><td>${y}</td></tr>`).join('')}</tbody></table>`;
+}
+
+// Panel "Ajuan perubahan karya" di tab Verifikasi (admin).
+async function muatAjuanUbahKarya(){
+  const box = document.getElementById('au');
+  if(!box) return;
+  const { data: aj, error } = await sb.from('ajuan_ubah')
+    .select('id,karya_id,data,lama,alasan,oleh,dibuat_pada')
+    .eq('jenis', 'karya').eq('status', 'menunggu').order('dibuat_pada');
+  if(error){ box.className = 'kosong'; box.textContent = 'Tabel ajuan_ubah belum bisa dibaca ('
+    + error.message + '). Jalankan supabase/20-patch-ajuan-ubah.sql.'; return; }
+  if(!aj?.length){ box.className = 'kosong'; box.textContent = 'Tidak ada ajuan perubahan.'; return; }
+  // Nama dosen dan judul karya/induk yang dirujuk ajuan.
+  const idDosen = new Set(), idKarya = new Set();
+  aj.forEach(a => {
+    idDosen.add(a.oleh); idKarya.add(a.karya_id);
+    [a.data, a.lama].forEach(s => {
+      (s?.penulis || []).forEach(p => idDosen.add(p.dosen_id));
+      if(s?.karya?.induk_id) idKarya.add(s.karya.induk_id);
+    });
+  });
+  const [{ data: ds }, { data: ks }] = await Promise.all([
+    sb.from('dosen').select('id,nama').in('id', [...idDosen]),
+    sb.from('karya').select('id,judul,tahun,kategori').in('id', [...idKarya]),
+  ]);
+  const nama = new Map((ds || []).map(d => [d.id, d.nama]));
+  const karya = new Map((ks || []).map(k => [k.id, k]));
+  box.className = '';
+  box.innerHTML = aj.map(a => {
+    const k = karya.get(a.karya_id) || {};
+    return `<div class="ajuan-ubah">
+      <div><b>${esc(k.judul || '(karya)')}</b>
+        <span class="tag">${esc(String(k.tahun || ''))} · ${esc(rapi(k.kategori))}</span></div>
+      <div class="hint" style="margin:4px 0 0">Diajukan ${esc(nama.get(a.oleh) || 'dosen')},
+        ${esc(String(a.dibuat_pada).slice(0, 10))}. Alasan: ${esc(a.alasan || '-')}</div>
+      ${tabelBeda(a, nama, karya)}
+      <div class="aksi" style="margin:10px 0 0">
+        <button class="btn sm" data-su="${a.id}">Setujui</button>
+        <button class="btn danger sm" data-tu="${a.id}">Tolak</button></div></div>`;
+  }).join('');
+  box.querySelectorAll('[data-su]').forEach(b => {
+    b.onclick = async () => {
+      if(!confirm('Terapkan perubahan ini? Data lama diganti dengan kolom "Baru".')) return;
+      b.disabled = true;
+      const { error: e } = await sb.rpc('setujui_ajuan_ubah', { a: +b.dataset.su });
+      if(e) alert('Gagal menerapkan: ' + (e.code === '23505' ? 'DOI sudah terdaftar pada karya lain.' : e.message));
+      muatAjuanUbahKarya();
+    };
+  });
+  box.querySelectorAll('[data-tu]').forEach(b => {
+    b.onclick = async () => {
+      const c = prompt('Alasan penolakan (akan dilihat dosen):');
+      if(c === null) return;
+      const { error: e } = await sb.from('ajuan_ubah')
+        .update({ status: 'ditolak', catatan_admin: c.trim() || '-' }).eq('id', +b.dataset.tu);
+      if(e) alert('Gagal: ' + e.message);
+      muatAjuanUbahKarya();
+    };
+  });
+}
+
+// ---------------------------------------------------------------------
 //  Daftar karya
 // ---------------------------------------------------------------------
 const namaSkema = kode => refSkema.find(s=>s.kode===kode)?.nama || '';
@@ -1249,6 +1559,9 @@ function pasangSalin(box){
 let KB = new Map(), INDUK = new Map(), KB_GAGAL = '';
 // Ajuan hapus karya terverifikasi (tabel ajuan_hapus, supabase/15-patch-ajuan-hapus.sql).
 let AJUAN = new Map(), AJUAN_GAGAL = '';
+// Ajuan perubahan karya (tabel ajuan_ubah, supabase/20-patch-ajuan-ubah.sql):
+// karya_id -> [ajuan menunggu / ditolak].
+let AJUAN_UBAH = new Map(), AJUAN_UBAH_GAGAL = '';
 const keB64 = f => new Promise((ok, gagal) => {
   const r = new FileReader();
   r.onload = () => ok(String(r.result).split(',')[1] || '');
@@ -1279,6 +1592,14 @@ async function muatBuktiUntuk(data){
     .select('id,karya_id,alasan,oleh,dibuat'));
   AJUAN_GAGAL = eAj ? eAj.message : '';
   AJUAN = new Map((aj || []).map(a => [a.karya_id, a]));
+  const { data: au, error: eAu } = await saring(sb.from('ajuan_ubah')
+    .select('id,karya_id,oleh,status,alasan,catatan_admin').eq('jenis', 'karya'));
+  AJUAN_UBAH_GAGAL = eAu ? eAu.message : '';
+  AJUAN_UBAH = new Map();
+  (au || []).forEach(a => {
+    if(!AJUAN_UBAH.has(a.karya_id)) AJUAN_UBAH.set(a.karya_id, []);
+    AJUAN_UBAH.get(a.karya_id).push(a);
+  });
   (kb || []).forEach(b => { if(!KB.has(b.karya_id)) KB.set(b.karya_id, []); KB.get(b.karya_id).push(b); });
 }
 
@@ -1396,7 +1717,7 @@ async function muatKaryaSaya(wadahId, batas){
   }
 
   box.className='';
-  box.innerHTML = data.map(k => barisKarya(k, aksiHapus(k), panelBuktiKarya(k))).join('');
+  box.innerHTML = data.map(k => barisKarya(k, aksiUbah(k) + aksiHapus(k), panelBuktiKarya(k))).join('');
   pasangSalin(box);
   const muatUlang = () => muatKaryaSaya(wadahId, batas);
   box.querySelectorAll('[data-kb-tambah]').forEach(b => {
@@ -1447,6 +1768,26 @@ async function muatKaryaSaya(wadahId, batas){
       muatKaryaSaya(wadahId, batas);
     };
   });
+  // Ubah langsung / ajukan perubahan / batalkan / tutup ajuan ditolak.
+  box.querySelectorAll('[data-ubah]').forEach(b => { b.onclick = () => bukaUbah(b.dataset.ubah, 'langsung'); });
+  box.querySelectorAll('[data-aju]').forEach(b => { b.onclick = () => bukaUbah(b.dataset.aju, 'ajuan'); });
+  box.querySelectorAll('[data-ub]').forEach(b => {
+    b.onclick = async () => {
+      if(!confirm('Batalkan ajuan perubahan?')) return;
+      const { error } = await sb.from('ajuan_ubah').delete().eq('id', +b.dataset.ub);
+      if(error) alert('Gagal membatalkan: ' + error.message);
+      muatKaryaSaya(wadahId, batas);
+    };
+  });
+  box.querySelectorAll('[data-ut]').forEach(b => {
+    b.onclick = async () => {
+      if(!confirm('Alasan admin menolak perubahan:\n\n' + b.dataset.alasan
+        + '\n\nTutup pemberitahuan ini? Setelah itu Anda bisa mengajukan perubahan lagi.')) return;
+      const { error } = await sb.from('ajuan_ubah').delete().eq('id', +b.dataset.ut);
+      if(error) alert('Gagal: ' + error.message);
+      muatKaryaSaya(wadahId, batas);
+    };
+  });
 }
 
 // Tombol hapus per karya (keputusan pemilik 2026-11-03):
@@ -1468,7 +1809,8 @@ function karyaSaya(){
   document.getElementById('isi').innerHTML = `<div class="panel">
     <h2>Karya saya</h2>
     <p class="hint">Semua karya yang mencantumkan Anda sebagai penulis.
-    Entri terverifikasi terkunci dan tidak bisa diubah. Tautan bukti di bawah
+    Entri yang Anda laporkan dan belum terverifikasi bisa diubah langsung;
+    selebihnya lewat <b>Ajukan perubahan</b> yang disetujui admin. Tautan bukti di bawah
     tiap karya bisa disalin dan ditempel ke SISTER/BKD; tautan folder membuka
     semua berkas di dalamnya.</p>
     <p><button type="button" class="btn ghost sm" id="salin-semua" hidden></button></p>
@@ -1591,6 +1933,11 @@ async function tampilVerifikasi(){
       Setujui = karya dihapus beserta penulis dan buktinya (berkas di Drive
       tetap). Tolak = karya tetap, alasan penolakan ditulis di catatan karya.</p>
       <div id="ah" class="kosong">Memuat…</div></div>
+    <div class="panel"><h2>Ajuan perubahan karya</h2>
+      <p class="hint">Perubahan yang diajukan dosen pada karya terverifikasi (atau
+      oleh penulis yang bukan pelapor). Setujui = kolom "Baru" diterapkan, status
+      karya tetap. Tolak = data tetap, alasan penolakan dilihat pengajunya.</p>
+      <div id="au" class="kosong">Memuat…</div></div>
     <div class="panel"><h2>Klaim penulis untuk ditinjau</h2>
       <p class="hint">Dosen yang mendaftarkan dirinya sendiri pada karya yang
       diinput orang lain. Hapus bila keliru.</p>
@@ -1649,6 +1996,7 @@ async function tampilVerifikasi(){
   }
 
   await muatAjuanHapus();
+  await muatAjuanUbahKarya();
 
   const { data:klaim } = await sb.from('karya_penulis')
     .select('karya_id, dosen_id, peran, korespondensi, ditambahkan_pada, dosen(nama), karya(judul,tahun)')

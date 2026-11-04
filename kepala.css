@@ -1,0 +1,35 @@
+/* =====================================================================
+   Kepala halaman ruang kerja — satu gaya untuk semua halaman kerja
+   (pemilik 2026-11-04: seragam, warna Universitas Pertamina).
+
+   Dipasang SETELAH <style> halaman, jadi aturan di sini menang. Lebar
+   .hero-in sengaja TIDAK diatur di sini (kecuali bawaan lewat :where,
+   yang kalah dari aturan halaman) supaya kepala tetap lurus dengan lebar
+   isi masing-masing halaman.
+
+   Susunan:
+     <header class="hero"><div class="hero-in">
+       <div class="hero-inst" data-identitas></div>   diisi menu.js dari data.json
+       <h1>Judul halaman</h1>
+       <div class="sub">keterangan khusus halaman</div>
+       ... kendali halaman (pilihan TS, dsb.)
+     </div></header>
+
+   Warna UPer (sama dengan index.html): biru tua #0C2A4D, merah #C8102E.
+   ===================================================================== */
+
+.hero{position:relative;background:#0C2A4D;color:#fff;overflow:hidden;
+      border-bottom:4px solid #C8102E}
+.hero::before{display:none}
+:where(.hero-in){max-width:1100px;margin:0 auto}
+.hero .hero-in{padding:24px 20px 22px}
+.hero-inst{font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:11px;
+           letter-spacing:.12em;text-transform:uppercase;color:#A9C0D6;margin-bottom:6px}
+.hero-inst:empty{display:none}
+.hero h1{font-family:'IBM Plex Serif',Georgia,serif;font-size:clamp(22px,3.4vw,28px);
+         font-weight:600;line-height:1.2;margin:0;color:#fff;letter-spacing:-.01em}
+.hero .sub,.hero .prodi{color:#C9D7E4;font-size:14px;margin-top:6px}
+.hero .sub:empty,.hero .prodi:empty{display:none}
+.hero .sub a,.hero .prodi a{color:#C9D7E4}
+@media print{.hero{background:none;color:#000;border-bottom:1px solid #999}
+  .hero h1{color:#000}.hero-inst,.hero .sub,.hero .prodi{color:#333}}

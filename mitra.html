@@ -271,9 +271,7 @@ function baris(m){
       .map(x=>`<div class="e">
         <div class="thn">${x.tahun}</div>
         <div class="e-b">
-          <div class="e-j">${x.url
-            ? `<a href="${esc(x.url)}" rel="noopener">${esc(x.judul)}</a>`
-            : esc(x.judul)}</div>
+          <div class="e-j">${esc(x.judul)}</div>
           <div class="e-m">${[x.terbitan, x.skema, rapi(x.tingkat)]
             .filter(Boolean).map(esc).join(' · ')}</div>
         </div>
