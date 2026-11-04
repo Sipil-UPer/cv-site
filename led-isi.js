@@ -9,9 +9,9 @@
    Tautan di dalam teks memakai token ⟦url|label⟧; auto() di led.js
    mengubahnya menjadi hyperlink Word.
    ===================================================================== */
-import { versiUntukTS } from './pustaka-dokumen.js?v=2026-11-05-ad855b';
-import { infoJenis, JENIS_DOKUMEN, kelompokDokumen, buktiButir, saranDokumen } from './rencana-bukti.js?v=2026-11-05-ad855b';
-import { teksPendidikan } from './profil-dosen.js?v=2026-11-05-ad855b';
+import { versiUntukTS } from './pustaka-dokumen.js?v=2026-11-05-4f158f';
+import { infoJenis, JENIS_DOKUMEN, kelompokDokumen, buktiButir, saranDokumen } from './rencana-bukti.js?v=2026-11-05-4f158f';
+import { teksPendidikan } from './profil-dosen.js?v=2026-11-05-4f158f';
 
 export const tokenTautan = (url, label) => `⟦${url}|${String(label).replace(/[⟦⟧|]/g, ' ')}⟧`;
 const isi = t => `[isi: ${t}]`;
@@ -28,6 +28,26 @@ const TAHAP = { penetapan: 'Penetapan', pelaksanaan: 'Pelaksanaan', evaluasi: 'E
 export function labelDokumenLED(d){
   const j = infoJenis(d.jenis);
   return `${j.nama}${d.judul ? ` ${d.judul}` : ''}${d.nomor ? ` No. ${d.nomor}` : ''} (${d.tahun})`;
+}
+
+// Target IKU/IKT (34-patch-target-kinerja.sql). true/false, null bila angkanya belum lengkap.
+export function tercapai(r){
+  if (r.target == null || r.capaian == null) return null;
+  return r.arah === 'maksimal' ? +r.capaian <= +r.target : +r.capaian >= +r.target;
+}
+const angkaID = v => String(v).replace('.', ',');
+export function teksTarget(r){
+  const tanda = r.arah === 'maksimal' ? '≤' : '≥', s = r.satuan ? ` ${r.satuan}` : '';
+  const hasil = tercapai(r);
+  return `${r.nama}: target ${tanda} ${angkaID(r.target)}${s}` + (r.capaian == null ? ''
+    : `, capaian ${angkaID(r.capaian)}${s} (${hasil ? 'tercapai' : 'belum tercapai'})`);
+}
+// Baris terbaru tiap indikator sampai TS, urut tampil.
+export function targetBerlaku(X, ts){
+  const per = new Map();
+  (X.target || []).filter(r => +r.tahun_ts <= ts && r.target != null)
+    .sort((a, b) => +a.tahun_ts - +b.tahun_ts).forEach(r => per.set(`${r.jenis}|${r.nama}`, r));
+  return [...per.values()].sort((a, b) => (a.urutan ?? 100) - (b.urutan ?? 100) || String(a.nama).localeCompare(String(b.nama)));
 }
 
 // Fakta narasi. C = { dokumen, daftar, ts }; hasilnya bergabung ke C.P.
@@ -54,8 +74,16 @@ export function faktaNarasi(C){
     return x && x.url ? tokenTautan(x.url, labelDokumenLED(x)) : isi(cadangan);
   };
   const ada = (xs, cadangan) => xs.length ? xs : isi(cadangan);
+  const target = targetBerlaku(X, ts), ikt = target.filter(r => r.jenis === 'ikt');
+  const tahunIKT = [...new Set(ikt.filter(r => r.capaian != null).map(r => r.tahun_ts))].sort();
   return {
     d,
+    // Kalimat target satu butir; kosong bila belum ada target.
+    targetButir: no => gabungKata(target.filter(r => String(r.butir) === String(no)).map(teksTarget)),
+    daftarIKT: ada(gabungKata(ikt.map(r => `${r.nama} (target ${r.arah === 'maksimal' ? '≤' : '≥'} ${angkaID(r.target)}${r.satuan ? ` ${r.satuan}` : ''})`)), 'daftar IKT beserta target'),
+    tahunIKT: tahunIKT.length ? tahunIKT.map(t => `${t - 1}/${t}`).join(', ') : isi('tahun'),
+    capaianIKT: ikt.some(r => r.capaian != null)
+      ? `${ikt.filter(r => tercapai(r)).length} dari ${ikt.length} IKT tercapai` : isi('capaian'),
     // Beberapa dokumen dalam satu kalimat; yang belum ada di pustaka tidak disebut.
     dSemua: (jenis, cadangan) => {
       const xs = jenis.map(j => versiUntukTS(dok, j, ts)).filter(x => x && x.url);
@@ -95,7 +123,7 @@ const TABEL_BUTIR = {
   lkps_bkd: ['30'], lkps_prasarana: ['38'], lkps_dokumen_k3l: ['39'], lkps_fasilitas_k3l: ['39'],
   lkps_mahasiswa_ta: ['40', '41', '42'], lkps_prestasi_mahasiswa: ['43'], lkps_kohort_lulusan: ['44', '45'],
   lkps_publikasi_mahasiswa: ['46'], lkps_luaran_mahasiswa: ['47'], lkps_tracer_lulusan: ['48', '49', '50', '51'],
-  lkps_kepuasan_pengguna: ['52'], lkps_spmi_ppepp: ['53', '55'],
+  lkps_kepuasan_pengguna: ['52'], lkps_spmi_ppepp: ['53', '55'], lkps_target_kinerja: ['54', '55', '56'],
 };
 // Lembar LKPS (LKPS_TABEL.sheet) -> tabel Data prodi.
 const TABEL_LEMBAR = [[/^Menu|^PS/, 'lkps_prodi_upps'], [/^1$/, 'lkps_vmts'], [/^2a/, 'lkps_kerjasama'], [/^2b/, 'lkps_penggunaan_dana'],
@@ -218,6 +246,12 @@ export function tabelPenjelas(no, C){
         j.map(x => versiUntukTS(dok, x, ts)).filter(Boolean).map(d => [infoJenis(d.jenis).nama, d.nomor || '—',
           d.tanggal ? String(d.tanggal).split('-').reverse().join('/') : String(d.tahun), sel(d.url)]));
     }
+    case '54': return buat('Indikator Kinerja Tambahan', ['No', 'IKT', 'Tujuan strategis', 'Dampak', 'Daya saing internasional', 'Target', 'Capaian'],
+      targetBerlaku(X, ts).filter(r => r.jenis === 'ikt').map(r => [r.nama, r.tujuan_strategis || '—', r.dampak || '—', r.daya_saing || '—',
+        `${r.arah === 'maksimal' ? '≤' : '≥'} ${angkaID(r.target)}${r.satuan ? ` ${r.satuan}` : ''}`, r.capaian == null ? '—' : angkaID(r.capaian)]));
+    case '56': return buat('Target dan capaian IKU/IKT', ['No', 'Indikator', 'Jenis', 'Target', 'Capaian', 'Status'],
+      targetBerlaku(X, ts).map(r => [r.nama, r.jenis.toUpperCase(), `${r.arah === 'maksimal' ? '≤' : '≥'} ${angkaID(r.target)}${r.satuan ? ` ${r.satuan}` : ''}`,
+        r.capaian == null ? '—' : angkaID(r.capaian), tercapai(r) == null ? 'Belum diukur' : tercapai(r) ? 'Tercapai' : 'Belum tercapai']));
     case '55': {
       const u = id => (dok.find(d => d.id === id) || {}).url || '';
       return buat('Pelaksanaan siklus PPEPP', ['No', 'Tahap', 'Dokumen', 'Laporan audit', 'Laporan RTM', 'Peningkatan'],

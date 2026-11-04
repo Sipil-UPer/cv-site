@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-05-ad855b">
+<link rel="stylesheet" href="tema.css?v=2026-11-05-4f158f">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
@@ -282,7 +282,7 @@
   :focus-visible{outline:2px solid var(--biru-2);outline-offset:1px}
   @media(prefers-reduced-motion:reduce){.kartu{transition:none}.kartu:hover{transform:none}}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-05-ad855b">
+<link rel="stylesheet" href="kepala.css?v=2026-11-05-4f158f">
 </head>
 <body>
 
@@ -347,7 +347,7 @@ setTimeout(function(){
   });
 }, 8000);
 </script>
-<script src="config.js?v=2026-11-05-ad855b"></script>
+<script src="config.js?v=2026-11-05-4f158f"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -364,18 +364,18 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { BUTIR, isiPetaBukti, cariBukti, daftarBukti, kolomBukti } from './rincian.js?v=2026-11-05-ad855b';
+import { BUTIR, isiPetaBukti, cariBukti, daftarBukti, kolomBukti } from './rincian.js?v=2026-11-05-4f158f';
 import { BUTIR_MANUAL, SEKSI_MANUAL, kunciButir, kunciBuktiButir, skorManual, tkKepuasan }
-  from './butir-manual.js?v=2026-11-05-ad855b';
-import { BOBOT_TOTAL, bobotButir } from './bobot.js?v=2026-11-05-ad855b';
-import { ambilDaftarLKPS } from './data-lkps.js?v=2026-11-05-ad855b';
-import { ambilNarasi } from './led-narasi.js?v=2026-11-05-ad855b';
-import { cekPitaWT, adaTingkat, sesuaiTracer } from './tracer-skor.js?v=2026-11-05-ad855b';
-import { htmlRencana, buktiButir } from './rencana-bukti.js?v=2026-11-05-ad855b';
-import { htmlPanel, pasangPanel } from './panel-bukti.js?v=2026-11-05-ad855b';
-import { pasangMenu } from './menu.js?v=2026-11-05-ad855b';
+  from './butir-manual.js?v=2026-11-05-4f158f';
+import { BOBOT_TOTAL, bobotButir } from './bobot.js?v=2026-11-05-4f158f';
+import { ambilDaftarLKPS } from './data-lkps.js?v=2026-11-05-4f158f';
+import { ambilNarasi } from './led-narasi.js?v=2026-11-05-4f158f';
+import { cekPitaWT, adaTingkat, sesuaiTracer } from './tracer-skor.js?v=2026-11-05-4f158f';
+import { htmlRencana, buktiButir } from './rencana-bukti.js?v=2026-11-05-4f158f';
+import { htmlPanel, pasangPanel } from './panel-bukti.js?v=2026-11-05-4f158f';
+import { pasangMenu } from './menu.js?v=2026-11-05-4f158f';
 import { statusSyarat, syaratButir, SYARAT_UNGGUL, SYARAT_RERATA, SASARAN,
-         statusRerata, gabungSyarat, statusRentang } from './syarat-unggul.js?v=2026-11-05-ad855b';
+         statusRerata, gabungSyarat, statusRentang } from './syarat-unggul.js?v=2026-11-05-4f158f';
 
 // config.js mendefinisikan window.SB_URL dan window.SB_KEY — pemetaan di
 // bawah ini WAJIB ada. skor.html versi sebelumnya melewatkannya dan mati
@@ -399,7 +399,7 @@ const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 // Naikkan setiap kali skor.html / rincian.js / butir-manual.js / bobot.js
 // diubah. Ditampilkan di kaki halaman supaya ketahuan seketika kalau
 // peramban masih memakai salinan lama dari cache.
-const VERSI = '2026-11-05-ad855b';
+const VERSI = '2026-11-05-4f158f';
 // Label versi di judul diisi dari VERSI supaya keduanya tidak bisa berbeda.
 { const el = document.querySelector('.versi-statis'); if (el) el.textContent = 'v' + VERSI; }
 // =====================================================================
@@ -507,8 +507,8 @@ async function unduhLKPS(idTombol){
     const rencanaKepuasan = Object.fromEntries((kp || [])
       .filter(r => r.rencana_tindak_lanjut).map(r => [r.aspek, r.rencana_tindak_lanjut]));
     const daftar = await ambilDaftarLKPS(sb);
-    const buat = idTombol === 'unduhIndeksBukti' ? (await import('./lkps-bukti.js?v=2026-11-05-ad855b')).buatIndeksBukti
-      : (await import('./lkps-tabel.js?v=2026-11-05-ad855b')).buatTabelLKPS;
+    const buat = idTombol === 'unduhIndeksBukti' ? (await import('./lkps-bukti.js?v=2026-11-05-4f158f')).buatIndeksBukti
+      : (await import('./lkps-tabel.js?v=2026-11-05-4f158f')).buatTabelLKPS;
     const hasil = await buat({ D, ts, prodi: D.prodi, institusi: D.institusi, rencanaKepuasan,
       daftar });
     a.textContent = idTombol === 'unduhIndeksBukti' ? `Indeks terunduh (${hasil.sel} tautan, ${hasil.lembar.length} tabel)`
@@ -532,7 +532,7 @@ async function unduhLED(){
   const asli = a.textContent;
   a.textContent = 'Menyusun draf LED…';
   try {
-    const { buatLED } = await import('./led.js?v=2026-11-05-ad855b');
+    const { buatLED } = await import('./led.js?v=2026-11-05-4f158f');
     const ts = CTX_LED.tsData;
     const hasil = await buatLED({
       D, ts, taDari, f2, versi: VERSI,

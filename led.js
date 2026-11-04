@@ -26,11 +26,11 @@
    Peta subbagian LED ke butir: docs/led-peta-butir.md.
    ===================================================================== */
 
-import { RENCANA_BUKTI, LKPS_TABEL, kelompokDokumen, buktiButir, saranDokumen } from './rencana-bukti.js?v=2026-11-05-ad855b';
-import { grafikButir, tabelGrafik, tabelPendukung } from './led-data.js?v=2026-11-05-ad855b';
-import { gambarGrafik } from './led-grafik.js?v=2026-11-05-ad855b';
-import { faktaNarasi, kalimatTren, buktiOtomatis, dokumenBelumAda, periksaTersisa, buktiLembar, tabelPenjelas } from './led-isi.js?v=2026-11-05-ad855b';
-import { KRITERIA, terapkanIsian, kunciTambahan, kalimatButir, kalimatCapaian, kalimatKriteria, kalimatUmum } from './led-narasi.js?v=2026-11-05-ad855b';
+import { RENCANA_BUKTI, LKPS_TABEL, kelompokDokumen, buktiButir, saranDokumen } from './rencana-bukti.js?v=2026-11-05-4f158f';
+import { grafikButir, tabelGrafik, tabelPendukung } from './led-data.js?v=2026-11-05-4f158f';
+import { gambarGrafik } from './led-grafik.js?v=2026-11-05-4f158f';
+import { faktaNarasi, kalimatTren, buktiOtomatis, dokumenBelumAda, periksaTersisa, buktiLembar, tabelPenjelas } from './led-isi.js?v=2026-11-05-4f158f';
+import { KRITERIA, terapkanIsian, kunciTambahan, kalimatButir, kalimatCapaian, kalimatKriteria, kalimatUmum } from './led-narasi.js?v=2026-11-05-4f158f';
 
 const NS = {
   w:  'http://schemas.openxmlformats.org/wordprocessingml/2006/main',
@@ -70,7 +70,9 @@ let P_AKTIF = null;
 function auto(t, o = {}){
   return String(t).split(/(\[isi:[^\]]*\]|⟦[^⟧]*⟧|⟪[^⟫]*⟫)/).filter(Boolean).map(s => {
     if (s.startsWith('[isi:')) return run(s, { ...o, b: true, warna: 'C00000', sorot: 'yellow' });
-    if (s.startsWith('⟪')) return run(s.slice(1, -1), o);      // isian tersimpan (led-narasi.js): sudah ditulis prodi
+    // Isian tersimpan (led-narasi.js) tanpa sorot; [..] dari saran yang belum diganti tetap merah.
+    if (s.startsWith('⟪')) return s.slice(1, -1).split(/(\[[^\]]+\])/).filter(Boolean).map(x =>
+      x.startsWith('[') ? run(x, { ...o, b: true, warna: 'C00000', sorot: 'yellow' }) : run(x, o)).join('');
     if (s.startsWith('⟦')) {
       const i = s.indexOf('|');
       return tautan(P_AKTIF, s.slice(1, i), s.slice(i + 1, -1), o);
@@ -327,7 +329,7 @@ function blokButir(C, P, no, k = 0){
       ...baris.map((r, i) => [String(i + 1), ...r])]));
   }
   // Angka sudah ada di tabel/grafik: yang perlu ditulis hanya targetnya.
-  out.push(paraIsi(C, lingkup, kalimatCapaian(C, tren || (!manualSaja && s.ada))));
+  out.push(paraIsi(C, lingkup, kalimatCapaian(C, tren || (!manualSaja && s.ada), no)));
   return out.join('') + gb;
 }
 

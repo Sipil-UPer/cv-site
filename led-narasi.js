@@ -9,7 +9,7 @@
      lingkup  umum, C1..C7 (kriteria), b1..b60 (butir)
    Isian tersimpan ditulis dengan token ⟪teks⟫: tampil tanpa sorot di Word.
    ===================================================================== */
-import { dokumenKriteria, labelDokumenLED, tokenTautan } from './led-isi.js?v=2026-11-05-ad855b';
+import { dokumenKriteria, labelDokumenLED, tokenTautan } from './led-isi.js?v=2026-11-05-4f158f';
 
 const rentangNo = (a, b) => Array.from({ length: b - a + 1 }, (_, i) => String(a + i));
 export const KRITERIA = {
@@ -109,7 +109,7 @@ export const NARASI = {
     `Unit penjaminan mutu UPPS dibentuk dengan ${P.d('sk_unit_pm', 'nomor SK')}; auditor bersifat independen [isi: dasar]; audit mutu internal dilaksanakan ${P.d('laporan_ami', 'tahun atau siklus')}, dan hasilnya dibahas dalam Rapat Tinjauan Manajemen ${P.d('laporan_rtm', 'tanggal RTM')}.`], [
     `Perangkat SPMI terdiri atas kebijakan SPMI, pedoman PPEPP, standar, dan tata cara pendokumentasian (${P.dSemua(['kebijakan_spmi', 'manual_spmi', 'standar_spmi', 'tata_cara_dokumentasi_spmi'], 'nomor dokumen')}). Pengakuan mutu eksternal: [isi: akreditasi, sertifikasi, atau audit eksternal].`]],
   '54': P => [
-    `IKT ${P.ps} adalah [isi: daftar IKT beserta target], disusun dari tujuan strategis, berdampak dan terukur, menunjukkan daya saing internasional, dan telah diukur pada [isi: tahun] dengan hasil [isi: capaian].`],
+    `IKT ${P.ps} adalah ${P.daftarIKT}, disusun dari tujuan strategis, berdampak dan terukur, menunjukkan daya saing internasional, dan telah diukur pada ${P.tahunIKT} dengan hasil ${P.capaianIKT}.`],
   '55': P => [
     `Dokumen IKU dan IKT tersedia dalam ${P.d('dokumen_iku_ikt', 'dokumen')}. Siklus PPEPP terlaksana, misalnya [isi: satu siklus lengkap dari penetapan sampai peningkatan standar]. Bukti efektivitas: [isi: temuan AMI dan tindak lanjutnya].`],
   '56': P => [
@@ -173,8 +173,8 @@ export function kalimatButir(no, k, C, ada){
 }
 export const komponenButir = no => (NARASI[no] && Array.isArray(NARASI[no]({ d: () => '', dSemua: () => '', tahunDok: () => '', visi: () => '', tema: () => '' })?.[0]) ? [0, 1] : [0]);
 
-export const kalimatCapaian = (C, ada) => ({ id: 'capaian', teks: `Capaian TS ${C.ta2} s.d. ${C.ta}: ${ada
-  ? 'tersaji pada tabel di atas' : '[isi: angka per tahun]'}, dibanding target [isi: target Renstra atau IKU]. ` +
+export const kalimatCapaian = (C, ada, no) => ({ id: 'capaian', teks: `Capaian TS ${C.ta2} s.d. ${C.ta}: ${ada
+  ? 'tersaji pada tabel di atas' : '[isi: angka per tahun]'}, dibanding ${(C.P.targetButir && C.P.targetButir(no)) || 'target [isi: target Renstra atau IKU]'}. ` +
   'Analisis: [isi: faktor pendukung dan akar masalah bila target belum tercapai]. ' +
   'Tindak lanjut: [isi: kegiatan, penanggung jawab, tenggat, indikator keberhasilan].' });
 
@@ -214,7 +214,7 @@ export function kalimatUmum(bagian, C){
 export function bagianNarasi(C){
   const adaData = no => !C.manual.has(String(no));
   const butir = no => ({ lingkup: `b${no}`, judul: `Butir ${no}. ${(C.judulButir || {})[no] || ''}`, tambahan: true,
-    kalimat: [...komponenButir(no).flatMap(k => kalimatButir(String(no), k, C, adaData(no))), kalimatCapaian(C, adaData(no))] });
+    kalimat: [...komponenButir(no).flatMap(k => kalimatButir(String(no), k, C, adaData(no))), kalimatCapaian(C, adaData(no), no)] });
   const umum = (bagian, judul) => ({ lingkup: 'umum', judul, kalimat: kalimatUmum(bagian, C) });
   return [
     { kelompok: 'Bagian awal', bagian: [umum('pengantar', 'Kata pengantar'), umum('ringkasan', 'Ringkasan eksekutif'),

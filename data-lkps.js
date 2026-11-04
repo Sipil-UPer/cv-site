@@ -10,7 +10,7 @@ export async function ambilDaftarLKPS(sb){
   const ambil = async q => { const { data, error } = await q; if (error) console.warn(error.message); return data || []; };
   // Dosen dengan profil LKPS 4.a (22-patch-profil-dosen.sql); tanpa patch: kolom dasar.
   const DOSEN_DASAR = 'nama,nidn,peran,pendidikan,jabatan,aktif,dtps';
-  const { KOLOM_PROFIL } = await import('./profil-dosen.js?v=2026-11-05-ad855b');
+  const { KOLOM_PROFIL } = await import('./profil-dosen.js?v=2026-11-05-4f158f');
   const ambilDosen = async () => {
     const { data, error } = await sb.from('dosen').select(DOSEN_DASAR + ',' + KOLOM_PROFIL);
     return error ? ambil(sb.from('dosen').select(DOSEN_DASAR)) : (data || []);
@@ -48,7 +48,7 @@ export async function ambilDaftarLKPS(sb){
     return error ? ambil(sb.from('lkps_kerjasama').select(KS_DASAR)) : (data || []);
   };
   const [dosen, karya, kerjasama, bkd, prestasi, luaranMhs, mk, tema, mhs, tracer,
-         vmts, prodiUpps, dana, tendik, buktiVmts, prasarana, dokK3l, fasK3l, dokumen, ppepp, buktiBaris, buktiKarya] = await Promise.all([
+         vmts, prodiUpps, dana, tendik, buktiVmts, prasarana, dokK3l, fasK3l, dokumen, ppepp, buktiBaris, buktiKarya, target] = await Promise.all([
     ambilDosen(),
     ambilKarya(),
     ambilKS(),
@@ -82,7 +82,9 @@ export async function ambilDaftarLKPS(sb){
       const { data, error } = await q('tabel,baris_id,judul,url,dokumen(jenis,tahun,judul,nomor,url)');
       return error ? ambil(q('tabel,baris_id,judul,url')) : (data || []); })(),
     ambil(sb.from('karya_bukti').select('karya_id,jenis,judul,url')),
+    // Target IKU/IKT (34-patch-target-kinerja.sql).
+    ambil(sb.from('lkps_target_kinerja').select('*')),
   ]);
   return { dosen, karya, kerjasama, bkd, prestasi, luaranMhs, mk, tema, mhs, tracer,
-           vmts, prodiUpps, dana, tendik, buktiVmts, prasarana, dokK3l, fasK3l, dokumen, ppepp, buktiBaris, buktiKarya };
+           vmts, prodiUpps, dana, tendik, buktiVmts, prasarana, dokK3l, fasK3l, dokumen, ppepp, buktiBaris, buktiKarya, target };
 }

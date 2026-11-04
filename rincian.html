@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-05-ad855b">
+<link rel="stylesheet" href="tema.css?v=2026-11-05-4f158f">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
@@ -76,7 +76,7 @@
   @media print{.hero{background:#fff;color:#000;border-bottom:2px solid #000}
     h1,.sub,.no{color:#000}.balik,.tautan{display:none}}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-05-ad855b">
+<link rel="stylesheet" href="kepala.css?v=2026-11-05-4f158f">
 </head>
 <body>
 
@@ -91,7 +91,7 @@
 
 <main class="wrap" id="isi"></main>
 
-<script src="config.js?v=2026-11-05-ad855b"></script>
+<script src="config.js?v=2026-11-05-4f158f"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -108,8 +108,8 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { BUTIR, isiPetaBukti, cariBukti, daftarBukti, kolomBukti } from './rincian.js?v=2026-11-05-ad855b';
-import { pasangMenu } from './menu.js?v=2026-11-05-ad855b';
+import { BUTIR, isiPetaBukti, cariBukti, daftarBukti, kolomBukti } from './rincian.js?v=2026-11-05-4f158f';
+import { pasangMenu } from './menu.js?v=2026-11-05-4f158f';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g,
   c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));

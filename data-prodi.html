@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-05-ad855b">
+<link rel="stylesheet" href="tema.css?v=2026-11-05-4f158f">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
@@ -77,7 +77,7 @@
   .masuk{max-width:420px;margin:40px auto;background:#fff;border:1px solid var(--line);padding:20px}
   .masuk input{width:100%;padding:8px 10px;margin:8px 0;font:inherit}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-05-ad855b">
+<link rel="stylesheet" href="kepala.css?v=2026-11-05-4f158f">
 </head>
 <body>
 
@@ -91,7 +91,7 @@
 
 <main class="wrap" id="isi"></main>
 
-<script src="config.js?v=2026-11-05-ad855b"></script>
+<script src="config.js?v=2026-11-05-4f158f"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -108,13 +108,13 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-05-ad855b';
-import { pasangMenu } from './menu.js?v=2026-11-05-ad855b';
-import { unggahKePustaka, opsiPustaka, opsiJenis, labelDokumen, cariDokumen } from './pustaka-dokumen.js?v=2026-11-05-ad855b';
-import { pasangRapikan } from './rapikan-berkas.js?v=2026-11-05-ad855b';
-import { htmlContoh, pasangContoh, JENIS_BUKTI_KS } from './manfaat-kerjasama.js?v=2026-11-05-ad855b';
-import { infoJenis } from './rencana-bukti.js?v=2026-11-05-ad855b';
-import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-05-ad855b';
+import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-05-4f158f';
+import { pasangMenu } from './menu.js?v=2026-11-05-4f158f';
+import { unggahKePustaka, opsiPustaka, opsiJenis, labelDokumen, cariDokumen } from './pustaka-dokumen.js?v=2026-11-05-4f158f';
+import { pasangRapikan } from './rapikan-berkas.js?v=2026-11-05-4f158f';
+import { htmlContoh, pasangContoh, JENIS_BUKTI_KS } from './manfaat-kerjasama.js?v=2026-11-05-4f158f';
+import { infoJenis } from './rencana-bukti.js?v=2026-11-05-4f158f';
+import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-05-4f158f';
 
 /* =====================================================================
    DATA PRODI — data kuantitatif LKPS diisi admin di situs (keputusan
@@ -443,6 +443,30 @@ const TABEL = [
       { k: 'urutan', l: 'Urutan tampil', t: 'int' },
     ],
     olah: r => { if (r.urutan == null) r.urutan = 100; } },
+  { id: 'target', tabel: 'lkps_target_kinerja', judul: 'Target IKU/IKT', butir: '54–56', patch: '34-patch-target-kinerja.sql',
+    urut: ['tahun_ts', 'urutan', 'nama'],
+    ket: 'Satu baris per indikator per TS. Isi butir bila indikator itu mengukur satu butir: target dan capaiannya otomatis masuk '
+       + 'kalimat capaian butir itu di draf LED. Contoh IKU: Waktu tunggu lulusan, butir 49, satuan bulan, arah maksimal, target 6. '
+       + 'Contoh IKT: Sitasi internasional DTPS, satuan sitasi, arah minimal. Untuk IKT, isi juga keempat unsur matriks butir 54.',
+    label: r => `${String(r.jenis || '').toUpperCase()} ${r.nama || ''}`, tahun: r => r.tahun_ts,
+    kolom: [
+      { k: 'jenis', l: 'Jenis', t: 'pilihan', wajib: true, o: [['iku', 'IKU'], ['ikt', 'IKT']] },
+      { k: 'bidang', l: 'Bidang', t: 'pilihan', o: [['pendidikan', 'Pendidikan'], ['penelitian', 'Penelitian'], ['pkm', 'PkM'], ['tata_kelola', 'Tata kelola'], ['lainnya', 'Lainnya']] },
+      { k: 'nama', l: 'Nama indikator', t: 'teks', wajib: true, lebar: true },
+      { k: 'butir', l: 'Butir terkait (1–60)', t: 'int' },
+      { k: 'tahun_ts', l: 'Tahun TS (tahun akhir, mis. 2026)', t: 'tahun', wajib: true },
+      { k: 'satuan', l: 'Satuan', t: 'teks' },
+      { k: 'arah', l: 'Arah target', t: 'pilihan', wajib: true, o: [['minimal', 'Minimal (capaian ≥ target)'], ['maksimal', 'Maksimal (capaian ≤ target)']] },
+      { k: 'target', l: 'Target', t: 'num' },
+      { k: 'capaian', l: 'Capaian', t: 'num' },
+      { k: 'tujuan_strategis', l: 'IKT: tujuan strategis yang didukung', t: 'teks', lebar: true },
+      { k: 'dampak', l: 'IKT: dampak positif dan terukur', t: 'teks', lebar: true },
+      { k: 'daya_saing', l: 'IKT: daya saing internasional', t: 'teks', lebar: true },
+      { k: 'analisis', l: 'IKT: hasil analisis untuk perbaikan', t: 'paragraf' },
+      { k: 'urutan', l: 'Urutan tampil', t: 'int' },
+    ],
+    olah: r => { if (r.urutan == null) r.urutan = 100; },
+    cek: r => r.butir != null && (r.butir < 1 || r.butir > 60) ? 'Butir harus 1 sampai 60.' : '' },
   { id: 'spmi', tabel: 'lkps_spmi_ppepp', judul: 'SPMI (PPEPP)', butir: '53–57', patch: '30-patch-spmi.sql',
     urut: ['id'],
     ket: 'Tabel 7.b LKPS: satu baris per tahap PPEPP (Penetapan, Pelaksanaan, Evaluasi, Pengendalian, Peningkatan). '
@@ -569,7 +593,7 @@ TABEL.unshift({ id: 'dokumen', judul: 'Dokumen', khusus: true, butir: 'semua',
      + 'sebagai bukti di banyak tab dan butir. Mengunggah dokumen dengan kunci yang sama MENGGANTI berkasnya '
      + '(versi lama ke _arsip Drive), tidak membuat salinan. Unggah di sini atau langsung dari bukti baris di tab lain.' });
 // Jenis dokumen yang disarankan per tab (site/rencana-bukti.js JENIS_DOKUMEN).
-const SARAN_DOK = { tracer: ['laporan_tracer'], kepuasan: ['survei_pengguna'], kerjasama: ['dokumen_kerjasama', 'pedoman_kerjasama'],
+const SARAN_DOK = { target: ['dokumen_iku_ikt', 'laporan_kinerja'], tracer: ['laporan_tracer'], kepuasan: ['survei_pengguna'], kerjasama: ['dokumen_kerjasama', 'pedoman_kerjasama'],
   mk: ['rps', 'kurikulum'], tema: ['peta_jalan_penelitian', 'peta_jalan_pkm'], vmts: ['sk_vmts', 'statuta', 'renstra_pt', 'renstra_upps'],
   prodi_upps: ['sk_akreditasi_prodi'], dana: ['laporan_keuangan'], tendik: ['sertifikat'], prasarana: ['pedoman_sarpras'],
   dok_k3l: ['dokumen_k3l', 'kebijakan_k3l'], fas_k3l: ['kebijakan_k3l'], spmi: ['kebijakan_spmi', 'laporan_ami', 'laporan_rtm'], bkd: ['rekap_bkd'], prestasi: ['sertifikat'],
@@ -686,7 +710,7 @@ const GRUP_TAB = [
   ['Mahasiswa & lulusan', ['mahasiswa', 'kohort', 'prestasi', 'publikasi', 'luaran', 'tracer', 'kepuasan']],
   ['Institusi & keuangan', ['vmts', 'prodi_upps', 'dana']],
   ['Sarana & K3L', ['prasarana', 'dok_k3l', 'fas_k3l']],
-  ['SPMI', ['spmi']],
+  ['SPMI', ['spmi', 'target']],
 ];
 const grupTab = T => (GRUP_TAB.find(([, ids]) => ids.includes(T.id)) || ['Lainnya'])[0];
 
