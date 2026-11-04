@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Panduan pengguna — Kinerja Program Studi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  /* Panduan pengguna ruang kerja (pemilik 2026-11-04). Bagian admin hanya
+     tampil untuk peran admin. Perbarui bila tombol atau halaman berubah. */
+  :root{
+    --biru:#0C2A4D; --biru-2:#17436F; --merah:#C8102E; --hijau:#00954E;
+    --bg:#F2F4F2; --panel:#fff; --ink:#14212E; --muted:#5D6B78;
+    --line:#D9DFDA; --line-soft:#EBEEEB;
+    --sans:'IBM Plex Sans',system-ui,sans-serif;
+    --mono:'IBM Plex Mono',ui-monospace,monospace;
+    --serif:'IBM Plex Serif',Georgia,serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
+       font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased}
+  .hero-in{max-width:960px}
+  .wrap{max-width:960px;margin:0 auto;padding:24px 20px 80px}
+  a{color:var(--biru-2)}
+  nav.isi{background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:14px 20px;margin-bottom:22px}
+  nav.isi b{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+  nav.isi ol{margin:6px 0 0;padding-left:20px;columns:2;column-gap:28px}
+  nav.isi li{margin:2px 0}
+  section{background:var(--panel);border:1px solid var(--line);border-top:3px solid var(--biru);
+          border-radius:2px;padding:18px 24px 14px;margin-bottom:18px}
+  section.admin{border-top-color:var(--merah)}
+  h2{font-family:var(--serif);font-size:20px;color:var(--biru);margin:0 0 8px}
+  h3{font-size:15.5px;margin:16px 0 4px}
+  p,li{max-width:76ch}
+  ol,ul{padding-left:22px}
+  li{margin:3px 0}
+  .tbl{font-family:var(--mono);font-size:12.5px;background:#E7EDF3;color:var(--biru);
+       padding:1px 6px;border-radius:2px;white-space:nowrap}
+  .cat{background:#FFF8E5;border:1px solid #E8D9A8;border-radius:3px;padding:8px 12px;font-size:14px;margin:10px 0}
+  .peran{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;
+         color:#fff;background:var(--merah);padding:2px 7px;border-radius:2px;margin-left:8px;vertical-align:3px}
+  table{border-collapse:collapse;width:100%;font-size:14px;margin:8px 0}
+  th,td{text-align:left;padding:7px 10px 7px 0;border-bottom:1px solid var(--line-soft);vertical-align:top}
+  th{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:400}
+  @media(max-width:640px){nav.isi ol{columns:1}.wrap{padding:18px 16px 60px}}
+  @media print{nav.isi{display:none}section{break-inside:avoid}}
+</style>
+<link rel="stylesheet" href="kepala.css?v=2026-11-04-7f6e75">
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-in">
+    <div class="hero-inst" data-identitas></div>
+    <h1>Panduan pengguna</h1>
+    <div class="sub" id="hSub">Cara memakai ruang kerja: dosen dan admin prodi.</div>
+  </div>
+</header>
+
+<main class="wrap">
+  <nav class="isi" aria-label="Daftar isi"><b>Isi</b>
+    <ol>
+      <li><a href="#masuk">Masuk dan menu</a></li>
+      <li><a href="#karya">Mengisi karya</a></li>
+      <li><a href="#bukti">Bukti karya</a></li>
+      <li><a href="#ubah">Mengubah atau menghapus karya</a></li>
+      <li><a href="#rekan">Karya rekan dan klaim penulis</a></li>
+      <li><a href="#profil">Profil saya</a></li>
+      <li><a href="#lihat">Monitoring dan skor</a></li>
+      <li><a href="#publik">Apa yang tampil untuk umum</a></li>
+      <li class="adm" hidden><a href="#verifikasi">Admin: verifikasi dan ajuan</a></li>
+      <li class="adm" hidden><a href="#dosen">Admin: kelola dosen</a></li>
+      <li class="adm" hidden><a href="#dataprodi">Admin: data prodi</a></li>
+      <li class="adm" hidden><a href="#butir">Admin: isian butir dan dokumen</a></li>
+      <li class="adm" hidden><a href="#skor">Admin: skor dan draf LED</a></li>
+      <li class="adm" hidden><a href="#perbarui">Admin: kapan situs diperbarui</a></li>
+    </ol>
+  </nav>
+
+  <section id="masuk">
+    <h2>1. Masuk dan menu</h2>
+    <ol>
+      <li>Buka <a href="ruang-kerja.html">Ruang kerja</a>, isi email kampus yang sudah didaftarkan admin, klik <b>Kirim tautan masuk</b>.</li>
+      <li>Buka email, klik tautannya. Tidak ada kata sandi.</li>
+      <li>Menu biru di atas tiap halaman: <b>Input data</b>, <b>Monitoring</b>, <b>Akreditasi</b>, dan <b>Bantuan</b>. Isinya mengikuti peran Anda; halaman khusus admin tidak tampil untuk dosen.</li>
+    </ol>
+    <p class="cat">Muncul "Email belum terdaftar"? Minta admin prodi menambahkan email Anda di Kelola dosen.
+      Halaman tampil kosong atau "gagal dimuat"? Tekan <b>Ctrl+Shift+R</b> (memuat ulang tanpa cache).</p>
+  </section>
+
+  <section id="karya">
+    <h2>2. Mengisi karya</h2>
+    <p>Buka <b>Input data ▾ › Karya dosen</b>. Pilih tab sesuai jenis karya:</p>
+    <table>
+      <tr><th>Tab</th><th>Isinya</th></tr>
+      <tr><td>Publikasi</td><td>artikel jurnal, prosiding, buku, bab buku, HKI. Isi DOI bila ada: itu yang mencegah entri ganda.</td></tr>
+      <tr><td>Penelitian &amp; PkM</td><td>satu entri per kegiatan, sebaiknya diisi ketua; anggota cukup mengklaim (bagian 5).</td></tr>
+      <tr><td>Luaran &amp; HKI</td><td>paten, hak cipta, TTG, produk, buku ber-ISBN.</td></tr>
+      <tr><td>Rekognisi</td><td>pembicara undangan, editor, reviewer, penghargaan.</td></tr>
+      <tr><td>Integrasi MK</td><td>penelitian/PkM yang dipakai di mata kuliah.</td></tr>
+    </table>
+    <ol>
+      <li>Isi kolom bertanda <b>*</b>. <b>Bulan</b> menentukan tahun akademik (TS): September ke atas masuk TS berikutnya.</li>
+      <li>Pilih <b>Posisi saya</b> dan centang rekan dosen prodi yang ikut, beserta perannya. Rekan tidak perlu menginput ulang.</li>
+      <li>Tambahkan mitra (institusi lain) dan mahasiswa yang terlibat, masing-masing dengan tombol <b>Tambah</b>.</li>
+      <li>Klik <b>Simpan</b>. Karya menunggu verifikasi admin dan baru dihitung setelah terverifikasi.</li>
+    </ol>
+    <p class="cat">Muncul "Karya ini sepertinya sudah ada"? Karya dengan DOI atau judul sama sudah dicatat rekan.
+      Klik <b>Saya juga penulis karya ini</b> daripada membuat catatan ganda.</p>
+  </section>
+
+  <section id="bukti">
+    <h2>3. Bukti karya</h2>
+    <ul>
+      <li>Saat mengisi karya: pilih jenis bukti (naskah, SK, korespondensi, sertifikat, …), pilih satu atau beberapa berkas, klik <b>Unggah</b>. Ulangi untuk jenis lain. Bisa juga menempel satu tautan (DOI, halaman jurnal).</li>
+      <li>Setelah tersimpan: di tab <b>Karya saya</b>, klik <b>Tambah bukti</b> pada karya itu. Bukti boleh ditambah walau karya sudah terverifikasi.</li>
+      <li><b>Salin</b> menyalin satu tautan bukti; <b>Salin semua tautan bukti</b> menyalin semuanya sekaligus, misalnya untuk SISTER atau BKD.</li>
+      <li>Berkas disimpan di Google Drive prodi; tautannya bisa dibuka asesor tanpa login. Tutupi NIK, nomor rekening, dan tanda tangan sebelum mengunggah.</li>
+    </ul>
+  </section>
+
+  <section id="ubah">
+    <h2>4. Mengubah atau menghapus karya</h2>
+    <table>
+      <tr><th>Keadaan karya</th><th>Tombol</th><th>Yang terjadi</th></tr>
+      <tr><td>Belum diverifikasi, Anda yang mengisi</td><td><b>Ubah</b>, <b>Hapus</b></td><td>langsung berubah/terhapus; karya kembali menunggu verifikasi</td></tr>
+      <tr><td>Sudah terverifikasi, atau diisi rekan</td><td><b>Ajukan perubahan</b></td><td>formulir terisi; ubah yang perlu, tulis alasan, kirim. Berlaku setelah disetujui admin.</td></tr>
+      <tr><td>Sudah terverifikasi</td><td><b>Ajukan hapus</b></td><td>tulis alasan; karya terhapus setelah disetujui admin</td></tr>
+      <tr><td>Ajuan masih menunggu</td><td><b>Batalkan ajuan</b></td><td>ajuan ditarik</td></tr>
+      <tr><td>Ajuan ditolak</td><td><b>Lihat alasan</b></td><td>baca alasan admin, lalu tutup dan ajukan ulang bila perlu</td></tr>
+    </table>
+  </section>
+
+  <section id="rekan">
+    <h2>5. Karya rekan dan klaim penulis</h2>
+    <p>Tab <b>Karya prodi</b> memuat semua karya prodi. Bila Anda ikut menulis karya yang diinput rekan, klik
+      <b>Saya penulis</b> pada karya itu. Admin meninjau klaim tersebut. <b>Hapus klaim</b> membatalkannya.</p>
+  </section>
+
+  <section id="profil">
+    <h2>6. Profil saya</h2>
+    <p>Buka <b>Input data ▾ › Profil saya</b>. Email, NIDN, dan peran hanya ditampilkan (diatur admin).
+      Nama, pendidikan, jabatan, SINTA, Scopus, dan ORCID bisa diubah: isi, lalu klik <b>Kirim ajuan</b>.
+      Perubahan berlaku setelah disetujui admin. Tautan profil SINTA/Scopus/ORCID boleh ditempel utuh;
+      yang disimpan hanya ID-nya.</p>
+  </section>
+
+  <section id="lihat">
+    <h2>7. Monitoring dan skor</h2>
+    <ul>
+      <li><b>Monitoring ▾ › Monitoring kinerja</b>: rekap per tahun atau TS, per dosen, dan syarat unggul.</li>
+      <li><b>Monitoring ▾ › Grafik</b>: grafik siap tempel untuk laporan dan LED.</li>
+      <li><b>Akreditasi ▾ › Skor &amp; LED</b>: perkiraan skor tiap butir LAM. Pilih TS di bagian atas; klik nomor butir untuk membuka kartunya.</li>
+      <li><b>Akreditasi ▾ › Rincian butir</b>: data di balik angka tiap butir.</li>
+    </ul>
+    <p class="cat">Angka baru tampil setelah situs diperbarui: otomatis tiap jam (menit ke-23).</p>
+  </section>
+
+  <section id="publik">
+    <h2>8. Apa yang tampil untuk umum</h2>
+    <p>Beranda tanpa login hanya menampilkan grafik dan angka rekap; daftar dosen, publikasi, penelitian,
+      pengabdian, prestasi, dan mitra dibuka dengan mengklik angkanya. Yang tampil hanya karya
+      <b>terverifikasi</b>, tanpa tautan bukti, tanpa nominal dana, tanpa beban kerja dosen, dan tanpa
+      nama atau NIM mahasiswa.</p>
+  </section>
+
+  <div id="bagian-admin" hidden>
+  <section id="verifikasi" class="admin">
+    <h2>9. Verifikasi dan ajuan <span class="peran">admin</span></h2>
+    <p>Buka <b>Karya dosen › Verifikasi</b>.</p>
+    <ul>
+      <li><b>Menunggu verifikasi</b>: periksa isian dan buktinya, lalu <b>Verifikasi</b> atau <b>Tolak</b> (alasan dibaca dosen). Kotak relevansi visi menandai karya di luar visi keilmuan: tampil di profil, tidak dihitung di butir prodi.</li>
+      <li><b>Ajuan hapus karya</b>: <b>Setujui hapus</b> menghapus karya beserta berkas buktinya (ke Sampah Drive); <b>Tolak</b> menyimpan alasan.</li>
+      <li><b>Ajuan perubahan karya</b>: tabel <i>Isian | Lama | Baru</i>. <b>Setujui</b> menerapkan semua perubahan sekaligus; <b>Tolak</b> dengan alasan.</li>
+      <li><b>Klaim penulis untuk ditinjau</b>: dosen yang mengaku ikut menulis karya rekan.</li>
+    </ul>
+    <p class="cat">Bukti yang dihapus admin masuk Sampah Google Drive akun prodi dan bisa dipulihkan
+      30 hari (drive.google.com › Sampah › Pulihkan); catatannya di situs harus dibuat ulang.</p>
+  </section>
+
+  <section id="dosen" class="admin">
+    <h2>10. Kelola dosen <span class="peran">admin</span></h2>
+    <ul>
+      <li>Tambah dosen: email (untuk masuk), NIDN, nama, peran, pendidikan, jabatan. Staf tanpa NIDN memakai nomor pegawai.</li>
+      <li>Peran: <span class="tbl">dosen</span> mengisi karya; <span class="tbl">admin</span> semua halaman;
+        <span class="tbl">pimpinan</span> melihat skor dan rincian per dosen; <span class="tbl">asesor</span> hanya melihat.</li>
+      <li><b>Aktif</b> = boleh masuk situs. <b>DTPS</b> = dihitung sebagai dosen tetap prodi (pembagi NDTPS). Dosen yang pindah dinonaktifkan, jangan dihapus.</li>
+      <li><b>Ajuan perubahan profil</b> dari dosen disetujui atau ditolak di halaman ini.</li>
+    </ul>
+  </section>
+
+  <section id="dataprodi" class="admin">
+    <h2>11. Data prodi <span class="peran">admin</span></h2>
+    <p>Buka <b>Input data ▾ › Data prodi</b>. Tiap tab satu tabel LKPS; <b>Tambah baris</b>, <b>Ubah</b>,
+      <b>Hapus</b>, dan bukti per baris (<b>Unggah berkas</b> atau <b>Tambah tautan</b>).</p>
+    <table>
+      <tr><th>Tab</th><th>Butir</th><th>Satu baris =</th></tr>
+      <tr><td>Tracer study</td><td>48–51</td><td>satu tahun lulus</td></tr>
+      <tr><td>Kepuasan pengguna</td><td>52</td><td>satu aspek pada satu tahun akademik (7 aspek per TS; persentase berjumlah 100)</td></tr>
+      <tr><td>Kohort lulusan</td><td>44–45</td><td>satu angkatan masuk</td></tr>
+      <tr><td>Kerja sama</td><td>6–7</td><td>satu kerja sama yang tidak melekat pada karya dosen</td></tr>
+      <tr><td>Mahasiswa per TS</td><td>40–45</td><td>satu tahun akademik</td></tr>
+      <tr><td>Beban kerja dosen</td><td>30</td><td>satu dosen per semester</td></tr>
+      <tr><td>Prestasi, publikasi, luaran mahasiswa</td><td>43, 46, 47</td><td>satu capaian</td></tr>
+    </table>
+  </section>
+
+  <section id="butir" class="admin">
+    <h2>12. Isian butir dan dokumen <span class="peran">admin</span></h2>
+    <ul>
+      <li>Butir yang dinilai dengan matriks: isi skor 0–4 dan bukti, lalu <b>Simpan perubahan</b>.</li>
+      <li><b>Dokumen</b>: pustaka dokumen (statuta, kurikulum, SK, notulen, …). Unggah ulang dengan tahun sama mengganti versi lama; yang lama diarsipkan.</li>
+      <li><b>Berkas tak terpakai di Drive</b>: klik <b>Cari berkas tak terpakai</b>, periksa daftarnya, centang yang memang tidak dipakai, lalu buang ke Sampah. Berkas berumur kurang dari 24 jam tidak ikut.</li>
+    </ul>
+  </section>
+
+  <section id="skor" class="admin">
+    <h2>13. Skor dan draf LED <span class="peran">admin</span></h2>
+    <ul>
+      <li><b>A. Penghalang status</b>: syarat perlu yang belum terpenuhi.</li>
+      <li><b>B. Peluang poin terbesar dan simulasi</b>: ubah angka, klik <b>Hitung simulasi</b> untuk melihat dampaknya; <b>Kosongkan simulasi</b> mengembalikan.</li>
+      <li><b>Unduh draf LED (.docx)</b>: templat LED LAM Teknik terisi skor, tabel, tautan bukti, dan kerangka narasi bertanda [isi].</li>
+    </ul>
+  </section>
+
+  <section id="perbarui" class="admin">
+    <h2>14. Kapan situs diperbarui <span class="peran">admin</span></h2>
+    <p>Situs dibangun ulang otomatis tiap jam pada menit ke-23 (GitHub Actions). Untuk memperbarui saat itu
+      juga, pengelola teknis menjalankan <span class="tbl">bangun-dan-push.bat</span> lalu menjawab
+      <b>y</b> pada "Bangun dan terbitkan sekarang?".</p>
+  </section>
+  </div>
+</main>
+
+<script src="config.js?v=2026-11-04-7f6e75"></script>
+<script>
+// Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
+// halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
+addEventListener('error', function (e) {
+  if (document.getElementById('galat-muat')) return;
+  var d = document.createElement('div');
+  d.id = 'galat-muat';
+  d.style.cssText = 'margin:16px;padding:12px 14px;border:1px solid #C8102E;' +
+    'background:#FBE5E8;color:#14212E;font:14px/1.5 system-ui,sans-serif';
+  d.textContent = 'Halaman gagal dimuat: ' + (e.message || 'galat skrip') +
+    '. Tekan Ctrl+Shift+R untuk memuat ulang tanpa cache; bila tetap muncul, kirim pesan ini ke admin.';
+  document.body.insertBefore(d, document.body.firstChild);
+});
+</script>
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+import { gerbang } from './menu.js?v=2026-11-04-7f6e75';
+
+// Bagian admin hanya untuk peran admin (isinya bukan rahasia; disembunyikan
+// supaya panduan dosen tetap ringkas).
+const saya = await gerbang(createClient(window.SB_URL, window.SB_KEY));
+if (saya && saya.peran === 'admin') {
+  document.getElementById('bagian-admin').hidden = false;
+  document.querySelectorAll('nav.isi .adm').forEach(li => { li.hidden = false; });
+}
+</script>
+</body>
+</html>

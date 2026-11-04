@@ -41,6 +41,10 @@ export const MODUL = [
     { href: 'input-butir.html', judul: 'Isian butir & dokumen', boleh: admin,
       ket: 'Butir kualitatif, pustaka dokumen, bukti per butir.' },
   ]},
+  { judul: 'Bantuan', ket: 'Cara memakai ruang kerja.', halaman: [
+    { href: 'panduan.html', judul: 'Panduan pengguna',
+      ket: 'Langkah untuk dosen; bagian admin tampil untuk admin.' },
+  ]},
 ];
 
 const berkas = href => String(href).split(/[?#]/)[0].split('/').pop() || 'index.html';
