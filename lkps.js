@@ -15,8 +15,8 @@
    angka yang sama dengan halaman skor. Lembar lain dibiarkan untuk diisi
    prodi; kolom yang tidak disimpan situs (mis. pita waktu tunggu) kosong.
    ===================================================================== */
-import { versiUntukTS } from './pustaka-dokumen.js?v=2026-11-05-437e94';
-import { teksPendidikan } from './profil-dosen.js?v=2026-11-05-437e94';
+import { versiUntukTS } from './pustaka-dokumen.js?v=2026-11-05-ad855b';
+import { teksPendidikan } from './profil-dosen.js?v=2026-11-05-ad855b';
 
 const TEMPLATE = 'lkps-template.xlsx';
 export const JSZIP = 'https://cdn.jsdelivr.net/npm/jszip@3.10.1/+esm';
@@ -432,6 +432,13 @@ export function petaDaftar(C){
   const mhsTS = (X.mhs || []).find(x => +String(x.tahun_akademik || '').slice(5) === ts);
   const prodi = (X.prodiUpps || []).slice()
     .sort((a, b) => ((a.urutan ?? 100) - (b.urutan ?? 100)) || String(a.nama_prodi).localeCompare(String(b.nama_prodi)));
+  // Prodi yang diakreditasi selalu tampil walau tab Prodi di UPPS belum diisi (pemilik 2026-11-05):
+  // SK dari pustaka bila ada; peringkat tidak ditebak.
+  if (!prodi.some(x => x.diakreditasi) && C.prodi) {
+    const sk = versiUntukTS(X.dokumen, 'sk_akreditasi_prodi', ts);
+    prodi.unshift({ jenis_program: 'Sarjana', nama_prodi: C.prodi, diakreditasi: true,
+                    nomor_sk: sk?.nomor || sk?.judul, tanggal_sk: sk?.tanggal });
+  }
   prodi.forEach((x, i) => {
     const r = 17 + i;
     set('PS', `B${r}`, x.jenis_program); set('PS', `C${r}`, x.nama_prodi);

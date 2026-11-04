@@ -38,6 +38,8 @@ export const MODUL = [
       ket: 'Perkiraan skor per butir, rekap bukti, unduh draf LED.' },
     { href: 'rincian.html?butir=23', judul: 'Rincian butir',
       ket: 'Data di balik angka tiap butir kuantitatif.' },
+    { href: 'narasi-led.html', judul: 'Narasi LED', boleh: admin,
+      ket: 'Isian narasi per butir; tersimpan dan masuk draf LED saat diunduh.' },
     { href: 'input-butir.html', judul: 'Isian butir & dokumen', boleh: admin,
       ket: 'Butir kualitatif, pustaka dokumen, bukti per butir.' },
   ]},

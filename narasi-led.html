@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Narasi LED — Kinerja Program Studi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tema.css?v=2026-11-05-ad855b">
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.6}
+  .wrap{max-width:1000px;margin:0 auto;padding:18px 20px 80px}
+  .kemajuan{display:flex;gap:14px;align-items:center;flex-wrap:wrap;background:var(--panel);border:1px solid var(--line);
+    border-top:4px solid var(--aksi);padding:14px 18px;margin-bottom:16px}
+  .kemajuan b{font-size:18px;color:var(--biru)}
+  .bar{flex:1;min-width:160px;height:10px;background:var(--line-soft);border-radius:5px;overflow:hidden}
+  .bar i{display:block;height:100%;background:var(--aksi)}
+  .kemajuan label{font-size:14px;cursor:pointer}
+  details.kel{background:var(--panel);border:1px solid var(--line);margin-bottom:10px}
+  details.kel>summary{padding:12px 18px;cursor:pointer;font-weight:600;color:var(--biru);display:flex;justify-content:space-between;gap:12px}
+  details.kel>summary small{font-weight:400;color:var(--muted);white-space:nowrap}
+  .bag{padding:12px 18px 16px;border-top:1px solid var(--line-soft)}
+  .bag h3{margin:0 0 8px;font-size:15px;color:var(--ink)}
+  .bag h3 small{font-weight:400;color:var(--muted)}
+  .kal{margin:0 0 10px}
+  .kal a{color:var(--biru-2)}
+  .kal textarea,.tambah textarea{display:block;width:100%;margin:5px 0 7px;padding:7px 9px;border:1px solid var(--merah-m1);
+    background:var(--merah-m5);border-radius:4px;font:inherit;font-size:14px;resize:vertical;min-height:38px}
+  .kal textarea.terisi,.tambah textarea.terisi{border-color:var(--line);background:#fff}
+  .kal textarea:focus,.tambah textarea:focus{outline:2px solid var(--aksi);outline-offset:0}
+  .tambah label{font-size:13px;color:var(--muted)}
+  .tambah textarea{border-color:var(--line);background:#fff}
+  .selesai{display:none}
+  .hanya-kosong .bag.penuh{display:none}
+  #simpan{position:fixed;right:16px;bottom:14px;background:var(--biru);color:#fff;padding:6px 12px;border-radius:4px;font-size:13px;opacity:0;transition:opacity .2s}
+  #simpan.tampil{opacity:1}
+  #simpan.galat{background:var(--merah)}
+  .kosong{color:var(--muted)}
+  .masuk input{width:100%;max-width:340px;padding:8px;margin:6px 0}
+  .masuk button{padding:8px 14px}
+</style>
+<link rel="stylesheet" href="kepala.css?v=2026-11-05-ad855b">
+</head>
+<body>
+<header class="hero"><div class="hero-in">
+  <div class="hero-inst" data-identitas></div>
+  <h1>Narasi LED</h1>
+  <div class="sub" id="hSub">Memuat…</div>
+</div></header>
+<main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
+<div id="simpan" role="status"></div>
+<script src="config.js?v=2026-11-05-ad855b"></script>
+<script>
+// Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
+// halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
+addEventListener('error', function (e) {
+  if (document.getElementById('galat-muat')) return;
+  var d = document.createElement('div');
+  d.id = 'galat-muat';
+  d.style.cssText = 'margin:16px;padding:12px 14px;border:1px solid var(--merah);' +
+    'background:var(--merah-m3);color:var(--ink);font:14px/1.5 system-ui,sans-serif';
+  d.textContent = 'Halaman gagal dimuat: ' + (e.message || 'galat skrip') +
+    '. Tekan Ctrl+Shift+R untuk memuat ulang tanpa cache; bila tetap muncul, kirim pesan ini ke admin.';
+  document.body.insertBefore(d, document.body.firstChild);
+});
+</script>
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+import { pasangMenu } from './menu.js?v=2026-11-05-ad855b';
+import { BUTIR_MANUAL } from './butir-manual.js?v=2026-11-05-ad855b';
+import { BUTIR_DATA } from './butir-data.js?v=2026-11-05-ad855b';
+import { ambilDaftarLKPS } from './data-lkps.js?v=2026-11-05-ad855b';
+import { faktaNarasi } from './led-isi.js?v=2026-11-05-ad855b';
+import { bagianNarasi, pisahKalimat, ambilNarasi, kunciTambahan } from './led-narasi.js?v=2026-11-05-ad855b';
+
+const esc = s => String(s ?? '').replace(/[&<>"']/g,
+  c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const $ = id => document.getElementById(id);
+const sb = createClient(window.SB_URL, window.SB_KEY);
+let SAYA = null, ISI = {};
+
+function layarMasuk(){
+  $('hSub').textContent = 'Perlu masuk';
+  $('isi').innerHTML = `<div class="masuk"><p>Masukkan email kampus Anda; tautan masuk dikirim tanpa kata sandi.</p>
+    <input id="em" type="email" placeholder="nama@kampus.ac.id" autocomplete="email"><br>
+    <button id="kirim">Kirim tautan masuk</button><p id="pesan" class="kosong"></p></div>`;
+  $('kirim').onclick = async () => {
+    const em = $('em').value.trim();
+    if (!em) return;
+    const { error } = await sb.auth.signInWithOtp({ email: em, options: { emailRedirectTo: location.href } });
+    $('pesan').textContent = error ? 'Gagal: ' + error.message : 'Tautan masuk sudah dikirim. Periksa email Anda.';
+  };
+}
+
+const kunciBagian = b => b.kalimat.flatMap(x => pisahKalimat(x.teks, b.lingkup, x.id).filter(p => p.kunci).map(p => p.kunci));
+
+function htmlBagian(b, i){
+  // Tanda baca sesudah kotak isian tidak ditampilkan sendirian di baris baru.
+  const kal = b.kalimat.map(x => `<p class="kal">${pisahKalimat(x.teks, b.lingkup, x.id).map((p, i, xs) =>
+    p.kunci ? `<textarea rows="1" data-kunci="${esc(p.kunci)}" placeholder="${esc(p.label)}" aria-label="${esc(p.label)}"></textarea>`
+    : p.url ? `<a href="${esc(p.url)}" target="_blank" rel="noopener nofollow">${esc(p.t)}</a>`
+    : esc(i && xs[i - 1].kunci ? p.t.replace(/^[.,;:\s]+/, '') : p.t)).join('')}</p>`).join('');
+  return `<div class="bag" data-bag="${i}"><h3>${esc(b.judul)} <small data-hitung></small></h3>${kal}
+    ${b.tambahan ? `<div class="tambah"><label>Narasi tambahan (opsional, masuk sebagai paragraf)
+      <textarea rows="2" data-kunci="${esc(kunciTambahan(b.lingkup))}" data-opsional="1"></textarea></label></div>` : ''}</div>`;
+}
+
+function hitung(){
+  let ada = 0, semua = 0;
+  document.querySelectorAll('details.kel').forEach(d => {
+    let a = 0, n = 0;
+    d.querySelectorAll('.bag').forEach(b => {
+      const t = [...b.querySelectorAll('textarea[data-kunci]:not([data-opsional])')];
+      const x = t.filter(e => e.value.trim()).length;
+      b.classList.toggle('penuh', x === t.length);
+      b.querySelector('[data-hitung]').textContent = t.length ? `${x}/${t.length}` : '';
+      a += x; n += t.length;
+    });
+    d.querySelector('summary small').textContent = `${a} dari ${n} terisi`;
+    ada += a; semua += n;
+  });
+  $('kemajuan-teks').textContent = `${ada} dari ${semua} isian terisi`;
+  $('kemajuan-bar').style.width = semua ? `${ada / semua * 100}%` : '0';
+}
+
+let pesanTimer = 0;
+function pesan(t, galat){
+  const s = $('simpan');
+  s.textContent = t; s.className = 'tampil' + (galat ? ' galat' : '');
+  clearTimeout(pesanTimer);
+  if (!galat) pesanTimer = setTimeout(() => { s.className = ''; }, 1800);
+}
+
+// Tiap kotak tersimpan sendiri saat ditinggalkan; kosong = isiannya dihapus.
+async function simpan(el){
+  const kunci = el.dataset.kunci, nilai = el.value.trim();
+  if ((ISI[kunci] || '') === nilai) return;
+  const { error } = nilai
+    ? await sb.from('led_narasi').upsert({ kunci, nilai, oleh: SAYA.email, diperbarui: new Date().toISOString() }, { onConflict: 'kunci' })
+    : await sb.from('led_narasi').delete().eq('kunci', kunci);
+  if (error) return pesan('Gagal menyimpan: ' + error.message, true);
+  if (nilai) ISI[kunci] = nilai; else delete ISI[kunci];
+  el.classList.toggle('terisi', !!nilai);
+  hitung();
+  pesan('Tersimpan');
+}
+
+async function mulai(){
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) return layarMasuk();
+  const { data: saya } = await sb.from('dosen').select('nama,email,peran').ilike('email', session.user.email).maybeSingle();
+  pasangMenu(sb);
+  if (!saya || saya.peran !== 'admin') {
+    $('hSub').textContent = saya ? `Masuk sebagai ${saya.nama}` : 'Tidak terdaftar';
+    $('isi').innerHTML = '<p class="kosong">Halaman ini khusus admin.</p>';
+    return;
+  }
+  SAYA = saya;
+  $('hSub').textContent = `Masuk sebagai ${saya.nama} (admin)`;
+  const [r, daftar, narasi] = await Promise.all([fetch('data.json?v=' + Date.now()), ambilDaftarLKPS(sb), ambilNarasi(sb)]);
+  const D = await r.json();
+  ISI = narasi;
+  const d = new Date(), ts = d.getFullYear() + (d.getMonth() >= 8 ? 1 : 0);
+  const ta = t => `${t - 1}/${t}`;
+  const C = { ts, daftar, dokumen: daftar.dokumen, ta: ta(ts), ta2: ta(ts - 2),
+    manual: new Set(BUTIR_MANUAL.map(b => String(b.no))),
+    judulButir: Object.fromEntries([...BUTIR_DATA, ...BUTIR_MANUAL].map(b => [String(b.no), b.judul])) };
+  C.P = { ps: `Program Studi ${D.prodi || ''}`, pt: D.institusi || '', ...faktaNarasi(C) };
+  const kelompok = bagianNarasi(C);
+  let n = 0;
+  $('isi').innerHTML = `<div class="kemajuan"><b id="kemajuan-teks"></b><div class="bar"><i id="kemajuan-bar"></i></div>
+      <label><input type="checkbox" id="hanya"> Tampilkan yang belum lengkap saja</label></div>
+    <p class="kosong">Fakta dan tautan dokumen terisi otomatis dari sistem. Tulis di kotak; isian tersimpan sendiri saat kursor
+      pindah dan masuk draf LED saat diunduh dari halaman Skor. Isian tetap ada untuk TS berikutnya.</p>
+    <div id="daftar">${kelompok.map((g, i) => `<details class="kel"${i ? '' : ' open'}><summary>${esc(g.kelompok)} <small></small></summary>
+      ${g.bagian.map(b => htmlBagian(b, n++)).join('')}</details>`).join('')}</div>`;
+  document.querySelectorAll('textarea[data-kunci]').forEach(el => {
+    el.value = ISI[el.dataset.kunci] || '';
+    el.classList.toggle('terisi', !!el.value);
+    el.addEventListener('change', () => simpan(el));
+  });
+  $('hanya').onchange = e => $('daftar').classList.toggle('hanya-kosong', e.target.checked);
+  hitung();
+}
+
+sb.auth.onAuthStateChange(ev => { if (ev === 'SIGNED_IN' && !SAYA) mulai(); });
+mulai().catch(e => { $('isi').innerHTML = `<p class="kosong">Gagal memuat: ${esc(e.message)}</p>`; });
+</script>
+</body>
+</html>
