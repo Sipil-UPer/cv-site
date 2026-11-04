@@ -47,7 +47,7 @@
   @media(max-width:640px){nav.isi ol{columns:1}.wrap{padding:18px 16px 60px}}
   @media print{nav.isi{display:none}section{break-inside:avoid}}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-04-da2f74">
+<link rel="stylesheet" href="kepala.css?v=2026-11-04-9476e3">
 </head>
 <body>
 
@@ -221,7 +221,9 @@
     <ul>
       <li><b>A. Penghalang status</b>: syarat perlu yang belum terpenuhi.</li>
       <li><b>B. Peluang poin terbesar dan simulasi</b>: ubah angka, klik <b>Hitung simulasi</b> untuk melihat dampaknya; <b>Kosongkan simulasi</b> mengembalikan.</li>
-      <li><b>Unduh draf LED (.docx)</b>: templat LED LAM Teknik terisi skor, tabel, tautan bukti, dan kerangka narasi bertanda [isi].</li>
+      <li><b>Unduh draf LED TS … (.docx)</b>: templat LED LAM Teknik terisi tabel data, grafik bernomor, tautan bukti, dan kerangka narasi bertanda [isi]. Skor penilaian sendiri tidak dimuat; dosen tinggal melengkapi narasi.</li>
+      <li><b>Unduh LKPS TS … (.xlsx)</b>: templat LKPS resmi terisi data situs (rekap dan lembar daftar). Rumus templat dihitung ulang saat dibuka di Excel; kolom yang belum ada datanya diisi manual.</li>
+      <li>Kedua berkas memakai TS yang dipilih di bagian atas halaman; TS-nya tertulis pada label tombol.</li>
     </ul>
   </section>
 
@@ -234,7 +236,7 @@
   </div>
 </main>
 
-<script src="config.js?v=2026-11-04-da2f74"></script>
+<script src="config.js?v=2026-11-04-9476e3"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -251,7 +253,7 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { gerbang } from './menu.js?v=2026-11-04-da2f74';
+import { gerbang } from './menu.js?v=2026-11-04-9476e3';
 
 // Bagian admin hanya untuk peran admin (isinya bukan rahasia; disembunyikan
 // supaya panduan dosen tetap ringkas).

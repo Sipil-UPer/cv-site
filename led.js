@@ -15,14 +15,17 @@
    Penandaan di dokumen:
      sorot kuning        = narasi buatan mesin, harus diperiksa
      [isi: …] merah      = fakta yang hanya diketahui prodi, wajib diisi
-     tanpa sorot         = tabel, dasar perhitungan, dan tautan bukti yang
-                           diambil langsung dari sistem
+     tanpa sorot         = tabel data, grafik, dan tautan bukti yang diambil
+                           langsung dari sistem
+   LED adalah dokumen yang diserahkan ke LAM Teknik (pemilik 2026-11-04):
+   skor, bobot, NA, status, dan acuan matriks hasil penilaian sendiri TIDAK
+   ditulis; semuanya tetap di halaman skor. Dosen tinggal melengkapi narasi.
    Peta subbagian LED ke butir: docs/led-peta-butir.md.
    ===================================================================== */
 
-import { RENCANA_BUKTI, LKPS_TABEL, kelompokDokumen, buktiButir, saranDokumen } from './rencana-bukti.js?v=2026-11-04-da2f74';
-import { grafikButir, tabelGrafik, tabelTren, tabelPendukung } from './led-data.js?v=2026-11-04-da2f74';
-import { gambarGrafik } from './led-grafik.js?v=2026-11-04-da2f74';
+import { RENCANA_BUKTI, LKPS_TABEL, kelompokDokumen, buktiButir, saranDokumen } from './rencana-bukti.js?v=2026-11-04-9476e3';
+import { grafikButir, tabelGrafik, tabelPendukung } from './led-data.js?v=2026-11-04-9476e3';
+import { gambarGrafik } from './led-grafik.js?v=2026-11-04-9476e3';
 
 const NS = {
   w:  'http://schemas.openxmlformats.org/wordprocessingml/2006/main',
@@ -168,14 +171,9 @@ function paraGrafik(rid, cx, cy, id, nama){
 const BUTIR_GRAFIK = ['6', '23', '25', '31', '32', '33', '34', '40', '42', '43',
                       '46', '47', '49', '50', '51', '52'];
 
-// Tren skor 3 TS, tabel pendukung, dan grafik + tabel datanya.
+// Tabel pendukung, dan grafik + tabel datanya.
 function blokData(C, P, no){
   const out = [];
-  const tr = tabelTren(no, C.tren, C.tsTren || [], C.angka);
-  if (tr){
-    out.push(para(run('Perkembangan skor 3 TS', { b: true }), { keep: true }));
-    out.push(tabel(P, tr));
-  }
   const tp = tabelPendukung(no, C.D, C.ts);
   if (tp){
     out.push(para(run(tp.judul, { b: true }), { keep: true }));
@@ -307,8 +305,7 @@ const NARASI = {
   '59': P => [
     `Tujuan strategis pengembangan ${P.ps} untuk jangka pendek dan menengah adalah [isi: daftar tujuan strategis], diturunkan dari analisis SWOT, Renstra [isi: nomor dan periode], dan aspirasi pemangku kepentingan.`],
   '60': P => [
-    `Program pengembangan berkelanjutan disusun dari tujuan strategis dengan memperhatikan alokasi sumber daya, kemampuan pelaksanaan, rencana penjaminan mutu, dan dukungan eksternal: [isi: program, target, indikator, dan tahun].`,
-    `Sebagai bahan, tabel berikut mengurutkan butir menurut tambahan NA terbesar yang mungkin dicapai, yaitu (4 − skor) × bobot, sama dengan bagian "Jalan menuju Unggul" di halaman skor.`],
+    `Program pengembangan berkelanjutan disusun dari tujuan strategis dengan memperhatikan alokasi sumber daya, kemampuan pelaksanaan, rencana penjaminan mutu, dan dukungan eksternal: [isi: program, target, indikator, dan tahun].`],
 };
 
 const GAMBAR = {
@@ -334,7 +331,7 @@ function tabelDariHtml(t, maks = 40){
   if (rows.length > kepala + maks){
     const sisa = rows.length - kepala - maks;
     rows.splice(kepala + maks);
-    rows.push([{ t: `… ${sisa} baris lagi, lihat halaman skor atau rincian butir`, span: 99 }]);
+    rows.push([{ t: `… ${sisa} baris lagi; daftar lengkap pada LKPS`, span: 99 }]);
   }
   return { rows, kepala };
 }
@@ -349,6 +346,21 @@ function dariKartu(el){
   };
 }
 
+// Buang kolom berjudul "Skor"/"Bobot" (faktor rumus skor) dan baris yang
+// diawali "Skor" dari tabel kartu.
+function tanpaSkor(t){
+  const kepala = t.rows.slice(0, t.kepala);
+  const isSkor = s => /^skor\b/i.test(s || '');
+  const isKolomSkor = s => /^(skor|bobot)\b/i.test(s || '');
+  const buang = new Set();
+  kepala.forEach(r => { let k = 0; r.forEach(c => { if (isKolomSkor(c.t) && (c.span || 1) === 1) buang.add(k); k += c.span || 1; }); });
+  const rows = t.rows.filter((r, i) => i < t.kepala || !isSkor(r[0]?.t)).map(r => {
+    let k = 0;
+    return r.filter(c => { const ok = !buang.has(k); k += c.span || 1; return ok; });
+  });
+  return { rows, kepala: t.kepala };
+}
+
 function blokButir(C, P, no, k = 0){
   const s = C.skorButir[no] || { n: 0, ada: false };
   const judul = C.judulButir[no] || `Butir ${no}`;
@@ -361,26 +373,21 @@ function blokButir(C, P, no, k = 0){
   const out = [];
 
   if (k > 0){
-    out.push(paraAuto(`Butir ${no} komponen II. Skor, data, dan bukti butir ini disajikan pada komponen I di atas.`));
+    out.push(paraAuto('Data dan bukti untuk bagian ini disajikan pada bagian sebelumnya.'));
     bagian.forEach(t => out.push(paraAuto(t)));
     return out.join('') + gb;
   }
 
-  out.push(para(
-    run(`Butir ${no} · ${judul}`, { b: true, warna: '1F3864', sorot: 'yellow' }) +
-    run(` — skor ${s.ada ? C.angka(s.n) : 'belum ada'} dari 4,00 · bobot ${C.angka(C.bobotButir(no))}` +
-        (C.manual.has(no) ? ' · penilaian sendiri' : ''), { warna: '595959', sorot: 'yellow' }),
-    { keep: true, before: 120 }));
   if (dua) out.push(paraAuto('Komponen I.'));
   if (bagian.length) bagian.forEach(t => out.push(paraAuto(t)));
   else out.push(paraAuto(s.ada
-    ? `Untuk TS ${C.ta}, butir ${no} (${jd}) memperoleh skor ${C.angka(s.n)} dari 4,00 menurut matriks penilaian APS-AV 2025${tbl ? `, dihitung dari data ${tbl}` : ''}; datanya disajikan pada tabel berikut.`
-    : `Data butir ${no} (${jd}) belum tersedia di sistem sehingga skornya belum terhitung. [isi: lengkapi data${tbl ? ` ${tbl}` : ''}, lalu uraikan capaiannya].`));
+    ? `Data ${jd.toLowerCase()} pada TS ${C.ta2} s.d. ${C.ta}${tbl ? ` (${tbl})` : ''} disajikan pada tabel berikut. [isi: uraian capaian dan maknanya bagi ${C.P.ps}].`
+    : `[isi: uraian ${jd.toLowerCase()}${tbl ? `, dengan data ${tbl}` : ''}, beserta capaiannya].`));
 
-  const kr = dariKartu(C.kartu(no));
-  kr.tabel.forEach(t => { if (t.rows.length) out.push(tabel(P, t.rows, { kepala: t.kepala })); });
-  kr.rumus.forEach(r => out.push(para(run('Dasar perhitungan: ', { b: true, sz: 18 }) + run(r, { sz: 18 }))));
-  if (kr.syarat) out.push(para(run(kr.syarat, { sz: 18, warna: '595959' })));
+  // Tabel data dari kartu skor, tanpa kolom/baris skor. Butir yang dinilai
+  // dengan matriks (manual) hanya berisi isian skor, jadi tidak disalin.
+  if (!C.manual.has(no)) dariKartu(C.kartu(no)).tabel.map(tanpaSkor)
+    .forEach(t => { if (t.rows.length > t.kepala) out.push(tabel(P, t.rows, { kepala: t.kepala })); });
   out.push(blokData(C, P, no));
 
   const u = C.buktiButir(no);
@@ -394,8 +401,6 @@ function blokButir(C, P, no, k = 0){
   // lalu kerangka capaian–analisis–tindak lanjut (pola narasi 6 langkah).
   const rb = RENCANA_BUKTI[no];
   if (rb){
-    out.push(para(run(`Acuan skor 4 (matriks): ${rb.skor4.replace(/\n/g, ' ')}`,
-      { i: true, sz: 18, warna: '7F7F7F' })));
     // Dokumen induk terkait lebih dulu (tautan terisi bila sudah diunggah),
     // lalu butir daftar periksa lainnya.
     const tautanSel = u => u ? { url: u, t: 'buka' } : { t: '[isi: tautan]', auto: true };
@@ -413,18 +418,12 @@ function blokButir(C, P, no, k = 0){
     out.push(tabel(P, [['No', 'Bukti sahih', 'Tautan'],
       ...baris.map((r, i) => [String(i + 1), ...r])]));
   }
-  out.push(paraAuto(`Capaian TS ${C.ta2} s.d. ${C.ta}: [isi: angka per tahun dibanding target dan ambang skor 4]. ` +
-    'Analisis: [isi: faktor pendukung dan akar masalah bila belum mencapai skor 4]. ' +
+  out.push(paraAuto(`Capaian TS ${C.ta2} s.d. ${C.ta}: [isi: angka per tahun dibanding target]. ` +
+    'Analisis: [isi: faktor pendukung dan akar masalah bila target belum tercapai]. ' +
     'Tindak lanjut: [isi: kegiatan, penanggung jawab, tenggat, indikator keberhasilan].'));
   return out.join('') + gb;
 }
 
-function nilaiKriteria(C, K){
-  return K.butir.map(no => ({ no, ...(C.skorButir[no] || { n: 0, ada: false }),
-    judul: C.judulButir[no] || '', b: C.bobotButir(no) }));
-}
-const daftarButir = (C, xs) => xs.length
-  ? xs.map(x => `butir ${x.no}${x.ada ? ` (${C.angka(x.n)})` : ''}`).join(', ') : 'tidak ada';
 
 const latar = K => (C, P) => paraAuto(
   `Kriteria ${K.nama} bertujuan [isi: tujuan kriteria bagi UPPS dan prodi]. [isi: latar belakang dan rasional, dikaitkan dengan VMTS UPPS dan visi keilmuan ${C.P.ps}].`);
@@ -432,60 +431,27 @@ const latar = K => (C, P) => paraAuto(
 const kebijakan = K => (C, P) => paraAuto(
   `Dokumen formal kebijakan yang diacu: [isi: daftar nomor, judul, dan tahun dokumen]. Dokumen yang lazim untuk kriteria ini: ${K.contoh}.`);
 
-const analisis = K => (C, P) => {
-  const xs = nilaiKriteria(C, K);
-  const kuat = xs.filter(x => x.ada && x.n >= 3.5);
-  const lemah = xs.filter(x => x.ada && x.n < 3);
-  const kosong = xs.filter(x => !x.ada);
-  return paraAuto(`Berdasarkan skor butir kriteria ini pada TS ${C.ta}: capaian tinggi (≥ 3,50) pada ${daftarButir(C, kuat)}; capaian di bawah 3,00 pada ${daftarButir(C, lemah)}; belum dinilai atau belum ada data: ${daftarButir(C, kosong)}.`) +
-    tabel(P, [['Butir', 'Judul', 'Skor', 'Bobot'],
-      ...xs.map(x => [x.no, x.judul, x.ada ? C.angka(x.n) : '—', C.angka(x.b)])]) +
+const analisis = K => (C, P) =>
+    paraAuto(`Capaian kriteria ${K.nama} pada TS ${C.ta2} s.d. ${C.ta} disajikan pada subbagian di atas. [isi: capaian yang menonjol dan yang belum optimal].`) +
     paraAuto('Faktor pendukung keberhasilan: [isi: uraian]. Akar masalah butir yang belum optimal: [isi: hasil analisis akar masalah, misalnya diagram tulang ikan].');
-};
 
 const swot = K => (C, P) => {
-  const xs = nilaiKriteria(C, K);
-  const kuat = xs.filter(x => x.ada && x.n >= 3.5);
-  const lemah = xs.filter(x => !x.ada || x.n < 3);
   return [
-    `Kekuatan: [isi: uraian], antara lain tercermin pada ${daftarButir(C, kuat)}.`,
-    `Kelemahan: [isi: uraian], antara lain tercermin pada ${daftarButir(C, lemah)}.`,
+    'Kekuatan: [isi: uraian].',
+    'Kelemahan: [isi: uraian].',
     'Peluang: [isi: uraian].',
     'Ancaman: [isi: uraian].',
     'Strategi perbaikan dan pengembangan (SO, WO, ST, WT): [isi: uraian].',
   ].map(t => paraAuto(t)).join('');
 };
 
-const namaSyarat = x => x.indikator ? x.label : `butir ${x.no}`;
-function kalimatStatus(C){
-  const st = C.st;
-  const rentang = C.NAmax > C.NA + 0.005
-    ? ` (rentang ${C.angka(C.NA)}–${C.angka(C.NAmax)} karena sebagian butir belum dinilai)` : '';
-  return `Berdasarkan data TS ${C.ta}, perkiraan nilai akreditasi (NA) hasil penilaian sendiri adalah ${C.angka(C.NA)} dari 400${rentang}, dengan perkiraan status ${st.status}${st.durasi ? ` ${st.durasi} tahun` : ''}. Angka ini penilaian sendiri, bukan penilaian asesor.`;
-}
-function kalimatSyarat(C){
-  const gagal = sa => C.semuaSy.filter(x => x[sa + 'ok'] === false).map(namaSyarat);
-  const belum = C.semuaSy.filter(x => ['t', 'u3', 'u5'].some(sa => x[sa + 'ok'] == null)).map(namaSyarat);
-  const kal = (nama, xs) => `${nama}: ${xs.length ? 'belum terpenuhi pada ' + xs.join(', ') : 'tidak ada yang gagal'}.`;
-  return [kal('Syarat perlu Terakreditasi', gagal('t')), kal('Syarat perlu Unggul 3 tahun', gagal('u3')),
-    kal('Syarat perlu Unggul 5 tahun', gagal('u5')),
-    belum.length ? `Belum terhitung: ${[...new Set(belum)].join(', ')}.` : ''].filter(Boolean).join(' ');
-}
 
 const blokRingkasan = (C, P) => [
   `Laporan Evaluasi Diri ini disusun oleh ${C.P.ps} ${C.P.pt} untuk akreditasi dengan instrumen APS-AV 2025 LAM Teknik. [isi: ringkasan proses penyusunan].`,
-  kalimatStatus(C), kalimatSyarat(C),
+  '[isi: capaian utama program studi pada TS ini, dikaitkan dengan VMTS dan target renstra].',
   'Kekuatan utama: [isi: uraian]. Tantangan utama: [isi: uraian]. Rencana pengembangan: [isi: uraian].',
 ].map(t => paraAuto(t)).join('');
 
-function blokPrioritas(C, P){
-  const xs = Object.keys(C.skorButir).map(no => {
-    const s = C.skorButir[no]; const n = s.ada ? s.n : 0; const b = C.bobotButir(no);
-    return { no, n, ada: s.ada, b, sisa: (4 - n) * b, judul: C.judulButir[no] || '' };
-  }).sort((p, q) => q.sisa - p.sisa).slice(0, 10);
-  return tabel(P, [['Butir', 'Judul', 'Skor', 'Bobot', 'Tambahan NA maks.'],
-    ...xs.map(x => [x.no, x.judul, x.ada ? C.angka(x.n) : '—', C.angka(x.b), C.angka(x.sisa)])]);
-}
 
 // Lampiran untuk asesor: semua tautan langsung ke Drive (situs prodi perlu
 // login, jadi tidak dipakai di sini). A = per butir, B = per karya,
@@ -502,13 +468,13 @@ function blokLampiran(C, P){
     'Narahubung verifikasi bukti: [isi: nama, jabatan, surel, telepon].'));
 
   out.push(judulLampiran('Lampiran A. Indeks bukti per butir LED'));
-  out.push(tabel(P, [['Butir', 'Judul', 'Skor', 'Bukti butir', 'Bukti karya'],
+  out.push(tabel(P, [['Butir', 'Judul', 'Bukti butir', 'Bukti karya'],
     ...Object.keys(C.skorButir).sort((a, b) => a - b).map(no => {
-      const s = C.skorButir[no], u = C.buktiButir(no), rk = C.rekapKarya(no);
+      const u = C.buktiButir(no), rk = C.rekapKarya(no);
       const tertaut = buktiButir(no, { dokumen: C.dokumen, butirBukti: C.butirBukti, ts: C.ts })
         .filter(x => x.url).map(x => ({ url: x.url, t: x.label }));
       const sel = u ? [{ url: u, t: 'folder butir' }, ...tertaut] : tertaut;
-      return [no, C.judulButir[no] || '', s.ada ? C.angka(s.n) : '—',
+      return [no, C.judulButir[no] || '',
         sel.length ? { links: sel, t: sel.map(l => l.t).join('; ') } : { t: '[isi: tautan]', auto: true },
         rk && rk.n ? `${rk.ada}/${rk.n} karya (Lampiran B)` : '—'];
     })]));
@@ -650,8 +616,8 @@ const SLOT = [
   { cari: 'Analisis SWOT Semua', isi: (C, P) => blokButir(C, P, '58', 1) +
       Object.values(KRITERIA).map(K => para(run(K.nama, { b: true }), { keep: true }) + swot(K)(C, P)).join('') },
   B('Tujuan Strategis Pengembangan', '59'),
-  { cari: 'Program Pengembangan Keberlanjutan', isi: (C, P) => blokButir(C, P, '60') + blokPrioritas(C, P) },
-  { cari: 'BAB IV. PENUTUP', isi: C => paraAuto(kalimatStatus(C)) +
+  B('Program Pengembangan Keberlanjutan', '60'),
+  { cari: 'BAB IV. PENUTUP', isi: C =>
       paraAuto('[isi: kesimpulan akhir: temuan utama, kekuatan, kelemahan yang perlu diperbaiki, serta peluang dan ancaman yang harus dikelola].') },
   { cari: 'LAMPIRAN', penanda: /dari LKPS/, isi: blokLampiran },
 ];
@@ -812,8 +778,7 @@ export async function buatLED(C, opsi = {}){
     run('DRAF OTOMATIS — hapus paragraf ini sebelum dikirim. ', { b: true, warna: 'C00000' }) +
     run(`Dibuat ${new Date().toLocaleString('id-ID')} dari halaman skor (versi ${C.versi}), TS ${C.ta}. ` +
       'Teks bersorot kuning adalah draf yang wajib diperiksa; [isi: …] merah wajib diisi prodi; ' +
-      'baris abu-abu miring "Acuan skor 4" adalah panduan penulisan, hapus sebelum dikirim; ' +
-      'tabel, dasar perhitungan, dan tautan bukti diambil langsung dari sistem. ' +
+      'tabel data, grafik, dan tautan bukti diambil langsung dari sistem; skor penilaian sendiri tidak dimuat (lihat halaman skor). ' +
       'Perbarui daftar isi lewat klik kanan > Update Field.' +
       (gagal.length ? ` Subbagian yang tidak ditemukan di template dan belum terisi: ${gagal.join('; ')}.` : '') +
       (logoOk ? '' : ' Logo belum terpasang.'), { sz: 18 }),

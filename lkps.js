@@ -117,7 +117,169 @@ export function petaLKPS(C){
     set('6g2', `F${b}`, r.kurang);
     set('6g2', `G${b}`, (C.rencanaKepuasan || {})[a]);
   });
+  if (C.daftar) Object.entries(petaDaftar(C)).forEach(([l, sel]) =>
+    Object.entries(sel).forEach(([ref, v]) => set(l, ref, v)));
   return peta;
+}
+
+/* ---------------------------------------------------------------------
+   Tahap 2: lembar daftar dari tabel Supabase (admin), pemilik 2026-11-04.
+   C.daftar = { dosen, karya, kerjasama, bkd, prestasi, luaranMhs }
+     dosen:     [{nama, nidn, pendidikan, jabatan, dtps, aktif, peran}]
+     karya:     terverifikasi, dengan karya_penulis(peran, dosen(nama)),
+                karya_mitra(institusi, tingkat), karya_mahasiswa(nama)
+   Tanggal yang hanya diketahui bulan-tahunnya ditulis tanggal 1 bulan itu
+   (keputusan pemilik 2026-11-04); tanpa bulan, tanggal dikosongkan.
+   Kolom yang tidak disimpan situs (tanggal kerja sama, TKT, nomor HKI
+   mahasiswa, jenis kegiatan 6.h.1, dst.) dibiarkan kosong.
+   --------------------------------------------------------------------- */
+const JABATAN = { tenaga_pengajar: 'Tenaga Pengajar', asisten_ahli: 'Asisten Ahli', lektor: 'Lektor',
+                  lektor_kepala: 'Lektor Kepala', guru_besar: 'Guru Besar' };
+const INTEGRASI = { bahan_kajian: 'Tambahan Materi Perkuliahan', studi_kasus: 'Studi Kasus',
+                    bab_buku_ajar: 'Bab/ Subbab dalam buku ajar', modul_praktikum: 'Bahan Ajar',
+                    tugas_proyek: 'Bentuk Lain yang Relevan', lainnya: 'Bentuk Lain yang Relevan' };
+const REKOGNISI = { visiting: 'visiting lecturer atau visiting scholar',
+                    invited_speaker: 'keynote speaker/invited speaker',
+                    editor: 'editor atau mitra bestari', mitra_bestari: 'editor atau mitra bestari',
+                    narasumber: 'staf ahli/narasumber ', juri: 'staf ahli/narasumber ',   // spasi di ujung = templat
+                    penghargaan: 'penghargaan atas prestasi dan kinerja' };
+// kolom "V" tingkat: [lokal/wilayah, nasional, internasional]
+const tingkatKe = t => /^internasional/.test(t || '') ? 2 : /^nasional/.test(t || '') ? 1 : /^wilayah/.test(t || '') ? 0 : -1;
+
+export function serialTanggal(tahun, bulan){
+  if (!tahun || !bulan) return null;
+  return { tanggal: Math.round((Date.UTC(+tahun, +bulan - 1, 1) - Date.UTC(1899, 11, 30)) / 86400000) };
+}
+const tsKarya = k => (+k.bulan >= 9 ? +k.tahun + 1 : +k.tahun);
+
+export function petaDaftar(C){
+  const { ts } = C;
+  const X = C.daftar || {};
+  const out = {};
+  const set = (l, ref, v) => { if (v != null && v !== '') (out[l] ||= {})[ref] = v; };
+  const dalam = (t, n = 3) => t >= ts - n + 1 && t <= ts;
+  const urut = (a, b) => (a.tahun - b.tahun) || String(a.judul).localeCompare(String(b.judul));
+
+  // 4.a profil DTPS (nama di sini = daftar ValidDosen di lembar lain)
+  const dtps = (X.dosen || []).filter(d => d.dtps && d.peran !== 'asesor')
+    .sort((a, b) => a.nama.localeCompare(b.nama));
+  dtps.forEach((d, i) => {
+    const r = 14 + i;
+    set('4a', `B${r}`, d.nama); set('4a', `C${r}`, d.nidn); set('4a', `D${r}`, 'Dosen Tetap');
+    set('4a', `E${r}`, '[isi: prodi S1 dan bidang ilmu]');
+    if (d.pendidikan === 'S2' || d.pendidikan === 'S3') set('4a', `F${r}`, '[isi: prodi S2 dan bidang ilmu]');
+    if (d.pendidikan === 'S3') set('4a', `G${r}`, '[isi: prodi S3 dan bidang ilmu]');
+    set('4a', `J${r}`, 'V');
+    set('4a', `K${r}`, JABATAN[d.jabatan]);
+  });
+
+  // 4.c beban kerja DTPS pada TS (jumlah kedua semester)
+  const bkd = (X.bkd || []).filter(b => b.tahun_akademik === `${ts - 1}/${ts}`);
+  dtps.forEach((d, i) => {
+    const rows = bkd.filter(b => b.nidn === d.nidn);
+    if (!rows.length) return;
+    const s = k => rows.reduce((a, b) => a + (+b[k] || 0), 0);
+    const r = 11 + i;
+    set('4c', `B${r}`, d.nama); set('4c', `C${r}`, 'V');
+    set('4c', `D${r}`, s('sks_pendidikan')); set('4c', `G${r}`, s('sks_penelitian'));
+    set('4c', `H${r}`, s('sks_pkm')); set('4c', `I${r}`, s('sks_penunjang'));
+  });
+
+  const karya = (X.karya || []).filter(k => k.status === 'terverifikasi' && dalam(tsKarya(k)));
+  const ketua = k => {
+    const p = k.karya_penulis || [];
+    const u = p.find(x => x.peran === 'ketua' || x.peran === 'penulis_pertama') || p[0];
+    return u && u.dosen ? u.dosen.nama : '';
+  };
+
+  // 2.a kerja sama: tabel Data prodi + mitra pada karya penelitian/PkM
+  const kerjaSama = { pendidikan: [], penelitian: [], pkm: [] };
+  (X.kerjasama || []).filter(k => !k.tahun_selesai || +k.tahun_selesai >= ts - 2)
+    .forEach(k => kerjaSama[k.jenis]?.push({ mitra: k.mitra, tingkat: k.tingkat, judul: k.kegiatan }));
+  karya.filter(k => k.kategori === 'penelitian' || k.kategori === 'pkm').sort(urut)
+    .forEach(k => (k.karya_mitra || []).forEach(m =>
+      kerjaSama[k.kategori].push({ mitra: m.institusi, tingkat: m.tingkat, judul: k.judul })));
+  [['2a1', 'pendidikan', 13], ['2a2', 'penelitian', 12], ['2a3', 'pkm', 12]].forEach(([l, j, r0]) =>
+    kerjaSama[j].forEach((k, i) => {
+      const r = r0 + i;
+      set(l, `B${r}`, k.mitra); set(l, `F${r}`, k.judul);
+      const t = tingkatKe(k.tingkat);
+      if (t >= 0) set(l, `${'EDC'[t]}${r}`, 'V');          // C internasional, D nasional, E lokal
+    }));
+
+  // 3.a.3 integrasi penelitian/PkM dalam pembelajaran
+  karya.filter(k => k.kategori === 'integrasi').sort(urut).forEach((k, i) => {
+    const r = 13 + i;
+    set('3a3', `B${r}`, ketua(k)); set('3a3', `C${r}`, k.judul); set('3a3', `D${r}`, k.mata_kuliah);
+    set('3a3', `E${r}`, INTEGRASI[k.sub_jenis]);
+    set('3a3', `${'FGH'[tsKarya(k) - (ts - 2)]}${r}`, 'V');
+  });
+
+  // 4.f luaran DTPS per jenis
+  const luaran = karya.filter(k => k.kategori === 'luaran').sort(urut);
+  const isiLuaran = (l, r0, jenis, kolomNo) => luaran.filter(k => jenis.includes(k.sub_jenis)).forEach((k, i) => {
+    const r = r0 + i;
+    set(l, `B${r}`, k.judul); set(l, `C${r}`, serialTanggal(k.tahun, k.bulan));
+    set(l, `${kolomNo}${r}`, k.nama_terbitan);
+  });
+  isiLuaran('4f-1', 7, ['paten', 'paten_sederhana'], 'D');
+  isiLuaran('4f-2', 7, ['hak_cipta', 'desain_industri', 'merek'], 'D');
+  isiLuaran('4f-3', 16, ['ttg', 'produk'], 'E');
+  isiLuaran('4f-4', 7, ['buku_isbn', 'book_chapter'], 'D');
+
+  // 4.j rekognisi DTPS
+  karya.filter(k => k.kategori === 'rekognisi').sort(urut).forEach((k, i) => {
+    const r = 12 + i;
+    set('4j', `B${r}`, ketua(k)); set('4j', `D${r}`, REKOGNISI[k.sub_jenis]);
+    set('4j', `E${r}`, k.judul);
+    const t = tingkatKe(k.tingkat);
+    if (t >= 0) set('4j', `${'FGH'[t]}${r}`, 'V');         // F wilayah, G nasional, H internasional
+    set('4j', `I${r}`, +k.tahun);
+  });
+
+  // 6.c prestasi mahasiswa (5 TS, sama dengan butir 43)
+  const tsBaris = p => (+p.bulan >= 9 ? +p.tahun + 1 : +p.tahun);
+  const pres = (X.prestasi || []).filter(p => dalam(tsBaris(p), 5)).sort(urut);
+  [['6c1', 'akademik', 10], ['6c2', 'non_akademik', 11]].forEach(([l, b, r0]) =>
+    pres.filter(p => (p.bidang || '').startsWith(b === 'akademik' ? 'akademik' : 'non')).forEach((p, i) => {
+      const r = r0 + i;
+      set(l, `B${r}`, p.nama_kegiatan); set(l, `C${r}`, serialTanggal(p.tahun, p.bulan));
+      const t = tingkatKe(p.tingkat);
+      if (t >= 0) set(l, `${'DEF'[t]}${r}`, 'V');          // D lokal, E nasional, F internasional
+      set(l, `G${r}`, p.capaian);
+    }));
+
+  // 6.d masa studi, bagian Sarjana: baris TS-k = 41 - k, tahun masuk TS-1-k
+  const kohort = (C.D && C.D.akreditasi && C.D.akreditasi.kohort) || [];
+  for (let kk = 0; kk <= 7; kk++){
+    const k = kohort.find(x => x.tahun_masuk === ts - 1 - kk);
+    if (!k) continue;
+    const r = 41 - kk;
+    set('6d', `B${r}`, k.masuk);
+    ['lulus_3_5_sd_4_5', 'lulus_4_5_sd_5_5', 'lulus_5_5_sd_6_5', 'lulus_6_5_sd_8']
+      .forEach((p, j) => set('6d', `${'CDEF'[j]}${r}`, +k[p] || 0));
+  }
+
+  // 6.e.3 luaran mahasiswa (judul dan tanggal; nomor/status diisi prodi)
+  const lm = (X.luaranMhs || []).filter(x => dalam(tsBaris(x))).sort(urut);
+  const isiLm = (l, r0, jenis) => lm.filter(x => jenis.includes(x.jenis)).forEach((x, i) => {
+    set(l, `B${r0 + i}`, x.judul); set(l, `C${r0 + i}`, serialTanggal(x.tahun, x.bulan));
+  });
+  isiLm('6e3-1', 12, ['paten', 'paten_sederhana']);
+  isiLm('6e3-2', 8, ['hak_cipta', 'desain_industri', 'merek']);
+  isiLm('6e3-3', 18, ['ttg', 'produk']);
+  isiLm('6e3-4', 8, ['buku_isbn', 'book_chapter']);
+
+  // 6.h.1 / 6.i penelitian / PkM DTPS yang melibatkan mahasiswa
+  [['6h1', 'penelitian', 11, 'C'], ['6i', 'pkm', 6, 'E']].forEach(([l, kat, r0, kolJudul]) =>
+    karya.filter(k => k.kategori === kat && (k.karya_mahasiswa || []).length).sort(urut).forEach((k, i) => {
+      const r = r0 + i;
+      set(l, `B${r}`, ketua(k));
+      set(l, `${kolJudul}${r}`, k.judul);
+      set(l, `D${r}`, k.karya_mahasiswa.map(m => m.nama).filter(Boolean).join(', '));
+      set(l, `F${r}`, +k.tahun);
+    }));
+  return out;
 }
 
 /* ---------------------------------------------------------------------

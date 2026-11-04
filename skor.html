@@ -279,7 +279,7 @@
   :focus-visible{outline:2px solid var(--biru-2);outline-offset:1px}
   @media(prefers-reduced-motion:reduce){.kartu{transition:none}.kartu:hover{transform:none}}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-04-da2f74">
+<link rel="stylesheet" href="kepala.css?v=2026-11-04-9476e3">
 </head>
 <body>
 
@@ -344,7 +344,7 @@ setTimeout(function(){
   });
 }, 8000);
 </script>
-<script src="config.js?v=2026-11-04-da2f74"></script>
+<script src="config.js?v=2026-11-04-9476e3"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -361,15 +361,15 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { BUTIR, isiPetaBukti, cariBukti, daftarBukti, kolomBukti } from './rincian.js?v=2026-11-04-da2f74';
+import { BUTIR, isiPetaBukti, cariBukti, daftarBukti, kolomBukti } from './rincian.js?v=2026-11-04-9476e3';
 import { BUTIR_MANUAL, SEKSI_MANUAL, kunciButir, kunciBuktiButir, skorManual, tkKepuasan }
-  from './butir-manual.js?v=2026-11-04-da2f74';
-import { BOBOT_TOTAL, bobotButir } from './bobot.js?v=2026-11-04-da2f74';
-import { htmlRencana, buktiButir } from './rencana-bukti.js?v=2026-11-04-da2f74';
-import { htmlPanel, pasangPanel } from './panel-bukti.js?v=2026-11-04-da2f74';
-import { pasangMenu } from './menu.js?v=2026-11-04-da2f74';
+  from './butir-manual.js?v=2026-11-04-9476e3';
+import { BOBOT_TOTAL, bobotButir } from './bobot.js?v=2026-11-04-9476e3';
+import { htmlRencana, buktiButir } from './rencana-bukti.js?v=2026-11-04-9476e3';
+import { htmlPanel, pasangPanel } from './panel-bukti.js?v=2026-11-04-9476e3';
+import { pasangMenu } from './menu.js?v=2026-11-04-9476e3';
 import { statusSyarat, syaratButir, SYARAT_UNGGUL, SYARAT_RERATA, SASARAN,
-         statusRerata, gabungSyarat, statusRentang } from './syarat-unggul.js?v=2026-11-04-da2f74';
+         statusRerata, gabungSyarat, statusRentang } from './syarat-unggul.js?v=2026-11-04-9476e3';
 
 // config.js mendefinisikan window.SB_URL dan window.SB_KEY — pemetaan di
 // bawah ini WAJIB ada. skor.html versi sebelumnya melewatkannya dan mati
@@ -393,7 +393,7 @@ const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 // Naikkan setiap kali skor.html / rincian.js / butir-manual.js / bobot.js
 // diubah. Ditampilkan di kaki halaman supaya ketahuan seketika kalau
 // peramban masih memakai salinan lama dari cache.
-const VERSI = '2026-11-04-da2f74';
+const VERSI = '2026-11-04-9476e3';
 // Label versi di judul diisi dari VERSI supaya keduanya tidak bisa berbeda.
 { const el = document.querySelector('.versi-statis'); if (el) el.textContent = 'v' + VERSI; }
 // =====================================================================
@@ -441,8 +441,10 @@ function pasangSeksi(){
     });
   });
   const k = document.getElementById('seksi-semua');
-  if (k) k.innerHTML = `<a id="unduhLED" title="Template LED LAM Teknik terisi skor, tabel data, tautan bukti, dan draf narasi">Unduh draf LED (.docx)</a>`
-    + (ADMIN ? `<a id="unduhLKPS" title="Templat LKPS resmi LAM Teknik terisi data situs (lembar Menu, 3b, 3c, 4d, 6a, 6b, 6e1, 6f1, 6f2, 6g1, 6g2)">Unduh LKPS (.xlsx)</a>` : '')
+  // TS berkas = TS data yang sedang ditampilkan (pilih TS di atas dulu).
+  const tsBerkas = CTX_LED ? ` TS ${taDari(CTX_LED.tsData)}` : '';
+  if (k) k.innerHTML = `<a id="unduhLED" title="Template LED LAM Teknik terisi tabel data, grafik, tautan bukti, dan kerangka narasi (tanpa skor penilaian sendiri)">Unduh draf LED${tsBerkas} (.docx)</a>`
+    + (ADMIN ? `<a id="unduhLKPS" title="Templat LKPS resmi LAM Teknik terisi data situs">Unduh LKPS${tsBerkas} (.xlsx)</a>` : '')
     + `<a id="bukaSemua">Buka semua</a><a id="tutupSemua">Tutup semua</a>`;
   document.getElementById('unduhLED')?.addEventListener('click', unduhLED);
   document.getElementById('unduhLKPS')?.addEventListener('click', unduhLKPS);
@@ -488,8 +490,22 @@ async function unduhLKPS(){
       .select('aspek, rencana_tindak_lanjut').eq('tahun_akademik', taDari(ts));
     const rencanaKepuasan = Object.fromEntries((kp || [])
       .filter(r => r.rencana_tindak_lanjut).map(r => [r.aspek, r.rencana_tindak_lanjut]));
-    const { buatLKPS } = await import('./lkps.js?v=2026-11-04-da2f74');
-    const hasil = await buatLKPS({ D, ts, prodi: D.prodi, institusi: D.institusi, rencanaKepuasan });
+    // Tahap 2: lembar daftar (lkps.js petaDaftar). Tabel yang belum ada
+    // (patch belum dijalankan) cukup kosong.
+    const ambil = async q => { const { data, error } = await q; if (error) console.warn(error.message); return data || []; };
+    const [dosen, karya, kerjasama, bkd, prestasi, luaranMhs] = await Promise.all([
+      ambil(sb.from('dosen').select('nama,nidn,peran,pendidikan,jabatan,aktif,dtps')),
+      ambil(sb.from('karya').select('id,kategori,judul,tahun,bulan,sub_jenis,tingkat,nama_terbitan,mata_kuliah,status,' +
+        'karya_penulis(peran,dosen(nama)),karya_mitra(institusi,tingkat),karya_mahasiswa(nama)')
+        .eq('status', 'terverifikasi').limit(5000)),
+      ambil(sb.from('lkps_kerjasama').select('mitra,jenis,tingkat,kegiatan,tahun_mulai,tahun_selesai')),
+      ambil(sb.from('lkps_bkd').select('nidn,tahun_akademik,semester,sks_pendidikan,sks_penelitian,sks_pkm,sks_penunjang')),
+      ambil(sb.from('lkps_prestasi_mahasiswa').select('nama_kegiatan,bidang,bulan,tahun,tingkat,capaian')),
+      ambil(sb.from('lkps_luaran_mahasiswa').select('tahun,bulan,jenis,judul')),
+    ]);
+    const { buatLKPS } = await import('./lkps.js?v=2026-11-04-9476e3');
+    const hasil = await buatLKPS({ D, ts, prodi: D.prodi, institusi: D.institusi, rencanaKepuasan,
+      daftar: { dosen, karya, kerjasama, bkd, prestasi, luaranMhs } });
     a.textContent = `LKPS terunduh (${hasil.sel} sel pada ${hasil.lembar.length} lembar)`;
   } catch (e) {
     console.error(e);
@@ -510,7 +526,7 @@ async function unduhLED(){
   const asli = a.textContent;
   a.textContent = 'Menyusun draf LED…';
   try {
-    const { buatLED } = await import('./led.js?v=2026-11-04-da2f74');
+    const { buatLED } = await import('./led.js?v=2026-11-04-9476e3');
     const ts = CTX_LED.tsData;
     const hasil = await buatLED({
       D, ts, taDari, f2, versi: VERSI,
