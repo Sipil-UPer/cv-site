@@ -7,16 +7,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tema.css?v=2026-11-05-5b248e">
 <style>
-  :root{
-    --biru:#0C2A4D; --biru-2:#17436F; --biru-3:#5C86B0; --biru-4:#A9C3DA;
-    --merah:#C8102E; --hijau:#00954E; --emas:#B8860B; --ungu:#6B4E9B;
-    --bg:#F2F4F2; --panel:#fff; --ink:#14212E; --muted:#5D6B78;
-    --line:#D9DFDA; --line-soft:#EBEEEB;
-    --sans:'IBM Plex Sans',system-ui,sans-serif;
-    --mono:'IBM Plex Mono',ui-monospace,monospace;
-    --serif:'IBM Plex Serif',Georgia,serif;
-  }
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
        font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
@@ -31,22 +23,22 @@
   .hero-in{position:relative;max-width:1180px;margin:0 auto;padding:28px 20px 26px}
   .balik{display:inline-flex;gap:7px;align-items:center;text-decoration:none;
          font-family:var(--mono);font-size:11px;letter-spacing:.1em;
-         text-transform:uppercase;color:#9FC2E0;margin-bottom:18px}
+         text-transform:uppercase;color:var(--biru-m2);margin-bottom:18px}
   .balik:hover{color:#fff}
   h1{font-family:var(--serif);font-size:clamp(24px,4vw,32px);font-weight:600;
      letter-spacing:-.018em;margin:0;color:#fff}
-  .prodi{color:#B9CCDE;font-size:14.5px;margin-top:6px}
+  .prodi{color:var(--biru-m4);font-size:14.5px;margin-top:6px}
   .kendali{display:flex;gap:9px;flex-wrap:wrap;margin-top:22px;align-items:center}
   .kendali .lbl{font-family:var(--mono);font-size:10px;letter-spacing:.1em;
-    text-transform:uppercase;color:#9FC2E0;margin-right:4px}
+    text-transform:uppercase;color:var(--biru-m2);margin-right:4px}
   .kendali button{font-family:var(--mono);font-size:11px;letter-spacing:.07em;
-    text-transform:uppercase;cursor:pointer;background:none;color:#B9CCDE;
+    text-transform:uppercase;cursor:pointer;background:none;color:var(--biru-m4);
     border:1px solid rgba(255,255,255,.3);padding:7px 14px;border-radius:2px}
   .kendali button:hover{color:#fff;border-color:rgba(255,255,255,.6)}
   .kendali button[aria-pressed="true"]{background:#fff;color:var(--biru);
     border-color:#fff;font-weight:500}
 
-  .catatan{background:#EEF3F8;border-left:3px solid var(--biru-3);
+  .catatan{background:var(--biru-m10);border-left:3px solid var(--biru-3);
     padding:12px 16px;font-size:13.5px;margin:22px 0 0;border-radius:2px}
   .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(430px,1fr));
         gap:18px;margin-top:22px}
@@ -70,7 +62,7 @@
   footer{margin-top:44px;border-top:1px solid var(--line);padding-top:18px;
          font-size:12.5px;color:var(--muted)}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-05-cb1d94">
+<link rel="stylesheet" href="kepala.css?v=2026-11-05-5b248e">
 </head>
 <body>
 
@@ -96,12 +88,14 @@
 //  atau NIM mahasiswa yang pernah masuk ke halaman ini.
 // =====================================================================
 let D = null, MODE = 'ts', SKALA = 2;
+// Nilai tema.css: SVG yang diekspor tidak mengenal var(--nama).
+const warnaTema = nama => getComputedStyle(document.documentElement).getPropertyValue(nama).trim();
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g,
   c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const thn = x => MODE === 'ts' ? +(x.tahun_ts ?? x.tahun) : +x.tahun;
 const labelThn = t => MODE === 'ts' ? `${String(t-1).slice(2)}/${String(t).slice(2)}` : String(t);
-const WARNA = ['#0C2A4D', '#5C86B0', '#00954E', '#B8860B', '#C8102E', '#6B4E9B'];
+const WARNA = [warnaTema('--biru'), warnaTema('--biru-3'), warnaTema('--hijau'), warnaTema('--emas'), warnaTema('--merah'), warnaTema('--ungu')];
 
 // Tiga periode terakhir yang ada datanya, ditambah satu tahun kosong di
 // tengah bila ada lompatan, supaya sumbu waktu tidak menipu.
@@ -147,11 +141,11 @@ function sumbu(maks, langkah, label){
   for (let v = 0; v <= maks + 1e-9; v += langkah){
     const y = th - (v / maks) * tinggi;
     g += `<line x1="${P.l}" y1="${y}" x2="${W - P.r}" y2="${y}"
-            stroke="${v === 0 ? '#D9DFDA' : '#EBEEEB'}" stroke-width="1"/>
+            stroke="${v === 0 ? warnaTema('--line') : warnaTema('--line-soft')}" stroke-width="1"/>
           <text x="${P.l - 8}" y="${y + 4}" text-anchor="end" font-size="11"
-            fill="#5D6B78">${Number.isInteger(v) ? v : v.toFixed(1)}</text>`;
+            fill="${warnaTema('--muted')}">${Number.isInteger(v) ? v : v.toFixed(1)}</text>`;
   }
-  if (label) g += `<text x="14" y="${P.t + tinggi / 2}" font-size="11" fill="#5D6B78"
+  if (label) g += `<text x="14" y="${P.t + tinggi / 2}" font-size="11" fill="${warnaTema('--muted')}"
     text-anchor="middle" transform="rotate(-90 14 ${P.t + tinggi / 2})">${esc(label)}</text>`;
   return g;
 }
@@ -160,14 +154,14 @@ function labelX(kat){
   const th = H - P.b, lebar = (W - P.l - P.r) / kat.length;
   return kat.map((k, i) =>
     `<text x="${P.l + lebar * (i + .5)}" y="${th + 20}" text-anchor="middle"
-       font-size="11.5" fill="#14212E">${esc(k)}</text>`).join('');
+       font-size="11.5" fill="${warnaTema('--ink')}">${esc(k)}</text>`).join('');
 }
 
 function legenda(seri){
   return seri.map((s, i) =>
     `<g transform="translate(${P.l + i * 132}, ${H - 8})">
       <rect width="10" height="10" y="-9" fill="${s.warna || WARNA[i]}" rx="1"/>
-      <text x="15" y="0" font-size="11" fill="#14212E">${esc(s.nama)}</text>
+      <text x="15" y="0" font-size="11" fill="${warnaTema('--ink')}">${esc(s.nama)}</text>
     </g>`).join('');
 }
 
@@ -187,7 +181,7 @@ function batang(kat, seri, satuan){
       g += `<rect x="${x}" y="${th - h}" width="${lebarBar - 3}" height="${h}"
               fill="${s.warna || WARNA[j]}" rx="1"/>`;
       if (v > 0) g += `<text x="${x + (lebarBar - 3) / 2}" y="${th - h - 5}"
-        text-anchor="middle" font-size="10.5" fill="#5D6B78">${v}</text>`;
+        text-anchor="middle" font-size="10.5" fill="${warnaTema('--muted')}">${v}</text>`;
     });
   });
   return rangka('', g + labelX(kat) + (seri.length > 1 ? legenda(seri) : ''),
@@ -215,7 +209,7 @@ function garis(kat, seri, satuan, maksTetap){
       g += `<circle cx="${px(i)}" cy="${py(v)}" r="4" fill="#fff"
               stroke="${s.warna || WARNA[j]}" stroke-width="2.5"/>
             <text x="${px(i)}" y="${py(v) - 11}" text-anchor="middle" font-size="10.5"
-              fill="#5D6B78">${Number.isInteger(v) ? v : v.toFixed(2)}</text>`;
+              fill="${warnaTema('--muted')}">${Number.isInteger(v) ? v : v.toFixed(2)}</text>`;
     });
   });
   return rangka('', g + labelX(kat) + (seri.length > 1 ? legenda(seri) : ''),
@@ -233,7 +227,7 @@ function tumpuk(baris, kunci, warna){
     const y = atas + i * tinggiBaris;
     let x = kiri;
     g += `<text x="${kiri - 10}" y="${y + 17}" text-anchor="end" font-size="11.5"
-            fill="#14212E">${esc(b.label)}</text>`;
+            fill="${warnaTema('--ink')}">${esc(b.label)}</text>`;
     kunci.forEach((k, j) => {
       const v = b[k.k] || 0;
       if (!v) return;
@@ -247,7 +241,7 @@ function tumpuk(baris, kunci, warna){
   g += kunci.map((k, j) =>
     `<g transform="translate(${kiri + j * 126}, ${tinggi - 8})">
       <rect width="10" height="10" y="-9" fill="${warna[j]}" rx="1"/>
-      <text x="15" y="0" font-size="11" fill="#14212E">${esc(k.n)}</text></g>`).join('');
+      <text x="15" y="0" font-size="11" fill="${warnaTema('--ink')}">${esc(k.n)}</text></g>`).join('');
   return `<svg viewBox="0 0 ${W} ${tinggi}" xmlns="http://www.w3.org/2000/svg">
     <rect width="${W}" height="${tinggi}" fill="#ffffff"/>${g}</svg>`;
 }
@@ -350,7 +344,7 @@ function grafikDTPS(){
     [{label: 'Pendidikan', a: baris[0].s3, b: baris[0].s2},
      {label: 'Jabatan',    a: baris[1].gb, b: baris[1].lain}],
     [{k: 'a', n: 'Doktor / Lektor ke atas'}, {k: 'b', n: 'Lainnya'}],
-    [WARNA[0], '#D9DFDA']);
+    [WARNA[0], warnaTema('--line')]);
   return {svg, kaki: `Komposisi ${n} DTPS pada keadaan terkini. `
     + `Butir 27 menuntut ≥ 50% doktor untuk skor 4; butir 28 menuntut ≥ 70% Lektor ke atas.`};
 }
@@ -451,7 +445,7 @@ function grafikKaryaUtama(th){
   });
   return {svg: garis(th.map(labelThn),
       [{nama:'PKDTPS (%)', warna:WARNA[0], nilai},
-       {nama:'Ambang skor 4 (50%)', warna:'#C8102E',
+       {nama:'Ambang skor 4 (50%)', warna:warnaTema('--merah'),
         nilai: th.map(()=>50)}], '%', 100),
     kaki:`Persentase dari ${n} DTPS yang punya karya sebagai penulis pertama/`
        + 'korespondensi di jurnal internasional bereputasi, prosiding terindeks, '
@@ -570,18 +564,18 @@ function grafikCakupan(){
     const xa = kiri + (it.amb/100)*(kanan-kiri);
     const lolos = it.v >= it.amb;
     g += `<text x="${kiri-10}" y="${y+16}" text-anchor="end" font-size="11.5"
-            fill="#14212E">${esc(it.n)}</text>
-          <rect x="${kiri}" y="${y}" width="${kanan-kiri}" height="22" fill="#EBEEEB" rx="1"/>
+            fill="${warnaTema('--ink')}">${esc(it.n)}</text>
+          <rect x="${kiri}" y="${y}" width="${kanan-kiri}" height="22" fill="${warnaTema('--line-soft')}" rx="1"/>
           <rect x="${kiri}" y="${y}" width="${w}" height="22" rx="1"
-            fill="${lolos ? '#00954E' : '#5C86B0'}"/>
-          <line x1="${xa}" y1="${y-3}" x2="${xa}" y2="${y+25}" stroke="#C8102E"
+            fill="${lolos ? warnaTema('--hijau') : warnaTema('--biru-3')}"/>
+          <line x1="${xa}" y1="${y-3}" x2="${xa}" y2="${y+25}" stroke="${warnaTema('--merah')}"
             stroke-width="2" stroke-dasharray="3 2"/>
-          <text x="${kanan+6}" y="${y+16}" font-size="11" fill="#5D6B78">${
+          <text x="${kanan+6}" y="${y+16}" font-size="11" fill="${warnaTema('--muted')}">${
             it.teks || it.v+'%'}</text>`;
   });
   g += `<g transform="translate(${kiri}, ${tinggi-8})">
-      <line x1="0" y1="-4" x2="0" y2="4" stroke="#C8102E" stroke-width="2"/>
-      <text x="8" y="0" font-size="11" fill="#14212E">garis merah = ambang skor 4</text></g>`;
+      <line x1="0" y1="-4" x2="0" y2="4" stroke="${warnaTema('--merah')}" stroke-width="2"/>
+      <text x="8" y="0" font-size="11" fill="${warnaTema('--ink')}">garis merah = ambang skor 4</text></g>`;
   return {svg:`<svg viewBox="0 0 ${W} ${tinggi}" xmlns="http://www.w3.org/2000/svg">
       <rect width="${W}" height="${tinggi}" fill="#ffffff"/>${g}</svg>`,
     kaki:'Capaian terkini dibanding ambang skor 4 tiap butir. RIPK '
@@ -688,7 +682,7 @@ window.mulaiHalaman = () => fetch('data.json?v=' + Date.now())
       `<p class="kosong">Data belum tersedia. Hubungi admin prodi.</p>`;
   });
 </script>
-<script src="config.js?v=2026-11-05-cb1d94"></script>
+<script src="config.js?v=2026-11-05-5b248e"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -696,8 +690,8 @@ addEventListener('error', function (e) {
   if (document.getElementById('galat-muat')) return;
   var d = document.createElement('div');
   d.id = 'galat-muat';
-  d.style.cssText = 'margin:16px;padding:12px 14px;border:1px solid #C8102E;' +
-    'background:#FBE5E8;color:#14212E;font:14px/1.5 system-ui,sans-serif';
+  d.style.cssText = 'margin:16px;padding:12px 14px;border:1px solid var(--merah);' +
+    'background:var(--merah-m3);color:var(--ink);font:14px/1.5 system-ui,sans-serif';
   d.textContent = 'Halaman gagal dimuat: ' + (e.message || 'galat skrip') +
     '. Tekan Ctrl+Shift+R untuk memuat ulang tanpa cache; bila tetap muncul, kirim pesan ini ke admin.';
   document.body.insertBefore(d, document.body.firstChild);
@@ -706,7 +700,7 @@ addEventListener('error', function (e) {
 <script type="module">
 // Ruang kerja, khusus email terdaftar (pemilik 2026-11-04).
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { gerbang } from './menu.js?v=2026-11-05-cb1d94';
+import { gerbang } from './menu.js?v=2026-11-05-5b248e';
 await gerbang(createClient(window.SB_URL, window.SB_KEY));
 window.mulaiHalaman();
 </script>

@@ -7,17 +7,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tema.css?v=2026-11-05-5b248e">
 <style>
   /* Panduan pengguna ruang kerja (pemilik 2026-11-04). Bagian admin hanya
      tampil untuk peran admin. Perbarui bila tombol atau halaman berubah. */
-  :root{
-    --biru:#0C2A4D; --biru-2:#17436F; --merah:#C8102E; --hijau:#00954E;
-    --bg:#F2F4F2; --panel:#fff; --ink:#14212E; --muted:#5D6B78;
-    --line:#D9DFDA; --line-soft:#EBEEEB;
-    --sans:'IBM Plex Sans',system-ui,sans-serif;
-    --mono:'IBM Plex Mono',ui-monospace,monospace;
-    --serif:'IBM Plex Serif',Georgia,serif;
-  }
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
        font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased}
@@ -36,7 +29,7 @@
   p,li{max-width:76ch}
   ol,ul{padding-left:22px}
   li{margin:3px 0}
-  .tbl{font-family:var(--mono);font-size:12.5px;background:#E7EDF3;color:var(--biru);
+  .tbl{font-family:var(--mono);font-size:12.5px;background:var(--biru-m8);color:var(--biru);
        padding:1px 6px;border-radius:2px;white-space:nowrap}
   .cat{background:#FFF8E5;border:1px solid #E8D9A8;border-radius:3px;padding:8px 12px;font-size:14px;margin:10px 0}
   .peran{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;
@@ -47,7 +40,7 @@
   @media(max-width:640px){nav.isi ol{columns:1}.wrap{padding:18px 16px 60px}}
   @media print{nav.isi{display:none}section{break-inside:avoid}}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-05-cb1d94">
+<link rel="stylesheet" href="kepala.css?v=2026-11-05-5b248e">
 </head>
 <body>
 
@@ -249,7 +242,7 @@
       <li><b>B. Peluang poin terbesar dan simulasi</b>: ubah angka, klik <b>Hitung simulasi</b> untuk melihat dampaknya; <b>Kosongkan simulasi</b> mengembalikan.</li>
       <li><b>Unduh draf LED TS … (.docx)</b>: templat LED LAM Teknik terisi tabel data, grafik bernomor, tautan bukti, dan kerangka narasi bertanda [isi]. Skor penilaian sendiri tidak dimuat; dosen tinggal melengkapi narasi.</li>
       <li><b>Unduh LKPS TS … (.xlsx)</b>: templat LKPS resmi terisi data situs (rekap dan lembar daftar). Rumus templat dihitung ulang saat dibuka di Excel; kolom yang belum ada datanya diisi manual.</li>
-      <li><b>Unduh tabel LKPS TS … (.xlsx)</b>: workbook sendiri berisi data yang sama pada alamat sel yang sama dengan templat LAM, untuk disalin ke templat resmi. Lembar <b>Petunjuk</b> memuat blok salin tiap lembar (tidak menutup sel rumus): salin blok, lalu di templat klik sel kiri atas yang sama dan pakai <b>Tempel Spesial › Values + Skip blanks</b>. Sel di lembar Menu ditolak Excel bila ditempel, jadi diketik; nilainya tertulis di Petunjuk.</li>
+      <li><b>Unduh tabel LKPS TS … (.xlsx)</b>: workbook sendiri berisi <b>ke-44 tabel wajib Sarjana</b> LAM Teknik, yang kosong juga, pada alamat sel yang sama dengan templat resmi. Lembar <b>Petunjuk</b> menjadi daftar isi: status tiap tabel, tempat mengisi datanya di situs, dan blok salin (tidak menutup sel rumus). Salin blok, lalu di templat klik sel kiri atas yang sama dan pakai <b>Tempel Spesial › Values + Skip blanks</b>. Di lembar tabel: kuning = data situs, putih = belum ada data, abu-abu = dihitung rumus templat; tab hijau = tabel berisi data. Isian lembar Menu ditolak Excel bila ditempel, jadi diketik; nilainya tertulis di Petunjuk.</li>
       <li>Kedua berkas memakai TS yang dipilih di bagian atas halaman; TS-nya tertulis pada label tombol.</li>
     </ul>
   </section>
@@ -263,7 +256,7 @@
   </div>
 </main>
 
-<script src="config.js?v=2026-11-05-cb1d94"></script>
+<script src="config.js?v=2026-11-05-5b248e"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -271,8 +264,8 @@ addEventListener('error', function (e) {
   if (document.getElementById('galat-muat')) return;
   var d = document.createElement('div');
   d.id = 'galat-muat';
-  d.style.cssText = 'margin:16px;padding:12px 14px;border:1px solid #C8102E;' +
-    'background:#FBE5E8;color:#14212E;font:14px/1.5 system-ui,sans-serif';
+  d.style.cssText = 'margin:16px;padding:12px 14px;border:1px solid var(--merah);' +
+    'background:var(--merah-m3);color:var(--ink);font:14px/1.5 system-ui,sans-serif';
   d.textContent = 'Halaman gagal dimuat: ' + (e.message || 'galat skrip') +
     '. Tekan Ctrl+Shift+R untuk memuat ulang tanpa cache; bila tetap muncul, kirim pesan ini ke admin.';
   document.body.insertBefore(d, document.body.firstChild);
@@ -280,7 +273,7 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { gerbang } from './menu.js?v=2026-11-05-cb1d94';
+import { gerbang } from './menu.js?v=2026-11-05-5b248e';
 
 // Bagian admin hanya untuk peran admin (isinya bukan rahasia; disembunyikan
 // supaya panduan dosen tetap ringkas).

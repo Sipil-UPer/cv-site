@@ -8,18 +8,11 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tema.css?v=2026-11-05-5b248e">
 <style>
   /* Daftar publik (pemilik 2026-11-04): beranda hanya grafik; tiap angka
      rekap membuka daftarnya di sini. Masyarakat umum melihat daftar saja —
      tidak ada tautan bukti maupun tautan karya. Warna sama dengan index.html. */
-  :root{
-    --biru:#0C2A4D; --biru-2:#17436F; --biru-3:#5C86B0; --merah:#C8102E; --hijau:#00954E;
-    --bg:#F2F4F2; --panel:#fff; --ink:#14212E; --muted:#5D6B78;
-    --line:#D9DFDA; --line-soft:#EBEEEB;
-    --sans:'IBM Plex Sans',system-ui,sans-serif;
-    --mono:'IBM Plex Mono',ui-monospace,monospace;
-    --serif:'IBM Plex Serif',Georgia,serif;
-  }
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
        font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
@@ -28,17 +21,17 @@
 
   .hero{background:var(--biru);color:#fff;border-bottom:4px solid var(--merah)}
   .hero-in{max-width:1040px;margin:0 auto;padding:22px 20px 0}
-  .balik{color:#C9D7E4;font-size:13px;text-decoration:none}
+  .balik{color:var(--biru-m5);font-size:13px;text-decoration:none}
   .balik:hover{color:#fff}
   .hero-baris{display:flex;gap:16px;align-items:center;margin-top:14px;flex-wrap:wrap}
   .logo-kampus{background:#fff;border-radius:5px;padding:5px 8px;line-height:0}
   .logo-kampus img{height:44px}
   .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.12em;
-           text-transform:uppercase;color:#A9C0D6}
+           text-transform:uppercase;color:var(--biru-m3)}
   h1{font-family:var(--serif);font-size:clamp(22px,3.4vw,28px);font-weight:600;
      margin:4px 0 0;line-height:1.2;color:#fff}
   nav.jenis{display:flex;flex-wrap:wrap;gap:2px;margin-top:20px}
-  nav.jenis a{color:#C9D7E4;text-decoration:none;font-family:var(--mono);font-size:11.5px;
+  nav.jenis a{color:var(--biru-m5);text-decoration:none;font-family:var(--mono);font-size:11.5px;
     letter-spacing:.08em;text-transform:uppercase;padding:9px 12px 10px;border-bottom:3px solid transparent}
   nav.jenis a:hover{color:#fff}
   nav.jenis a[aria-current="page"]{color:#fff;border-bottom-color:var(--merah)}
@@ -62,7 +55,7 @@
   .e-p a{color:var(--muted);text-decoration:none;border-bottom:1px dotted var(--line)}
   .e-p a:hover{color:var(--biru-2);border-bottom-color:var(--biru-3)}
   .pill{font-family:var(--mono);font-size:9.5px;letter-spacing:.09em;text-transform:uppercase;
-        padding:3px 8px;border-radius:2px;background:#E7EDF3;color:var(--biru);
+        padding:3px 8px;border-radius:2px;background:var(--biru-m8);color:var(--biru);
         white-space:nowrap;align-self:flex-start;margin-top:2px}
   .pill.pkm{background:#E6F3EC;color:var(--hijau)}
   .kosong{color:var(--muted);font-size:13.5px;padding:22px 0}

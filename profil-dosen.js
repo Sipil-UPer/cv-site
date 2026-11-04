@@ -102,12 +102,12 @@ function pasangGaya(){
 const CSS = `<style id="gaya-profil-dosen">
   table.ed{border-collapse:collapse;width:100%;font-size:13px;margin-top:4px}
   table.ed th{font-family:var(--mono,monospace);font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;
-    color:var(--muted,#5D6B78);text-align:left;padding:4px 4px;border-bottom:1px solid var(--line,#D9DFDA)}
+    color:var(--muted);text-align:left;padding:4px 4px;border-bottom:1px solid var(--line)}
   table.ed td{padding:3px 4px;vertical-align:top}
-  table.ed input,table.ed select{width:100%;padding:5px 6px;border:1px solid var(--line,#D9DFDA);font:inherit;font-size:13px;background:#fff}
+  table.ed input,table.ed select{width:100%;padding:5px 6px;border:1px solid var(--line);font:inherit;font-size:13px;background:#fff}
   .ed-gulir{overflow-x:auto}
   .ed-gulir table{min-width:720px}
-  h3.ed-judul{font-size:14px;margin:16px 0 2px;color:var(--biru,#0C2A4D)}
+  h3.ed-judul{font-size:14px;margin:16px 0 2px;color:var(--biru)}
 </style>`;
 
 // Editor daftar: kotak tabel + tombol tambah. Mengembalikan HTML.

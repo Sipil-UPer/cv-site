@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tema.css?v=2026-11-05-5b248e">
 <style>
   /* =================================================================
      PALET — sesuaikan dengan pedoman identitas resmi institusi bila ada.
@@ -15,20 +16,6 @@
      (biru tua, merah, hijau) dan belum diverifikasi ke brand guideline.
      Cukup ubah enam baris ini untuk mengganti seluruh tema.
      ================================================================= */
-  :root{
-    --biru:#0C2A4D;        /* biru tua — warna utama */
-    --biru-2:#17436F;      /* biru sedang */
-    --biru-3:#5C86B0;      /* biru muda */
-    --merah:#C8102E;       /* merah — aksen */
-    --hijau:#00954E;       /* hijau — aksen kedua */
-    --emas:#B8860B;        /* untuk kategori keempat */
-
-    --bg:#F2F4F2; --panel:#fff; --ink:#14212E; --muted:#5D6B78;
-    --line:#D9DFDA; --line-soft:#EBEEEB;
-    --sans:'IBM Plex Sans',system-ui,sans-serif;
-    --mono:'IBM Plex Mono',ui-monospace,monospace;
-    --serif:'IBM Plex Serif',Georgia,serif;
-  }
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
        font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
@@ -47,10 +34,10 @@
   .hero-atas{display:flex;gap:28px;align-items:flex-start;flex-wrap:wrap}
   .hero-teks{flex:1;min-width:270px}
   .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.16em;
-           text-transform:uppercase;color:#9FC2E0}
+           text-transform:uppercase;color:var(--biru-m2)}
   h1{font-family:var(--serif);font-size:clamp(27px,4.6vw,40px);font-weight:600;
      letter-spacing:-.018em;margin:10px 0 0;line-height:1.12;color:#fff}
-  .inst{color:#B9CCDE;font-size:15px;margin-top:7px}
+  .inst{color:var(--biru-m4);font-size:15px;margin-top:7px}
   .logo-kampus{display:inline-block;background:#fff;border-radius:6px;padding:8px 12px;
                line-height:0;margin-bottom:16px}
   .logo-kampus img{height:64px}
@@ -68,7 +55,7 @@
         white-space:nowrap;margin-top:9px;transition:background .15s}
   .cta2:hover{background:rgba(255,255,255,.12)}
   .cta2 span{font-family:var(--mono);font-size:16px;line-height:1}
-  .cta-cat{font-size:12.5px;color:#A9C0D6;margin-top:9px;max-width:236px;line-height:1.45}
+  .cta-cat{font-size:12.5px;color:var(--biru-m3);margin-top:9px;max-width:236px;line-height:1.45}
 
   /* angka utama — satu pita data, bukan kartu terpisah */
   .angka{display:flex;flex-wrap:wrap;margin-top:36px;
@@ -83,7 +70,7 @@
   .angka b{display:block;font-family:var(--mono);font-size:32px;font-weight:400;
            letter-spacing:-.02em;line-height:1;color:#fff}
   .angka span{font-family:var(--mono);font-size:10px;letter-spacing:.12em;
-              text-transform:uppercase;color:#9FC2E0;display:block;margin-top:8px}
+              text-transform:uppercase;color:var(--biru-m2);display:block;margin-top:8px}
 
   /* ---------- kendali ---------- */
   .bar{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin:38px 0 4px}
@@ -136,7 +123,7 @@
   .e-p a{color:var(--muted);text-decoration:none;border-bottom:1px dotted var(--line)}
   .e-p a:hover{color:var(--biru-2);border-bottom-color:var(--biru-3)}
   .pill{font-family:var(--mono);font-size:9.5px;letter-spacing:.09em;text-transform:uppercase;
-        padding:3px 8px;border-radius:2px;background:#E7EDF3;color:var(--biru);
+        padding:3px 8px;border-radius:2px;background:var(--biru-m8);color:var(--biru);
         white-space:nowrap;align-self:flex-start;margin-top:2px}
   .pill.pkm{background:#E6F3EC;color:var(--hijau)}
   .kosong{color:var(--muted);font-size:13.5px;padding:22px 0}
@@ -160,11 +147,11 @@
 
   /* ---------- polesan ---------- */
   .kartu{transition:box-shadow .18s, transform .18s}
-  .kartu:hover{box-shadow:0 3px 14px rgba(12,42,77,.08);transform:translateY(-1px)}
+  .kartu:hover{box-shadow:0 3px 14px rgba(var(--biru-rgb),.08);transform:translateY(-1px)}
   table.rin tbody tr:nth-child(even) td,
   table.sp  tbody tr:nth-child(even) td,
-  table.mx  tbody tr:nth-child(even) td{background:rgba(12,42,77,.022)}
-  table.rin tbody tr:hover td, table.sp tbody tr:hover td{background:rgba(12,42,77,.055)}
+  table.mx  tbody tr:nth-child(even) td{background:rgba(var(--biru-rgb),.022)}
+  table.rin tbody tr:hover td, table.sp tbody tr:hover td{background:rgba(var(--biru-rgb),.055)}
   :focus-visible{outline:2px solid var(--biru-2);outline-offset:1px}
   @media(prefers-reduced-motion:reduce){.kartu{transition:none}.kartu:hover{transform:none}}
 </style>

@@ -7,15 +7,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tema.css?v=2026-11-05-5b248e">
 <style>
-  :root{
-    --biru:#0C2A4D; --biru-2:#17436F; --merah:#C8102E; --hijau:#00954E;
-    --bg:#F2F4F2; --panel:#fff; --ink:#14212E; --muted:#5D6B78;
-    --line:#D9DFDA; --line-soft:#EBEEEB;
-    --sans:'IBM Plex Sans',system-ui,sans-serif;
-    --mono:'IBM Plex Mono',ui-monospace,monospace;
-    --serif:'IBM Plex Serif',Georgia,serif;
-  }
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
        font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
@@ -25,10 +18,10 @@
   .logo-kampus{background:#fff;border-radius:6px;padding:8px 12px;line-height:0}
   .logo-kampus img{height:72px}
   .eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.12em;
-           text-transform:uppercase;color:#A9C0D6}
+           text-transform:uppercase;color:var(--biru-m3)}
   h1{font-family:var(--serif);font-weight:600;font-size:30px;margin:6px 0 4px}
-  .sub{color:#C9D7E4;font-size:14px}
-  .balik{color:#C9D7E4;font-size:13px;text-decoration:none}
+  .sub{color:var(--biru-m5);font-size:14px}
+  .balik{color:var(--biru-m5);font-size:13px;text-decoration:none}
   .balik:hover{color:#fff}
   .wrap{max-width:1180px;margin:0 auto;padding:26px 24px 60px}
   .modul{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:18px}
@@ -76,15 +69,15 @@
 
 <main class="wrap" id="isi"><p class="hint">Memuat&hellip;</p></main>
 
-<script src="config.js?v=2026-11-05-cb1d94"></script>
+<script src="config.js?v=2026-11-05-5b248e"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache) tampil sebagai pesan.
 addEventListener('error', function (e) {
   if (document.getElementById('galat-muat')) return;
   var d = document.createElement('div');
   d.id = 'galat-muat';
-  d.style.cssText = 'margin:16px;padding:12px 14px;border:1px solid #C8102E;' +
-    'background:#FBE5E8;color:#14212E;font:14px/1.5 system-ui,sans-serif';
+  d.style.cssText = 'margin:16px;padding:12px 14px;border:1px solid var(--merah);' +
+    'background:var(--merah-m3);color:var(--ink);font:14px/1.5 system-ui,sans-serif';
   d.textContent = 'Halaman gagal dimuat: ' + (e.message || 'galat skrip') +
     '. Tekan Ctrl+Shift+R untuk memuat ulang tanpa cache; bila tetap muncul, kirim pesan ini ke admin.';
   document.body.insertBefore(d, document.body.firstChild);
@@ -92,7 +85,7 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { pengguna, pasangMenu, halamanBoleh, bolehBuka, identitas, pasangJudul } from './menu.js?v=2026-11-05-cb1d94';
+import { pengguna, pasangMenu, halamanBoleh, bolehBuka, identitas, pasangJudul } from './menu.js?v=2026-11-05-5b248e';
 
 const sb = createClient(window.SB_URL, window.SB_KEY);
 const $ = id => document.getElementById(id);

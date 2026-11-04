@@ -7,16 +7,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tema.css?v=2026-11-05-5b248e">
 <style>
-  :root{
-    --biru:#0C2A4D; --biru-2:#17436F; --biru-3:#5C86B0; --biru-4:#A9C3DA;
-    --merah:#C8102E; --hijau:#00954E; --emas:#B8860B;
-    --bg:#F2F4F2; --panel:#fff; --ink:#14212E; --muted:#5D6B78;
-    --line:#D9DFDA; --line-soft:#EBEEEB;
-    --sans:'IBM Plex Sans',system-ui,sans-serif;
-    --mono:'IBM Plex Mono',ui-monospace,monospace;
-    --serif:'IBM Plex Serif',Georgia,serif;
-  }
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
        font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
@@ -31,19 +23,19 @@
   .hero-in{position:relative;max-width:1120px;margin:0 auto;padding:28px 20px 26px}
   .balik{display:inline-flex;gap:7px;align-items:center;text-decoration:none;
          font-family:var(--mono);font-size:11px;letter-spacing:.1em;
-         text-transform:uppercase;color:#9FC2E0;margin-bottom:18px}
+         text-transform:uppercase;color:var(--biru-m2);margin-bottom:18px}
   .balik:hover{color:#fff}
   .versi-statis{font-family:var(--mono);font-size:11px;font-weight:400;
-    letter-spacing:.06em;color:#7FA5C6;vertical-align:middle;margin-left:10px}
+    letter-spacing:.06em;color:var(--biru-m1);vertical-align:middle;margin-left:10px}
   h1{font-family:var(--serif);font-size:clamp(24px,4vw,32px);font-weight:600;
      letter-spacing:-.018em;margin:0;color:#fff}
-  .prodi{color:#B9CCDE;font-size:14.5px;margin-top:6px}
+  .prodi{color:var(--biru-m4);font-size:14.5px;margin-top:6px}
 
   .periode{display:flex;gap:9px;flex-wrap:wrap;margin-top:22px;align-items:center}
   .periode .lbl{font-family:var(--mono);font-size:10px;letter-spacing:.1em;
-    text-transform:uppercase;color:#9FC2E0;margin-right:4px}
+    text-transform:uppercase;color:var(--biru-m2);margin-right:4px}
   .periode button{font-family:var(--mono);font-size:11px;letter-spacing:.07em;
-    text-transform:uppercase;cursor:pointer;background:none;color:#B9CCDE;
+    text-transform:uppercase;cursor:pointer;background:none;color:var(--biru-m4);
     border:1px solid rgba(255,255,255,.3);padding:7px 14px;border-radius:2px}
   .periode button:hover{color:#fff;border-color:rgba(255,255,255,.6)}
   .periode button[aria-pressed="true"]{background:#fff;color:var(--biru);
@@ -106,7 +98,7 @@
          padding:3px 9px;border-radius:2px;min-width:46px;text-align:center}
   .tchip.hij{background:#E3F4EA;color:var(--hijau)}
   .tchip.kun{background:#FFF3D6;color:#7A5A00}
-  .tchip.mer{background:#FBE5E8;color:var(--merah)}
+  .tchip.mer{background:var(--merah-m3);color:var(--merah)}
   .tchip.kos{background:var(--line-soft);color:var(--muted)}
   .tarah{font-family:var(--mono);font-size:11.5px;white-space:nowrap}
   .tarah.naik{color:var(--hijau)} .tarah.turun{color:var(--merah)}
@@ -219,19 +211,19 @@
     text-transform:uppercase;background:var(--biru);color:#fff;
     padding:3px 8px;border-radius:2px;margin-left:8px;vertical-align:2px}
   .syarat-ket{font-size:12.5px;margin-top:10px;padding:9px 12px;border-radius:2px;
-    border-left:3px solid var(--biru);background:#F2F6FA}
-  .syarat-ket.gagal{border-left-color:var(--merah);background:#FDF3F4}
+    border-left:3px solid var(--biru);background:var(--biru-m11)}
+  .syarat-ket.gagal{border-left-color:var(--merah);background:var(--merah-m5)}
   .syarat-ket.lolos{border-left-color:var(--hijau);background:#EFF7F2}
   .syarat-ket b{font-family:var(--mono);font-size:11.5px;letter-spacing:.04em}
   .syarat-ket .tur{display:block;color:var(--muted);font-size:11.5px;
     font-family:var(--mono);margin-top:5px}
   .kartu.syarat-gagal{border-left:3px solid var(--merah)}
   .syarat{font-family:var(--mono);font-size:9.5px;letter-spacing:.09em;
-    text-transform:uppercase;background:#F7E4E7;color:var(--merah);
+    text-transform:uppercase;background:var(--merah-m2);color:var(--merah);
     padding:3px 8px;border-radius:2px;margin-left:8px;vertical-align:2px;
     white-space:nowrap}
   .syarat.ragu{background:#F3EEDF;color:var(--emas)}
-  .syarat-bunyi{font-size:12.5px;color:var(--ink);background:#FDF3F4;
+  .syarat-bunyi{font-size:12.5px;color:var(--ink);background:var(--merah-m5);
     border-left:3px solid var(--merah);padding:9px 12px;border-radius:2px;
     margin:8px 0 2px;line-height:1.45}
   .syarat-bunyi.ragu{background:#FBF7EC;border-left-color:var(--emas)}
@@ -261,7 +253,7 @@
   table.rinci-t td.mhs.ya{color:var(--hijau)}
   table.rinci-t td.dana{font-family:var(--mono);font-size:11px;
     color:var(--muted);white-space:nowrap}
-  table.rinci-t tbody tr:nth-child(even) td{background:rgba(12,42,77,.022)}
+  table.rinci-t tbody tr:nth-child(even) td{background:rgba(var(--biru-rgb),.022)}
   .rinci-cek{font-family:var(--mono);font-size:11px;color:var(--muted);
     margin-top:8px;padding-top:7px;border-top:1px solid var(--line-soft)}
   .rinci-cek.beda{color:var(--merah)}
@@ -271,15 +263,15 @@
 
   /* ---------- polesan ---------- */
   .kartu{transition:box-shadow .18s, transform .18s}
-  .kartu:hover{box-shadow:0 3px 14px rgba(12,42,77,.08);transform:translateY(-1px)}
+  .kartu:hover{box-shadow:0 3px 14px rgba(var(--biru-rgb),.08);transform:translateY(-1px)}
   table.rin tbody tr:nth-child(even) td,
   table.sp  tbody tr:nth-child(even) td,
-  table.mx  tbody tr:nth-child(even) td{background:rgba(12,42,77,.022)}
-  table.rin tbody tr:hover td, table.sp tbody tr:hover td{background:rgba(12,42,77,.055)}
+  table.mx  tbody tr:nth-child(even) td{background:rgba(var(--biru-rgb),.022)}
+  table.rin tbody tr:hover td, table.sp tbody tr:hover td{background:rgba(var(--biru-rgb),.055)}
   :focus-visible{outline:2px solid var(--biru-2);outline-offset:1px}
   @media(prefers-reduced-motion:reduce){.kartu{transition:none}.kartu:hover{transform:none}}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-05-cb1d94">
+<link rel="stylesheet" href="kepala.css?v=2026-11-05-5b248e">
 </head>
 <body>
 
@@ -344,7 +336,7 @@ setTimeout(function(){
   });
 }, 8000);
 </script>
-<script src="config.js?v=2026-11-05-cb1d94"></script>
+<script src="config.js?v=2026-11-05-5b248e"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -352,8 +344,8 @@ addEventListener('error', function (e) {
   if (document.getElementById('galat-muat')) return;
   var d = document.createElement('div');
   d.id = 'galat-muat';
-  d.style.cssText = 'margin:16px;padding:12px 14px;border:1px solid #C8102E;' +
-    'background:#FBE5E8;color:#14212E;font:14px/1.5 system-ui,sans-serif';
+  d.style.cssText = 'margin:16px;padding:12px 14px;border:1px solid var(--merah);' +
+    'background:var(--merah-m3);color:var(--ink);font:14px/1.5 system-ui,sans-serif';
   d.textContent = 'Halaman gagal dimuat: ' + (e.message || 'galat skrip') +
     '. Tekan Ctrl+Shift+R untuk memuat ulang tanpa cache; bila tetap muncul, kirim pesan ini ke admin.';
   document.body.insertBefore(d, document.body.firstChild);
@@ -361,16 +353,16 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { BUTIR, isiPetaBukti, cariBukti, daftarBukti, kolomBukti } from './rincian.js?v=2026-11-05-cb1d94';
+import { BUTIR, isiPetaBukti, cariBukti, daftarBukti, kolomBukti } from './rincian.js?v=2026-11-05-5b248e';
 import { BUTIR_MANUAL, SEKSI_MANUAL, kunciButir, kunciBuktiButir, skorManual, tkKepuasan }
-  from './butir-manual.js?v=2026-11-05-cb1d94';
-import { BOBOT_TOTAL, bobotButir } from './bobot.js?v=2026-11-05-cb1d94';
-import { cekPitaWT, adaTingkat, sesuaiTracer } from './tracer-skor.js?v=2026-11-05-cb1d94';
-import { htmlRencana, buktiButir } from './rencana-bukti.js?v=2026-11-05-cb1d94';
-import { htmlPanel, pasangPanel } from './panel-bukti.js?v=2026-11-05-cb1d94';
-import { pasangMenu } from './menu.js?v=2026-11-05-cb1d94';
+  from './butir-manual.js?v=2026-11-05-5b248e';
+import { BOBOT_TOTAL, bobotButir } from './bobot.js?v=2026-11-05-5b248e';
+import { cekPitaWT, adaTingkat, sesuaiTracer } from './tracer-skor.js?v=2026-11-05-5b248e';
+import { htmlRencana, buktiButir } from './rencana-bukti.js?v=2026-11-05-5b248e';
+import { htmlPanel, pasangPanel } from './panel-bukti.js?v=2026-11-05-5b248e';
+import { pasangMenu } from './menu.js?v=2026-11-05-5b248e';
 import { statusSyarat, syaratButir, SYARAT_UNGGUL, SYARAT_RERATA, SASARAN,
-         statusRerata, gabungSyarat, statusRentang } from './syarat-unggul.js?v=2026-11-05-cb1d94';
+         statusRerata, gabungSyarat, statusRentang } from './syarat-unggul.js?v=2026-11-05-5b248e';
 
 // config.js mendefinisikan window.SB_URL dan window.SB_KEY — pemetaan di
 // bawah ini WAJIB ada. skor.html versi sebelumnya melewatkannya dan mati
@@ -394,7 +386,7 @@ const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 // Naikkan setiap kali skor.html / rincian.js / butir-manual.js / bobot.js
 // diubah. Ditampilkan di kaki halaman supaya ketahuan seketika kalau
 // peramban masih memakai salinan lama dari cache.
-const VERSI = '2026-11-05-cb1d94';
+const VERSI = '2026-11-05-5b248e';
 // Label versi di judul diisi dari VERSI supaya keduanya tidak bisa berbeda.
 { const el = document.querySelector('.versi-statis'); if (el) el.textContent = 'v' + VERSI; }
 // =====================================================================
@@ -500,7 +492,7 @@ async function unduhLKPS(idTombol){
     const ambil = async q => { const { data, error } = await q; if (error) console.warn(error.message); return data || []; };
     // Dosen dengan profil LKPS 4.a (22-patch-profil-dosen.sql); tanpa patch: kolom dasar.
     const DOSEN_DASAR = 'nama,nidn,peran,pendidikan,jabatan,aktif,dtps';
-    const { KOLOM_PROFIL } = await import('./profil-dosen.js?v=2026-11-05-cb1d94');
+    const { KOLOM_PROFIL } = await import('./profil-dosen.js?v=2026-11-05-5b248e');
     const ambilDosen = async () => {
       const { data, error } = await sb.from('dosen').select(DOSEN_DASAR + ',' + KOLOM_PROFIL);
       return error ? ambil(sb.from('dosen').select(DOSEN_DASAR)) : (data || []);
@@ -567,8 +559,8 @@ async function unduhLKPS(idTombol){
       ambil(sb.from('lkps_spmi_ppepp').select('*')),
     ]);
     const buat = idTombol === 'unduhTabelLKPS'
-      ? (await import('./lkps-tabel.js?v=2026-11-05-cb1d94')).buatTabelLKPS
-      : (await import('./lkps.js?v=2026-11-05-cb1d94')).buatLKPS;
+      ? (await import('./lkps-tabel.js?v=2026-11-05-5b248e')).buatTabelLKPS
+      : (await import('./lkps.js?v=2026-11-05-5b248e')).buatLKPS;
     const hasil = await buat({ D, ts, prodi: D.prodi, institusi: D.institusi, rencanaKepuasan,
       daftar: { dosen, karya, kerjasama, bkd, prestasi, luaranMhs, mk, tema, mhs, tracer,
                 vmts, prodiUpps, dana, tendik, buktiVmts, prasarana, dokK3l, fasK3l, dokumen, ppepp } });
@@ -592,7 +584,7 @@ async function unduhLED(){
   const asli = a.textContent;
   a.textContent = 'Menyusun draf LED…';
   try {
-    const { buatLED } = await import('./led.js?v=2026-11-05-cb1d94');
+    const { buatLED } = await import('./led.js?v=2026-11-05-5b248e');
     const ts = CTX_LED.tsData;
     const hasil = await buatLED({
       D, ts, taDari, f2, versi: VERSI,

@@ -4,9 +4,11 @@
    Warna sama dengan situs (biru tua, biru muda, merah, hijau); kepuasan
    memakai urutan bermakna: hijau (sangat baik) sampai merah (kurang).
    ===================================================================== */
+import { warna as warnaTema } from './tema.js?v=2026-11-05-5b248e';
+
 const W = 1600, H = 800;
-const PALET = ['#0C2A4D', '#5C86B0', '#C8102E', '#00954E', '#B8860B'];
-const PALET_KEPUASAN = ['#00954E', '#5C86B0', '#B8860B', '#C8102E'];
+const PALET = () => [warnaTema('--biru'), warnaTema('--biru-3'), warnaTema('--merah'), warnaTema('--hijau'), warnaTema('--emas')];
+const PALET_KEPUASAN = () => [warnaTema('--hijau'), warnaTema('--biru-3'), warnaTema('--emas'), warnaTema('--merah')];
 const HURUF = "'Segoe UI', 'IBM Plex Sans', Arial, sans-serif";
 
 function skalaRapi(maks){
@@ -32,12 +34,12 @@ export async function gambarGrafik(g){
   const cv = document.createElement('canvas');
   cv.width = W; cv.height = H;
   const c = cv.getContext('2d');
-  const warna = g.satuan === '%' && g.seri.length === 4 ? PALET_KEPUASAN : PALET;
+  const warna = g.satuan === '%' && g.seri.length === 4 ? PALET_KEPUASAN() : PALET();
   const fmt = v => g.desimal ? v.toFixed(g.desimal).replace('.', ',') : String(Math.round(v * 100) / 100);
   c.fillStyle = '#FFFFFF'; c.fillRect(0, 0, W, H);
 
   // judul dan legenda
-  c.fillStyle = '#14212E'; c.font = `600 36px ${HURUF}`; c.textBaseline = 'top';
+  c.fillStyle = warnaTema('--ink'); c.font = `600 36px ${HURUF}`; c.textBaseline = 'top';
   c.fillText(g.judul, 60, 34);
   let lx = 60;
   c.font = `26px ${HURUF}`;
@@ -61,7 +63,7 @@ export async function gambarGrafik(g){
   for (let v = 0; v <= yMax + 1e-9; v += langkah){
     c.strokeStyle = v ? '#E3E8EC' : '#9AA5B1'; c.lineWidth = v ? 1.5 : 2;
     c.beginPath(); c.moveTo(kiri, y(v)); c.lineTo(kanan, y(v)); c.stroke();
-    c.fillStyle = '#5D6B78'; c.fillText(fmt(v) + (g.satuan === '%' ? '%' : ''), kiri - 14, y(v));
+    c.fillStyle = warnaTema('--muted'); c.fillText(fmt(v) + (g.satuan === '%' ? '%' : ''), kiri - 14, y(v));
   }
 
   const lebarKat = (kanan - kiri) / n;
@@ -83,7 +85,7 @@ export async function gambarGrafik(g){
         dasar += v;
       });
       if (g.satuan !== '%'){
-        c.fillStyle = '#14212E'; c.font = `600 26px ${HURUF}`;
+        c.fillStyle = warnaTema('--ink'); c.font = `600 26px ${HURUF}`;
         c.fillText(fmt(dasar), xb + lebarBatang / 2, y(dasar) - 20);
       }
     } else {
@@ -92,7 +94,7 @@ export async function gambarGrafik(g){
         const v = s.nilai[i], xb = x1 + j * lebarBatang;
         c.fillStyle = warna[j % warna.length];
         c.fillRect(xb + 4, y(v), lebarBatang - 8, bawah - y(v));
-        c.fillStyle = '#14212E'; c.font = `600 24px ${HURUF}`;
+        c.fillStyle = warnaTema('--ink'); c.font = `600 24px ${HURUF}`;
         c.fillText(fmt(v), xb + lebarBatang / 2, y(v) - 18);
       });
     }

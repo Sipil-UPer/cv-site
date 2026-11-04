@@ -7,16 +7,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tema.css?v=2026-11-05-5b248e">
 <style>
-  :root{
-    --biru:#0C2A4D; --biru-2:#17436F; --biru-3:#5C86B0;
-    --merah:#C8102E; --hijau:#00954E; --emas:#B8860B;
-    --bg:#F2F4F2; --panel:#fff; --ink:#14212E; --muted:#5D6B78;
-    --line:#D9DFDA; --line-soft:#EBEEEB;
-    --sans:'IBM Plex Sans',system-ui,sans-serif;
-    --mono:'IBM Plex Mono',ui-monospace,monospace;
-    --serif:'IBM Plex Serif',Georgia,serif;
-  }
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
        font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
@@ -31,18 +23,18 @@
   .hero-in{position:relative;max-width:1060px;margin:0 auto;padding:28px 20px 26px}
   .balik{display:inline-flex;gap:7px;align-items:center;text-decoration:none;
          font-family:var(--mono);font-size:11px;letter-spacing:.1em;
-         text-transform:uppercase;color:#9FC2E0;margin-bottom:18px}
+         text-transform:uppercase;color:var(--biru-m2);margin-bottom:18px}
   .balik:hover{color:#fff}
   h1{font-family:var(--serif);font-size:clamp(24px,4vw,32px);font-weight:600;
      letter-spacing:-.018em;margin:0;color:#fff}
-  .prodi{color:#B9CCDE;font-size:14.5px;margin-top:6px}
+  .prodi{color:var(--biru-m4);font-size:14.5px;margin-top:6px}
 
   .saring{display:flex;gap:26px;flex-wrap:wrap;margin-top:22px}
   .saring .grup{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
   .saring .lb{font-family:var(--mono);font-size:10px;letter-spacing:.12em;
-              text-transform:uppercase;color:#7FA5C6;margin-right:2px}
+              text-transform:uppercase;color:var(--biru-m1);margin-right:2px}
   .saring button{font-family:var(--mono);font-size:11px;letter-spacing:.07em;
-    text-transform:uppercase;cursor:pointer;background:none;color:#B9CCDE;
+    text-transform:uppercase;cursor:pointer;background:none;color:var(--biru-m4);
     border:1px solid rgba(255,255,255,.3);padding:7px 13px;border-radius:2px}
   .saring button:hover{color:#fff;border-color:rgba(255,255,255,.6)}
   .saring button[aria-pressed="true"]{background:#fff;color:var(--biru);
@@ -72,8 +64,8 @@
              display:block;margin-top:4px}
   .lv{font-family:var(--mono);font-size:9.5px;letter-spacing:.09em;text-transform:uppercase;
       padding:3px 8px;border-radius:2px;white-space:nowrap}
-  .lv.internasional{background:#F7E4E7;color:var(--merah)}
-  .lv.nasional{background:#E7EDF3;color:var(--biru)}
+  .lv.internasional{background:var(--merah-m2);color:var(--merah)}
+  .lv.nasional{background:var(--biru-m8);color:var(--biru)}
   .lv.wilayah_lokal{background:#F3EEDF;color:var(--emas)}
   .lv.kosong{background:var(--line-soft);color:var(--muted)}
   .m-ang{display:flex;gap:16px;font-family:var(--mono);font-size:12px;
@@ -89,7 +81,7 @@
   .e-j{font-size:14px;line-height:1.4}
   .e-m{font-family:var(--mono);font-size:11px;color:var(--muted);margin-top:3px}
   .pill{font-family:var(--mono);font-size:9px;letter-spacing:.09em;text-transform:uppercase;
-        padding:2px 7px;border-radius:2px;background:#E7EDF3;color:var(--biru);
+        padding:2px 7px;border-radius:2px;background:var(--biru-m8);color:var(--biru);
         white-space:nowrap;align-self:flex-start}
   .pill.pkm{background:#E6F3EC;color:var(--hijau)}
   .pill.publikasi{background:#F3EEDF;color:var(--emas)}

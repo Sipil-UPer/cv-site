@@ -1,0 +1,56 @@
+/* =====================================================================
+   tema.css — warna dan huruf institusi, satu sumber untuk seluruh situs.
+   Dipasang sebelum <style> tiap halaman. Mengubah identitas situs cukup
+   di berkas ini; kode halaman memakai var(--nama).
+
+   Warna status (tint hijau "selesai", tint kuning "menunggu") sengaja tetap
+   di halaman: maknanya status, bukan identitas institusi.
+   ===================================================================== */
+:root{
+  /* Warna utama institusi: gelap ke terang */
+  --biru-gelap:#081D36;  --biru-gelap-rgb:8,29,54;     /* pita menu */
+  --biru:#0C2A4D;        --biru-rgb:12,42,77;          /* kepala halaman, judul, tombol */
+  --biru-2:#17436F;
+  --biru-3:#5C86B0;
+  --biru-4:#A9C3DA;
+
+  /* Turunan warna utama: teks di atas latar gelap dan latar pucat, gelap ke terang */
+  --biru-m1:#7FA5C6;
+  --biru-m2:#9FC2E0;
+  --biru-m3:#A9C0D6;
+  --biru-m4:#B9CCDE;
+  --biru-m5:#C9D7E4;
+  --biru-m6:#DCE6F0;
+  --biru-m7:#E3EAF2;
+  --biru-m8:#E7EDF3;
+  --biru-m9:#E8EEF5;
+  --biru-m10:#EEF3F8;
+  --biru-m11:#F2F6FA;
+  --biru-m12:#F6F9FC;
+
+  /* Warna aksen: garis kepala halaman, peringatan */
+  --merah:#C8102E;
+  --merah-m1:#F0C8CE;
+  --merah-m2:#F7E4E7;
+  --merah-m3:#FBE5E8;
+  --merah-m4:#FBE9EB;
+  --merah-m5:#FDF3F4;
+
+  /* Warna data dan status */
+  --hijau:#00954E;
+  --emas:#B8860B;
+  --ungu:#6B4E9B;
+
+  /* Netral */
+  --bg:#F2F4F2;
+  --panel:#fff;
+  --ink:#14212E;
+  --muted:#5D6B78;
+  --line:#D9DFDA;
+  --line-soft:#EBEEEB;
+
+  /* Huruf */
+  --sans:'IBM Plex Sans',system-ui,sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,monospace;
+  --serif:'IBM Plex Serif',Georgia,serif;
+}
