@@ -88,12 +88,17 @@ addEventListener('error', function (e) {
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 import { pasangMenu } from './menu.js?v=2026-11-04-e202c6';
+import { ISIAN_PROFIL, KOLOM_PROFIL, tampil as tampilIsian, sama, formLKPS, bacaFormLKPS, pasangEditor }
+  from './profil-dosen.js';
 
 /* =====================================================================
    PROFIL SAYA — dosen mengajukan perubahan profilnya sendiri (keputusan
    pemilik 2026-11-04, supabase/20-patch-ajuan-ubah.sql). Yang bisa
-   diajukan: nama, SINTA, Scopus, ORCID, pendidikan, jabatan. Email, NIDN,
-   peran, aktif, dan DTPS hanya diubah admin di kelola-dosen.html.
+   diajukan: nama, SINTA, Scopus, ORCID, jabatan, dan profil LKPS 4.a
+   (22-patch-profil-dosen.sql, profil-dosen.js: riwayat pendidikan ->
+   pendidikan tertinggi, keahlian, sertifikat, SKIP, STRI, MK PS lain).
+   Email, NIDN, peran, aktif, DTPS, kategori, dan kesesuaian hanya diubah
+   admin di kelola-dosen.html.
    Ajuan (tabel ajuan_ubah, jenis 'profil') diputuskan admin di
    kelola-dosen.html; satu ajuan menunggu per dosen.
    Nilai sah dan pembersih ID sama dengan kelola-dosen.html.
@@ -111,7 +116,6 @@ if (!SB_URL || !SB_KEY || SB_URL.includes('xxxx')) {
 const sb = createClient(SB_URL, SB_KEY);
 
 const PERAN = { dosen: 'Dosen', admin: 'Admin', pimpinan: 'Pimpinan', asesor: 'Asesor' };
-const PENDIDIKAN = [['', '—'], ['S2', 'S2'], ['S3', 'S3']];
 const JABATAN = [['', 'Belum punya jabatan'], ['tenaga_pengajar', 'Tenaga pengajar'],
   ['asisten_ahli', 'Asisten ahli'], ['lektor', 'Lektor'], ['lektor_kepala', 'Lektor kepala'],
   ['guru_besar', 'Guru besar']];
@@ -121,16 +125,13 @@ const POLA = {
   orcid: [/^[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{3}[0-9X]$/i, 'format 0000-0000-0000-0000'],
 };
 // Kolom yang boleh diajukan, berurutan seperti form; label untuk tabel.
-const ISIAN = [['nama', 'Nama lengkap'], ['pendidikan', 'Pendidikan tertinggi'],
-  ['jabatan', 'Jabatan akademik'], ['sinta_id', 'SINTA ID'], ['scopus_id', 'Scopus ID'],
-  ['orcid', 'ORCID']];
+const ISIAN = ISIAN_PROFIL;
 
-let SAYA = null;
+let SAYA = null, ADA_LKPS = true;
 
-const label = (daftar, v) => (daftar.find(x => x[0] === (v || '')) || [, v || '—'])[1];
 const opsi = (daftar, v) => daftar.map(([k, l]) =>
   `<option value="${esc(k)}"${k === (v || '') ? ' selected' : ''}>${esc(l)}</option>`).join('');
-const tampil = (k, v) => k === 'jabatan' ? label(JABATAN, v) : (v || '—');
+const tampil = (k, v) => tampilIsian(k, v, JABATAN);
 
 function tulis(jenis, teks){ const m = $('pesan'); m.className = 'msg ' + jenis; m.textContent = teks; }
 
@@ -157,9 +158,13 @@ function tabelBeda(data, lama){
 async function mulai(){
   const { data: { session } } = await sb.auth.getSession();
   if (!session) return layarMasuk();
-  const { data: saya } = await sb.from('dosen')
-    .select('id,nidn,nama,email,peran,pendidikan,jabatan,sinta_id,scopus_id,orcid')
+  const DASAR = 'id,nidn,nama,email,peran,pendidikan,jabatan,sinta_id,scopus_id,orcid';
+  let { data: saya, error: eS } = await sb.from('dosen').select(DASAR + ',' + KOLOM_PROFIL)
     .ilike('email', session.user.email).maybeSingle();
+  if (eS) {   // 22-patch-profil-dosen.sql belum dijalankan
+    ADA_LKPS = false;
+    ({ data: saya } = await sb.from('dosen').select(DASAR).ilike('email', session.user.email).maybeSingle());
+  }
   if (!saya) { $('hSub').textContent = 'Tidak terdaftar'; $('isi').innerHTML = '<p class="kosong">Email belum terdaftar. Hubungi admin prodi.</p>'; return; }
   SAYA = saya;
   pasangMenu(sb);
@@ -197,11 +202,18 @@ async function gambar(){
       <div class="grid">
         <div class="fld penuh"><label>Nama lengkap <span class="wj">*</span></label><input id="f_nama" value="${esc(SAYA.nama)}">
           <small>Lengkap dengan gelar, sesuai SK; tampil di situs dan laporan.</small></div>
-        <div class="fld"><label>Pendidikan tertinggi</label><select id="f_pendidikan">${opsi(PENDIDIKAN, SAYA.pendidikan)}</select></div>
+        <div class="fld"><label>Pendidikan tertinggi</label><input value="${esc(SAYA.pendidikan || '—')}" disabled>
+          <small>${ADA_LKPS ? 'Dihitung dari riwayat pendidikan di bawah.' : 'Diubah admin.'}</small></div>
         <div class="fld"><label>Jabatan akademik</label><select id="f_jabatan">${opsi(JABATAN, SAYA.jabatan)}</select></div>
         <div class="fld"><label>SINTA ID</label><input id="f_sinta_id" value="${esc(SAYA.sinta_id)}"></div>
         <div class="fld"><label>Scopus ID</label><input id="f_scopus_id" value="${esc(SAYA.scopus_id)}"></div>
         <div class="fld"><label>ORCID</label><input id="f_orcid" value="${esc(SAYA.orcid)}"></div>
+      </div>
+      ${ADA_LKPS ? `<h2 style="margin-top:18px">Profil untuk LKPS (Tabel 4.a)</h2>
+        <p class="ket">Dipakai untuk mengisi LKPS dan LED. Kategori dosen dan penilaian kesesuaian diisi admin prodi.</p>
+        ${formLKPS(SAYA)}` : `<div class="info">Isian profil LKPS (riwayat pendidikan, keahlian, sertifikat)
+        belum tersedia: admin perlu menjalankan supabase/22-patch-profil-dosen.sql.</div>`}
+      <div class="grid" style="margin-top:14px">
         <div class="fld penuh"><label>Keterangan untuk admin</label><input id="f_alasan"
           placeholder="Contoh: SK jabatan lektor terbit Oktober 2026">
           <small>Opsional; membantu admin memeriksa.</small></div>
@@ -209,6 +221,7 @@ async function gambar(){
       <div class="aksi"><button class="btn" id="kirim"${tunggu || error ? ' disabled' : ''}>Kirim ajuan</button>
         <span class="msg" id="pesan">${tunggu ? 'Masih ada ajuan yang menunggu.' : ''}</span></div></div>`;
 
+  if (ADA_LKPS) pasangEditor($('isi'));
   if (tolak) $('tutup').onclick = () => hapusAjuan(tolak.id, null);
   if (tunggu) $('batalAjuan').onclick = () => hapusAjuan(tunggu.id, 'Batalkan ajuan perubahan profil?');
   if (!tunggu && !error) $('kirim').onclick = kirim;
@@ -224,14 +237,15 @@ async function hapusAjuan(id, tanya){
 async function kirim(){
   const v = k => $('f_' + k).value.trim();
   const baru = {
-    nama: v('nama'), pendidikan: v('pendidikan') || null, jabatan: v('jabatan') || null,
+    nama: v('nama'), jabatan: v('jabatan') || null,
     sinta_id: idSaja(v('sinta_id')) || null, scopus_id: idSaja(v('scopus_id')) || null,
     orcid: idSaja(v('orcid')) || null,
+    ...(ADA_LKPS ? bacaFormLKPS(SAYA.pendidikan) : {}),
   };
   if (!baru.nama) return tulis('buruk', 'Nama wajib diisi.');
   const data = {}, lama = {};
   ISIAN.forEach(([k]) => {
-    if (String(baru[k] ?? '') !== String(SAYA[k] ?? '')) { data[k] = baru[k]; lama[k] = SAYA[k] ?? null; }
+    if (k in baru && !sama(baru[k], SAYA[k])) { data[k] = baru[k]; lama[k] = SAYA[k] ?? null; }
   });
   if (!Object.keys(data).length) return tulis('buruk', 'Tidak ada isian yang berubah.');
   const ingat = Object.entries(POLA)

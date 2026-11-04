@@ -94,6 +94,8 @@ addEventListener('error', function (e) {
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 import { pasangMenu } from './menu.js?v=2026-11-04-e202c6';
+import { ISIAN_PROFIL as ISIAN_PROFIL_LKPS, KOLOM_PROFIL, KATEGORI, tampil as tampilIsian,
+  formLKPS, bacaFormLKPS, pasangEditor } from './profil-dosen.js';
 
 /* =====================================================================
    KELOLA DOSEN — daftar dosen prodi diisi admin di situs (keputusan
@@ -135,7 +137,8 @@ const POLA = {
 };
 const KOLOM = 'id,nidn,nama,email,peran,pendidikan,jabatan,sinta_id,scopus_id,orcid,aktif,dtps';
 
-let SAYA = null, DOSEN = [], SUNTING = null;
+// ADA_LKPS: kolom profil LKPS 4.a ada (supabase/22-patch-profil-dosen.sql).
+let SAYA = null, DOSEN = [], SUNTING = null, ADA_LKPS = true;
 
 const nama = (daftar, v) => (daftar.find(x => x[0] === (v || '')) || [, v || '—'])[1];
 const opsi = (daftar, v) => daftar.map(([k, l]) =>
@@ -187,8 +190,7 @@ async function mulai(){
 // Ajuan perubahan profil dari profil.html (supabase/20-patch-ajuan-ubah.sql,
 // pemilik 2026-11-04). Setujui -> rpc setujui_ajuan_ubah menerapkan kolom
 // "Diajukan" ke tabel dosen; Tolak -> alasan dilihat dosen di profil.html.
-const ISIAN_PROFIL = [['nama', 'Nama lengkap'], ['pendidikan', 'Pendidikan'], ['jabatan', 'Jabatan'],
-  ['sinta_id', 'SINTA ID'], ['scopus_id', 'Scopus ID'], ['orcid', 'ORCID']];
+const ISIAN_PROFIL = ISIAN_PROFIL_LKPS;
 
 async function muatAjuanProfil(){
   const box = $('ajuanProfil');
@@ -198,16 +200,16 @@ async function muatAjuanProfil(){
   if (error) { box.innerHTML = `<p class="kosong">Tabel ajuan_ubah belum bisa dibaca (${esc(error.message)}).
     Jalankan supabase/20-patch-ajuan-ubah.sql.</p>`; return; }
   if (!aj?.length) { box.innerHTML = '<p class="kosong">Tidak ada ajuan perubahan profil.</p>'; return; }
-  const tampil = (k, v) => k === 'jabatan' ? nama(JABATAN, v) : (v || '—');
+  const tampil = (k, v) => tampilIsian(k, v, JABATAN);
   box.innerHTML = aj.map(a => {
     const d = DOSEN.find(x => x.id === a.dosen_id) || {};
     return `<div style="margin-bottom:16px"><p class="ket"><b>${esc(d.nama || 'dosen')}</b>,
       ${esc(String(a.dibuat_pada).slice(0, 10))}. Keterangan: ${esc(a.alasan || '-')}</p>
-      <table class="t"><thead><tr><th>Isian</th><th>Sekarang</th><th>Diajukan</th></tr></thead><tbody>${
+      <div class="gulir"><table class="t"><thead><tr><th>Isian</th><th>Sekarang</th><th>Diajukan</th></tr></thead><tbody>${
         ISIAN_PROFIL.filter(([k]) => k in (a.data || {})).map(([k, l]) =>
           `<tr><td>${esc(l)}</td><td>${esc(tampil(k, d.id ? d[k] : a.lama?.[k]))}</td>
             <td style="background:#EAF4EC">${esc(tampil(k, a.data[k]))}</td></tr>`).join('')
-      }</tbody></table>
+      }</tbody></table></div>
       <div class="aksi"><button class="btn kecil" data-su="${a.id}">Setujui</button>
         <button class="btn ghost kecil" data-tu="${a.id}">Tolak</button></div></div>`;
   }).join('');
@@ -234,7 +236,11 @@ async function muatAjuanProfil(){
 }
 
 async function muat(){
-  const { data, error } = await sb.from('dosen').select(KOLOM).order('nama');
+  let { data, error } = await sb.from('dosen').select(KOLOM + ',' + KOLOM_PROFIL).order('nama');
+  if (error && /kategori|riwayat|column/i.test(error.message)) {   // patch 22 belum dijalankan
+    ADA_LKPS = false;
+    ({ data, error } = await sb.from('dosen').select(KOLOM).order('nama'));
+  }
   if (error) {
     const kolomHilang = /pendidikan|jabatan|column/i.test(error.message);
     $('daftar').innerHTML = `<p class="kosong">Daftar dosen tidak bisa dibaca: ${esc(error.message)}${
@@ -249,12 +255,13 @@ async function muat(){
 
 function gambarDaftar(){
   const n = DOSEN.filter(d => d.dtps && d.aktif !== false).length;
-  $('daftar').innerHTML = `<p class="ket">${DOSEN.length} orang; ${n} dihitung DTPS.</p>
+  $('daftar').innerHTML = `<p class="ket">${DOSEN.length} orang; ${n} dihitung DTPS.${ADA_LKPS ? '' :
+      ' Profil LKPS 4.a belum tersedia: jalankan supabase/22-patch-profil-dosen.sql.'}</p>
     <table class="t"><thead><tr><th>Nama</th><th>NIDN/kode</th><th>Email</th><th>Peran</th>
-      <th>Pendidikan</th><th>Jabatan</th><th>Aktif</th><th>DTPS</th><th></th></tr></thead><tbody>${
+      ${ADA_LKPS ? '<th>Kategori</th>' : ''}<th>Pendidikan</th><th>Jabatan</th><th>Aktif</th><th>DTPS</th><th></th></tr></thead><tbody>${
     DOSEN.map(d => `<tr class="${d.id === SUNTING ? 'sunting' : ''}${d.aktif ? '' : ' nonaktif'}">
       <td>${esc(d.nama)}</td><td>${esc(d.nidn)}</td><td>${esc(d.email)}</td>
-      <td>${esc(nama(PERAN, d.peran))}</td><td>${esc(d.pendidikan || '—')}</td>
+      <td>${esc(nama(PERAN, d.peran))}</td>${ADA_LKPS ? `<td>${esc(nama(KATEGORI, d.kategori))}</td>` : ''}<td>${esc(d.pendidikan || '—')}</td>
       <td>${esc(nama(JABATAN, d.jabatan))}</td><td>${d.aktif ? 'ya' : 'tidak'}</td>
       <td>${d.dtps ? 'ya' : 'tidak'}</td>
       <td><button class="btn ghost kecil" data-ubah="${esc(d.id)}">Ubah</button></td></tr>`).join('')
@@ -288,6 +295,15 @@ function isiForm(d){
         <label class="cek"><input type="checkbox" id="f_aktif"${r.aktif ? ' checked' : ''}${diriSendiri ? ' disabled' : ''}>Aktif (boleh masuk situs)</label>
         <label class="cek"><input type="checkbox" id="f_dtps"${r.dtps ? ' checked' : ''}>Dihitung DTPS prodi</label></div>
     </div>
+    ${ADA_LKPS ? `<details style="margin-top:14px"><summary><b>Profil untuk LKPS (Tabel 4.a)</b></summary>
+      <div class="grid" style="margin-top:10px">
+        <div class="fld"><label>Kategori dosen</label><select id="f_kategori">${opsi(KATEGORI, r.kategori)}</select>
+          <small>Kosongkan untuk staf/asesor yang bukan dosen; hanya yang berkategori masuk Tabel 4.a.</small></div>
+        <div class="fld"><label>Penilaian prodi</label>
+          <label class="cek"><input type="checkbox" id="f_sesuai_kompetensi_inti"${r.sesuai_kompetensi_inti ? ' checked' : ''}>Sesuai kompetensi inti PS</label>
+          <label class="cek"><input type="checkbox" id="f_sesuai_keahlian_mk"${r.sesuai_keahlian_mk ? ' checked' : ''}>Bidang keahlian sesuai MK yang diampu</label></div>
+      </div>
+      ${formLKPS(r)}</details>` : ''}
     <div class="aksi"><button class="btn" id="simpan">${d ? 'Simpan perubahan' : 'Tambah'}</button>
       ${d ? '<button class="btn ghost" id="batal">Batal</button>' : ''}<span class="msg" id="pesan"></span></div>`;
   const sinkronDtps = () => {
@@ -297,6 +313,7 @@ function isiForm(d){
   };
   $('f_peran').onchange = sinkronDtps;
   sinkronDtps();
+  if (ADA_LKPS) pasangEditor($('form'));
   $('simpan').onclick = simpan;
   if (d) $('batal').onclick = () => { SUNTING = null; gambarDaftar(); isiForm(null); };
 }
@@ -310,6 +327,11 @@ async function simpan(){
     orcid: idSaja(v('orcid')) || null,
     aktif: $('f_aktif').checked, dtps: $('f_dtps').checked,
   };
+  if (ADA_LKPS) Object.assign(isi, bacaFormLKPS(isi.pendidikan), {
+    kategori: $('f_kategori').value || null,
+    sesuai_kompetensi_inti: $('f_sesuai_kompetensi_inti').checked,
+    sesuai_keahlian_mk: $('f_sesuai_keahlian_mk').checked,
+  });
   if (!isi.nama || !isi.nidn || !isi.email) return tulis('buruk', 'Nama, NIDN/kode, dan email wajib diisi.');
   if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(isi.email)) return tulis('buruk', 'Email tidak sah.');
   if (PERAN_BUKAN_DTPS.includes(isi.peran)) isi.dtps = false;

@@ -15,6 +15,8 @@
    angka yang sama dengan halaman skor. Lembar lain dibiarkan untuk diisi
    prodi; kolom yang tidak disimpan situs (mis. pita waktu tunggu) kosong.
    ===================================================================== */
+import { teksPendidikan } from './profil-dosen.js';
+
 const TEMPLATE = 'lkps-template.xlsx';
 const JSZIP = 'https://cdn.jsdelivr.net/npm/jszip@3.10.1/+esm';
 
@@ -135,6 +137,8 @@ export function petaLKPS(C){
    --------------------------------------------------------------------- */
 const JABATAN = { tenaga_pengajar: 'Tenaga Pengajar', asisten_ahli: 'Asisten Ahli', lektor: 'Lektor',
                   lektor_kepala: 'Lektor Kepala', guru_besar: 'Guru Besar' };
+// Daftar pilihan Kategori Dosen di lembar 4a (L6:L8).
+const KATEGORI_LKPS = { tetap: 'Dosen Tetap', tidak_tetap: 'Dosen Tidak Tetap', industri: 'Dosen Industri' };
 const INTEGRASI = { bahan_kajian: 'Tambahan Materi Perkuliahan', studi_kasus: 'Studi Kasus',
                     bab_buku_ajar: 'Bab/ Subbab dalam buku ajar', modul_praktikum: 'Bahan Ajar',
                     tugas_proyek: 'Bentuk Lain yang Relevan', lainnya: 'Bentuk Lain yang Relevan' };
@@ -160,17 +164,34 @@ export function petaDaftar(C){
   const dalam = (t, n = 3) => t >= ts - n + 1 && t <= ts;
   const urut = (a, b) => (a.tahun - b.tahun) || String(a.judul).localeCompare(String(b.judul));
 
-  // 4.a profil DTPS (nama di sini = daftar ValidDosen di lembar lain)
+  // 4.a profil dosen: semua yang berkategori (Dosen Tetap / Tidak Tetap /
+  // Industri; DTPS tanpa kategori = Dosen Tetap). Nama di sini = daftar
+  // ValidDosen di lembar lain. Kolom E-P, R, S dari profil-dosen.js
+  // (supabase/22-patch-profil-dosen.sql); "V" hanya bila admin menilai.
   const dtps = (X.dosen || []).filter(d => d.dtps && d.peran !== 'asesor')
     .sort((a, b) => a.nama.localeCompare(b.nama));
-  dtps.forEach((d, i) => {
+  const profil = (X.dosen || []).filter(d => d.peran !== 'asesor' && (d.kategori || d.dtps))
+    .sort((a, b) => a.nama.localeCompare(b.nama));
+  profil.forEach((d, i) => {
     const r = 14 + i;
-    set('4a', `B${r}`, d.nama); set('4a', `C${r}`, d.nidn); set('4a', `D${r}`, 'Dosen Tetap');
-    set('4a', `E${r}`, '[isi: prodi S1 dan bidang ilmu]');
-    if (d.pendidikan === 'S2' || d.pendidikan === 'S3') set('4a', `F${r}`, '[isi: prodi S2 dan bidang ilmu]');
-    if (d.pendidikan === 'S3') set('4a', `G${r}`, '[isi: prodi S3 dan bidang ilmu]');
-    set('4a', `J${r}`, 'V');
+    const rw = d.riwayat_pendidikan || [];
+    const pend = (kelompok, ada, ket) => teksPendidikan(rw, kelompok) ||
+      (ada ? `[isi: prodi ${ket} dan bidang ilmu]` : '');
+    const srt = (d.sertifikat || []);
+    set('4a', `B${r}`, d.nama); set('4a', `C${r}`, d.nidn);
+    set('4a', `D${r}`, KATEGORI_LKPS[d.kategori || 'tetap']);
+    set('4a', `E${r}`, pend('sarjana', !rw.length, 'S1'));
+    set('4a', `F${r}`, pend('magister', !rw.length && ['S2', 'S3'].includes(d.pendidikan), 'S2'));
+    set('4a', `G${r}`, pend('doktor', !rw.length && d.pendidikan === 'S3', 'S3'));
+    set('4a', `H${r}`, d.bidang_keahlian); set('4a', `I${r}`, d.perusahaan);
+    if (d.sesuai_kompetensi_inti === true) set('4a', `J${r}`, 'V');
     set('4a', `K${r}`, JABATAN[d.jabatan]);
+    set('4a', `L${r}`, d.nomor_serdos);
+    set('4a', `M${r}`, srt.map(s => s.bidang).filter(Boolean).join('; '));
+    set('4a', `N${r}`, srt.map(s => s.lembaga).filter(Boolean).join('; '));
+    set('4a', `O${r}`, d.skip); set('4a', `P${r}`, d.stri);
+    if (d.sesuai_keahlian_mk === true) set('4a', `R${r}`, 'V');
+    set('4a', `S${r}`, d.mk_ps_lain);
   });
 
   // 4.c beban kerja DTPS pada TS (jumlah kedua semester)
