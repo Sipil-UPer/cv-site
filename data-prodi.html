@@ -74,7 +74,7 @@
   .masuk{max-width:420px;margin:40px auto;background:#fff;border:1px solid var(--line);padding:20px}
   .masuk input{width:100%;padding:8px 10px;margin:8px 0;font:inherit}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-04-cb31e0">
+<link rel="stylesheet" href="kepala.css?v=2026-11-04-be75e7">
 </head>
 <body>
 
@@ -88,7 +88,7 @@
 
 <main class="wrap" id="isi"></main>
 
-<script src="config.js?v=2026-11-04-cb31e0"></script>
+<script src="config.js?v=2026-11-04-be75e7"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -105,9 +105,9 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-04-cb31e0';
-import { pasangMenu } from './menu.js?v=2026-11-04-cb31e0';
-import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-04-cb31e0';
+import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-04-be75e7';
+import { pasangMenu } from './menu.js?v=2026-11-04-be75e7';
+import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-04-be75e7';
 
 /* =====================================================================
    DATA PRODI — data kuantitatif LKPS diisi admin di situs (keputusan
@@ -156,7 +156,8 @@ const JENIS_BUKTI_KS = [['surat_penugasan', 'Surat penugasan'], ['spk', 'Surat p
 const TABEL = [
   { id: 'tracer', tabel: 'lkps_tracer_lulusan', judul: 'Tracer study', butir: '48–51',
     ket: 'Satu baris per TAHUN LULUS, angka gabungan tanpa nama (Tabel 6.f.1, 6.f.2, 6.g.1). '
-       + 'Butir 49–51 memakai lulusan TS-2 s.d. TS-1; responden minimal 30% lulusan.',
+       + 'Butir 49–51 memakai lulusan TS-2 s.d. TS-1; responden minimal 30% lulusan. Pita waktu tunggu '
+       + 'mengikuti Tabel 6.f.1 bagian Sarjana (< 3, 3–18, > 18 bulan).',
     label: r => `Tracer lulusan ${r.tahun_lulus || ''}`, tahun: r => r.tahun_lulus,
     kolom: [
       { k: 'tahun_lulus', l: 'Tahun lulus', t: 'tahun', wajib: true },
@@ -164,6 +165,12 @@ const TABEL = [
       { k: 'jumlah_terlacak', l: 'Jumlah terlacak (responden)', t: 'int' },
       { k: 'rata_rata_waktu_tunggu_bulan', l: 'Rata-rata waktu tunggu (bulan)', t: 'num' },
       { k: 'bekerja_sesuai_bidang', l: 'Bekerja sesuai bidang (orang)', t: 'int' },
+      { k: 'wt_kurang_3', l: 'Waktu tunggu < 3 bulan (orang)', t: 'int' },
+      { k: 'wt_3_18', l: 'Waktu tunggu 3–18 bulan (orang)', t: 'int' },
+      { k: 'wt_lebih_18', l: 'Waktu tunggu > 18 bulan (orang)', t: 'int' },
+      { k: 'kesesuaian_rendah', l: 'Kesesuaian bidang kerja rendah (orang)', t: 'int' },
+      { k: 'kesesuaian_sedang', l: 'Kesesuaian bidang kerja sedang (orang)', t: 'int' },
+      { k: 'kesesuaian_tinggi', l: 'Kesesuaian bidang kerja tinggi (orang)', t: 'int' },
       { k: 'kerja_internasional', l: 'Tempat kerja multinasional/internasional', t: 'int' },
       { k: 'kerja_nasional', l: 'Tempat kerja nasional/wirausaha berizin', t: 'int' },
       { k: 'kerja_wilayah', l: 'Tempat kerja wilayah/lokal', t: 'int' },
@@ -177,6 +184,11 @@ const TABEL = [
         return 'Jumlah menurut tingkat tempat kerja melebihi jumlah terlacak.';
       if (r.bekerja_sesuai_bidang != null && r.jumlah_terlacak != null && r.bekerja_sesuai_bidang > r.jumlah_terlacak)
         return 'Bekerja sesuai bidang melebihi jumlah terlacak.';
+      const jml = ks => ks.reduce((a, k) => a + (r[k] || 0), 0);
+      if (r.jumlah_terlacak != null && jml(['wt_kurang_3', 'wt_3_18', 'wt_lebih_18']) > r.jumlah_terlacak)
+        return 'Jumlah menurut waktu tunggu melebihi jumlah terlacak.';
+      if (r.jumlah_terlacak != null && jml(['kesesuaian_rendah', 'kesesuaian_sedang', 'kesesuaian_tinggi']) > r.jumlah_terlacak)
+        return 'Jumlah menurut kesesuaian bidang melebihi jumlah terlacak.';
       return '';
     } },
   { id: 'kepuasan', tabel: 'lkps_kepuasan_pengguna', judul: 'Kepuasan pengguna', butir: '52',
@@ -309,14 +321,24 @@ const TABEL = [
       { k: 'tahun_akademik', l: 'Tahun akademik (mis. 2025/2026)', t: 'ta', wajib: true },
       { k: 'jumlah_mahasiswa_aktif', l: 'Mahasiswa aktif', t: 'int' },
       { k: 'jumlah_lulusan', l: 'Jumlah lulusan', t: 'int' },
+      { k: 'ipk_min', l: 'IPK lulusan minimum', t: 'num', maks: 4 },
       { k: 'rerata_ipk_lulusan', l: 'Rerata IPK lulusan', t: 'num', maks: 4 },
-      { k: 'jumlah_mahasiswa_asing', l: 'Mahasiswa asing', t: 'int' },
+      { k: 'ipk_maks', l: 'IPK lulusan maksimum', t: 'num', maks: 4 },
+      { k: 'jumlah_mahasiswa_asing_penuh', l: 'Mahasiswa asing penuh waktu', t: 'int' },
+      { k: 'jumlah_mahasiswa_asing_paruh', l: 'Mahasiswa asing paruh waktu', t: 'int' },
       { k: 'rerata_masa_studi_tahun', l: 'Rerata masa studi (tahun, opsional)', t: 'num', maks: 15 },
       { k: 'persen_lulus_tepat_waktu', l: 'Lulus tepat waktu (%, opsional)', t: 'num', maks: 100 },
       { k: 'bukti_url', l: 'Bukti (rekap PDDikti/SIAKAD)', t: 'url' },
     ],
+    // Skor butir 41 memakai jumlah_mahasiswa_asing = penuh + paruh waktu (patch 26).
+    olah: r => {
+      if (r.jumlah_mahasiswa_asing_penuh != null || r.jumlah_mahasiswa_asing_paruh != null)
+        r.jumlah_mahasiswa_asing = (r.jumlah_mahasiswa_asing_penuh || 0) + (r.jumlah_mahasiswa_asing_paruh || 0);
+    },
     cek: r => r.jumlah_mahasiswa_asing != null && r.jumlah_mahasiswa_aktif != null
-      && r.jumlah_mahasiswa_asing > r.jumlah_mahasiswa_aktif ? 'Mahasiswa asing melebihi mahasiswa aktif.' : '' },
+      && r.jumlah_mahasiswa_asing > r.jumlah_mahasiswa_aktif ? 'Mahasiswa asing melebihi mahasiswa aktif.'
+      : r.ipk_min != null && r.rerata_ipk_lulusan != null && r.ipk_min > r.rerata_ipk_lulusan ? 'IPK minimum lebih besar dari rerata.'
+      : r.ipk_maks != null && r.rerata_ipk_lulusan != null && r.ipk_maks < r.rerata_ipk_lulusan ? 'IPK maksimum lebih kecil dari rerata.' : '' },
   { id: 'bkd', tabel: 'lkps_bkd', judul: 'Beban kerja dosen', butir: '30',
     ket: 'Satu baris per dosen per semester (Tabel 4.c). Tidak pernah dipublikasikan.',
     label: r => `BKD ${r.nidn || ''} ${r.tahun_akademik || ''} ${r.semester || ''}`,
@@ -371,7 +393,8 @@ const TABEL = [
       { k: 'bukti_url', l: 'Bukti (DOI/URL)', t: 'url' },
     ] },
   { id: 'luaran', tabel: 'lkps_luaran_mahasiswa', judul: 'Luaran mahasiswa', butir: '47',
-    ket: 'HKI, TTG, produk, dan buku karya mahasiswa (Tabel 6.e.3). Beberapa mahasiswa dipisah titik koma.',
+    ket: 'HKI, TTG, produk, dan buku karya mahasiswa (Tabel 6.e.3). LKPS hanya menghitung baris yang bertanggal '
+       + '(tahun + bulan) dan bernomor: nomor registrasi/paten, nomor HKI, nomor sertifikat TKT, atau ISBN.',
     label: r => `${r.judul || 'Luaran'}`, tahun: r => r.tahun,
     kolom: [
       { k: 'judul', l: 'Judul', t: 'teks', wajib: true, lebar: true },
@@ -380,8 +403,13 @@ const TABEL = [
             ['desain_industri', 'Desain industri'], ['merek', 'Merek'], ['ttg', 'TTG'], ['produk', 'Produk'],
             ['buku_isbn', 'Buku ber-ISBN'], ['book_chapter', 'Book chapter']] },
       { k: 'nama_mahasiswa', l: 'Mahasiswa (nama dan NIM)', t: 'mhs', nim: 'nim' },
+      { k: 'nomor', l: 'Nomor (registrasi/paten, HKI, sertifikat TKT, atau ISBN)', t: 'teks', lebar: true },
+      { k: 'status_hki', l: 'Status paten (paten/paten sederhana)', t: 'pilihan',
+        o: [['registered', 'Registered'], ['granted', 'Granted'], ['komersial', 'Komersial']] },
+      { k: 'tkt', l: 'TKT (TTG/produk)', t: 'pilihan',
+        o: Array.from({ length: 9 }, (_, i) => [String(i + 1), 'TKT ' + (i + 1)]) },
       { k: 'tahun', l: 'Tahun', t: 'tahun', wajib: true },
-      { k: 'bulan', l: 'Bulan (dianjurkan)', t: 'bulan' },
+      { k: 'bulan', l: 'Bulan (wajib untuk LKPS: tanggal)', t: 'bulan' },
       { k: 'bukti_url', l: 'Bukti (sertifikat/ISBN)', t: 'url' },
     ] },
 ];
@@ -609,7 +637,7 @@ async function muatBaris(){
     : c.t === 'url' ? `<a href="${esc(v)}" target="_blank" rel="noopener nofollow">buka</a>`
     : c.t === 'bulan' ? esc(BULAN[v - 1] || v)
     : c.t === 'nidn' ? esc((DOSEN.find(d => d.nidn === v) || {}).nama || v)
-    : c.t === 'pilihan' ? esc((c.o.find(o => o[0] === v) || [v, v])[1]) : esc(v);
+    : c.t === 'pilihan' ? esc((c.o.find(o => o[0] === String(v)) || [v, v])[1]) : esc(v);
   box.innerHTML = `<table class="t"><thead><tr>${kolomForm(T).map(c => `<th>${esc(c.l)}</th>`).join('')}
       <th>Bukti</th><th>Diperbarui</th><th></th></tr></thead><tbody>${BARIS.map(r => `<tr data-id="${r.id}">
       ${kolomForm(T).map(c => `<td>${tampil(c, r[c.k])}</td>`).join('')}

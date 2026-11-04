@@ -15,7 +15,7 @@
    angka yang sama dengan halaman skor. Lembar lain dibiarkan untuk diisi
    prodi; kolom yang tidak disimpan situs (mis. pita waktu tunggu) kosong.
    ===================================================================== */
-import { teksPendidikan } from './profil-dosen.js?v=2026-11-04-cb31e0';
+import { teksPendidikan } from './profil-dosen.js?v=2026-11-04-be75e7';
 
 const TEMPLATE = 'lkps-template.xlsx';
 const JSZIP = 'https://cdn.jsdelivr.net/npm/jszip@3.10.1/+esm';
@@ -359,13 +359,43 @@ export function petaDaftar(C){
 
   // 6.e.3 luaran mahasiswa (judul dan tanggal; nomor/status diisi prodi)
   const lm = (X.luaranMhs || []).filter(x => dalam(tsBaris(x))).sort(urut);
-  const isiLm = (l, r0, jenis) => lm.filter(x => jenis.includes(x.jenis)).forEach((x, i) => {
-    set(l, `B${r0 + i}`, x.judul); set(l, `C${r0 + i}`, serialTanggal(x.tahun, x.bulan));
+  // Kolom status/nomor/TKT dari 26-patch-mahasiswa-lulusan.sql; rumus jumlah
+  // 6.e.3 hanya menghitung baris bertanggal dan bernomor.
+  const STATUS_HKI = { registered: 'Registered', granted: 'Granted', komersial: 'Komersial' };
+  const isiLm = (l, r0, jenis, isi) => lm.filter(x => jenis.includes(x.jenis)).forEach((x, i) => {
+    const r = r0 + i;
+    set(l, `B${r}`, x.judul); set(l, `C${r}`, serialTanggal(x.tahun, x.bulan));
+    isi(r, x);
   });
-  isiLm('6e3-1', 12, ['paten', 'paten_sederhana']);
-  isiLm('6e3-2', 8, ['hak_cipta', 'desain_industri', 'merek']);
-  isiLm('6e3-3', 18, ['ttg', 'produk']);
-  isiLm('6e3-4', 8, ['buku_isbn', 'book_chapter']);
+  isiLm('6e3-1', 12, ['paten', 'paten_sederhana'], (r, x) => {
+    set('6e3-1', `D${r}`, STATUS_HKI[x.status_hki]); set('6e3-1', `E${r}`, x.nomor); });
+  isiLm('6e3-2', 8, ['hak_cipta', 'desain_industri', 'merek'], (r, x) => set('6e3-2', `D${r}`, x.nomor));
+  isiLm('6e3-3', 18, ['ttg', 'produk'], (r, x) => {
+    if (x.tkt) set('6e3-3', `D${r}`, `TKT ${x.tkt}`); set('6e3-3', `E${r}`, x.nomor); });
+  isiLm('6e3-4', 8, ['buku_isbn', 'book_chapter'], (r, x) => set('6e3-4', `D${r}`, x.nomor));
+
+  // 6.a / 6.b / 6.f.1 (Sarjana) / 6.f.2: kolom baru dari Data prodi (patch 26);
+  // kolom lama diisi petaLKPS dari data.json.
+  const tsDari = ta => +String(ta || '').slice(5);
+  [ts - 2, ts - 1, ts].forEach((t, i) => {
+    const m = (X.mhs || []).find(x => tsDari(x.tahun_akademik) === t);
+    if (!m) return;
+    // Langsung dari Data prodi (lebih baru dari data.json bila situs belum dibangun ulang).
+    set('6a', `${'DEF'[i]}7`, m.jumlah_mahasiswa_aktif);
+    if (m.jumlah_mahasiswa_asing_penuh != null) set('6a', `${'GHI'[i]}7`, m.jumlah_mahasiswa_asing_penuh);
+    set('6a', `${'JKL'[i]}7`, m.jumlah_mahasiswa_asing_paruh);
+    if (m.jumlah_lulusan) {
+      set('6b', `C${6 + i}`, m.jumlah_lulusan); set('6b', `E${6 + i}`, m.rerata_ipk_lulusan);
+      set('6b', `D${6 + i}`, m.ipk_min); set('6b', `F${6 + i}`, m.ipk_maks);
+    }
+  });
+  [ts - 2, ts - 1].forEach((t, i) => {
+    const r = (X.tracer || []).find(x => +x.tahun_lulus === t);
+    if (!r) return;
+    set('6f1', `D${31 + i}`, r.wt_kurang_3); set('6f1', `E${31 + i}`, r.wt_3_18); set('6f1', `F${31 + i}`, r.wt_lebih_18);
+    set('6f2', `D${7 + i}`, r.kesesuaian_rendah); set('6f2', `E${7 + i}`, r.kesesuaian_sedang);
+    set('6f2', `F${7 + i}`, r.kesesuaian_tinggi);
+  });
 
   // 6.h.1 / 6.i penelitian / PkM DTPS yang melibatkan mahasiswa
   const namaTema = new Map((X.tema || []).map(t => [t.id, t.nama]));
