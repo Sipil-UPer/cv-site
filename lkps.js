@@ -15,7 +15,7 @@
    angka yang sama dengan halaman skor. Lembar lain dibiarkan untuk diisi
    prodi; kolom yang tidak disimpan situs (mis. pita waktu tunggu) kosong.
    ===================================================================== */
-import { teksPendidikan } from './profil-dosen.js?v=2026-11-04-be75e7';
+import { teksPendidikan } from './profil-dosen.js?v=2026-11-04-d22816';
 
 const TEMPLATE = 'lkps-template.xlsx';
 const JSZIP = 'https://cdn.jsdelivr.net/npm/jszip@3.10.1/+esm';
@@ -373,6 +373,57 @@ export function petaDaftar(C){
   isiLm('6e3-3', 18, ['ttg', 'produk'], (r, x) => {
     if (x.tkt) set('6e3-3', `D${r}`, `TKT ${x.tkt}`); set('6e3-3', `E${r}`, x.nomor); });
   isiLm('6e3-4', 8, ['buku_isbn', 'book_chapter'], (r, x) => set('6e3-4', `D${r}`, x.nomor));
+
+  // PS / Tabel 1 / 2.b / 4.b / 6.a baris prodi lain (27-patch-institusi-upps.sql).
+  const STATUS_PS = { unggul: 'Terakreditasi Unggul', a: 'Terakreditasi A', baik_sekali: 'Terakreditasi Baik Sekali',
+    b: 'Terakreditasi B', baik: 'Terakreditasi Baik', c: 'Terakreditasi C', minimum: 'Terakreditasi Minimum',
+    tidak_terakreditasi: 'Tidak Terakreditasi' };
+  const tglTeks = iso => (String(iso || '').match(/^(\d{4})-(\d{2})-(\d{2})/) || []).slice(1).reverse().join('/');
+  const mhsTS = (X.mhs || []).find(x => +String(x.tahun_akademik || '').slice(5) === ts);
+  const prodi = (X.prodiUpps || []).slice()
+    .sort((a, b) => ((a.urutan ?? 100) - (b.urutan ?? 100)) || String(a.nama_prodi).localeCompare(String(b.nama_prodi)));
+  prodi.forEach((x, i) => {
+    const r = 17 + i;
+    set('PS', `B${r}`, x.jenis_program); set('PS', `C${r}`, x.nama_prodi);
+    set('PS', `D${r}`, STATUS_PS[x.status_akreditasi]);
+    set('PS', `E${r}`, [x.nomor_sk, tglTeks(x.tanggal_sk)].filter(Boolean).join(', '));
+    set('PS', `F${r}`, serialISO(x.tanggal_kedaluwarsa));
+    set('PS', `G${r}`, x.mahasiswa_ts ?? (x.diakreditasi ? mhsTS?.jumlah_mahasiswa_aktif : null));
+  });
+  prodi.filter(x => !x.diakreditasi).forEach((x, i) => {
+    const r = 8 + i;                                   // baris 7 = prodi yang diakreditasi
+    set('6a', `B${r}`, x.nama_prodi);
+    set('6a', `D${r}`, x.mahasiswa_ts2); set('6a', `E${r}`, x.mahasiswa_ts1); set('6a', `F${r}`, x.mahasiswa_ts);
+  });
+
+  const BARIS_VMTS = { pt: 7, upps: 9, ps: 11 };
+  (X.vmts || []).forEach(v => {
+    const r = BARIS_VMTS[v.jenis];
+    if (!r) return;
+    set('1', `C${r}`, [['Visi', v.visi], ['Misi', v.misi], ['Tujuan', v.tujuan], ['Strategi', v.strategi]]
+      .filter(([, s]) => s).map(([l, s]) => `${l}: ${String(s).trim()}`).join('; '));
+    set('1', `D${r}`, v.nomor_sk);
+    set('1', `E${r}`, v.tautan || (X.buktiVmts || []).find(b => b.baris_id === v.id)?.url);
+  });
+
+  const BARIS_DANA = { biaya_dosen: 7, biaya_tendik: 8, operasional_pembelajaran: 9, operasional_tidak_langsung: 10,
+    operasional_luar_pt: 11, investasi: 12, kemahasiswaan: 13, penelitian: 15, pkm: 16 };
+  (X.dana || []).forEach(d => {
+    const r = BARIS_DANA[d.jenis], j = +String(d.tahun_akademik || '').slice(5) - (ts - 2);
+    if (!r || j < 0 || j > 2) return;
+    set('2b', `${'CDE'[j]}${r}`, d.dana_upps); set('2b', `${'GHI'[j]}${r}`, d.dana_ps);
+  });
+
+  const KOLOM_PEND = { s3: 'C', s2: 'D', s1: 'E', d4: 'F', d3: 'G', d2: 'H', d1: 'I', sma_smk: 'J' };
+  const UNIT_TENDIK = { upps: 'UPPS', prodi: 'Program Studi', institusi: 'Institusi' };
+  (X.tendik || []).filter(x => x.aktif !== false)
+    .sort((a, b) => String(a.nama).localeCompare(String(b.nama))).slice(0, 20)   // templat: baris 11-30
+    .forEach((x, i) => {
+      const r = 11 + i;
+      set('4b', `B${r}`, x.nama);
+      if (KOLOM_PEND[x.pendidikan]) set('4b', `${KOLOM_PEND[x.pendidikan]}${r}`, 'V');
+      set('4b', `K${r}`, x.sertifikat); set('4b', `L${r}`, UNIT_TENDIK[x.unit_kerja]);
+    });
 
   // 6.a / 6.b / 6.f.1 (Sarjana) / 6.f.2: kolom baru dari Data prodi (patch 26);
   // kolom lama diisi petaLKPS dari data.json.

@@ -50,6 +50,7 @@
   .mhs-daftar + .btn{margin-top:2px}
   label.cek{display:flex;gap:6px;align-items:center;font-size:13.5px;cursor:pointer}
   label.cek input{width:auto;margin:0}
+  .fld textarea{width:100%;padding:7px 9px;border:1px solid var(--line);font:inherit;font-size:13.5px;resize:vertical}
   .jamak{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:2px 12px;
     max-height:170px;overflow:auto;border:1px solid var(--line);padding:6px 8px;background:#fff}
   .unggah-baris{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:5px;font-size:12.5px}
@@ -74,7 +75,7 @@
   .masuk{max-width:420px;margin:40px auto;background:#fff;border:1px solid var(--line);padding:20px}
   .masuk input{width:100%;padding:8px 10px;margin:8px 0;font:inherit}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-04-be75e7">
+<link rel="stylesheet" href="kepala.css?v=2026-11-04-d22816">
 </head>
 <body>
 
@@ -88,7 +89,7 @@
 
 <main class="wrap" id="isi"></main>
 
-<script src="config.js?v=2026-11-04-be75e7"></script>
+<script src="config.js?v=2026-11-04-d22816"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -105,9 +106,9 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-04-be75e7';
-import { pasangMenu } from './menu.js?v=2026-11-04-be75e7';
-import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-04-be75e7';
+import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-04-d22816';
+import { pasangMenu } from './menu.js?v=2026-11-04-d22816';
+import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-04-d22816';
 
 /* =====================================================================
    DATA PRODI — data kuantitatif LKPS diisi admin di situs (keputusan
@@ -118,7 +119,7 @@ import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-04-be75e7';
    Satu entri TABEL = satu tab. Jenis isian:
      tahun | ta (2025/2026) | bulan | int (>= 0) | num (>= 0, opsional maks)
      teks | pilihan | nidn (daftar dosen) | url (+ unggah bukti)
-     tanggal (YYYY-MM-DD, tampil DD/MM/YYYY)
+     tanggal (YYYY-MM-DD, tampil DD/MM/YYYY) | paragraf (teks panjang, kotak bertingkat)
      mhs (beberapa mahasiswa: baris nama + NIM; disimpan di kolom k dan
           kolom `nim`, dipisah "; ", sama dengan isian lama)
      cek (centang -> boolean, tampil "V"; awal = nilai baris baru)
@@ -149,6 +150,16 @@ const UNGGAH = (() => {
 const BULAN = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus',
                'September', 'Oktober', 'November', 'Desember'];
 const TINGKAT_3 = [['internasional', 'Internasional'], ['nasional', 'Nasional'], ['wilayah', 'Wilayah/lokal']];
+// Daftar pilihan templat LKPS (27-patch-institusi-upps.sql): lembar PS B5:B12, baris 2b.
+const STATUS_AKREDITASI = [['unggul', 'Terakreditasi Unggul'], ['a', 'Terakreditasi A'], ['baik_sekali', 'Terakreditasi Baik Sekali'],
+  ['b', 'Terakreditasi B'], ['baik', 'Terakreditasi Baik'], ['c', 'Terakreditasi C'], ['minimum', 'Terakreditasi Minimum'],
+  ['tidak_terakreditasi', 'Tidak Terakreditasi']];
+const JENIS_DANA = [['biaya_dosen', 'a. Biaya dosen (gaji, honor)'], ['biaya_tendik', 'b. Biaya tenaga kependidikan (gaji, honor)'],
+  ['operasional_pembelajaran', 'c. Operasional pembelajaran (bahan, peralatan habis pakai)'],
+  ['operasional_tidak_langsung', 'd. Operasional tidak langsung (listrik, gas, air, pemeliharaan, dll.)'],
+  ['operasional_luar_pt', 'e. Operasional pendidikan di luar PT (khusus Profesi Insinyur)'],
+  ['investasi', 'f. Investasi (SDM, sarana, prasarana)'], ['kemahasiswaan', 'Operasional kemahasiswaan'],
+  ['penelitian', 'Biaya penelitian'], ['pkm', 'Biaya PkM']];
 // Bukti kerja sama: daftar pilihan lembar 2a1 L4:L7 (24-patch-kerjasama-induk.sql).
 const JENIS_BUKTI_KS = [['surat_penugasan', 'Surat penugasan'], ['spk', 'Surat perjanjian kerja sama (SPK)'],
   ['bukti_pelaksanaan', 'Bukti pelaksanaan (laporan, hasil, luaran)'], ['lainnya', 'Bukti lain yang relevan']];
@@ -311,6 +322,76 @@ const TABEL = [
       { k: 'urutan', l: 'Urutan tampil', t: 'int' },
     ],
     olah: r => { if (r.urutan == null) r.urutan = 100; } },
+  { id: 'vmts', tabel: 'lkps_vmts', judul: 'VMTS', butir: '1–3', patch: '27-patch-institusi-upps.sql',
+    urut: ['jenis'],
+    ket: 'Tabel 1 LKPS: satu baris per jenis — VMTS perguruan tinggi, VMTS UPPS, dan visi keilmuan program studi '
+       + '(cukup isi kolom Visi). Pernyataan di LKPS disusun "Visi: …; Misi: …; Tujuan: …; Strategi: …". '
+       + 'Unggah SK penetapan sebagai bukti baris.',
+    label: r => ({ pt: 'VMTS PT', upps: 'VMTS UPPS', ps: 'Visi keilmuan PS' })[r.jenis] || 'VMTS', tahun: () => null,
+    kolom: [
+      { k: 'jenis', l: 'Jenis', t: 'pilihan', wajib: true,
+        o: [['pt', 'VMTS perguruan tinggi'], ['upps', 'VMTS UPPS'], ['ps', 'Visi keilmuan program studi']] },
+      { k: 'nomor_sk', l: 'Nomor SK penetapan', t: 'teks' },
+      { k: 'visi', l: 'Visi', t: 'paragraf' },
+      { k: 'misi', l: 'Misi', t: 'paragraf' },
+      { k: 'tujuan', l: 'Tujuan', t: 'paragraf' },
+      { k: 'strategi', l: 'Strategi', t: 'paragraf' },
+      { k: 'tautan', l: 'Tautan dokumen', t: 'url' },
+    ],
+    cek: r => !(r.visi || r.misi || r.tujuan || r.strategi) ? 'Isi sedikitnya satu pernyataan.' : '' },
+  { id: 'prodi_upps', tabel: 'lkps_prodi_upps', judul: 'Prodi di UPPS', butir: 'PS, 6.a',
+    patch: '27-patch-institusi-upps.sql', urut: ['urutan', 'nama_prodi'],
+    ket: 'Tabel Daftar Program Studi di UPPS: semua prodi di fakultas/UPPS, termasuk prodi ini (centang "Prodi yang '
+       + 'diakreditasi"). Jumlah mahasiswa prodi lain juga mengisi baris tambahan Tabel 6.a; untuk prodi ini Tabel 6.a '
+       + 'memakai tab Mahasiswa per TS.',
+    label: r => r.nama_prodi || 'Prodi', tahun: () => null,
+    kolom: [
+      { k: 'jenis_program', l: 'Jenis program', t: 'pilihan', wajib: true, o: [['Diploma Tiga', 'Diploma Tiga'],
+        ['Sarjana', 'Sarjana'], ['Sarjana Terapan', 'Sarjana Terapan'], ['Magister', 'Magister'],
+        ['Magister Terapan', 'Magister Terapan'], ['Doktor', 'Doktor'], ['Doktor Terapan', 'Doktor Terapan'],
+        ['Profesi Insinyur', 'Profesi Insinyur']] },
+      { k: 'nama_prodi', l: 'Nama program studi', t: 'teks', wajib: true, lebar: true },
+      { k: 'diakreditasi', l: 'Prodi yang diakreditasi (prodi ini)', t: 'cek' },
+      { k: 'status_akreditasi', l: 'Status/peringkat akreditasi', t: 'pilihan', o: STATUS_AKREDITASI },
+      { k: 'nomor_sk', l: 'Nomor SK akreditasi', t: 'teks' },
+      { k: 'tanggal_sk', l: 'Tanggal SK', t: 'tanggal' },
+      { k: 'tanggal_kedaluwarsa', l: 'Tanggal kedaluwarsa', t: 'tanggal' },
+      { k: 'mahasiswa_ts2', l: 'Mahasiswa aktif TS-2', t: 'int' },
+      { k: 'mahasiswa_ts1', l: 'Mahasiswa aktif TS-1', t: 'int' },
+      { k: 'mahasiswa_ts', l: 'Mahasiswa aktif TS', t: 'int' },
+      { k: 'urutan', l: 'Urutan tampil', t: 'int' },
+    ],
+    olah: r => { if (r.urutan == null) r.urutan = 100; },
+    cek: r => r.tanggal_sk && r.tanggal_kedaluwarsa && r.tanggal_kedaluwarsa < r.tanggal_sk
+      ? 'Tanggal kedaluwarsa lebih awal dari tanggal SK.' : '' },
+  { id: 'dana', tabel: 'lkps_penggunaan_dana', judul: 'Penggunaan dana', butir: '8–11',
+    patch: '27-patch-institusi-upps.sql', urut: ['tahun_akademik', 'jenis'],
+    ket: 'Tabel 2.b LKPS: satu baris per TAHUN AKADEMIK per jenis penggunaan, dalam rupiah, untuk UPPS dan untuk '
+       + 'program studi. Rata-rata dan jumlah dihitung LKPS.',
+    label: r => `Dana ${r.tahun_akademik || ''} ${(JENIS_DANA.find(o => o[0] === r.jenis) || [, ''])[1]}`,
+    tahun: r => r.tahun_akademik ? +String(r.tahun_akademik).slice(5) : null,
+    kolom: [
+      { k: 'tahun_akademik', l: 'Tahun akademik (mis. 2025/2026)', t: 'ta', wajib: true },
+      { k: 'jenis', l: 'Jenis penggunaan', t: 'pilihan', wajib: true, o: JENIS_DANA },
+      { k: 'dana_upps', l: 'UPPS (Rp)', t: 'num' },
+      { k: 'dana_ps', l: 'Program studi (Rp)', t: 'num' },
+    ],
+    cek: r => r.dana_upps == null && r.dana_ps == null ? 'Isi dana UPPS atau program studi.' : '' },
+  { id: 'tendik', tabel: 'lkps_tendik', judul: 'Tenaga kependidikan', butir: '29',
+    patch: '27-patch-institusi-upps.sql', urut: ['nama'],
+    ket: 'Tabel 4.b LKPS: laboran, teknisi, dan administrator sistem yang mendukung prodi (maksimal 20 baris di LKPS). '
+       + 'Unggah sertifikat kompetensi sebagai bukti baris.',
+    label: r => r.nama || 'Tenaga kependidikan', tahun: () => null,
+    kolom: [
+      { k: 'nama', l: 'Nama', t: 'teks', wajib: true, lebar: true },
+      { k: 'jabatan', l: 'Jabatan', t: 'pilihan', o: [['laboran', 'Laboran'], ['teknisi', 'Teknisi'],
+        ['administrator_sistem', 'Administrator sistem'], ['lainnya', 'Lainnya']] },
+      { k: 'pendidikan', l: 'Pendidikan terakhir', t: 'pilihan', o: [['s3', 'S3'], ['s2', 'S2'], ['s1', 'S1'],
+        ['d4', 'D4'], ['d3', 'D3'], ['d2', 'D2'], ['d1', 'D1'], ['sma_smk', 'SMA/SMK']] },
+      { k: 'sertifikat', l: 'Sertifikat kompetensi', t: 'teks', lebar: true },
+      { k: 'unit_kerja', l: 'Unit kerja', t: 'pilihan', o: [['upps', 'UPPS'], ['prodi', 'Program studi'], ['institusi', 'Institusi']] },
+      { k: 'aktif', l: 'Aktif', t: 'cek', awal: true },
+    ] },
   { id: 'mahasiswa', tabel: 'lkps_mahasiswa_ta', judul: 'Mahasiswa per TS', butir: '40–45',
     ket: 'Satu baris per TAHUN AKADEMIK (TS = 1 Sep s.d. 31 Agu), angka gabungan. Mahasiswa aktif = NM '
        + '(butir 40, 43, 46); lulusan + rerata IPK = butir 42; mahasiswa asing = butir 41. Masa studi dan '
@@ -512,6 +593,8 @@ function isian(c){
   if (c.t === 'mhs')
     return `<div class="fld lebar"><label>${esc(c.l)}${wj}</label><div class="mhs-daftar" id="${id}">${barisMhs()}</div>
       <button type="button" class="btn ghost kecil" data-tambah-mhs="${c.k}">+ Tambah mahasiswa</button></div>`;
+  if (c.t === 'paragraf')
+    return `<div class="fld lebar"><label for="${id}">${esc(c.l)}${wj}</label><textarea id="${id}" rows="3"></textarea></div>`;
   if (c.t === 'cek')
     return `<div class="fld"><label class="cek" style="margin-top:20px"><input type="checkbox" id="${id}"${c.awal ? ' checked' : ''}>${esc(c.l)}</label></div>`;
   if (c.t === 'jamak')
@@ -634,6 +717,7 @@ async function muatBaris(){
     : c.t === 'jamak' ? (v && v.length ? esc(v.map(x => (c.o().find(o => o[0] === x) || [x, x])[1]).join('; ')) : '—')
     : v == null || v === '' ? '—'
     : c.t === 'tanggal' ? esc(String(v).slice(0, 10).split('-').reverse().join('/'))
+    : c.t === 'paragraf' ? esc(String(v).length > 90 ? String(v).slice(0, 88) + '…' : v)
     : c.t === 'url' ? `<a href="${esc(v)}" target="_blank" rel="noopener nofollow">buka</a>`
     : c.t === 'bulan' ? esc(BULAN[v - 1] || v)
     : c.t === 'nidn' ? esc((DOSEN.find(d => d.nidn === v) || {}).nama || v)
