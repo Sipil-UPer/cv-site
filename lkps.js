@@ -15,7 +15,7 @@
    angka yang sama dengan halaman skor. Lembar lain dibiarkan untuk diisi
    prodi; kolom yang tidak disimpan situs (mis. pita waktu tunggu) kosong.
    ===================================================================== */
-import { teksPendidikan } from './profil-dosen.js?v=2026-11-04-5e6b39';
+import { teksPendidikan } from './profil-dosen.js?v=2026-11-04-4dd821';
 
 const TEMPLATE = 'lkps-template.xlsx';
 const JSZIP = 'https://cdn.jsdelivr.net/npm/jszip@3.10.1/+esm';
@@ -424,7 +424,8 @@ export function petaDaftar(C){
     set('1', `C${r}`, [['Visi', v.visi], ['Misi', v.misi], ['Tujuan', v.tujuan], ['Strategi', v.strategi]]
       .filter(([, s]) => s).map(([l, s]) => `${l}: ${String(s).trim()}`).join('; '));
     set('1', `D${r}`, v.nomor_sk);
-    set('1', `E${r}`, v.tautan || (X.buktiVmts || []).find(b => b.baris_id === v.id)?.url);
+    const bk = (X.buktiVmts || []).find(b => b.baris_id === v.id);
+    set('1', `E${r}`, v.tautan || bk?.url || bk?.dokumen?.url);   // tautan luar atau dokumen pustaka
   });
 
   const BARIS_DANA = { biaya_dosen: 7, biaya_tendik: 8, operasional_pembelajaran: 9, operasional_tidak_langsung: 10,

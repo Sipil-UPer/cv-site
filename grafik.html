@@ -70,7 +70,7 @@
   footer{margin-top:44px;border-top:1px solid var(--line);padding-top:18px;
          font-size:12.5px;color:var(--muted)}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-04-5e6b39">
+<link rel="stylesheet" href="kepala.css?v=2026-11-04-4dd821">
 </head>
 <body>
 
@@ -688,7 +688,7 @@ window.mulaiHalaman = () => fetch('data.json?v=' + Date.now())
       `<p class="kosong">Data belum tersedia. Hubungi admin prodi.</p>`;
   });
 </script>
-<script src="config.js?v=2026-11-04-5e6b39"></script>
+<script src="config.js?v=2026-11-04-4dd821"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -706,7 +706,7 @@ addEventListener('error', function (e) {
 <script type="module">
 // Ruang kerja, khusus email terdaftar (pemilik 2026-11-04).
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { gerbang } from './menu.js?v=2026-11-04-5e6b39';
+import { gerbang } from './menu.js?v=2026-11-04-4dd821';
 await gerbang(createClient(window.SB_URL, window.SB_KEY));
 window.mulaiHalaman();
 </script>

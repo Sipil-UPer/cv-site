@@ -781,6 +781,10 @@ export const JENIS_DOKUMEN = [
   { id: 'monev_pembelajaran', nama: 'Laporan monitoring dan evaluasi pembelajaran', tunggal: false, butir: ['15', '16'], contoh: 'Semester Genap 2024/2025' },
   { id: 'kegiatan_ilmiah', nama: 'Kegiatan ilmiah (seminar, kuliah tamu, diskusi)', tunggal: false, butir: ['21'], contoh: 'Kuliah tamu BIM, 12 Mar 2026' },
   { id: 'rekap_bkd', nama: 'Rekap BKD/SISTER DTPS', tunggal: false, butir: ['30'], contoh: 'Semester Ganjil 2025/2026' },
+  // Bukti baris Data prodi (29-patch-pustaka-dokumen.sql, pemilik 2026-11-04).
+  { id: 'dokumen_kerjasama', nama: 'Dokumen kerja sama (IA/MoA/PKS, bukti pelaksanaan)', tunggal: false, butir: ['6', '7'], contoh: 'IA PT Contoh 2025' },
+  { id: 'sk_akreditasi_prodi', nama: 'SK akreditasi program studi', tunggal: false, butir: [], contoh: 'Teknik Lingkungan' },
+  { id: 'dokumen_k3l', nama: 'Dokumen K3L (SOP, rencana tanggap darurat)', tunggal: false, butir: ['39'], contoh: 'SOP evakuasi laboratorium' },
   { id: 'sk_auditor', nama: 'SK auditor AMI', tunggal: false, butir: ['53'], contoh: 'No. 0347/UP-R/SK/HK.01/XI/2022' },
   { id: 'laporan_rtm', nama: 'Laporan Rapat Tinjauan Manajemen (RTM)', tunggal: false, butir: ['53', '55'], contoh: 'RTM Semester Ganjil' },
   { id: 'sk', nama: 'SK lainnya', tunggal: false, butir: [], contoh: 'SK Tim Kurikulum No. 012/2025' },

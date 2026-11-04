@@ -51,6 +51,9 @@
   label.cek{display:flex;gap:6px;align-items:center;font-size:13.5px;cursor:pointer}
   label.cek input{width:auto;margin:0}
   .fld textarea{width:100%;padding:7px 9px;border:1px solid var(--line);font:inherit;font-size:13.5px;resize:vertical}
+  details.unggah-dok{margin-top:6px} details.unggah-dok summary{cursor:pointer;font-size:12.5px;color:var(--biru-2)}
+  .tag-pustaka{font-family:var(--mono);font-size:10px;letter-spacing:.05em;text-transform:uppercase;background:#E8EEF5;color:var(--biru);padding:1px 5px;border-radius:2px}
+  .ket.buruk{color:var(--merah)}
   .jamak{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:2px 12px;
     max-height:170px;overflow:auto;border:1px solid var(--line);padding:6px 8px;background:#fff}
   .unggah-baris{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:5px;font-size:12.5px}
@@ -75,7 +78,7 @@
   .masuk{max-width:420px;margin:40px auto;background:#fff;border:1px solid var(--line);padding:20px}
   .masuk input{width:100%;padding:8px 10px;margin:8px 0;font:inherit}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-04-5e6b39">
+<link rel="stylesheet" href="kepala.css?v=2026-11-04-4dd821">
 </head>
 <body>
 
@@ -89,7 +92,7 @@
 
 <main class="wrap" id="isi"></main>
 
-<script src="config.js?v=2026-11-04-5e6b39"></script>
+<script src="config.js?v=2026-11-04-4dd821"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -106,9 +109,11 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-04-5e6b39';
-import { pasangMenu } from './menu.js?v=2026-11-04-5e6b39';
-import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-04-5e6b39';
+import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-04-4dd821';
+import { pasangMenu } from './menu.js?v=2026-11-04-4dd821';
+import { unggahKePustaka, opsiPustaka, opsiJenis, labelDokumen, cariDokumen } from './pustaka-dokumen.js?v=2026-11-04-4dd821';
+import { infoJenis } from './rencana-bukti.js?v=2026-11-04-4dd821';
+import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-04-4dd821';
 
 /* =====================================================================
    DATA PRODI — data kuantitatif LKPS diisi admin di situs (keputusan
@@ -537,7 +542,24 @@ const TABEL = [
     ] },
 ];
 
+// Tab Dokumen (pustaka dokumen prodi, 29-patch-pustaka-dokumen.sql) paling depan:
+// satu berkas tersimpan sekali, dipakai sebagai bukti di banyak tempat.
+TABEL.unshift({ id: 'dokumen', judul: 'Dokumen', khusus: true, butir: 'semua',
+  ket: 'Pustaka dokumen prodi: satu dokumen tersimpan SATU kali (kunci jenis + tahun + judul) dan bisa dipakai '
+     + 'sebagai bukti di banyak tab dan butir. Mengunggah dokumen dengan kunci yang sama MENGGANTI berkasnya '
+     + '(versi lama ke _arsip Drive), tidak membuat salinan. Unggah di sini atau langsung dari bukti baris di tab lain.' });
+// Jenis dokumen yang disarankan per tab (site/rencana-bukti.js JENIS_DOKUMEN).
+const SARAN_DOK = { tracer: ['laporan_tracer'], kepuasan: ['survei_pengguna'], kerjasama: ['dokumen_kerjasama', 'pedoman_kerjasama'],
+  mk: ['rps', 'kurikulum'], tema: ['peta_jalan_penelitian', 'peta_jalan_pkm'], vmts: ['sk_vmts', 'statuta', 'renstra_pt', 'renstra_upps'],
+  prodi_upps: ['sk_akreditasi_prodi'], dana: ['laporan_keuangan'], tendik: ['sertifikat'], prasarana: ['pedoman_sarpras'],
+  dok_k3l: ['dokumen_k3l', 'kebijakan_k3l'], fas_k3l: ['kebijakan_k3l'], bkd: ['rekap_bkd'], prestasi: ['sertifikat'],
+  luaran: ['sertifikat'], kohort: ['lainnya'], mahasiswa: ['lainnya'], publikasi: ['lainnya'] };
+TABEL.forEach(T => { T.dok = SARAN_DOK[T.id] || ['lainnya']; });
+
 let SAYA = null, DOSEN = [], AKTIF = TABEL[0], BARIS = [], SUNTING = null;
+// Pustaka dokumen; ADA29 = lkps_bukti bisa menunjuk dokumen (patch 29).
+let DOK = [], DOK_GAGAL = '', ADA29 = true;
+const dokPer = id => DOK.find(d => d.id === id) || null;
 // Bukti jamak per baris (tabel lkps_bukti, supabase/17-patch-lkps-bukti.sql).
 // LB: baris_id -> [bukti]; ANTREAN: bukti baris BARU yang menunggu disimpan.
 let LB = new Map(), LB_GAGAL = '', ANTREAN = [];
@@ -564,6 +586,8 @@ async function mulai(){
   // (admin staf/tendik bukan dosen).
   const { data: ds } = await sb.from('dosen').select('nidn,nama,peran,dtps').order('nama');
   DOSEN = (ds || []).filter(d => d.nidn && (d.dtps || ['dosen', 'pimpinan'].includes(d.peran)));
+  ADA29 = !(await sb.from('lkps_bukti').select('dokumen_id').limit(1)).error;
+  await muatPustaka();
   const awal = new URLSearchParams(location.search).get('tab');
   AKTIF = TABEL.find(t => t.id === awal) || TABEL[0];
   $('isi').innerHTML = `
@@ -585,24 +609,66 @@ async function mulai(){
   bukaTab();
 }
 
+// Blok bukti formulir: pustaka (tautkan / unggah ke pustaka) + tautan luar.
+function blokBukti(T){
+  const pustaka = ADA29 ? `
+        <div class="unggah-baris"><select id="bk_pustaka">${opsiPustaka(DOK, T.dok)}</select>
+          <button type="button" class="btn ghost kecil" data-tautkan="1">Tautkan dari pustaka</button></div>
+        ${UNGGAH ? `<details class="unggah-dok"><summary>Unggah dokumen baru (masuk pustaka)</summary>
+          <div class="unggah-baris"><select id="bk_jenis">${opsiJenis(T.dok, T.dok[0])}</select>
+            <input type="number" id="bk_tahun" min="1990" max="2100" placeholder="Tahun dokumen">
+            <input type="text" id="bk_dj" maxlength="120" placeholder="Judul/nomor dokumen"></div>
+          <div class="unggah-baris"><input type="file" id="bk_berkas" accept="${esc(UNGGAH.accept)}" multiple>
+            <button type="button" class="btn ghost kecil" data-unggah="1">Unggah ke pustaka</button></div>
+          <p class="ket" id="bk_ket"></p></details>` : ''}`
+    : (UNGGAH ? `<div class="unggah-baris"><input type="file" id="bk_berkas" accept="${esc(UNGGAH.accept)}" multiple>
+          <button type="button" class="btn ghost kecil" data-unggah="1">Unggah berkas</button></div>` : '');
+  return `<div class="fld lebar"><label>Bukti baris ini (boleh lebih dari satu)</label>
+        <ul class="bukti-l" id="bukti-l"></ul>${pustaka}
+        <div class="unggah-baris"><input type="text" id="bk_judul" placeholder="Judul tautan luar (mis. DOI artikel)">
+          <input type="url" id="bk_url" placeholder="https://…">
+          <button type="button" class="btn ghost kecil" data-tautan="1">Tambah tautan luar</button></div></div>`;
+}
+
+// Isian awal unggah ke pustaka untuk baris r: tahun baris, judul = label baris.
+function setelUnggah(r){
+  if (!$('bk_jenis')) return;
+  const T = AKTIF;
+  const judul = r ? T.label(r).slice(0, 120) : '';
+  // Baris tanpa tahun (MK, VMTS, peta jalan): ikut tahun dokumen pustaka yang
+  // sama jenis + judulnya, supaya unggah ulang MENGGANTI, bukan versi baru.
+  const ada = !(r && T.tahun(r)) && DOK.filter(d => d.jenis === $('bk_jenis').value && (d.judul || '') === judul)
+    .sort((a, b) => b.tahun - a.tahun)[0];
+  $('bk_tahun').value = (r && T.tahun(r)) || ada?.tahun || new Date().getFullYear();
+  $('bk_dj').value = judul;
+  ketUnggah();
+}
+function ketUnggah(){
+  const j = infoJenis($('bk_jenis').value);
+  $('bk_dj').hidden = j.tunggal;
+  const ada = cariDokumen(DOK, j.id, $('bk_tahun').value, $('bk_dj').value);
+  $('bk_ket').className = 'ket' + (ada ? ' buruk' : '');
+  $('bk_ket').textContent = ada
+    ? `Sudah ada di pustaka: ${labelDokumen(ada)}. Unggahan akan MENGGANTI berkas itu (tidak membuat salinan); `
+      + 'bila berkasnya sama, cukup pilih dari pustaka di atas.'
+    : `Akan disimpan sebagai: ${j.nama}${j.tunggal ? '' : ' — (judul)'} tahun ${$('bk_tahun').value || '…'}.`;
+}
+
 async function bukaTab(){
   SUNTING = null;
   const T = AKTIF;
+  if (T.khusus) return bukaPustaka();
   $('panel').innerHTML = `<p class="ket"><b>Butir ${esc(T.butir)}.</b> ${esc(T.ket)}</p>
     <form id="form" novalidate><div class="grid">${kolomForm(T).map(isian).join('')}
-      <div class="fld lebar"><label>Bukti baris ini (boleh lebih dari satu)</label>
-        <ul class="bukti-l" id="bukti-l"></ul>
-        ${UNGGAH ? `<div class="unggah-baris"><input type="file" id="bk_berkas" accept="${esc(UNGGAH.accept)}" multiple>
-          <button type="button" class="btn ghost kecil" data-unggah="1">Unggah berkas</button></div>` : ''}
-        <div class="unggah-baris"><input type="text" id="bk_judul" placeholder="Judul tautan (mis. Laporan tracer 2025)">
-          <input type="url" id="bk_url" placeholder="https://…">
-          <button type="button" class="btn ghost kecil" data-tautan="1">Tambah tautan</button></div></div></div>
+      ${blokBukti(T)}</div>
       <div class="aksi"><button type="submit" class="btn" id="simpan">Tambah baris</button>
         <button type="button" class="btn ghost" id="batal" hidden>Batal ubah</button>
         <span class="msg" id="msg"></span></div></form>
     <div class="gulir" id="daftar"><p class="kosong">Memuat…</p></div>`;
   $('form').onsubmit = e => { e.preventDefault(); simpan(); };
   $('batal').onclick = () => isiForm(null);
+  if ($('bk_jenis')) ['bk_jenis', 'bk_tahun', 'bk_dj'].forEach(i => { $(i).oninput = ketUnggah; });
+  setelUnggah(null);
   ANTREAN = [];
   await muatBaris();
   gambarBukti();
@@ -723,6 +789,7 @@ function isiForm(r){
   $('simpan').textContent = r ? 'Simpan perubahan' : 'Tambah baris';
   $('batal').hidden = !r;
   tulis('', r ? 'Mengubah baris terpilih.' : '');
+  setelUnggah(r);
   document.querySelectorAll('#daftar tr').forEach(tr => tr.classList.toggle('sunting', !!r && tr.dataset.id === String(r.id)));
   gambarBukti();
   if (r) $('form').scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -749,7 +816,8 @@ async function muatBaris(){
     const r = SUNTING ? BARIS.find(x => x.id === SUNTING) : null;
     isiJamak(c, r ? r[c.k] : [...($('f_' + c.k)?.querySelectorAll('input:checked') || [])].map(x => x.value));
   });
-  const lb = await sb.from('lkps_bukti').select('id,baris_id,judul,url').eq('tabel', T.tabel).order('id');
+  const lb = await sb.from('lkps_bukti').select(ADA29 ? 'id,baris_id,judul,url,dokumen_id' : 'id,baris_id,judul,url')
+    .eq('tabel', T.tabel).order('id');
   LB_GAGAL = lb.error ? lb.error.message : '';
   LB = new Map();
   (lb.data || []).forEach(x => { if (!LB.has(x.baris_id)) LB.set(x.baris_id, []); LB.get(x.baris_id).push(x); });
@@ -786,8 +854,7 @@ async function simpan(){
   $('simpan').disabled = false;
   let catatan = '';
   if (!error && !SUNTING && ANTREAN.length) {
-    const { error: eB } = await sb.from('lkps_bukti').insert(ANTREAN.map(b => ({
-      tabel: AKTIF.tabel, baris_id: hasil.id, judul: b.judul, url: b.url, oleh: SAYA.email })));
+    const { error: eB } = await sb.from('lkps_bukti').insert(ANTREAN.map(b => barisBukti(b, hasil.id)));
     if (eB) catatan = ' Bukti gagal dicatat (' + eB.message + '); ubah baris lalu tambahkan lagi.';
   }
   if (error) return tulis('buruk', /duplicate|unique/i.test(error.message)
@@ -814,9 +881,11 @@ async function klikPanel(e){
   const h = e.target.closest('[data-hapus]');
   if (h) {
     const r = BARIS.find(x => x.id === +h.dataset.hapus);
-    const urls = buktiBaris(r || {}).map(x => x.url);
+    // Dokumen pustaka tidak dibuang (bisa dipakai di tempat lain); hanya tautannya.
+    const urls = buktiBaris(r || {}).filter(x => !x.pustaka).map(x => x.url);
     if (!r || !confirm(`Hapus baris "${AKTIF.label(r)}"?` +
-      (urls.length ? ` ${urls.length} berkas buktinya ikut dihapus. ${PESAN_SAMPAH}` : ''))) return;
+      (urls.length ? ` ${urls.length} berkas buktinya ikut dihapus. ${PESAN_SAMPAH}` : '') +
+      ' Dokumen pustaka yang ditautkan tetap tersimpan di tab Dokumen.')) return;
     try { await buangSemua(sb, urls); }
     catch (err) { return tulis('buruk', 'Gagal membuang berkas bukti: ' + (err.message || err)); }
     const { error } = await sb.from(AKTIF.tabel).delete().eq('id', r.id);
@@ -827,7 +896,24 @@ async function klikPanel(e){
     return muatBaris();
   }
   const g = e.target.closest('[data-unggah]');
-  if (g) return unggah(g);
+  if (g) return ADA29 ? unggahPustaka(g) : unggah(g);
+  const tk = e.target.closest('[data-tautkan]');
+  if (tk) {
+    const id = +$('bk_pustaka').value;
+    if (!id) return tulis('buruk', 'Pilih dokumen dari pustaka dulu.');
+    return tambahBukti([{ dokumen_id: id }]);
+  }
+  const lp = e.target.closest('[data-lepas-bukti]');
+  if (lp) {
+    if (!confirm('Lepas dokumen ini dari baris? Dokumennya tetap ada di pustaka.')) return;
+    const { error } = await sb.from('lkps_bukti').delete().eq('id', +lp.dataset.lepasBukti);
+    if (error) return tulis('buruk', 'Gagal: ' + error.message);
+    await muatBaris(); gambarBukti(); return;
+  }
+  const pu = e.target.closest('[data-unggah-pustaka]');
+  if (pu) return unggahPustakaTab(pu);
+  const hd = e.target.closest('[data-hapus-dok]');
+  if (hd) return hapusDokumen(+hd.dataset.hapusDok);
   const tl = e.target.closest('[data-tautan]');
   if (tl) {
     const url = $('bk_url').value.trim(), judul = $('bk_judul').value.trim();
@@ -852,8 +938,14 @@ async function klikPanel(e){
 // Semua bukti satu baris: kolom tautan lama + lkps_bukti.
 function buktiBaris(r){
   const lama = r[kolomLama(AKTIF)];
-  return [...(lama ? [{ judul: 'Bukti (lama)', url: lama }] : []), ...(LB.get(r.id) || [])];
+  const pustaka = x => x.dokumen_id ? { ...x, pustaka: true, url: dokPer(x.dokumen_id)?.url || '',
+    judul: labelDokumen(dokPer(x.dokumen_id)) || 'Dokumen pustaka' } : x;
+  return [...(lama ? [{ judul: 'Bukti (lama)', url: lama }] : []), ...(LB.get(r.id) || []).map(pustaka)];
 }
+// Baris lkps_bukti dari satu bukti (tautan pustaka atau tautan luar).
+const barisBukti = (b, barisId) => b.dokumen_id
+  ? { tabel: AKTIF.tabel, baris_id: barisId, dokumen_id: b.dokumen_id, judul: '', oleh: SAYA.email }
+  : { tabel: AKTIF.tabel, baris_id: barisId, judul: b.judul, url: b.url, oleh: SAYA.email };
 
 // Bukti di form: baris yang diubah (tersimpan) atau baris baru (antrean).
 function gambarBukti(){
@@ -862,17 +954,24 @@ function gambarBukti(){
   if (LB_GAGAL) { ul.innerHTML = `<li class="kosong">Tabel lkps_bukti belum bisa dibaca (${esc(LB_GAGAL)}).
     Jalankan supabase/17-patch-lkps-bukti.sql.</li>`; return; }
   const r = SUNTING ? BARIS.find(x => x.id === SUNTING) : null;
-  const xs = r ? buktiBaris(r).map(x => ({ ...x, hapus: x.id ? `data-hapus-bukti="${x.id}" data-url="${esc(x.url)}"` : '' }))
-               : ANTREAN.map((x, i) => ({ ...x, hapus: `data-hapus-antrean="${i}"` }));
-  ul.innerHTML = xs.length ? xs.map(x => `<li><a href="${esc(x.url)}" target="_blank" rel="noopener nofollow">${esc(x.judul)}</a>
-    ${x.hapus ? `<button type="button" class="btn bahaya kecil" ${x.hapus}>×</button>` : ''}</li>`).join('')
+  const xs = r ? buktiBaris(r).map(x => ({ ...x, hapus: !x.id ? ''
+                   : x.pustaka ? `data-lepas-bukti="${x.id}"` : `data-hapus-bukti="${x.id}" data-url="${esc(x.url)}"` }))
+               : ANTREAN.map((x, i) => ({ ...x, ...(x.dokumen_id ? { pustaka: true, url: dokPer(x.dokumen_id)?.url || '',
+                   judul: labelDokumen(dokPer(x.dokumen_id)) } : {}), hapus: `data-hapus-antrean="${i}"` }));
+  ul.innerHTML = xs.length ? xs.map(x => `<li>${x.pustaka ? '<span class="tag-pustaka">pustaka</span> ' : ''}<a href="${esc(x.url)}"
+    target="_blank" rel="noopener nofollow">${esc(x.judul)}</a>
+    ${x.hapus ? `<button type="button" class="btn bahaya kecil" ${x.hapus} title="${x.pustaka ? 'Lepas dari baris' : 'Hapus'}">×</button>` : ''}</li>`).join('')
     : `<li class="kosong">${r ? 'Belum ada bukti.' : 'Belum ada bukti; yang diunggah akan tersimpan bersama baris ini.'}</li>`;
 }
 
 async function tambahBukti(items){
+  // Dokumen pustaka yang sudah tertaut ke baris ini tidak ditautkan dua kali.
+  const sudah = new Set((SUNTING ? LB.get(SUNTING) || [] : ANTREAN).map(x => x.dokumen_id).filter(Boolean));
+  const baru = items.filter(b => !b.dokumen_id || !sudah.has(b.dokumen_id));
+  if (!baru.length) return tulis('buruk', 'Dokumen itu sudah menjadi bukti baris ini.');
+  items = baru;
   if (!SUNTING) { ANTREAN.push(...items); gambarBukti(); return tulis('ok', `${items.length} bukti siap; tersimpan saat baris disimpan.`); }
-  const { error } = await sb.from('lkps_bukti').insert(items.map(b => ({
-    tabel: AKTIF.tabel, baris_id: SUNTING, judul: b.judul, url: b.url, oleh: SAYA.email })));
+  const { error } = await sb.from('lkps_bukti').insert(items.map(b => barisBukti(b, SUNTING)));
   if (error) return tulis('buruk', 'Bukti gagal dicatat: ' + error.message);
   await muatBaris(); gambarBukti();
   tulis('ok', `${items.length} bukti ditambahkan.`);
@@ -928,6 +1027,121 @@ async function unggah(tombol){
   } finally {
     tombol.disabled = false;
   }
+}
+
+// ---------------------------------------------------------------------
+//  Pustaka dokumen (29-patch-pustaka-dokumen.sql)
+// ---------------------------------------------------------------------
+async function muatPustaka(){
+  const { data, error } = await sb.from('dokumen').select('*').order('jenis').order('tahun', { ascending: false });
+  DOK_GAGAL = error ? error.message : '';
+  DOK = data || [];
+}
+
+// Unggah dari bukti baris: berkas masuk pustaka (kunci sama = mengganti), lalu ditautkan.
+async function unggahPustaka(tombol){
+  const berkas = [...($('bk_berkas').files || [])];
+  tombol.disabled = true;
+  try {
+    const d = await unggahKePustaka(sb, UNGGAH, { jenis: $('bk_jenis').value, tahun: $('bk_tahun').value,
+      judul: $('bk_dj').value, berkas, oleh: SAYA.email, progres: s => tulis('', s) });
+    await muatPustaka();
+    $('bk_berkas').value = '';
+    $('bk_pustaka').innerHTML = opsiPustaka(DOK, AKTIF.dok);
+    ketUnggah();
+    await tambahBukti([{ dokumen_id: d.id }]);
+    tulis('ok', `${labelDokumen(d)} tersimpan di pustaka dan ditautkan ke baris ini.`);
+  } catch (err) {
+    tulis('buruk', err.message || String(err));
+  } finally {
+    tombol.disabled = false;
+  }
+}
+
+// Tab Dokumen: unggah ke pustaka + daftar dokumen dan tempat pemakaiannya.
+async function bukaPustaka(){
+  const T = AKTIF;
+  $('panel').innerHTML = `<p class="ket">${esc(T.ket)}</p>
+    ${DOK_GAGAL ? `<p class="kosong">Tabel <code>dokumen</code> belum bisa dibaca (${esc(DOK_GAGAL)}).
+      Jalankan supabase/13-patch-dokumen.sql.</p>` : ''}
+    ${UNGGAH && !DOK_GAGAL ? `<div class="grid">
+      <div class="fld"><label for="pk_jenis">Jenis dokumen</label><select id="pk_jenis">${opsiJenis([], '')}</select></div>
+      <div class="fld"><label for="pk_tahun">Tahun dokumen</label><input type="number" id="pk_tahun" min="1990" max="2100"
+        value="${new Date().getFullYear()}"></div>
+      <div class="fld" id="pk_judul_w"><label for="pk_judul">Judul/nomor (jenis banyak)</label><input type="text" id="pk_judul" maxlength="120"></div>
+      <div class="fld lebar"><label>Berkas</label><div class="unggah-baris"><input type="file" id="pk_berkas" accept="${esc(UNGGAH.accept)}" multiple>
+        <button type="button" class="btn" data-unggah-pustaka="1">Unggah ke pustaka</button></div>
+        <p class="ket" id="pk_ket"></p></div></div>` : ''}
+    <div class="aksi"><span class="msg" id="msg"></span></div>
+    <div class="gulir" id="daftar"><p class="kosong">Memuat…</p></div>`;
+  if ($('pk_jenis')) {
+    const ket = () => {
+      const j = infoJenis($('pk_jenis').value);
+      $('pk_judul_w').hidden = j.tunggal;
+      const ada = cariDokumen(DOK, j.id, $('pk_tahun').value, $('pk_judul').value);
+      $('pk_ket').className = 'ket' + (ada ? ' buruk' : '');
+      $('pk_ket').textContent = ada ? `Sudah ada: ${labelDokumen(ada)}. Unggahan akan MENGGANTI berkasnya (versi lama ke _arsip).`
+        : (j.contoh ? `Contoh judul: ${j.contoh}.` : '');
+    };
+    ['pk_jenis', 'pk_tahun', 'pk_judul'].forEach(i => { $(i).oninput = ket; });
+    ket();
+  }
+  await gambarPustaka();
+}
+
+// Pemakaian dokumen: baris Data prodi (lkps_bukti) dan butir (butir_bukti).
+async function gambarPustaka(){
+  const box = $('daftar');
+  if (!box || DOK_GAGAL) { if (box) box.innerHTML = ''; return; }
+  const [lb, bb] = await Promise.all([
+    ADA29 ? sb.from('lkps_bukti').select('dokumen_id,tabel') : { data: [] },
+    sb.from('butir_bukti').select('dokumen_id,butir')]);
+  const judulTab = Object.fromEntries(TABEL.map(x => [x.tabel, x.judul]));
+  const pakai = new Map();
+  (lb.data || []).filter(x => x.dokumen_id).forEach(x => { if (!pakai.has(x.dokumen_id)) pakai.set(x.dokumen_id, []); pakai.get(x.dokumen_id).push(judulTab[x.tabel] || x.tabel); });
+  (bb.data || []).filter(x => x.dokumen_id).forEach(x => { if (!pakai.has(x.dokumen_id)) pakai.set(x.dokumen_id, []); pakai.get(x.dokumen_id).push('butir ' + x.butir); });
+  if (!DOK.length) { box.innerHTML = '<p class="kosong">Belum ada dokumen di pustaka.</p>'; return; }
+  const ringkas = xs => Object.entries(xs.reduce((a, s) => (a[s] = (a[s] || 0) + 1, a), {}))
+    .map(([s, n]) => n > 1 ? `${s} (${n})` : s).join(', ');
+  box.innerHTML = `<table class="t"><thead><tr><th>Jenis</th><th>Tahun</th><th>Judul/nomor</th><th>Dipakai di</th>
+      <th>Berkas</th><th>Diperbarui</th><th></th></tr></thead><tbody>${DOK.map(d => `<tr>
+      <td>${esc(infoJenis(d.jenis).nama)}</td><td>${esc(d.tahun)}</td><td>${esc(d.judul || '—')}</td>
+      <td>${esc(ringkas(pakai.get(d.id) || []) || '—')}</td>
+      <td><a href="${esc(d.url)}" target="_blank" rel="noopener nofollow">buka</a></td>
+      <td>${esc(String(d.diperbarui || '').slice(0, 10))}</td>
+      <td><button type="button" class="btn bahaya kecil" data-hapus-dok="${esc(d.id)}" data-pakai="${(pakai.get(d.id) || []).length}">Hapus</button></td>
+    </tr>`).join('')}</tbody></table>`;
+}
+
+async function unggahPustakaTab(tombol){
+  const berkas = [...($('pk_berkas').files || [])];
+  tombol.disabled = true;
+  try {
+    const d = await unggahKePustaka(sb, UNGGAH, { jenis: $('pk_jenis').value, tahun: $('pk_tahun').value,
+      judul: $('pk_judul').value, berkas, oleh: SAYA.email, progres: s => tulis('', s) });
+    await muatPustaka();
+    $('pk_berkas').value = '';
+    tulis('ok', `${labelDokumen(d)} tersimpan di pustaka.`);
+    await gambarPustaka();
+  } catch (err) {
+    tulis('buruk', err.message || String(err));
+  } finally {
+    tombol.disabled = false;
+  }
+}
+
+async function hapusDokumen(id){
+  const d = dokPer(id);
+  const n = +(document.querySelector(`[data-hapus-dok="${id}"]`)?.dataset.pakai || 0);
+  if (!d || !confirm(`Hapus ${labelDokumen(d)} dari pustaka?` +
+    (n ? ` Dokumen ini dipakai sebagai bukti di ${n} tempat; tautan buktinya ikut hilang.` : '') + ` ${PESAN_SAMPAH}`)) return;
+  try { await buangBerkas(sb, d.url); }
+  catch (err) { return tulis('buruk', 'Gagal membuang berkas: ' + (err.message || err)); }
+  const { error } = await sb.from('dokumen').delete().eq('id', id);
+  if (error) return tulis('buruk', 'Gagal menghapus: ' + error.message);
+  await muatPustaka();
+  tulis('ok', 'Dokumen dihapus dari pustaka.');
+  await gambarPustaka();
 }
 
 function layarMasuk(){
