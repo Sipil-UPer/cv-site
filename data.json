@@ -209,6 +209,28 @@
    ]
   },
   {
+   "judul": "Evaluasi PotensiTerjadinyaVeer Offpada area Rapid Exit Taxiwaydi Bandara Internasional Minangkabau dengan Forecastingdi Tahun 2044",
+   "tahun": 2026,
+   "tahun_ts": 2027,
+   "dari_kegiatan": null,
+   "jenis": "jurnal",
+   "terbitan": "Ge-STRAM: Jurnal Perencanaan dan Rekayasa Sipil Unitomo",
+   "tingkat": "nasional",
+   "indeksasi": "sinta_3_4",
+   "doi": "10.25139/jprs.v9i2.12683",
+   "url": "https://ejournal.unitomo.ac.id/index.php/gestram/article/view/12683/5843",
+   "mitra": [],
+   "mahasiswa": 1,
+   "penulis": [
+    {
+     "nama": "Vani Arliani",
+     "slug": "vani-arliani",
+     "peran": "penulis_pertama",
+     "korespondensi": true
+    }
+   ]
+  },
+  {
    "judul": "Identifikasi potensi akuifer menggunakan geolistrik resistivitas sebagai dasar perencanaan penyediaan air bersih",
    "tahun": 2026,
    "tahun_ts": 2026,
@@ -1996,6 +2018,13 @@
    "mahasiswa_unik": 4
   },
   {
+   "tahun": 2026,
+   "tahun_ts": 2027,
+   "kategori": "publikasi",
+   "keterlibatan": 1,
+   "mahasiswa_unik": 1
+  },
+  {
    "tahun": 2025,
    "tahun_ts": 2025,
    "kategori": "penelitian",
@@ -2353,6 +2382,16 @@
    }
   ],
   "publikasi_dtps": [
+   {
+    "tahun": 2027,
+    "na1": 0,
+    "na2": 1,
+    "na3": 0,
+    "na4": 0,
+    "nb1": 0,
+    "nb2": 0,
+    "nb3": 0
+   },
    {
     "tahun": 2026,
     "na1": 0,

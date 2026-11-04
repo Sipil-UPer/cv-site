@@ -46,6 +46,8 @@
     border-radius:2px;font:inherit;font-size:13.5px;background:#fff}
   .fld input.salah,.fld select.salah{border-color:var(--merah);background:#FDF3F4}
   .fld.lebar{grid-column:1/-1}
+  .mhs-baris{display:grid;grid-template-columns:2fr 1fr auto;gap:6px;margin-bottom:5px}
+  .mhs-daftar + .btn{margin-top:2px}
   label.cek{display:flex;gap:6px;align-items:center;font-size:13.5px;cursor:pointer}
   label.cek input{width:auto;margin:0}
   .jamak{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:2px 12px;
@@ -72,7 +74,7 @@
   .masuk{max-width:420px;margin:40px auto;background:#fff;border:1px solid var(--line);padding:20px}
   .masuk input{width:100%;padding:8px 10px;margin:8px 0;font:inherit}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-04-d96ab3">
+<link rel="stylesheet" href="kepala.css?v=2026-11-04-e58cb5">
 </head>
 <body>
 
@@ -86,7 +88,7 @@
 
 <main class="wrap" id="isi"></main>
 
-<script src="config.js?v=2026-11-04-d96ab3"></script>
+<script src="config.js?v=2026-11-04-e58cb5"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -103,9 +105,9 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-04-d96ab3';
-import { pasangMenu } from './menu.js?v=2026-11-04-d96ab3';
-import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-04-d96ab3';
+import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-04-e58cb5';
+import { pasangMenu } from './menu.js?v=2026-11-04-e58cb5';
+import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-04-e58cb5';
 
 /* =====================================================================
    DATA PRODI — data kuantitatif LKPS diisi admin di situs (keputusan
@@ -116,6 +118,9 @@ import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-04-d96ab3';
    Satu entri TABEL = satu tab. Jenis isian:
      tahun | ta (2025/2026) | bulan | int (>= 0) | num (>= 0, opsional maks)
      teks | pilihan | nidn (daftar dosen) | url (+ unggah bukti)
+     tanggal (YYYY-MM-DD, tampil DD/MM/YYYY)
+     mhs (beberapa mahasiswa: baris nama + NIM; disimpan di kolom k dan
+          kolom `nim`, dipisah "; ", sama dengan isian lama)
      cek (centang -> boolean, tampil "V"; awal = nilai baris baru)
      jamak (beberapa pilihan -> array teks; o = fungsi yang mengembalikan
             [[nilai, label]], dipanggil saat formulir digambar)
@@ -144,6 +149,9 @@ const UNGGAH = (() => {
 const BULAN = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus',
                'September', 'Oktober', 'November', 'Desember'];
 const TINGKAT_3 = [['internasional', 'Internasional'], ['nasional', 'Nasional'], ['wilayah', 'Wilayah/lokal']];
+// Bukti kerja sama: daftar pilihan lembar 2a1 L4:L7 (24-patch-kerjasama-induk.sql).
+const JENIS_BUKTI_KS = [['surat_penugasan', 'Surat penugasan'], ['spk', 'Surat perjanjian kerja sama (SPK)'],
+  ['bukti_pelaksanaan', 'Bukti pelaksanaan (laporan, hasil, luaran)'], ['lainnya', 'Bukti lain yang relevan']];
 
 const TABEL = [
   { id: 'tracer', tabel: 'lkps_tracer_lulusan', judul: 'Tracer study', butir: '48–51',
@@ -210,22 +218,34 @@ const TABEL = [
       return r.jumlah_masuk != null && lulus > r.jumlah_masuk ? 'Jumlah lulusan melebihi jumlah masuk.' : '';
     } },
   { id: 'kerjasama', tabel: 'lkps_kerjasama', judul: 'Kerja sama', butir: '6–7',
-    ket: 'Kerja sama yang TIDAK melekat pada karya dosen: terutama pendidikan (magang/MBKM, praktisi '
-       + 'mengajar, pertukaran) dan MoU penelitian/PkM payung. Jangan mengulang mitra yang sudah tercatat '
-       + 'pada karya (terhitung ganda). Bukti: IA/MoA DAN bukti pelaksanaan (MoU saja bukan bukti realisasi).',
+    ket: 'Daftar INDUK kerja sama (MoU/PKS/IA), Tabel 2.a.1–2.a.3 LKPS: pendidikan (magang/MBKM, praktisi '
+       + 'mengajar, pertukaran), penelitian, dan PkM. Dosen menautkan karya penelitian/PkM-nya ke kerja sama '
+       + 'di sini (isian karya, "Kerja sama induk"); di LKPS kegiatan itu tampil dengan tanggal, manfaat, dan bukti '
+       + 'induknya, dan mitranya tidak terhitung ganda. Bukti: IA/MoA DAN bukti pelaksanaan (MoU saja bukan '
+       + 'bukti realisasi). Durasi dan status dihitung LKPS dari tanggal.',
     label: r => `${r.mitra || 'Kerja sama'}`, tahun: r => r.tahun_mulai,
     kolom: [
-      { k: 'mitra', l: 'Mitra', t: 'teks', wajib: true },
+      { k: 'mitra', l: 'Lembaga mitra', t: 'teks', wajib: true },
       { k: 'jenis', l: 'Jenis', t: 'pilihan', wajib: true,
         o: [['pendidikan', 'Pendidikan'], ['penelitian', 'Penelitian'], ['pkm', 'PkM']] },
       { k: 'tingkat', l: 'Tingkat', t: 'pilihan', wajib: true, o: TINGKAT_3 },
-      { k: 'kegiatan', l: 'Kegiatan', t: 'teks', lebar: true },
-      { k: 'tahun_mulai', l: 'Tahun mulai', t: 'tahun', wajib: true },
-      { k: 'tahun_selesai', l: 'Tahun selesai', t: 'tahun' },
+      { k: 'kegiatan', l: 'Judul kegiatan kerja sama', t: 'teks', lebar: true },
+      { k: 'manfaat', l: 'Manfaat bagi program studi', t: 'teks', lebar: true },
+      { k: 'tanggal_mulai', l: 'Tanggal awal', t: 'tanggal' },
+      { k: 'tanggal_selesai', l: 'Tanggal akhir (kosong = masih berlaku)', t: 'tanggal' },
+      { k: 'jenis_bukti', l: 'Jenis bukti utama', t: 'pilihan', o: JENIS_BUKTI_KS },
+      { k: 'tahun_mulai', l: 'Tahun mulai (otomatis dari tanggal awal)', t: 'tahun' },
+      { k: 'tahun_selesai', l: 'Tahun selesai (otomatis dari tanggal akhir)', t: 'tahun' },
       { k: 'tautan_bukti', l: 'Bukti (IA/MoA + pelaksanaan)', t: 'url' },
     ],
-    cek: r => r.tahun_selesai != null && r.tahun_selesai < r.tahun_mulai
-      ? 'Tahun selesai lebih awal dari tahun mulai.' : '' },
+    // Skor (bangun.py) memakai tahun; tanggal menentukan tahunnya bila diisi.
+    olah: r => {
+      if (r.tanggal_mulai) r.tahun_mulai = +r.tanggal_mulai.slice(0, 4);
+      if (r.tanggal_selesai) r.tahun_selesai = +r.tanggal_selesai.slice(0, 4);
+    },
+    cek: r => !r.tahun_mulai ? 'Isi tanggal awal (atau tahun mulai).'
+      : r.tanggal_mulai && r.tanggal_selesai && r.tanggal_selesai < r.tanggal_mulai ? 'Tanggal akhir lebih awal dari tanggal awal.'
+      : r.tahun_selesai != null && r.tahun_selesai < r.tahun_mulai ? 'Tahun selesai lebih awal dari tahun mulai.' : '' },
   { id: 'mk', tabel: 'ref_mata_kuliah', judul: 'Mata kuliah', butir: '15, 17, 19, 20',
     patch: '23-patch-kurikulum.sql', urut: ['semester', 'urutan', 'kode'],
     ket: 'Satu baris per mata kuliah kurikulum (Tabel 3.a.1). Centang basic science/matematika untuk Tabel 3.a.4 '
@@ -308,8 +328,7 @@ const TABEL = [
     label: r => `${r.nama_kegiatan || 'Prestasi'}`, tahun: r => r.tahun,
     kolom: [
       { k: 'nama_kegiatan', l: 'Nama kegiatan', t: 'teks', wajib: true, lebar: true },
-      { k: 'nama_mahasiswa', l: 'Nama mahasiswa', t: 'teks' },
-      { k: 'nim', l: 'NIM', t: 'teks' },
+      { k: 'nama_mahasiswa', l: 'Mahasiswa (nama dan NIM)', t: 'mhs', nim: 'nim' },
       { k: 'penyelenggara', l: 'Penyelenggara', t: 'teks' },
       { k: 'bidang', l: 'Bidang', t: 'pilihan', wajib: true, o: [['akademik', 'Akademik'], ['non_akademik', 'Nonakademik']] },
       { k: 'tingkat', l: 'Tingkat', t: 'pilihan', wajib: true,
@@ -326,8 +345,7 @@ const TABEL = [
     label: r => `${r.judul || 'Publikasi'}`, tahun: r => r.tahun,
     kolom: [
       { k: 'judul', l: 'Judul', t: 'teks', wajib: true, lebar: true },
-      { k: 'nama_mahasiswa', l: 'Nama mahasiswa', t: 'teks' },
-      { k: 'nim', l: 'NIM', t: 'teks' },
+      { k: 'nama_mahasiswa', l: 'Mahasiswa (nama dan NIM)', t: 'mhs', nim: 'nim' },
       { k: 'jenis', l: 'Jenis', t: 'pilihan',
         o: [['jurnal', 'Jurnal'], ['prosiding', 'Prosiding'], ['buku', 'Buku'], ['lainnya', 'Lainnya']] },
       { k: 'tingkat', l: 'Tingkat', t: 'pilihan', o: [['internasional', 'Internasional'], ['nasional', 'Nasional'], ['wilayah', 'Wilayah']] },
@@ -346,8 +364,7 @@ const TABEL = [
         o: [['paten', 'Paten'], ['paten_sederhana', 'Paten sederhana'], ['hak_cipta', 'Hak cipta'],
             ['desain_industri', 'Desain industri'], ['merek', 'Merek'], ['ttg', 'TTG'], ['produk', 'Produk'],
             ['buku_isbn', 'Buku ber-ISBN'], ['book_chapter', 'Book chapter']] },
-      { k: 'nama_mahasiswa', l: 'Nama mahasiswa', t: 'teks' },
-      { k: 'nim', l: 'NIM', t: 'teks' },
+      { k: 'nama_mahasiswa', l: 'Mahasiswa (nama dan NIM)', t: 'mhs', nim: 'nim' },
       { k: 'tahun', l: 'Tahun', t: 'tahun', wajib: true },
       { k: 'bulan', l: 'Bulan (dianjurkan)', t: 'bulan' },
       { k: 'bukti_url', l: 'Bukti (sertifikat/ISBN)', t: 'url' },
@@ -435,8 +452,23 @@ function isiJamak(c, terpilih){
     pilih.has(v) ? ' checked' : ''}>${esc(l)}</label>`).join('') : `<span class="kosong">${esc(c.kosong || 'Belum ada pilihan.')}</span>`;
 }
 
+// Mahasiswa jamak: pecah "A; B" menjadi baris nama + NIM, dan sebaliknya.
+const pecahMhs = v => String(v ?? '').split(';').map(s => s.trim());
+const barisMhs = (nama = '', nim = '') => `<div class="mhs-baris"><input data-mhs="nama" placeholder="Nama mahasiswa"
+  value="${esc(nama)}"><input data-mhs="nim" placeholder="NIM" value="${esc(nim)}">
+  <button type="button" class="btn ghost kecil" data-hapus-mhs="1" title="Hapus mahasiswa ini">×</button></div>`;
+function isiMhs(c, r){
+  const box = $('f_' + c.k);
+  const nama = pecahMhs(r?.[c.k]), nim = pecahMhs(r?.[c.nim]);
+  const n = Math.max(nama.filter(Boolean).length, nim.filter(Boolean).length, 1);
+  box.innerHTML = Array.from({ length: n }, (_, i) => barisMhs(nama[i] || '', nim[i] || '')).join('');
+}
+
 function isian(c){
   const id = 'f_' + c.k, wj = c.wajib ? ' <span class="wj">*</span>' : '';
+  if (c.t === 'mhs')
+    return `<div class="fld lebar"><label>${esc(c.l)}${wj}</label><div class="mhs-daftar" id="${id}">${barisMhs()}</div>
+      <button type="button" class="btn ghost kecil" data-tambah-mhs="${c.k}">+ Tambah mahasiswa</button></div>`;
   if (c.t === 'cek')
     return `<div class="fld"><label class="cek" style="margin-top:20px"><input type="checkbox" id="${id}"${c.awal ? ' checked' : ''}>${esc(c.l)}</label></div>`;
   if (c.t === 'jamak')
@@ -452,7 +484,7 @@ function isian(c){
       ${UNGGAH ? `<div class="unggah-baris"><input type="file" id="${id}_berkas" accept="${esc(UNGGAH.accept)}">
         <button type="button" class="btn ghost kecil" data-unggah="${c.k}">Unggah</button></div>` : ''}`;
   } else {
-    const jenis = ['int', 'num', 'tahun'].includes(c.t) ? 'number' : 'text';
+    const jenis = ['int', 'num', 'tahun'].includes(c.t) ? 'number' : c.t === 'tanggal' ? 'date' : 'text';
     const atr = c.t === 'num' ? ' step="any" min="0"' : c.t === 'int' ? ' step="1" min="0"'
               : c.t === 'tahun' ? ' step="1" min="1990" max="2100"' : '';
     el = `<input type="${jenis}" id="${id}"${atr}${c.t === 'ta' ? ' placeholder="2025/2026"' : ''}>`;
@@ -466,6 +498,16 @@ function bacaForm(){
   for (const c of kolomForm(AKTIF)) {
     const el = $('f_' + c.k);
     if (c.t === 'cek') { nilai[c.k] = el.checked; continue; }
+    if (c.t === 'mhs') {
+      const rows = [...el.querySelectorAll('.mhs-baris')].map(b => ({
+        nama: b.querySelector('[data-mhs=nama]').value.trim(), nim: b.querySelector('[data-mhs=nim]').value.trim() }))
+        .filter(x => x.nama || x.nim);
+      if (rows.some(x => x.nama.includes(';') || x.nim.includes(';'))) { galat.push(`${c.l}: satu orang per baris, tanpa titik koma`); continue; }
+      if (c.wajib && !rows.length) { galat.push(`${c.l}: wajib diisi`); continue; }
+      nilai[c.k] = rows.length ? rows.map(x => x.nama).join('; ') : null;
+      nilai[c.nim] = rows.some(x => x.nim) ? rows.map(x => x.nim).join('; ') : null;
+      continue;
+    }
     if (c.t === 'jamak') { nilai[c.k] = [...el.querySelectorAll('input:checked')].map(x => x.value); continue; }
     const v = el.value.trim();
     el.classList.remove('salah');
@@ -482,6 +524,9 @@ function bacaForm(){
       if (!Number.isFinite(n) || n < 0) { salah('angka ≥ 0 (desimal memakai titik)'); continue; }
       if (c.maks != null && n > c.maks) { salah(`maksimal ${c.maks}`); continue; }
       nilai[c.k] = n;
+    } else if (c.t === 'tanggal') {
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(v) || +v.slice(0, 4) < 1990 || +v.slice(0, 4) > 2100) { salah('tanggal 1990–2100'); continue; }
+      nilai[c.k] = v;
     } else if (c.t === 'ta') {
       const m = v.match(/^(\d{4})\/(\d{4})$/);
       if (!m || +m[2] !== +m[1] + 1) { salah('tulis seperti 2025/2026'); continue; }
@@ -502,6 +547,7 @@ function isiForm(r){
   kolomForm(AKTIF).forEach(c => {
     const el = $('f_' + c.k);
     if (c.t === 'cek') { el.checked = r ? r[c.k] === true : !!c.awal; return; }
+    if (c.t === 'mhs') { isiMhs(c, r); return; }
     if (c.t === 'jamak') { isiJamak(c, r ? r[c.k] : []); return; }
     el.value = r && r[c.k] != null ? String(r[c.k]) : '';
     el.classList.remove('salah');
@@ -541,8 +587,10 @@ async function muatBaris(){
   (lb.data || []).forEach(x => { if (!LB.has(x.baris_id)) LB.set(x.baris_id, []); LB.get(x.baris_id).push(x); });
   if (!BARIS.length) { box.innerHTML = '<p class="kosong">Belum ada baris.</p>'; return; }
   const tampil = (c, v) => c.t === 'cek' ? (v === true ? 'V' : '—')
+    : c.t === 'mhs' ? (v ? esc(pecahMhs(v).filter(Boolean).join('; ')) : '—')
     : c.t === 'jamak' ? (v && v.length ? esc(v.map(x => (c.o().find(o => o[0] === x) || [x, x])[1]).join('; ')) : '—')
     : v == null || v === '' ? '—'
+    : c.t === 'tanggal' ? esc(String(v).slice(0, 10).split('-').reverse().join('/'))
     : c.t === 'url' ? `<a href="${esc(v)}" target="_blank" rel="noopener nofollow">buka</a>`
     : c.t === 'bulan' ? esc(BULAN[v - 1] || v)
     : c.t === 'nidn' ? esc((DOSEN.find(d => d.nidn === v) || {}).nama || v)
@@ -583,6 +631,15 @@ async function simpan(){
 }
 
 async function klikPanel(e){
+  const tm = e.target.closest('[data-tambah-mhs]');
+  if (tm) { $('f_' + tm.dataset.tambahMhs).insertAdjacentHTML('beforeend', barisMhs()); return; }
+  const hm = e.target.closest('[data-hapus-mhs]');
+  if (hm) {
+    const box = hm.closest('.mhs-daftar');
+    hm.closest('.mhs-baris').remove();
+    if (!box.querySelector('.mhs-baris')) box.insertAdjacentHTML('beforeend', barisMhs());
+    return;
+  }
   const u = e.target.closest('[data-ubah]');
   if (u) return isiForm(BARIS.find(r => r.id === +u.dataset.ubah));
   const h = e.target.closest('[data-hapus]');

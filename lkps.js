@@ -15,7 +15,7 @@
    angka yang sama dengan halaman skor. Lembar lain dibiarkan untuk diisi
    prodi; kolom yang tidak disimpan situs (mis. pita waktu tunggu) kosong.
    ===================================================================== */
-import { teksPendidikan } from './profil-dosen.js?v=2026-11-04-d96ab3';
+import { teksPendidikan } from './profil-dosen.js?v=2026-11-04-e58cb5';
 
 const TEMPLATE = 'lkps-template.xlsx';
 const JSZIP = 'https://cdn.jsdelivr.net/npm/jszip@3.10.1/+esm';
@@ -137,6 +137,10 @@ export function petaLKPS(C){
    --------------------------------------------------------------------- */
 const JABATAN = { tenaga_pengajar: 'Tenaga Pengajar', asisten_ahli: 'Asisten Ahli', lektor: 'Lektor',
                   lektor_kepala: 'Lektor Kepala', guru_besar: 'Guru Besar' };
+// Daftar pilihan Bukti Kerjasama, lembar 2a1 L4:L7 (dipakai juga 2a2, 2a3).
+const BUKTI_KS = { surat_penugasan: 'Surat Penugasan', spk: 'Surat Perjanjian Kerjasama (SPK)',
+  bukti_pelaksanaan: 'Bukti-bukti Pelaksanaan (Laporan, Hasil Kerjasama, Luaran Kerjasama)',
+  lainnya: 'Bukti lain yang relevan' };
 // Daftar pilihan Kategori Dosen di lembar 4a (L6:L8).
 const KATEGORI_LKPS = { tetap: 'Dosen Tetap', tidak_tetap: 'Dosen Tidak Tetap', industri: 'Dosen Industri' };
 const INTEGRASI = { bahan_kajian: 'Tambahan Materi Perkuliahan', studi_kasus: 'Studi Kasus',
@@ -153,6 +157,12 @@ const tingkatKe = t => /^internasional/.test(t || '') ? 2 : /^nasional/.test(t |
 export function serialTanggal(tahun, bulan){
   if (!tahun || !bulan) return null;
   return { tanggal: Math.round((Date.UTC(+tahun, +bulan - 1, 1) - Date.UTC(1899, 11, 30)) / 86400000) };
+}
+// Tanggal ISO "YYYY-MM-DD" (kolom date Supabase) -> serial tanggal Excel.
+export function serialISO(iso){
+  const m = String(iso || '').match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (!m) return null;
+  return { tanggal: Math.round((Date.UTC(+m[1], +m[2] - 1, +m[3]) - Date.UTC(1899, 11, 30)) / 86400000) };
 }
 const tsKarya = k => (+k.bulan >= 9 ? +k.tahun + 1 : +k.tahun);
 
@@ -244,19 +254,38 @@ export function petaDaftar(C){
     return u && u.dosen ? u.dosen.nama : '';
   };
 
-  // 2.a kerja sama: tabel Data prodi + mitra pada karya penelitian/PkM
+  // 2.a kerja sama (supabase/24-patch-kerjasama-induk.sql):
+  //  - karya penelitian/PkM yang menunjuk kerja sama induk -> tabel menurut
+  //    kategorinya, dengan mitra/tingkat/tanggal/manfaat/bukti induknya;
+  //    mitra karya yang sama dengan mitra induk tidak diulang;
+  //  - induk aktif (selesai >= TS-2 atau tanpa akhir) tanpa karya terkait
+  //    di jendela TS -> barisnya sendiri;
+  //  - mitra pada karya tanpa induk -> seperti sebelumnya (tanpa tanggal).
+  // Durasi (J) dan status (K) adalah rumus templat dari tanggal H dan I.
   const kerjaSama = { pendidikan: [], penelitian: [], pkm: [] };
+  const semuaKS = new Map((X.kerjasama || []).filter(k => k.id != null).map(k => [k.id, k]));
+  const kegiatanKS = karya.filter(k => k.kategori === 'penelitian' || k.kategori === 'pkm').sort(urut);
+  const dipakai = new Set(kegiatanKS.map(k => k.kerjasama_id).filter(id => semuaKS.has(id)));
+  const sama = (a, b) => String(a || '').trim().toLowerCase() === String(b || '').trim().toLowerCase();
   (X.kerjasama || []).filter(k => !k.tahun_selesai || +k.tahun_selesai >= ts - 2)
-    .forEach(k => kerjaSama[k.jenis]?.push({ mitra: k.mitra, tingkat: k.tingkat, judul: k.kegiatan }));
-  karya.filter(k => k.kategori === 'penelitian' || k.kategori === 'pkm').sort(urut)
-    .forEach(k => (k.karya_mitra || []).forEach(m =>
-      kerjaSama[k.kategori].push({ mitra: m.institusi, tingkat: m.tingkat, judul: k.judul })));
+    .filter(k => !dipakai.has(k.id))
+    .forEach(k => kerjaSama[k.jenis]?.push({ mitra: k.mitra, tingkat: k.tingkat, judul: k.kegiatan, ks: k }));
+  kegiatanKS.forEach(k => {
+    const ks = semuaKS.get(k.kerjasama_id);
+    if (ks) kerjaSama[k.kategori].push({ mitra: ks.mitra, tingkat: ks.tingkat, judul: k.judul, ks });
+    (k.karya_mitra || []).filter(m => !ks || !sama(m.institusi, ks.mitra)).forEach(m =>
+      kerjaSama[k.kategori].push({ mitra: m.institusi, tingkat: m.tingkat, judul: k.judul }));
+  });
   [['2a1', 'pendidikan', 13], ['2a2', 'penelitian', 12], ['2a3', 'pkm', 12]].forEach(([l, j, r0]) =>
     kerjaSama[j].forEach((k, i) => {
       const r = r0 + i;
       set(l, `B${r}`, k.mitra); set(l, `F${r}`, k.judul);
       const t = tingkatKe(k.tingkat);
       if (t >= 0) set(l, `${'EDC'[t]}${r}`, 'V');          // C internasional, D nasional, E lokal
+      if (!k.ks) return;
+      set(l, `G${r}`, k.ks.manfaat);
+      set(l, `H${r}`, serialISO(k.ks.tanggal_mulai)); set(l, `I${r}`, serialISO(k.ks.tanggal_selesai));
+      set(l, `L${r}`, BUKTI_KS[k.ks.jenis_bukti]);
     }));
 
   // 3.a.3 integrasi penelitian/PkM dalam pembelajaran

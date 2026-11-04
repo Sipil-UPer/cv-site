@@ -150,7 +150,7 @@
   table.beda td:nth-child(3){background:#EAF4EC}
   @media(max-width:640px){.grid{grid-template-columns:1fr}}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-04-d96ab3">
+<link rel="stylesheet" href="kepala.css?v=2026-11-04-e58cb5">
 </head>
 <body>
 
@@ -164,7 +164,7 @@
 
 <div class="wrap" id="app"></div>
 
-<script src="config.js?v=2026-11-04-d96ab3"></script>
+<script src="config.js?v=2026-11-04-e58cb5"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -188,9 +188,9 @@ const SUPABASE_URL = window.SB_URL;
 const SUPABASE_ANON_KEY = window.SB_KEY;
 
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { JENIS_BUKTI_KARYA, namaJenisBukti } from './rencana-bukti.js?v=2026-11-04-d96ab3';
-import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-04-d96ab3';
-import { pasangMenu } from './menu.js?v=2026-11-04-d96ab3';
+import { JENIS_BUKTI_KARYA, namaJenisBukti } from './rencana-bukti.js?v=2026-11-04-e58cb5';
+import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-04-e58cb5';
+import { pasangMenu } from './menu.js?v=2026-11-04-e58cb5';
 
 const app = document.getElementById('app');
 if (!SUPABASE_URL || !SUPABASE_ANON_KEY
@@ -217,6 +217,15 @@ const F_INDUK = {n:'induk_id', l:'Berasal dari penelitian / PkM', t:'select',
   sub:'Pilih kegiatan yang menghasilkan karya ini. Hanya kegiatan Anda '
     + 'sendiri yang tampil; kosongkan bila tidak berasal dari kegiatan '
     + 'yang tercatat.'};
+
+// Kerja sama induk (MoU/PKS/IA) yang dicatat admin di Data prodi
+// (supabase/24-patch-kerjasama-induk.sql). Diisi saat form dibuka;
+// dihapus dari form bila daftarnya belum bisa dibaca (patch belum jalan).
+const F_KERJASAMA = {n:'kerjasama_id', l:'Kerja sama induk (MoU/PKS/IA)', t:'select', full:1,
+  o:[['', '— tidak terkait kerja sama yang tercatat —']],
+  sub:'Pilih bila kegiatan ini dilaksanakan dalam kerja sama yang sudah dicatat admin prodi. '
+    + 'Di LKPS 2.a kegiatan ini tampil dengan tanggal, manfaat, dan bukti kerja sama itu. '
+    + 'Kerja sama belum ada di daftar? Minta admin menambahkannya di Data prodi.'};
 
 const F_BULAN = {n:'bulan', l:'Bulan', t:'select', w:1, o:BULAN,
   sub:'Menentukan tahun akademik (TS): September ke atas masuk TS berikutnya'};
@@ -270,6 +279,7 @@ const FORM = {
       F_BULAN,
       {n:'skema', t:'skema', full:1},
       {n:'tingkat', l:'Tingkat kegiatan', t:'select', w:1, o:TINGKAT},
+      F_KERJASAMA,
       {n:'nama_pemberi_dana', l:'Nama pemberi dana', t:'text',
         sub:'Contoh: DPPM Kemendiktisaintek, LPPM Universitas, PT ABC'},
       {n:'besaran_dana', l:'Besaran dana (Rp)', t:'number', ph:'25000000'},
@@ -611,7 +621,7 @@ function tampilForm(key, ubah = null){
   pasangMahasiswa(ubah ? (ubah.k.karya_mahasiswa || []) : []);
   pasangMitra(ubah ? (ubah.k.karya_mitra || []) : []);
   pasangRekan();
-  const muat = [isiInduk(), isiDaftarIntegrasi(), isiMataKuliah()];
+  const muat = [isiInduk(), isiDaftarIntegrasi(), isiMataKuliah(), isiKerjasama()];
   if(ubah){
     Promise.all(muat).then(() => isiUbah(key, ubah.k));
     document.getElementById('batalUbah').onclick = () => bukaTab('saya');
@@ -766,6 +776,25 @@ async function isiDaftarIntegrasi(){
     .eq('karya_penulis.dosen_id', saya.id)
     .order('tahun', { ascending:false }).limit(200);
   isiDaftarKegiatan(data);
+}
+
+// Daftar kerja sama induk penelitian/PkM. Gagal dibaca (patch 24 belum
+// dijalankan) -> isian dibuang, supaya kolom kerjasama_id tidak terkirim.
+// NAMA_KS: id -> "mitra — kegiatan" untuk tabel ajuan perubahan.
+const NAMA_KS = {};
+async function isiKerjasama(){
+  const el = document.getElementById('f_kerjasama_id');
+  if(!el) return;
+  const { data, error } = await sb.from('lkps_kerjasama')
+    .select('id, mitra, jenis, kegiatan, tahun_mulai, tahun_selesai')
+    .in('jenis', ['penelitian', 'pkm']).order('mitra');
+  const { error: eKolom } = await sb.from('karya').select('kerjasama_id').limit(1);
+  if(error || eKolom){ (el.closest('.fld') || el.parentElement).remove(); return; }
+  const jenis = { penelitian: 'Penelitian', pkm: 'PkM' };
+  (data || []).forEach(k => { NAMA_KS[k.id] = k.mitra + (k.kegiatan ? ' — ' + k.kegiatan : ''); });
+  el.innerHTML = `<option value="">— tidak terkait kerja sama yang tercatat —</option>` +
+    (data || []).map(k => `<option value="${k.id}">${esc(`${k.mitra}${k.kegiatan ? ' — ' + k.kegiatan : ''} ` +
+      `(${jenis[k.jenis]}, ${k.tahun_mulai}${k.tahun_selesai && k.tahun_selesai !== k.tahun_mulai ? '–' + k.tahun_selesai : ''})`)}</option>`).join('');
 }
 
 // Daftar mata kuliah dari tabel acuan, supaya ejaan seragam.
@@ -1414,6 +1443,7 @@ function tabelBeda(a, nama, karya){
     if(v == null || v === '') return kosong;
     if(c === 'skema_kode') return esc(namaSkema(v) || v);
     if(c === 'induk_id') return esc(karya.get(v)?.judul || v);
+    if(c === 'kerjasama_id') return esc(NAMA_KS[v] || 'kerja sama #' + v);
     return esc(rapi(String(v)));
   };
   const daftar = xs => xs.length ? xs.map(esc).join('<br>') : kosong;
@@ -1455,6 +1485,12 @@ async function muatAjuanUbahKarya(){
   ]);
   const nama = new Map((ds || []).map(d => [d.id, d.nama]));
   const karya = new Map((ks || []).map(k => [k.id, k]));
+  // Nama kerja sama induk yang dirujuk ajuan (24-patch-kerjasama-induk.sql).
+  const idKS = [...new Set(aj.flatMap(a => [a.data?.karya?.kerjasama_id, a.lama?.karya?.kerjasama_id]).filter(Boolean))];
+  if(idKS.length){
+    const { data: kk } = await sb.from('lkps_kerjasama').select('id,mitra,kegiatan').in('id', idKS);
+    (kk || []).forEach(x => { NAMA_KS[x.id] = x.mitra + (x.kegiatan ? ' — ' + x.kegiatan : ''); });
+  }
   box.className = '';
   box.innerHTML = aj.map(a => {
     const k = karya.get(a.karya_id) || {};
