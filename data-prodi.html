@@ -78,7 +78,7 @@
   .masuk{max-width:420px;margin:40px auto;background:#fff;border:1px solid var(--line);padding:20px}
   .masuk input{width:100%;padding:8px 10px;margin:8px 0;font:inherit}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-04-4dd821">
+<link rel="stylesheet" href="kepala.css?v=2026-11-04-c1941a">
 </head>
 <body>
 
@@ -92,7 +92,7 @@
 
 <main class="wrap" id="isi"></main>
 
-<script src="config.js?v=2026-11-04-4dd821"></script>
+<script src="config.js?v=2026-11-04-c1941a"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -109,11 +109,11 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-04-4dd821';
-import { pasangMenu } from './menu.js?v=2026-11-04-4dd821';
-import { unggahKePustaka, opsiPustaka, opsiJenis, labelDokumen, cariDokumen } from './pustaka-dokumen.js?v=2026-11-04-4dd821';
-import { infoJenis } from './rencana-bukti.js?v=2026-11-04-4dd821';
-import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-04-4dd821';
+import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-04-c1941a';
+import { pasangMenu } from './menu.js?v=2026-11-04-c1941a';
+import { unggahKePustaka, opsiPustaka, opsiJenis, labelDokumen, cariDokumen } from './pustaka-dokumen.js?v=2026-11-04-c1941a';
+import { infoJenis } from './rencana-bukti.js?v=2026-11-04-c1941a';
+import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-04-c1941a';
 
 /* =====================================================================
    DATA PRODI — data kuantitatif LKPS diisi admin di situs (keputusan
@@ -128,6 +128,7 @@ import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-04-4dd821';
      mhs (beberapa mahasiswa: baris nama + NIM; disimpan di kolom k dan
           kolom `nim`, dipisah "; ", sama dengan isian lama)
      cek (centang -> boolean, tampil "V"; awal = nilai baris baru)
+     dokumen (pilih dari pustaka -> id dokumen; saran = jenis yang didahulukan)
      jamak (beberapa pilihan -> array teks; o = fungsi yang mengembalikan
             [[nilai, label]], dipanggil saat formulir digambar)
    Kait opsional per tab: patch (berkas SQL bila tabel belum ada), urut
@@ -155,6 +156,9 @@ const UNGGAH = (() => {
 const BULAN = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus',
                'September', 'Oktober', 'November', 'Desember'];
 const TINGKAT_3 = [['internasional', 'Internasional'], ['nasional', 'Nasional'], ['wilayah', 'Wilayah/lokal']];
+// Tahap PPEPP, baris lembar 7b (30-patch-spmi.sql).
+const TAHAP_PPEPP = [['penetapan', 'Penetapan'], ['pelaksanaan', 'Pelaksanaan'], ['evaluasi', 'Evaluasi'],
+  ['pengendalian', 'Pengendalian'], ['peningkatan', 'Peningkatan']];
 // Kondisi sarana/fasilitas (28-patch-sarana-k3l.sql): kolom Terawat / Tidak Terawat lembar 5a, 5c.
 const KONDISI = [['terawat', 'Terawat'], ['tidak_terawat', 'Tidak terawat']];
 // Daftar pilihan templat LKPS (27-patch-institusi-upps.sql): lembar PS B5:B12, baris 2b.
@@ -439,6 +443,20 @@ const TABEL = [
       { k: 'urutan', l: 'Urutan tampil', t: 'int' },
     ],
     olah: r => { if (r.urutan == null) r.urutan = 100; } },
+  { id: 'spmi', tabel: 'lkps_spmi_ppepp', judul: 'SPMI (PPEPP)', butir: '53–57', patch: '30-patch-spmi.sql',
+    urut: ['id'],
+    ket: 'Tabel 7.b LKPS: satu baris per tahap PPEPP (Penetapan, Pelaksanaan, Evaluasi, Pengendalian, Peningkatan). '
+       + 'Keempat tautan dipilih dari tab Dokumen (pustaka), jadi tidak ada unggah ulang. Tabel 7.a (kebijakan, pedoman '
+       + 'PPEPP, standar, tata cara pendokumentasian SPMI) diambil langsung dari tab Dokumen, beserta nomor dan tanggalnya.',
+    label: r => (TAHAP_PPEPP.find(o => o[0] === r.tahap) || [, 'Tahap'])[1], tahun: () => null,
+    kolom: [
+      { k: 'tahap', l: 'Tahap PPEPP', t: 'pilihan', wajib: true, o: TAHAP_PPEPP },
+      { k: 'dokumen_id', l: 'Dokumen', t: 'dokumen', saran: ['kebijakan_spmi', 'manual_spmi', 'standar_spmi', 'sk_unit_pm', 'dokumen_iku_ikt'] },
+      { k: 'audit_dokumen_id', l: 'Laporan hasil audit', t: 'dokumen', saran: ['laporan_ami'] },
+      { k: 'rtm_dokumen_id', l: 'Laporan RTM', t: 'dokumen', saran: ['laporan_rtm'] },
+      { k: 'peningkatan_dokumen_id', l: 'Dokumen peningkatan', t: 'dokumen', saran: ['dokumen_peningkatan_mutu', 'laporan_kinerja'] },
+      { k: 'keterangan', l: 'Keterangan', t: 'teks', lebar: true },
+    ] },
   { id: 'mahasiswa', tabel: 'lkps_mahasiswa_ta', judul: 'Mahasiswa per TS', butir: '40–45',
     ket: 'Satu baris per TAHUN AKADEMIK (TS = 1 Sep s.d. 31 Agu), angka gabungan. Mahasiswa aktif = NM '
        + '(butir 40, 43, 46); lulusan + rerata IPK = butir 42; mahasiswa asing = butir 41. Masa studi dan '
@@ -552,13 +570,13 @@ TABEL.unshift({ id: 'dokumen', judul: 'Dokumen', khusus: true, butir: 'semua',
 const SARAN_DOK = { tracer: ['laporan_tracer'], kepuasan: ['survei_pengguna'], kerjasama: ['dokumen_kerjasama', 'pedoman_kerjasama'],
   mk: ['rps', 'kurikulum'], tema: ['peta_jalan_penelitian', 'peta_jalan_pkm'], vmts: ['sk_vmts', 'statuta', 'renstra_pt', 'renstra_upps'],
   prodi_upps: ['sk_akreditasi_prodi'], dana: ['laporan_keuangan'], tendik: ['sertifikat'], prasarana: ['pedoman_sarpras'],
-  dok_k3l: ['dokumen_k3l', 'kebijakan_k3l'], fas_k3l: ['kebijakan_k3l'], bkd: ['rekap_bkd'], prestasi: ['sertifikat'],
+  dok_k3l: ['dokumen_k3l', 'kebijakan_k3l'], fas_k3l: ['kebijakan_k3l'], spmi: ['kebijakan_spmi', 'laporan_ami', 'laporan_rtm'], bkd: ['rekap_bkd'], prestasi: ['sertifikat'],
   luaran: ['sertifikat'], kohort: ['lainnya'], mahasiswa: ['lainnya'], publikasi: ['lainnya'] };
 TABEL.forEach(T => { T.dok = SARAN_DOK[T.id] || ['lainnya']; });
 
 let SAYA = null, DOSEN = [], AKTIF = TABEL[0], BARIS = [], SUNTING = null;
 // Pustaka dokumen; ADA29 = lkps_bukti bisa menunjuk dokumen (patch 29).
-let DOK = [], DOK_GAGAL = '', ADA29 = true;
+let DOK = [], DOK_GAGAL = '', ADA29 = true, ADA30 = true;
 const dokPer = id => DOK.find(d => d.id === id) || null;
 // Bukti jamak per baris (tabel lkps_bukti, supabase/17-patch-lkps-bukti.sql).
 // LB: baris_id -> [bukti]; ANTREAN: bukti baris BARU yang menunggu disimpan.
@@ -587,6 +605,7 @@ async function mulai(){
   const { data: ds } = await sb.from('dosen').select('nidn,nama,peran,dtps').order('nama');
   DOSEN = (ds || []).filter(d => d.nidn && (d.dtps || ['dosen', 'pimpinan'].includes(d.peran)));
   ADA29 = !(await sb.from('lkps_bukti').select('dokumen_id').limit(1)).error;
+  ADA30 = !(await sb.from('dokumen').select('nomor,tanggal').limit(1)).error;   // 30-patch-spmi.sql
   await muatPustaka();
   const awal = new URLSearchParams(location.search).get('tab');
   AKTIF = TABEL.find(t => t.id === awal) || TABEL[0];
@@ -701,6 +720,9 @@ function isian(c){
   if (c.t === 'mhs')
     return `<div class="fld lebar"><label>${esc(c.l)}${wj}</label><div class="mhs-daftar" id="${id}">${barisMhs()}</div>
       <button type="button" class="btn ghost kecil" data-tambah-mhs="${c.k}">+ Tambah mahasiswa</button></div>`;
+  if (c.t === 'dokumen')
+    return `<div class="fld lebar"><label for="${id}">${esc(c.l)}${wj}</label><select id="${id}">${opsiPustaka(DOK, c.saran || [])}</select>
+      <small>Dipilih dari tab Dokumen (pustaka); unggah dokumennya di sana bila belum ada.</small></div>`;
   if (c.t === 'paragraf')
     return `<div class="fld lebar"><label for="${id}">${esc(c.l)}${wj}</label><textarea id="${id}" rows="3"></textarea></div>`;
   if (c.t === 'cek')
@@ -732,6 +754,7 @@ function bacaForm(){
   for (const c of kolomForm(AKTIF)) {
     const el = $('f_' + c.k);
     if (c.t === 'cek') { nilai[c.k] = el.checked; continue; }
+    if (c.t === 'dokumen') { nilai[c.k] = el.value ? +el.value : null; continue; }
     if (c.t === 'mhs') {
       const rows = [...el.querySelectorAll('.mhs-baris')].map(b => ({
         nama: b.querySelector('[data-mhs=nama]').value.trim(), nim: b.querySelector('[data-mhs=nim]').value.trim() }))
@@ -823,6 +846,7 @@ async function muatBaris(){
   (lb.data || []).forEach(x => { if (!LB.has(x.baris_id)) LB.set(x.baris_id, []); LB.get(x.baris_id).push(x); });
   if (!BARIS.length) { box.innerHTML = '<p class="kosong">Belum ada baris.</p>'; return; }
   const tampil = (c, v) => c.t === 'cek' ? (v === true ? 'V' : '—')
+    : c.t === 'dokumen' ? (dokPer(v) ? `<a href="${esc(dokPer(v).url)}" target="_blank" rel="noopener nofollow">${esc(labelDokumen(dokPer(v)))}</a>` : '—')
     : c.t === 'mhs' ? (v ? esc(pecahMhs(v).filter(Boolean).join('; ')) : '—')
     : c.t === 'jamak' ? (v && v.length ? esc(v.map(x => (c.o().find(o => o[0] === x) || [x, x])[1]).join('; ')) : '—')
     : v == null || v === '' ? '—'
@@ -914,6 +938,8 @@ async function klikPanel(e){
   if (pu) return unggahPustakaTab(pu);
   const hd = e.target.closest('[data-hapus-dok]');
   if (hd) return hapusDokumen(+hd.dataset.hapusDok);
+  const ud = e.target.closest('[data-ubah-dok]');
+  if (ud) return ubahNomorDokumen(+ud.dataset.ubahDok);
   const tl = e.target.closest('[data-tautan]');
   if (tl) {
     const url = $('bk_url').value.trim(), judul = $('bk_judul').value.trim();
@@ -1068,7 +1094,9 @@ async function bukaPustaka(){
       <div class="fld"><label for="pk_jenis">Jenis dokumen</label><select id="pk_jenis">${opsiJenis([], '')}</select></div>
       <div class="fld"><label for="pk_tahun">Tahun dokumen</label><input type="number" id="pk_tahun" min="1990" max="2100"
         value="${new Date().getFullYear()}"></div>
-      <div class="fld" id="pk_judul_w"><label for="pk_judul">Judul/nomor (jenis banyak)</label><input type="text" id="pk_judul" maxlength="120"></div>
+      <div class="fld" id="pk_judul_w"><label for="pk_judul">Judul (jenis banyak)</label><input type="text" id="pk_judul" maxlength="120"></div>
+      ${ADA30 ? `<div class="fld"><label for="pk_nomor">Nomor dokumen (opsional)</label><input type="text" id="pk_nomor" maxlength="120"></div>
+      <div class="fld"><label for="pk_tanggal">Tanggal dokumen (opsional)</label><input type="date" id="pk_tanggal"></div>` : ''}
       <div class="fld lebar"><label>Berkas</label><div class="unggah-baris"><input type="file" id="pk_berkas" accept="${esc(UNGGAH.accept)}" multiple>
         <button type="button" class="btn" data-unggah-pustaka="1">Unggah ke pustaka</button></div>
         <p class="ket" id="pk_ket"></p></div></div>` : ''}
@@ -1093,23 +1121,28 @@ async function bukaPustaka(){
 async function gambarPustaka(){
   const box = $('daftar');
   if (!box || DOK_GAGAL) { if (box) box.innerHTML = ''; return; }
-  const [lb, bb] = await Promise.all([
+  const [lb, bb, pp] = await Promise.all([
     ADA29 ? sb.from('lkps_bukti').select('dokumen_id,tabel') : { data: [] },
-    sb.from('butir_bukti').select('dokumen_id,butir')]);
+    sb.from('butir_bukti').select('dokumen_id,butir'),
+    // Tautan tahap PPEPP ke pustaka (30-patch-spmi.sql); tabel belum ada -> kosong.
+    sb.from('lkps_spmi_ppepp').select('dokumen_id,audit_dokumen_id,rtm_dokumen_id,peningkatan_dokumen_id')]);
   const judulTab = Object.fromEntries(TABEL.map(x => [x.tabel, x.judul]));
   const pakai = new Map();
   (lb.data || []).filter(x => x.dokumen_id).forEach(x => { if (!pakai.has(x.dokumen_id)) pakai.set(x.dokumen_id, []); pakai.get(x.dokumen_id).push(judulTab[x.tabel] || x.tabel); });
+  (pp.error ? [] : pp.data || []).forEach(x => ['dokumen_id', 'audit_dokumen_id', 'rtm_dokumen_id', 'peningkatan_dokumen_id']
+    .forEach(k => { if (!x[k]) return; if (!pakai.has(x[k])) pakai.set(x[k], []); pakai.get(x[k]).push('SPMI (PPEPP)'); }));
   (bb.data || []).filter(x => x.dokumen_id).forEach(x => { if (!pakai.has(x.dokumen_id)) pakai.set(x.dokumen_id, []); pakai.get(x.dokumen_id).push('butir ' + x.butir); });
   if (!DOK.length) { box.innerHTML = '<p class="kosong">Belum ada dokumen di pustaka.</p>'; return; }
   const ringkas = xs => Object.entries(xs.reduce((a, s) => (a[s] = (a[s] || 0) + 1, a), {}))
     .map(([s, n]) => n > 1 ? `${s} (${n})` : s).join(', ');
-  box.innerHTML = `<table class="t"><thead><tr><th>Jenis</th><th>Tahun</th><th>Judul/nomor</th><th>Dipakai di</th>
+  box.innerHTML = `<table class="t"><thead><tr><th>Jenis</th><th>Tahun</th><th>Judul</th>${ADA30 ? '<th>Nomor</th><th>Tanggal</th>' : ''}<th>Dipakai di</th>
       <th>Berkas</th><th>Diperbarui</th><th></th></tr></thead><tbody>${DOK.map(d => `<tr>
       <td>${esc(infoJenis(d.jenis).nama)}</td><td>${esc(d.tahun)}</td><td>${esc(d.judul || '—')}</td>
+      ${ADA30 ? `<td>${esc(d.nomor || '—')}</td><td>${esc(d.tanggal ? String(d.tanggal).split('-').reverse().join('/') : '—')}</td>` : ''}
       <td>${esc(ringkas(pakai.get(d.id) || []) || '—')}</td>
       <td><a href="${esc(d.url)}" target="_blank" rel="noopener nofollow">buka</a></td>
       <td>${esc(String(d.diperbarui || '').slice(0, 10))}</td>
-      <td><button type="button" class="btn bahaya kecil" data-hapus-dok="${esc(d.id)}" data-pakai="${(pakai.get(d.id) || []).length}">Hapus</button></td>
+      <td>${ADA30 ? `<button type="button" class="btn ghost kecil" data-ubah-dok="${esc(d.id)}">Nomor/tanggal</button> ` : ''}<button type="button" class="btn bahaya kecil" data-hapus-dok="${esc(d.id)}" data-pakai="${(pakai.get(d.id) || []).length}">Hapus</button></td>
     </tr>`).join('')}</tbody></table>`;
 }
 
@@ -1118,7 +1151,8 @@ async function unggahPustakaTab(tombol){
   tombol.disabled = true;
   try {
     const d = await unggahKePustaka(sb, UNGGAH, { jenis: $('pk_jenis').value, tahun: $('pk_tahun').value,
-      judul: $('pk_judul').value, berkas, oleh: SAYA.email, progres: s => tulis('', s) });
+      judul: $('pk_judul').value, berkas, oleh: SAYA.email, progres: s => tulis('', s),
+      nomor: $('pk_nomor')?.value, tanggal: $('pk_tanggal')?.value });
     await muatPustaka();
     $('pk_berkas').value = '';
     tulis('ok', `${labelDokumen(d)} tersimpan di pustaka.`);
@@ -1128,6 +1162,22 @@ async function unggahPustakaTab(tombol){
   } finally {
     tombol.disabled = false;
   }
+}
+
+// Nomor dan tanggal dokumen pustaka tanpa unggah ulang (LKPS 7.a, 30-patch-spmi.sql).
+async function ubahNomorDokumen(id){
+  const d = dokPer(id);
+  if (!d) return;
+  const nomor = prompt(`Nomor dokumen ${labelDokumen(d)} (kosongkan bila tidak ada):`, d.nomor || '');
+  if (nomor === null) return;
+  const tgl = prompt('Tanggal dokumen, format YYYY-MM-DD (kosongkan bila tidak ada):', d.tanggal || '');
+  if (tgl === null) return;
+  if (tgl.trim() && !/^\d{4}-\d{2}-\d{2}$/.test(tgl.trim())) return tulis('buruk', 'Tanggal ditulis YYYY-MM-DD, mis. 2024-03-15.');
+  const { error } = await sb.from('dokumen').update({ nomor: nomor.trim() || null, tanggal: tgl.trim() || null }).eq('id', id);
+  if (error) return tulis('buruk', 'Gagal menyimpan: ' + error.message);
+  await muatPustaka();
+  tulis('ok', 'Nomor dan tanggal dokumen tersimpan.');
+  await gambarPustaka();
 }
 
 async function hapusDokumen(id){

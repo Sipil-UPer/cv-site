@@ -7,7 +7,7 @@
    MENGGANTI berkasnya (versi lama ke _arsip Drive), tidak menambah salinan.
    Dipakai data-prodi.html (tab Dokumen dan bukti baris) dan input-butir.html.
    ===================================================================== */
-import { JENIS_DOKUMEN, infoJenis } from './rencana-bukti.js?v=2026-11-04-4dd821';
+import { JENIS_DOKUMEN, infoJenis } from './rencana-bukti.js?v=2026-11-04-c1941a';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g,
   c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -23,7 +23,13 @@ export function cariDokumen(dok, jenis, tahun, judul){
 }
 
 export const labelDokumen = d => d
-  ? `${infoJenis(d.jenis).nama}${d.judul ? ' — ' + d.judul : ''} (${d.tahun})` : '';
+  ? `${infoJenis(d.jenis).nama}${d.judul ? ' — ' + d.judul : ''}${d.nomor ? ', No. ' + d.nomor : ''} (${d.tahun})` : '';
+
+// Versi pustaka sebuah jenis untuk TS: tahun terbaru <= ts, atau terbaru bila belum ada.
+export function versiUntukTS(dok, jenis, ts){
+  const xs = (dok || []).filter(d => d.jenis === jenis).sort((a, b) => b.tahun - a.tahun);
+  return xs.find(d => +d.tahun <= ts) || xs[0] || null;
+}
 
 // <option> pustaka: jenis yang disarankan tab di atas, lalu sisanya; tiap
 // jenis terbaru dulu.
@@ -59,7 +65,7 @@ export const keBase64 = f => new Promise((ok, gagal) => {
 // pustaka pada (jenis, tahun, judul). Berkas pertama mengganti (mengarsipkan
 // versi lama), berkas berikutnya ditambahkan ke folder yang sama.
 // Mengembalikan baris `dokumen` yang tersimpan.
-export async function unggahKePustaka(sb, UNGGAH, { jenis, tahun, judul, berkas, oleh, progres = () => {} }){
+export async function unggahKePustaka(sb, UNGGAH, { jenis, tahun, judul, berkas, oleh, nomor, tanggal, progres = () => {} }){
   const k = kunciDokumen(jenis, tahun, judul);
   if (!(k.tahun >= 1990 && k.tahun <= 2100)) throw new Error('Isi tahun dokumen (4 angka).');
   if (!infoJenis(jenis).tunggal && !k.judul) throw new Error('Jenis ini banyak per tahun: isi judul/nomor dokumen.');
@@ -91,6 +97,8 @@ export async function unggahKePustaka(sb, UNGGAH, { jenis, tahun, judul, berkas,
   const { data, error } = await sb.from('dokumen').upsert({
     ...k, url, folder_url: folderUrl, nama_berkas: berkas.map(f => f.name).join('; ').slice(0, 500),
     diunggah_oleh: oleh || null, diperbarui: new Date().toISOString(),
+    // Nomor/tanggal dokumen (30-patch-spmi.sql): hanya dikirim bila diisi.
+    ...(nomor ? { nomor: String(nomor).trim() } : {}), ...(tanggal ? { tanggal } : {}),
   }, { onConflict: 'jenis,tahun,judul' }).select().single();
   if (error) throw new Error('Berkas terunggah, tetapi catatan pustaka gagal disimpan: ' + error.message);
   return data;

@@ -15,7 +15,8 @@
    angka yang sama dengan halaman skor. Lembar lain dibiarkan untuk diisi
    prodi; kolom yang tidak disimpan situs (mis. pita waktu tunggu) kosong.
    ===================================================================== */
-import { teksPendidikan } from './profil-dosen.js?v=2026-11-04-4dd821';
+import { versiUntukTS } from './pustaka-dokumen.js?v=2026-11-04-c1941a';
+import { teksPendidikan } from './profil-dosen.js?v=2026-11-04-c1941a';
 
 const TEMPLATE = 'lkps-template.xlsx';
 const JSZIP = 'https://cdn.jsdelivr.net/npm/jszip@3.10.1/+esm';
@@ -373,6 +374,23 @@ export function petaDaftar(C){
   isiLm('6e3-3', 18, ['ttg', 'produk'], (r, x) => {
     if (x.tkt) set('6e3-3', `D${r}`, `TKT ${x.tkt}`); set('6e3-3', `E${r}`, x.nomor); });
   isiLm('6e3-4', 8, ['buku_isbn', 'book_chapter'], (r, x) => set('6e3-4', `D${r}`, x.nomor));
+
+  // 7.a dokumen SPMI dari pustaka (versi terbaru tahun <= TS) dan 7.b tautan PPEPP
+  // ke dokumen pustaka (30-patch-spmi.sql). Baris templat tetap.
+  [['kebijakan_spmi', 5], ['manual_spmi', 6], ['standar_spmi', 7], ['tata_cara_dokumentasi_spmi', 8]].forEach(([j, r]) => {
+    const d = versiUntukTS(X.dokumen, j, ts);
+    if (!d) return;
+    set('7a', `C${r}`, d.nomor || d.judul || d.url);
+    set('7a', `D${r}`, serialISO(d.tanggal));
+  });
+  const urlDok = id => (X.dokumen || []).find(d => d.id === id)?.url;
+  const BARIS_PPEPP = { penetapan: 5, pelaksanaan: 6, evaluasi: 7, pengendalian: 8, peningkatan: 9 };
+  (X.ppepp || []).forEach(x => {
+    const r = BARIS_PPEPP[x.tahap];
+    if (!r) return;
+    set('7b', `C${r}`, urlDok(x.dokumen_id)); set('7b', `D${r}`, urlDok(x.audit_dokumen_id));
+    set('7b', `E${r}`, urlDok(x.rtm_dokumen_id)); set('7b', `F${r}`, urlDok(x.peningkatan_dokumen_id));
+  });
 
   // 5.a / 5.b / 5.c sarana, prasarana, K3L (28-patch-sarana-k3l.sql); tanda V di kolom
   // kepemilikan (G Sendiri, H Sewa) dan kondisi (5a I/J, 5c E/F).

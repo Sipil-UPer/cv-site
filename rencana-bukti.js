@@ -770,6 +770,8 @@ export const JENIS_DOKUMEN = [
   { id: 'manual_spmi', nama: 'Manual/pedoman PPEPP SPMI', tunggal: true, butir: ['53', '55'] },
   { id: 'standar_spmi', nama: 'Standar SPMI', tunggal: true, butir: ['53', '55'] },
   { id: 'sk_unit_pm', nama: 'SK unit/gugus penjaminan mutu', tunggal: true, butir: ['53'] },
+  // LKPS 7.a baris 4 (30-patch-spmi.sql).
+  { id: 'tata_cara_dokumentasi_spmi', nama: 'Tata cara pendokumentasian implementasi SPMI', tunggal: true, butir: ['53', '55'] },
   { id: 'laporan_ami', nama: 'Laporan audit mutu internal (AMI)', tunggal: true, butir: ['53', '55'] },
   { id: 'dokumen_iku_ikt', nama: 'Dokumen IKU dan IKT', tunggal: true, butir: ['54', '55', '56'] },
   { id: 'laporan_kinerja', nama: 'Laporan kinerja tahunan prodi', tunggal: true, butir: ['3', '56'] },
@@ -785,6 +787,7 @@ export const JENIS_DOKUMEN = [
   { id: 'dokumen_kerjasama', nama: 'Dokumen kerja sama (IA/MoA/PKS, bukti pelaksanaan)', tunggal: false, butir: ['6', '7'], contoh: 'IA PT Contoh 2025' },
   { id: 'sk_akreditasi_prodi', nama: 'SK akreditasi program studi', tunggal: false, butir: [], contoh: 'Teknik Lingkungan' },
   { id: 'dokumen_k3l', nama: 'Dokumen K3L (SOP, rencana tanggap darurat)', tunggal: false, butir: ['39'], contoh: 'SOP evakuasi laboratorium' },
+  { id: 'dokumen_peningkatan_mutu', nama: 'Dokumen peningkatan mutu (tindak lanjut AMI/RTM)', tunggal: false, butir: ['55', '56'], contoh: 'Tindak lanjut AMI 2025' },
   { id: 'sk_auditor', nama: 'SK auditor AMI', tunggal: false, butir: ['53'], contoh: 'No. 0347/UP-R/SK/HK.01/XI/2022' },
   { id: 'laporan_rtm', nama: 'Laporan Rapat Tinjauan Manajemen (RTM)', tunggal: false, butir: ['53', '55'], contoh: 'RTM Semester Ganjil' },
   { id: 'sk', nama: 'SK lainnya', tunggal: false, butir: [], contoh: 'SK Tim Kurikulum No. 012/2025' },
