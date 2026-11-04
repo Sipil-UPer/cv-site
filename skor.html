@@ -183,6 +183,17 @@
     margin-left:auto;font-family:var(--mono);letter-spacing:.05em}
   details.seksi > summary:hover h2{color:var(--biru-2)}
   details.seksi > .isi-s{padding-top:2px}
+  .panel-unduh{margin:26px 0 6px;padding:16px 18px 18px;background:var(--panel);border:1px solid var(--line);
+    border-top:4px solid var(--aksi)}
+  .panel-unduh h3{margin:0 0 12px;font-family:var(--serif);font-size:18px;color:var(--biru)}
+  .unduh-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  @media (max-width:760px){.unduh-grid{grid-template-columns:1fr}}
+  .unduh-kartu button{display:block;width:100%;min-height:58px;padding:12px 14px;border:0;border-radius:6px;cursor:pointer;
+    background:var(--aksi);color:#fff;font:600 16px/1.3 var(--sans);text-align:center}
+  .unduh-kartu button:hover{background:var(--aksi-2)}
+  .unduh-kartu button:focus-visible{outline:3px solid var(--biru-3);outline-offset:2px}
+  .unduh-kartu button[data-sibuk]{background:var(--biru-3);cursor:wait}
+  .unduh-kartu p{margin:7px 2px 0;font-size:13px;line-height:1.4;color:var(--muted)}
   .kontrol-seksi{display:flex;gap:14px;justify-content:flex-end;margin-top:20px}
   .kontrol-seksi a{font-family:var(--mono);font-size:10.5px;letter-spacing:.09em;
     text-transform:uppercase;color:var(--muted);text-decoration:none;cursor:pointer}
@@ -436,13 +447,17 @@ function pasangSeksi(){
   const k = document.getElementById('seksi-semua');
   // TS berkas = TS data yang sedang ditampilkan (pilih TS di atas dulu).
   const tsBerkas = CTX_LED ? ` TS ${taDari(CTX_LED.tsData)}` : '';
-  if (k) k.innerHTML = `<a id="unduhLED" title="Template LED LAM Teknik terisi tabel data, grafik, tautan bukti, dan kerangka narasi (tanpa skor penilaian sendiri)">Unduh draf LED${tsBerkas} (.docx)</a>`
-    + (ADMIN ? `<a id="unduhLKPS" title="Templat LKPS resmi LAM Teknik terisi data situs">Unduh LKPS${tsBerkas} (.xlsx)</a>` : '')
-    + (ADMIN ? `<a id="unduhIndeksBukti" title="Word: No tabel LKPS, item, dan link bukti untuk 44 tabel wajib Sarjana">Unduh indeks bukti LKPS${tsBerkas} (.docx)</a>` : '')
-    + (ADMIN ? `<a id="unduhTabelLKPS" title="Workbook sendiri berisi data situs, untuk disalin ke templat LAM; lembar Petunjuk memuat blok salin">Unduh tabel LKPS${tsBerkas} (.xlsx)</a>` : '')
-    + `<a id="bukaSemua">Buka semua</a><a id="tutupSemua">Tutup semua</a>`;
+  if (k) k.innerHTML = `<a id="bukaSemua">Buka semua</a><a id="tutupSemua">Tutup semua</a>`;
+  // Tombol unduh: kartu besar di atas Ringkasan (pemilik 2026-11-05: jelas, tidak kecil).
+  const unduh = [
+    ['unduhLED', `Unduh draf LED${tsBerkas} (.docx)`, 'Narasi, tabel pendukung, grafik, dan tautan bukti. Tanpa skor penilaian sendiri.', true],
+    ['unduhTabelLKPS', `Unduh tabel LKPS${tsBerkas} (.xlsx)`, '44 tabel wajib Sarjana untuk disalin ke templat LAM.', ADMIN],
+    ['unduhIndeksBukti', `Unduh indeks bukti LKPS${tsBerkas} (.docx)`, 'No tabel, item, dan link bukti tiap tabel.', ADMIN],
+  ].filter(x => x[3]);
+  const pu = document.getElementById('panel-unduh');
+  if (pu) pu.innerHTML = `<h3>Unduh dokumen akreditasi</h3><div class="unduh-grid">${unduh.map(([id, t, ket]) =>
+    `<div class="unduh-kartu"><button type="button" id="${id}">${esc(t)}</button><p>${esc(ket)}</p></div>`).join('')}</div>`;
   document.getElementById('unduhLED')?.addEventListener('click', unduhLED);
-  document.getElementById('unduhLKPS')?.addEventListener('click', () => unduhLKPS('unduhLKPS'));
   document.getElementById('unduhTabelLKPS')?.addEventListener('click', () => unduhLKPS('unduhTabelLKPS'));
   document.getElementById('unduhIndeksBukti')?.addEventListener('click', () => unduhLKPS('unduhIndeksBukti'));
   const semua = v => document.querySelectorAll('details.seksi').forEach(d => d.open = v);
@@ -504,9 +519,11 @@ async function ambilDaftarLKPS(){
     'karya_penulis(peran,korespondensi,dosen(nama)),karya_mitra(institusi,tingkat),karya_mahasiswa(nama)';
   // Kolom isian tambahan (25-patch-isian-karya.sql): 4.f.3, 4.i, 3.a.3, 6.h.1, 6.i.
   const KARYA_25 = ',tkt,nomor_tkt,jumlah_sitasi,tema_id,keterlibatan_mhs,bukti_integrasi,sesuai_rps';
+  // Isian 2.a dari dosen (32-patch-isian-kerjasama.sql).
+  const KARYA_32 = ',manfaat_ks,mulai_ks,selesai_ks,jenis_bukti_ks';
   const ambilKarya = async () => {
     const q = kol => sb.from('karya').select(kol).eq('status', 'terverifikasi').limit(5000);
-    for (const kol of [KARYA_DASAR + ',kerjasama_id' + KARYA_25, KARYA_DASAR + ',kerjasama_id']) {
+    for (const kol of [KARYA_DASAR + ',kerjasama_id' + KARYA_25 + KARYA_32, KARYA_DASAR + ',kerjasama_id' + KARYA_25, KARYA_DASAR + ',kerjasama_id']) {
       const { data, error } = await q(kol);
       if (!error) return data || [];
     }
@@ -523,7 +540,7 @@ async function ambilDaftarLKPS(){
     ambilDosen(),
     ambilKarya(),
     ambilKS(),
-    ambil(sb.from('lkps_bkd').select('nidn,tahun_akademik,semester,sks_pendidikan,sks_penelitian,sks_pkm,sks_penunjang')),
+    ambil(sb.from('lkps_bkd').select('*')),
     ambil(sb.from('lkps_prestasi_mahasiswa').select('*')),
     // select('*'): kolom patch 26 (status/nomor/TKT) ikut bila sudah ada; hanya di browser admin.
     ambil(sb.from('lkps_luaran_mahasiswa').select('*')),
@@ -558,7 +575,7 @@ async function ambilDaftarLKPS(){
            vmts, prodiUpps, dana, tendik, buktiVmts, prasarana, dokK3l, fasK3l, dokumen, ppepp, buktiBaris, buktiKarya };
 }
 
-// idTombol: unduhLKPS = templat resmi terisi; unduhTabelLKPS = workbook sendiri
+// idTombol: unduhTabelLKPS = workbook sendiri, unduhIndeksBukti = indeks bukti Word
 // (lkps-tabel.js, pemilik 2026-11-05). Data yang diambil sama.
 async function unduhLKPS(idTombol){
   const a = document.getElementById(idTombol);
@@ -573,9 +590,8 @@ async function unduhLKPS(idTombol){
     const rencanaKepuasan = Object.fromEntries((kp || [])
       .filter(r => r.rencana_tindak_lanjut).map(r => [r.aspek, r.rencana_tindak_lanjut]));
     const daftar = await ambilDaftarLKPS();
-    const buat = idTombol === 'unduhTabelLKPS' ? (await import('./lkps-tabel.js?v=2026-11-05-b4cb9a')).buatTabelLKPS
-      : idTombol === 'unduhIndeksBukti' ? (await import('./lkps-bukti.js?v=2026-11-05-b4cb9a')).buatIndeksBukti
-      : (await import('./lkps.js?v=2026-11-05-b4cb9a')).buatLKPS;
+    const buat = idTombol === 'unduhIndeksBukti' ? (await import('./lkps-bukti.js?v=2026-11-05-b4cb9a')).buatIndeksBukti
+      : (await import('./lkps-tabel.js?v=2026-11-05-b4cb9a')).buatTabelLKPS;
     const hasil = await buat({ D, ts, prodi: D.prodi, institusi: D.institusi, rencanaKepuasan,
       daftar });
     a.textContent = idTombol === 'unduhIndeksBukti' ? `Indeks terunduh (${hasil.sel} tautan, ${hasil.lembar.length} tabel)`
@@ -2005,6 +2021,7 @@ function render(){
   const rentang = ns => ns.length ? `Butir ${ns[0]}\u2013${ns[ns.length - 1]}` : '';
 
   document.getElementById('isi').innerHTML = `
+    <div class="panel-unduh" id="panel-unduh"></div>
     <h2>Ringkasan — TS ${esc(taDari(TS_PILIH))}</h2>
     <p class="ket">${JENDELA_OFS
       ? `<b>Mundur 1 TS:</b> jendela 3 TS = ${esc(taDari(TS_DATA - 2))} s.d.

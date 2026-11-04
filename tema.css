@@ -36,6 +36,10 @@
   --merah-m4:#FBE9EB;
   --merah-m5:#FDF3F4;
 
+  /* Tombol utama: terang, tulisan putih tetap kontras */
+  --aksi:#1565C0;
+  --aksi-2:#0D4F9E;
+
   /* Warna data dan status */
   --hijau:#00954E;
   --emas:#B8860B;

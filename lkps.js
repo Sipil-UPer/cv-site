@@ -250,6 +250,8 @@ export function petaDaftar(C){
     const r = 11 + i;
     set('4c', `B${r}`, d.nama); set('4c', `C${r}`, 'V');
     set('4c', `D${r}`, s('sks_pendidikan')); set('4c', `G${r}`, s('sks_penelitian'));
+    if (s('sks_ps_lain_dalam')) set('4c', `E${r}`, s('sks_ps_lain_dalam'));
+    if (s('sks_ps_lain_luar')) set('4c', `F${r}`, s('sks_ps_lain_luar'));
     set('4c', `H${r}`, s('sks_pkm')); set('4c', `I${r}`, s('sks_penunjang'));
   });
 
@@ -276,11 +278,14 @@ export function petaDaftar(C){
   (X.kerjasama || []).filter(k => !k.tahun_selesai || +k.tahun_selesai >= ts - 2)
     .filter(k => !dipakai.has(k.id))
     .forEach(k => kerjaSama[k.jenis]?.push({ mitra: k.mitra, tingkat: k.tingkat, judul: k.kegiatan, ks: k }));
+  // Isian dosen pada karya (32-patch-isian-kerjasama.sql) didahulukan; kosong = data induk.
+  const isianKS = (k, ks) => ({ manfaat: k.manfaat_ks || ks?.manfaat, tanggal_mulai: k.mulai_ks || ks?.tanggal_mulai,
+    tanggal_selesai: k.selesai_ks || ks?.tanggal_selesai, jenis_bukti: k.jenis_bukti_ks || ks?.jenis_bukti });
   kegiatanKS.forEach(k => {
     const ks = semuaKS.get(k.kerjasama_id);
-    if (ks) kerjaSama[k.kategori].push({ mitra: ks.mitra, tingkat: ks.tingkat, judul: k.judul, ks });
+    if (ks) kerjaSama[k.kategori].push({ mitra: ks.mitra, tingkat: ks.tingkat, judul: k.judul, ks: isianKS(k, ks) });
     (k.karya_mitra || []).filter(m => !ks || !sama(m.institusi, ks.mitra)).forEach(m =>
-      kerjaSama[k.kategori].push({ mitra: m.institusi, tingkat: m.tingkat, judul: k.judul }));
+      kerjaSama[k.kategori].push({ mitra: m.institusi, tingkat: m.tingkat, judul: k.judul, ks: isianKS(k, null) }));
   });
   [['2a1', 'pendidikan', 13], ['2a2', 'penelitian', 12], ['2a3', 'pkm', 12]].forEach(([l, j, r0]) =>
     kerjaSama[j].forEach((k, i) => {
@@ -329,6 +334,7 @@ export function petaDaftar(C){
   karya.filter(k => k.kategori === 'rekognisi').sort(urut).forEach((k, i) => {
     const r = 12 + i;
     set('4j', `B${r}`, ketua(k)); set('4j', `D${r}`, REKOGNISI[k.sub_jenis]);
+    set('4j', `C${r}`, (X.dosen || []).find(d => d.nama === ketua(k))?.bidang_keahlian);
     // Bukti Pendukung: teks bebas, jadi tautan bukti ikut ditulis.
     const u = (X.buktiKarya || []).find(b => b.karya_id === k.id)?.url;
     set('4j', `E${r}`, u ? `${k.judul} (${u})` : k.judul);
@@ -491,6 +497,7 @@ export function petaDaftar(C){
     set('6f1', `D${31 + i}`, r.wt_kurang_3); set('6f1', `E${31 + i}`, r.wt_3_18); set('6f1', `F${31 + i}`, r.wt_lebih_18);
     set('6f2', `D${7 + i}`, r.kesesuaian_rendah); set('6f2', `E${7 + i}`, r.kesesuaian_sedang);
     set('6f2', `F${7 + i}`, r.kesesuaian_tinggi);
+    set('6g1', `C${7 + i}`, r.pengguna_tanggapan);
   });
 
   // 6.h.1 / 6.i penelitian / PkM DTPS yang melibatkan mahasiswa

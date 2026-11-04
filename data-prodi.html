@@ -112,6 +112,7 @@ import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-
 import { pasangMenu } from './menu.js?v=2026-11-05-b4cb9a';
 import { unggahKePustaka, opsiPustaka, opsiJenis, labelDokumen, cariDokumen } from './pustaka-dokumen.js?v=2026-11-05-b4cb9a';
 import { pasangRapikan } from './rapikan-berkas.js?v=2026-11-05-b4cb9a';
+import { htmlContoh, pasangContoh, JENIS_BUKTI_KS } from './manfaat-kerjasama.js';
 import { infoJenis } from './rencana-bukti.js?v=2026-11-05-b4cb9a';
 import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-05-b4cb9a';
 
@@ -172,9 +173,6 @@ const JENIS_DANA = [['biaya_dosen', 'a. Biaya dosen (gaji, honor)'], ['biaya_ten
   ['investasi', 'f. Investasi (SDM, sarana, prasarana)'], ['kemahasiswaan', 'Operasional kemahasiswaan'],
   ['penelitian', 'Biaya penelitian'], ['pkm', 'Biaya PkM']];
 // Bukti kerja sama: daftar pilihan lembar 2a1 L4:L7 (24-patch-kerjasama-induk.sql).
-const JENIS_BUKTI_KS = [['surat_penugasan', 'Surat penugasan'], ['spk', 'Surat perjanjian kerja sama (SPK)'],
-  ['bukti_pelaksanaan', 'Bukti pelaksanaan (laporan, hasil, luaran)'], ['lainnya', 'Bukti lain yang relevan']];
-
 const TABEL = [
   { id: 'tracer', tabel: 'lkps_tracer_lulusan', judul: 'Tracer study', butir: '48–51',
     ket: 'Satu baris per TAHUN LULUS, angka gabungan tanpa nama (Tabel 6.f.1, 6.f.2, 6.g.1). '
@@ -197,6 +195,7 @@ const TABEL = [
       { k: 'kerja_internasional', l: 'Tempat kerja multinasional/internasional', t: 'int' },
       { k: 'kerja_nasional', l: 'Tempat kerja nasional/wirausaha berizin', t: 'int' },
       { k: 'kerja_wilayah', l: 'Tempat kerja wilayah/lokal', t: 'int' },
+      { k: 'pengguna_tanggapan', l: 'Pengguna lulusan yang memberi tanggapan', t: 'int' },
       { k: 'bukti_url', l: 'Bukti (laporan tracer)', t: 'url' },
     ],
     cek: r => {
@@ -265,7 +264,7 @@ const TABEL = [
         o: [['pendidikan', 'Pendidikan'], ['penelitian', 'Penelitian'], ['pkm', 'PkM']] },
       { k: 'tingkat', l: 'Tingkat', t: 'pilihan', wajib: true, o: TINGKAT_3 },
       { k: 'kegiatan', l: 'Judul kegiatan kerja sama', t: 'teks', lebar: true },
-      { k: 'manfaat', l: 'Manfaat bagi program studi', t: 'teks', lebar: true },
+      { k: 'manfaat', l: 'Manfaat bagi program studi', t: 'paragraf', contoh: true },
       { k: 'tanggal_mulai', l: 'Tanggal awal', t: 'tanggal' },
       { k: 'tanggal_selesai', l: 'Tanggal akhir (kosong = masih berlaku)', t: 'tanggal' },
       { k: 'jenis_bukti', l: 'Jenis bukti utama', t: 'pilihan', o: JENIS_BUKTI_KS },
@@ -500,7 +499,9 @@ const TABEL = [
         o: [['tenaga_pengajar', 'Tenaga pengajar'], ['asisten_ahli', 'Asisten ahli'], ['lektor', 'Lektor'],
             ['lektor_kepala', 'Lektor kepala'], ['guru_besar', 'Guru besar']] },
       { k: 'pendidikan_tertinggi', l: 'Pendidikan tertinggi', t: 'pilihan', o: [['s2', 'S2'], ['s3', 'S3']] },
-      { k: 'sks_pendidikan', l: 'SKS pendidikan', t: 'num' },
+      { k: 'sks_pendidikan', l: 'SKS pendidikan di PS ini', t: 'num' },
+      { k: 'sks_ps_lain_dalam', l: 'SKS pendidikan di PS lain, dalam PT', t: 'num' },
+      { k: 'sks_ps_lain_luar', l: 'SKS pendidikan di PS lain, luar PT', t: 'num' },
       { k: 'sks_penelitian', l: 'SKS penelitian', t: 'num' },
       { k: 'sks_pkm', l: 'SKS PkM', t: 'num' },
       { k: 'sks_penunjang', l: 'SKS penunjang', t: 'num' },
@@ -578,6 +579,7 @@ TABEL.forEach(T => { T.dok = SARAN_DOK[T.id] || ['lainnya']; });
 let SAYA = null, DOSEN = [], AKTIF = TABEL[0], BARIS = [], SUNTING = null;
 // Pustaka dokumen; ADA29 = lkps_bukti bisa menunjuk dokumen (patch 29).
 let DOK = [], DOK_GAGAL = '', ADA29 = true, ADA30 = true;
+pasangContoh();
 const dokPer = id => DOK.find(d => d.id === id) || null;
 // Bukti jamak per baris (tabel lkps_bukti, supabase/17-patch-lkps-bukti.sql).
 // LB: baris_id -> [bukti]; ANTREAN: bukti baris BARU yang menunggu disimpan.
@@ -754,7 +756,7 @@ function isian(c){
     return `<div class="fld lebar"><label for="${id}">${esc(c.l)}${wj}</label><select id="${id}">${opsiPustaka(DOK, c.saran || [])}</select>
       <small>Dipilih dari tab Dokumen (pustaka); unggah dokumennya di sana bila belum ada.</small></div>`;
   if (c.t === 'paragraf')
-    return `<div class="fld lebar"><label for="${id}">${esc(c.l)}${wj}</label><textarea id="${id}" rows="3"></textarea></div>`;
+    return `<div class="fld lebar"><label for="${id}">${esc(c.l)}${wj}</label><textarea id="${id}" rows="3"></textarea>${c.contoh ? htmlContoh(id) : ''}</div>`;
   if (c.t === 'cek')
     return `<div class="fld"><label class="cek" style="margin-top:20px"><input type="checkbox" id="${id}"${c.awal ? ' checked' : ''}>${esc(c.l)}</label></div>`;
   if (c.t === 'jamak')

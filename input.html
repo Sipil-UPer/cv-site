@@ -183,6 +183,7 @@ import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 import { JENIS_BUKTI_KARYA, namaJenisBukti } from './rencana-bukti.js?v=2026-11-05-b4cb9a';
 import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-05-b4cb9a';
 import { periksaBerkas, kolomSidik, teksTemuan } from './sidik-berkas.js?v=2026-11-05-b4cb9a';
+import { htmlContoh, pasangContoh, durasiKS, JENIS_BUKTI_KS } from './manfaat-kerjasama.js';
 import { pasangMenu } from './menu.js?v=2026-11-05-b4cb9a';
 
 const app = document.getElementById('app');
@@ -219,6 +220,18 @@ const F_KERJASAMA = {n:'kerjasama_id', l:'Kerja sama induk (MoU/PKS/IA)', t:'sel
   sub:'Pilih bila kegiatan ini dilaksanakan dalam kerja sama yang sudah dicatat admin prodi. '
     + 'Di LKPS 2.a kegiatan ini tampil dengan tanggal, manfaat, dan bukti kerja sama itu. '
     + 'Kerja sama belum ada di daftar? Minta admin menambahkannya di Data prodi.'};
+
+// Isian LKPS 2.a dari dosen (supabase/32-patch-isian-kerjasama.sql). Durasi dan
+// status tidak diisi: dihitung rumus templat dari kedua tanggal.
+const ISIAN_32 = ['manfaat_ks', 'mulai_ks', 'selesai_ks', 'jenis_bukti_ks'];
+const F_MANFAAT_KS = {n:'manfaat_ks', l:'Manfaat kerja sama bagi program studi', t:'textarea', full:1,
+  ph:'Mis. Mendukung topik tugas akhir 3 mahasiswa dan memperkaya materi mata kuliah Hidrologi dengan data lapangan dari mitra.',
+  sub:'LKPS 2.a kolom 7. Isi bila kegiatan ini bersama mitra. Sebutkan manfaat nyata bagi prodi, bukan tujuan kegiatan; '
+    + 'kosong = memakai isian kerja sama induk.' + htmlContoh('f_manfaat_ks', ['penelitian', 'pkm'])};
+const F_MULAI_KS = {n:'mulai_ks', l:'Tanggal awal kerja sama', t:'date', sub:'Sesuai surat penugasan atau perjanjian.'};
+const F_SELESAI_KS = {n:'selesai_ks', l:'Tanggal akhir kerja sama', t:'date', sub:'<span id="durasi_ks">Durasi dan status dihitung dari kedua tanggal.</span>'};
+const F_BUKTI_KS = {n:'jenis_bukti_ks', l:'Bukti kerja sama', t:'select', full:1, o:JENIS_BUKTI_KS,
+  sub:'LKPS 2.a kolom 12. Unggah berkasnya di bagian bukti, atau tautkan yang sudah ada.'};
 
 // Isian LKPS tambahan (supabase/25-patch-isian-karya.sql). Nilai sah sama
 // dengan daftar pilihan templat LKPS. Dibuang dari form bila kolomnya
@@ -303,6 +316,10 @@ const FORM = {
       {n:'skema', t:'skema', full:1},
       {n:'tingkat', l:'Tingkat kegiatan', t:'select', w:1, o:TINGKAT},
       F_KERJASAMA,
+      F_MANFAAT_KS,
+      F_MULAI_KS,
+      F_SELESAI_KS,
+      F_BUKTI_KS,
       F_TEMA,
       F_KETERLIBATAN,
       {n:'nama_pemberi_dana', l:'Nama pemberi dana', t:'text',
@@ -511,6 +528,8 @@ function fieldHTML(f){
       ? `<select id="f_${f.n}" name="${f.n}" ${f.w?'required':''}>
            <option value="">— pilih —</option>
            ${f.o.map(([v,l])=>`<option value="${v}">${l}</option>`).join('')}</select>`
+      : f.t==='textarea'
+      ? `<textarea id="f_${f.n}" name="${f.n}" rows="3" placeholder="${f.ph||''}"></textarea>`
       : `<input id="f_${f.n}" name="${f.n}" type="${f.t}" ${f.w?'required':''}
                 placeholder="${f.ph||''}" autocomplete="off"
                 ${f.daftar?`list="dl_${f.daftar}"`:''}>
@@ -650,7 +669,8 @@ function tampilForm(key, ubah = null){
   pasangMahasiswa(ubah ? (ubah.k.karya_mahasiswa || []) : []);
   pasangMitra(ubah ? (ubah.k.karya_mitra || []) : []);
   pasangRekan();
-  const muat = [isiInduk(), isiDaftarIntegrasi(), isiMataKuliah(), isiKerjasama(), siapkanIsian25()];
+  const muat = [isiInduk(), isiDaftarIntegrasi(), isiMataKuliah(), isiKerjasama(), siapkanIsian25(), siapkanIsian32()];
+  pasangDurasiKS();
   if(ubah){
     Promise.all(muat).then(() => isiUbah(key, ubah.k));
     document.getElementById('batalUbah').onclick = () => bukaTab('saya');
@@ -837,6 +857,30 @@ async function isiKerjasama(){
 }
 
 // Isian patch 25: buang bila kolomnya belum ada; isi pilihan tema.
+// Kolom patch 32 belum ada: isiannya dibuang supaya simpan tidak gagal.
+async function siapkanIsian32(){
+  const ada = ISIAN_32.filter(n => document.getElementById('f_' + n));
+  if(!ada.length) return;
+  const { error } = await sb.from('karya').select(ISIAN_32.join(',')).limit(1);
+  if(error) ada.forEach(n => { const el = document.getElementById('f_' + n); (el.closest('.fld') || el.parentElement).remove(); });
+}
+
+// Durasi dan status seperti rumus Tabel 2.a, tampil saat tanggal diisi.
+function pasangDurasiKS(){
+  const a = document.getElementById('f_mulai_ks'), z = document.getElementById('f_selesai_ks'), o = document.getElementById('durasi_ks');
+  if(!a || !z || !o) return;
+  pasangContoh();
+  const d = new Date(), ts = d.getFullYear() + (d.getMonth() >= 8 ? 1 : 0);
+  const tulis = () => {
+    const h = durasiKS(a.value, z.value, ts);
+    o.textContent = a.value && z.value && !h ? 'Tanggal akhir lebih awal dari tanggal awal.'
+      : h ? `Durasi ${h.tahun} tahun penuh; status di LKPS: ${h.valid ? 'Valid' : 'Tidak Valid (di luar 4 tahun terakhir)'}.`
+      : 'Durasi dan status dihitung dari kedua tanggal.';
+  };
+  a.oninput = tulis; z.oninput = tulis; a.onchange = tulis; z.onchange = tulis;
+  setTimeout(tulis, 800);
+}
+
 async function siapkanIsian25(){
   const ada = ISIAN_25.filter(n => document.getElementById('f_' + n));
   if(!ada.length) return;
@@ -1185,6 +1229,10 @@ async function simpan(key){
     isi.judul = JUDUL_INDUK[isi.induk_id] || '';
   }
 
+  if(isi.mulai_ks && isi.selesai_ks && isi.selesai_ks < isi.mulai_ks){
+    fm.className='msg err'; fm.textContent='Tanggal akhir kerja sama lebih awal dari tanggal awal.';
+    return;
+  }
   const peran  = document.getElementById('f_peran').value;
   const koresp = document.getElementById('f_koresponden')?.checked || false;
   const buktiUrl = (document.getElementById('f_bukti_url')?.value || '').trim();
@@ -1506,6 +1554,7 @@ function tabelBeda(a, nama, karya){
     if(c === 'kerjasama_id') return esc(NAMA_KS[v] || 'kerja sama #' + v);
     if(c === 'tema_id') return esc(NAMA_TEMA[v] || 'tema #' + v);
     if(c === 'sesuai_rps') return String(v) === 'true' ? 'Ya' : 'Belum';
+    if(c === 'jenis_bukti_ks') return esc((JENIS_BUKTI_KS.find(x => x[0] === v) || [])[1] || v);
     return esc(rapi(String(v)));
   };
   const daftar = xs => xs.length ? xs.map(esc).join('<br>') : kosong;
