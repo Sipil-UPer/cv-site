@@ -20,7 +20,9 @@
    Peta subbagian LED ke butir: docs/led-peta-butir.md.
    ===================================================================== */
 
-import { RENCANA_BUKTI, LKPS_TABEL, kelompokDokumen, buktiButir, saranDokumen } from './rencana-bukti.js?v=2026-11-04-7f6e75';
+import { RENCANA_BUKTI, LKPS_TABEL, kelompokDokumen, buktiButir, saranDokumen } from './rencana-bukti.js?v=2026-11-04-da2f74';
+import { grafikButir, tabelGrafik, tabelTren, tabelPendukung } from './led-data.js?v=2026-11-04-da2f74';
+import { gambarGrafik } from './led-grafik.js?v=2026-11-04-da2f74';
 
 const NS = {
   w:  'http://schemas.openxmlformats.org/wordprocessingml/2006/main',
@@ -142,6 +144,52 @@ function paraLogo(cx, cy){
     `<pic:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="${cx}" cy="${cy}"/></a:xfrm>` +
     `<a:prstGeom prst="rect"><a:avLst/></a:prstGeom></pic:spPr></pic:pic>` +
     `</a:graphicData></a:graphic></wp:inline></w:drawing></w:r></w:p>`;
+}
+
+// Grafik data (led-grafik.js) sebagai gambar sebaris, rata tengah.
+const GRAFIK_LEBAR_EMU = 5400000;     // 15 cm
+function paraGrafik(rid, cx, cy, id, nama){
+  return `<w:p><w:pPr><w:keepNext/><w:spacing w:before="120" w:after="0"/><w:jc w:val="center"/></w:pPr>` +
+    `<w:r><w:drawing><wp:inline distT="0" distB="0" distL="0" distR="0">` +
+    `<wp:extent cx="${cx}" cy="${cy}"/><wp:docPr id="${id}" name="${xe(nama)}"/>` +
+    `<wp:cNvGraphicFramePr><a:graphicFrameLocks xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" noChangeAspect="1"/></wp:cNvGraphicFramePr>` +
+    `<a:graphic xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main">` +
+    `<a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture">` +
+    `<pic:pic xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture">` +
+    `<pic:nvPicPr><pic:cNvPr id="0" name="${xe(nama)}.png"/><pic:cNvPicPr/></pic:nvPicPr>` +
+    `<pic:blipFill><a:blip r:embed="${rid}"/><a:stretch><a:fillRect/></a:stretch></pic:blipFill>` +
+    `<pic:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="${cx}" cy="${cy}"/></a:xfrm>` +
+    `<a:prstGeom prst="rect"><a:avLst/></a:prstGeom></pic:spPr></pic:pic>` +
+    `</a:graphicData></a:graphic></wp:inline></w:drawing></w:r></w:p>`;
+}
+
+// Butir yang mendapat grafik data (satu grafik per butir; 7 dan 41 memakai
+// grafik butir 6 dan 40).
+const BUTIR_GRAFIK = ['6', '23', '25', '31', '32', '33', '34', '40', '42', '43',
+                      '46', '47', '49', '50', '51', '52'];
+
+// Tren skor 3 TS, tabel pendukung, dan grafik + tabel datanya.
+function blokData(C, P, no){
+  const out = [];
+  const tr = tabelTren(no, C.tren, C.tsTren || [], C.angka);
+  if (tr){
+    out.push(para(run('Perkembangan skor 3 TS', { b: true }), { keep: true }));
+    out.push(tabel(P, tr));
+  }
+  const tp = tabelPendukung(no, C.D, C.ts);
+  if (tp){
+    out.push(para(run(tp.judul, { b: true }), { keep: true }));
+    out.push(tabel(P, tp.baris));
+  }
+  const g = C.grafik && C.grafik[no];
+  if (g){
+    const n = ++C.nomorGambar;
+    out.push(paraGrafik(g.rid, g.cx, g.cy, 9100 + n, `Grafik butir ${no}`));
+    out.push(para(run(`Gambar ${n}. ${g.spec.judul}`, { i: true, sz: 18 }), { jc: 'center', before: 40 }));
+    out.push(para(run(`Data Gambar ${n} (${g.spec.satuan})`, { b: true, sz: 18 }), { keep: true }));
+    out.push(tabel(P, tabelGrafik(g.spec)));
+  }
+  return out.join('');
 }
 
 // ---------------------------------------------------------------------
@@ -333,6 +381,7 @@ function blokButir(C, P, no, k = 0){
   kr.tabel.forEach(t => { if (t.rows.length) out.push(tabel(P, t.rows, { kepala: t.kepala })); });
   kr.rumus.forEach(r => out.push(para(run('Dasar perhitungan: ', { b: true, sz: 18 }) + run(r, { sz: 18 }))));
   if (kr.syarat) out.push(para(run(kr.syarat, { sz: 18, warna: '595959' })));
+  out.push(blokData(C, P, no));
 
   const u = C.buktiButir(no);
   out.push(para(run('Bukti butir: ', { b: true }) +
@@ -731,6 +780,16 @@ export async function buatLED(C, opsi = {}){
     }
   }
 
+  // Grafik data dibuat lebih dulu (PNG asinkron), disisipkan oleh blokData.
+  C.grafik = {}; C.nomorGambar = 0;
+  for (const no of BUTIR_GRAFIK){
+    const spec = grafikButir(no, C.D, C.ts);
+    if (!spec) continue;
+    const { buf, w, h } = await gambarGrafik(spec);
+    zip.file(`word/media/led_grafik_${no}.png`, buf);
+    C.grafik[no] = { spec, rid: `rIdLedG${no}`, cx: GRAFIK_LEBAR_EMU, cy: Math.round(GRAFIK_LEBAR_EMU * h / w) };
+  }
+
   const gagal = [];
   let kursor = body.firstElementChild;
   for (const s of SLOT){
@@ -772,6 +831,7 @@ export async function buatLED(C, opsi = {}){
   const RT = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/';
   P.daftar.forEach(x => tambahRel(x.id, RT + 'hyperlink', x.url, true));
   if (logoOk) tambahRel('rIdLedLogo', RT + 'image', 'media/logo_uper_led.png', false);
+  Object.entries(C.grafik).forEach(([no, g]) => tambahRel(g.rid, RT + 'image', `media/led_grafik_${no}.png`, false));
 
   const ser = new XMLSerializer();
   zip.file('word/document.xml', ser.serializeToString(doc));

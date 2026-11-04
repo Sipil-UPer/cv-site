@@ -279,7 +279,7 @@
   :focus-visible{outline:2px solid var(--biru-2);outline-offset:1px}
   @media(prefers-reduced-motion:reduce){.kartu{transition:none}.kartu:hover{transform:none}}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-04-7f6e75">
+<link rel="stylesheet" href="kepala.css?v=2026-11-04-da2f74">
 </head>
 <body>
 
@@ -344,7 +344,7 @@ setTimeout(function(){
   });
 }, 8000);
 </script>
-<script src="config.js?v=2026-11-04-7f6e75"></script>
+<script src="config.js?v=2026-11-04-da2f74"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -361,15 +361,15 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { BUTIR, isiPetaBukti, cariBukti, daftarBukti, kolomBukti } from './rincian.js?v=2026-11-04-7f6e75';
+import { BUTIR, isiPetaBukti, cariBukti, daftarBukti, kolomBukti } from './rincian.js?v=2026-11-04-da2f74';
 import { BUTIR_MANUAL, SEKSI_MANUAL, kunciButir, kunciBuktiButir, skorManual, tkKepuasan }
-  from './butir-manual.js?v=2026-11-04-7f6e75';
-import { BOBOT_TOTAL, bobotButir } from './bobot.js?v=2026-11-04-7f6e75';
-import { htmlRencana, buktiButir } from './rencana-bukti.js?v=2026-11-04-7f6e75';
-import { htmlPanel, pasangPanel } from './panel-bukti.js?v=2026-11-04-7f6e75';
-import { pasangMenu } from './menu.js?v=2026-11-04-7f6e75';
+  from './butir-manual.js?v=2026-11-04-da2f74';
+import { BOBOT_TOTAL, bobotButir } from './bobot.js?v=2026-11-04-da2f74';
+import { htmlRencana, buktiButir } from './rencana-bukti.js?v=2026-11-04-da2f74';
+import { htmlPanel, pasangPanel } from './panel-bukti.js?v=2026-11-04-da2f74';
+import { pasangMenu } from './menu.js?v=2026-11-04-da2f74';
 import { statusSyarat, syaratButir, SYARAT_UNGGUL, SYARAT_RERATA, SASARAN,
-         statusRerata, gabungSyarat, statusRentang } from './syarat-unggul.js?v=2026-11-04-7f6e75';
+         statusRerata, gabungSyarat, statusRentang } from './syarat-unggul.js?v=2026-11-04-da2f74';
 
 // config.js mendefinisikan window.SB_URL dan window.SB_KEY — pemetaan di
 // bawah ini WAJIB ada. skor.html versi sebelumnya melewatkannya dan mati
@@ -393,7 +393,7 @@ const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 // Naikkan setiap kali skor.html / rincian.js / butir-manual.js / bobot.js
 // diubah. Ditampilkan di kaki halaman supaya ketahuan seketika kalau
 // peramban masih memakai salinan lama dari cache.
-const VERSI = '2026-11-04-7f6e75';
+const VERSI = '2026-11-04-da2f74';
 // Label versi di judul diisi dari VERSI supaya keduanya tidak bisa berbeda.
 { const el = document.querySelector('.versi-statis'); if (el) el.textContent = 'v' + VERSI; }
 // =====================================================================
@@ -442,8 +442,10 @@ function pasangSeksi(){
   });
   const k = document.getElementById('seksi-semua');
   if (k) k.innerHTML = `<a id="unduhLED" title="Template LED LAM Teknik terisi skor, tabel data, tautan bukti, dan draf narasi">Unduh draf LED (.docx)</a>`
+    + (ADMIN ? `<a id="unduhLKPS" title="Templat LKPS resmi LAM Teknik terisi data situs (lembar Menu, 3b, 3c, 4d, 6a, 6b, 6e1, 6f1, 6f2, 6g1, 6g2)">Unduh LKPS (.xlsx)</a>` : '')
     + `<a id="bukaSemua">Buka semua</a><a id="tutupSemua">Tutup semua</a>`;
   document.getElementById('unduhLED')?.addEventListener('click', unduhLED);
+  document.getElementById('unduhLKPS')?.addEventListener('click', unduhLKPS);
   const semua = v => document.querySelectorAll('details.seksi').forEach(d => d.open = v);
   document.getElementById('bukaSemua')?.addEventListener('click', () => semua(true));
   document.getElementById('tutupSemua')?.addEventListener('click', () => semua(false));
@@ -471,6 +473,32 @@ document.addEventListener('click', e => {
   if (lompatKeButir(id)) history.replaceState(null, '', '#' + id);
 });
 
+// LKPS (lkps.js, pemilik 2026-11-04): templat resmi diisi di browser admin,
+// TS sama dengan ringkasan. Rencana tindak lanjut 6.g.2 hanya ada di tabel
+// lkps_kepuasan_pengguna (admin), tidak di data.json.
+async function unduhLKPS(){
+  const a = document.getElementById('unduhLKPS');
+  if (!a || !CTX_LED || a.dataset.sibuk) return;
+  a.dataset.sibuk = '1';
+  const asli = a.textContent;
+  a.textContent = 'Menyusun LKPS…';
+  try {
+    const ts = CTX_LED.tsData;
+    const { data: kp } = await sb.from('lkps_kepuasan_pengguna')
+      .select('aspek, rencana_tindak_lanjut').eq('tahun_akademik', taDari(ts));
+    const rencanaKepuasan = Object.fromEntries((kp || [])
+      .filter(r => r.rencana_tindak_lanjut).map(r => [r.aspek, r.rencana_tindak_lanjut]));
+    const { buatLKPS } = await import('./lkps.js?v=2026-11-04-da2f74');
+    const hasil = await buatLKPS({ D, ts, prodi: D.prodi, institusi: D.institusi, rencanaKepuasan });
+    a.textContent = `LKPS terunduh (${hasil.sel} sel pada ${hasil.lembar.length} lembar)`;
+  } catch (e) {
+    console.error(e);
+    a.textContent = 'Gagal menyusun LKPS: ' + e.message;
+  } finally {
+    setTimeout(() => { a.textContent = asli; delete a.dataset.sibuk; }, 6000);
+  }
+}
+
 // Draf LED (led.js, keputusan pemilik 2026-11-03): memakai konteks skor yang
 // sama dengan ringkasan, dan tabel dibaca dari kartu yang sudah dirender,
 // jadi angka di Word sama dengan halaman ini. led.js dimuat saat diklik.
@@ -482,12 +510,13 @@ async function unduhLED(){
   const asli = a.textContent;
   a.textContent = 'Menyusun draf LED…';
   try {
-    const { buatLED } = await import('./led.js?v=2026-11-04-7f6e75');
+    const { buatLED } = await import('./led.js?v=2026-11-04-da2f74');
     const ts = CTX_LED.tsData;
     const hasil = await buatLED({
       D, ts, taDari, f2, versi: VERSI,
       skorButir: CTX_LED.skorButir, judulButir: CTX_LED.judulButir,
       st: CTX_LED.st, NA: CTX_LED.NA, NAmax: CTX_LED.NAmax, semuaSy: CTX_LED.semuaSy,
+      tren: CTX_LED.tren, tsTren: CTX_LED.tsTren,
       bobotButir,
       manual: new Set(BUTIR_MANUAL.map(b => b.no)),
       buktiButir: no => ISteks(`bukti_b${no}`),
@@ -1863,7 +1892,7 @@ function render(){
   // Konteks seksi "Jalan menuju Unggul": skor dan judul tiap butir diambil
   // dari kartu yang sudah dirender, jadi angkanya sama dengan ringkasan.
   const ctxJalan = {
-    semuaSy, st, NA: poinBobot, NAmax, tsData: TS_DATA,
+    semuaSy, st, NA: poinBobot, NAmax, tsData: TS_DATA, tren, tsTren,
     skorButir: Object.fromEntries(daftar.map(x => [x.no, skorDari(kartu[x.no])])),
     judulButir: Object.fromEntries(daftar.map(x => {
       const m = (kartu[x.no] || '').match(/<h3>([^<]*)/);

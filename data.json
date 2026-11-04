@@ -262,7 +262,7 @@
    "jenis": "prosiding",
    "terbitan": "Springer Nature",
    "tingkat": "internasional",
-   "indeksasi": "wos",
+   "indeksasi": "scopus_q4",
    "doi": "https://link.springer.com/chapter/10.1007/978-3-032-18451-1_26",
    "url": "https://link.springer.com/chapter/10.1007/978-3-032-18451-1_26",
    "mitra": [],
@@ -1071,7 +1071,7 @@
    "jenis": "prosiding",
    "terbitan": "eai conference proceeding",
    "tingkat": "internasional",
-   "indeksasi": "wos",
+   "indeksasi": "tidak_terindeks",
    "doi": "10.4108/eai.23-11-2022.2341568",
    "url": "https://eudl.eu/doi/10.4108/eai.23-11-2022.2341568",
    "mitra": [
@@ -2098,10 +2098,6 @@
    {
     "slug": "gati-annisa-hayu",
     "tahun": 2023
-   },
-   {
-    "slug": "vani-arliani",
-    "tahun": 2023
    }
   ]
  },
@@ -2394,8 +2390,8 @@
     "na3": 0,
     "na4": 1,
     "nb1": 0,
-    "nb2": 1,
-    "nb3": 3
+    "nb2": 2,
+    "nb3": 2
    }
   ],
   "publikasi_mhs": [
