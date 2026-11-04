@@ -46,6 +46,10 @@
     border-radius:2px;font:inherit;font-size:13.5px;background:#fff}
   .fld input.salah,.fld select.salah{border-color:var(--merah);background:#FDF3F4}
   .fld.lebar{grid-column:1/-1}
+  label.cek{display:flex;gap:6px;align-items:center;font-size:13.5px;cursor:pointer}
+  label.cek input{width:auto;margin:0}
+  .jamak{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:2px 12px;
+    max-height:170px;overflow:auto;border:1px solid var(--line);padding:6px 8px;background:#fff}
   .unggah-baris{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:5px;font-size:12.5px}
   .unggah-baris input[type=text],.unggah-baris input[type=url]{flex:1 1 200px;width:auto}
   ul.bukti-l{margin:2px 0 4px;padding-left:18px;font-size:13px}
@@ -68,7 +72,7 @@
   .masuk{max-width:420px;margin:40px auto;background:#fff;border:1px solid var(--line);padding:20px}
   .masuk input{width:100%;padding:8px 10px;margin:8px 0;font:inherit}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-04-1c89d6">
+<link rel="stylesheet" href="kepala.css?v=2026-11-04-d96ab3">
 </head>
 <body>
 
@@ -82,7 +86,7 @@
 
 <main class="wrap" id="isi"></main>
 
-<script src="config.js?v=2026-11-04-1c89d6"></script>
+<script src="config.js?v=2026-11-04-d96ab3"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -99,9 +103,9 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-04-1c89d6';
-import { pasangMenu } from './menu.js?v=2026-11-04-1c89d6';
-import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-04-1c89d6';
+import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-04-d96ab3';
+import { pasangMenu } from './menu.js?v=2026-11-04-d96ab3';
+import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-04-d96ab3';
 
 /* =====================================================================
    DATA PRODI — data kuantitatif LKPS diisi admin di situs (keputusan
@@ -112,6 +116,12 @@ import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-04-1c89d6';
    Satu entri TABEL = satu tab. Jenis isian:
      tahun | ta (2025/2026) | bulan | int (>= 0) | num (>= 0, opsional maks)
      teks | pilihan | nidn (daftar dosen) | url (+ unggah bukti)
+     cek (centang -> boolean, tampil "V"; awal = nilai baris baru)
+     jamak (beberapa pilihan -> array teks; o = fungsi yang mengembalikan
+            [[nilai, label]], dipanggil saat formulir digambar)
+   Kait opsional per tab: patch (berkas SQL bila tabel belum ada), urut
+   (kolom urutan daftar; bawaan: terbaru dulu),
+   olah(nilai) sebelum simpan, cek(nilai) -> pesan galat.
    ===================================================================== */
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g,
@@ -216,6 +226,44 @@ const TABEL = [
     ],
     cek: r => r.tahun_selesai != null && r.tahun_selesai < r.tahun_mulai
       ? 'Tahun selesai lebih awal dari tahun mulai.' : '' },
+  { id: 'mk', tabel: 'ref_mata_kuliah', judul: 'Mata kuliah', butir: '15, 17, 19, 20',
+    patch: '23-patch-kurikulum.sql', urut: ['semester', 'urutan', 'kode'],
+    ket: 'Satu baris per mata kuliah kurikulum (Tabel 3.a.1). Centang basic science/matematika untuk Tabel 3.a.4 '
+       + 'dan capstone design untuk Tabel 3.a.5 (pilih MK pendukungnya). Dosen pengampu mengisi kolom "MK yang '
+       + 'diampu" Tabel 4.a. Unggah dokumen RPS sebagai bukti baris. Daftar ini juga menjadi pilihan MK pada '
+       + 'isian karya integrasi penelitian/PkM.',
+    label: r => `${r.kode || ''} ${r.nama || 'Mata kuliah'}`.trim(), tahun: () => null,
+    kolom: [
+      { k: 'kode', l: 'Kode MK', t: 'teks', wajib: true },
+      { k: 'nama', l: 'Nama mata kuliah', t: 'teks', wajib: true, lebar: true },
+      { k: 'semester', l: 'Semester', t: 'int' },
+      { k: 'sks_kuliah', l: 'SKS kuliah/responsi/tutorial', t: 'num' },
+      { k: 'sks_seminar', l: 'SKS seminar', t: 'num' },
+      { k: 'sks_praktikum', l: 'SKS praktikum/praktik lapangan/penugasan', t: 'num' },
+      { k: 'unit_penyelenggara', l: 'Unit penyelenggara', t: 'pilihan',
+        o: [['universitas', 'Universitas'], ['fakultas', 'Fakultas'], ['prodi', 'Prodi']] },
+      { k: 'inti', l: 'MK kompetensi (inti)', t: 'cek' },
+      { k: 'rps_ada', l: 'Dokumen RPS ada', t: 'cek' },
+      { k: 'basic_science', l: 'Basic science / matematika (3.a.4)', t: 'cek' },
+      { k: 'capstone', l: 'MK capstone design (3.a.5)', t: 'cek' },
+      { k: 'capstone_pendukung', l: 'MK pendukung capstone (bila MK ini capstone)', t: 'jamak',
+        kosong: 'Simpan MK lain dulu, lalu pilih di sini.',
+        o: () => BARIS.filter(m => m.id !== SUNTING).map(m => [m.kode, `${m.kode} — ${m.nama}`]) },
+      { k: 'capstone_cakupan', l: 'Cakupan bahasan capstone', t: 'teks', lebar: true },
+      { k: 'pengampu', l: 'Dosen pengampu', t: 'jamak', kosong: 'Daftar dosen kosong.',
+        o: () => DOSEN.map(d => [d.nidn, d.nama]) },
+      { k: 'aktif', l: 'Aktif (masih di kurikulum)', t: 'cek', awal: true },
+      { k: 'urutan', l: 'Urutan tampil', t: 'int' },
+      { k: 'rps_url', l: 'Dokumen RPS', t: 'url' },
+    ],
+    // sks = jumlah ketiga bagian bila salah satunya diisi.
+    olah: r => {
+      const bag = ['sks_kuliah', 'sks_seminar', 'sks_praktikum'];
+      if (bag.some(k => r[k] != null)) r.sks = bag.reduce((a, k) => a + (r[k] || 0), 0);
+      if (!r.capstone) { r.capstone_pendukung = []; r.capstone_cakupan = null; }
+      if (r.urutan == null) r.urutan = 100;
+    },
+    cek: r => r.semester != null && (r.semester < 1 || r.semester > 14) ? 'Semester 1–14.' : '' },
   { id: 'mahasiswa', tabel: 'lkps_mahasiswa_ta', judul: 'Mahasiswa per TS', butir: '40–45',
     ket: 'Satu baris per TAHUN AKADEMIK (TS = 1 Sep s.d. 31 Agu), angka gabungan. Mahasiswa aktif = NM '
        + '(butir 40, 43, 46); lulusan + rerata IPK = butir 42; mahasiswa asing = butir 41. Masa studi dan '
@@ -377,8 +425,22 @@ async function bukaTab(){
   gambarBukti();
 }
 
+// Isi kotak pilihan jamak dengan pilihan terkini dan nilai terpilih.
+function isiJamak(c, terpilih){
+  const box = $('f_' + c.k);
+  if (!box) return;
+  const pilih = new Set(terpilih || []);
+  const o = c.o();
+  box.innerHTML = o.length ? o.map(([v, l]) => `<label class="cek"><input type="checkbox" value="${esc(v)}"${
+    pilih.has(v) ? ' checked' : ''}>${esc(l)}</label>`).join('') : `<span class="kosong">${esc(c.kosong || 'Belum ada pilihan.')}</span>`;
+}
+
 function isian(c){
   const id = 'f_' + c.k, wj = c.wajib ? ' <span class="wj">*</span>' : '';
+  if (c.t === 'cek')
+    return `<div class="fld"><label class="cek" style="margin-top:20px"><input type="checkbox" id="${id}"${c.awal ? ' checked' : ''}>${esc(c.l)}</label></div>`;
+  if (c.t === 'jamak')
+    return `<div class="fld lebar"><label>${esc(c.l)}${wj}</label><div class="jamak" id="${id}"></div></div>`;
   let el;
   if (c.t === 'pilihan' || c.t === 'bulan' || c.t === 'nidn') {
     const o = c.t === 'bulan' ? BULAN.map((b, i) => [String(i + 1), b])
@@ -402,7 +464,10 @@ function isian(c){
 function bacaForm(){
   const nilai = {}, galat = [];
   for (const c of kolomForm(AKTIF)) {
-    const el = $('f_' + c.k), v = el.value.trim();
+    const el = $('f_' + c.k);
+    if (c.t === 'cek') { nilai[c.k] = el.checked; continue; }
+    if (c.t === 'jamak') { nilai[c.k] = [...el.querySelectorAll('input:checked')].map(x => x.value); continue; }
+    const v = el.value.trim();
     el.classList.remove('salah');
     const salah = p => { galat.push(`${c.l}: ${p}`); el.classList.add('salah'); };
     if (!v) { if (c.wajib) salah('wajib diisi'); nilai[c.k] = null; continue; }
@@ -426,6 +491,7 @@ function bacaForm(){
       nilai[c.k] = v;
     } else nilai[c.k] = v;
   }
+  if (!galat.length && AKTIF.olah) AKTIF.olah(nilai);
   if (!galat.length && AKTIF.cek) { const g = AKTIF.cek(nilai); if (g) galat.push(g); }
   return { nilai, galat };
 }
@@ -435,6 +501,8 @@ function isiForm(r){
   ANTREAN = [];
   kolomForm(AKTIF).forEach(c => {
     const el = $('f_' + c.k);
+    if (c.t === 'cek') { el.checked = r ? r[c.k] === true : !!c.awal; return; }
+    if (c.t === 'jamak') { isiJamak(c, r ? r[c.k] : []); return; }
     el.value = r && r[c.k] != null ? String(r[c.k]) : '';
     el.classList.remove('salah');
   });
@@ -450,22 +518,31 @@ const tulis = (cls, t) => { const m = $('msg'); m.className = 'msg' + (cls ? ' '
 
 async function muatBaris(){
   const T = AKTIF;
-  const { data, error } = await sb.from(T.tabel).select('*').order('id', { ascending: false });
+  let q = sb.from(T.tabel).select('*');
+  for (const k of (T.urut || [])) q = q.order(k, { ascending: true, nullsFirst: false });
+  const { data, error } = await q.order('id', { ascending: !!T.urut });
   const box = $('daftar');
   if (T !== AKTIF) return;
   if (error) {
     box.innerHTML = `<p class="kosong">Tabel <code>${esc(T.tabel)}</code> belum bisa dibaca (${esc(error.message)}).
-      Jalankan <code>supabase/16-patch-data-lkps.sql</code>.</p>`;
+      Jalankan <code>supabase/${esc(T.patch || '16-patch-data-lkps.sql')}</code>.</p>`;
     $('simpan').disabled = true;
     return;
   }
   BARIS = data || [];
+  // Pilihan jamak bisa bergantung pada baris tab ini (mis. MK pendukung).
+  kolomForm(T).filter(c => c.t === 'jamak').forEach(c => {
+    const r = SUNTING ? BARIS.find(x => x.id === SUNTING) : null;
+    isiJamak(c, r ? r[c.k] : [...($('f_' + c.k)?.querySelectorAll('input:checked') || [])].map(x => x.value));
+  });
   const lb = await sb.from('lkps_bukti').select('id,baris_id,judul,url').eq('tabel', T.tabel).order('id');
   LB_GAGAL = lb.error ? lb.error.message : '';
   LB = new Map();
   (lb.data || []).forEach(x => { if (!LB.has(x.baris_id)) LB.set(x.baris_id, []); LB.get(x.baris_id).push(x); });
   if (!BARIS.length) { box.innerHTML = '<p class="kosong">Belum ada baris.</p>'; return; }
-  const tampil = (c, v) => v == null || v === '' ? '—'
+  const tampil = (c, v) => c.t === 'cek' ? (v === true ? 'V' : '—')
+    : c.t === 'jamak' ? (v && v.length ? esc(v.map(x => (c.o().find(o => o[0] === x) || [x, x])[1]).join('; ')) : '—')
+    : v == null || v === '' ? '—'
     : c.t === 'url' ? `<a href="${esc(v)}" target="_blank" rel="noopener nofollow">buka</a>`
     : c.t === 'bulan' ? esc(BULAN[v - 1] || v)
     : c.t === 'nidn' ? esc((DOSEN.find(d => d.nidn === v) || {}).nama || v)

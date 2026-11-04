@@ -15,7 +15,7 @@
    angka yang sama dengan halaman skor. Lembar lain dibiarkan untuk diisi
    prodi; kolom yang tidak disimpan situs (mis. pita waktu tunggu) kosong.
    ===================================================================== */
-import { teksPendidikan } from './profil-dosen.js?v=2026-11-04-1c89d6';
+import { teksPendidikan } from './profil-dosen.js?v=2026-11-04-d96ab3';
 
 const TEMPLATE = 'lkps-template.xlsx';
 const JSZIP = 'https://cdn.jsdelivr.net/npm/jszip@3.10.1/+esm';
@@ -172,6 +172,9 @@ export function petaDaftar(C){
     .sort((a, b) => a.nama.localeCompare(b.nama));
   const profil = (X.dosen || []).filter(d => d.peran !== 'asesor' && (d.kategori || d.dtps))
     .sort((a, b) => a.nama.localeCompare(b.nama));
+  const mk = (X.mk || []).filter(m => m.aktif !== false)
+    .sort((a, b) => ((a.semester ?? 99) - (b.semester ?? 99)) || ((a.urutan ?? 100) - (b.urutan ?? 100))
+      || String(a.kode).localeCompare(String(b.kode)));
   profil.forEach((d, i) => {
     const r = 14 + i;
     const rw = d.riwayat_pendidikan || [];
@@ -190,8 +193,36 @@ export function petaDaftar(C){
     set('4a', `M${r}`, srt.map(s => s.bidang).filter(Boolean).join('; '));
     set('4a', `N${r}`, srt.map(s => s.lembaga).filter(Boolean).join('; '));
     set('4a', `O${r}`, d.skip); set('4a', `P${r}`, d.stri);
+    set('4a', `Q${r}`, mk.filter(m => (m.pengampu || []).includes(d.nidn)).map(m => m.nama).join('; '));
     if (d.sesuai_keahlian_mk === true) set('4a', `R${r}`, 'V');
     set('4a', `S${r}`, d.mk_ps_lain);
+  });
+
+  // 3.a.1 / 3.a.4 / 3.a.5 dari mata kuliah aktif (supabase/23-patch-kurikulum.sql),
+  // urut semester. Belum dipecah -> total sks di kolom kuliah.
+  const UNIT = { universitas: 'Universitas', fakultas: 'Fakultas', prodi: 'Prodi' };
+  mk.forEach((m, i) => {
+    const r = 10 + i, pecah = [m.sks_kuliah, m.sks_seminar, m.sks_praktikum].some(v => v != null);
+    set('3a1', `B${r}`, m.semester); set('3a1', `C${r}`, m.kode); set('3a1', `D${r}`, m.nama);
+    if (m.inti === true) set('3a1', `E${r}`, 'V');
+    set('3a1', `F${r}`, pecah ? m.sks_kuliah : m.sks);
+    if (pecah) { set('3a1', `G${r}`, m.sks_seminar); set('3a1', `H${r}`, m.sks_praktikum); }
+    if (m.rps_ada != null) set('3a1', `J${r}`, m.rps_ada ? 'Ada' : 'Tidak Ada');
+    set('3a1', `K${r}`, UNIT[m.unit_penyelenggara]);
+  });
+  mk.filter(m => m.basic_science).forEach((m, i) => {
+    set('3a4', `B${10 + i}`, m.nama); set('3a4', `C${10 + i}`, m.semester); set('3a4', `D${10 + i}`, m.sks);
+  });
+  const perKode = new Map((X.mk || []).map(m => [m.kode, m]));
+  let r35 = 10;
+  mk.filter(m => m.capstone).forEach(c => {
+    const pendukung = (c.capstone_pendukung || []).map(k => perKode.get(k) || { nama: k });
+    (pendukung.length ? pendukung : [null]).forEach(p => {
+      if (p) { set('3a5', `B${r35}`, p.nama); set('3a5', `C${r35}`, p.sks); }
+      set('3a5', `D${r35}`, c.nama); set('3a5', `E${r35}`, c.sks);
+      set('3a5', `F${r35}`, c.semester); set('3a5', `G${r35}`, c.capstone_cakupan);
+      r35++;
+    });
   });
 
   // 4.c beban kerja DTPS pada TS (jumlah kedua semester)
