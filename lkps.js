@@ -15,7 +15,7 @@
    angka yang sama dengan halaman skor. Lembar lain dibiarkan untuk diisi
    prodi; kolom yang tidak disimpan situs (mis. pita waktu tunggu) kosong.
    ===================================================================== */
-import { teksPendidikan } from './profil-dosen.js?v=2026-11-04-d22816';
+import { teksPendidikan } from './profil-dosen.js?v=2026-11-04-5e6b39';
 
 const TEMPLATE = 'lkps-template.xlsx';
 const JSZIP = 'https://cdn.jsdelivr.net/npm/jszip@3.10.1/+esm';
@@ -373,6 +373,27 @@ export function petaDaftar(C){
   isiLm('6e3-3', 18, ['ttg', 'produk'], (r, x) => {
     if (x.tkt) set('6e3-3', `D${r}`, `TKT ${x.tkt}`); set('6e3-3', `E${r}`, x.nomor); });
   isiLm('6e3-4', 8, ['buku_isbn', 'book_chapter'], (r, x) => set('6e3-4', `D${r}`, x.nomor));
+
+  // 5.a / 5.b / 5.c sarana, prasarana, K3L (28-patch-sarana-k3l.sql); tanda V di kolom
+  // kepemilikan (G Sendiri, H Sewa) dan kondisi (5a I/J, 5c E/F).
+  const urutLain = k => (a, b) => ((a.urutan ?? 100) - (b.urutan ?? 100)) || String(a[k]).localeCompare(String(b[k]));
+  (X.prasarana || []).slice().sort((a, b) => urutLain('prasarana')(a, b) || String(a.alat).localeCompare(String(b.alat)))
+    .forEach((x, i) => {
+      const r = 10 + i;
+      set('5a', `B${r}`, x.prasarana); set('5a', `C${r}`, x.jumlah_prasarana); set('5a', `D${r}`, x.alat);
+      set('5a', `E${r}`, x.jumlah_standar); set('5a', `F${r}`, x.jumlah_dimiliki);
+      if (x.kepemilikan) set('5a', `${x.kepemilikan === 'sewa' ? 'H' : 'G'}${r}`, 'V');
+      if (x.kondisi) set('5a', `${x.kondisi === 'tidak_terawat' ? 'J' : 'I'}${r}`, 'V');
+    });
+  (X.dokK3l || []).slice().sort(urutLain('jenis_dokumen')).forEach((x, i) => {
+    const r = 17 + i;
+    set('5b', `B${r}`, x.jenis_dokumen); set('5b', `C${r}`, x.jumlah); set('5b', `D${r}`, x.riwayat_pengesahan);
+  });
+  (X.fasK3l || []).slice().sort(urutLain('nama_sarana')).forEach((x, i) => {
+    const r = 17 + i;
+    set('5c', `B${r}`, x.nama_sarana); set('5c', `C${r}`, x.fungsi); set('5c', `D${r}`, x.jumlah_unit);
+    if (x.kondisi) set('5c', `${x.kondisi === 'tidak_terawat' ? 'F' : 'E'}${r}`, 'V');
+  });
 
   // PS / Tabel 1 / 2.b / 4.b / 6.a baris prodi lain (27-patch-institusi-upps.sql).
   const STATUS_PS = { unggul: 'Terakreditasi Unggul', a: 'Terakreditasi A', baik_sekali: 'Terakreditasi Baik Sekali',

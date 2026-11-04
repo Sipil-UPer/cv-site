@@ -75,7 +75,7 @@
   .masuk{max-width:420px;margin:40px auto;background:#fff;border:1px solid var(--line);padding:20px}
   .masuk input{width:100%;padding:8px 10px;margin:8px 0;font:inherit}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-04-d22816">
+<link rel="stylesheet" href="kepala.css?v=2026-11-04-5e6b39">
 </head>
 <body>
 
@@ -89,7 +89,7 @@
 
 <main class="wrap" id="isi"></main>
 
-<script src="config.js?v=2026-11-04-d22816"></script>
+<script src="config.js?v=2026-11-04-5e6b39"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -106,9 +106,9 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-04-d22816';
-import { pasangMenu } from './menu.js?v=2026-11-04-d22816';
-import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-04-d22816';
+import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-04-5e6b39';
+import { pasangMenu } from './menu.js?v=2026-11-04-5e6b39';
+import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-04-5e6b39';
 
 /* =====================================================================
    DATA PRODI — data kuantitatif LKPS diisi admin di situs (keputusan
@@ -150,6 +150,8 @@ const UNGGAH = (() => {
 const BULAN = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus',
                'September', 'Oktober', 'November', 'Desember'];
 const TINGKAT_3 = [['internasional', 'Internasional'], ['nasional', 'Nasional'], ['wilayah', 'Wilayah/lokal']];
+// Kondisi sarana/fasilitas (28-patch-sarana-k3l.sql): kolom Terawat / Tidak Terawat lembar 5a, 5c.
+const KONDISI = [['terawat', 'Terawat'], ['tidak_terawat', 'Tidak terawat']];
 // Daftar pilihan templat LKPS (27-patch-institusi-upps.sql): lembar PS B5:B12, baris 2b.
 const STATUS_AKREDITASI = [['unggul', 'Terakreditasi Unggul'], ['a', 'Terakreditasi A'], ['baik_sekali', 'Terakreditasi Baik Sekali'],
   ['b', 'Terakreditasi B'], ['baik', 'Terakreditasi Baik'], ['c', 'Terakreditasi C'], ['minimum', 'Terakreditasi Minimum'],
@@ -392,6 +394,46 @@ const TABEL = [
       { k: 'unit_kerja', l: 'Unit kerja', t: 'pilihan', o: [['upps', 'UPPS'], ['prodi', 'Program studi'], ['institusi', 'Institusi']] },
       { k: 'aktif', l: 'Aktif', t: 'cek', awal: true },
     ] },
+  { id: 'prasarana', tabel: 'lkps_prasarana', judul: 'Prasarana & alat', butir: '38',
+    patch: '28-patch-sarana-k3l.sql', urut: ['urutan', 'prasarana', 'alat'],
+    ket: 'Tabel 5.a LKPS: satu baris = satu sarana/alat/peraga utama pada satu prasarana (ruang kelas, ruang '
+       + 'diskusi, laboratorium). Prasarana yang sama ditulis sama persis di setiap barisnya.',
+    label: r => [r.prasarana, r.alat].filter(Boolean).join(' — ') || 'Prasarana', tahun: () => null,
+    kolom: [
+      { k: 'prasarana', l: 'Nama prasarana (ruang/laboratorium)', t: 'teks', wajib: true, lebar: true },
+      { k: 'jumlah_prasarana', l: 'Jumlah prasarana', t: 'int' },
+      { k: 'alat', l: 'Nama sarana / alat / peraga', t: 'teks', lebar: true },
+      { k: 'jumlah_standar', l: 'Jumlah alat: standar minimal', t: 'int' },
+      { k: 'jumlah_dimiliki', l: 'Jumlah alat: dimiliki UPPS', t: 'int' },
+      { k: 'kepemilikan', l: 'Kepemilikan', t: 'pilihan', o: [['sendiri', 'Sendiri'], ['sewa', 'Sewa']] },
+      { k: 'kondisi', l: 'Kondisi', t: 'pilihan', o: KONDISI },
+      { k: 'urutan', l: 'Urutan tampil', t: 'int' },
+    ],
+    olah: r => { if (r.urutan == null) r.urutan = 100; } },
+  { id: 'dok_k3l', tabel: 'lkps_dokumen_k3l', judul: 'Dokumen K3L', butir: '39',
+    patch: '28-patch-sarana-k3l.sql', urut: ['urutan', 'jenis_dokumen'],
+    ket: 'Tabel 5.b LKPS: dokumen K3L di UPPS (kebijakan, SOP, rencana tanggap darurat, dsb.). Unggah dokumennya '
+       + 'sebagai bukti baris.',
+    label: r => r.jenis_dokumen || 'Dokumen K3L', tahun: () => null,
+    kolom: [
+      { k: 'jenis_dokumen', l: 'Jenis dokumen', t: 'teks', wajib: true, lebar: true },
+      { k: 'jumlah', l: 'Jumlah', t: 'int' },
+      { k: 'riwayat_pengesahan', l: 'Riwayat pengesahan (nomor, tanggal, revisi)', t: 'paragraf' },
+      { k: 'urutan', l: 'Urutan tampil', t: 'int' },
+    ],
+    olah: r => { if (r.urutan == null) r.urutan = 100; } },
+  { id: 'fas_k3l', tabel: 'lkps_fasilitas_k3l', judul: 'Fasilitas K3L', butir: '39',
+    patch: '28-patch-sarana-k3l.sql', urut: ['urutan', 'nama_sarana'],
+    ket: 'Tabel 5.c LKPS: fasilitas K3L di UPPS (APAR, kotak P3K, jalur evakuasi, APD, dsb.).',
+    label: r => r.nama_sarana || 'Fasilitas K3L', tahun: () => null,
+    kolom: [
+      { k: 'nama_sarana', l: 'Nama sarana', t: 'teks', wajib: true },
+      { k: 'fungsi', l: 'Fungsi', t: 'teks', lebar: true },
+      { k: 'jumlah_unit', l: 'Jumlah unit', t: 'int' },
+      { k: 'kondisi', l: 'Kondisi', t: 'pilihan', o: KONDISI },
+      { k: 'urutan', l: 'Urutan tampil', t: 'int' },
+    ],
+    olah: r => { if (r.urutan == null) r.urutan = 100; } },
   { id: 'mahasiswa', tabel: 'lkps_mahasiswa_ta', judul: 'Mahasiswa per TS', butir: '40–45',
     ket: 'Satu baris per TAHUN AKADEMIK (TS = 1 Sep s.d. 31 Agu), angka gabungan. Mahasiswa aktif = NM '
        + '(butir 40, 43, 46); lulusan + rerata IPK = butir 42; mahasiswa asing = butir 41. Masa studi dan '
