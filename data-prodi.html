@@ -74,7 +74,7 @@
   .masuk{max-width:420px;margin:40px auto;background:#fff;border:1px solid var(--line);padding:20px}
   .masuk input{width:100%;padding:8px 10px;margin:8px 0;font:inherit}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-04-e58cb5">
+<link rel="stylesheet" href="kepala.css?v=2026-11-04-cb31e0">
 </head>
 <body>
 
@@ -88,7 +88,7 @@
 
 <main class="wrap" id="isi"></main>
 
-<script src="config.js?v=2026-11-04-e58cb5"></script>
+<script src="config.js?v=2026-11-04-cb31e0"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -105,9 +105,9 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-04-e58cb5';
-import { pasangMenu } from './menu.js?v=2026-11-04-e58cb5';
-import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-04-e58cb5';
+import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-04-cb31e0';
+import { pasangMenu } from './menu.js?v=2026-11-04-cb31e0';
+import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-04-cb31e0';
 
 /* =====================================================================
    DATA PRODI — data kuantitatif LKPS diisi admin di situs (keputusan
@@ -284,6 +284,21 @@ const TABEL = [
       if (r.urutan == null) r.urutan = 100;
     },
     cek: r => r.semester != null && (r.semester < 1 || r.semester > 14) ? 'Semester 1–14.' : '' },
+  { id: 'tema', tabel: 'ref_tema_peta_jalan', judul: 'Peta jalan', butir: '22–25',
+    patch: '25-patch-isian-karya.sql', urut: ['urutan', 'nama'],
+    ket: 'Tema peta jalan penelitian dan PkM prodi. Dosen memilih temanya di isian karya penelitian/PkM; '
+       + 'tema mengisi LKPS 6.h.1 dan 6.i, dan kesesuaian peta jalan di 3.a.3. Unggah dokumen peta jalan '
+       + 'sebagai bukti baris.',
+    label: r => r.nama || 'Tema', tahun: () => null,
+    kolom: [
+      { k: 'nama', l: 'Nama tema', t: 'teks', wajib: true, lebar: true },
+      { k: 'jenis', l: 'Berlaku untuk', t: 'pilihan', wajib: true,
+        o: [['keduanya', 'Penelitian dan PkM'], ['penelitian', 'Penelitian'], ['pkm', 'PkM']] },
+      { k: 'keterangan', l: 'Keterangan (sub-tema, target)', t: 'teks', lebar: true },
+      { k: 'aktif', l: 'Aktif', t: 'cek', awal: true },
+      { k: 'urutan', l: 'Urutan tampil', t: 'int' },
+    ],
+    olah: r => { if (r.urutan == null) r.urutan = 100; } },
   { id: 'mahasiswa', tabel: 'lkps_mahasiswa_ta', judul: 'Mahasiswa per TS', butir: '40–45',
     ket: 'Satu baris per TAHUN AKADEMIK (TS = 1 Sep s.d. 31 Agu), angka gabungan. Mahasiswa aktif = NM '
        + '(butir 40, 43, 46); lulusan + rerata IPK = butir 42; mahasiswa asing = butir 41. Masa studi dan '

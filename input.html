@@ -150,7 +150,7 @@
   table.beda td:nth-child(3){background:#EAF4EC}
   @media(max-width:640px){.grid{grid-template-columns:1fr}}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-04-e58cb5">
+<link rel="stylesheet" href="kepala.css?v=2026-11-04-cb31e0">
 </head>
 <body>
 
@@ -164,7 +164,7 @@
 
 <div class="wrap" id="app"></div>
 
-<script src="config.js?v=2026-11-04-e58cb5"></script>
+<script src="config.js?v=2026-11-04-cb31e0"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -188,9 +188,9 @@ const SUPABASE_URL = window.SB_URL;
 const SUPABASE_ANON_KEY = window.SB_KEY;
 
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { JENIS_BUKTI_KARYA, namaJenisBukti } from './rencana-bukti.js?v=2026-11-04-e58cb5';
-import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-04-e58cb5';
-import { pasangMenu } from './menu.js?v=2026-11-04-e58cb5';
+import { JENIS_BUKTI_KARYA, namaJenisBukti } from './rencana-bukti.js?v=2026-11-04-cb31e0';
+import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-04-cb31e0';
+import { pasangMenu } from './menu.js?v=2026-11-04-cb31e0';
 
 const app = document.getElementById('app');
 if (!SUPABASE_URL || !SUPABASE_ANON_KEY
@@ -226,6 +226,28 @@ const F_KERJASAMA = {n:'kerjasama_id', l:'Kerja sama induk (MoU/PKS/IA)', t:'sel
   sub:'Pilih bila kegiatan ini dilaksanakan dalam kerja sama yang sudah dicatat admin prodi. '
     + 'Di LKPS 2.a kegiatan ini tampil dengan tanggal, manfaat, dan bukti kerja sama itu. '
     + 'Kerja sama belum ada di daftar? Minta admin menambahkannya di Data prodi.'};
+
+// Isian LKPS tambahan (supabase/25-patch-isian-karya.sql). Nilai sah sama
+// dengan daftar pilihan templat LKPS. Dibuang dari form bila kolomnya
+// belum ada (siapkanIsian25), supaya simpan tidak gagal.
+const ISIAN_25 = ['jumlah_sitasi', 'tema_id', 'keterlibatan_mhs', 'tkt', 'nomor_tkt', 'bukti_integrasi', 'sesuai_rps'];
+const F_SITASI = {n:'jumlah_sitasi', l:'Jumlah sitasi (3 tahun terakhir)', t:'number', ph:'0',
+  sub:'LKPS 4.i: jumlah sitasi artikel ini dalam tiga tahun terakhir (Google Scholar/Scopus). Perbarui berkala.'};
+const F_TEMA = {n:'tema_id', l:'Tema peta jalan', t:'select', o:[['', '— belum dipilih —']],
+  sub:'Tema peta jalan penelitian/PkM prodi (daftar diisi admin di Data prodi). LKPS 6.h.1, 6.i, dan 3.a.3.'};
+const F_KETERLIBATAN = {n:'keterlibatan_mhs', l:'Bentuk keterlibatan mahasiswa', t:'select',
+  o:[['tugas_akhir','Tugas akhir'], ['perancangan','Perancangan'],
+     ['pengembangan_produk','Pengembangan produk/jasa'], ['lainnya','Kegiatan lain yang relevan']],
+  sub:'Untuk penelitian yang melibatkan mahasiswa (LKPS 6.h.1).'};
+const F_TKT = {n:'tkt', l:'Tingkat kesiapan teknologi (TKT)', t:'select',
+  o:[...Array.from({length:9}, (_, i) => [String(i+1), 'TKT ' + (i+1)])],
+  sub:'Untuk teknologi tepat guna dan produk (LKPS 4.f.3).'};
+const F_NOMOR_TKT = {n:'nomor_tkt', l:'Nomor sertifikat TKT', t:'text',
+  sub:'Untuk teknologi tepat guna dan produk (LKPS 4.f.3).'};
+const F_BUKTI_INTEGRASI = {n:'bukti_integrasi', l:'Bukti sahih integrasi', t:'select',
+  o:[['naskah_hibah','Naskah hibah'], ['laporan_akhir','Laporan akhir'], ['publikasi','Publikasi'],
+     ['lainnya','Bukti sahih lainnya']]};
+const F_RPS = {n:'sesuai_rps', l:'Sudah tercantum di RPS', t:'select', o:[['true','Ya'], ['false','Belum']]};
 
 const F_BULAN = {n:'bulan', l:'Bulan', t:'select', w:1, o:BULAN,
   sub:'Menentukan tahun akademik (TS): September ke atas masuk TS berikutnya'};
@@ -263,6 +285,7 @@ const FORM = {
         ['wos','Web of Science'],['sinta_1_2','SINTA 1–2'],['sinta_3_4','SINTA 3–4'],
         ['sinta_5_6','SINTA 5–6'],['tidak_terindeks','Tidak terindeks']]},
       {n:'doi', l:'DOI', t:'text', ph:'10.1016/j.jhydrol.2025.132000'},
+      F_SITASI,
       {n:'url', l:'Tautan', t:'url', full:1, ph:'https://'},
     ]
   },
@@ -280,6 +303,8 @@ const FORM = {
       {n:'skema', t:'skema', full:1},
       {n:'tingkat', l:'Tingkat kegiatan', t:'select', w:1, o:TINGKAT},
       F_KERJASAMA,
+      F_TEMA,
+      F_KETERLIBATAN,
       {n:'nama_pemberi_dana', l:'Nama pemberi dana', t:'text',
         sub:'Contoh: DPPM Kemendiktisaintek, LPPM Universitas, PT ABC'},
       {n:'besaran_dana', l:'Besaran dana (Rp)', t:'number', ph:'25000000'},
@@ -304,6 +329,8 @@ const FORM = {
       F_INDUK,
       {n:'nama_terbitan', l:'Nomor pendaftaran / penerbit', t:'text',
         sub:'Nomor paten/hak cipta, atau nama penerbit untuk buku'},
+      F_TKT,
+      F_NOMOR_TKT,
       {n:'url', l:'Tautan', t:'url', full:1, ph:'https://'},
       {n:'keterangan', l:'Keterangan', t:'text', full:1},
     ]
@@ -343,6 +370,8 @@ const FORM = {
         ['bab_buku_ajar','Bab buku ajar'],['modul_praktikum','Modul praktikum'],
         ['tugas_proyek','Tugas / proyek mahasiswa'],['lainnya','Lainnya']]},
       {n:'tahun', l:'Tahun ajaran (mulai)', t:'select', w:1, o:TAHUN.map(y=>[y,y])},
+      F_BUKTI_INTEGRASI,
+      F_RPS,
       {n:'keterangan', l:'Keterangan', t:'text', full:1},
     ]
   }
@@ -621,7 +650,7 @@ function tampilForm(key, ubah = null){
   pasangMahasiswa(ubah ? (ubah.k.karya_mahasiswa || []) : []);
   pasangMitra(ubah ? (ubah.k.karya_mitra || []) : []);
   pasangRekan();
-  const muat = [isiInduk(), isiDaftarIntegrasi(), isiMataKuliah(), isiKerjasama()];
+  const muat = [isiInduk(), isiDaftarIntegrasi(), isiMataKuliah(), isiKerjasama(), siapkanIsian25()];
   if(ubah){
     Promise.all(muat).then(() => isiUbah(key, ubah.k));
     document.getElementById('batalUbah').onclick = () => bukaTab('saya');
@@ -796,6 +825,27 @@ async function isiKerjasama(){
     (data || []).map(k => `<option value="${k.id}">${esc(`${k.mitra}${k.kegiatan ? ' — ' + k.kegiatan : ''} ` +
       `(${jenis[k.jenis]}, ${k.tahun_mulai}${k.tahun_selesai && k.tahun_selesai !== k.tahun_mulai ? '–' + k.tahun_selesai : ''})`)}</option>`).join('');
 }
+
+// Isian patch 25: buang bila kolomnya belum ada; isi pilihan tema.
+async function siapkanIsian25(){
+  const ada = ISIAN_25.filter(n => document.getElementById('f_' + n));
+  if(!ada.length) return;
+  const { error } = await sb.from('karya').select(ISIAN_25.join(',')).limit(1);
+  if(error){ ada.forEach(n => { const el = document.getElementById('f_' + n); (el.closest('.fld') || el.parentElement).remove(); }); return; }
+  const el = document.getElementById('f_tema_id');
+  if(!el) return;
+  const { data, error: eT } = await sb.from('ref_tema_peta_jalan').select('id,nama,jenis').eq('aktif', true).order('urutan').order('nama');
+  if(eT){ (el.closest('.fld') || el.parentElement).remove(); return; }
+  const jenis = { penelitian: ' (penelitian)', pkm: ' (PkM)', keduanya: '' };
+  (data || []).forEach(t => { NAMA_TEMA[t.id] = t.nama; });
+  el.innerHTML = '<option value="">— belum dipilih —</option>' +
+    (data || []).map(t => `<option value="${t.id}">${esc(t.nama + (jenis[t.jenis] || ''))}</option>`).join('');
+  if(!(data || []).length){
+    const s = el.parentElement.querySelector('.sub');
+    if(s) s.textContent = 'Daftar tema peta jalan belum diisi admin prodi (Data prodi, tab Peta jalan).';
+  }
+}
+const NAMA_TEMA = {};
 
 // Daftar mata kuliah dari tabel acuan, supaya ejaan seragam.
 async function isiMataKuliah(){
@@ -1444,6 +1494,8 @@ function tabelBeda(a, nama, karya){
     if(c === 'skema_kode') return esc(namaSkema(v) || v);
     if(c === 'induk_id') return esc(karya.get(v)?.judul || v);
     if(c === 'kerjasama_id') return esc(NAMA_KS[v] || 'kerja sama #' + v);
+    if(c === 'tema_id') return esc(NAMA_TEMA[v] || 'tema #' + v);
+    if(c === 'sesuai_rps') return String(v) === 'true' ? 'Ya' : 'Belum';
     return esc(rapi(String(v)));
   };
   const daftar = xs => xs.length ? xs.map(esc).join('<br>') : kosong;
@@ -1490,6 +1542,12 @@ async function muatAjuanUbahKarya(){
   if(idKS.length){
     const { data: kk } = await sb.from('lkps_kerjasama').select('id,mitra,kegiatan').in('id', idKS);
     (kk || []).forEach(x => { NAMA_KS[x.id] = x.mitra + (x.kegiatan ? ' — ' + x.kegiatan : ''); });
+  }
+  // Nama tema peta jalan yang dirujuk ajuan (25-patch-isian-karya.sql).
+  const idTema = [...new Set(aj.flatMap(a => [a.data?.karya?.tema_id, a.lama?.karya?.tema_id]).filter(Boolean))];
+  if(idTema.length){
+    const { data: tt } = await sb.from('ref_tema_peta_jalan').select('id,nama').in('id', idTema);
+    (tt || []).forEach(x => { NAMA_TEMA[x.id] = x.nama; });
   }
   box.className = '';
   box.innerHTML = aj.map(a => {

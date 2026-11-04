@@ -47,7 +47,7 @@
   @media(max-width:640px){nav.isi ol{columns:1}.wrap{padding:18px 16px 60px}}
   @media print{nav.isi{display:none}section{break-inside:avoid}}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-04-e58cb5">
+<link rel="stylesheet" href="kepala.css?v=2026-11-04-cb31e0">
 </head>
 <body>
 
@@ -95,11 +95,11 @@
     <p>Buka <b>Input data ▾ › Karya dosen</b>. Pilih tab sesuai jenis karya:</p>
     <table>
       <tr><th>Tab</th><th>Isinya</th></tr>
-      <tr><td>Publikasi</td><td>artikel jurnal, prosiding, buku, bab buku, HKI. Isi DOI bila ada: itu yang mencegah entri ganda.</td></tr>
-      <tr><td>Penelitian &amp; PkM</td><td>satu entri per kegiatan, sebaiknya diisi ketua; anggota cukup mengklaim (bagian 5).</td></tr>
-      <tr><td>Luaran &amp; HKI</td><td>paten, hak cipta, TTG, produk, buku ber-ISBN.</td></tr>
+      <tr><td>Publikasi</td><td>artikel jurnal, prosiding, buku, bab buku, HKI. Isi DOI bila ada: itu yang mencegah entri ganda. <b>Jumlah sitasi</b> (3 tahun terakhir, dari Google Scholar/Scopus) mengisi LKPS 4.i; perbarui berkala.</td></tr>
+      <tr><td>Penelitian &amp; PkM</td><td>satu entri per kegiatan, sebaiknya diisi ketua; anggota cukup mengklaim (bagian 5). Pilih <b>Kerja sama induk</b> bila ada MoU/PKS, <b>Tema peta jalan</b>, dan <b>Bentuk keterlibatan mahasiswa</b> (LKPS 2.a, 6.h.1, 6.i).</td></tr>
+      <tr><td>Luaran &amp; HKI</td><td>paten, hak cipta, TTG, produk, buku ber-ISBN. Untuk TTG dan produk isi <b>TKT</b> dan <b>nomor sertifikat TKT</b>: tanpa keduanya luaran tidak terhitung di LKPS 4.f.3.</td></tr>
       <tr><td>Rekognisi</td><td>pembicara undangan, editor, reviewer, penghargaan.</td></tr>
-      <tr><td>Integrasi MK</td><td>penelitian/PkM yang dipakai di mata kuliah.</td></tr>
+      <tr><td>Integrasi MK</td><td>penelitian/PkM yang dipakai di mata kuliah, dengan <b>bukti sahih</b> dan kesesuaian <b>RPS</b> (LKPS 3.a.3).</td></tr>
     </table>
     <ol>
       <li>Isi kolom bertanda <b>*</b>. <b>Bulan</b> menentukan tahun akademik (TS): September ke atas masuk TS berikutnya.</li>
@@ -210,6 +210,7 @@
       <tr><td>Kepuasan pengguna</td><td>52</td><td>satu aspek pada satu tahun akademik (7 aspek per TS; persentase berjumlah 100)</td></tr>
       <tr><td>Kohort lulusan</td><td>44–45</td><td>satu angkatan masuk</td></tr>
       <tr><td>Kerja sama</td><td>6–7</td><td>satu kerja sama induk (MoU/PKS/IA): mitra, jenis, tingkat, judul kegiatan, manfaat bagi prodi, tanggal awal dan akhir, jenis bukti. Dosen menautkan karya penelitian/PkM-nya di isian karya ("Kerja sama induk"); di LKPS 2.a kegiatan itu memakai tanggal, manfaat, dan bukti induknya.</td></tr>
+      <tr><td>Peta jalan</td><td>22–25</td><td>satu tema peta jalan penelitian/PkM; dipilih dosen pada isian kegiatan (LKPS 6.h.1, 6.i, 3.a.3). Dokumen peta jalan diunggah sebagai bukti baris.</td></tr>
       <tr><td>Mata kuliah</td><td>15, 17, 19, 20</td><td>satu mata kuliah kurikulum: semester, SKS (kuliah, seminar,
         praktikum; desimal memakai titik, mis. 1.5), MK kompetensi, RPS, unit penyelenggara, tanda basic science/matematika
         dan capstone design (pilih MK pendukungnya), dosen pengampu. Mengisi LKPS 3.a.1, 3.a.4, 3.a.5, dan kolom
@@ -249,7 +250,7 @@
   </div>
 </main>
 
-<script src="config.js?v=2026-11-04-e58cb5"></script>
+<script src="config.js?v=2026-11-04-cb31e0"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -266,7 +267,7 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { gerbang } from './menu.js?v=2026-11-04-e58cb5';
+import { gerbang } from './menu.js?v=2026-11-04-cb31e0';
 
 // Bagian admin hanya untuk peran admin (isinya bukan rahasia; disembunyikan
 // supaya panduan dosen tetap ringkas).

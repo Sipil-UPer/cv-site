@@ -15,7 +15,7 @@
    angka yang sama dengan halaman skor. Lembar lain dibiarkan untuk diisi
    prodi; kolom yang tidak disimpan situs (mis. pita waktu tunggu) kosong.
    ===================================================================== */
-import { teksPendidikan } from './profil-dosen.js?v=2026-11-04-e58cb5';
+import { teksPendidikan } from './profil-dosen.js?v=2026-11-04-cb31e0';
 
 const TEMPLATE = 'lkps-template.xlsx';
 const JSZIP = 'https://cdn.jsdelivr.net/npm/jszip@3.10.1/+esm';
@@ -137,6 +137,11 @@ export function petaLKPS(C){
    --------------------------------------------------------------------- */
 const JABATAN = { tenaga_pengajar: 'Tenaga Pengajar', asisten_ahli: 'Asisten Ahli', lektor: 'Lektor',
                   lektor_kepala: 'Lektor Kepala', guru_besar: 'Guru Besar' };
+// Daftar pilihan templat (supabase/25-patch-isian-karya.sql): 3a3 J6:J9, 6h1 D4:D7.
+const BUKTI_INTEGRASI = { naskah_hibah: 'Naskah Hibah', laporan_akhir: 'Laporan Akhir', publikasi: 'Publikasi',
+  lainnya: 'Bukti Sahih Lainnya' };
+const KETERLIBATAN = { tugas_akhir: 'Tugas Akhir', perancangan: 'Perancangan',
+  pengembangan_produk: 'Pengembangan Produk/Jasa', lainnya: 'Kegiatan Lain yang Relevan' };
 // Daftar pilihan Bukti Kerjasama, lembar 2a1 L4:L7 (dipakai juga 2a2, 2a3).
 const BUKTI_KS = { surat_penugasan: 'Surat Penugasan', spk: 'Surat Perjanjian Kerjasama (SPK)',
   bukti_pelaksanaan: 'Bukti-bukti Pelaksanaan (Laporan, Hasil Kerjasama, Luaran Kerjasama)',
@@ -289,11 +294,16 @@ export function petaDaftar(C){
     }));
 
   // 3.a.3 integrasi penelitian/PkM dalam pembelajaran
+  const perId = new Map((X.karya || []).map(k => [k.id, k]));
   karya.filter(k => k.kategori === 'integrasi').sort(urut).forEach((k, i) => {
     const r = 13 + i;
     set('3a3', `B${r}`, ketua(k)); set('3a3', `C${r}`, k.judul); set('3a3', `D${r}`, k.mata_kuliah);
     set('3a3', `E${r}`, INTEGRASI[k.sub_jenis]);
     set('3a3', `${'FGH'[tsKarya(k) - (ts - 2)]}${r}`, 'V');
+    // Kesesuaian peta jalan dari tema penelitian/PkM induknya (patch 25).
+    if (perId.get(k.induk_id)?.tema_id) set('3a3', `I${r}`, 'Sesuai');
+    set('3a3', `J${r}`, BUKTI_INTEGRASI[k.bukti_integrasi]);
+    if (k.sesuai_rps === true) set('3a3', `K${r}`, 'V');
   });
 
   // 4.f luaran DTPS per jenis
@@ -305,7 +315,13 @@ export function petaDaftar(C){
   });
   isiLuaran('4f-1', 7, ['paten', 'paten_sederhana'], 'D');
   isiLuaran('4f-2', 7, ['hak_cipta', 'desain_industri', 'merek'], 'D');
-  isiLuaran('4f-3', 16, ['ttg', 'produk'], 'E');
+  // 4.f.3: NTTG hanya menghitung baris dengan B, C, D (TKT) dan E (nomor sertifikat TKT).
+  luaran.filter(k => ['ttg', 'produk'].includes(k.sub_jenis)).forEach((k, i) => {
+    const r = 16 + i;
+    set('4f-3', `B${r}`, k.judul); set('4f-3', `C${r}`, serialTanggal(k.tahun, k.bulan));
+    if (k.tkt) set('4f-3', `D${r}`, `TKT ${k.tkt}`);
+    set('4f-3', `E${r}`, k.nomor_tkt);
+  });
   isiLuaran('4f-4', 7, ['buku_isbn', 'book_chapter'], 'D');
 
   // 4.j rekognisi DTPS
@@ -352,14 +368,53 @@ export function petaDaftar(C){
   isiLm('6e3-4', 8, ['buku_isbn', 'book_chapter']);
 
   // 6.h.1 / 6.i penelitian / PkM DTPS yang melibatkan mahasiswa
-  [['6h1', 'penelitian', 11, 'C'], ['6i', 'pkm', 6, 'E']].forEach(([l, kat, r0, kolJudul]) =>
+  const namaTema = new Map((X.tema || []).map(t => [t.id, t.nama]));
+  [['6h1', 'penelitian', 11, null], ['6i', 'pkm', 6, 'E']].forEach(([l, kat, r0, kolJudul]) =>
     karya.filter(k => k.kategori === kat && (k.karya_mahasiswa || []).length).sort(urut).forEach((k, i) => {
       const r = r0 + i;
       set(l, `B${r}`, ketua(k));
-      set(l, `${kolJudul}${r}`, k.judul);
+      set(l, `C${r}`, namaTema.get(k.tema_id));                  // tema sesuai peta jalan
+      if (kolJudul) set(l, `${kolJudul}${r}`, k.judul);
+      else set(l, `E${r}`, KETERLIBATAN[k.keterlibatan_mhs]);   // 6.h.1 kolom 5 = bentuk kegiatan
       set(l, `D${r}`, k.karya_mahasiswa.map(m => m.nama).filter(Boolean).join(', '));
       set(l, `F${r}`, +k.tahun);
     }));
+
+  // 4.i karya ilmiah DTPS yang disitasi: publikasi dengan sitasi 3 tahun terakhir > 0
+  // (semua tahun terbit). Nama DTPS = penulis prodi utama, harus ada di 4.a.
+  const namaDTPS = new Set(profil.map(d => d.nama));
+  const penulisDTPS = k => {
+    const p = (k.karya_penulis || []).filter(x => x.dosen && namaDTPS.has(x.dosen.nama));
+    const u = p.find(x => x.peran === 'penulis_pertama' || x.peran === 'ketua') || p.find(x => x.korespondensi) || p[0];
+    return u ? u.dosen.nama : '';
+  };
+  (X.karya || []).filter(k => k.status === 'terverifikasi' && k.kategori === 'publikasi' && +k.jumlah_sitasi > 0)
+    .sort((a, b) => (+b.jumlah_sitasi - +a.jumlah_sitasi) || urut(a, b))
+    .forEach((k, i) => {
+      const r = 6 + i;
+      set('4i', `B${r}`, penulisDTPS(k));
+      set('4i', `C${r}`, [k.judul, k.nama_terbitan, k.tahun].filter(Boolean).join(', ') + (k.doi ? `. DOI: ${k.doi}` : ''));
+      set('4i', `D${r}`, +k.jumlah_sitasi);
+    });
+
+  // 4.h kinerja DTPS: jurnal/prosiding internasional terindeks Scopus/WoS dan paten,
+  // per DTPS per TS, terpisah sebagai Penulis Pertama atau Korespondensi (kolom 6).
+  const unggul = k => (k.kategori === 'publikasi' && ['jurnal', 'prosiding'].includes(k.jenis)
+      && /^(scopus|wos)/.test(k.indeksasi || '')) || (k.kategori === 'luaran' && k.sub_jenis === 'paten');
+  const hitung4h = new Map();
+  karya.filter(unggul).forEach(k => (k.karya_penulis || []).forEach(p => {
+    if (!p.dosen || !dtps.some(d => d.nama === p.dosen.nama)) return;
+    const ket = ['penulis_pertama', 'ketua'].includes(p.peran) ? 'Penulis Pertama' : p.korespondensi ? 'Korespondensi' : null;
+    if (!ket) return;
+    const kunci = `${p.dosen.nama}|${ket}`;
+    if (!hitung4h.has(kunci)) hitung4h.set(kunci, [0, 0, 0]);
+    hitung4h.get(kunci)[tsKarya(k) - (ts - 2)]++;
+  }));
+  [...hitung4h.entries()].sort(([a], [b]) => a.localeCompare(b)).forEach(([kunci, n], i) => {
+    const [nama, ket] = kunci.split('|'), r = 16 + i;
+    set('4h', `B${r}`, nama); set('4h', `F${r}`, ket);
+    n.forEach((x, j) => set('4h', `${'CDE'[j]}${r}`, x));
+  });
   return out;
 }
 
