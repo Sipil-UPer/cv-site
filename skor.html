@@ -279,7 +279,7 @@
   :focus-visible{outline:2px solid var(--biru-2);outline-offset:1px}
   @media(prefers-reduced-motion:reduce){.kartu{transition:none}.kartu:hover{transform:none}}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-04-6c00f4">
+<link rel="stylesheet" href="kepala.css?v=2026-11-05-07cc4d">
 </head>
 <body>
 
@@ -344,7 +344,7 @@ setTimeout(function(){
   });
 }, 8000);
 </script>
-<script src="config.js?v=2026-11-04-6c00f4"></script>
+<script src="config.js?v=2026-11-05-07cc4d"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -361,15 +361,16 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { BUTIR, isiPetaBukti, cariBukti, daftarBukti, kolomBukti } from './rincian.js?v=2026-11-04-6c00f4';
+import { BUTIR, isiPetaBukti, cariBukti, daftarBukti, kolomBukti } from './rincian.js?v=2026-11-05-07cc4d';
 import { BUTIR_MANUAL, SEKSI_MANUAL, kunciButir, kunciBuktiButir, skorManual, tkKepuasan }
-  from './butir-manual.js?v=2026-11-04-6c00f4';
-import { BOBOT_TOTAL, bobotButir } from './bobot.js?v=2026-11-04-6c00f4';
-import { htmlRencana, buktiButir } from './rencana-bukti.js?v=2026-11-04-6c00f4';
-import { htmlPanel, pasangPanel } from './panel-bukti.js?v=2026-11-04-6c00f4';
-import { pasangMenu } from './menu.js?v=2026-11-04-6c00f4';
+  from './butir-manual.js?v=2026-11-05-07cc4d';
+import { BOBOT_TOTAL, bobotButir } from './bobot.js?v=2026-11-05-07cc4d';
+import { cekPitaWT, adaTingkat, sesuaiTracer } from './tracer-skor.js?v=2026-11-05-07cc4d';
+import { htmlRencana, buktiButir } from './rencana-bukti.js?v=2026-11-05-07cc4d';
+import { htmlPanel, pasangPanel } from './panel-bukti.js?v=2026-11-05-07cc4d';
+import { pasangMenu } from './menu.js?v=2026-11-05-07cc4d';
 import { statusSyarat, syaratButir, SYARAT_UNGGUL, SYARAT_RERATA, SASARAN,
-         statusRerata, gabungSyarat, statusRentang } from './syarat-unggul.js?v=2026-11-04-6c00f4';
+         statusRerata, gabungSyarat, statusRentang } from './syarat-unggul.js?v=2026-11-05-07cc4d';
 
 // config.js mendefinisikan window.SB_URL dan window.SB_KEY — pemetaan di
 // bawah ini WAJIB ada. skor.html versi sebelumnya melewatkannya dan mati
@@ -393,7 +394,7 @@ const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 // Naikkan setiap kali skor.html / rincian.js / butir-manual.js / bobot.js
 // diubah. Ditampilkan di kaki halaman supaya ketahuan seketika kalau
 // peramban masih memakai salinan lama dari cache.
-const VERSI = '2026-11-04-6c00f4';
+const VERSI = '2026-11-05-07cc4d';
 // Label versi di judul diisi dari VERSI supaya keduanya tidak bisa berbeda.
 { const el = document.querySelector('.versi-statis'); if (el) el.textContent = 'v' + VERSI; }
 // =====================================================================
@@ -495,7 +496,7 @@ async function unduhLKPS(){
     const ambil = async q => { const { data, error } = await q; if (error) console.warn(error.message); return data || []; };
     // Dosen dengan profil LKPS 4.a (22-patch-profil-dosen.sql); tanpa patch: kolom dasar.
     const DOSEN_DASAR = 'nama,nidn,peran,pendidikan,jabatan,aktif,dtps';
-    const { KOLOM_PROFIL } = await import('./profil-dosen.js?v=2026-11-04-6c00f4');
+    const { KOLOM_PROFIL } = await import('./profil-dosen.js?v=2026-11-05-07cc4d');
     const ambilDosen = async () => {
       const { data, error } = await sb.from('dosen').select(DOSEN_DASAR + ',' + KOLOM_PROFIL);
       return error ? ambil(sb.from('dosen').select(DOSEN_DASAR)) : (data || []);
@@ -561,7 +562,7 @@ async function unduhLKPS(){
       ambil(sb.from('dokumen').select('*')),
       ambil(sb.from('lkps_spmi_ppepp').select('*')),
     ]);
-    const { buatLKPS } = await import('./lkps.js?v=2026-11-04-6c00f4');
+    const { buatLKPS } = await import('./lkps.js?v=2026-11-05-07cc4d');
     const hasil = await buatLKPS({ D, ts, prodi: D.prodi, institusi: D.institusi, rencanaKepuasan,
       daftar: { dosen, karya, kerjasama, bkd, prestasi, luaranMhs, mk, tema, mhs, tracer,
                 vmts, prodiUpps, dana, tendik, buktiVmts, prasarana, dokK3l, fasK3l, dokumen, ppepp } });
@@ -585,7 +586,7 @@ async function unduhLED(){
   const asli = a.textContent;
   a.textContent = 'Menyusun draf LED…';
   try {
-    const { buatLED } = await import('./led.js?v=2026-11-04-6c00f4');
+    const { buatLED } = await import('./led.js?v=2026-11-05-07cc4d');
     const ts = CTX_LED.tsData;
     const hasil = await buatLED({
       D, ts, taDari, f2, versi: VERSI,
@@ -1444,8 +1445,12 @@ function butir49(){
       belum berisi tahun lulus ${TS - 2}–${TS - 1}.</p>`, null, '');
   const WT = J.tr.reduce((a, t) => a + (t.waktu_tunggu_bulan || 0) * (t.terlacak || 0), 0) / J.terlacak;
   const skor = WT <= 3 ? 4 : WT <= 18 ? Math.max(1, (23 - WT) / 5) : 1;
+  const P = cekPitaWT(J.tr, WT);
+  const pita = !P ? '' : `<div class="rumus">Pita Tabel 6.f.1: &lt; 3 bulan ${P.a} · 3–18 bulan ${P.b} · &gt; 18 bulan ${P.c} orang`
+    + ` → rata-rata yang mungkin ${f2(P.bawah)}–${P.atas === Infinity ? '…' : f2(P.atas)} bulan`
+    + (P.cocok ? ' (cocok)' : ` · <b>TIDAK COCOK</b> dengan rata-rata ${f2(WT)} bulan: periksa isian Data prodi › Tracer study`) + `</div>`;
   return kartuButir(49, 'Waktu tunggu (Tabel 6.f.1 LKPS)',
-    `<div class="rumus">WT = ${f2(WT)} bulan · ≤ 3 → 4 · 3 &lt; WT ≤ 18 → (23 − WT)/5 · skor terendah 1</div>`,
+    `<div class="rumus">WT = ${f2(WT)} bulan (rata-rata laporan tracer) · ≤ 3 → 4 · 3 &lt; WT ≤ 18 → (23 − WT)/5 · skor terendah 1</div>${pita}`,
     skor, catatanResponden(J));
 }
 function butir50(){
@@ -1453,11 +1458,15 @@ function butir50(){
   if (!J.terlacak)
     return kartuButir(50, 'Kesesuaian bidang kerja (Tabel 6.f.2 LKPS)', `<p class="kosong"><a href="data-prodi.html?tab=tracer">Data prodi › Tracer study</a>
       belum berisi tahun lulus ${TS - 2}–${TS - 1}.</p>`, null, '');
-  const ss = J.tr.reduce((a, t) => a + (t.sesuai_bidang || 0), 0);
+  // Pemilik 2026-11-05: sesuai = kesesuaian Sedang ("cukup sesuai") + Tinggi (Tabel 6.f.2).
+  // Tahun lulus yang belum mengisi tingkat kesesuaian memakai isian lama "Bekerja sesuai bidang".
+  const ss = J.tr.reduce((a, t) => a + sesuaiTracer(t), 0);
+  const lama = J.tr.filter(t => !adaTingkat(t)).map(t => t.tahun_lulus);
   const KBK = ss / J.terlacak;
   const skor = KBK >= 0.6 ? 4 : (20 * KBK) / 3;
   return kartuButir(50, 'Kesesuaian bidang kerja (Tabel 6.f.2 LKPS)',
-    `<div class="rumus">KBK = ${ss}/${J.terlacak} = ${f2(KBK * 100)}% · ≥ 60% → 4 · di bawah itu → (20 × KBK)/3</div>`,
+    `<div class="rumus">KBK = (sedang + tinggi) / terlacak = ${ss}/${J.terlacak} = ${f2(KBK * 100)}% · ≥ 60% → 4 · di bawah itu → (20 × KBK)/3</div>`
+    + (lama.length ? `<div class="rumus">Tahun lulus ${lama.join(', ')}: tingkat kesesuaian belum diisi, memakai "Bekerja sesuai bidang".</div>` : ''),
     skor, catatanResponden(J));
 }
 function butir51(){

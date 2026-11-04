@@ -47,7 +47,7 @@
   @media(max-width:640px){nav.isi ol{columns:1}.wrap{padding:18px 16px 60px}}
   @media print{nav.isi{display:none}section{break-inside:avoid}}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-04-6c00f4">
+<link rel="stylesheet" href="kepala.css?v=2026-11-05-07cc4d">
 </head>
 <body>
 
@@ -95,7 +95,7 @@
     <p>Buka <b>Input data ▾ › Karya dosen</b>. Pilih tab sesuai jenis karya:</p>
     <table>
       <tr><th>Tab</th><th>Isinya</th></tr>
-      <tr><td>Publikasi</td><td>artikel jurnal, prosiding, buku, bab buku, HKI. Isi DOI bila ada: itu yang mencegah entri ganda. <b>Jumlah sitasi</b> (3 tahun terakhir, dari Google Scholar/Scopus) mengisi LKPS 4.i; perbarui berkala.</td></tr>
+      <tr><td>Publikasi</td><td>artikel jurnal, prosiding, buku, bab buku, HKI. Isi DOI bila ada: itu yang mencegah entri ganda. <b>Jumlah sitasi</b> mengisi LKPS 4.i: sitasi yang <b>diterima dalam tiga tahun terakhir</b> (TS-2 s.d. TS), bukan total sepanjang masa; artikel tahun lama boleh, asal disitasi dalam tiga tahun itu. Tabel 4.i hanya memuat jurnal/prosiding terindeks Scopus atau WoS yang tidak ditandai di luar visi. Kolom LKPS meminta angka Google Scholar: jumlahkan grafik sitasi per tahun di halaman artikel (pembanding: <i>Citation overview</i> Scopus dengan rentang tahun). Simpan tangkapan layarnya sebagai bukti dan perbarui tiap tahun.</td></tr>
       <tr><td>Penelitian &amp; PkM</td><td>satu entri per kegiatan, sebaiknya diisi ketua; anggota cukup mengklaim (bagian 5). Pilih <b>Kerja sama induk</b> bila ada MoU/PKS, <b>Tema peta jalan</b>, dan <b>Bentuk keterlibatan mahasiswa</b> (LKPS 2.a, 6.h.1, 6.i).</td></tr>
       <tr><td>Luaran &amp; HKI</td><td>paten, hak cipta, TTG, produk, buku ber-ISBN. Untuk TTG dan produk isi <b>TKT</b> dan <b>nomor sertifikat TKT</b>: tanpa keduanya luaran tidak terhitung di LKPS 4.f.3.</td></tr>
       <tr><td>Rekognisi</td><td>pembicara undangan, editor, reviewer, penghargaan.</td></tr>
@@ -211,7 +211,7 @@
     <p><b>Berkas yang sama tidak tersimpan dua kali.</b> Sebelum mengunggah (pustaka, bukti butir, bukti baris, bukti karya), situs memeriksa isi berkas, bukan namanya. Bila berkas yang sama persis sudah tersimpan, tautannya dipakai ulang dan tidak ada unggahan baru; pesan di bawah tombol menyebut di mana berkas itu sudah ada. Menghapus bukti tidak membuang berkas yang masih dipakai di tempat lain. Untuk berkas lama, buka <b>tab Dokumen › Rapikan berkas lama › Periksa berkas lama</b>: berkas yang tersimpan lebih dari sekali bisa <b>disatukan</b> (salinannya ke Sampah Drive), dan unggahan bukti baris lama bisa <b>dimasukkan ke pustaka</b> dengan jenis, tahun, dan judul yang Anda pilih.</p>
     <table>
       <tr><th>Tab</th><th>Butir</th><th>Satu baris =</th></tr>
-      <tr><td>Tracer study</td><td>48–51</td><td>satu tahun lulus; termasuk jumlah lulusan per pita waktu tunggu (&lt; 3, 3–18, &gt; 18 bulan) dan per tingkat kesesuaian bidang kerja (rendah, sedang, tinggi) untuk LKPS 6.f.1 dan 6.f.2</td></tr>
+      <tr><td>Tracer study</td><td>48–51</td><td>satu tahun lulus; termasuk jumlah lulusan per pita waktu tunggu (&lt; 3, 3–18, &gt; 18 bulan) dan per tingkat kesesuaian bidang kerja (rendah, sedang, tinggi) untuk LKPS 6.f.1 dan 6.f.2. Skor butir 49 memakai <b>rata-rata waktu tunggu</b> dari laporan tracer (pita hanya untuk tabel dan pemeriksa kecocokan); butir 50 menghitung kesesuaian <b>sedang + tinggi</b> dibagi jumlah terlacak</td></tr>
       <tr><td>Kepuasan pengguna</td><td>52</td><td>satu aspek pada satu tahun akademik (7 aspek per TS; persentase berjumlah 100)</td></tr>
       <tr><td>Kohort lulusan</td><td>44–45</td><td>satu angkatan masuk</td></tr>
       <tr><td>Kerja sama</td><td>6–7</td><td>satu kerja sama induk (MoU/PKS/IA): mitra, jenis, tingkat, judul kegiatan, manfaat bagi prodi, tanggal awal dan akhir, jenis bukti. Dosen menautkan karya penelitian/PkM-nya di isian karya ("Kerja sama induk"); di LKPS 2.a kegiatan itu memakai tanggal, manfaat, dan bukti induknya.</td></tr>
@@ -262,7 +262,7 @@
   </div>
 </main>
 
-<script src="config.js?v=2026-11-04-6c00f4"></script>
+<script src="config.js?v=2026-11-05-07cc4d"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -279,7 +279,7 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { gerbang } from './menu.js?v=2026-11-04-6c00f4';
+import { gerbang } from './menu.js?v=2026-11-05-07cc4d';
 
 // Bagian admin hanya untuk peran admin (isinya bukan rahasia; disembunyikan
 // supaya panduan dosen tetap ringkas).

@@ -85,7 +85,7 @@
   .masuk{max-width:420px;margin:40px auto;background:#fff;border:1px solid var(--line);padding:20px}
   .masuk input{width:100%;padding:8px 10px;margin:8px 0;font:inherit}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-04-6c00f4">
+<link rel="stylesheet" href="kepala.css?v=2026-11-05-07cc4d">
 </head>
 <body>
 
@@ -99,7 +99,7 @@
 
 <main class="wrap" id="isi"></main>
 
-<script src="config.js?v=2026-11-04-6c00f4"></script>
+<script src="config.js?v=2026-11-05-07cc4d"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -116,12 +116,12 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-04-6c00f4';
-import { pasangMenu } from './menu.js?v=2026-11-04-6c00f4';
-import { unggahKePustaka, opsiPustaka, opsiJenis, labelDokumen, cariDokumen } from './pustaka-dokumen.js?v=2026-11-04-6c00f4';
-import { pasangRapikan } from './rapikan-berkas.js?v=2026-11-04-6c00f4';
-import { infoJenis } from './rencana-bukti.js?v=2026-11-04-6c00f4';
-import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-04-6c00f4';
+import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-05-07cc4d';
+import { pasangMenu } from './menu.js?v=2026-11-05-07cc4d';
+import { unggahKePustaka, opsiPustaka, opsiJenis, labelDokumen, cariDokumen } from './pustaka-dokumen.js?v=2026-11-05-07cc4d';
+import { pasangRapikan } from './rapikan-berkas.js?v=2026-11-05-07cc4d';
+import { infoJenis } from './rencana-bukti.js?v=2026-11-05-07cc4d';
+import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-05-07cc4d';
 
 /* =====================================================================
    DATA PRODI — data kuantitatif LKPS diisi admin di situs (keputusan
@@ -187,7 +187,8 @@ const TABEL = [
   { id: 'tracer', tabel: 'lkps_tracer_lulusan', judul: 'Tracer study', butir: '48–51',
     ket: 'Satu baris per TAHUN LULUS, angka gabungan tanpa nama (Tabel 6.f.1, 6.f.2, 6.g.1). '
        + 'Butir 49–51 memakai lulusan TS-2 s.d. TS-1; responden minimal 30% lulusan. Pita waktu tunggu '
-       + 'mengikuti Tabel 6.f.1 bagian Sarjana (< 3, 3–18, > 18 bulan).',
+       + 'mengikuti Tabel 6.f.1 bagian Sarjana (< 3, 3–18, > 18 bulan). Skor butir 49 memakai rata-rata '
+       + 'waktu tunggu (pita diperiksa cocok atau tidak); butir 50 = kesesuaian sedang + tinggi / terlacak.',
     label: r => `Tracer lulusan ${r.tahun_lulus || ''}`, tahun: r => r.tahun_lulus,
     kolom: [
       { k: 'tahun_lulus', l: 'Tahun lulus', t: 'tahun', wajib: true },

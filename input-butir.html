@@ -106,7 +106,7 @@
                 color:#fff;font-family:var(--mono);font-size:12px;
                 letter-spacing:.07em;text-transform:uppercase;cursor:pointer;border-radius:2px}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-04-6c00f4">
+<link rel="stylesheet" href="kepala.css?v=2026-11-05-07cc4d">
 </head>
 <body>
 
@@ -120,7 +120,7 @@
 
 <main class="wrap" id="isi"></main>
 
-<script src="config.js?v=2026-11-04-6c00f4"></script>
+<script src="config.js?v=2026-11-05-07cc4d"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -138,14 +138,14 @@ addEventListener('error', function (e) {
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 import { BUTIR_MANUAL, SEKSI_MANUAL, kunciButir, kunciBuktiButir, skorManual }
-  from './butir-manual.js?v=2026-11-04-6c00f4';
-import { BUTIR_DATA } from './butir-data.js?v=2026-11-04-6c00f4';
-import { htmlRencana, JENIS_DOKUMEN, infoJenis, buktiButir } from './rencana-bukti.js?v=2026-11-04-6c00f4';
-import { htmlPanel, pasangPanel } from './panel-bukti.js?v=2026-11-04-6c00f4';
-import { buangBerkas, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-04-6c00f4';
-import { pasangYatim } from './berkas-yatim.js?v=2026-11-04-6c00f4';
-import { unggahKePustaka, labelDokumen } from './pustaka-dokumen.js?v=2026-11-04-6c00f4';
-import { pasangMenu } from './menu.js?v=2026-11-04-6c00f4';
+  from './butir-manual.js?v=2026-11-05-07cc4d';
+import { BUTIR_DATA } from './butir-data.js?v=2026-11-05-07cc4d';
+import { htmlRencana, JENIS_DOKUMEN, infoJenis, buktiButir } from './rencana-bukti.js?v=2026-11-05-07cc4d';
+import { htmlPanel, pasangPanel } from './panel-bukti.js?v=2026-11-05-07cc4d';
+import { buangBerkas, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-05-07cc4d';
+import { pasangYatim } from './berkas-yatim.js?v=2026-11-05-07cc4d';
+import { unggahKePustaka, labelDokumen } from './pustaka-dokumen.js?v=2026-11-05-07cc4d';
+import { pasangMenu } from './menu.js?v=2026-11-05-07cc4d';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g,
   c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));

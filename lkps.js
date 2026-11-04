@@ -15,8 +15,8 @@
    angka yang sama dengan halaman skor. Lembar lain dibiarkan untuk diisi
    prodi; kolom yang tidak disimpan situs (mis. pita waktu tunggu) kosong.
    ===================================================================== */
-import { versiUntukTS } from './pustaka-dokumen.js?v=2026-11-04-6c00f4';
-import { teksPendidikan } from './profil-dosen.js?v=2026-11-04-6c00f4';
+import { versiUntukTS } from './pustaka-dokumen.js?v=2026-11-05-07cc4d';
+import { teksPendidikan } from './profil-dosen.js?v=2026-11-05-07cc4d';
 
 const TEMPLATE = 'lkps-template.xlsx';
 const JSZIP = 'https://cdn.jsdelivr.net/npm/jszip@3.10.1/+esm';
@@ -501,15 +501,19 @@ export function petaDaftar(C){
       set(l, `F${r}`, +k.tahun);
     }));
 
-  // 4.i karya ilmiah DTPS yang disitasi: publikasi dengan sitasi 3 tahun terakhir > 0
-  // (semua tahun terbit). Nama DTPS = penulis prodi utama, harus ada di 4.a.
+  // 4.i karya ilmiah DTPS yang disitasi (Panduan LKPS IAPS_AVP_2025 hlm. 16): artikel
+  // jurnal bereputasi / prosiding internasional terindeks (Scopus/WoS di form karya),
+  // relevan dengan bidang prodi (tidak ditandai di luar visi), dengan sitasi yang
+  // DITERIMA dalam 3 tahun terakhir > 0; tahun terbit bebas (pemilik 2026-11-04).
+  // Nama DTPS = penulis prodi utama, harus ada di 4.a.
   const namaDTPS = new Set(profil.map(d => d.nama));
   const penulisDTPS = k => {
     const p = (k.karya_penulis || []).filter(x => x.dosen && namaDTPS.has(x.dosen.nama));
     const u = p.find(x => x.peran === 'penulis_pertama' || x.peran === 'ketua') || p.find(x => x.korespondensi) || p[0];
     return u ? u.dosen.nama : '';
   };
-  (X.karya || []).filter(k => k.status === 'terverifikasi' && k.kategori === 'publikasi' && +k.jumlah_sitasi > 0)
+  (X.karya || []).filter(k => k.status === 'terverifikasi' && k.kategori === 'publikasi' && +k.jumlah_sitasi > 0
+      && ['jurnal', 'prosiding'].includes(k.jenis) && /^(scopus|wos)/.test(k.indeksasi || '') && k.relevan_visi !== false)
     .sort((a, b) => (+b.jumlah_sitasi - +a.jumlah_sitasi) || urut(a, b))
     .forEach((k, i) => {
       const r = 6 + i;
