@@ -106,7 +106,7 @@
                 color:#fff;font-family:var(--mono);font-size:12px;
                 letter-spacing:.07em;text-transform:uppercase;cursor:pointer;border-radius:2px}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-04-c1941a">
+<link rel="stylesheet" href="kepala.css?v=2026-11-04-6c00f4">
 </head>
 <body>
 
@@ -120,7 +120,7 @@
 
 <main class="wrap" id="isi"></main>
 
-<script src="config.js?v=2026-11-04-c1941a"></script>
+<script src="config.js?v=2026-11-04-6c00f4"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -138,13 +138,14 @@ addEventListener('error', function (e) {
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 import { BUTIR_MANUAL, SEKSI_MANUAL, kunciButir, kunciBuktiButir, skorManual }
-  from './butir-manual.js?v=2026-11-04-c1941a';
-import { BUTIR_DATA } from './butir-data.js?v=2026-11-04-c1941a';
-import { htmlRencana, JENIS_DOKUMEN, infoJenis, buktiButir } from './rencana-bukti.js?v=2026-11-04-c1941a';
-import { htmlPanel, pasangPanel } from './panel-bukti.js?v=2026-11-04-c1941a';
-import { buangBerkas, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-04-c1941a';
-import { pasangYatim } from './berkas-yatim.js?v=2026-11-04-c1941a';
-import { pasangMenu } from './menu.js?v=2026-11-04-c1941a';
+  from './butir-manual.js?v=2026-11-04-6c00f4';
+import { BUTIR_DATA } from './butir-data.js?v=2026-11-04-6c00f4';
+import { htmlRencana, JENIS_DOKUMEN, infoJenis, buktiButir } from './rencana-bukti.js?v=2026-11-04-6c00f4';
+import { htmlPanel, pasangPanel } from './panel-bukti.js?v=2026-11-04-6c00f4';
+import { buangBerkas, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-04-6c00f4';
+import { pasangYatim } from './berkas-yatim.js?v=2026-11-04-6c00f4';
+import { unggahKePustaka, labelDokumen } from './pustaka-dokumen.js?v=2026-11-04-6c00f4';
+import { pasangMenu } from './menu.js?v=2026-11-04-6c00f4';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g,
   c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -421,63 +422,26 @@ function pasangFormDokumen(){
   gantiJenis();
 }
 
+// Satu modul unggah pustaka dengan Data prodi (pustaka-dokumen.js): kunci
+// jenis + tahun + judul sama = mengganti; berkas yang sama persis sudah
+// tersimpan = tidak diunggah ulang (31-patch-sidik-berkas.sql).
 async function unggahDokumen(tombol){
-  const j = infoJenis($('dok-jenis').value);
-  const tahun = +$('dok-tahun').value;
-  const judul = j.tunggal ? '' : $('dok-judul').value.trim();
-  const tambah = false;   // satu berkas per entri; tahun sama = mengganti
-  const berkas = [...$('dok-file').files];
   const msg = $('dok-msg');
   const tulis = (cls, t) => { msg.className = 'msg-unggah' + (cls ? ' ' + cls : ''); msg.textContent = t; };
-  if (!(tahun >= 1990 && tahun <= 2100)) return tulis('buruk', 'Isi tahun dokumen (4 angka).');
-  if (!j.tunggal && !judul) return tulis('buruk', 'Jenis ini banyak per tahun: isi judul/nomor dokumen.');
-  if (!berkas.length) return tulis('buruk', 'Pilih berkas dulu.');
-  const ditolak = berkas.filter(f => {
-    const e = ((f.name.match(/\.([^.]+)$/) || [])[1] || '').toLowerCase();
-    return !UNGGAH.ext.includes(e) || (UNGGAH.maxMb && f.size > UNGGAH.maxMb * 1024 * 1024);
-  });
-  if (ditolak.length) return tulis('buruk', `Ditolak: ${ditolak.map(f => f.name).join(', ')}. ` +
-    `Diterima: ${UNGGAH.ext.join(', ')}, maksimal ${UNGGAH.maxMb} MB.`);
-
   tombol.disabled = true;
-  let url = null, folderUrl = null, berhasil = 0;
   try {
-    const { data: { session } } = await sb.auth.getSession();
-    if (!session) throw new Error('Sesi login habis. Muat ulang halaman lalu masuk lagi.');
-    // Hanya berkas PERTAMA yang 'ganti' (mengarsipkan versi lama); berkas
-    // berikutnya 'tambah', supaya unggahan beberapa berkas tidak saling arsip.
-    for (let i = 0; i < berkas.length; i++) {
-      const f = berkas[i];
-      tulis('', `Mengunggah ${i + 1} dari ${berkas.length}: ${f.name}…`);
-      const res = await fetch(UNGGAH.url, { method: 'POST',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify({ token: session.access_token, kind: 'dokumen',
-          jenis: j.id, tahun, judul, mode: tambah || i > 0 ? 'tambah' : 'ganti',
-          filename: f.name, data: await keBase64(f) }) });
-      const out = await res.json();
-      if (!out.ok) {
-        if (/tidak dikenal|Pilih tahun|Id dokumen/.test(out.error || ''))
-          throw new Error('Apps Script di akun prodi belum diperbarui untuk dokumen. ' +
-                          'Lihat apps-script/README.md, bagian "Memperbarui kode".');
-        throw new Error(out.error || 'Unggah gagal.');
-      }
-      berhasil++; url = out.url; folderUrl = out.folderUrl || folderUrl;
-    }
-    // Satu berkas yang mengganti -> tautan berkas; selain itu tautan folder.
-    const tautan = url;     // selalu tautan berkas, bukan folder
-    const { error } = await sb.from('dokumen').upsert({
-      jenis: j.id, tahun, judul, url: tautan, folder_url: folderUrl,
-      nama_berkas: berkas.map(f => f.name).join('; ').slice(0, 500),
-      diunggah_oleh: SAYA && SAYA.email, diperbarui: new Date().toISOString(),
-    }, { onConflict: 'jenis,tahun,judul' });
-    if (error) throw new Error('Berkas terunggah, tetapi catatan gagal disimpan: ' + error.message);
+    const d = await unggahKePustaka(sb, UNGGAH, { jenis: $('dok-jenis').value, tahun: $('dok-tahun').value,
+      judul: $('dok-judul').value, berkas: [...$('dok-file').files], oleh: SAYA && SAYA.email,
+      progres: s => tulis('', s) });
     await muatDokumen();
     gambarDaftarDokumen();
     segarkanRencana();
     $('dok-file').value = '';
-    tulis('ok', `${j.nama}${judul ? ' "' + judul + '"' : ''} ${tahun} tersimpan (${berhasil} berkas).`);
+    tulis('ok', d._ada === 'pustaka' ? `Berkas yang sama sudah ada di pustaka sebagai ${labelDokumen(d)}; tidak diunggah ulang.`
+      : d._ada === 'bukti' ? `Berkas yang sama sudah tersimpan sebagai bukti lain; ${labelDokumen(d)} dicatat dengan berkas itu, tanpa unggah ulang.`
+      : `${labelDokumen(d)} tersimpan.`);
   } catch (err) {
-    tulis('buruk', `${berhasil} dari ${berkas.length} berkas terunggah. ${err.message || err}`);
+    tulis('buruk', err.message || String(err));
   } finally {
     tombol.disabled = false;
   }
@@ -536,13 +500,6 @@ function segarkanRencana(){
 // Butir yang menautkan sebuah entri dokumen (langsung atau lewat jenisnya).
 const butirPemakai = r => [...new Set(BB.filter(b => b.dokumen_id === r.id || b.jenis_dokumen === r.jenis)
   .map(b => b.butir))].sort((a, b) => a - b);
-
-const keBase64 = f => new Promise((ok, gagal) => {
-  const r = new FileReader();
-  r.onload  = () => ok(String(r.result).split(',')[1] || '');
-  r.onerror = () => gagal(new Error('Berkas tidak bisa dibaca: ' + f.name));
-  r.readAsDataURL(f);
-});
 
 function periksaSatu(el){
   const v = el.value.trim();

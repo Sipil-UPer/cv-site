@@ -23,8 +23,9 @@
      unggah = {url, ext[], maxMb, accept} dari config.js, atau null.
    ===================================================================== */
 
-import { JENIS_DOKUMEN, infoJenis, buktiButir } from './rencana-bukti.js?v=2026-11-04-c1941a';
-import { buangBerkas, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-04-c1941a';
+import { JENIS_DOKUMEN, infoJenis, buktiButir } from './rencana-bukti.js?v=2026-11-04-6c00f4';
+import { buangBerkas, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-04-6c00f4';
+import { periksaBerkas, kolomSidik, teksTemuan } from './sidik-berkas.js?v=2026-11-04-6c00f4';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g,
   c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -130,14 +131,23 @@ export function pasangPanel(c){
       if (!unggah.length) return tulis(no, 'buruk', `Tidak ada berkas yang bisa diunggah. Diterima: ` +
         `${u.ext.join(', ')}, maksimal ${u.maxMb} MB. Dilewati: ${dilewati.join('; ')}.`);
       tombol.disabled = true;
-      const baris = [], gagal = [];
+      const baris = [], gagal = [], ulang = [];
       try {
         const { data: { session } } = await c.sb.auth.getSession();
         if (!session) throw new Error('Sesi login habis. Muat ulang halaman lalu masuk lagi.');
         for (let i = 0; i < unggah.length; i++) {
           const f = unggah[i];
-          tulis(no, '', `Mengunggah ${i + 1} dari ${unggah.length}: ${f.name}…`);
+          tulis(no, '', `Memeriksa dan mengunggah ${i + 1} dari ${unggah.length}: ${f.name}…`);
           try {
+            // Berkas yang sama persis sudah tersimpan (31-patch-sidik-berkas.sql):
+            // tautkan yang ada, jangan unggah ulang.
+            const s = await periksaBerkas(c.sb, f);
+            if (s.temuan) {
+              baris.push(s.temuan.dokumen_id ? { dokumen_id: s.temuan.dokumen_id }
+                : { judul: f.name, url: s.temuan.url, ...kolomSidik(s.sha256) });
+              ulang.push(`${f.name} ${teksTemuan(s.temuan)}`);
+              continue;
+            }
             // text/plain: tanpa preflight CORS (tidak dilayani Apps Script).
             const res = await fetch(u.url, { method: 'POST',
               headers: { 'Content-Type': 'text/plain;charset=utf-8' },
@@ -145,14 +155,15 @@ export function pasangPanel(c){
                                      filename: f.name, data: await keB64(f) }) });
             const out = await res.json();
             if (!out.ok) throw new Error(out.error || 'Unggah gagal.');
-            baris.push({ judul: f.name, url: out.url });
+            baris.push({ judul: f.name, url: out.url, ...kolomSidik(s.sha256) });
           } catch (err) {
             gagal.push(`${f.name}: ${err.message || err}`);
             if (/Sesi login/.test(err.message || '')) break;
           }
         }
         if (baris.length && !(await simpan(no, baris))) return;
-        const ringkas = [`${baris.length} dari ${unggah.length} berkas terunggah dan tertaut`];
+        const ringkas = [`${baris.length} dari ${unggah.length} berkas tertaut`];
+        if (ulang.length) ringkas.push(`tidak diunggah ulang (${ulang.join('; ')})`);
         if (dilewati.length) ringkas.push(`dilewati: ${dilewati.join('; ')}`);
         if (gagal.length) ringkas.push(`gagal: ${gagal.join('; ')}`);
         tulis(no, gagal.length || !baris.length ? 'buruk' : 'ok', ringkas.join('. ') + '.');

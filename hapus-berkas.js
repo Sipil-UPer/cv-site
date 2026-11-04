@@ -11,11 +11,19 @@
 
    Urutan pemakaian: buang berkas DULU, baru hapus catatannya; bila
    pembuangan gagal, catatan dibiarkan supaya bisa dicoba lagi.
+
+   Berkas yang dipakai bersama (31-patch-sidik-berkas.sql: berkas yang sama
+   ditautkan, tidak diunggah ulang) TIDAK dibuang selama tautannya masih
+   dirujuk lebih dari satu catatan: hanya catatan pemanggil yang dihapus.
    ===================================================================== */
+import { jumlahRujukan } from './sidik-berkas.js?v=2026-11-04-6c00f4';
 
 export async function buangBerkas(sb, url){
   const U = String(window.UPLOAD_URL || '').trim();
   if (!U || !url) return { ok: true, dibuang: false };
+  // > 1: catatan pemanggil + catatan lain. null: patch 31 belum ada.
+  const n = await jumlahRujukan(sb, url);
+  if (n !== null && n > 1) return { ok: true, dibuang: false, alasan: 'masih dipakai di tempat lain' };
   const { data: { session } } = await sb.auth.getSession();
   if (!session) throw new Error('Sesi login habis. Muat ulang halaman lalu masuk lagi.');
   // text/plain: tanpa preflight CORS (tidak dilayani Apps Script).

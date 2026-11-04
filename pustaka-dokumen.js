@@ -7,7 +7,8 @@
    MENGGANTI berkasnya (versi lama ke _arsip Drive), tidak menambah salinan.
    Dipakai data-prodi.html (tab Dokumen dan bukti baris) dan input-butir.html.
    ===================================================================== */
-import { JENIS_DOKUMEN, infoJenis } from './rencana-bukti.js?v=2026-11-04-c1941a';
+import { JENIS_DOKUMEN, infoJenis } from './rencana-bukti.js?v=2026-11-04-6c00f4';
+import { periksaBerkas, kolomSidik, teksTemuan } from './sidik-berkas.js?v=2026-11-04-6c00f4';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g,
   c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -65,6 +66,13 @@ export const keBase64 = f => new Promise((ok, gagal) => {
 // pustaka pada (jenis, tahun, judul). Berkas pertama mengganti (mengarsipkan
 // versi lama), berkas berikutnya ditambahkan ke folder yang sama.
 // Mengembalikan baris `dokumen` yang tersimpan.
+//
+// Sidik berkas (31-patch-sidik-berkas.sql): berkas yang sama persis tidak
+// diunggah ulang. Satu berkas yang sudah ada di pustaka -> dokumen itu
+// dikembalikan apa adanya dengan `_ada: 'pustaka'` (pemanggil menautkannya);
+// sudah ada sebagai bukti lain -> dicatat di pustaka dengan tautan yang sudah
+// ada, `_ada: 'bukti'`. Beberapa berkas sekaligus dengan salah satunya sudah
+// tersimpan -> ditolak dengan daftar berkasnya.
 export async function unggahKePustaka(sb, UNGGAH, { jenis, tahun, judul, berkas, oleh, nomor, tanggal, progres = () => {} }){
   const k = kunciDokumen(jenis, tahun, judul);
   if (!(k.tahun >= 1990 && k.tahun <= 2100)) throw new Error('Isi tahun dokumen (4 angka).');
@@ -78,8 +86,20 @@ export async function unggahKePustaka(sb, UNGGAH, { jenis, tahun, judul, berkas,
     `Diterima: ${UNGGAH.ext.join(', ')}, maksimal ${UNGGAH.maxMb} MB.`);
   const { data: { session } } = await sb.auth.getSession();
   if (!session) throw new Error('Sesi login habis. Muat ulang halaman lalu masuk lagi.');
-  let url = null, folderUrl = null;
-  for (let i = 0; i < berkas.length; i++) {
+  const sidik = [];
+  for (const f of berkas) { progres(`Memeriksa ${f.name}…`); sidik.push(await periksaBerkas(sb, f)); }
+  const ada = sidik.map((s, i) => s.temuan ? { f: berkas[i], t: s.temuan } : null).filter(Boolean);
+  if (ada.length && berkas.length > 1)
+    throw new Error(`Tidak diunggah: berkas yang sama ${ada.map(x => `${x.f.name} ${teksTemuan(x.t)}`).join('; ')}. ` +
+                    'Tautkan dokumen yang sudah ada, atau unggah berkas lainnya saja.');
+  let url = null, folderUrl = null, _ada = null;
+  if (ada.length && ada[0].t.sumber === 'dokumen') {
+    const { data, error } = await sb.from('dokumen').select('*').eq('id', ada[0].t.dokumen_id).single();
+    if (error) throw new Error('Berkas ini sudah ada di pustaka, tetapi catatannya gagal dibaca: ' + error.message);
+    return { ...data, _ada: 'pustaka' };
+  }
+  if (ada.length) { url = ada[0].t.url; _ada = 'bukti'; }
+  for (let i = 0; !_ada && i < berkas.length; i++) {
     const f = berkas[i];
     progres(`Mengunggah ${i + 1} dari ${berkas.length}: ${f.name}…`);
     const res = await fetch(UNGGAH.url, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
@@ -96,10 +116,11 @@ export async function unggahKePustaka(sb, UNGGAH, { jenis, tahun, judul, berkas,
   }
   const { data, error } = await sb.from('dokumen').upsert({
     ...k, url, folder_url: folderUrl, nama_berkas: berkas.map(f => f.name).join('; ').slice(0, 500),
+    ...kolomSidik(sidik[0].sha256),
     diunggah_oleh: oleh || null, diperbarui: new Date().toISOString(),
     // Nomor/tanggal dokumen (30-patch-spmi.sql): hanya dikirim bila diisi.
     ...(nomor ? { nomor: String(nomor).trim() } : {}), ...(tanggal ? { tanggal } : {}),
   }, { onConflict: 'jenis,tahun,judul' }).select().single();
   if (error) throw new Error('Berkas terunggah, tetapi catatan pustaka gagal disimpan: ' + error.message);
-  return data;
+  return _ada ? { ...data, _ada } : data;
 }

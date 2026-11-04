@@ -150,7 +150,7 @@
   table.beda td:nth-child(3){background:#EAF4EC}
   @media(max-width:640px){.grid{grid-template-columns:1fr}}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-04-c1941a">
+<link rel="stylesheet" href="kepala.css?v=2026-11-04-6c00f4">
 </head>
 <body>
 
@@ -164,7 +164,7 @@
 
 <div class="wrap" id="app"></div>
 
-<script src="config.js?v=2026-11-04-c1941a"></script>
+<script src="config.js?v=2026-11-04-6c00f4"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -188,9 +188,10 @@ const SUPABASE_URL = window.SB_URL;
 const SUPABASE_ANON_KEY = window.SB_KEY;
 
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { JENIS_BUKTI_KARYA, namaJenisBukti } from './rencana-bukti.js?v=2026-11-04-c1941a';
-import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-04-c1941a';
-import { pasangMenu } from './menu.js?v=2026-11-04-c1941a';
+import { JENIS_BUKTI_KARYA, namaJenisBukti } from './rencana-bukti.js?v=2026-11-04-6c00f4';
+import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-04-6c00f4';
+import { periksaBerkas, kolomSidik, teksTemuan } from './sidik-berkas.js?v=2026-11-04-6c00f4';
+import { pasangMenu } from './menu.js?v=2026-11-04-6c00f4';
 
 const app = document.getElementById('app');
 if (!SUPABASE_URL || !SUPABASE_ANON_KEY
@@ -704,14 +705,23 @@ function pasangUnggah(){
                           `maksimal ${maxMb} MB. Dilewati: ${dilewati.join('; ')}.`);
     tombol.disabled = true;
     let berhasil = 0;
-    const gagal = [];
+    const gagal = [], ulang = [];
     try {
       const { data:{ session } } = await sb.auth.getSession();
       if(!session) throw new Error('Sesi login habis. Muat ulang halaman lalu masuk lagi.');
       for(let i = 0; i < unggah.length; i++){
         const f = unggah[i];
-        tulis('', `Mengunggah ${i + 1} dari ${unggah.length}: ${f.name}…`);
+        tulis('', `Memeriksa dan mengunggah ${i + 1} dari ${unggah.length}: ${f.name}…`);
         try {
+          // Berkas yang sama persis sudah tersimpan (31-patch-sidik-berkas.sql),
+          // mis. artikel bersama yang sudah diunggah penulis lain: pakai tautannya.
+          const s = await periksaBerkas(sb, f);
+          if(s.temuan){
+            antreanBukti.push({ jenis: jenisEl.value, judul: f.name, url: s.temuan.url, sha256: s.sha256 });
+            ulang.push(`${f.name} ${teksTemuan(s.temuan)}`);
+            berhasil++;
+            continue;
+          }
           // text/plain supaya browser tidak mengirim preflight CORS, yang tidak
           // dilayani Apps Script.
           const body = { token: session.access_token, filename: f.name, year: tahun,
@@ -722,7 +732,7 @@ function pasangUnggah(){
             body: JSON.stringify(body) });
           const out = await res.json();
           if(!out.ok) throw new Error(out.error || 'Unggah gagal.');
-          antreanBukti.push({ jenis: jenisEl.value, judul: f.name, url: out.url });
+          antreanBukti.push({ jenis: jenisEl.value, judul: f.name, url: out.url, sha256: s.sha256 });
           berhasil++;
         } catch(err){
           gagal.push(`${f.name}: ${err.message || err}`);
@@ -731,7 +741,8 @@ function pasangUnggah(){
       }
       berkas.value = '';
       gambarAntrean();
-      const ringkas = [`${berhasil} dari ${unggah.length} berkas terunggah; tersimpan sebagai bukti saat karya disimpan`];
+      const ringkas = [`${berhasil} dari ${unggah.length} berkas siap; tersimpan sebagai bukti saat karya disimpan`];
+      if(ulang.length) ringkas.push('tidak diunggah ulang: ' + ulang.join('; '));
       if(dilewati.length) ringkas.push('dilewati: ' + dilewati.join('; '));
       if(gagal.length) ringkas.push('gagal: ' + gagal.join('; '));
       tulis(gagal.length || !berhasil ? 'err' : 'ok', ringkas.join('. ') + '.');
@@ -1271,7 +1282,7 @@ async function simpan(key){
     let catatanBukti = '';
     if(antreanBukti.length){
       const { error:eB } = await sb.from('karya_bukti').insert(
-        antreanBukti.map(b=>({ karya_id:k.id, jenis:b.jenis, judul:b.judul, url:b.url })));
+        antreanBukti.map(b=>({ karya_id:k.id, jenis:b.jenis, judul:b.judul, url:b.url, ...kolomSidik(b.sha256) })));
       if(eB) catatanBukti = ' Bukti berkas gagal dicatat (' + eB.message
         + '); tambahkan lewat Karya saya > Bukti.';
     }
@@ -1766,7 +1777,11 @@ async function tambahBuktiKarya(k, muatUlang){
       if(!session) throw new Error('Sesi login habis. Muat ulang halaman.');
       for(let i = 0; i < berkas.length; i++){
         const f = berkas[i];
-        tulis(`Mengunggah ${i + 1}/${berkas.length}: ${f.name}...`);
+        tulis(`Memeriksa dan mengunggah ${i + 1}/${berkas.length}: ${f.name}...`);
+        const nama = berkas.length > 1 || !judul ? (judul ? judul + ' — ' : '') + f.name : judul;
+        // Berkas yang sama persis sudah tersimpan: pakai tautannya (31-patch-sidik-berkas.sql).
+        const s = await periksaBerkas(sb, f);
+        if(s.temuan){ baris.push({ karya_id: id, jenis, judul: nama, url: s.temuan.url, ...kolomSidik(s.sha256) }); continue; }
         // Folder Drive per karya: <tahun>/<nama dosen>/<judul karya>/ (Code.gs kind 'karya').
         const res = await fetch(window.UPLOAD_URL, { method: 'POST',
           headers: { 'Content-Type': 'text/plain;charset=utf-8' },
@@ -1774,8 +1789,7 @@ async function tambahBuktiKarya(k, muatUlang){
                                  group: k.judul, filename: f.name, data: await keB64(f) }) });
         const out = await res.json();
         if(!out.ok) throw new Error(out.error || 'Unggah gagal.');
-        const nama = berkas.length > 1 || !judul ? (judul ? judul + ' — ' : '') + f.name : judul;
-        baris.push({ karya_id: id, jenis, judul: nama, url: out.url });
+        baris.push({ karya_id: id, jenis, judul: nama, url: out.url, ...kolomSidik(s.sha256) });
       }
     }
     if(url) baris.push({ karya_id: id, jenis, judul, url });

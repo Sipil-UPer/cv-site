@@ -33,7 +33,14 @@
   .sub{color:#B9CCDE;font-size:14px;margin-top:6px}
   .info{margin-top:18px;padding:10px 14px;border-left:3px solid var(--emas);
         background:#FFFBEF;font-size:13.5px}
-  .tabs{display:flex;flex-wrap:wrap;gap:4px;margin-top:18px;border-bottom:2px solid var(--biru)}
+  .grup-tab{display:flex;flex-wrap:wrap;gap:4px;margin-top:18px}
+  .grup-tab button{font:inherit;font-size:13.5px;font-weight:600;padding:8px 14px;border:1px solid var(--biru);
+    background:#fff;color:var(--biru);cursor:pointer;border-radius:2px}
+  .grup-tab button[aria-selected="true"]{background:var(--biru);color:#fff}
+  .tabs{display:flex;flex-wrap:wrap;gap:4px;margin-top:8px;border-bottom:2px solid var(--biru)}
+  .tabs[hidden]{display:none}
+  .grup-tab + .tabs[hidden] + .b{margin-top:8px}
+  .sub-h{font-size:15px;margin:26px 0 6px}
   .tabs button{font:inherit;font-size:13px;padding:7px 12px;border:1px solid var(--line);
     border-bottom:0;background:#fff;color:var(--biru);cursor:pointer}
   .tabs button[aria-selected="true"]{background:var(--biru);color:#fff;border-color:var(--biru)}
@@ -78,7 +85,7 @@
   .masuk{max-width:420px;margin:40px auto;background:#fff;border:1px solid var(--line);padding:20px}
   .masuk input{width:100%;padding:8px 10px;margin:8px 0;font:inherit}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-04-c1941a">
+<link rel="stylesheet" href="kepala.css?v=2026-11-04-6c00f4">
 </head>
 <body>
 
@@ -92,7 +99,7 @@
 
 <main class="wrap" id="isi"></main>
 
-<script src="config.js?v=2026-11-04-c1941a"></script>
+<script src="config.js?v=2026-11-04-6c00f4"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -109,11 +116,12 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-04-c1941a';
-import { pasangMenu } from './menu.js?v=2026-11-04-c1941a';
-import { unggahKePustaka, opsiPustaka, opsiJenis, labelDokumen, cariDokumen } from './pustaka-dokumen.js?v=2026-11-04-c1941a';
-import { infoJenis } from './rencana-bukti.js?v=2026-11-04-c1941a';
-import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-04-c1941a';
+import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-04-6c00f4';
+import { pasangMenu } from './menu.js?v=2026-11-04-6c00f4';
+import { unggahKePustaka, opsiPustaka, opsiJenis, labelDokumen, cariDokumen } from './pustaka-dokumen.js?v=2026-11-04-6c00f4';
+import { pasangRapikan } from './rapikan-berkas.js?v=2026-11-04-6c00f4';
+import { infoJenis } from './rencana-bukti.js?v=2026-11-04-6c00f4';
+import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-04-6c00f4';
 
 /* =====================================================================
    DATA PRODI — data kuantitatif LKPS diisi admin di situs (keputusan
@@ -612,20 +620,21 @@ async function mulai(){
   $('isi').innerHTML = `
     <div class="info">Data di halaman ini dipakai untuk skor, rincian, dan LKPS. Perubahan
       tampil di halaman skor setelah data dibangun ulang.</div>
-    <nav class="tabs" id="tabs">${TABEL.map(t =>
-      `<button data-tab="${t.id}" aria-selected="${t === AKTIF}">${esc(t.judul)}</button>`).join('')}</nav>
+    <nav class="grup-tab" id="grup"></nav>
+    <nav class="tabs" id="tabs"></nav>
     <div class="b" id="panel"></div>`;
   // Sekali saja: panel tetap ada antar tab, isinya yang diganti.
   $('panel').addEventListener('click', klikPanel);
+  $('grup').onclick = e => {
+    const b = e.target.closest('[data-grup]');
+    if (!b) return;
+    pilihTab(TABEL.find(t => grupTab(t) === b.dataset.grup));
+  };
   $('tabs').onclick = e => {
     const b = e.target.closest('[data-tab]');
-    if (!b) return;
-    AKTIF = TABEL.find(t => t.id === b.dataset.tab);
-    history.replaceState(null, '', '?tab=' + AKTIF.id);
-    document.querySelectorAll('#tabs button').forEach(x => x.setAttribute('aria-selected', String(x === b)));
-    bukaTab();
+    if (b) pilihTab(TABEL.find(t => t.id === b.dataset.tab));
   };
-  bukaTab();
+  pilihTab(AKTIF);
 }
 
 // Blok bukti formulir: pustaka (tautkan / unggah ke pustaka) + tautan luar.
@@ -671,6 +680,34 @@ function ketUnggah(){
     ? `Sudah ada di pustaka: ${labelDokumen(ada)}. Unggahan akan MENGGANTI berkas itu (tidak membuat salinan); `
       + 'bila berkasnya sama, cukup pilih dari pustaka di atas.'
     : `Akan disimpan sebagai: ${j.nama}${j.tunggal ? '' : ' — (judul)'} tahun ${$('bk_tahun').value || '…'}.`;
+}
+
+// Kelompok tab (pemilik 2026-11-04): baris atas kelompok, baris bawah tab di
+// kelompok terpilih. Urutan kelompok = urutan tampil.
+const GRUP_TAB = [
+  ['Dokumen', ['dokumen']],
+  ['Dosen & SDM', ['bkd', 'tendik']],
+  ['Kurikulum & penelitian', ['mk', 'tema', 'kerjasama']],
+  ['Mahasiswa & lulusan', ['mahasiswa', 'kohort', 'prestasi', 'publikasi', 'luaran', 'tracer', 'kepuasan']],
+  ['Institusi & keuangan', ['vmts', 'prodi_upps', 'dana']],
+  ['Sarana & K3L', ['prasarana', 'dok_k3l', 'fas_k3l']],
+  ['SPMI', ['spmi']],
+];
+const grupTab = T => (GRUP_TAB.find(([, ids]) => ids.includes(T.id)) || ['Lainnya'])[0];
+
+function pilihTab(T){
+  AKTIF = T || TABEL[0];
+  history.replaceState(null, '', '?tab=' + AKTIF.id);
+  const g = grupTab(AKTIF);
+  const grup = [...GRUP_TAB.map(([n]) => n), ...(TABEL.some(t => grupTab(t) === 'Lainnya') ? ['Lainnya'] : [])];
+  $('grup').innerHTML = grup.map(n => `<button data-grup="${esc(n)}" aria-selected="${n === g}">${esc(n)}</button>`).join('');
+  const urut = (GRUP_TAB.find(([n]) => n === g) || [, []])[1];
+  const isi = TABEL.filter(t => grupTab(t) === g)
+    .sort((a, b) => (urut.indexOf(a.id) + 1 || 99) - (urut.indexOf(b.id) + 1 || 99));
+  $('tabs').innerHTML = isi.length > 1 ? isi.map(t =>
+    `<button data-tab="${t.id}" aria-selected="${t === AKTIF}">${esc(t.judul)}</button>`).join('') : '';
+  $('tabs').hidden = isi.length < 2;
+  bukaTab();
 }
 
 async function bukaTab(){
@@ -1064,6 +1101,13 @@ async function muatPustaka(){
   DOK = data || [];
 }
 
+// Pesan hasil unggahKePustaka; `_ada` = berkas yang sama sudah tersimpan (31-patch-sidik-berkas.sql).
+const pesanPustaka = (d, akhir) => d._ada === 'pustaka'
+  ? `Berkas yang sama sudah ada di pustaka sebagai ${labelDokumen(d)}; tidak diunggah ulang${akhir ? ', dokumen itu ' + akhir : ''}.`
+  : d._ada === 'bukti'
+  ? `Berkas yang sama sudah tersimpan sebagai bukti lain; ${labelDokumen(d)} dicatat di pustaka dengan berkas itu, tanpa unggah ulang${akhir ? ', lalu ' + akhir : ''}.`
+  : `${labelDokumen(d)} tersimpan di pustaka${akhir ? ' dan ' + akhir : ''}.`;
+
 // Unggah dari bukti baris: berkas masuk pustaka (kunci sama = mengganti), lalu ditautkan.
 async function unggahPustaka(tombol){
   const berkas = [...($('bk_berkas').files || [])];
@@ -1076,7 +1120,7 @@ async function unggahPustaka(tombol){
     $('bk_pustaka').innerHTML = opsiPustaka(DOK, AKTIF.dok);
     ketUnggah();
     await tambahBukti([{ dokumen_id: d.id }]);
-    tulis('ok', `${labelDokumen(d)} tersimpan di pustaka dan ditautkan ke baris ini.`);
+    tulis('ok', pesanPustaka(d, 'ditautkan ke baris ini'));
   } catch (err) {
     tulis('buruk', err.message || String(err));
   } finally {
@@ -1101,7 +1145,10 @@ async function bukaPustaka(){
         <button type="button" class="btn" data-unggah-pustaka="1">Unggah ke pustaka</button></div>
         <p class="ket" id="pk_ket"></p></div></div>` : ''}
     <div class="aksi"><span class="msg" id="msg"></span></div>
-    <div class="gulir" id="daftar"><p class="kosong">Memuat…</p></div>`;
+    <div class="gulir" id="daftar"><p class="kosong">Memuat…</p></div>
+    <h3 class="sub-h">Rapikan berkas lama</h3><div id="rapikan"></div>`;
+  pasangRapikan(sb, $('rapikan'), { tabel: TABEL, saran: SARAN_DOK, oleh: SAYA.email,
+    selesai: async () => { await muatPustaka(); await gambarPustaka(); } });
   if ($('pk_jenis')) {
     const ket = () => {
       const j = infoJenis($('pk_jenis').value);
@@ -1155,7 +1202,7 @@ async function unggahPustakaTab(tombol){
       nomor: $('pk_nomor')?.value, tanggal: $('pk_tanggal')?.value });
     await muatPustaka();
     $('pk_berkas').value = '';
-    tulis('ok', `${labelDokumen(d)} tersimpan di pustaka.`);
+    tulis('ok', pesanPustaka(d, ''));
     await gambarPustaka();
   } catch (err) {
     tulis('buruk', err.message || String(err));

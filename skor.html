@@ -279,7 +279,7 @@
   :focus-visible{outline:2px solid var(--biru-2);outline-offset:1px}
   @media(prefers-reduced-motion:reduce){.kartu{transition:none}.kartu:hover{transform:none}}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-04-c1941a">
+<link rel="stylesheet" href="kepala.css?v=2026-11-04-6c00f4">
 </head>
 <body>
 
@@ -344,7 +344,7 @@ setTimeout(function(){
   });
 }, 8000);
 </script>
-<script src="config.js?v=2026-11-04-c1941a"></script>
+<script src="config.js?v=2026-11-04-6c00f4"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -361,15 +361,15 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { BUTIR, isiPetaBukti, cariBukti, daftarBukti, kolomBukti } from './rincian.js?v=2026-11-04-c1941a';
+import { BUTIR, isiPetaBukti, cariBukti, daftarBukti, kolomBukti } from './rincian.js?v=2026-11-04-6c00f4';
 import { BUTIR_MANUAL, SEKSI_MANUAL, kunciButir, kunciBuktiButir, skorManual, tkKepuasan }
-  from './butir-manual.js?v=2026-11-04-c1941a';
-import { BOBOT_TOTAL, bobotButir } from './bobot.js?v=2026-11-04-c1941a';
-import { htmlRencana, buktiButir } from './rencana-bukti.js?v=2026-11-04-c1941a';
-import { htmlPanel, pasangPanel } from './panel-bukti.js?v=2026-11-04-c1941a';
-import { pasangMenu } from './menu.js?v=2026-11-04-c1941a';
+  from './butir-manual.js?v=2026-11-04-6c00f4';
+import { BOBOT_TOTAL, bobotButir } from './bobot.js?v=2026-11-04-6c00f4';
+import { htmlRencana, buktiButir } from './rencana-bukti.js?v=2026-11-04-6c00f4';
+import { htmlPanel, pasangPanel } from './panel-bukti.js?v=2026-11-04-6c00f4';
+import { pasangMenu } from './menu.js?v=2026-11-04-6c00f4';
 import { statusSyarat, syaratButir, SYARAT_UNGGUL, SYARAT_RERATA, SASARAN,
-         statusRerata, gabungSyarat, statusRentang } from './syarat-unggul.js?v=2026-11-04-c1941a';
+         statusRerata, gabungSyarat, statusRentang } from './syarat-unggul.js?v=2026-11-04-6c00f4';
 
 // config.js mendefinisikan window.SB_URL dan window.SB_KEY — pemetaan di
 // bawah ini WAJIB ada. skor.html versi sebelumnya melewatkannya dan mati
@@ -393,7 +393,7 @@ const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 // Naikkan setiap kali skor.html / rincian.js / butir-manual.js / bobot.js
 // diubah. Ditampilkan di kaki halaman supaya ketahuan seketika kalau
 // peramban masih memakai salinan lama dari cache.
-const VERSI = '2026-11-04-c1941a';
+const VERSI = '2026-11-04-6c00f4';
 // Label versi di judul diisi dari VERSI supaya keduanya tidak bisa berbeda.
 { const el = document.querySelector('.versi-statis'); if (el) el.textContent = 'v' + VERSI; }
 // =====================================================================
@@ -495,7 +495,7 @@ async function unduhLKPS(){
     const ambil = async q => { const { data, error } = await q; if (error) console.warn(error.message); return data || []; };
     // Dosen dengan profil LKPS 4.a (22-patch-profil-dosen.sql); tanpa patch: kolom dasar.
     const DOSEN_DASAR = 'nama,nidn,peran,pendidikan,jabatan,aktif,dtps';
-    const { KOLOM_PROFIL } = await import('./profil-dosen.js?v=2026-11-04-c1941a');
+    const { KOLOM_PROFIL } = await import('./profil-dosen.js?v=2026-11-04-6c00f4');
     const ambilDosen = async () => {
       const { data, error } = await sb.from('dosen').select(DOSEN_DASAR + ',' + KOLOM_PROFIL);
       return error ? ambil(sb.from('dosen').select(DOSEN_DASAR)) : (data || []);
@@ -561,7 +561,7 @@ async function unduhLKPS(){
       ambil(sb.from('dokumen').select('*')),
       ambil(sb.from('lkps_spmi_ppepp').select('*')),
     ]);
-    const { buatLKPS } = await import('./lkps.js?v=2026-11-04-c1941a');
+    const { buatLKPS } = await import('./lkps.js?v=2026-11-04-6c00f4');
     const hasil = await buatLKPS({ D, ts, prodi: D.prodi, institusi: D.institusi, rencanaKepuasan,
       daftar: { dosen, karya, kerjasama, bkd, prestasi, luaranMhs, mk, tema, mhs, tracer,
                 vmts, prodiUpps, dana, tendik, buktiVmts, prasarana, dokK3l, fasK3l, dokumen, ppepp } });
@@ -585,7 +585,7 @@ async function unduhLED(){
   const asli = a.textContent;
   a.textContent = 'Menyusun draf LED…';
   try {
-    const { buatLED } = await import('./led.js?v=2026-11-04-c1941a');
+    const { buatLED } = await import('./led.js?v=2026-11-04-6c00f4');
     const ts = CTX_LED.tsData;
     const hasil = await buatLED({
       D, ts, taDari, f2, versi: VERSI,
