@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-05-6f33cc">
+<link rel="stylesheet" href="tema.css?v=2026-11-05-59f30f">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.6}
@@ -32,6 +32,18 @@
   details.tugas summary{cursor:pointer;font-weight:600;color:var(--biru)}
   details.tugas h4{margin:12px 0 2px;font-size:14px;color:var(--biru)}
   .tim{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:4px 14px}
+  .susun-luar{overflow-x:auto}
+  table.susun{width:100%;border-collapse:collapse;font-size:13px}
+  table.susun th{text-align:left;font-weight:600;color:var(--muted);padding:4px 6px;border-bottom:1px solid var(--line)}
+  table.susun td{padding:4px 6px;border-bottom:1px solid var(--line);vertical-align:top}
+  table.susun input,table.susun select,table.susun textarea{width:100%;min-width:110px;padding:4px;font:inherit;border:1px solid var(--line);border-radius:3px;background:#fff}
+  table.susun textarea{min-width:200px;resize:vertical;overflow:auto}
+  table.susun button{padding:2px 7px;border:1px solid var(--line);border-radius:3px;background:#fff;color:var(--biru);font:inherit;cursor:pointer}
+  table.susun button:disabled{opacity:.35;cursor:default}
+  .geser{white-space:nowrap}
+  .luar{display:flex;flex-wrap:wrap;gap:6px}
+  .luar input,.luar select{flex:1;min-width:150px;padding:5px;font:inherit;font-size:13px;border:1px solid var(--line);border-radius:3px}
+  .luar button{padding:5px 12px;border:1px solid var(--aksi);border-radius:4px;background:var(--aksi);color:#fff;font:inherit;font-size:13px;cursor:pointer}
   .tugas-baris{display:grid;grid-template-columns:1fr minmax(180px,260px);gap:10px;align-items:center;padding:4px 0}
   .tugas-baris select{padding:5px;font:inherit;font-size:13px;width:100%}
   @media (max-width:560px){.tugas-baris{grid-template-columns:1fr}}
@@ -60,7 +72,7 @@
   .masuk input{width:100%;max-width:340px;padding:8px;margin:6px 0}
   .masuk button{padding:8px 14px}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-05-6f33cc">
+<link rel="stylesheet" href="kepala.css?v=2026-11-05-59f30f">
 </head>
 <body>
 <header class="hero"><div class="hero-in">
@@ -70,7 +82,7 @@
 </div></header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
 <div id="simpan" role="status"></div>
-<script src="config.js?v=2026-11-05-6f33cc"></script>
+<script src="config.js?v=2026-11-05-59f30f"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -87,22 +99,37 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { pasangMenu, bolehBuka } from './menu.js?v=2026-11-05-6f33cc';
-import { BUTIR_MANUAL } from './butir-manual.js?v=2026-11-05-6f33cc';
-import { BUTIR_DATA } from './butir-data.js?v=2026-11-05-6f33cc';
-import { ambilDaftarLKPS } from './data-lkps.js?v=2026-11-05-6f33cc';
-import { faktaNarasi, namaTim } from './led-isi.js?v=2026-11-05-6f33cc';
-import { saranIsian, masihKerangka } from './led-saran.js?v=2026-11-05-6f33cc';
-import { bagianNarasi, pisahKalimat, ambilNarasi, kunciTambahan, judulCocok, bagianSaya, pilihanAwal, bentrok, ambilPenugasan, penulisNarasi, calonTim, AWAL_ANGGOTA_TIM } from './led-narasi.js?v=2026-11-05-6f33cc';
+import { pasangMenu, bolehBuka } from './menu.js?v=2026-11-05-59f30f';
+import { BUTIR_MANUAL } from './butir-manual.js?v=2026-11-05-59f30f';
+import { BUTIR_DATA } from './butir-data.js?v=2026-11-05-59f30f';
+import { ambilDaftarLKPS } from './data-lkps.js?v=2026-11-05-59f30f';
+import { faktaNarasi, namaTim, anggotaTim } from './led-isi.js?v=2026-11-05-59f30f';
+import { saranIsian, masihKerangka } from './led-saran.js?v=2026-11-05-59f30f';
+import { bagianNarasi, pisahKalimat, ambilNarasi, kunciTambahan, judulCocok, bagianSaya, pilihanAwal, bentrok, ambilPenugasan, penulisNarasi, calonTim, AWAL_ANGGOTA_TIM, geserTim } from './led-narasi.js?v=2026-11-05-59f30f';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g,
   c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
 const sb = createClient(window.SB_URL, window.SB_KEY);
-let SAYA = null, ISI = {}, TUGAS = null, DOSEN = [], PILIH = new Set();
+let SAYA = null, ISI = {}, TUGAS = null, DOSEN = [], TIM = [], PILIH = new Set();
 const INGAT = 'narasi-led-pilih';
 const ingat = () => { try { return JSON.parse(localStorage.getItem(INGAT)); } catch { return null; } };
 const namaPenulis = e => (DOSEN.find(a => a.email.toLowerCase() === String(e).toLowerCase()) || {}).nama || e || 'anggota tim lain';
+const sel = (kolom, d) => d.dosen_id ? esc(d[kolom === 'nomor' ? 'nomor' : kolom]) || '—'
+  : `<input data-kolom="${kolom}" value="${esc(d[kolom])}" aria-label="${kolom} ${esc(d.nama)}">`;
+const htmlSusunan = () => {
+  const xs = anggotaTim(TIM, DOSEN);
+  return xs.length ? `<div class="susun-luar"><table class="susun"><thead><tr><th>Urutan</th><th>No.</th><th>Nama</th><th>NIP / NIDN / NUPTK</th>
+    <th>Jabatan</th><th>Tabel</th><th>Deskripsi kerja</th><th></th></tr></thead><tbody>${xs.map((d, i) => `<tr data-id="${esc(d.id)}">
+    <td class="geser"><button type="button" data-geser="-1" aria-label="Naikkan ${esc(d.nama)}"${i ? '' : ' disabled'}>▲</button>
+      <button type="button" data-geser="1" aria-label="Turunkan ${esc(d.nama)}"${i < xs.length - 1 ? '' : ' disabled'}>▼</button></td>
+    <td>${i + 1}</td><td>${sel('nama', d)}</td><td>${sel('nomor', d)}</td><td>${sel('jabatan', d)}</td>
+    <td><select data-kolom="jenis" aria-label="Tabel ${esc(d.nama)}"><option value="dosen"${d.jenis === 'dosen' ? ' selected' : ''}>2.1 Dosen</option>
+      <option value="nondosen"${d.jenis === 'nondosen' ? ' selected' : ''}>2.2 Nondosen</option></select></td>
+    <td><textarea data-kolom="deskripsi" rows="2" aria-label="Deskripsi kerja ${esc(d.nama)}">${esc(d.deskripsi)}</textarea></td>
+    <td><button type="button" data-keluar>Keluarkan</button></td></tr>`).join('')}</tbody></table></div>`
+    : '<p class="kosong">Belum ada anggota. Centang nama di atas atau tambahkan orang di luar sistem.</p>';
+};
 const opsiTugas = id => `<option value="">Belum dibagi</option>${penulisNarasi(DOSEN).map(a =>
   `<option value="${esc(a.email)}"${String(TUGAS[id] || '').toLowerCase() === a.email.toLowerCase() ? ' selected' : ''}>${esc(a.nama)}</option>`).join('')}`;
 
@@ -213,27 +240,81 @@ async function simpanTugas(s){
   pesan('Tersimpan');
 }
 
-// Keluar dari tim melepas bagiannya; isian yang sudah ditulis tetap ada.
-async function simpanTim(c){
-  const d = DOSEN.find(x => String(x.id) === c.dataset.tim), masuk = c.checked;
-  const milik = masuk || d.peran === 'admin' ? [] : bagianSaya(TUGAS, d.email);
-  if (milik.length && !confirm(`${d.nama} masih menjadi penanggung jawab ${milik.length} bagian. Keluarkan dari tim dan lepas bagian itu?`)) {
-    c.checked = true;
-    return;
-  }
-  const { error } = await sb.from('dosen').update({ tim_penyusun: masuk, diubah_pada: new Date().toISOString() }).eq('id', d.id);
-  if (error) { c.checked = !masuk; return pesan('Gagal menyimpan: ' + error.message, true); }
-  d.tim_penyusun = masuk;
-  if (milik.length) {
-    const { error: galat } = await sb.from('led_penugasan').delete().in('kelompok', milik);
-    if (galat) return pesan('Gagal melepas bagian: ' + galat.message, true);
-    milik.forEach(k => delete TUGAS[k]);
-  }
+// Baris tim berubah: daftar, pilihan penanggung jawab, dan kalimat ikut disegarkan.
+function segarTim(){
+  $('susunan').innerHTML = htmlSusunan();
   document.querySelectorAll('select[data-tugas]').forEach(s => { s.innerHTML = opsiTugas(s.dataset.tugas); });
-  const kal = [...document.querySelectorAll('.kal')].find(x => x.textContent.startsWith(AWAL_ANGGOTA_TIM));
-  if (kal) kal.textContent = `${AWAL_ANGGOTA_TIM} ${namaTim(DOSEN)}.`;
+  tampilKalimatTim();
   tampilPenanggungJawab();
   hitung();
+}
+
+function tampilKalimatTim(){
+  const kal = [...document.querySelectorAll('.kal')].find(x => x.textContent.startsWith(AWAL_ANGGOTA_TIM));
+  if (kal) kal.textContent = `${AWAL_ANGGOTA_TIM} ${namaTim(TIM, DOSEN)}.`;
+}
+
+async function tambahAnggota(isi){
+  const urutan = Math.max(0, ...TIM.map(r => r.urutan)) + 1;
+  const { data, error } = await sb.from('led_tim').insert({ ...isi, urutan, oleh: SAYA.email }).select().single();
+  if (error) { pesan('Gagal menyimpan: ' + error.message, true); return false; }
+  TIM.push(data);
+  segarTim();
+  pesan('Tersimpan');
+  return true;
+}
+
+// Keluar dari tim melepas bagiannya; isian yang sudah ditulis tetap ada.
+async function keluarkan(r){
+  const d = DOSEN.find(x => x.id === r.dosen_id);
+  const nama = d ? d.nama : r.nama;
+  const milik = d && d.peran !== 'admin' ? bagianSaya(TUGAS, d.email) : [];
+  if (!confirm(milik.length ? `${nama} masih menjadi penanggung jawab ${milik.length} bagian. Keluarkan dari tim dan lepas bagian itu?`
+    : `Keluarkan ${nama} dari tim penyusun?`)) return false;
+  const { error } = await sb.from('led_tim').delete().eq('id', r.id);
+  if (error) { pesan('Gagal menyimpan: ' + error.message, true); return false; }
+  TIM = TIM.filter(x => x !== r);
+  if (d) {
+    d.tim_penyusun = false;
+    const c = document.querySelector(`input[data-tim="${d.id}"]`);
+    if (c) c.checked = false;
+  }
+  if (milik.length) {
+    const { error: galat } = await sb.from('led_penugasan').delete().in('kelompok', milik);
+    if (galat) pesan('Gagal melepas bagian: ' + galat.message, true);
+    else milik.forEach(k => delete TUGAS[k]);
+  }
+  segarTim();
+  return true;
+}
+
+async function simpanTim(c){
+  const d = DOSEN.find(x => String(x.id) === c.dataset.tim);
+  if (c.checked) {
+    if (await tambahAnggota({ dosen_id: d.id, jenis: 'dosen' })) { d.tim_penyusun = true; segarTim(); }
+    else c.checked = false;
+  } else if (!await keluarkan(TIM.find(r => r.dosen_id === d.id))) c.checked = true;
+}
+
+// Disimpan per kolom tanpa menggambar ulang, supaya kursor tidak hilang saat pindah kotak.
+async function ubahAnggota(el){
+  const r = TIM.find(x => String(x.id) === el.closest('tr').dataset.id), kolom = el.dataset.kolom, nilai = el.value.trim();
+  if (kolom === 'nama' && !nilai) { el.value = r.nama; return pesan('Nama wajib diisi', true); }
+  const { error } = await sb.from('led_tim').update({ [kolom]: nilai || null, oleh: SAYA.email, diperbarui: new Date().toISOString() }).eq('id', r.id);
+  if (error) { el.value = r[kolom] || ''; return pesan('Gagal menyimpan: ' + error.message, true); }
+  r[kolom] = nilai || null;
+  tampilKalimatTim();
+  pesan('Tersimpan');
+}
+
+async function geser(id, arah){
+  const baru = geserTim(anggotaTim(TIM, DOSEN).map(d => d.id), id, arah);
+  const berubah = baru.map((x, i) => [TIM.find(r => r.id === x), i + 1]).filter(([r, u]) => r.urutan !== u);
+  const hasil = await Promise.all(berubah.map(([r, urutan]) => sb.from('led_tim').update({ urutan }).eq('id', r.id)));
+  const galat = hasil.find(h => h.error);
+  if (galat) return pesan('Gagal menyimpan: ' + galat.error.message, true);
+  berubah.forEach(([r, u]) => { r.urutan = u; });
+  segarTim();
   pesan('Tersimpan');
 }
 
@@ -278,7 +359,7 @@ async function mulai(){
   const [r, daftar, narasi, tugas, dosen] = await Promise.all([fetch('data.json?v=' + Date.now()), ambilDaftarLKPS(sb), ambilNarasi(sb),
     ambilPenugasan(sb), sb.from('dosen').select('*').eq('aktif', true).order('nama')]);
   const D = await r.json();
-  ISI = narasi; TUGAS = tugas; DOSEN = dosen.data || [];
+  ISI = narasi; TUGAS = tugas; DOSEN = dosen.data || []; TIM = daftar.tim || [];
   const d = new Date(), ts = d.getFullYear() + (d.getMonth() >= 8 ? 1 : 0);
   const ta = t => `${t - 1}/${t}`;
   const C = { ts, daftar, dokumen: daftar.dokumen, ta: ta(ts), ta2: ta(ts - 2),
@@ -298,8 +379,16 @@ async function mulai(){
       <input id="cari" type="search" placeholder="Cari, misalnya butir 23" aria-label="Cari butir atau judul bagian"></div>
     ${adminSaya && TUGAS ? `<details class="tugas" id="tugas"><summary>Tim penyusun dan pembagian bagian</summary>
       ${'tim_penyusun' in saya ? `<h4>Tim penyusun</h4>
-      <p class="kosong">Nama yang dicentang tertulis otomatis di narasi, dan di halaman Identitas Tim Penyusun serta subbab Struktur Tim pada draf LED. Dosen yang dicentang juga bisa menulis di halaman ini, tanpa hak admin lainnya. Admin selalu bisa menulis; centang admin hanya menentukan namanya tertulis.</p>
-      <div class="tim">${calonTim(DOSEN).map(d => `<label><input type="checkbox" data-tim="${esc(d.id)}"${d.tim_penyusun ? ' checked' : ''}> ${esc(d.nama)}</label>`).join('')}</div>` : ''}
+      <p class="kosong">Dosen yang dicentang bisa menulis di halaman ini, tanpa hak admin lainnya. Admin selalu bisa menulis; centang admin hanya menentukan namanya tertulis di LED.</p>
+      <div class="tim">${calonTim(DOSEN).map(d => `<label><input type="checkbox" data-tim="${esc(d.id)}"${d.tim_penyusun ? ' checked' : ''}> ${esc(d.nama)}</label>`).join('')}</div>
+      <h4>Susunan tim</h4>
+      <p class="kosong">Urutan dan isian ini dipakai di halaman Identitas Tim Penyusun serta Tabel 2.1 dan 2.2 pada draf LED. Nama, nomor, dan jabatan dosen terdaftar diubah di Kelola dosen.</p>
+      <div id="susunan">${htmlSusunan()}</div>
+      <h4>Tambah orang di luar sistem</h4>
+      <p class="kosong">Misalnya tenaga kependidikan atau dosen prodi lain. Namanya tertulis di LED, tetapi ia tidak bisa masuk ke situs; kalau perlu ikut menulis, daftarkan di Kelola dosen.</p>
+      <div class="luar"><input id="l_nama" placeholder="Nama" aria-label="Nama"><input id="l_nomor" placeholder="NIP / NIDN / NUPTK" aria-label="Nomor">
+        <input id="l_jabatan" placeholder="Jabatan" aria-label="Jabatan"><select id="l_jenis" aria-label="Tabel"><option value="nondosen">2.2 Nondosen</option><option value="dosen">2.1 Dosen</option></select>
+        <button type="button" id="l_tambah">Tambah</button></div>` : ''}
       <h4>Pembagian bagian</h4>
       <p class="kosong">Penanggung jawab menentukan isi tombol Bagian saya. Anggota tim lain tetap boleh menyunting bagian itu.</p>
       ${kelompok.map(g => `<div class="tugas-baris"><span>${esc(g.kelompok)}</span>
@@ -334,6 +423,23 @@ async function mulai(){
   $('tugas')?.addEventListener('change', e => {
     if (e.target.dataset.tugas) simpanTugas(e.target);
     if (e.target.dataset.tim) simpanTim(e.target);
+    if (e.target.dataset.kolom) ubahAnggota(e.target);
+  });
+  $('tugas')?.addEventListener('click', async e => {
+    const b = e.target.closest('button');
+    if (!b) return;
+    if (b.id === 'l_tambah') {
+      const v = id => $(id).value.trim();
+      if (!v('l_nama')) return pesan('Nama wajib diisi', true);
+      const ok = await tambahAnggota({ nama: v('l_nama'), nomor: v('l_nomor') || null, jabatan: v('l_jabatan') || null, jenis: $('l_jenis').value });
+      if (ok) ['l_nama', 'l_nomor', 'l_jabatan'].forEach(id => { $(id).value = ''; });
+      return;
+    }
+    const tr = b.closest('tr[data-id]');
+    if (!tr) return;
+    const r = TIM.find(x => String(x.id) === tr.dataset.id);
+    if (b.dataset.geser) geser(r.id, +b.dataset.geser);
+    if ('keluar' in b.dataset) keluarkan(r);
   });
   // Saran mengisi kotaknya; bagian [..] diganti sendiri oleh penyusun.
   $('daftar').addEventListener('click', e => {

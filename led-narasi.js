@@ -9,7 +9,7 @@
      lingkup  umum, C1..C7 (kriteria), b1..b60 (butir)
    Isian tersimpan ditulis dengan token ⟪teks⟫: tampil tanpa sorot di Word.
    ===================================================================== */
-import { dokumenKriteria, labelDokumenLED, tokenTautan } from './led-isi.js?v=2026-11-05-6f33cc';
+import { dokumenKriteria, labelDokumenLED, tokenTautan } from './led-isi.js?v=2026-11-05-59f30f';
 
 const rentangNo = (a, b) => Array.from({ length: b - a + 1 }, (_, i) => String(a + i));
 export const KRITERIA = {
@@ -195,6 +195,18 @@ export function kalimatKriteria(K, bagian, C){
 
 export const AWAL_ANGGOTA_TIM = 'Anggota tim penyusun:';
 
+// Baris tabel Identitas Pengusul yang tidak ada sumbernya di sistem; label sama
+// dengan templat. Disimpan di led_narasi seperti kotak lain. Peringkat dan SK
+// akreditasi diambil dari Data prodi (daftarProdi).
+export const ISIAN_IDENTITAS = ['Unit Pengelola Program Studi', 'Alamat', 'Nomor Telepon', 'E-Mail dan Website',
+  'Nomor SK Pendirian PT', 'Tanggal SK Pendirian PT', 'Pejabat Penandatangan SK Pendirian PT',
+  'Nomor SK Pembukaan PS', 'Tanggal SK Pembukaan PS', 'Pejabat Penandatangan SK Pembukaan PS',
+  'Tahun Pertama Kali Menerima Mahasiswa'];
+export const KOTA_PT = 'Kota kedudukan perguruan tinggi';
+export const FOLDER_INDUK = 'nama dan tautan folder induk';
+export const NARAHUBUNG = 'nama, jabatan, surel, telepon';
+export const nilaiIdentitas = (narasi, label) => (narasi || {})[`umum|identitas|${label}|1`] || '';
+
 export function kalimatUmum(bagian, C){
   const P = C.P;
   return {
@@ -209,6 +221,11 @@ export function kalimatUmum(bagian, C){
       { id: 'timAnggota', teks: `${AWAL_ANGGOTA_TIM} ${P.timPenyusun}.` },
       { id: 'tim1', teks: 'Mekanisme kerja: pengumpulan data dari [isi: sumber data], verifikasi dan validasi oleh [isi: penanggung jawab], pengecekan konsistensi data LED dan LKPS, analisis data, identifikasi akar masalah, dan penetapan strategi pengembangan. Data dosen dan bukti karya dihimpun melalui sistem data dosen prodi, dengan berkas bukti di Google Drive prodi.' },
       { id: 'tim2', teks: 'Jadwal kerja tim: [isi: tahapan dan tanggal].' }],
+    identitas: [...ISIAN_IDENTITAS.map(l => ({ id: 'identitas', teks: `${l}: [isi: ${l}].` })),
+      { id: 'identitas', teks: `Sampul, ${KOTA_PT.toLowerCase()}: [isi: ${KOTA_PT}].` },
+      { id: 'identitas', teks: `Lampiran, folder induk bukti di Drive prodi: [isi: ${FOLDER_INDUK}].` },
+      { id: 'identitas', teks: `Lampiran, narahubung verifikasi bukti: [isi: ${NARAHUBUNG}].` },
+      { id: 'identitasData', teks: 'Daftar program studi, peringkat, dan SK akreditasi diambil dari Data prodi, tab Prodi di UPPS.' }],
     penutup: [{ id: 'penutup', teks: '[isi: kesimpulan akhir: temuan utama, kekuatan, kelemahan yang perlu diperbaiki, serta peluang dan ancaman yang harus dikelola].' }],
   }[bagian];
 }
@@ -219,16 +236,22 @@ export function bagianNarasi(C){
   const butir = no => ({ lingkup: `b${no}`, judul: `Butir ${no}. ${(C.judulButir || {})[no] || ''}`, tambahan: true,
     kalimat: [...komponenButir(no).flatMap(k => kalimatButir(String(no), k, C, adaData(no))), kalimatCapaian(C, adaData(no), no)] });
   const umum = (bagian, judul) => ({ lingkup: 'umum', judul, kalimat: kalimatUmum(bagian, C) });
+  // Butir 58 terbagi: Komponen I di Bab II bagian B, Komponen II (SWOT) di Bab III.
+  const komponen58 = (k, judul, ekor) => ({ lingkup: 'b58', judul, tambahan: ekor,
+    kalimat: [...kalimatButir('58', k, C, adaData(58)), ...(ekor ? [kalimatCapaian(C, adaData(58), 58)] : [])] });
   return [
+    { id: 'identitas', pendek: 'Identitas', kelompok: 'Identitas pengusul, sampul, dan lampiran', bagian: [umum('identitas', 'Identitas pengusul')] },
     { id: 'awal', pendek: 'Bagian awal', kelompok: 'Bagian awal', bagian: [umum('pengantar', 'Kata pengantar'), umum('ringkasan', 'Ringkasan eksekutif'),
-      umum('pendahuluan', 'Bab I Pendahuluan'), umum('tim', 'Tim penyusun')] },
+      umum('pendahuluan', 'Bab I Pendahuluan')] },
+    { id: 'A', pendek: 'A. Tim penyusun', kelompok: 'A. Struktur Tim Penyusun dan Mekanisme Kerja', bagian: [umum('tim', 'Tim penyusun')] },
+    { id: 'B', pendek: 'B. Lingkungan eksternal', kelompok: 'B. Analisis Lingkungan Eksternal', bagian: [komponen58(0, 'Lingkungan makro dan mikro', true)] },
     ...Object.values(KRITERIA).map(K => ({ id: K.kode, pendek: K.kode.replace('C', 'C.'),
       kelompok: `${K.kode.replace('C', 'C.')} ${K.nama}`, bagian: [
       { lingkup: K.kode, judul: 'Latar belakang dan kebijakan', kalimat: [...kalimatKriteria(K, 'latar', C), ...kalimatKriteria(K, 'kebijakan', C)] },
       ...K.butir.map(butir),
       { lingkup: K.kode, judul: 'Analisis faktor keberhasilan', kalimat: kalimatKriteria(K, 'analisis', C) },
       { lingkup: K.kode, judul: 'SWOT dan strategi', kalimat: kalimatKriteria(K, 'swot', C) }] })),
-    { id: 'akhir', pendek: 'Bab III dan penutup', kelompok: 'Bab III dan penutup', bagian: [butir(58), butir(59), butir(60), umum('penutup', 'Bab IV Penutup')] },
+    { id: 'akhir', pendek: 'Bab III dan penutup', kelompok: 'Bab III dan penutup', bagian: [komponen58(1, 'Analisis SWOT semua kriteria', false), butir(59), butir(60), umum('penutup', 'Bab IV Penutup')] },
   ];
 }
 
@@ -243,6 +266,14 @@ export const penulisNarasi = dosen => (dosen || []).filter(d => d.aktif !== fals
 // Yang bisa dicentang masuk tim. Admin selalu boleh menulis, jadi centangnya hanya
 // menentukan namanya tertulis di LED. Asesor tidak pernah masuk tim.
 export const calonTim = dosen => (dosen || []).filter(d => d.aktif !== false && d.peran !== 'asesor');
+
+// Susunan sesudah satu anggota digeser (arah -1 naik, 1 turun); di ujung tidak berubah.
+export function geserTim(ids, id, arah){
+  const i = ids.indexOf(id), j = i + arah, out = [...ids];
+  if (i < 0 || j < 0 || j >= ids.length) return out;
+  [out[i], out[j]] = [out[j], out[i]];
+  return out;
+}
 
 // Bagian yang ditugaskan ke satu penulis; email tidak peka huruf besar.
 export const bagianSaya = (tugas, email) => Object.keys(tugas || {})

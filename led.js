@@ -26,11 +26,12 @@
    Peta subbagian LED ke butir: docs/led-peta-butir.md.
    ===================================================================== */
 
-import { RENCANA_BUKTI, LKPS_TABEL, kelompokDokumen, buktiButir, saranDokumen } from './rencana-bukti.js?v=2026-11-05-6f33cc';
-import { grafikButir, tabelGrafik, tabelPendukung } from './led-data.js?v=2026-11-05-6f33cc';
-import { gambarGrafik } from './led-grafik.js?v=2026-11-05-6f33cc';
-import { faktaNarasi, anggotaTim, kalimatTren, buktiOtomatis, dokumenBelumAda, periksaTersisa, buktiLembar, tabelPenjelas } from './led-isi.js?v=2026-11-05-6f33cc';
-import { KRITERIA, terapkanIsian, kunciTambahan, kalimatButir, kalimatCapaian, kalimatKriteria, kalimatUmum } from './led-narasi.js?v=2026-11-05-6f33cc';
+import { RENCANA_BUKTI, LKPS_TABEL, kelompokDokumen, buktiButir, saranDokumen } from './rencana-bukti.js?v=2026-11-05-59f30f';
+import { grafikButir, tabelGrafik, tabelPendukung } from './led-data.js?v=2026-11-05-59f30f';
+import { gambarGrafik } from './led-grafik.js?v=2026-11-05-59f30f';
+import { faktaNarasi, anggotaTim, kalimatTren, buktiOtomatis, dokumenBelumAda, periksaTersisa, buktiLembar, tabelPenjelas } from './led-isi.js?v=2026-11-05-59f30f';
+import { ISIAN_IDENTITAS, KOTA_PT, FOLDER_INDUK, NARAHUBUNG, nilaiIdentitas, KRITERIA, terapkanIsian, kunciTambahan, kalimatButir, kalimatCapaian, kalimatKriteria, kalimatUmum } from './led-narasi.js?v=2026-11-05-59f30f';
+import { daftarProdi, STATUS_PS, tglTeks } from './pustaka-dokumen.js?v=2026-11-05-59f30f';
 
 const NS = {
   w:  'http://schemas.openxmlformats.org/wordprocessingml/2006/main',
@@ -347,13 +348,14 @@ const blokUmum = bagian => C => kalimatUmum(bagian, C).map(x => paraIsi(C, 'umum
 const judulLampiran = t => para(run(t, { b: true, warna: '1F3864' }), { keep: true, before: 240 });
 function blokLampiran(C, P){
   const out = [];
-  out.push(paraAuto(`Seluruh bukti sahih LED dan LKPS ${C.P.ps} disimpan di Google Drive akun prodi, folder induk [isi: nama dan tautan folder induk]. ` +
+  const isian = l => nilaiIdentitas(C.narasi, l) || `[isi: ${l}]`;
+  out.push(paraAuto(`Seluruh bukti sahih LED dan LKPS ${C.P.ps} disimpan di Google Drive akun prodi, folder induk ${isian(FOLDER_INDUK)}. ` +
     'Folder disusun mengikuti struktur penilaian: (1) bukti tingkat butir di subfolder butir-NN sesuai no urut 1–60 matriks APS-AV 2025; ' +
     '(2) bukti karya dosen dan mahasiswa (penelitian, PkM, publikasi, luaran, rekognisi) di subfolder per tahun dan per dosen, satu subfolder atau berkas per karya; ' +
     '(3) dokumen bernama (statuta, renstra, kurikulum, SK, perangkat SPMI, laporan, dan sebagainya) di subfolder per jenis dan tahun; dokumen tahun berbeda disimpan sebagai versi tersendiri, dan versi yang diganti pada tahun yang sama dipindah ke subfolder _arsip. ' +
     'Setiap folder bukti dan berkasnya dibagikan dengan akses "siapa pun yang memiliki tautan: Viewer", sehingga dapat dibuka asesor tanpa masuk akun. ' +
     'Rekapitulasi disajikan pada Lampiran A (per butir LED), Lampiran B (per karya), Lampiran C (per tabel LKPS), dan Lampiran D (dokumen). ' +
-    'Narahubung verifikasi bukti: [isi: nama, jabatan, surel, telepon].'));
+    `Narahubung verifikasi bukti: ${isian(NARAHUBUNG)}.`));
 
   out.push(judulLampiran('Lampiran A. Indeks bukti per butir LED'));
   out.push(tabel(P, [['Butir', 'Judul', 'Bukti butir', 'Bukti karya'],
@@ -601,11 +603,70 @@ function isiSampul(doc, C){
   }
 }
 
-// Halaman IDENTITAS TIM PENYUSUN: satu kotak per anggota yang dicentang di
-// Narasi LED. Templat punya 4 kotak; yang lebih dihapus, yang kurang disalin.
-// Tanggal dan tanda tangan diisi saat menandatangani. Tanpa anggota: templat utuh.
-function isiIdentitasTim(doc, C){
-  const tim = anggotaTim(C.daftar?.dosen);
+function isiSel(tc, nilai){
+  if (!nilai) return;
+  const doc = tc.ownerDocument, p = tc.getElementsByTagNameNS(NS.w, 'p')[0];
+  const rr = doc.createElementNS(NS.w, 'w:r'), t = doc.createElementNS(NS.w, 'w:t');
+  t.textContent = nilai; rr.appendChild(t); p.appendChild(rr); sorotRun(rr);
+}
+
+// Halaman IDENTITAS PENGUSUL dan sampul. Isian dari kelompok Identitas di Narasi LED,
+// akreditasi dan daftar prodi dari Data prodi (sama dengan lembar PS di LKPS).
+function isiIdentitas(doc, C){
+  const baris = [...doc.getElementsByTagNameNS(NS.w, 'tr')];
+  const isiBaris = (label, nilai) => {
+    const tr = baris.find(r => {
+      const tc = r.getElementsByTagNameNS(NS.w, 'tc');
+      return tc.length === 3 && teks(tc[0]).trim().startsWith(label);
+    });
+    if (tr) isiSel(tr.getElementsByTagNameNS(NS.w, 'tc')[2], nilai);
+  };
+  ISIAN_IDENTITAS.forEach(l => isiBaris(l, nilaiIdentitas(C.narasi, l)));
+  const prodi = daftarProdi(C.daftar || {}, C.D.prodi, C.ts);
+  const utama = prodi.find(x => x.diakreditasi);
+  const sk = x => [x.nomor_sk, tglTeks(x.tanggal_sk)].filter(Boolean).join(', ');
+  if (utama){
+    isiBaris('Peringkat Terbaru Akreditasi PS', STATUS_PS[utama.status_akreditasi]);
+    isiBaris('Nomor SK Akreditasi Terakhir', sk(utama));
+  }
+
+  const body = doc.getElementsByTagNameNS(NS.w, 'body')[0];
+  const judul = [...body.children].find(n => adalahP(n) && teks(n).trim().startsWith('Daftar Program Studi di Unit'));
+  const tabel = judul?.nextElementSibling;
+  if (tabel?.localName === 'tbl' && prodi.length){
+    const rows = [...tabel.getElementsByTagNameNS(NS.w, 'tr')];
+    const i1 = rows.findIndex(r => teks(r.getElementsByTagNameNS(NS.w, 'tc')[0]).trim() === '1' &&
+                                   teks(r.getElementsByTagNameNS(NS.w, 'tc')[1]).trim() === '');
+    const jumlah = rows.find(r => teks(r.getElementsByTagNameNS(NS.w, 'tc')[0]).trim() === 'Jumlah');
+    if (i1 >= 0 && jumlah){
+      const contoh = rows[i1];
+      rows.slice(i1).filter(r => r !== jumlah).forEach(r => r.parentNode.removeChild(r));
+      prodi.forEach((x, i) => {
+        const tr = contoh.cloneNode(true);
+        jumlah.parentNode.insertBefore(tr, jumlah);
+        const tc = [...tr.getElementsByTagNameNS(NS.w, 'tc')];
+        [...tc[0].getElementsByTagNameNS(NS.w, 't')].forEach((t, k) => { t.textContent = k ? '' : String(i + 1); });
+        [x.jenis_program, x.nama_prodi, STATUS_PS[x.status_akreditasi], sk(x), tglTeks(x.tanggal_kedaluwarsa),
+         x.mahasiswa == null ? '' : String(x.mahasiswa)].forEach((v, k) => isiSel(tc[k + 1], v));
+      });
+      const ada = prodi.filter(x => x.mahasiswa != null);
+      const tcJumlah = [...jumlah.getElementsByTagNameNS(NS.w, 'tc')];
+      if (ada.length) isiSel(tcJumlah[tcJumlah.length - 1], String(ada.reduce((a, x) => a + +x.mahasiswa, 0)));
+    }
+  }
+
+  const ps = [...body.children].filter(adalahP);
+  const kota = nilaiIdentitas(C.narasi, KOTA_PT), upps = nilaiIdentitas(C.narasi, ISIAN_IDENTITAS[0]);
+  const pKota = ps.find(p => norm(teks(p)).startsWith('nama kota kedudukan'));
+  if (kota && pKota) gantiTeksParagraf(pKota, kota.toUpperCase());
+  const pTitik = ps.slice(0, 12).find(p => /^\.{10,}$/.test(teks(p).trim()));
+  if (upps && pTitik) gantiTeksParagraf(pTitik, upps.toUpperCase());
+}
+
+// Halaman IDENTITAS TIM PENYUSUN: satu kotak per anggota, urut susunan tim.
+// Templat punya 4 kotak; yang lebih dihapus, yang kurang disalin. Tanggal dan
+// tanda tangan diisi saat menandatangani. Tanpa anggota: templat utuh.
+function isiIdentitasTim(doc, tim){
   const body = doc.getElementsByTagNameNS(NS.w, 'body')[0];
   const kotak = [...body.children]
     .filter(n => adalahP(n) && /^Penyusun \d+$/.test(teks(n).trim()) && n.nextElementSibling?.localName === 'tbl')
@@ -622,14 +683,29 @@ function isiIdentitasTim(doc, C){
   }
   kotak.splice(tim.length).forEach(k => { body.removeChild(k.judul); body.removeChild(k.tabel); });
   tim.forEach((d, i) => {
-    for (const [label, nilai] of [['Nama', d.nama], ['NIDN / NUPTK', d.nidn], ['Jabatan', d.jabatan]]){
+    for (const [label, nilai] of [['Nama', d.nama], ['NIDN / NUPTK', d.nomor], ['Jabatan', d.jabatan]]){
       const tr = [...kotak[i].tabel.getElementsByTagNameNS(NS.w, 'tr')].find(r =>
         teks(r.getElementsByTagNameNS(NS.w, 'tc')[0]).trim() === label);
-      if (!tr || !nilai) continue;
-      const p = tr.getElementsByTagNameNS(NS.w, 'tc')[2].getElementsByTagNameNS(NS.w, 'p')[0];
-      const rr = doc.createElementNS(NS.w, 'w:r'), t = doc.createElementNS(NS.w, 'w:t');
-      t.textContent = nilai; rr.appendChild(t); p.appendChild(rr); sorotRun(rr);
+      if (tr) isiSel(tr.getElementsByTagNameNS(NS.w, 'tc')[2], nilai);
     }
+  });
+}
+
+// Tabel 2.1 (dosen) dan 2.2 (nondosen): No, nama, nomor, jabatan, deskripsi kerja.
+// Baris contoh templat diganti satu baris per anggota; tanpa anggota: templat utuh.
+function isiTabelTim(doc, awalJudul, tim){
+  const body = doc.getElementsByTagNameNS(NS.w, 'body')[0];
+  const judul = [...body.children].find(n => adalahP(n) && teks(n).trim().startsWith(awalJudul));
+  const tabel = judul?.nextElementSibling;
+  if (!tim.length || tabel?.localName !== 'tbl') return;
+  const baris = [...tabel.getElementsByTagNameNS(NS.w, 'tr')], contoh = baris[1];
+  baris.slice(1).forEach(r => r.parentNode.removeChild(r));
+  tim.forEach((d, i) => {
+    const tr = contoh.cloneNode(true);
+    tabel.appendChild(tr);
+    const tc = [...tr.getElementsByTagNameNS(NS.w, 'tc')];
+    [...tc[0].getElementsByTagNameNS(NS.w, 't')].forEach((t, k) => { t.textContent = k ? '' : String(i + 1); });
+    [d.nama, d.nomor, d.jabatan, d.deskripsi].forEach((v, k) => isiSel(tc[k + 1], v));
   });
 }
 
@@ -666,7 +742,11 @@ export async function buatLED(C, opsi = {}){
   const body = doc.getElementsByTagNameNS(NS.w, 'body')[0];
 
   isiSampul(doc, C);
-  isiIdentitasTim(doc, C);
+  isiIdentitas(doc, C);
+  const tim = anggotaTim(C.daftar?.tim, C.daftar?.dosen);
+  isiIdentitasTim(doc, tim);
+  isiTabelTim(doc, 'Tabel 2.1', tim.filter(d => d.jenis === 'dosen'));
+  isiTabelTim(doc, 'Tabel 2.2', tim.filter(d => d.jenis === 'nondosen'));
 
   // Logo di sampul menggantikan kotak "Logo Perguruan Tinggi".
   let logoOk = false;

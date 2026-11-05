@@ -7,8 +7,8 @@
    MENGGANTI berkasnya (versi lama ke _arsip Drive), tidak menambah salinan.
    Dipakai data-prodi.html (tab Dokumen dan bukti baris) dan input-butir.html.
    ===================================================================== */
-import { JENIS_DOKUMEN, infoJenis } from './rencana-bukti.js?v=2026-11-05-6f33cc';
-import { periksaBerkas, kolomSidik, teksTemuan } from './sidik-berkas.js?v=2026-11-05-6f33cc';
+import { JENIS_DOKUMEN, infoJenis } from './rencana-bukti.js?v=2026-11-05-59f30f';
+import { periksaBerkas, kolomSidik, teksTemuan } from './sidik-berkas.js?v=2026-11-05-59f30f';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g,
   c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -27,6 +27,26 @@ export const labelDokumen = d => d
   ? `${infoJenis(d.jenis).nama}${d.judul ? ' — ' + d.judul : ''}${d.nomor ? ', No. ' + d.nomor : ''} (${d.tahun})` : '';
 
 // Versi pustaka sebuah jenis untuk TS: tahun terbaru <= ts, atau terbaru bila belum ada.
+export const STATUS_PS = { unggul: 'Terakreditasi Unggul', a: 'Terakreditasi A', baik_sekali: 'Terakreditasi Baik Sekali',
+  b: 'Terakreditasi B', baik: 'Terakreditasi Baik', c: 'Terakreditasi C', minimum: 'Terakreditasi Minimum',
+  tidak_terakreditasi: 'Tidak Terakreditasi' };
+export const tglTeks = iso => (String(iso || '').match(/^(\d{4})-(\d{2})-(\d{2})/) || []).slice(1).reverse().join('/');
+
+// Daftar prodi di UPPS untuk LKPS (lembar PS) dan LED (Identitas Pengusul), urut
+// Data prodi. Prodi yang diakreditasi selalu tampil walau tab Prodi di UPPS belum
+// diisi (pemilik 2026-11-05): SK dari pustaka bila ada; peringkat tidak ditebak.
+export function daftarProdi(X, namaProdi, ts){
+  const out = (X.prodiUpps || []).slice()
+    .sort((a, b) => ((a.urutan ?? 100) - (b.urutan ?? 100)) || String(a.nama_prodi).localeCompare(String(b.nama_prodi)));
+  if (!out.some(x => x.diakreditasi) && namaProdi) {
+    const sk = versiUntukTS(X.dokumen, 'sk_akreditasi_prodi', ts);
+    out.unshift({ jenis_program: 'Sarjana', nama_prodi: namaProdi, diakreditasi: true,
+                  nomor_sk: sk?.nomor || sk?.judul, tanggal_sk: sk?.tanggal });
+  }
+  const mhsTS = (X.mhs || []).find(x => +String(x.tahun_akademik || '').slice(5) === ts);
+  return out.map(x => ({ ...x, mahasiswa: x.mahasiswa_ts ?? (x.diakreditasi ? mhsTS?.jumlah_mahasiswa_aktif : null) }));
+}
+
 export function versiUntukTS(dok, jenis, ts){
   const xs = (dok || []).filter(d => d.jenis === jenis).sort((a, b) => b.tahun - a.tahun);
   return xs.find(d => +d.tahun <= ts) || xs[0] || null;

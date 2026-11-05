@@ -43,7 +43,7 @@ export async function ambilDaftarLKPS(sb){
     return error ? ambil(sb.from('lkps_kerjasama').select(KS_DASAR)) : (data || []);
   };
   const [dosen, karya, kerjasama, bkd, prestasi, luaranMhs, mk, tema, mhs, tracer,
-         vmts, prodiUpps, dana, tendik, buktiVmts, prasarana, dokK3l, fasK3l, dokumen, ppepp, buktiBaris, buktiKarya, target] = await Promise.all([
+         vmts, prodiUpps, dana, tendik, buktiVmts, prasarana, dokK3l, fasK3l, dokumen, ppepp, buktiBaris, buktiKarya, target, tim] = await Promise.all([
     ambilDosen(),
     ambilKarya(),
     ambilKS(),
@@ -79,7 +79,9 @@ export async function ambilDaftarLKPS(sb){
     ambil(sb.from('karya_bukti').select('karya_id,jenis,judul,url')),
     // Target IKU/IKT (34-patch-target-kinerja.sql).
     ambil(sb.from('lkps_target_kinerja').select('*')),
+    // Susunan tim penyusun LED (37-patch-susunan-tim.sql).
+    ambil(sb.from('led_tim').select('*')),
   ]);
   return { dosen, karya, kerjasama, bkd, prestasi, luaranMhs, mk, tema, mhs, tracer,
-           vmts, prodiUpps, dana, tendik, buktiVmts, prasarana, dokK3l, fasK3l, dokumen, ppepp, buktiBaris, buktiKarya, target };
+           vmts, prodiUpps, dana, tendik, buktiVmts, prasarana, dokK3l, fasK3l, dokumen, ppepp, buktiBaris, buktiKarya, target, tim };
 }

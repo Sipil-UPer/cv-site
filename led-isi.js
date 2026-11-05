@@ -9,9 +9,9 @@
    Tautan di dalam teks memakai token ⟦url|label⟧; auto() di led.js
    mengubahnya menjadi hyperlink Word.
    ===================================================================== */
-import { versiUntukTS } from './pustaka-dokumen.js?v=2026-11-05-6f33cc';
-import { infoJenis, JENIS_DOKUMEN, kelompokDokumen, buktiButir, saranDokumen } from './rencana-bukti.js?v=2026-11-05-6f33cc';
-import { teksPendidikan } from './profil-dosen.js?v=2026-11-05-6f33cc';
+import { versiUntukTS } from './pustaka-dokumen.js?v=2026-11-05-59f30f';
+import { infoJenis, JENIS_DOKUMEN, kelompokDokumen, buktiButir, saranDokumen } from './rencana-bukti.js?v=2026-11-05-59f30f';
+import { teksPendidikan } from './profil-dosen.js?v=2026-11-05-59f30f';
 
 export const tokenTautan = (url, label) => `⟦${url}|${String(label).replace(/[⟦⟧|]/g, ' ')}⟧`;
 const isi = t => `[isi: ${t}]`;
@@ -51,15 +51,21 @@ export function targetBerlaku(X, ts){
 }
 
 // Fakta narasi. C = { dokumen, daftar, ts }; hasilnya bergabung ke C.P.
-// Yang dicentang di panel Tim penyusun, urut abjad.
-export const anggotaTim = dosen => (dosen || [])
-  .filter(d => d.tim_penyusun && d.aktif !== false && d.peran !== 'asesor')
-  .sort((a, b) => a.nama.localeCompare(b.nama, 'id'))
-  .map(d => ({ nama: d.nama, nidn: d.nidn || '', jabatan: JABATAN[d.jabatan] || '' }));
+// Susunan tim dari led_tim, urut sesuai pengaturan admin. Dosen terdaftar mengambil
+// nama, nomor, dan jabatan dari data dosen; orang di luar sistem dari barisnya.
+export function anggotaTim(tim, dosen){
+  return [...(tim || [])].sort((a, b) => a.urutan - b.urutan || a.id - b.id).flatMap(r => {
+    const d = r.dosen_id ? (dosen || []).find(x => x.id === r.dosen_id) : null;
+    if (r.dosen_id && (!d || d.aktif === false || d.peran === 'asesor')) return [];
+    return [{ id: r.id, dosen_id: r.dosen_id || null, jenis: r.jenis || 'dosen', deskripsi: r.deskripsi || '',
+      nama: d ? d.nama : r.nama, nomor: (d ? d.nidn : r.nomor) || '',
+      jabatan: (d ? JABATAN[d.jabatan] : r.jabatan) || '' }];
+  });
+}
 
 // Kosong = tetap [isi].
-export function namaTim(dosen){
-  const xs = anggotaTim(dosen).map(d => d.nama);
+export function namaTim(tim, dosen){
+  const xs = anggotaTim(tim, dosen).map(d => d.nama);
   return xs.length ? gabungKata(xs) : isi('nama anggota tim');
 }
 
@@ -90,7 +96,7 @@ export function faktaNarasi(C){
   const tahunIKT = [...new Set(ikt.filter(r => r.capaian != null).map(r => r.tahun_ts))].sort();
   return {
     d,
-    timPenyusun: namaTim(X.dosen),
+    timPenyusun: namaTim(X.tim, X.dosen),
     // Kalimat target satu butir; kosong bila belum ada target.
     targetButir: no => gabungKata(target.filter(r => String(r.butir) === String(no)).map(teksTarget)),
     daftarIKT: ada(gabungKata(ikt.map(r => `${r.nama} (target ${r.arah === 'maksimal' ? '≤' : '≥'} ${angkaID(r.target)}${r.satuan ? ` ${r.satuan}` : ''})`)), 'daftar IKT beserta target'),

@@ -15,8 +15,8 @@
    angka yang sama dengan halaman skor. Lembar lain dibiarkan untuk diisi
    prodi; kolom yang tidak disimpan situs (mis. pita waktu tunggu) kosong.
    ===================================================================== */
-import { versiUntukTS } from './pustaka-dokumen.js?v=2026-11-05-6f33cc';
-import { teksPendidikan } from './profil-dosen.js?v=2026-11-05-6f33cc';
+import { versiUntukTS, daftarProdi, STATUS_PS, tglTeks } from './pustaka-dokumen.js?v=2026-11-05-59f30f';
+import { teksPendidikan } from './profil-dosen.js?v=2026-11-05-59f30f';
 
 const TEMPLATE = 'lkps-template.xlsx';
 export const JSZIP = 'https://cdn.jsdelivr.net/npm/jszip@3.10.1/+esm';
@@ -425,27 +425,14 @@ export function petaDaftar(C){
   });
 
   // PS / Tabel 1 / 2.b / 4.b / 6.a baris prodi lain (27-patch-institusi-upps.sql).
-  const STATUS_PS = { unggul: 'Terakreditasi Unggul', a: 'Terakreditasi A', baik_sekali: 'Terakreditasi Baik Sekali',
-    b: 'Terakreditasi B', baik: 'Terakreditasi Baik', c: 'Terakreditasi C', minimum: 'Terakreditasi Minimum',
-    tidak_terakreditasi: 'Tidak Terakreditasi' };
-  const tglTeks = iso => (String(iso || '').match(/^(\d{4})-(\d{2})-(\d{2})/) || []).slice(1).reverse().join('/');
-  const mhsTS = (X.mhs || []).find(x => +String(x.tahun_akademik || '').slice(5) === ts);
-  const prodi = (X.prodiUpps || []).slice()
-    .sort((a, b) => ((a.urutan ?? 100) - (b.urutan ?? 100)) || String(a.nama_prodi).localeCompare(String(b.nama_prodi)));
-  // Prodi yang diakreditasi selalu tampil walau tab Prodi di UPPS belum diisi (pemilik 2026-11-05):
-  // SK dari pustaka bila ada; peringkat tidak ditebak.
-  if (!prodi.some(x => x.diakreditasi) && C.prodi) {
-    const sk = versiUntukTS(X.dokumen, 'sk_akreditasi_prodi', ts);
-    prodi.unshift({ jenis_program: 'Sarjana', nama_prodi: C.prodi, diakreditasi: true,
-                    nomor_sk: sk?.nomor || sk?.judul, tanggal_sk: sk?.tanggal });
-  }
+  const prodi = daftarProdi(X, C.prodi, ts);
   prodi.forEach((x, i) => {
     const r = 17 + i;
     set('PS', `B${r}`, x.jenis_program); set('PS', `C${r}`, x.nama_prodi);
     set('PS', `D${r}`, STATUS_PS[x.status_akreditasi]);
     set('PS', `E${r}`, [x.nomor_sk, tglTeks(x.tanggal_sk)].filter(Boolean).join(', '));
     set('PS', `F${r}`, serialISO(x.tanggal_kedaluwarsa));
-    set('PS', `G${r}`, x.mahasiswa_ts ?? (x.diakreditasi ? mhsTS?.jumlah_mahasiswa_aktif : null));
+    set('PS', `G${r}`, x.mahasiswa);
   });
   prodi.filter(x => !x.diakreditasi).forEach((x, i) => {
     const r = 8 + i;                                   // baris 7 = prodi yang diakreditasi
