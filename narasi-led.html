@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-05-4db78f">
+<link rel="stylesheet" href="tema.css?v=2026-11-05-ed6347">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.6}
@@ -30,6 +30,8 @@
   .saring input{flex:1;min-width:200px;padding:5px 9px;border:1px solid var(--line);border-radius:4px;font:inherit;font-size:13px}
   details.tugas{background:var(--panel);border:1px solid var(--line);padding:10px 18px;margin-bottom:10px;font-size:14px}
   details.tugas summary{cursor:pointer;font-weight:600;color:var(--biru)}
+  details.tugas h4{margin:12px 0 2px;font-size:14px;color:var(--biru)}
+  .tim{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:4px 14px}
   .tugas-baris{display:grid;grid-template-columns:1fr minmax(180px,260px);gap:10px;align-items:center;padding:4px 0}
   .tugas-baris select{padding:5px;font:inherit;font-size:13px;width:100%}
   @media (max-width:560px){.tugas-baris{grid-template-columns:1fr}}
@@ -58,7 +60,7 @@
   .masuk input{width:100%;max-width:340px;padding:8px;margin:6px 0}
   .masuk button{padding:8px 14px}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-05-4db78f">
+<link rel="stylesheet" href="kepala.css?v=2026-11-05-ed6347">
 </head>
 <body>
 <header class="hero"><div class="hero-in">
@@ -68,7 +70,7 @@
 </div></header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
 <div id="simpan" role="status"></div>
-<script src="config.js?v=2026-11-05-4db78f"></script>
+<script src="config.js?v=2026-11-05-ed6347"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -85,22 +87,24 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { pasangMenu } from './menu.js?v=2026-11-05-4db78f';
-import { BUTIR_MANUAL } from './butir-manual.js?v=2026-11-05-4db78f';
-import { BUTIR_DATA } from './butir-data.js?v=2026-11-05-4db78f';
-import { ambilDaftarLKPS } from './data-lkps.js?v=2026-11-05-4db78f';
-import { faktaNarasi } from './led-isi.js?v=2026-11-05-4db78f';
-import { saranIsian, masihKerangka } from './led-saran.js?v=2026-11-05-4db78f';
-import { bagianNarasi, pisahKalimat, ambilNarasi, kunciTambahan, judulCocok, bagianSaya, pilihanAwal, bentrok, ambilPenugasan } from './led-narasi.js?v=2026-11-05-4db78f';
+import { pasangMenu, bolehBuka } from './menu.js?v=2026-11-05-ed6347';
+import { BUTIR_MANUAL } from './butir-manual.js?v=2026-11-05-ed6347';
+import { BUTIR_DATA } from './butir-data.js?v=2026-11-05-ed6347';
+import { ambilDaftarLKPS } from './data-lkps.js?v=2026-11-05-ed6347';
+import { faktaNarasi } from './led-isi.js?v=2026-11-05-ed6347';
+import { saranIsian, masihKerangka } from './led-saran.js?v=2026-11-05-ed6347';
+import { bagianNarasi, pisahKalimat, ambilNarasi, kunciTambahan, judulCocok, bagianSaya, pilihanAwal, bentrok, ambilPenugasan, penulisNarasi, calonTim } from './led-narasi.js?v=2026-11-05-ed6347';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g,
   c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
 const sb = createClient(window.SB_URL, window.SB_KEY);
-let SAYA = null, ISI = {}, TUGAS = null, ADMIN = [], PILIH = new Set();
+let SAYA = null, ISI = {}, TUGAS = null, DOSEN = [], PILIH = new Set();
 const INGAT = 'narasi-led-pilih';
 const ingat = () => { try { return JSON.parse(localStorage.getItem(INGAT)); } catch { return null; } };
-const namaAdmin = e => (ADMIN.find(a => a.email.toLowerCase() === String(e).toLowerCase()) || {}).nama || e || 'admin lain';
+const namaPenulis = e => (DOSEN.find(a => a.email.toLowerCase() === String(e).toLowerCase()) || {}).nama || e || 'anggota tim lain';
+const opsiTugas = id => `<option value="">Belum dibagi</option>${penulisNarasi(DOSEN).map(a =>
+  `<option value="${esc(a.email)}"${String(TUGAS[id] || '').toLowerCase() === a.email.toLowerCase() ? ' selected' : ''}>${esc(a.nama)}</option>`).join('')}`;
 
 function layarMasuk(){
   $('hSub').textContent = 'Perlu masuk';
@@ -194,7 +198,7 @@ function terapkanSaring(){
 function tampilPenanggungJawab(){
   document.querySelectorAll('details.kel').forEach(d => {
     const e = (TUGAS || {})[d.dataset.kel];
-    d.querySelector('.pj').textContent = e ? `Penanggung jawab: ${namaAdmin(e)}` : '';
+    d.querySelector('.pj').textContent = e ? `Penanggung jawab: ${namaPenulis(e)}` : '';
   });
 }
 
@@ -209,16 +213,37 @@ async function simpanTugas(s){
   pesan('Tersimpan');
 }
 
+// Keluar dari tim melepas bagiannya; isian yang sudah ditulis tetap ada.
+async function simpanTim(c){
+  const d = DOSEN.find(x => String(x.id) === c.dataset.tim), masuk = c.checked;
+  const milik = masuk ? [] : bagianSaya(TUGAS, d.email);
+  if (milik.length && !confirm(`${d.nama} masih menjadi penanggung jawab ${milik.length} bagian. Keluarkan dari tim dan lepas bagian itu?`)) {
+    c.checked = true;
+    return;
+  }
+  const { error } = await sb.from('dosen').update({ tim_penyusun: masuk, diubah_pada: new Date().toISOString() }).eq('id', d.id);
+  if (error) { c.checked = !masuk; return pesan('Gagal menyimpan: ' + error.message, true); }
+  d.tim_penyusun = masuk;
+  if (milik.length) {
+    const { error: galat } = await sb.from('led_penugasan').delete().in('kelompok', milik);
+    if (galat) return pesan('Gagal melepas bagian: ' + galat.message, true);
+    milik.forEach(k => delete TUGAS[k]);
+  }
+  document.querySelectorAll('select[data-tugas]').forEach(s => { s.innerHTML = opsiTugas(s.dataset.tugas); });
+  tampilPenanggungJawab();
+  pesan('Tersimpan');
+}
+
 // Tiap kotak tersimpan sendiri saat ditinggalkan; kosong = isiannya dihapus.
-// Sebelum menulis, isi terkini dibaca: admin lain bisa mengubahnya sesudah halaman dimuat.
+// Sebelum menulis, isi terkini dibaca: penulis lain bisa mengubahnya sesudah halaman dimuat.
 async function simpan(el){
   const kunci = el.dataset.kunci, nilai = el.value.trim();
   if ((ISI[kunci] || '') === nilai) return;
   const { data: kini, error: galatBaca } = await sb.from('led_narasi').select('nilai,oleh').eq('kunci', kunci).maybeSingle();
   if (galatBaca) return pesan('Gagal menyimpan: ' + galatBaca.message, true);
   if (bentrok(ISI[kunci], kini?.nilai, nilai) && !confirm(kini
-    ? `Kotak ini baru diubah oleh ${namaAdmin(kini.oleh)}:\n\n${kini.nilai}\n\nTimpa dengan isian Anda?`
-    : 'Kotak ini baru dikosongkan admin lain. Simpan isian Anda?')) {
+    ? `Kotak ini baru diubah oleh ${namaPenulis(kini.oleh)}:\n\n${kini.nilai}\n\nTimpa dengan isian Anda?`
+    : 'Kotak ini baru dikosongkan penulis lain. Simpan isian Anda?')) {
     el.value = kini?.nilai || '';
     if (kini) ISI[kunci] = kini.nilai; else delete ISI[kunci];
     tandai(el); pas(el); hitung();
@@ -237,19 +262,20 @@ async function simpan(el){
 async function mulai(){
   const { data: { session } } = await sb.auth.getSession();
   if (!session) return layarMasuk();
-  const { data: saya } = await sb.from('dosen').select('nama,email,peran').ilike('email', session.user.email).maybeSingle();
+  const { data: saya } = await sb.from('dosen').select('*').ilike('email', session.user.email).maybeSingle();
   pasangMenu(sb);
-  if (!saya || saya.peran !== 'admin') {
+  if (!saya || !bolehBuka(saya, 'narasi-led.html')) {
     $('hSub').textContent = saya ? `Masuk sebagai ${saya.nama}` : 'Tidak terdaftar';
-    $('isi').innerHTML = '<p class="kosong">Halaman ini khusus admin.</p>';
+    $('isi').innerHTML = '<p class="kosong">Halaman ini khusus admin dan tim penyusun. Minta admin memasukkan Anda ke tim penyusun.</p>';
     return;
   }
   SAYA = saya;
-  $('hSub').textContent = `Masuk sebagai ${saya.nama} (admin)`;
-  const [r, daftar, narasi, tugas, admin] = await Promise.all([fetch('data.json?v=' + Date.now()), ambilDaftarLKPS(sb), ambilNarasi(sb),
-    ambilPenugasan(sb), sb.from('dosen').select('nama,email').eq('peran', 'admin').eq('aktif', true).order('nama')]);
+  const adminSaya = saya.peran === 'admin';
+  $('hSub').textContent = `Masuk sebagai ${saya.nama} (${adminSaya ? 'admin' : 'tim penyusun'})`;
+  const [r, daftar, narasi, tugas, dosen] = await Promise.all([fetch('data.json?v=' + Date.now()), ambilDaftarLKPS(sb), ambilNarasi(sb),
+    ambilPenugasan(sb), sb.from('dosen').select('*').eq('aktif', true).order('nama')]);
   const D = await r.json();
-  ISI = narasi; TUGAS = tugas; ADMIN = admin.data || [];
+  ISI = narasi; TUGAS = tugas; DOSEN = dosen.data || [];
   const d = new Date(), ts = d.getFullYear() + (d.getMonth() >= 8 ? 1 : 0);
   const ta = t => `${t - 1}/${t}`;
   const C = { ts, daftar, dokumen: daftar.dokumen, ta: ta(ts), ta2: ta(ts - 2),
@@ -267,12 +293,14 @@ async function mulai(){
       ${TUGAS ? '<button type="button" id="saya">Bagian saya</button>' : ''}
       ${kelompok.map(g => `<button type="button" data-kel="${g.id}" title="${esc(g.kelompok)}">${esc(g.pendek)}</button>`).join('')}
       <input id="cari" type="search" placeholder="Cari, misalnya butir 23" aria-label="Cari butir atau judul bagian"></div>
-    ${TUGAS ? `<details class="tugas" id="tugas"><summary>Pembagian bagian antar admin</summary>
-      <p class="kosong">Penanggung jawab menentukan isi tombol Bagian saya. Admin lain tetap boleh menyunting bagian itu.</p>
+    ${adminSaya && TUGAS ? `<details class="tugas" id="tugas"><summary>Tim penyusun dan pembagian bagian</summary>
+      ${'tim_penyusun' in saya ? `<h4>Tim penyusun</h4>
+      <p class="kosong">Dosen yang dicentang bisa membuka halaman ini dan menulis narasi, tanpa hak admin lainnya. Admin selalu bisa menulis.</p>
+      <div class="tim">${calonTim(DOSEN).map(d => `<label><input type="checkbox" data-tim="${esc(d.id)}"${d.tim_penyusun ? ' checked' : ''}> ${esc(d.nama)}</label>`).join('')}</div>` : ''}
+      <h4>Pembagian bagian</h4>
+      <p class="kosong">Penanggung jawab menentukan isi tombol Bagian saya. Anggota tim lain tetap boleh menyunting bagian itu.</p>
       ${kelompok.map(g => `<div class="tugas-baris"><span>${esc(g.kelompok)}</span>
-        <select data-tugas="${g.id}" aria-label="Penanggung jawab ${esc(g.kelompok)}"><option value="">Belum dibagi</option>
-        ${ADMIN.map(a => `<option value="${esc(a.email)}"${String(TUGAS[g.id] || '').toLowerCase() === a.email.toLowerCase() ? ' selected' : ''}>${esc(a.nama)}</option>`).join('')}
-        </select></div>`).join('')}</details>` : ''}
+        <select data-tugas="${g.id}" aria-label="Penanggung jawab ${esc(g.kelompok)}">${opsiTugas(g.id)}</select></div>`).join('')}</details>` : ''}
     <p class="kosong">Fakta dan tautan dokumen terisi otomatis dari sistem. Tulis di kotak; isian tersimpan sendiri saat kursor
       pindah dan masuk draf LED saat diunduh dari halaman Skor. Klik <b>Saran kalimat</b> untuk memakai contoh, lalu ganti bagian [..]
       dengan fakta prodi: kotak kuning belum selesai dan [..] tampil merah di draf. Isian tetap ada untuk TS berikutnya.</p>
@@ -300,7 +328,10 @@ async function mulai(){
     terapkanSaring();
   });
   $('cari').addEventListener('input', terapkanSaring);
-  $('tugas')?.addEventListener('change', e => { if (e.target.dataset.tugas) simpanTugas(e.target); });
+  $('tugas')?.addEventListener('change', e => {
+    if (e.target.dataset.tugas) simpanTugas(e.target);
+    if (e.target.dataset.tim) simpanTim(e.target);
+  });
   // Saran mengisi kotaknya; bagian [..] diganti sendiri oleh penyusun.
   $('daftar').addEventListener('click', e => {
     const b = e.target.closest('[data-saran]');

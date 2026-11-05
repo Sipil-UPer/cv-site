@@ -10,7 +10,7 @@ export async function ambilDaftarLKPS(sb){
   const ambil = async q => { const { data, error } = await q; if (error) console.warn(error.message); return data || []; };
   // Dosen dengan profil LKPS 4.a (22-patch-profil-dosen.sql); tanpa patch: kolom dasar.
   const DOSEN_DASAR = 'nama,nidn,peran,pendidikan,jabatan,aktif,dtps';
-  const { KOLOM_PROFIL } = await import('./profil-dosen.js?v=2026-11-05-4db78f');
+  const { KOLOM_PROFIL } = await import('./profil-dosen.js?v=2026-11-05-ed6347');
   const ambilDosen = async () => {
     const { data, error } = await sb.from('dosen').select(DOSEN_DASAR + ',' + KOLOM_PROFIL);
     return error ? ambil(sb.from('dosen').select(DOSEN_DASAR)) : (data || []);

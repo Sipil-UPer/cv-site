@@ -9,7 +9,7 @@
      lingkup  umum, C1..C7 (kriteria), b1..b60 (butir)
    Isian tersimpan ditulis dengan token ⟪teks⟫: tampil tanpa sorot di Word.
    ===================================================================== */
-import { dokumenKriteria, labelDokumenLED, tokenTautan } from './led-isi.js?v=2026-11-05-4db78f';
+import { dokumenKriteria, labelDokumenLED, tokenTautan } from './led-isi.js?v=2026-11-05-ed6347';
 
 const rentangNo = (a, b) => Array.from({ length: b - a + 1 }, (_, i) => String(a + i));
 export const KRITERIA = {
@@ -232,16 +232,25 @@ export function bagianNarasi(C){
 // Saring halaman isian. Teks cari kosong = semua bagian cocok.
 export const judulCocok = (judul, cari = '') => String(judul).toLowerCase().includes(cari.trim().toLowerCase());
 
-// Bagian yang ditugaskan ke satu admin; email tidak peka huruf besar.
+// Yang boleh menulis narasi; sama dengan boleh_narasi() di
+// supabase/36-patch-tim-penyusun.sql.
+export const penulisNarasi = dosen => (dosen || []).filter(d => d.aktif !== false
+  && (d.peran === 'admin' || (d.tim_penyusun && d.peran !== 'asesor')));
+
+// Yang bisa dicentang masuk tim: admin selalu boleh menulis, asesor tidak pernah.
+export const calonTim = dosen => (dosen || []).filter(d => d.aktif !== false
+  && !['admin', 'asesor'].includes(d.peran));
+
+// Bagian yang ditugaskan ke satu penulis; email tidak peka huruf besar.
 export const bagianSaya = (tugas, email) => Object.keys(tugas || {})
   .filter(k => String(tugas[k]).toLowerCase() === String(email).toLowerCase());
 
 // Pilihan saat halaman dibuka: yang terakhir dipakai di browser ini ([] = semua),
-// kalau belum pernah memilih: bagian milik admin itu.
+// kalau belum pernah memilih: bagian milik penulis itu.
 export const pilihanAwal = (ids, tersimpan, saya) =>
   Array.isArray(tersimpan) ? tersimpan.filter(x => ids.includes(x)) : saya;
 
-// Admin lain mengubah kotak ini sesudah halaman dimuat, dan isinya berbeda
+// Penulis lain mengubah kotak ini sesudah halaman dimuat, dan isinya berbeda
 // dari yang akan disimpan.
 export const bentrok = (dimuat, terkini, baru) =>
   (terkini || '') !== (dimuat || '') && (terkini || '') !== (baru || '');

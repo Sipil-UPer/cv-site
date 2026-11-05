@@ -15,7 +15,7 @@
    Pemakaian: pasangYatim(sb, elemenWadah)
    ===================================================================== */
 
-import { buangBerkas, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-05-4db78f';
+import { buangBerkas, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-05-ed6347';
 
 // Tabel yang bisa memuat tautan Drive. Tambahkan tabel baru yang
 // menyimpan tautan bukti di sini, kalau tidak berkasnya tampak tak terpakai.

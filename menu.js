@@ -13,6 +13,8 @@
 // ruang-kerja.html, dan gerbang ikut membacanya.
 
 const admin = s => s.peran === 'admin';
+// Sama dengan boleh_narasi() di supabase/36-patch-tim-penyusun.sql.
+const penyusun = s => admin(s) || (!!s.tim_penyusun && s.peran !== 'asesor');
 // Asesor, dan pimpinan yang bukan DTPS prodi ini (aktif=false), tidak mengisi karya.
 const isiKarya = s => s.peran !== 'asesor' && !(s.peran === 'pimpinan' && !s.aktif);
 
@@ -38,7 +40,7 @@ export const MODUL = [
       ket: 'Perkiraan skor per butir, rekap bukti, unduh draf LED.' },
     { href: 'rincian.html?butir=23', judul: 'Rincian butir',
       ket: 'Data di balik angka tiap butir kuantitatif.' },
-    { href: 'narasi-led.html', judul: 'Narasi LED', boleh: admin,
+    { href: 'narasi-led.html', judul: 'Narasi LED', boleh: penyusun,
       ket: 'Isian narasi per butir; tersimpan dan masuk draf LED saat diunduh.' },
     { href: 'input-butir.html', judul: 'Isian butir & dokumen', boleh: admin,
       ket: 'Butir kualitatif, pustaka dokumen, bukti per butir.' },
@@ -77,7 +79,8 @@ export function pengguna(sb, segar = false){
   if (!PENGGUNA || segar) PENGGUNA = (async () => {
     const { data: { session } } = await sb.auth.getSession();
     if (!session) return null;
-    const { data } = await sb.from('dosen').select('nama,email,peran,aktif')
+    // Semua kolom: kolom yang belum ada (patch belum dijalankan) tidak menggagalkan menu.
+    const { data } = await sb.from('dosen').select('*')
       .ilike('email', session.user.email).maybeSingle();
     return { email: session.user.email, saya: data || null };
   })();
