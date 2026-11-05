@@ -9,9 +9,9 @@
    Tautan di dalam teks memakai token ⟦url|label⟧; auto() di led.js
    mengubahnya menjadi hyperlink Word.
    ===================================================================== */
-import { versiUntukTS } from './pustaka-dokumen.js?v=2026-11-05-83b4a5';
-import { infoJenis, JENIS_DOKUMEN, kelompokDokumen, buktiButir, saranDokumen } from './rencana-bukti.js?v=2026-11-05-83b4a5';
-import { teksPendidikan } from './profil-dosen.js?v=2026-11-05-83b4a5';
+import { versiUntukTS } from './pustaka-dokumen.js?v=2026-11-05-6f33cc';
+import { infoJenis, JENIS_DOKUMEN, kelompokDokumen, buktiButir, saranDokumen } from './rencana-bukti.js?v=2026-11-05-6f33cc';
+import { teksPendidikan } from './profil-dosen.js?v=2026-11-05-6f33cc';
 
 export const tokenTautan = (url, label) => `⟦${url}|${String(label).replace(/[⟦⟧|]/g, ' ')}⟧`;
 const isi = t => `[isi: ${t}]`;
@@ -51,10 +51,15 @@ export function targetBerlaku(X, ts){
 }
 
 // Fakta narasi. C = { dokumen, daftar, ts }; hasilnya bergabung ke C.P.
-// Nama yang dicentang di panel Tim penyusun, urut abjad; kosong = tetap [isi].
+// Yang dicentang di panel Tim penyusun, urut abjad.
+export const anggotaTim = dosen => (dosen || [])
+  .filter(d => d.tim_penyusun && d.aktif !== false && d.peran !== 'asesor')
+  .sort((a, b) => a.nama.localeCompare(b.nama, 'id'))
+  .map(d => ({ nama: d.nama, nidn: d.nidn || '', jabatan: JABATAN[d.jabatan] || '' }));
+
+// Kosong = tetap [isi].
 export function namaTim(dosen){
-  const xs = (dosen || []).filter(d => d.tim_penyusun && d.aktif !== false && d.peran !== 'asesor')
-    .map(d => d.nama).sort((a, b) => a.localeCompare(b, 'id'));
+  const xs = anggotaTim(dosen).map(d => d.nama);
   return xs.length ? gabungKata(xs) : isi('nama anggota tim');
 }
 

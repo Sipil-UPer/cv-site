@@ -26,11 +26,11 @@
    Peta subbagian LED ke butir: docs/led-peta-butir.md.
    ===================================================================== */
 
-import { RENCANA_BUKTI, LKPS_TABEL, kelompokDokumen, buktiButir, saranDokumen } from './rencana-bukti.js?v=2026-11-05-83b4a5';
-import { grafikButir, tabelGrafik, tabelPendukung } from './led-data.js?v=2026-11-05-83b4a5';
-import { gambarGrafik } from './led-grafik.js?v=2026-11-05-83b4a5';
-import { faktaNarasi, kalimatTren, buktiOtomatis, dokumenBelumAda, periksaTersisa, buktiLembar, tabelPenjelas } from './led-isi.js?v=2026-11-05-83b4a5';
-import { KRITERIA, terapkanIsian, kunciTambahan, kalimatButir, kalimatCapaian, kalimatKriteria, kalimatUmum } from './led-narasi.js?v=2026-11-05-83b4a5';
+import { RENCANA_BUKTI, LKPS_TABEL, kelompokDokumen, buktiButir, saranDokumen } from './rencana-bukti.js?v=2026-11-05-6f33cc';
+import { grafikButir, tabelGrafik, tabelPendukung } from './led-data.js?v=2026-11-05-6f33cc';
+import { gambarGrafik } from './led-grafik.js?v=2026-11-05-6f33cc';
+import { faktaNarasi, anggotaTim, kalimatTren, buktiOtomatis, dokumenBelumAda, periksaTersisa, buktiLembar, tabelPenjelas } from './led-isi.js?v=2026-11-05-6f33cc';
+import { KRITERIA, terapkanIsian, kunciTambahan, kalimatButir, kalimatCapaian, kalimatKriteria, kalimatUmum } from './led-narasi.js?v=2026-11-05-6f33cc';
 
 const NS = {
   w:  'http://schemas.openxmlformats.org/wordprocessingml/2006/main',
@@ -601,6 +601,38 @@ function isiSampul(doc, C){
   }
 }
 
+// Halaman IDENTITAS TIM PENYUSUN: satu kotak per anggota yang dicentang di
+// Narasi LED. Templat punya 4 kotak; yang lebih dihapus, yang kurang disalin.
+// Tanggal dan tanda tangan diisi saat menandatangani. Tanpa anggota: templat utuh.
+function isiIdentitasTim(doc, C){
+  const tim = anggotaTim(C.daftar?.dosen);
+  const body = doc.getElementsByTagNameNS(NS.w, 'body')[0];
+  const kotak = [...body.children]
+    .filter(n => adalahP(n) && /^Penyusun \d+$/.test(teks(n).trim()) && n.nextElementSibling?.localName === 'tbl')
+    .map(judul => ({ judul, tabel: judul.nextElementSibling }));
+  if (!tim.length || !kotak.length) return;
+  while (kotak.length < tim.length){
+    const akhir = kotak[kotak.length - 1], sesudah = akhir.tabel.nextSibling;
+    const judul = akhir.judul.cloneNode(true), tabel = akhir.tabel.cloneNode(true);
+    const ts = [...judul.getElementsByTagNameNS(NS.w, 't')];
+    ts.forEach((t, i) => { t.textContent = i ? '' : `Penyusun ${kotak.length + 1}`; });
+    body.insertBefore(judul, sesudah);
+    body.insertBefore(tabel, sesudah);
+    kotak.push({ judul, tabel });
+  }
+  kotak.splice(tim.length).forEach(k => { body.removeChild(k.judul); body.removeChild(k.tabel); });
+  tim.forEach((d, i) => {
+    for (const [label, nilai] of [['Nama', d.nama], ['NIDN / NUPTK', d.nidn], ['Jabatan', d.jabatan]]){
+      const tr = [...kotak[i].tabel.getElementsByTagNameNS(NS.w, 'tr')].find(r =>
+        teks(r.getElementsByTagNameNS(NS.w, 'tc')[0]).trim() === label);
+      if (!tr || !nilai) continue;
+      const p = tr.getElementsByTagNameNS(NS.w, 'tc')[2].getElementsByTagNameNS(NS.w, 'p')[0];
+      const rr = doc.createElementNS(NS.w, 'w:r'), t = doc.createElementNS(NS.w, 'w:t');
+      t.textContent = nilai; rr.appendChild(t); p.appendChild(rr); sorotRun(rr);
+    }
+  });
+}
+
 function ukuranPng(buf){
   const dv = new DataView(buf);
   return { w: dv.getUint32(16), h: dv.getUint32(20) };
@@ -634,6 +666,7 @@ export async function buatLED(C, opsi = {}){
   const body = doc.getElementsByTagNameNS(NS.w, 'body')[0];
 
   isiSampul(doc, C);
+  isiIdentitasTim(doc, C);
 
   // Logo di sampul menggantikan kotak "Logo Perguruan Tinggi".
   let logoOk = false;
