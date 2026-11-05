@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-05-4f158f">
+<link rel="stylesheet" href="tema.css?v=2026-11-05-6768e1">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.6}
@@ -47,7 +47,7 @@
   .masuk input{width:100%;max-width:340px;padding:8px;margin:6px 0}
   .masuk button{padding:8px 14px}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-05-4f158f">
+<link rel="stylesheet" href="kepala.css?v=2026-11-05-6768e1">
 </head>
 <body>
 <header class="hero"><div class="hero-in">
@@ -57,7 +57,7 @@
 </div></header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
 <div id="simpan" role="status"></div>
-<script src="config.js?v=2026-11-05-4f158f"></script>
+<script src="config.js?v=2026-11-05-6768e1"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -74,13 +74,13 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { pasangMenu } from './menu.js?v=2026-11-05-4f158f';
-import { BUTIR_MANUAL } from './butir-manual.js?v=2026-11-05-4f158f';
-import { BUTIR_DATA } from './butir-data.js?v=2026-11-05-4f158f';
-import { ambilDaftarLKPS } from './data-lkps.js?v=2026-11-05-4f158f';
-import { faktaNarasi } from './led-isi.js?v=2026-11-05-4f158f';
-import { saranIsian, masihKerangka } from './led-saran.js?v=2026-11-05-4f158f';
-import { bagianNarasi, pisahKalimat, ambilNarasi, kunciTambahan } from './led-narasi.js?v=2026-11-05-4f158f';
+import { pasangMenu } from './menu.js?v=2026-11-05-6768e1';
+import { BUTIR_MANUAL } from './butir-manual.js?v=2026-11-05-6768e1';
+import { BUTIR_DATA } from './butir-data.js?v=2026-11-05-6768e1';
+import { ambilDaftarLKPS } from './data-lkps.js?v=2026-11-05-6768e1';
+import { faktaNarasi } from './led-isi.js?v=2026-11-05-6768e1';
+import { saranIsian, masihKerangka } from './led-saran.js?v=2026-11-05-6768e1';
+import { bagianNarasi, pisahKalimat, ambilNarasi, kunciTambahan } from './led-narasi.js?v=2026-11-05-6768e1';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g,
   c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
