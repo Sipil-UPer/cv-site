@@ -9,7 +9,7 @@
      lingkup  umum, C1..C7 (kriteria), b1..b60 (butir)
    Isian tersimpan ditulis dengan token ⟪teks⟫: tampil tanpa sorot di Word.
    ===================================================================== */
-import { dokumenKriteria, labelDokumenLED, tokenTautan } from './led-isi.js?v=2026-11-05-ed6347';
+import { dokumenKriteria, labelDokumenLED, tokenTautan } from './led-isi.js?v=2026-11-05-83b4a5';
 
 const rentangNo = (a, b) => Array.from({ length: b - a + 1 }, (_, i) => String(a + i));
 export const KRITERIA = {
@@ -193,6 +193,8 @@ export function kalimatKriteria(K, bagian, C){
     .map((n, i) => ({ id: `swot${i}`, teks: `${n}: [isi: uraian].` }));
 }
 
+export const AWAL_ANGGOTA_TIM = 'Anggota tim penyusun:';
+
 export function kalimatUmum(bagian, C){
   const P = C.P;
   return {
@@ -204,6 +206,7 @@ export function kalimatUmum(bagian, C){
     pendahuluan: [{ id: 'pendahuluan', teks: `Bab ini menguraikan [isi: dasar penyusunan LED, tujuan, ruang lingkup, dan sistematika laporan]. Data LED ini mengacu pada TS ${C.ta}, dengan jendela tiga tahun TS-2 s.d. TS (${C.ta2} s.d. ${C.ta}).` }],
     tim: [
       { id: 'tim0', teks: `Tim penyusun LED ${P.ps} ditetapkan dengan [isi: nomor dan tanggal SK tim] dan melibatkan [isi: unit dan pemangku kepentingan internal dan eksternal].` },
+      { id: 'timAnggota', teks: `${AWAL_ANGGOTA_TIM} ${P.timPenyusun}.` },
       { id: 'tim1', teks: 'Mekanisme kerja: pengumpulan data dari [isi: sumber data], verifikasi dan validasi oleh [isi: penanggung jawab], pengecekan konsistensi data LED dan LKPS, analisis data, identifikasi akar masalah, dan penetapan strategi pengembangan. Data dosen dan bukti karya dihimpun melalui sistem data dosen prodi, dengan berkas bukti di Google Drive prodi.' },
       { id: 'tim2', teks: 'Jadwal kerja tim: [isi: tahapan dan tanggal].' }],
     penutup: [{ id: 'penutup', teks: '[isi: kesimpulan akhir: temuan utama, kekuatan, kelemahan yang perlu diperbaiki, serta peluang dan ancaman yang harus dikelola].' }],
@@ -237,9 +240,9 @@ export const judulCocok = (judul, cari = '') => String(judul).toLowerCase().incl
 export const penulisNarasi = dosen => (dosen || []).filter(d => d.aktif !== false
   && (d.peran === 'admin' || (d.tim_penyusun && d.peran !== 'asesor')));
 
-// Yang bisa dicentang masuk tim: admin selalu boleh menulis, asesor tidak pernah.
-export const calonTim = dosen => (dosen || []).filter(d => d.aktif !== false
-  && !['admin', 'asesor'].includes(d.peran));
+// Yang bisa dicentang masuk tim. Admin selalu boleh menulis, jadi centangnya hanya
+// menentukan namanya tertulis di LED. Asesor tidak pernah masuk tim.
+export const calonTim = dosen => (dosen || []).filter(d => d.aktif !== false && d.peran !== 'asesor');
 
 // Bagian yang ditugaskan ke satu penulis; email tidak peka huruf besar.
 export const bagianSaya = (tugas, email) => Object.keys(tugas || {})

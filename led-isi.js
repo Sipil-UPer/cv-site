@@ -9,9 +9,9 @@
    Tautan di dalam teks memakai token ⟦url|label⟧; auto() di led.js
    mengubahnya menjadi hyperlink Word.
    ===================================================================== */
-import { versiUntukTS } from './pustaka-dokumen.js?v=2026-11-05-ed6347';
-import { infoJenis, JENIS_DOKUMEN, kelompokDokumen, buktiButir, saranDokumen } from './rencana-bukti.js?v=2026-11-05-ed6347';
-import { teksPendidikan } from './profil-dosen.js?v=2026-11-05-ed6347';
+import { versiUntukTS } from './pustaka-dokumen.js?v=2026-11-05-83b4a5';
+import { infoJenis, JENIS_DOKUMEN, kelompokDokumen, buktiButir, saranDokumen } from './rencana-bukti.js?v=2026-11-05-83b4a5';
+import { teksPendidikan } from './profil-dosen.js?v=2026-11-05-83b4a5';
 
 export const tokenTautan = (url, label) => `⟦${url}|${String(label).replace(/[⟦⟧|]/g, ' ')}⟧`;
 const isi = t => `[isi: ${t}]`;
@@ -51,6 +51,13 @@ export function targetBerlaku(X, ts){
 }
 
 // Fakta narasi. C = { dokumen, daftar, ts }; hasilnya bergabung ke C.P.
+// Nama yang dicentang di panel Tim penyusun, urut abjad; kosong = tetap [isi].
+export function namaTim(dosen){
+  const xs = (dosen || []).filter(d => d.tim_penyusun && d.aktif !== false && d.peran !== 'asesor')
+    .map(d => d.nama).sort((a, b) => a.localeCompare(b, 'id'));
+  return xs.length ? gabungKata(xs) : isi('nama anggota tim');
+}
+
 export function faktaNarasi(C){
   const X = C.daftar || {}, ts = C.ts, dok = C.dokumen || X.dokumen || [];
   const mk = (X.mk || []).filter(m => m.aktif !== false);
@@ -78,6 +85,7 @@ export function faktaNarasi(C){
   const tahunIKT = [...new Set(ikt.filter(r => r.capaian != null).map(r => r.tahun_ts))].sort();
   return {
     d,
+    timPenyusun: namaTim(X.dosen),
     // Kalimat target satu butir; kosong bila belum ada target.
     targetButir: no => gabungKata(target.filter(r => String(r.butir) === String(no)).map(teksTarget)),
     daftarIKT: ada(gabungKata(ikt.map(r => `${r.nama} (target ${r.arah === 'maksimal' ? '≤' : '≥'} ${angkaID(r.target)}${r.satuan ? ` ${r.satuan}` : ''})`)), 'daftar IKT beserta target'),

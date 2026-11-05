@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-05-ed6347">
+<link rel="stylesheet" href="tema.css?v=2026-11-05-83b4a5">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.6}
@@ -60,7 +60,7 @@
   .masuk input{width:100%;max-width:340px;padding:8px;margin:6px 0}
   .masuk button{padding:8px 14px}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-05-ed6347">
+<link rel="stylesheet" href="kepala.css?v=2026-11-05-83b4a5">
 </head>
 <body>
 <header class="hero"><div class="hero-in">
@@ -70,7 +70,7 @@
 </div></header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
 <div id="simpan" role="status"></div>
-<script src="config.js?v=2026-11-05-ed6347"></script>
+<script src="config.js?v=2026-11-05-83b4a5"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -87,13 +87,13 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { pasangMenu, bolehBuka } from './menu.js?v=2026-11-05-ed6347';
-import { BUTIR_MANUAL } from './butir-manual.js?v=2026-11-05-ed6347';
-import { BUTIR_DATA } from './butir-data.js?v=2026-11-05-ed6347';
-import { ambilDaftarLKPS } from './data-lkps.js?v=2026-11-05-ed6347';
-import { faktaNarasi } from './led-isi.js?v=2026-11-05-ed6347';
-import { saranIsian, masihKerangka } from './led-saran.js?v=2026-11-05-ed6347';
-import { bagianNarasi, pisahKalimat, ambilNarasi, kunciTambahan, judulCocok, bagianSaya, pilihanAwal, bentrok, ambilPenugasan, penulisNarasi, calonTim } from './led-narasi.js?v=2026-11-05-ed6347';
+import { pasangMenu, bolehBuka } from './menu.js?v=2026-11-05-83b4a5';
+import { BUTIR_MANUAL } from './butir-manual.js?v=2026-11-05-83b4a5';
+import { BUTIR_DATA } from './butir-data.js?v=2026-11-05-83b4a5';
+import { ambilDaftarLKPS } from './data-lkps.js?v=2026-11-05-83b4a5';
+import { faktaNarasi, namaTim } from './led-isi.js?v=2026-11-05-83b4a5';
+import { saranIsian, masihKerangka } from './led-saran.js?v=2026-11-05-83b4a5';
+import { bagianNarasi, pisahKalimat, ambilNarasi, kunciTambahan, judulCocok, bagianSaya, pilihanAwal, bentrok, ambilPenugasan, penulisNarasi, calonTim, AWAL_ANGGOTA_TIM } from './led-narasi.js?v=2026-11-05-83b4a5';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g,
   c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -216,7 +216,7 @@ async function simpanTugas(s){
 // Keluar dari tim melepas bagiannya; isian yang sudah ditulis tetap ada.
 async function simpanTim(c){
   const d = DOSEN.find(x => String(x.id) === c.dataset.tim), masuk = c.checked;
-  const milik = masuk ? [] : bagianSaya(TUGAS, d.email);
+  const milik = masuk || d.peran === 'admin' ? [] : bagianSaya(TUGAS, d.email);
   if (milik.length && !confirm(`${d.nama} masih menjadi penanggung jawab ${milik.length} bagian. Keluarkan dari tim dan lepas bagian itu?`)) {
     c.checked = true;
     return;
@@ -230,7 +230,10 @@ async function simpanTim(c){
     milik.forEach(k => delete TUGAS[k]);
   }
   document.querySelectorAll('select[data-tugas]').forEach(s => { s.innerHTML = opsiTugas(s.dataset.tugas); });
+  const kal = [...document.querySelectorAll('.kal')].find(x => x.textContent.startsWith(AWAL_ANGGOTA_TIM));
+  if (kal) kal.textContent = `${AWAL_ANGGOTA_TIM} ${namaTim(DOSEN)}.`;
   tampilPenanggungJawab();
+  hitung();
   pesan('Tersimpan');
 }
 
@@ -295,7 +298,7 @@ async function mulai(){
       <input id="cari" type="search" placeholder="Cari, misalnya butir 23" aria-label="Cari butir atau judul bagian"></div>
     ${adminSaya && TUGAS ? `<details class="tugas" id="tugas"><summary>Tim penyusun dan pembagian bagian</summary>
       ${'tim_penyusun' in saya ? `<h4>Tim penyusun</h4>
-      <p class="kosong">Dosen yang dicentang bisa membuka halaman ini dan menulis narasi, tanpa hak admin lainnya. Admin selalu bisa menulis.</p>
+      <p class="kosong">Nama yang dicentang tertulis otomatis di bagian Tim penyusun pada narasi dan draf LED. Dosen yang dicentang juga bisa menulis di halaman ini, tanpa hak admin lainnya. Admin selalu bisa menulis; centang admin hanya menentukan namanya tertulis.</p>
       <div class="tim">${calonTim(DOSEN).map(d => `<label><input type="checkbox" data-tim="${esc(d.id)}"${d.tim_penyusun ? ' checked' : ''}> ${esc(d.nama)}</label>`).join('')}</div>` : ''}
       <h4>Pembagian bagian</h4>
       <p class="kosong">Penanggung jawab menentukan isi tombol Bagian saya. Anggota tim lain tetap boleh menyunting bagian itu.</p>

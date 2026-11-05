@@ -22,6 +22,7 @@ const LABEL = {
   'capaian utama program studi pada TS ini, dikaitkan dengan VMTS dan target renstra': 'Pada TS ini prodi mencapai [capaian 1] dan [capaian 2], yang mendukung visi keilmuan pada [bidang] dan sasaran Renstra [nomor sasaran].',
   'dasar penyusunan LED, tujuan, ruang lingkup, dan sistematika laporan': 'dasar penyusunan LED, yaitu instrumen APS-AV 2025 LAM Teknik; tujuannya mengevaluasi capaian dan menetapkan rencana pengembangan; ruang lingkupnya tujuh kriteria; dan sistematikanya terdiri atas pendahuluan, kriteria, analisis, serta penutup',
   'nomor dan tanggal SK tim': 'SK [pejabat] Nomor [nomor] tanggal [tanggal]',
+  'nama anggota tim': '[nama ketua] selaku ketua, [nama anggota], dan [nama anggota]',
   'unit dan pemangku kepentingan internal dan eksternal': 'pimpinan UPPS, unit penjaminan mutu, dosen, tenaga kependidikan, mahasiswa, alumni, dan mitra [nama mitra]',
   'sumber data': 'sistem data prodi, PDDikti, SISTER, laporan tracer study, dan unit [nama unit]',
   'penanggung jawab': 'ketua tim penyusun dan unit penjaminan mutu',

@@ -8,13 +8,8 @@ export async function ambilDaftarLKPS(sb){
   // Tahap 2: lembar daftar (lkps.js petaDaftar). Tabel yang belum ada
   // (patch belum dijalankan) cukup kosong.
   const ambil = async q => { const { data, error } = await q; if (error) console.warn(error.message); return data || []; };
-  // Dosen dengan profil LKPS 4.a (22-patch-profil-dosen.sql); tanpa patch: kolom dasar.
-  const DOSEN_DASAR = 'nama,nidn,peran,pendidikan,jabatan,aktif,dtps';
-  const { KOLOM_PROFIL } = await import('./profil-dosen.js?v=2026-11-05-ed6347');
-  const ambilDosen = async () => {
-    const { data, error } = await sb.from('dosen').select(DOSEN_DASAR + ',' + KOLOM_PROFIL);
-    return error ? ambil(sb.from('dosen').select(DOSEN_DASAR)) : (data || []);
-  };
+  // Semua kolom: kolom patch yang belum dijalankan (22, 36) cukup tidak ada.
+  const ambilDosen = () => ambil(sb.from('dosen').select('*'));
   // Mata kuliah untuk 3.a.1/3.a.4/3.a.5 dan 4.a kolom 15 (23-patch-kurikulum.sql);
   // tanpa patch: kolom lama (kode, nama, sks, semester, inti).
   const MK_DASAR = 'id,kode,nama,sks,semester,inti,aktif,urutan';
