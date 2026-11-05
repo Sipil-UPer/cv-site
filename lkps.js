@@ -15,8 +15,8 @@
    angka yang sama dengan halaman skor. Lembar lain dibiarkan untuk diisi
    prodi; kolom yang tidak disimpan situs (mis. pita waktu tunggu) kosong.
    ===================================================================== */
-import { versiUntukTS } from './pustaka-dokumen.js?v=2026-11-05-6768e1';
-import { teksPendidikan } from './profil-dosen.js?v=2026-11-05-6768e1';
+import { versiUntukTS } from './pustaka-dokumen.js?v=2026-11-05-4db78f';
+import { teksPendidikan } from './profil-dosen.js?v=2026-11-05-4db78f';
 
 const TEMPLATE = 'lkps-template.xlsx';
 export const JSZIP = 'https://cdn.jsdelivr.net/npm/jszip@3.10.1/+esm';

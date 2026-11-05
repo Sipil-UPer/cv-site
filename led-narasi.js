@@ -9,7 +9,7 @@
      lingkup  umum, C1..C7 (kriteria), b1..b60 (butir)
    Isian tersimpan ditulis dengan token ⟪teks⟫: tampil tanpa sorot di Word.
    ===================================================================== */
-import { dokumenKriteria, labelDokumenLED, tokenTautan } from './led-isi.js?v=2026-11-05-6768e1';
+import { dokumenKriteria, labelDokumenLED, tokenTautan } from './led-isi.js?v=2026-11-05-4db78f';
 
 const rentangNo = (a, b) => Array.from({ length: b - a + 1 }, (_, i) => String(a + i));
 export const KRITERIA = {
@@ -217,15 +217,39 @@ export function bagianNarasi(C){
     kalimat: [...komponenButir(no).flatMap(k => kalimatButir(String(no), k, C, adaData(no))), kalimatCapaian(C, adaData(no), no)] });
   const umum = (bagian, judul) => ({ lingkup: 'umum', judul, kalimat: kalimatUmum(bagian, C) });
   return [
-    { kelompok: 'Bagian awal', bagian: [umum('pengantar', 'Kata pengantar'), umum('ringkasan', 'Ringkasan eksekutif'),
+    { id: 'awal', pendek: 'Bagian awal', kelompok: 'Bagian awal', bagian: [umum('pengantar', 'Kata pengantar'), umum('ringkasan', 'Ringkasan eksekutif'),
       umum('pendahuluan', 'Bab I Pendahuluan'), umum('tim', 'Tim penyusun')] },
-    ...Object.values(KRITERIA).map(K => ({ kelompok: `${K.kode.replace('C', 'C.')} ${K.nama}`, bagian: [
+    ...Object.values(KRITERIA).map(K => ({ id: K.kode, pendek: K.kode.replace('C', 'C.'),
+      kelompok: `${K.kode.replace('C', 'C.')} ${K.nama}`, bagian: [
       { lingkup: K.kode, judul: 'Latar belakang dan kebijakan', kalimat: [...kalimatKriteria(K, 'latar', C), ...kalimatKriteria(K, 'kebijakan', C)] },
       ...K.butir.map(butir),
       { lingkup: K.kode, judul: 'Analisis faktor keberhasilan', kalimat: kalimatKriteria(K, 'analisis', C) },
       { lingkup: K.kode, judul: 'SWOT dan strategi', kalimat: kalimatKriteria(K, 'swot', C) }] })),
-    { kelompok: 'Bab III dan penutup', bagian: [butir(58), butir(59), butir(60), umum('penutup', 'Bab IV Penutup')] },
+    { id: 'akhir', pendek: 'Bab III dan penutup', kelompok: 'Bab III dan penutup', bagian: [butir(58), butir(59), butir(60), umum('penutup', 'Bab IV Penutup')] },
   ];
+}
+
+// Saring halaman isian. Teks cari kosong = semua bagian cocok.
+export const judulCocok = (judul, cari = '') => String(judul).toLowerCase().includes(cari.trim().toLowerCase());
+
+// Bagian yang ditugaskan ke satu admin; email tidak peka huruf besar.
+export const bagianSaya = (tugas, email) => Object.keys(tugas || {})
+  .filter(k => String(tugas[k]).toLowerCase() === String(email).toLowerCase());
+
+// Pilihan saat halaman dibuka: yang terakhir dipakai di browser ini ([] = semua),
+// kalau belum pernah memilih: bagian milik admin itu.
+export const pilihanAwal = (ids, tersimpan, saya) =>
+  Array.isArray(tersimpan) ? tersimpan.filter(x => ids.includes(x)) : saya;
+
+// Admin lain mengubah kotak ini sesudah halaman dimuat, dan isinya berbeda
+// dari yang akan disimpan.
+export const bentrok = (dimuat, terkini, baru) =>
+  (terkini || '') !== (dimuat || '') && (terkini || '') !== (baru || '');
+
+// Pembagian bagian: { kelompok: email }. Tabel belum ada (patch 35) -> null.
+export async function ambilPenugasan(sb){
+  const { data, error } = await sb.from('led_penugasan').select('kelompok,email');
+  return error ? null : Object.fromEntries((data || []).map(r => [r.kelompok, r.email]));
 }
 
 // Semua isian tersimpan: { kunci: nilai }. Tabel belum ada -> kosong.
