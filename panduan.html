@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-05-59f30f">
+<link rel="stylesheet" href="tema.css?v=2026-11-05-bdb15e">
 <style>
   /* Panduan pengguna ruang kerja (pemilik 2026-11-04). Bagian admin hanya
      tampil untuk peran admin. Perbarui bila tombol atau halaman berubah. */
@@ -40,7 +40,7 @@
   @media(max-width:640px){nav.isi ol{columns:1}.wrap{padding:18px 16px 60px}}
   @media print{nav.isi{display:none}section{break-inside:avoid}}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-05-59f30f">
+<link rel="stylesheet" href="kepala.css?v=2026-11-05-bdb15e">
 </head>
 <body>
 
@@ -238,6 +238,7 @@
 
   <section id="skor" class="admin">
     <h2>13. Skor dan draf LED <span class="peran">admin</span></h2>
+    <p><b>Akreditasi ▾ › Kelengkapan LED</b> menghitung sendiri yang sudah dan belum terisi: tim, narasi, Data prodi, dokumen, bukti, dan karya, dengan tautan ke tempat mengisinya. "Selesai" berarti datanya ada, bukan isinya sudah benar.</p>
     <p>Di halaman <b>Narasi LED</b>, tombol di atas daftar menyaring bagian yang tampil, dan kotak cari menemukan satu butir. Tombol <b>Identitas</b> memuat isian Identitas Pengusul, kota pada sampul, folder induk, dan narahubung; <b>A</b> dan <b>B</b> sama dengan bagian A dan B pada Bab II. Daftar program studi dan akreditasi diambil dari <b>Data prodi</b>, tab Prodi di UPPS. Buka <b>Tim penyusun dan pembagian bagian</b>, centang yang masuk tim penyusun (dosen yang dicentang bisa menulis narasi tanpa hak admin lainnya), atur urutan dan deskripsi kerjanya, tambahkan orang di luar sistem bila ada (namanya tertulis di LED tanpa akun), lalu pilih penanggung jawab tiap bagian; tombol <b>Bagian saya</b> lalu menampilkan bagian masing-masing. Admin lain tetap boleh menyunting. Bila dua admin mengubah kotak yang sama, yang menyimpan belakangan diberi peringatan sebelum menimpa.</p>
     <p>Tombol unduh ada di panel <b>Unduh dokumen akreditasi</b>, paling atas halaman Skor; pilih TS lebih dulu. Isi narasi di halaman <b>Akreditasi ▾ › Narasi LED</b>: tiap kotak tersimpan sendiri dan masuk draf LED saat diunduh, jadi tidak perlu mengetik ulang di Word. Yang masih tertinggal di draf bertanda [isi].</p>
     <ul>
@@ -259,7 +260,7 @@
   </div>
 </main>
 
-<script src="config.js?v=2026-11-05-59f30f"></script>
+<script src="config.js?v=2026-11-05-bdb15e"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -276,7 +277,7 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { gerbang } from './menu.js?v=2026-11-05-59f30f';
+import { gerbang } from './menu.js?v=2026-11-05-bdb15e';
 
 // Bagian admin hanya untuk peran admin (isinya bukan rahasia; disembunyikan
 // supaya panduan dosen tetap ringkas).

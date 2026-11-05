@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Kelengkapan LED — Kinerja Program Studi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tema.css?v=2026-11-05-bdb15e">
+<link rel="stylesheet" href="kepala.css?v=2026-11-05-bdb15e">
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
+  .wrap{max-width:1000px;margin:0 auto;padding:18px 20px 80px}
+  .kosong{color:var(--muted)}
+  .ringkas{display:flex;gap:14px;align-items:center;flex-wrap:wrap;background:var(--panel);border:1px solid var(--line);
+    border-top:4px solid var(--aksi);padding:14px 18px;margin-bottom:16px}
+  .ringkas b{font-size:18px;color:var(--biru)}
+  .bar{flex:1;min-width:160px;height:10px;background:var(--line-soft);border-radius:5px;overflow:hidden}
+  .bar i{display:block;height:100%;background:var(--aksi)}
+  .ringkas label{font-size:14px;cursor:pointer}
+  section.bag{background:var(--panel);border:1px solid var(--line);margin-bottom:12px;padding:6px 18px 10px}
+  section.bag h2{font-size:16px;color:var(--biru);margin:8px 0 6px;display:flex;justify-content:space-between;gap:10px}
+  section.bag h2 small{font-weight:400;font-size:13px;color:var(--muted);white-space:nowrap}
+  .item{display:grid;grid-template-columns:92px 1fr 90px 64px;gap:10px;align-items:start;padding:7px 0;border-top:1px solid var(--line-soft)}
+  .chip{font-size:12px;font-weight:600;padding:1px 7px;border-radius:3px;text-align:center;border:1px solid currentColor}
+  .chip.selesai{color:var(--hijau)}
+  .chip.sebagian{color:var(--aksi)}
+  .chip.belum{color:var(--merah)}
+  .ket{font-size:13px;color:var(--muted)}
+  .angka{font-family:var(--mono);font-size:13px;text-align:right}
+  .item a{font-size:13px;color:var(--aksi)}
+  .item details{font-size:13px;color:var(--muted)}
+  .item summary{cursor:pointer}
+  .item ul{margin:4px 0 0;padding-left:18px}
+  .hanya-belum .item.selesai-baris{display:none}
+  @media (max-width:640px){.item{grid-template-columns:82px 1fr}.angka{text-align:left}}
+</style>
+</head>
+<body>
+<header class="hero"><div class="hero-in">
+  <div class="hero-inst" data-identitas></div>
+  <h1>Kelengkapan LED</h1>
+  <div class="sub" id="hSub">Memuat…</div>
+</div></header>
+<main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
+<script src="config.js?v=2026-11-05-bdb15e"></script>
+<script>
+// Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
+// halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
+addEventListener('error', function (e) {
+  if (document.getElementById('galat-muat')) return;
+  var d = document.createElement('div');
+  d.id = 'galat-muat';
+  d.style.cssText = 'margin:16px;padding:12px 14px;border:1px solid var(--merah);' +
+    'background:var(--merah-m3);color:var(--ink);font:14px/1.5 system-ui,sans-serif';
+  d.textContent = 'Halaman gagal dimuat: ' + (e.message || 'galat skrip') +
+    '. Tekan Ctrl+Shift+R untuk memuat ulang tanpa cache; bila tetap muncul, kirim pesan ini ke admin.';
+  document.body.insertBefore(d, document.body.firstChild);
+});
+</script>
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+import { gerbang, bolehBuka } from './menu.js?v=2026-11-05-bdb15e';
+import { ambilDaftarLKPS } from './data-lkps.js?v=2026-11-05-bdb15e';
+import { bagianNarasi, ambilNarasi, ambilPenugasan } from './led-narasi.js?v=2026-11-05-bdb15e';
+import { TAB_DATA, konteksNarasi, rekapKelengkapan } from './kelengkapan.js?v=2026-11-05-bdb15e';
+
+const esc = s => String(s ?? '').replace(/[&<>"']/g,
+  c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const $ = id => document.getElementById(id);
+const sb = createClient(window.SB_URL, window.SB_KEY);
+const LABEL = { selesai: 'Selesai', sebagian: 'Sebagian', belum: 'Belum' };
+
+// Jumlah baris saja; tabel yang belum ada (patch belum dijalankan) = null.
+async function jumlahBaris(tabel){
+  const { count, data, error } = await sb.from(tabel).select('*', { count: 'exact', head: true });
+  return error ? null : count ?? (data || []).length;
+}
+
+function htmlItem(b, saya){
+  const buka = b.href && bolehBuka(saya, b.href) !== false;
+  return `<div class="item${b.status === 'selesai' ? ' selesai-baris' : ''}"><span class="chip ${b.status}">${LABEL[b.status]}</span>
+    <div>${esc(b.judul)}${b.ket ? `<div class="ket">${esc(b.ket)}</div>` : ''}
+      ${b.kurang?.length ? `<details><summary>Lihat ${b.kurang.length} yang belum</summary><ul>${b.kurang.map(x => `<li>${esc(x)}</li>`).join('')}</ul></details>` : ''}</div>
+    <span class="angka">${b.ada} / ${b.n}</span>${buka ? `<a href="${esc(b.href)}">Buka</a>` : '<span></span>'}</div>`;
+}
+
+async function mulai(){
+  const saya = await gerbang(sb);
+  if (!saya) return;
+  $('hSub').textContent = `Masuk sebagai ${saya.nama} · dihitung saat halaman dibuka`;
+  const baca = async t => (await sb.from(t).select('*')).data || [];
+  const [r, daftar, narasi, tugas, dosen, butirBukti, pengaturan, karyaBukti, karya, jumlah] = await Promise.all([
+    fetch('data.json?v=' + Date.now()), ambilDaftarLKPS(sb), ambilNarasi(sb), ambilPenugasan(sb), baca('dosen'), baca('butir_bukti'),
+    baca('pengaturan'), baca('karya_bukti'), (async () => (await sb.from('karya').select('id,status,bukti_url').limit(5000)).data || [])(),
+    Promise.all(TAB_DATA.map(async ([, t]) => [t, await jumlahBaris(t)])).then(Object.fromEntries)]);
+  const C = konteksNarasi(await r.json(), daftar);
+  const hasil = rekapKelengkapan({ kelompok: bagianNarasi(C), narasi, tugas, tim: daftar.tim, dosen, jumlah,
+    dokumen: daftar.dokumen, butirBukti, pengaturan, karya, karyaBukti, ts: C.ts });
+  $('isi').innerHTML = `<div class="ringkas"><b>${hasil.selesai} dari ${hasil.total} selesai</b>
+      <div class="bar"><i style="width:${hasil.selesai / hasil.total * 100}%"></i></div>
+      <label><input type="checkbox" id="hanya"> Tampilkan yang belum selesai saja</label></div>
+    <p class="kosong">Dihitung langsung dari data; tidak ada yang perlu dicentang. "Selesai" berarti datanya ada, bukan isinya sudah benar.
+      Tabel yang memang tidak berlaku bagi prodi tetap tampil "Belum".</p>
+    <div id="daftar">${hasil.bagian.map(g => `<section class="bag"><h2>${esc(g.judul)}
+      <small>${g.butir.filter(b => b.status === 'selesai').length} dari ${g.butir.length}</small></h2>
+      ${g.butir.map(b => htmlItem(b, saya)).join('')}</section>`).join('')}</div>`;
+  $('hanya').onchange = e => $('daftar').classList.toggle('hanya-belum', e.target.checked);
+}
+
+mulai().catch(e => { $('isi').innerHTML = `<p class="kosong">Gagal memuat: ${esc(e.message)}</p>`; });
+</script>
+</body>
+</html>
