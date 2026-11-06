@@ -47,7 +47,9 @@ export async function ambilDaftarLKPS(sb){
     ambilDosen(),
     ambilKarya(),
     ambilKS(),
-    ambil(sb.from('lkps_bkd').select('*')),
+    // Isian dosen dihitung setelah diverifikasi (39-patch-bkd-dosen.sql).
+    ambil(sb.from('lkps_bkd').select('*'))
+      .then(xs => xs.filter(b => !b.verifikasi || b.verifikasi === 'terverifikasi')),
     // Isian dosen dihitung setelah diverifikasi (38-patch-prestasi-dosen.sql).
     ambil(sb.from('lkps_prestasi_mahasiswa').select('*'))
       .then(xs => xs.filter(p => !p.status || p.status === 'terverifikasi')),

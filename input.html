@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-06-e37ca3">
+<link rel="stylesheet" href="tema.css?v=2026-11-06-5474d6">
 <style>
   :root{--bg:#EEF0ED; --ink:#161E26; --muted:#616C76; --line:#D8DDD8; --line-soft:#E8EBE7; --accent:var(--biru); --accent-soft:var(--biru-m7); --pending:#8A5A00; --pending-soft:#FAF0DC; --reject:#8C2F2F; --reject-soft:#F7E7E7;}
   *{box-sizing:border-box}
@@ -142,7 +142,7 @@
   table.beda td:nth-child(3){background:#EAF4EC}
   @media(max-width:640px){.grid{grid-template-columns:1fr}}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-06-e37ca3">
+<link rel="stylesheet" href="kepala.css?v=2026-11-06-5474d6">
 </head>
 <body>
 
@@ -156,7 +156,7 @@
 
 <div class="wrap" id="app"></div>
 
-<script src="config.js?v=2026-11-06-e37ca3"></script>
+<script src="config.js?v=2026-11-06-5474d6"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -180,13 +180,14 @@ const SUPABASE_URL = window.SB_URL;
 const SUPABASE_ANON_KEY = window.SB_KEY;
 
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { JENIS_BUKTI_KARYA, namaJenisBukti } from './rencana-bukti.js?v=2026-11-06-e37ca3';
-import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-06-e37ca3';
-import { periksaBerkas, kolomSidik, teksTemuan } from './sidik-berkas.js?v=2026-11-06-e37ca3';
-import { htmlContoh, pasangContoh, durasiKS, JENIS_BUKTI_KS } from './manfaat-kerjasama.js?v=2026-11-06-e37ca3';
-import { pasangMenu } from './menu.js?v=2026-11-06-e37ca3';
-import { pasangPrestasi, pasangVerifikasiPrestasi } from './prestasi.js?v=2026-11-06-e37ca3';
-import { htmlSaran } from './saran-bukti.js?v=2026-11-06-e37ca3';
+import { JENIS_BUKTI_KARYA, namaJenisBukti } from './rencana-bukti.js?v=2026-11-06-5474d6';
+import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-06-5474d6';
+import { periksaBerkas, kolomSidik, teksTemuan } from './sidik-berkas.js?v=2026-11-06-5474d6';
+import { htmlContoh, pasangContoh, durasiKS, JENIS_BUKTI_KS } from './manfaat-kerjasama.js?v=2026-11-06-5474d6';
+import { pasangMenu } from './menu.js?v=2026-11-06-5474d6';
+import { pasangPrestasi, pasangVerifikasiPrestasi } from './prestasi.js?v=2026-11-06-5474d6';
+import { htmlSaran } from './saran-bukti.js?v=2026-11-06-5474d6';
+import { pasangBkd, pasangVerifikasiBkd } from './bkd.js?v=2026-11-06-5474d6';
 
 const app = document.getElementById('app');
 if (!SUPABASE_URL || !SUPABASE_ANON_KEY
@@ -475,6 +476,8 @@ function layarUtama(){
                 ['luaran','Luaran & HKI'],['rekognisi','Rekognisi'],
                 ['integrasi','Integrasi MK'],['prestasi','Prestasi mahasiswa'],
                 ['saya','Karya saya'],['semua','Karya prodi']];
+  // Dosen lain diisi admin di Data prodi (pemilik 2026-11-06).
+  if(saya.dtps) tabs.splice(tabs.findIndex(t => t[0] === 'saya'), 0, ['bkd','BKD saya']);
   if(saya.peran==='admin') tabs.push(['verifikasi','Verifikasi']);
 
   app.innerHTML = `<nav class="tabs" role="tablist">${tabs.map(([k,l],i)=>
@@ -495,7 +498,8 @@ function layarUtama(){
 const buka = t => FORM[t]
   ? tampilForm(t)
   : ({saya:karyaSaya, semua:karyaProdi, verifikasi:tampilVerifikasi,
-      prestasi:() => pasangPrestasi(document.getElementById('isi'), { sb, saya, dosen: dosenList })})[t]();
+      prestasi:() => pasangPrestasi(document.getElementById('isi'), { sb, saya, dosen: dosenList }),
+      bkd:() => pasangBkd(document.getElementById('isi'), { sb, saya })})[t]();
 
 // Tandai tab t lalu buka isinya (dipakai form ubah: Batal / selesai).
 function tandaiTab(t){
@@ -2106,6 +2110,14 @@ async function tampilVerifikasi(){
       <p class="hint">Setujui = perubahan diterapkan, atau prestasi dihapus dan berkas
       buktinya dipindah ke Sampah Drive. Tolak = data tetap, alasan dilihat pengajunya.</p>
       <div id="ap" class="kosong">Memuat…</div></div>
+    <div class="panel"><h2>BKD menunggu verifikasi</h2>
+      <p class="hint">Cocokkan angka dengan bagian C LKD. Hanya yang terverifikasi
+      dihitung di Tabel 4.c dan butir 30. Berkas LKD privat, dibuka lewat tombol.</p>
+      <div id="vb" class="kosong">Memuat…</div></div>
+    <div class="panel"><h2>Ajuan perubahan BKD</h2>
+      <p class="hint">Perubahan pada BKD yang sudah terverifikasi. Setujui = diterapkan.
+      Tolak = data tetap, alasan dilihat pengajunya.</p>
+      <div id="ab" class="kosong">Memuat…</div></div>
     <div class="panel"><h2>Klaim penulis untuk ditinjau</h2>
       <p class="hint">Dosen yang mendaftarkan dirinya sendiri pada karya yang
       diinput orang lain. Hapus bila keliru.</p>
@@ -2166,6 +2178,7 @@ async function tampilVerifikasi(){
   await muatAjuanHapus();
   await muatAjuanUbahKarya();
   await pasangVerifikasiPrestasi(document.getElementById('vp'), document.getElementById('ap'), { sb, dosen: dosenList });
+  await pasangVerifikasiBkd(document.getElementById('vb'), document.getElementById('ab'), { sb, dosen: dosenList });
 
   const { data:klaim } = await sb.from('karya_penulis')
     .select('karya_id, dosen_id, peran, korespondensi, ditambahkan_pada, dosen(nama), karya(judul,tahun)')

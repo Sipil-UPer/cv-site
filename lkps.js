@@ -15,8 +15,8 @@
    angka yang sama dengan halaman skor. Lembar lain dibiarkan untuk diisi
    prodi; kolom yang tidak disimpan situs (mis. pita waktu tunggu) kosong.
    ===================================================================== */
-import { versiUntukTS, daftarProdi, STATUS_PS, tglTeks } from './pustaka-dokumen.js?v=2026-11-06-e37ca3';
-import { teksPendidikan } from './profil-dosen.js?v=2026-11-06-e37ca3';
+import { versiUntukTS, daftarProdi, STATUS_PS, tglTeks } from './pustaka-dokumen.js?v=2026-11-06-5474d6';
+import { teksPendidikan } from './profil-dosen.js?v=2026-11-06-5474d6';
 
 const TEMPLATE = 'lkps-template.xlsx';
 export const JSZIP = 'https://cdn.jsdelivr.net/npm/jszip@3.10.1/+esm';
@@ -241,14 +241,17 @@ export function petaDaftar(C){
     });
   });
 
-  // 4.c beban kerja DTPS pada TS (jumlah kedua semester)
+  // 4.c beban kerja dosen tetap yang ditugaskan di PS pada TS (jumlah kedua
+  // semester); tanda V hanya DTPS. Dosen lain tampil bila BKD-nya diisi admin.
+  // Memakai SKS BKD; SKS Lebih tidak masuk (pemilik 2026-11-06).
   const bkd = (X.bkd || []).filter(b => b.tahun_akademik === `${ts - 1}/${ts}`);
-  dtps.forEach((d, i) => {
+  const dosenLain = (X.dosen || []).filter(d => !dtps.includes(d) && d.peran !== 'asesor' && bkd.some(b => b.nidn === d.nidn));
+  [...dtps, ...dosenLain].forEach((d, i) => {
     const rows = bkd.filter(b => b.nidn === d.nidn);
     if (!rows.length) return;
     const s = k => rows.reduce((a, b) => a + (+b[k] || 0), 0);
     const r = 11 + i;
-    set('4c', `B${r}`, d.nama); set('4c', `C${r}`, 'V');
+    set('4c', `B${r}`, d.nama); if (dtps.includes(d)) set('4c', `C${r}`, 'V');
     set('4c', `D${r}`, s('sks_pendidikan')); set('4c', `G${r}`, s('sks_penelitian'));
     if (s('sks_ps_lain_dalam')) set('4c', `E${r}`, s('sks_ps_lain_dalam'));
     if (s('sks_ps_lain_luar')) set('4c', `F${r}`, s('sks_ps_lain_luar'));

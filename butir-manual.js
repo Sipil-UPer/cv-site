@@ -123,6 +123,7 @@ export const BUTIR_MANUAL = [
    ket:'Kecukupan dan kualifikasi laboran/teknisi/administrator sistem, ' +
        'serta persentase yang bersertifikat kompetensi.'},
   {no:'30', judul:'Beban kerja DTPS', tabel:'Tabel 4.c LKPS', seksi:'dosen',
+   ket:'RBK dihitung otomatis dari BKD terverifikasi. Isian di sini hanya dipakai bila TS itu belum punya BKD terverifikasi.',
    hitung:{kunci:['rbk_sks'], label:['RBK — rerata beban kerja DTPS (sks)'],
            rumus:'12–16 sks → 4 · 16–20 sks → (64 − 3×RBK)/4 · skor terendah 1',
            f:(rbk)=>{ if(!rbk) return null;

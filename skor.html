@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-06-e37ca3">
+<link rel="stylesheet" href="tema.css?v=2026-11-06-5474d6">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
@@ -282,7 +282,7 @@
   :focus-visible{outline:2px solid var(--biru-2);outline-offset:1px}
   @media(prefers-reduced-motion:reduce){.kartu{transition:none}.kartu:hover{transform:none}}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-06-e37ca3">
+<link rel="stylesheet" href="kepala.css?v=2026-11-06-5474d6">
 </head>
 <body>
 
@@ -347,7 +347,7 @@ setTimeout(function(){
   });
 }, 8000);
 </script>
-<script src="config.js?v=2026-11-06-e37ca3"></script>
+<script src="config.js?v=2026-11-06-5474d6"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -364,18 +364,18 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { BUTIR, isiPetaBukti, cariBukti, daftarBukti, kolomBukti } from './rincian.js?v=2026-11-06-e37ca3';
+import { BUTIR, isiPetaBukti, cariBukti, daftarBukti, kolomBukti } from './rincian.js?v=2026-11-06-5474d6';
 import { BUTIR_MANUAL, SEKSI_MANUAL, kunciButir, kunciBuktiButir, skorManual, tkKepuasan }
-  from './butir-manual.js?v=2026-11-06-e37ca3';
-import { BOBOT_TOTAL, bobotButir } from './bobot.js?v=2026-11-06-e37ca3';
-import { ambilDaftarLKPS } from './data-lkps.js?v=2026-11-06-e37ca3';
-import { ambilNarasi } from './led-narasi.js?v=2026-11-06-e37ca3';
-import { cekPitaWT, adaTingkat, sesuaiTracer } from './tracer-skor.js?v=2026-11-06-e37ca3';
-import { htmlRencana, buktiButir } from './rencana-bukti.js?v=2026-11-06-e37ca3';
-import { htmlPanel, pasangPanel } from './panel-bukti.js?v=2026-11-06-e37ca3';
-import { pasangMenu } from './menu.js?v=2026-11-06-e37ca3';
+  from './butir-manual.js?v=2026-11-06-5474d6';
+import { BOBOT_TOTAL, bobotButir } from './bobot.js?v=2026-11-06-5474d6';
+import { ambilDaftarLKPS } from './data-lkps.js?v=2026-11-06-5474d6';
+import { ambilNarasi } from './led-narasi.js?v=2026-11-06-5474d6';
+import { cekPitaWT, adaTingkat, sesuaiTracer } from './tracer-skor.js?v=2026-11-06-5474d6';
+import { htmlRencana, buktiButir } from './rencana-bukti.js?v=2026-11-06-5474d6';
+import { htmlPanel, pasangPanel } from './panel-bukti.js?v=2026-11-06-5474d6';
+import { pasangMenu } from './menu.js?v=2026-11-06-5474d6';
 import { statusSyarat, syaratButir, SYARAT_UNGGUL, SYARAT_RERATA, SASARAN,
-         statusRerata, gabungSyarat, statusRentang } from './syarat-unggul.js?v=2026-11-06-e37ca3';
+         statusRerata, gabungSyarat, statusRentang } from './syarat-unggul.js?v=2026-11-06-5474d6';
 
 // config.js mendefinisikan window.SB_URL dan window.SB_KEY — pemetaan di
 // bawah ini WAJIB ada. skor.html versi sebelumnya melewatkannya dan mati
@@ -399,7 +399,7 @@ const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 // Naikkan setiap kali skor.html / rincian.js / butir-manual.js / bobot.js
 // diubah. Ditampilkan di kaki halaman supaya ketahuan seketika kalau
 // peramban masih memakai salinan lama dari cache.
-const VERSI = '2026-11-06-e37ca3';
+const VERSI = '2026-11-06-5474d6';
 // Label versi di judul diisi dari VERSI supaya keduanya tidak bisa berbeda.
 { const el = document.querySelector('.versi-statis'); if (el) el.textContent = 'v' + VERSI; }
 // =====================================================================
@@ -507,8 +507,8 @@ async function unduhLKPS(idTombol){
     const rencanaKepuasan = Object.fromEntries((kp || [])
       .filter(r => r.rencana_tindak_lanjut).map(r => [r.aspek, r.rencana_tindak_lanjut]));
     const daftar = await ambilDaftarLKPS(sb);
-    const buat = idTombol === 'unduhIndeksBukti' ? (await import('./lkps-bukti.js?v=2026-11-06-e37ca3')).buatIndeksBukti
-      : (await import('./lkps-tabel.js?v=2026-11-06-e37ca3')).buatTabelLKPS;
+    const buat = idTombol === 'unduhIndeksBukti' ? (await import('./lkps-bukti.js?v=2026-11-06-5474d6')).buatIndeksBukti
+      : (await import('./lkps-tabel.js?v=2026-11-06-5474d6')).buatTabelLKPS;
     const hasil = await buat({ D, ts, prodi: D.prodi, institusi: D.institusi, rencanaKepuasan,
       daftar });
     a.textContent = idTombol === 'unduhIndeksBukti' ? `Indeks terunduh (${hasil.sel} tautan, ${hasil.lembar.length} tabel)`
@@ -532,7 +532,7 @@ async function unduhLED(){
   const asli = a.textContent;
   a.textContent = 'Menyusun draf LED…';
   try {
-    const { buatLED } = await import('./led.js?v=2026-11-06-e37ca3');
+    const { buatLED } = await import('./led.js?v=2026-11-06-5474d6');
     const ts = CTX_LED.tsData;
     const hasil = await buatLED({
       D, ts, taDari, f2, versi: VERSI,
@@ -603,6 +603,7 @@ const UNGGAH = (() => {
   const ext = String(window.UPLOAD_EXT || '').toLowerCase().split(',').map(s => s.trim()).filter(Boolean);
   return { url, ext, maxMb: Number(window.UPLOAD_MAX_MB) || 0, accept: ext.map(x => '.' + x).join(',') };
 })();
+const RBK = new Map();   // tahun akademik -> baris rbk_prodi() (39-patch-bkd-dosen.sql)
 let PER_DOSEN = false; // peran 'admin' atau 'pimpinan' di tabel dosen: rincian kontribusi per dosen
 let DANA = [];        // {tahun, bulan, kategori, besaran_dana} karya terverifikasi          // tahun ujung TS terpilih, mis. 2026
 
@@ -695,8 +696,8 @@ function butirManual(b){
       <td>${esc(label[i])}<br><span class="isian">kunci: ${esc(k)}</span></td>
       <td>${nilai[i] == null ? '<span class="isian">belum diisi</span>'
                              : esc(f2(nilai[i]))}</td></tr>`).join('');
-  const rumus = b.hitung ? b.hitung.rumus
-              : b.rumus || 'Skor diisi langsung dari matriks penilaian (0–4).';
+  const rumus = (b.hitung ? b.hitung.rumus
+              : b.rumus || 'Skor diisi langsung dari matriks penilaian (0–4).') + (b.no === '30' ? catatanRbk() : '');
   const bukti = ISteks(kunciBuktiButir(b));
   const konteks = b.konteks ? b.konteks(D, TS) : '';
   const isi = `
@@ -1019,9 +1020,18 @@ function IS(k){
   // Butir 52: ΣTKi dari Data prodi › Kepuasan pengguna untuk TS ini bila
   // ketujuh aspek lengkap; isian tk_total hanya cadangan (pemilik 2026-11-04).
   if (k === 'tk_total') { const tk = tkKepuasan(D, TS); if (tk != null) return tk; }
+  // Butir 30: RBK dari BKD terverifikasi; isian rbk_sks hanya cadangan (pemilik 2026-11-06).
+  if (k === 'rbk_sks') { const r = rbkTS(); if (r) return +r.rbk; }
   return (PENG[k] == null || PENG[k] === '' ? null : +PENG[k]);
 }
 function ISteks(k){ return PENG[k] == null ? '' : String(PENG[k]).trim(); }
+const rbkTS = () => RBK.get(`${TS - 1}/${TS}`) || null;
+function catatanRbk(){
+  const r = rbkTS();
+  return r ? ` Dihitung dari BKD terverifikasi: ${r.n_dosen} DTPS, ${r.n_lengkap} lengkap dua semester. `
+    + `Bila SKS Lebih ikut dihitung, RBK menjadi ${f2(+r.rbk_lebih)} (hanya informasi).`
+    : ' Belum ada BKD terverifikasi untuk TS ini; memakai isian manual.';
+}
 function taRange(n){ return `TS ${taDari(TS - n + 1)} s.d. ${taDari(TS)}`; }
 function ndtps(){ return (D.dtps || {}).jumlah || 0; }
 
@@ -2120,6 +2130,8 @@ async function mulai(){
   // pengguna yang sudah login dan terdaftar di tabel `dosen`.
   isiPetaBukti([...(danaR.data || []), ...(buktiR.data || [])], kbR.data || []);
   (pengR.data || []).forEach(r => PENG[r.kunci] = r.nilai);
+  const { data: rbk } = await sb.rpc('rbk_prodi');
+  (rbk || []).forEach(r => RBK.set(r.tahun_akademik, r));
   PENG_GAGAL = !!pengR.error;
   DOK = dokR.data || [];
   BB = bbR.data || [];
