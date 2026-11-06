@@ -27,10 +27,10 @@
      unggah = {url, ext[], maxMb, accept} dari config.js, atau null.
    ===================================================================== */
 
-import { JENIS_DOKUMEN, infoJenis, buktiButir } from './rencana-bukti.js?v=2026-11-06-7acf4d';
-import { tautanBerkas } from './tautan-privat.js?v=2026-11-06-7acf4d';
-import { buangBerkas, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-06-7acf4d';
-import { periksaBerkas, kolomSidik, teksTemuan } from './sidik-berkas.js?v=2026-11-06-7acf4d';
+import { JENIS_DOKUMEN, infoJenis, buktiButir } from './rencana-bukti.js?v=2026-11-06-3c33e6';
+import { tautanBerkas, temuanPakai } from './tautan-privat.js?v=2026-11-06-3c33e6';
+import { buangBerkas, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-06-3c33e6';
+import { periksaBerkas, kolomSidik, teksTemuan } from './sidik-berkas.js?v=2026-11-06-3c33e6';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g,
   c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -101,7 +101,7 @@ export function htmlPanel(no, k){
       : '<p class="pb-ket">Belum ada bukti tertaut.</p>'}
     <div class="pb-a">${pilihan}</div>
     ${u ? `<div class="pb-a"><label>Berkas baru (hanya bila belum pernah diunggah) <input type="file" id="pbf-${esc(no)}" accept="${esc(u.accept)}" multiple></label>
-      <label><input type="checkbox" id="pbv-${esc(no)}"> Privat</label>
+      <label title="Centang untuk berkas berisi data pribadi atau internal: tanpa tautan publik, asesor memakai kata sandi."><input type="checkbox" id="pbv-${esc(no)}"> Privat (data pribadi/internal)</label>
       <button type="button" data-pb="unggah" data-no="${esc(no)}">Unggah</button></div>` : ''}
     <div class="pb-a"><input type="text" id="mj-${esc(no)}" placeholder="Judul bukti (mis. Rekap PDDikti mahasiswa aktif 2025/2026)">
       <input type="url" id="mu-${esc(no)}" placeholder="https://…">
@@ -190,7 +190,7 @@ export function pasangPanel(c){
             // Berkas yang sama persis sudah tersimpan (31-patch-sidik-berkas.sql):
             // tautkan yang ada, jangan unggah ulang.
             const s = await periksaBerkas(c.sb, f);
-            if (s.temuan) {
+            if (temuanPakai(s.temuan, !!$('pbv-' + no)?.checked)) {
               baris.push(s.temuan.dokumen_id ? { dokumen_id: s.temuan.dokumen_id }
                 : { judul: f.name, url: s.temuan.url, ...kolomSidik(s.sha256) });
               ulang.push(`${f.name} ${teksTemuan(s.temuan)}`);

@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-06-7acf4d">
+<link rel="stylesheet" href="tema.css?v=2026-11-06-3c33e6">
 <style>
   :root{--bg:#EEF0ED; --ink:#161E26; --muted:#616C76; --line:#D8DDD8; --line-soft:#E8EBE7; --accent:var(--biru); --accent-soft:var(--biru-m7); --pending:#8A5A00; --pending-soft:#FAF0DC; --reject:#8C2F2F; --reject-soft:#F7E7E7;}
   *{box-sizing:border-box}
@@ -143,7 +143,7 @@
   table.beda td:nth-child(3){background:#EAF4EC}
   @media(max-width:640px){.grid{grid-template-columns:1fr}}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-06-7acf4d">
+<link rel="stylesheet" href="kepala.css?v=2026-11-06-3c33e6">
 </head>
 <body>
 
@@ -157,7 +157,7 @@
 
 <div class="wrap" id="app"></div>
 
-<script src="config.js?v=2026-11-06-7acf4d"></script>
+<script src="config.js?v=2026-11-06-3c33e6"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -181,15 +181,15 @@ const SUPABASE_URL = window.SB_URL;
 const SUPABASE_ANON_KEY = window.SB_KEY;
 
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { JENIS_BUKTI_KARYA, namaJenisBukti, JENIS_KARYA_PRIVAT, teksAksesBukti } from './rencana-bukti.js?v=2026-11-06-7acf4d';
-import { tautanBerkas } from './tautan-privat.js?v=2026-11-06-7acf4d';
-import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-06-7acf4d';
-import { periksaBerkas, kolomSidik, teksTemuan } from './sidik-berkas.js?v=2026-11-06-7acf4d';
-import { htmlContoh, pasangContoh, durasiKS, JENIS_BUKTI_KS } from './manfaat-kerjasama.js?v=2026-11-06-7acf4d';
-import { pasangMenu } from './menu.js?v=2026-11-06-7acf4d';
-import { pasangPrestasi, pasangVerifikasiPrestasi } from './prestasi.js?v=2026-11-06-7acf4d';
-import { htmlSaran } from './saran-bukti.js?v=2026-11-06-7acf4d';
-import { pasangBkd, pasangVerifikasiBkd } from './bkd.js?v=2026-11-06-7acf4d';
+import { JENIS_BUKTI_KARYA, namaJenisBukti, JENIS_KARYA_PRIVAT, teksAksesBukti } from './rencana-bukti.js?v=2026-11-06-3c33e6';
+import { tautanBerkas, temuanPakai } from './tautan-privat.js?v=2026-11-06-3c33e6';
+import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-06-3c33e6';
+import { periksaBerkas, kolomSidik, teksTemuan } from './sidik-berkas.js?v=2026-11-06-3c33e6';
+import { htmlContoh, pasangContoh, durasiKS, JENIS_BUKTI_KS } from './manfaat-kerjasama.js?v=2026-11-06-3c33e6';
+import { pasangMenu } from './menu.js?v=2026-11-06-3c33e6';
+import { pasangPrestasi, pasangVerifikasiPrestasi } from './prestasi.js?v=2026-11-06-3c33e6';
+import { htmlSaran } from './saran-bukti.js?v=2026-11-06-3c33e6';
+import { pasangBkd, pasangVerifikasiBkd } from './bkd.js?v=2026-11-06-3c33e6';
 
 const app = document.getElementById('app');
 if (!SUPABASE_URL || !SUPABASE_ANON_KEY
@@ -747,7 +747,7 @@ function pasangUnggah(){
           // Berkas yang sama persis sudah tersimpan (31-patch-sidik-berkas.sql),
           // mis. artikel bersama yang sudah diunggah penulis lain: pakai tautannya.
           const s = await periksaBerkas(sb, f);
-          if(s.temuan){
+          if(temuanPakai(s.temuan, JENIS_KARYA_PRIVAT.includes(jenisEl.value))){
             antreanBukti.push({ jenis: jenisEl.value, judul: f.name, url: s.temuan.url, sha256: s.sha256 });
             ulang.push(`${f.name} ${teksTemuan(s.temuan)}`);
             berhasil++;
@@ -1843,7 +1843,7 @@ async function tambahBuktiKarya(k, muatUlang){
         const nama = berkas.length > 1 || !judul ? (judul ? judul + ' — ' : '') + f.name : judul;
         // Berkas yang sama persis sudah tersimpan: pakai tautannya (31-patch-sidik-berkas.sql).
         const s = await periksaBerkas(sb, f);
-        if(s.temuan){ baris.push({ karya_id: id, jenis, judul: nama, url: s.temuan.url, ...kolomSidik(s.sha256) }); continue; }
+        if(temuanPakai(s.temuan, JENIS_KARYA_PRIVAT.includes(jenis))){ baris.push({ karya_id: id, jenis, judul: nama, url: s.temuan.url, ...kolomSidik(s.sha256) }); continue; }
         // Folder Drive per karya: <tahun>/<nama dosen>/<judul karya>/ (Code.gs kind 'karya').
         const res = await fetch(window.UPLOAD_URL, { method: 'POST',
           headers: { 'Content-Type': 'text/plain;charset=utf-8' },

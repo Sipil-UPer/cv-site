@@ -3,12 +3,13 @@
 // mahasiswa (pasangPrestasi) dan tab Verifikasi (pasangVerifikasiPrestasi).
 // Admin tetap bisa mengisi langsung di Data prodi.
 
-import { periksaBerkas, kolomSidik, teksTemuan } from './sidik-berkas.js?v=2026-11-06-7acf4d';
-import { buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-06-7acf4d';
-import { htmlSaran } from './saran-bukti.js?v=2026-11-06-7acf4d';
+import { periksaBerkas, kolomSidik, teksTemuan } from './sidik-berkas.js?v=2026-11-06-3c33e6';
+import { buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-06-3c33e6';
+import { htmlSaran } from './saran-bukti.js?v=2026-11-06-3c33e6';
+import { tautanBerkas, temuanPakai } from './tautan-privat.js?v=2026-11-06-3c33e6';
 
 export const TABEL = 'lkps_prestasi_mahasiswa';
-export const JENIS_BUKTI_PRESTASI = [['sertifikat', 'Sertifikat / piagam'], ['surat_tugas', 'Surat tugas'],
+export const JENIS_BUKTI_PRESTASI = [['sertifikat', 'Sertifikat / piagam'], ['surat_tugas', 'Surat tugas (privat)'],
   ['foto', 'Foto kegiatan'], ['lainnya', 'Lainnya']];
 const BIDANG = [['akademik', 'Akademik'], ['non_akademik', 'Nonakademik']];
 const TINGKAT = [['internasional', 'Internasional'], ['nasional', 'Nasional'], ['wilayah_lokal', 'Wilayah/lokal']];
@@ -20,6 +21,7 @@ const LABEL = { nama_kegiatan: 'Nama kegiatan', nama_mahasiswa: 'Mahasiswa', nim
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const nama = (xs, v) => (xs.find(x => x[0] === v) || [v, v ?? ''])[1];
+export const JENIS_PRESTASI_PRIVAT = ['surat_tugas'];
 export const namaJenis = j => nama(JENIS_BUKTI_PRESTASI, j || 'lainnya');
 
 // ---------- logika murni ----------
@@ -103,17 +105,18 @@ async function unggahBerkas(sb, berkas, jenis, tahun, kegiatan, tulis){
     if (ext.length && !ext.includes(e)) throw new Error(`${f.name}: jenis berkas tidak diterima (${ext.join(', ')}).`);
     if (maxMb && f.size > maxMb * 1024 * 1024) throw new Error(`${f.name}: lebih dari ${maxMb} MB.`);
     tulis(`Memeriksa dan mengunggah ${i + 1}/${berkas.length}: ${f.name}…`);
-    const s = await periksaBerkas(sb, f);
-    if (s.temuan) {
+    const s = await periksaBerkas(sb, f), privat = JENIS_PRESTASI_PRIVAT.includes(jenis);
+    if (temuanPakai(s.temuan, privat)) {
       hasil.push({ jenis, judul: judulBukti(jenis, f.name), url: s.temuan.url, ...kolomSidik(s.sha256), catatan: teksTemuan(s.temuan) });
       continue;
     }
     const res = await fetch(window.UPLOAD_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify({ token: session.access_token, kind: 'karya', year: tahun, group: `Prestasi - ${kegiatan}`,
+      body: JSON.stringify({ token: session.access_token, kind: 'karya', year: tahun,
+                             ...(privat ? { privat: true } : { group: `Prestasi - ${kegiatan}` }),
                              filename: f.name, data: await keB64(f) }) });
     const out = await res.json();
     if (!out.ok) throw new Error(out.error || 'Unggah gagal.');
-    hasil.push({ jenis, judul: judulBukti(jenis, f.name), url: out.url, ...kolomSidik(s.sha256) });
+    hasil.push({ jenis, judul: judulBukti(jenis, f.name), url: tautanBerkas(out), ...kolomSidik(s.sha256) });
   }
   return hasil;
 }

@@ -7,9 +7,9 @@
    MENGGANTI berkasnya (versi lama ke _arsip Drive), tidak menambah salinan.
    Dipakai data-prodi.html (tab Dokumen dan bukti baris) dan input-butir.html.
    ===================================================================== */
-import { JENIS_DOKUMEN, infoJenis } from './rencana-bukti.js?v=2026-11-06-7acf4d';
-import { tautanBerkas } from './tautan-privat.js?v=2026-11-06-7acf4d';
-import { periksaBerkas, kolomSidik, teksTemuan } from './sidik-berkas.js?v=2026-11-06-7acf4d';
+import { JENIS_DOKUMEN, infoJenis } from './rencana-bukti.js?v=2026-11-06-3c33e6';
+import { tautanBerkas, temuanPakai } from './tautan-privat.js?v=2026-11-06-3c33e6';
+import { periksaBerkas, kolomSidik, teksTemuan } from './sidik-berkas.js?v=2026-11-06-3c33e6';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g,
   c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -109,7 +109,7 @@ export async function unggahKePustaka(sb, UNGGAH, { jenis, tahun, judul, berkas,
   if (!session) throw new Error('Sesi login habis. Muat ulang halaman lalu masuk lagi.');
   const sidik = [];
   for (const f of berkas) { progres(`Memeriksa ${f.name}…`); sidik.push(await periksaBerkas(sb, f)); }
-  const ada = sidik.map((s, i) => s.temuan ? { f: berkas[i], t: s.temuan } : null).filter(Boolean);
+  const ada = sidik.map((s, i) => temuanPakai(s.temuan, infoJenis(jenis).privat) ? { f: berkas[i], t: s.temuan } : null).filter(Boolean);
   if (ada.length && berkas.length > 1)
     throw new Error(`Tidak diunggah: berkas yang sama ${ada.map(x => `${x.f.name} ${teksTemuan(x.t)}`).join('; ')}. ` +
                     'Tautkan dokumen yang sudah ada, atau unggah berkas lainnya saja.');

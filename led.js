@@ -26,12 +26,12 @@
    Peta subbagian LED ke butir: docs/led-peta-butir.md.
    ===================================================================== */
 
-import { RENCANA_BUKTI, LKPS_TABEL, kelompokDokumen, buktiButir, saranDokumen } from './rencana-bukti.js?v=2026-11-06-7acf4d';
-import { grafikButir, tabelGrafik, tabelPendukung } from './led-data.js?v=2026-11-06-7acf4d';
-import { gambarGrafik } from './led-grafik.js?v=2026-11-06-7acf4d';
-import { faktaNarasi, anggotaTim, kalimatTren, buktiOtomatis, dokumenBelumAda, periksaTersisa, buktiLembar, tabelPenjelas } from './led-isi.js?v=2026-11-06-7acf4d';
-import { ISIAN_IDENTITAS, KOTA_PT, FOLDER_INDUK, NARAHUBUNG, nilaiIdentitas, KRITERIA, terapkanIsian, kunciTambahan, kalimatButir, kalimatCapaian, kalimatKriteria, kalimatUmum } from './led-narasi.js?v=2026-11-06-7acf4d';
-import { daftarProdi, STATUS_PS, tglTeks } from './pustaka-dokumen.js?v=2026-11-06-7acf4d';
+import { RENCANA_BUKTI, LKPS_TABEL, kelompokDokumen, buktiButir, saranDokumen } from './rencana-bukti.js?v=2026-11-06-3c33e6';
+import { grafikButir, tabelGrafik, tabelPendukung } from './led-data.js?v=2026-11-06-3c33e6';
+import { gambarGrafik } from './led-grafik.js?v=2026-11-06-3c33e6';
+import { faktaNarasi, anggotaTim, kalimatTren, buktiOtomatis, dokumenBelumAda, periksaTersisa, buktiLembar, tabelPenjelas } from './led-isi.js?v=2026-11-06-3c33e6';
+import { ISIAN_IDENTITAS, KOTA_PT, FOLDER_INDUK, NARAHUBUNG, nilaiIdentitas, KRITERIA, terapkanIsian, kunciTambahan, kalimatButir, kalimatCapaian, kalimatKriteria, kalimatUmum } from './led-narasi.js?v=2026-11-06-3c33e6';
+import { daftarProdi, STATUS_PS, tglTeks } from './pustaka-dokumen.js?v=2026-11-06-3c33e6';
 
 const NS = {
   w:  'http://schemas.openxmlformats.org/wordprocessingml/2006/main',
@@ -353,7 +353,8 @@ function blokLampiran(C, P){
     'Folder disusun mengikuti struktur penilaian: (1) bukti tingkat butir di subfolder butir-NN sesuai no urut 1–60 matriks APS-AV 2025; ' +
     '(2) bukti karya dosen dan mahasiswa (penelitian, PkM, publikasi, luaran, rekognisi) di subfolder per tahun dan per dosen, satu subfolder atau berkas per karya; ' +
     '(3) dokumen bernama (statuta, renstra, kurikulum, SK, perangkat SPMI, laporan, dan sebagainya) di subfolder per jenis dan tahun; dokumen tahun berbeda disimpan sebagai versi tersendiri, dan versi yang diganti pada tahun yang sama dipindah ke subfolder _arsip. ' +
-    'Setiap folder bukti dan berkasnya dibagikan dengan akses "siapa pun yang memiliki tautan: Viewer", sehingga dapat dibuka asesor tanpa masuk akun. ' +
+    'Bukti umum dibagikan dengan akses "siapa pun yang memiliki tautan: Viewer", sehingga dapat dibuka asesor tanpa masuk akun. ' +
+    'Bukti yang memuat data pribadi atau informasi internal disimpan privat dan dibuka dengan kata sandi yang diberikan program studi kepada asesor. ' +
     'Rekapitulasi disajikan pada Lampiran A (per butir LED), Lampiran B (per karya), Lampiran C (per tabel LKPS), dan Lampiran D (dokumen). ' +
     `Narahubung verifikasi bukti: ${isian(NARAHUBUNG)}.`));
 
