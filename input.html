@@ -64,6 +64,7 @@
             border-top:1px solid var(--line-soft);font-size:13.5px}
   .mhs-item:first-child{border-top:0}
   .mhs-baris select{flex:0 0 150px}
+  .mhs-baris select#f_bukti_jenis{flex:0 0 260px;max-width:100%}
   .mhs-baris label.cek{flex:0 0 auto;font-size:13px;white-space:nowrap}
   .mhs-item .n{flex:1}
   .mhs-item .i{font-family:var(--mono);font-size:12px;color:var(--muted);
@@ -180,7 +181,7 @@ const SUPABASE_URL = window.SB_URL;
 const SUPABASE_ANON_KEY = window.SB_KEY;
 
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { JENIS_BUKTI_KARYA, namaJenisBukti, JENIS_KARYA_PRIVAT } from './rencana-bukti.js?v=2026-11-06-7f40da';
+import { JENIS_BUKTI_KARYA, namaJenisBukti, JENIS_KARYA_PRIVAT, teksAksesBukti } from './rencana-bukti.js?v=2026-11-06-7f40da';
 import { tautanBerkas } from './tautan-privat.js?v=2026-11-06-7f40da';
 import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-06-7f40da';
 import { periksaBerkas, kolomSidik, teksTemuan } from './sidik-berkas.js?v=2026-11-06-7f40da';
@@ -592,9 +593,8 @@ function tampilForm(key, ubah = null){
         <div class="sub" id="unggah_sub" hidden>Pilih jenis bukti, lalu satu atau
         beberapa berkas, lalu klik <b>Unggah</b>; ulangi untuk jenis lain (mis. naskah,
         lalu SK atau bukti korespondensi). Setiap berkas tersimpan di Google Drive prodi
-        dan menjadi satu bukti tersendiri saat karya disimpan. Tautannya bisa dibuka
-        siapa pun yang memegangnya (untuk asesor LKPS), tetapi folder prodi tidak
-        bisa dijelajahi.</div>
+        dan menjadi satu bukti tersendiri saat karya disimpan.
+        <b id="unggah_akses"></b></div>
         <input id="f_bukti_url" type="url" placeholder="atau tempel satu tautan bukti https://…" autocomplete="off">
         <div class="sub">Sudah punya tautan (DOI, halaman jurnal, sertifikat daring)?
         Tempelkan saja di kolom tautan. Sertakan hanya halaman yang menunjukkan
@@ -709,6 +709,9 @@ function pasangUnggah(){
         msg    = document.getElementById('unggah_msg');
   document.getElementById('unggah_baris').hidden = false;
   document.getElementById('unggah_sub').hidden = false;
+  const aksesEl = document.getElementById('unggah_akses');
+  jenisEl.onchange = () => { aksesEl.textContent = teksAksesBukti(jenisEl.value); };
+  jenisEl.onchange();
   berkas.accept = ext.map(x=>'.'+x).join(',');
   const tulis = (cls, t)=>{ msg.className = 'msg' + (cls ? ' '+cls : ''); msg.textContent = t; };
 
@@ -1814,7 +1817,8 @@ function panelBuktiKarya(k){
       ${bisaUnggah ? `<input type="file" id="kbf-${esc(k.id)}" accept="${esc(terima)}" multiple>` : ''}
       <input type="url" id="kbu-${esc(k.id)}" placeholder="atau tempel tautan https://...">
       <button type="button" class="btn sm" data-kb-tambah="${esc(k.id)}">Tambah bukti</button>
-      <span class="kb-m" id="kbm-${esc(k.id)}"></span></div>`}
+      <span class="kb-m" id="kbm-${esc(k.id)}"></span>
+      <span class="kb-m">Jenis bertanda (privat) hanya bisa dibuka Anda dan admin; asesor memakai kata sandi.</span></div>`}
   </details>`;
 }
 

@@ -851,6 +851,11 @@ export const JENIS_BUKTI_KARYA = [
   ['lainnya', 'Lainnya'],
 ];
 export const JENIS_KARYA_PRIVAT = ['sk', 'daftar_hadir'];
+// Siapa yang bisa membuka bukti karya, untuk teks di form (pemilik 2026-11-06).
+export const teksAksesBukti = jenis => JENIS_KARYA_PRIVAT.includes(jenis)
+  ? 'Jenis ini privat: tidak punya tautan publik. Hanya Anda dan admin yang bisa membuka; asesor memakai kata sandi. '
+    + 'Untuk laporan SISTER, buka berkasnya lalu buat tautan 2 bulan.'
+  : 'Tautannya bisa dibuka siapa pun yang memegangnya (untuk asesor LKPS), tetapi folder prodi tidak bisa dijelajahi.';
 export const namaJenisBukti = id => (JENIS_BUKTI_KARYA.find(j => j[0] === id) || [id, id])[1];
 
 // Bukti satu butir dari tabel butir_bukti (keputusan pemilik 2026-11-03):
