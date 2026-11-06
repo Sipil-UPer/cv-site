@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-05-bdb15e">
+<link rel="stylesheet" href="tema.css?v=2026-11-06-e37ca3">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
@@ -77,7 +77,7 @@
   .masuk{max-width:420px;margin:40px auto;background:#fff;border:1px solid var(--line);padding:20px}
   .masuk input{width:100%;padding:8px 10px;margin:8px 0;font:inherit}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-05-bdb15e">
+<link rel="stylesheet" href="kepala.css?v=2026-11-06-e37ca3">
 </head>
 <body>
 
@@ -91,7 +91,7 @@
 
 <main class="wrap" id="isi"></main>
 
-<script src="config.js?v=2026-11-05-bdb15e"></script>
+<script src="config.js?v=2026-11-06-e37ca3"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -108,13 +108,14 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-05-bdb15e';
-import { pasangMenu } from './menu.js?v=2026-11-05-bdb15e';
-import { unggahKePustaka, opsiPustaka, opsiJenis, labelDokumen, cariDokumen } from './pustaka-dokumen.js?v=2026-11-05-bdb15e';
-import { pasangRapikan } from './rapikan-berkas.js?v=2026-11-05-bdb15e';
-import { htmlContoh, pasangContoh, JENIS_BUKTI_KS } from './manfaat-kerjasama.js?v=2026-11-05-bdb15e';
-import { infoJenis } from './rencana-bukti.js?v=2026-11-05-bdb15e';
-import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-05-bdb15e';
+import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-06-e37ca3';
+import { pasangMenu } from './menu.js?v=2026-11-06-e37ca3';
+import { unggahKePustaka, opsiPustaka, opsiJenis, labelDokumen, cariDokumen } from './pustaka-dokumen.js?v=2026-11-06-e37ca3';
+import { pasangRapikan } from './rapikan-berkas.js?v=2026-11-06-e37ca3';
+import { htmlContoh, pasangContoh, JENIS_BUKTI_KS } from './manfaat-kerjasama.js?v=2026-11-06-e37ca3';
+import { infoJenis } from './rencana-bukti.js?v=2026-11-06-e37ca3';
+import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-06-e37ca3';
+import { htmlSaran } from './saran-bukti.js?v=2026-11-06-e37ca3';
 
 /* =====================================================================
    DATA PRODI — data kuantitatif LKPS diisi admin di situs (keputusan
@@ -533,7 +534,9 @@ const TABEL = [
     ] },
   { id: 'prestasi', tabel: 'lkps_prestasi_mahasiswa', judul: 'Prestasi mahasiswa', butir: '43',
     ket: 'Satu baris per prestasi (Tabel 6.c.1 akademik, 6.c.2 nonakademik), 5 tahun terakhir. '
-       + 'Nama dan NIM tidak dipublikasikan; situs hanya menampilkan jumlah.',
+       + 'Nama dan NIM tidak dipublikasikan; situs hanya menampilkan jumlah. Dosen pembimbing juga mengisi di '
+       + 'Input › Prestasi mahasiswa; isiannya dihitung setelah diverifikasi di Input › Verifikasi.',
+    tanda: r => r.status && r.status !== 'terverifikasi' ? `<br><b>${esc(r.status)}</b>` : '',
     label: r => `${r.nama_kegiatan || 'Prestasi'}`, tahun: r => r.tahun,
     kolom: [
       { k: 'nama_kegiatan', l: 'Nama kegiatan', t: 'teks', wajib: true, lebar: true },
@@ -545,7 +548,8 @@ const TABEL = [
       { k: 'capaian', l: 'Capaian (mis. Juara 2)', t: 'teks' },
       { k: 'tahun', l: 'Tahun', t: 'tahun', wajib: true },
       { k: 'bulan', l: 'Bulan (dianjurkan)', t: 'bulan' },
-      { k: 'nidn_pembimbing', l: 'Dosen pembimbing', t: 'nidn' },
+      { k: 'pembimbing', l: 'Dosen pembimbing', t: 'jamak', kosong: 'Daftar dosen kosong.',
+        o: () => DOSEN.map(d => [d.nidn, d.nama]) },
       { k: 'tautan_bukti', l: 'Bukti (sertifikat/piagam)', t: 'url' },
     ] },
   { id: 'publikasi', tabel: 'lkps_publikasi_mahasiswa', judul: 'Publikasi mahasiswa', butir: '46',
@@ -599,6 +603,8 @@ const SARAN_DOK = { target: ['dokumen_iku_ikt', 'laporan_kinerja'], tracer: ['la
   dok_k3l: ['dokumen_k3l', 'kebijakan_k3l'], fas_k3l: ['kebijakan_k3l'], spmi: ['kebijakan_spmi', 'laporan_ami', 'laporan_rtm'], bkd: ['rekap_bkd'], prestasi: ['sertifikat'],
   luaran: ['sertifikat'], kohort: ['lainnya'], mahasiswa: ['lainnya'], publikasi: ['lainnya'] };
 TABEL.forEach(T => { T.dok = SARAN_DOK[T.id] || ['lainnya']; });
+// Kunci saran-bukti.js: publikasi dan luaran di sana milik form karya dosen.
+const saranTab = T => htmlSaran(({ publikasi: 'publikasi_mhs', luaran: 'luaran_mhs' })[T.id] || T.id);
 
 let SAYA = null, DOSEN = [], AKTIF = TABEL[0], BARIS = [], SUNTING = null;
 // Pustaka dokumen; ADA29 = lkps_bukti bisa menunjuk dokumen (patch 29).
@@ -733,7 +739,7 @@ async function bukaTab(){
   SUNTING = null;
   const T = AKTIF;
   if (T.khusus) return bukaPustaka();
-  $('panel').innerHTML = `<p class="ket"><b>Butir ${esc(T.butir)}.</b> ${esc(T.ket)}</p>
+  $('panel').innerHTML = `<p class="ket"><b>Butir ${esc(T.butir)}.</b> ${esc(T.ket)}</p>${saranTab(T)}
     <form id="form" novalidate><div class="grid">${kolomForm(T).map(isian).join('')}
       ${blokBukti(T)}</div>
       <div class="aksi"><button type="submit" class="btn" id="simpan">Tambah baris</button>
@@ -917,7 +923,7 @@ async function muatBaris(){
       ${kolomForm(T).map(c => `<td>${tampil(c, r[c.k])}</td>`).join('')}
       <td>${buktiBaris(r).map(x => `<a href="${esc(x.url)}" target="_blank" rel="noopener nofollow"
         title="${esc(x.judul)}">${esc(x.judul.length > 24 ? x.judul.slice(0, 22) + '…' : x.judul)}</a>`).join('<br>') || '—'}</td>
-      <td>${esc(String(r.diperbarui || '').slice(0, 10))}</td>
+      <td>${esc(String(r.diperbarui || '').slice(0, 10))}${T.tanda ? T.tanda(r) : ''}</td>
       <td><button type="button" class="btn ghost kecil" data-ubah="${r.id}">Ubah</button>
           <button type="button" class="btn bahaya kecil" data-hapus="${r.id}">Hapus</button></td></tr>`).join('')}
     </tbody></table>`;
@@ -1150,7 +1156,7 @@ async function unggahPustaka(tombol){
 // Tab Dokumen: unggah ke pustaka + daftar dokumen dan tempat pemakaiannya.
 async function bukaPustaka(){
   const T = AKTIF;
-  $('panel').innerHTML = `<p class="ket">${esc(T.ket)}</p>
+  $('panel').innerHTML = `<p class="ket">${esc(T.ket)}</p>${saranTab(T)}
     ${DOK_GAGAL ? `<p class="kosong">Tabel <code>dokumen</code> belum bisa dibaca (${esc(DOK_GAGAL)}).
       Jalankan supabase/13-patch-dokumen.sql.</p>` : ''}
     ${UNGGAH && !DOK_GAGAL ? `<div class="grid">

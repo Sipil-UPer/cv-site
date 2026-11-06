@@ -48,7 +48,9 @@ export async function ambilDaftarLKPS(sb){
     ambilKarya(),
     ambilKS(),
     ambil(sb.from('lkps_bkd').select('*')),
-    ambil(sb.from('lkps_prestasi_mahasiswa').select('*')),
+    // Isian dosen dihitung setelah diverifikasi (38-patch-prestasi-dosen.sql).
+    ambil(sb.from('lkps_prestasi_mahasiswa').select('*'))
+      .then(xs => xs.filter(p => !p.status || p.status === 'terverifikasi')),
     // select('*'): kolom patch 26 (status/nomor/TKT) ikut bila sudah ada; hanya di browser admin.
     ambil(sb.from('lkps_luaran_mahasiswa').select('*')),
     ambilMK(),
