@@ -15,7 +15,7 @@
    Pemakaian: pasangYatim(sb, elemenWadah)
    ===================================================================== */
 
-import { buangBerkas, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-06-f488b4';
+import { buangBerkas, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-06-7f40da';
 
 // Tabel yang bisa memuat tautan Drive. Tambahkan tabel baru yang
 // menyimpan tautan bukti di sini, kalau tidak berkasnya tampak tak terpakai.
@@ -23,7 +23,7 @@ const TABEL_RUJUKAN = ['karya', 'karya_bukti', 'butir_bukti', 'dokumen', 'lkps_b
   'lkps_mahasiswa_ta', 'lkps_kohort_lulusan', 'lkps_tracer_lulusan', 'lkps_kerjasama', 'lkps_bkd',
   'lkps_prestasi_mahasiswa', 'lkps_publikasi_mahasiswa', 'lkps_luaran_mahasiswa'];
 const BARU_MS = 24 * 3600 * 1000;
-const POLA_ID = /(?:\/d\/|[?&]id=|\/folders\/)([A-Za-z0-9_-]{20,})/g;
+const POLA_ID = /(?:\/d\/|[?&]id=|[?&]f=|\/folders\/)([A-Za-z0-9_-]{20,})/g;
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g,
   c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));

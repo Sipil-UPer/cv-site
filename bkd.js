@@ -3,8 +3,8 @@
 // (pasangBkd) dan tab Verifikasi (pasangVerifikasiBkd). Dosen lain diisi admin
 // di Data prodi. Berkas LKD privat: lihat unggahLKD dan bukaLKD.
 
-import { ubahan } from './prestasi.js?v=2026-11-06-f488b4';
-import { htmlSaran } from './saran-bukti.js?v=2026-11-06-f488b4';
+import { ubahan } from './prestasi.js?v=2026-11-06-7f40da';
+import { htmlSaran } from './saran-bukti.js?v=2026-11-06-7f40da';
 
 // Bagian C LKD. Pendidikan dipecah per PS untuk Tabel 4.c; SISTER tidak
 // punya kolom prodi, jadi dosen memilahnya menurut kode kelas.
@@ -79,19 +79,12 @@ export async function unggahLKD(sb, f, ta, semester, atasNama){
   return out.url;
 }
 
-// Berkas tidak punya tautan publik, jadi dibuka lewat Apps Script: admin, atau pemiliknya.
-export async function bukaLKD(sb, url){
-  const w = window.open('', '_blank');
-  try {
-    const { data: { session } } = await sb.auth.getSession();
-    if (!session) throw new Error('Sesi login habis. Muat ulang halaman.');
-    const res = await fetch(window.UPLOAD_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify({ token: session.access_token, kind: 'buka_bkd', url }) });
-    const out = await res.json();
-    if (!out.ok) throw new Error(out.error || 'Berkas tidak bisa dibuka.');
-    const isi = Uint8Array.from(atob(out.data), c => c.charCodeAt(0));
-    w.location = URL.createObjectURL(new Blob([isi], { type: out.mime || 'application/pdf' }));
-  } catch (e) { w?.close(); alert(e.message || String(e)); }
+// Berkas tidak punya tautan publik. lkd.html membukanya untuk admin dan pemilik yang
+// login, dan menyediakan tautan 2 bulan untuk laporan SISTER.
+export function bukaLKD(sb, url){
+  const id = (String(url).match(/\/d\/([A-Za-z0-9_-]{20,})/) || [])[1];
+  if (!id) return alert('Tautan LKD tidak dikenali.');
+  window.open(`lkd.html?f=${id}`, '_blank', 'noopener');
 }
 
 const htmlMeta = xs => `<div class="rec-m">${xs.map(x => `<span>${esc(x)}</span>`).join('')}</div>`;
@@ -127,7 +120,7 @@ export async function pasangBkd(wadah, { sb, saya }){
       ${KOLOM_LEBIH.map(kotak).join('')}
       <div class="fld full"><label for="bk_berkas">PDF LKD <span class="req" id="bk_wajib">*</span></label>
         <input id="bk_berkas" type="file" accept=".pdf">
-        <span class="sub">Berkas privat: tidak punya tautan publik, hanya bisa dibuka Anda dan admin.</span></div>
+        <span class="sub">Berkas privat: hanya bisa dibuka Anda dan admin. Untuk laporan SISTER, tekan Buka LKD lalu buat tautan 2 bulan.</span></div>
     </div>
     <div class="aksi"><button class="btn" type="submit" id="bk_simpan">Simpan</button>
       <button class="btn ghost" type="button" id="bk_batal" hidden>Batal</button>

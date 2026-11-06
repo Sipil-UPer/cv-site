@@ -793,9 +793,21 @@ export const JENIS_DOKUMEN = [
   { id: 'sk', nama: 'SK lainnya', tunggal: false, butir: [], contoh: 'SK Tim Kurikulum No. 012/2025' },
   { id: 'notulen', nama: 'Notulen rapat', tunggal: false, butir: [], contoh: 'Rapat tinjauan CPL, 5 Feb 2026' },
   { id: 'laporan_kegiatan', nama: 'Laporan kegiatan', tunggal: false, butir: [], contoh: 'Lokakarya kurikulum 2025' },
+  { id: 'berkas_pribadi', nama: 'Berkas pribadi dosen/tendik (ijazah, SK jabatan, sertifikat pendidik)', tunggal: false, butir: [], contoh: 'Ijazah S3 Dosen A' },
+  { id: 'data_mahasiswa', nama: 'Data mahasiswa (yudisium, ekspor SIAKAD/PDDikti)', tunggal: false, butir: [], contoh: 'Yudisium Agustus 2026' },
+  { id: 'data_survei_mentah', nama: 'Jawaban mentah tracer dan survei', tunggal: false, butir: [], contoh: 'Rekap jawaban tracer 2026' },
+  { id: 'daftar_hadir', nama: 'Daftar hadir', tunggal: false, butir: [], contoh: 'Rapat kurikulum Maret 2026' },
+  { id: 'kontrak_hibah', nama: 'Kontrak atau SK hibah', tunggal: false, butir: [], contoh: 'Kontrak hibah internal 2026' },
   { id: 'sertifikat', nama: 'Sertifikat/piagam', tunggal: false, butir: [], contoh: 'Sertifikat K3 laboran A' },
   { id: 'lainnya', nama: 'Dokumen lain', tunggal: false, butir: [], contoh: 'Judul dokumen' },
 ];
+// Tanpa tautan publik (pemilik 2026-11-06): data pribadi atau internal. Sama
+// dengan JENIS_PRIVAT di apps-script/Code.gs.
+['rekap_bkd', 'laporan_keuangan', 'laporan_audit_keuangan', 'dokumen_kerjasama', 'laporan_ami', 'laporan_rtm', 'notulen',
+ 'berkas_pribadi', 'data_mahasiswa', 'data_survei_mentah', 'daftar_hadir', 'kontrak_hibah']
+  .forEach(id => { JENIS_DOKUMEN.find(j => j.id === id).privat = true; });
+// Bukti baris Data prodi yang privat.
+export const TABEL_PRIVAT = ['lkps_mahasiswa_ta', 'lkps_kohort_lulusan', 'lkps_tendik', 'lkps_penggunaan_dana', 'lkps_kerjasama'];
 const JENIS = Object.fromEntries(JENIS_DOKUMEN.map(j => [j.id, j]));
 export const infoJenis = id => JENIS[id] || { id, nama: id, tunggal: false, butir: [] };
 // Butir sebuah baris dokumen: yang diisi saat unggah, atau bawaan jenisnya.
@@ -830,13 +842,15 @@ const aTautan = (u, t) => `<a href="${esc(u)}" target="_blank" rel="noopener nof
 // Jenis bukti karya (tabel karya_bukti, supabase/14-patch-bukti-jamak.sql).
 export const JENIS_BUKTI_KARYA = [
   ['naskah', 'Naskah/halaman publikasi'],
-  ['sk', 'SK/kontrak/surat tugas'],
+  ['sk', 'SK/kontrak/surat tugas (privat)'],
   ['korespondensi', 'Bukti korespondensi'],
   ['laporan', 'Laporan'],
   ['sertifikat', 'Sertifikat/piagam'],
-  ['foto', 'Foto/daftar hadir'],
+  ['foto', 'Foto kegiatan'],
+  ['daftar_hadir', 'Daftar hadir (privat)'],
   ['lainnya', 'Lainnya'],
 ];
+export const JENIS_KARYA_PRIVAT = ['sk', 'daftar_hadir'];
 export const namaJenisBukti = id => (JENIS_BUKTI_KARYA.find(j => j[0] === id) || [id, id])[1];
 
 // Bukti satu butir dari tabel butir_bukti (keputusan pemilik 2026-11-03):

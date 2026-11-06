@@ -7,8 +7,9 @@
    MENGGANTI berkasnya (versi lama ke _arsip Drive), tidak menambah salinan.
    Dipakai data-prodi.html (tab Dokumen dan bukti baris) dan input-butir.html.
    ===================================================================== */
-import { JENIS_DOKUMEN, infoJenis } from './rencana-bukti.js?v=2026-11-06-f488b4';
-import { periksaBerkas, kolomSidik, teksTemuan } from './sidik-berkas.js?v=2026-11-06-f488b4';
+import { JENIS_DOKUMEN, infoJenis } from './rencana-bukti.js?v=2026-11-06-7f40da';
+import { tautanBerkas } from './tautan-privat.js?v=2026-11-06-7f40da';
+import { periksaBerkas, kolomSidik, teksTemuan } from './sidik-berkas.js?v=2026-11-06-7f40da';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g,
   c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -70,7 +71,7 @@ export function opsiPustaka(dok, saran = []){
 export function opsiJenis(saran = [], pilih){
   const s = saran.map(id => infoJenis(id));
   const lain = JENIS_DOKUMEN.filter(j => !saran.includes(j.id));
-  const opt = j => `<option value="${esc(j.id)}"${j.id === pilih ? ' selected' : ''}>${esc(j.nama)}${j.tunggal ? '' : ' (banyak)'}</option>`;
+  const opt = j => `<option value="${esc(j.id)}"${j.id === pilih ? ' selected' : ''}>${esc(j.nama)}${j.privat ? ' (privat)' : ''}${j.tunggal ? '' : ' (banyak)'}</option>`;
   return (s.length ? `<optgroup label="Disarankan">${s.map(opt).join('')}</optgroup>` : '') +
     `<optgroup label="Jenis lain">${lain.map(opt).join('')}</optgroup>`;
 }
@@ -132,7 +133,7 @@ export async function unggahKePustaka(sb, UNGGAH, { jenis, tahun, judul, berkas,
                         'Lihat apps-script/README.md, bagian "Memperbarui kode".');
       throw new Error(`${i} dari ${berkas.length} berkas terunggah. ${out.error || 'Unggah gagal.'}`);
     }
-    url = url || out.url; folderUrl = out.folderUrl || folderUrl;
+    url = url || tautanBerkas(out); folderUrl = out.folderUrl || folderUrl;
   }
   const { data, error } = await sb.from('dokumen').upsert({
     ...k, url, folder_url: folderUrl, nama_berkas: berkas.map(f => f.name).join('; ').slice(0, 500),

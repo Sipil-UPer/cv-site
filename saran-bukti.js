@@ -27,7 +27,8 @@ export const SARAN_BUKTI = {
   // data-prodi.html
   dokumen: { tabel: 'semua', isi: [P('SK pendirian PT, SK pembukaan PS, SK akreditasi terbaru'),
     U('Statuta, renstra, kurikulum, dan dokumen lain yang dirujuk banyak butir')],
-    catatan: 'Isi dulu tab ini: dokumen di sini bisa ditautkan dari tab lain tanpa unggah ulang.' },
+    catatan: 'Isi dulu tab ini: dokumen di sini bisa ditautkan dari tab lain tanpa unggah ulang. Jenis bertanda (privat) tidak '
+      + 'punya tautan publik; asesor membukanya dengan kata sandi.' },
   bkd: { tabel: '4.c', isi: [U('PDF Laporan Kinerja Dosen (LKD) SISTER tiap semester')],
     catatan: 'Berkas LKD privat, karena memuat data pribadi. Salin angka dari bagian C: SKS BKD dan SKS Lebih.' },
   tendik: { tabel: '4.b', isi: [U('Ijazah'), U('Sertifikat kompetensi')] },

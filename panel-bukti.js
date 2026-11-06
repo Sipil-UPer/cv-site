@@ -27,9 +27,10 @@
      unggah = {url, ext[], maxMb, accept} dari config.js, atau null.
    ===================================================================== */
 
-import { JENIS_DOKUMEN, infoJenis, buktiButir } from './rencana-bukti.js?v=2026-11-06-f488b4';
-import { buangBerkas, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-06-f488b4';
-import { periksaBerkas, kolomSidik, teksTemuan } from './sidik-berkas.js?v=2026-11-06-f488b4';
+import { JENIS_DOKUMEN, infoJenis, buktiButir } from './rencana-bukti.js?v=2026-11-06-7f40da';
+import { tautanBerkas } from './tautan-privat.js?v=2026-11-06-7f40da';
+import { buangBerkas, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-06-7f40da';
+import { periksaBerkas, kolomSidik, teksTemuan } from './sidik-berkas.js?v=2026-11-06-7f40da';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g,
   c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -100,6 +101,7 @@ export function htmlPanel(no, k){
       : '<p class="pb-ket">Belum ada bukti tertaut.</p>'}
     <div class="pb-a">${pilihan}</div>
     ${u ? `<div class="pb-a"><label>Berkas baru (hanya bila belum pernah diunggah) <input type="file" id="pbf-${esc(no)}" accept="${esc(u.accept)}" multiple></label>
+      <label><input type="checkbox" id="pbv-${esc(no)}"> Privat</label>
       <button type="button" data-pb="unggah" data-no="${esc(no)}">Unggah</button></div>` : ''}
     <div class="pb-a"><input type="text" id="mj-${esc(no)}" placeholder="Judul bukti (mis. Rekap PDDikti mahasiswa aktif 2025/2026)">
       <input type="url" id="mu-${esc(no)}" placeholder="https://…">
@@ -198,10 +200,10 @@ export function pasangPanel(c){
             const res = await fetch(u.url, { method: 'POST',
               headers: { 'Content-Type': 'text/plain;charset=utf-8' },
               body: JSON.stringify({ token: session.access_token, kind: 'butir', butir: no,
-                                     filename: f.name, data: await keB64(f) }) });
+                                     privat: !!$('pbv-' + no)?.checked, filename: f.name, data: await keB64(f) }) });
             const out = await res.json();
             if (!out.ok) throw new Error(out.error || 'Unggah gagal.');
-            baris.push({ judul: f.name, url: out.url, ...kolomSidik(s.sha256) });
+            baris.push({ judul: f.name, url: tautanBerkas(out), ...kolomSidik(s.sha256) });
           } catch (err) {
             gagal.push(`${f.name}: ${err.message || err}`);
             if (/Sesi login/.test(err.message || '')) break;

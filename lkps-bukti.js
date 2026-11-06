@@ -8,9 +8,9 @@
    Data prodi (lkps_bukti, tautan_bukti), dan dokumen pustaka sesuai tabelnya.
    Pemilihan baris mengikuti lkps.js petaDaftar (jendela TS, kategori karya).
    ===================================================================== */
-import { versiUntukTS } from './pustaka-dokumen.js?v=2026-11-06-f488b4';
-import { JSZIP } from './lkps.js?v=2026-11-06-f488b4';
-import { labelDokumenLED } from './led-isi.js?v=2026-11-06-f488b4';
+import { versiUntukTS } from './pustaka-dokumen.js?v=2026-11-06-7f40da';
+import { JSZIP } from './lkps.js?v=2026-11-06-7f40da';
+import { labelDokumenLED } from './led-isi.js?v=2026-11-06-7f40da';
 
 const OUTLINE = 'lkps-outline.json';
 const DOCX = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
@@ -40,6 +40,7 @@ const TAHAP = [['penetapan', 'Penetapan'], ['pelaksanaan', 'Pelaksanaan'], ['eva
                ['pengendalian', 'Pengendalian'], ['peningkatan', 'Peningkatan']];
 
 const idDrive = u => (String(u || '').match(/\/d\/([A-Za-z0-9_-]{20,})/) || [])[1] || '';
+const catatanPrivat = C => 'Berkas privat, dibuka dengan kata sandi' + (C.sandiLkd ? `: ${C.sandiLkd}` : ' yang diberikan terpisah.');
 const unik = xs => { const s = new Set(); return xs.filter(x => x.url && !s.has(x.url) && s.add(x.url)); };
 
 export function indeksBukti(C, wajib){
@@ -105,7 +106,7 @@ export function indeksBukti(C, wajib){
   // 4.c: LKD privat, dibuka asesor di lkd.html dengan kata sandi (pemilik 2026-11-06).
   // Kata sandi diketik saat mengunduh dan hanya tertulis di berkas ini.
   const namaDosen = n => ((X.dosen || []).find(d => d.nidn === n) || {}).nama || n;
-  const catatanLKD = 'Berkas pribadi dosen, dibuka dengan kata sandi' + (C.sandiLkd ? `: ${C.sandiLkd}` : ' yang diberikan terpisah.');
+  const catatanLKD = catatanPrivat(C);
   khusus['4c'] = () => (X.bkd || []).filter(b => b.tahun_akademik === `${ts - 1}/${ts}` && idDrive(b.bukti_url))
     .sort((a, b) => namaDosen(a.nidn).localeCompare(namaDosen(b.nidn)) || String(a.semester).localeCompare(String(b.semester)))
     .map(b => ({ item: `${namaDosen(b.nidn)}, ${b.tahun_akademik} ${b.semester}`, catatan: catatanLKD,
@@ -142,7 +143,7 @@ export function dokumenXml(indeks, C){
     return items.map((it, i) => `<w:tr><w:trPr><w:cantSplit/></w:trPr>${
       sel(0, p(i ? '' : r(x.judul, { b: true })), items.length > 1 ? { gabung: i ? 'lanjut' : 'awal' } : {})}${
       sel(1, p(r(it.item)))}${
-      sel(2, (it.tautan.length ? it.tautan.map(l => p(tautan(l.url, l.t))).join('') : p('')) + (it.catatan ? p(r(it.catatan)) : ''))}</w:tr>`);
+      sel(2, (it.tautan.length ? it.tautan.map(l => p(tautan(l.url, l.t))).join('') : p('')) + (it.catatan || it.tautan.some(l => /lkd\.html\?f=/.test(l.url)) ? p(r(it.catatan || catatanPrivat(C))) : ''))}</w:tr>`);
   }).join('');
   const garis = ['top', 'left', 'bottom', 'right', 'insideH', 'insideV'].map(s => `<w:${s} w:val="single" w:sz="4" w:space="0" w:color="808080"/>`).join('');
   const judul = `Indeks Bukti LKPS ${C.prodi || ''} TS ${C.ts}`.replace(/\s+/g, ' ');

@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-06-f488b4">
+<link rel="stylesheet" href="tema.css?v=2026-11-06-7f40da">
 <style>
   :root{--bg:#EEF0ED; --ink:#161E26; --muted:#616C76; --line:#D8DDD8; --line-soft:#E8EBE7; --accent:var(--biru); --accent-soft:var(--biru-m7); --pending:#8A5A00; --pending-soft:#FAF0DC; --reject:#8C2F2F; --reject-soft:#F7E7E7;}
   *{box-sizing:border-box}
@@ -142,7 +142,7 @@
   table.beda td:nth-child(3){background:#EAF4EC}
   @media(max-width:640px){.grid{grid-template-columns:1fr}}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-06-f488b4">
+<link rel="stylesheet" href="kepala.css?v=2026-11-06-7f40da">
 </head>
 <body>
 
@@ -156,7 +156,7 @@
 
 <div class="wrap" id="app"></div>
 
-<script src="config.js?v=2026-11-06-f488b4"></script>
+<script src="config.js?v=2026-11-06-7f40da"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -180,14 +180,15 @@ const SUPABASE_URL = window.SB_URL;
 const SUPABASE_ANON_KEY = window.SB_KEY;
 
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { JENIS_BUKTI_KARYA, namaJenisBukti } from './rencana-bukti.js?v=2026-11-06-f488b4';
-import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-06-f488b4';
-import { periksaBerkas, kolomSidik, teksTemuan } from './sidik-berkas.js?v=2026-11-06-f488b4';
-import { htmlContoh, pasangContoh, durasiKS, JENIS_BUKTI_KS } from './manfaat-kerjasama.js?v=2026-11-06-f488b4';
-import { pasangMenu } from './menu.js?v=2026-11-06-f488b4';
-import { pasangPrestasi, pasangVerifikasiPrestasi } from './prestasi.js?v=2026-11-06-f488b4';
-import { htmlSaran } from './saran-bukti.js?v=2026-11-06-f488b4';
-import { pasangBkd, pasangVerifikasiBkd } from './bkd.js?v=2026-11-06-f488b4';
+import { JENIS_BUKTI_KARYA, namaJenisBukti, JENIS_KARYA_PRIVAT } from './rencana-bukti.js?v=2026-11-06-7f40da';
+import { tautanBerkas } from './tautan-privat.js?v=2026-11-06-7f40da';
+import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-06-7f40da';
+import { periksaBerkas, kolomSidik, teksTemuan } from './sidik-berkas.js?v=2026-11-06-7f40da';
+import { htmlContoh, pasangContoh, durasiKS, JENIS_BUKTI_KS } from './manfaat-kerjasama.js?v=2026-11-06-7f40da';
+import { pasangMenu } from './menu.js?v=2026-11-06-7f40da';
+import { pasangPrestasi, pasangVerifikasiPrestasi } from './prestasi.js?v=2026-11-06-7f40da';
+import { htmlSaran } from './saran-bukti.js?v=2026-11-06-7f40da';
+import { pasangBkd, pasangVerifikasiBkd } from './bkd.js?v=2026-11-06-7f40da';
 
 const app = document.getElementById('app');
 if (!SUPABASE_URL || !SUPABASE_ANON_KEY
@@ -753,13 +754,14 @@ function pasangUnggah(){
           // dilayani Apps Script.
           const body = { token: session.access_token, filename: f.name, year: tahun,
                          data: await keB64(f) };
-          if(judul) body.group = judul;
+          if(JENIS_KARYA_PRIVAT.includes(jenisEl.value)) body.privat = true;
+          else if(judul) body.group = judul;
           const res = await fetch(url, { method:'POST',
             headers:{ 'Content-Type':'text/plain;charset=utf-8' },
             body: JSON.stringify(body) });
           const out = await res.json();
           if(!out.ok) throw new Error(out.error || 'Unggah gagal.');
-          antreanBukti.push({ jenis: jenisEl.value, judul: f.name, url: out.url, sha256: s.sha256 });
+          antreanBukti.push({ jenis: jenisEl.value, judul: f.name, url: tautanBerkas(out), sha256: s.sha256 });
           berhasil++;
         } catch(err){
           gagal.push(`${f.name}: ${err.message || err}`);
@@ -1842,10 +1844,11 @@ async function tambahBuktiKarya(k, muatUlang){
         const res = await fetch(window.UPLOAD_URL, { method: 'POST',
           headers: { 'Content-Type': 'text/plain;charset=utf-8' },
           body: JSON.stringify({ token: session.access_token, kind: 'karya', year: k.tahun,
-                                 group: k.judul, filename: f.name, data: await keB64(f) }) });
+                                 ...(JENIS_KARYA_PRIVAT.includes(jenis) ? { privat: true } : { group: k.judul }),
+                                 filename: f.name, data: await keB64(f) }) });
         const out = await res.json();
         if(!out.ok) throw new Error(out.error || 'Unggah gagal.');
-        baris.push({ karya_id: id, jenis, judul: nama, url: out.url, ...kolomSidik(s.sha256) });
+        baris.push({ karya_id: id, jenis, judul: nama, url: tautanBerkas(out), ...kolomSidik(s.sha256) });
       }
     }
     if(url) baris.push({ karya_id: id, jenis, judul, url });
