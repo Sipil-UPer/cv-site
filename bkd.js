@@ -3,8 +3,8 @@
 // (pasangBkd) dan tab Verifikasi (pasangVerifikasiBkd). Dosen lain diisi admin
 // di Data prodi. Berkas LKD privat: lihat unggahLKD dan bukaLKD.
 
-import { ubahan } from './prestasi.js?v=2026-11-06-5474d6';
-import { htmlSaran } from './saran-bukti.js?v=2026-11-06-5474d6';
+import { ubahan } from './prestasi.js?v=2026-11-06-19df45';
+import { htmlSaran } from './saran-bukti.js?v=2026-11-06-19df45';
 
 // Bagian C LKD. Pendidikan dipecah per PS untuk Tabel 4.c; SISTER tidak
 // punya kolom prodi, jadi dosen memilahnya menurut kode kelas.
@@ -13,6 +13,11 @@ export const KOLOM_BKD = [['sks_pendidikan', 'Pendidikan di PS ini'], ['sks_ps_l
   ['sks_penunjang', 'Penunjang']];
 export const KOLOM_LEBIH = [['sks_lebih_pendidikan', 'Pendidikan'], ['sks_lebih_penelitian', 'Penelitian'],
   ['sks_lebih_pkm', 'Pengabdian'], ['sks_lebih_penunjang', 'Penunjang']];
+// Yang diketik dosen: total pendidikan dari LKD, lalu bagian PS lain; PS ini
+// = total dikurangi PS lain (pemilik 2026-11-06). Database tetap menyimpan PS ini.
+export const KOLOM_ISIAN = [['pendidikan_total', 'Pendidikan: total (baris Pelaksanaan Pendidikan)'],
+  ['sks_ps_lain_dalam', 'Dari total itu: PS lain, dalam PT'], ['sks_ps_lain_luar', 'Dari total itu: PS lain, luar PT'],
+  ['sks_penelitian', 'Penelitian'], ['sks_pkm', 'Pengabdian'], ['sks_penunjang', 'Penunjang']];
 export const SKS_MIN = 12, SKS_MAKS = 16;
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c =>
@@ -22,6 +27,8 @@ const tampilSks = v => String(angka(v)).replace('.', ',');
 
 // ---------- logika murni ----------
 
+export const pendidikanTotal = r => angka((+r.sks_pendidikan || 0) + (+r.sks_ps_lain_dalam || 0) + (+r.sks_ps_lain_luar || 0));
+export const pendidikanPS = (total, dalam, luar) => total == null ? null : angka(total - (dalam || 0) - (luar || 0));
 export const totalBkd = r => angka(KOLOM_BKD.reduce((a, [k]) => a + (+r[k] || 0), 0));
 export const totalLebih = r => angka(KOLOM_LEBIH.reduce((a, [k]) => a + (+r[k] || 0), 0));
 
@@ -36,7 +43,8 @@ export function periksaBkd(isi, adaBerkas, baru){
   const g = [], m = String(isi.tahun_akademik || '').match(/^(\d{4})\/(\d{4})$/);
   if (!m || +m[2] !== +m[1] + 1) g.push('Tahun akademik ditulis seperti 2025/2026');
   if (!['ganjil', 'genap'].includes(isi.semester)) g.push('Semester wajib dipilih');
-  const semua = [...KOLOM_BKD, ...KOLOM_LEBIH];
+  if (isi.sks_pendidikan < 0) g.push('SKS PS lain melebihi total pendidikan');
+  const semua = [...KOLOM_BKD, ...KOLOM_LEBIH].filter(([k]) => k !== 'sks_pendidikan');
   if (semua.some(([k]) => isi[k] != null && !(Number.isFinite(isi[k]) && isi[k] >= 0))) g.push('SKS harus angka 0 atau lebih');
   if (!(totalBkd(isi) > 0)) g.push('Isi SKS BKD dari bagian C LKD');
   if (baru && !adaBerkas) g.push('Lampirkan PDF LKD semester ini');
@@ -66,7 +74,8 @@ export async function unggahLKD(sb, f, ta, semester, atasNama){
     body: JSON.stringify({ token: session.access_token, kind: 'bkd', tahun_akademik: ta, semester,
       atas_nama: atasNama || '', filename: f.name, data: await keB64(f) }) });
   const out = await res.json();
-  if (!out.ok) throw new Error(out.error || 'Unggah gagal.');
+  if (!out.ok) throw new Error(/Jenis unggahan tidak dikenal/.test(out.error || '')
+    ? 'LKD belum bisa diunggah: Apps Script belum diperbarui. Minta admin men-deploy ulang Code.gs.' : out.error || 'Unggah gagal.');
   return out.url;
 }
 
@@ -87,7 +96,8 @@ export async function bukaLKD(sb, url){
 
 const htmlMeta = xs => `<div class="rec-m">${xs.map(x => `<span>${esc(x)}</span>`).join('')}</div>`;
 const metaBkd = r => [`SKS BKD ${tampilSks(totalBkd(r))}`, `SKS Lebih ${tampilSks(totalLebih(r))}`];
-const rincian = r => htmlMeta(KOLOM_BKD.filter(([k]) => +r[k]).map(([k, l]) => `${l}: ${tampilSks(r[k])}`));
+const rincian = r => htmlMeta([`Pendidikan total: ${tampilSks(pendidikanTotal(r))}`,
+  ...KOLOM_BKD.filter(([k]) => +r[k]).map(([k, l]) => `${l}: ${tampilSks(r[k])}`)]);
 const tombolLKD = r => r.bukti_url ? `<button class="btn ghost sm" data-lkd="${esc(r.bukti_url)}">Buka LKD</button>` : '';
 
 // ---------- tab dosen ----------
@@ -109,9 +119,9 @@ export async function pasangBkd(wadah, { sb, saya }){
         <select id="bk_semester"><option value="">— pilih —</option><option value="ganjil">Ganjil</option>
           <option value="genap">Genap</option></select></div>
       <div class="fld full"><label>SKS BKD <span class="req">*</span></label>
-        <span class="sub">Pendidikan di LKD dipecah menurut kode kelas: kelas prodi lain masuk "PS lain, dalam PT".
-        Jumlah ketiganya sama dengan baris Pelaksanaan Pendidikan.</span></div>
-      ${KOLOM_BKD.map(kotak).join('')}
+        <span class="sub">Salin baris Pelaksanaan Pendidikan apa adanya, lalu isi bagian PS lain menurut kode kelas.
+        Pendidikan di PS ini dihitung otomatis: total dikurangi PS lain.</span></div>
+      ${KOLOM_ISIAN.map(kotak).join('')}
       <div class="fld full"><label>SKS Lebih</label>
         <span class="sub">Kolom SKS Lebih di LKD. Dicatat saja; tidak masuk Tabel 4.c.</span></div>
       ${KOLOM_LEBIH.map(kotak).join('')}
@@ -127,10 +137,12 @@ export async function pasangBkd(wadah, { sb, saya }){
   const tulis = (cls, t) => { const m = $('bk_msg'); m.className = 'msg' + (cls ? ' ' + cls : ''); m.textContent = t; };
   const baca = () => {
     const isi = { tahun_akademik: $('bk_ta').value.trim(), semester: $('bk_semester').value };
-    [...KOLOM_BKD, ...KOLOM_LEBIH].forEach(([k]) => { const v = $('bk_' + k).value.trim(); isi[k] = v === '' ? null : Number(v.replace(',', '.')); });
+    [...KOLOM_ISIAN, ...KOLOM_LEBIH].forEach(([k]) => { const v = $('bk_' + k).value.trim(); isi[k] = v === '' ? null : Number(v.replace(',', '.')); });
+    isi.sks_pendidikan = pendidikanPS(isi.pendidikan_total, isi.sks_ps_lain_dalam, isi.sks_ps_lain_luar);
+    delete isi.pendidikan_total;
     return isi;
   };
-  const hitung = () => { const i = baca(); $('bk_total').textContent = `Total SKS BKD ${tampilSks(totalBkd(i))}`
+  const hitung = () => { const i = baca(); $('bk_total').textContent = `Pendidikan di PS ini ${tampilSks(i.sks_pendidikan)} · Total SKS BKD ${tampilSks(totalBkd(i))}`
     + (totalBkd(i) && diLuarRentang(i) ? ` (di luar ${SKS_MIN}–${SKS_MAKS})` : ''); };
   const isiForm = r => {
     SUNTING = r || null;
@@ -139,7 +151,8 @@ export async function pasangBkd(wadah, { sb, saya }){
     $('bk_simpan').textContent = r && !ubahLangsung(r) ? 'Kirim ajuan' : 'Simpan';
     $('bk_ta').value = r?.tahun_akademik ?? taSekarang(); $('bk_ta').disabled = !!r;
     $('bk_semester').value = r?.semester ?? ''; $('bk_semester').disabled = !!r;
-    [...KOLOM_BKD, ...KOLOM_LEBIH].forEach(([k]) => { $('bk_' + k).value = r?.[k] ?? ''; });
+    [...KOLOM_ISIAN.slice(1), ...KOLOM_LEBIH].forEach(([k]) => { $('bk_' + k).value = r?.[k] ?? ''; });
+    $('bk_pendidikan_total').value = r ? pendidikanTotal(r) : '';
     hitung();
   };
 
@@ -162,7 +175,7 @@ export async function pasangBkd(wadah, { sb, saya }){
           pendidikan_tertinggi: ['s2', 's3'].includes(pend) ? pend : null,
           verifikasi: 'diajukan', dilaporkan_oleh: saya.id, oleh: saya.email });
         if (error) throw error;
-        isiForm(null); tulis('ok', 'Tersimpan, menunggu verifikasi admin.');
+        isiForm(null); tulis('ok', 'Tersimpan dan LKD terunggah, menunggu verifikasi admin.');
       } else if (ubahLangsung(r)) {
         const { error } = await sb.from('lkps_bkd').update({ ...sks, verifikasi: 'diajukan', catatan: null, oleh: saya.email,
           diperbarui: new Date().toISOString() }).eq('id', r.id);
@@ -192,7 +205,7 @@ export async function pasangBkd(wadah, { sb, saya }){
       ${r.catatan ? htmlMeta([`Catatan admin: ${r.catatan}`]) : ''}
       ${a?.status === 'ditolak' ? `<div class="rec-m"><span>Ajuan ditolak: ${esc(a.catatan_admin || '-')}</span>
         <button class="btn ghost sm" data-batal-ajuan="${a.id}">Tutup</button></div>` : ''}
-      </div><div class="rec-a"><span class="tag">${esc(r.verifikasi)}</span>${tombolLKD(r)}
+      </div><div class="rec-a"><span class="tag">${esc(r.verifikasi)}</span>${tombolLKD(r) || '<span class="tag">tanpa LKD</span>'}
       ${menunggu ? `<span class="tag">ajuan menunggu</span><button class="btn ghost sm" data-batal-ajuan="${a.id}">Batalkan ajuan</button>`
         : `<button class="btn ghost sm" data-ubah="${r.id}">${ubahLangsung(r) ? 'Ubah' : 'Ajukan ubah'}</button>
            ${ubahLangsung(r) ? `<button class="btn danger sm" data-hapus="${r.id}">Hapus</button>` : ''}`}</div></div>`;
