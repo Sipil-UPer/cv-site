@@ -3,9 +3,9 @@
 // mahasiswa (pasangPrestasi) dan tab Verifikasi (pasangVerifikasiPrestasi).
 // Admin tetap bisa mengisi langsung di Data prodi.
 
-import { periksaBerkas, kolomSidik, teksTemuan } from './sidik-berkas.js?v=2026-11-06-7f40da';
-import { buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-06-7f40da';
-import { htmlSaran } from './saran-bukti.js?v=2026-11-06-7f40da';
+import { periksaBerkas, kolomSidik, teksTemuan } from './sidik-berkas.js?v=2026-11-06-7acf4d';
+import { buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-06-7acf4d';
+import { htmlSaran } from './saran-bukti.js?v=2026-11-06-7acf4d';
 
 export const TABEL = 'lkps_prestasi_mahasiswa';
 export const JENIS_BUKTI_PRESTASI = [['sertifikat', 'Sertifikat / piagam'], ['surat_tugas', 'Surat tugas'],
