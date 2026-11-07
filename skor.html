@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-06-f01099">
+<link rel="stylesheet" href="tema.css?v=2026-11-07-884746">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
@@ -205,6 +205,9 @@
     background:var(--biru-2);border:1px solid var(--biru-2);
     padding:8px 14px;border-radius:2px}
   .tbl-rinci:hover{background:var(--biru);border-color:var(--biru)}
+  .btn-lkd{font:500 11px var(--mono);color:var(--biru-2);background:none;border:1px solid var(--line);
+    border-radius:2px;padding:3px 7px;cursor:pointer}
+  .btn-lkd:hover{border-color:var(--biru-2)}
   .tbl-bukti{display:inline-flex;align-items:center;margin-top:10px;
     font-family:var(--mono);font-size:11px;letter-spacing:.07em;
     text-transform:uppercase;text-decoration:none;color:var(--hijau);
@@ -282,7 +285,7 @@
   :focus-visible{outline:2px solid var(--biru-2);outline-offset:1px}
   @media(prefers-reduced-motion:reduce){.kartu{transition:none}.kartu:hover{transform:none}}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-06-f01099">
+<link rel="stylesheet" href="kepala.css?v=2026-11-07-884746">
 </head>
 <body>
 
@@ -347,7 +350,7 @@ setTimeout(function(){
   });
 }, 8000);
 </script>
-<script src="config.js?v=2026-11-06-f01099"></script>
+<script src="config.js?v=2026-11-07-884746"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -364,18 +367,20 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { BUTIR, isiPetaBukti, cariBukti, daftarBukti, kolomBukti } from './rincian.js?v=2026-11-06-f01099';
+import { BUTIR, isiPetaBukti, cariBukti, daftarBukti, kolomBukti } from './rincian.js?v=2026-11-07-884746';
 import { BUTIR_MANUAL, SEKSI_MANUAL, kunciButir, kunciBuktiButir, skorManual, tkKepuasan }
-  from './butir-manual.js?v=2026-11-06-f01099';
-import { BOBOT_TOTAL, bobotButir } from './bobot.js?v=2026-11-06-f01099';
-import { ambilDaftarLKPS } from './data-lkps.js?v=2026-11-06-f01099';
-import { ambilNarasi } from './led-narasi.js?v=2026-11-06-f01099';
-import { cekPitaWT, adaTingkat, sesuaiTracer } from './tracer-skor.js?v=2026-11-06-f01099';
-import { htmlRencana, buktiButir } from './rencana-bukti.js?v=2026-11-06-f01099';
-import { htmlPanel, pasangPanel } from './panel-bukti.js?v=2026-11-06-f01099';
-import { pasangMenu } from './menu.js?v=2026-11-06-f01099';
+  from './butir-manual.js?v=2026-11-07-884746';
+import { BOBOT_TOTAL, bobotButir } from './bobot.js?v=2026-11-07-884746';
+import { ambilDaftarLKPS } from './data-lkps.js?v=2026-11-07-884746';
+import { ambilNarasi } from './led-narasi.js?v=2026-11-07-884746';
+import { cekPitaWT, adaTingkat, sesuaiTracer } from './tracer-skor.js?v=2026-11-07-884746';
+import { htmlRencana, buktiButir } from './rencana-bukti.js?v=2026-11-07-884746';
+import { htmlPanel, pasangPanel } from './panel-bukti.js?v=2026-11-07-884746';
+import { pasangMenu } from './menu.js?v=2026-11-07-884746';
+import { barisBkd } from './tautan-butir.js?v=2026-11-07-884746';
+import { bukaLKD } from './bkd.js?v=2026-11-07-884746';
 import { statusSyarat, syaratButir, SYARAT_UNGGUL, SYARAT_RERATA, SASARAN,
-         statusRerata, gabungSyarat, statusRentang } from './syarat-unggul.js?v=2026-11-06-f01099';
+         statusRerata, gabungSyarat, statusRentang } from './syarat-unggul.js?v=2026-11-07-884746';
 
 // config.js mendefinisikan window.SB_URL dan window.SB_KEY — pemetaan di
 // bawah ini WAJIB ada. skor.html versi sebelumnya melewatkannya dan mati
@@ -399,7 +404,7 @@ const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 // Naikkan setiap kali skor.html / rincian.js / butir-manual.js / bobot.js
 // diubah. Ditampilkan di kaki halaman supaya ketahuan seketika kalau
 // peramban masih memakai salinan lama dari cache.
-const VERSI = '2026-11-06-f01099';
+const VERSI = '2026-11-07-884746';
 // Label versi di judul diisi dari VERSI supaya keduanya tidak bisa berbeda.
 { const el = document.querySelector('.versi-statis'); if (el) el.textContent = 'v' + VERSI; }
 // =====================================================================
@@ -482,6 +487,8 @@ function lompatKeButir(id, gulir = true){
   return true;
 }
 document.addEventListener('click', e => {
+  const lkd = e.target.closest('[data-lkd]');
+  if (lkd) { e.preventDefault(); return bukaLKD(sb, lkd.dataset.lkd); }
   const a = e.target.closest('a[href^="#butir-"]');
   if (!a) return;
   e.preventDefault();
@@ -510,8 +517,8 @@ async function unduhLKPS(idTombol){
     // Hanya tertulis di berkas unduhan, tidak disimpan di situs (pemilik 2026-11-06).
     const sandiLkd = idTombol === 'unduhIndeksBukti' ? (prompt('Kata sandi berkas privat yang ditulis di indeks untuk asesor '
       + '(sama dengan LKD_SANDI di Apps Script). Kosongkan bila diberikan terpisah:') || '').trim() : '';
-    const buat = idTombol === 'unduhIndeksBukti' ? (await import('./lkps-bukti.js?v=2026-11-06-f01099')).buatIndeksBukti
-      : (await import('./lkps-tabel.js?v=2026-11-06-f01099')).buatTabelLKPS;
+    const buat = idTombol === 'unduhIndeksBukti' ? (await import('./lkps-bukti.js?v=2026-11-07-884746')).buatIndeksBukti
+      : (await import('./lkps-tabel.js?v=2026-11-07-884746')).buatTabelLKPS;
     const hasil = await buat({ D, ts, prodi: D.prodi, institusi: D.institusi, rencanaKepuasan,
       daftar, sandiLkd });
     a.textContent = idTombol === 'unduhIndeksBukti' ? `Indeks terunduh (${hasil.sel} tautan, ${hasil.lembar.length} tabel)`
@@ -535,7 +542,7 @@ async function unduhLED(){
   const asli = a.textContent;
   a.textContent = 'Menyusun draf LED…';
   try {
-    const { buatLED } = await import('./led.js?v=2026-11-06-f01099');
+    const { buatLED } = await import('./led.js?v=2026-11-07-884746');
     const ts = CTX_LED.tsData;
     const hasil = await buatLED({
       D, ts, taDari, f2, versi: VERSI,
@@ -709,6 +716,7 @@ function butirManual(b){
     <div class="gulir"><table class="rin"><thead><tr>
       <th>Komponen</th><th>Nilai</th></tr></thead><tbody>${baris}</tbody></table></div>
     <div class="rumus">${esc(rumus)}</div>
+    ${b.no === '30' ? blokDataBkd() : ''}
     ${bukti ? `<a class="tbl-bukti" href="${esc(bukti)}"
         target="_blank" rel="noopener nofollow">&#128206;&nbsp; Bukti &#8599;</a>`
       : `<p class="isian" style="margin-top:10px">Bukti belum ditautkan — unggah
@@ -1029,6 +1037,26 @@ function IS(k){
 }
 function ISteks(k){ return PENG[k] == null ? '' : String(PENG[k]).trim(); }
 const rbkTS = () => RBK.get(`${TS - 1}/${TS}`) || null;
+let BKD = [], DOSEN_BKD = [];   // BKD terverifikasi + dosen, untuk daftar data butir 30 (pemilik 2026-11-07)
+// Daftar BKD yang membentuk RBK butir 30, persis penyaring rbk_prodi().
+function blokDataBkd(){
+  const { baris, rbk } = barisBkd(BKD, DOSEN_BKD, TS);
+  const r = rbkTS();
+  const sks = v => String(v).replace('.', ',');
+  const tombol = b => b.berkas.map(x => `<button class="btn-lkd" data-lkd="${esc(x.url)}">LKD ${esc(x.semester)}</button>`).join(' ') || '<span class="isian">tanpa LKD</span>';
+  const cek = !ADMIN ? `<div class="rinci-cek">Anda hanya melihat BKD Anda sendiri. RBK prodi dihitung dari seluruh DTPS (${r ? r.n_dosen : 0} dosen).</div>`
+    : !r ? '' : baris.length === r.n_dosen && Math.abs(rbk - r.rbk) < 1e-3
+      ? `<div class="rinci-cek">${baris.length} dosen, rata-rata ${f2(rbk)} sks, sama dengan RBK pada kartu.</div>`
+      : `<div class="rinci-cek beda">PERIKSA: daftar ${baris.length} dosen (rata-rata ${rbk == null ? '-' : f2(rbk)}), RBK kartu ${r.n_dosen} dosen (${f2(+r.rbk)}).</div>`;
+  const isi = baris.length ? `<div class="gulir"><table class="rinci-t"><thead><tr><th>Dosen DTPS</th><th>Semester</th>
+      <th>SKS BKD</th><th>Beban (sks/2)</th><th>Berkas</th></tr></thead><tbody>${baris.map(b => `<tr><td>${esc(b.nama)}</td>
+      <td>${esc(b.semester.join(', '))}${b.lengkap ? '' : ' <span class="isian">(belum dua semester)</span>'}</td>
+      <td>${sks(b.sks)}</td><td>${sks(b.beban)}</td><td>${tombol(b)}</td></tr>`).join('')}</tbody></table></div>`
+    : `<p class="isian">Belum ada BKD terverifikasi untuk TS ${taDari(TS)}${ADMIN ? '' : ' yang dapat Anda lihat'}.</p>`;
+  return `<details class="rinci"${baris.length ? '' : ' open'}><summary>Data yang dipakai &mdash; BKD terverifikasi TS ${taDari(TS)}: ${baris.length} dosen</summary>
+    ${isi}${cek}</details>
+    <a class="tbl-rinci" href="${ADMIN ? 'data-prodi.html?tab=bkd' : 'input.html'}">${ADMIN ? 'Buka Data prodi › Beban kerja dosen' : 'Buka Input karya › BKD saya'} &#8599;</a>`;
+}
 function catatanRbk(){
   const r = rbkTS();
   return r ? ` Dihitung dari BKD terverifikasi: ${r.n_dosen} DTPS, ${r.n_lengkap} lengkap dua semester. `
@@ -1511,6 +1539,8 @@ function daftarTS(){
   const th = new Set([kini]);
   (((D.akreditasi || {}).ta) || []).forEach(r => th.add(r.tahun_ts));
   (D.publikasi || []).forEach(p => th.add(+(p.tahun_ts ?? p.tahun)));
+  const tsUrl = +new URLSearchParams(location.search).get('ts');
+  if (tsUrl >= 2000) th.add(tsUrl);
   return [...th].filter(t => Number.isFinite(t) && t <= kini)
     .sort((a, b) => b - a).slice(0, 6);
 }
@@ -2081,7 +2111,9 @@ function pasangTS(){
   // terpantau sejak awal; TS yang sudah tutup tetap bisa dipilih
   // (keputusan pemilik 2026-10-15).
   const kini = tsBerjalan();
-  if (TS == null) TS = daftar.includes(kini) ? kini : daftar[0];
+  // ?ts=2026 dari tautan data -> kartu butir (pemilik 2026-11-07).
+  const tsUrl = +new URLSearchParams(location.search).get('ts');
+  if (TS == null) TS = daftar.includes(tsUrl) ? tsUrl : daftar.includes(kini) ? kini : daftar[0];
   wadah.innerHTML = `<span class="lbl">TS</span>` + daftar.map(t =>
     `<button aria-pressed="${t === TS}" data-ts="${t}"${t === kini
        ? ' title="TS berjalan: belum tutup buku sampai 31 Agustus"' : ''}>${taDari(t)}${
@@ -2135,6 +2167,13 @@ async function mulai(){
   (pengR.data || []).forEach(r => PENG[r.kunci] = r.nilai);
   const { data: rbk } = await sb.rpc('rbk_prodi');
   (rbk || []).forEach(r => RBK.set(r.tahun_akademik, r));
+  // Baris BKD untuk daftar data butir 30; RLS: admin semua, dosen miliknya sendiri.
+  const [bkdR, dosR] = await Promise.all([
+    sb.from('lkps_bkd').select('nidn,tahun_akademik,semester,verifikasi,bukti_url,sks_pendidikan,sks_ps_lain_dalam,'
+      + 'sks_ps_lain_luar,sks_penelitian,sks_pkm,sks_penunjang').eq('verifikasi', 'terverifikasi'),
+    sb.from('dosen').select('nama,nidn,dtps,peran')]);
+  BKD = bkdR.data || []; DOSEN_BKD = dosR.data || [];
+  if (bkdR.error) console.warn('BKD tidak terbaca (patch 39?):', bkdR.error.message);
   PENG_GAGAL = !!pengR.error;
   DOK = dokR.data || [];
   BB = bbR.data || [];

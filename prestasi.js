@@ -3,12 +3,21 @@
 // mahasiswa (pasangPrestasi) dan tab Verifikasi (pasangVerifikasiPrestasi).
 // Admin tetap bisa mengisi langsung di Data prodi.
 
-import { periksaBerkas, kolomSidik, teksTemuan } from './sidik-berkas.js?v=2026-11-06-f01099';
-import { buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-06-f01099';
-import { htmlSaran } from './saran-bukti.js?v=2026-11-06-f01099';
-import { tautanBerkas, temuanPakai } from './tautan-privat.js?v=2026-11-06-f01099';
+import { periksaBerkas, kolomSidik, teksTemuan } from './sidik-berkas.js?v=2026-11-07-884746';
+import { buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-07-884746';
+import { htmlSaran } from './saran-bukti.js?v=2026-11-07-884746';
+import { tautanBerkas, temuanPakai } from './tautan-privat.js?v=2026-11-07-884746';
+import { htmlTautanButir, tsBaris } from './tautan-butir.js?v=2026-11-07-884746';
 
 export const TABEL = 'lkps_prestasi_mahasiswa';
+
+// Butir 43 memakai prestasi terverifikasi pada jendela TS-4..TS (skor.html
+// butir43); tautan dibuka pada TS prestasi itu.
+export function tautanPrestasi(r){
+  if (r.status === 'ditolak') return '';
+  return `<div class="rec-m">${htmlTautanButir(['43'], tsBaris(r.tahun, r.bulan),
+    r.status === 'terverifikasi' ? 'Dipakai di' : 'Masuk setelah diverifikasi:')}</div>`;
+}
 export const JENIS_BUKTI_PRESTASI = [['sertifikat', 'Sertifikat / piagam'], ['surat_tugas', 'Surat tugas (privat)'],
   ['foto', 'Foto kegiatan'], ['lainnya', 'Lainnya']];
 const BIDANG = [['akademik', 'Akademik'], ['non_akademik', 'Nonakademik']];
@@ -158,7 +167,8 @@ export async function pasangPrestasi(wadah, { sb, saya, dosen }){
 
   wadah.innerHTML = `<div class="panel"><h2 id="pr_judul">Prestasi mahasiswa bimbingan</h2>
     <p class="hint">Satu entri untuk satu prestasi (LKPS Tabel 6.c, butir 43). Tim boleh beberapa mahasiswa dan
-    beberapa pembimbing. Prestasi dihitung setelah diverifikasi admin. Nama dan NIM tidak dipublikasikan.</p>
+    beberapa pembimbing. Prestasi dihitung setelah diverifikasi admin. Nama dan NIM tidak dipublikasikan.
+    ${htmlTautanButir(['43'], null, 'Lihat')}</p>
     ${htmlSaran('prestasi_dosen')}
     <form id="pr_form" novalidate><div class="grid">
       <div class="fld full"><label for="pr_kegiatan">Nama kegiatan <span class="req">*</span></label>
@@ -291,6 +301,7 @@ export async function pasangPrestasi(wadah, { sb, saya, dosen }){
     const bisaBuang = b => r.status !== 'terverifikasi' && String(b.oleh).toLowerCase() === String(saya.email).toLowerCase();
     return `<div class="rec" data-s="${esc(r.status)}"><div class="spine"></div><div class="rec-b">
       <div class="rec-j">${esc(r.nama_kegiatan)}</div>${htmlMeta(metaPrestasi(r))}${htmlOrang(r, dosen)}
+      ${tautanPrestasi(r)}
       ${r.catatan ? htmlMeta([`Catatan admin: ${r.catatan}`]) : ''}
       ${a?.status === 'ditolak' ? `<div class="rec-m"><span>Ajuan ditolak: ${esc(a.catatan_admin || '-')}</span>
         <button class="btn ghost sm" data-batal-ajuan="${a.id}">Tutup</button></div>` : ''}
@@ -409,6 +420,7 @@ export async function pasangVerifikasiPrestasi(boxIsian, boxAjuan, { sb, dosen }
         return `<div class="rec" data-s="diajukan"><div class="spine"></div><div class="rec-b">
           <div class="rec-j">${esc(r.nama_kegiatan)}</div>${htmlMeta(metaPrestasi(r))}${htmlOrang(r, dosen)}
           ${m.length ? htmlMeta([`Mungkin ganda dengan: ${m.map(x => x.nama_kegiatan).join('; ')}`]) : ''}
+          ${tautanPrestasi(r)}
           ${daftarBukti(r)}</div><div class="rec-a">
           <button class="btn sm" data-vp="${r.id}">Verifikasi</button>
           <button class="btn danger sm" data-tp="${r.id}">Tolak</button></div></div>`;

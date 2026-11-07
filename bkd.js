@@ -3,8 +3,9 @@
 // (pasangBkd) dan tab Verifikasi (pasangVerifikasiBkd). Dosen lain diisi admin
 // di Data prodi. Berkas LKD privat: lihat unggahLKD dan bukaLKD.
 
-import { ubahan } from './prestasi.js?v=2026-11-06-f01099';
-import { htmlSaran } from './saran-bukti.js?v=2026-11-06-f01099';
+import { ubahan } from './prestasi.js?v=2026-11-07-884746';
+import { htmlSaran } from './saran-bukti.js?v=2026-11-07-884746';
+import { htmlTautanButir, tsDariTA } from './tautan-butir.js?v=2026-11-07-884746';
 
 // Bagian C LKD. Pendidikan dipecah per PS untuk Tabel 4.c; SISTER tidak
 // punya kolom prodi, jadi dosen memilahnya menurut kode kelas.
@@ -93,6 +94,15 @@ const rincian = r => htmlMeta([`Pendidikan total: ${tampilSks(pendidikanTotal(r)
   ...KOLOM_BKD.filter(([k]) => +r[k]).map(([k, l]) => `${l}: ${tampilSks(r[k])}`)]);
 const tombolLKD = r => r.bukti_url ? `<button class="btn ghost sm" data-lkd="${esc(r.bukti_url)}">Buka LKD</button>` : '';
 
+// Butir 30 memakai BKD terverifikasi DTPS pada TS = tahun akademiknya
+// (rbk_prodi, 39-patch-bkd-dosen.sql); Tabel 4.c memuat juga dosen non-DTPS.
+export function tautanBkd(r, dtps = true){
+  if (r.verifikasi === 'ditolak') return '';
+  const ts = tsDariTA(r.tahun_akademik), ok = r.verifikasi === 'terverifikasi';
+  if (!dtps) return '<div class="rec-m"><span>Tabel 4.c saja (bukan DTPS, tidak masuk butir 30)</span></div>';
+  return `<div class="rec-m">${htmlTautanButir(['30'], ts, ok ? 'Dipakai di' : 'Masuk setelah diverifikasi:')}</div>`;
+}
+
 // ---------- tab dosen ----------
 
 export async function pasangBkd(wadah, { sb, saya }){
@@ -103,7 +113,8 @@ export async function pasangBkd(wadah, { sb, saya }){
 
   wadah.innerHTML = `<div class="panel"><h2 id="bk_judul">BKD saya</h2>
     <p class="hint">Satu entri per semester, disalin dari bagian C Laporan Kinerja Dosen (LKD) SISTER. Dipakai untuk
-    Tabel 4.c dan butir 30 setelah diverifikasi admin. Data ini tidak dipublikasikan.</p>
+    Tabel 4.c dan butir 30 setelah diverifikasi admin. Data ini tidak dipublikasikan.
+    ${htmlTautanButir(['30'], null, 'Lihat')}</p>
     ${htmlSaran('bkd')}
     <form id="bk_form" novalidate><div class="grid">
       <div class="fld"><label for="bk_ta">Tahun akademik <span class="req">*</span></label>
@@ -195,6 +206,7 @@ export async function pasangBkd(wadah, { sb, saya }){
     const a = AJUAN.get(r.id), menunggu = a?.status === 'menunggu';
     return `<div class="rec" data-s="${r.verifikasi === 'diajukan' ? 'diajukan' : esc(r.verifikasi)}"><div class="spine"></div><div class="rec-b">
       <div class="rec-j">${esc(r.tahun_akademik)} ${esc(r.semester)}</div>${htmlMeta(metaBkd(r))}${rincian(r)}
+      ${tautanBkd(r)}
       ${r.catatan ? htmlMeta([`Catatan admin: ${r.catatan}`]) : ''}
       ${a?.status === 'ditolak' ? `<div class="rec-m"><span>Ajuan ditolak: ${esc(a.catatan_admin || '-')}</span>
         <button class="btn ghost sm" data-batal-ajuan="${a.id}">Tutup</button></div>` : ''}
@@ -265,6 +277,7 @@ export async function pasangVerifikasiBkd(boxIsian, boxAjuan, { sb, dosen }){
       boxIsian.innerHTML = tunggu.map(r => `<div class="rec" data-s="diajukan"><div class="spine"></div><div class="rec-b">
         <div class="rec-j">${esc(nama(r.nidn))}: ${esc(r.tahun_akademik)} ${esc(r.semester)}</div>${htmlMeta(metaBkd(r))}${rincian(r)}
         ${diLuarRentang(r) ? htmlMeta([`Total di luar ${SKS_MIN}–${SKS_MAKS} SKS`]) : ''}
+        ${tautanBkd(r, (dosen.find(d => d.nidn === r.nidn) || {}).dtps !== false)}
         </div><div class="rec-a">${tombolLKD(r) || '<span class="tag">tanpa LKD</span>'}
         <button class="btn sm" data-vb="${r.id}">Verifikasi</button>
         <button class="btn danger sm" data-tb="${r.id}">Tolak</button></div></div>`).join('');

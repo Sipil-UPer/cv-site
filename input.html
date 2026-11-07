@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-06-f01099">
+<link rel="stylesheet" href="tema.css?v=2026-11-07-884746">
 <style>
   :root{--bg:#EEF0ED; --ink:#161E26; --muted:#616C76; --line:#D8DDD8; --line-soft:#E8EBE7; --accent:var(--biru); --accent-soft:var(--biru-m7); --pending:#8A5A00; --pending-soft:#FAF0DC; --reject:#8C2F2F; --reject-soft:#F7E7E7;}
   *{box-sizing:border-box}
@@ -143,7 +143,7 @@
   table.beda td:nth-child(3){background:#EAF4EC}
   @media(max-width:640px){.grid{grid-template-columns:1fr}}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-06-f01099">
+<link rel="stylesheet" href="kepala.css?v=2026-11-07-884746">
 </head>
 <body>
 
@@ -157,7 +157,7 @@
 
 <div class="wrap" id="app"></div>
 
-<script src="config.js?v=2026-11-06-f01099"></script>
+<script src="config.js?v=2026-11-07-884746"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -181,15 +181,16 @@ const SUPABASE_URL = window.SB_URL;
 const SUPABASE_ANON_KEY = window.SB_KEY;
 
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { JENIS_BUKTI_KARYA, namaJenisBukti, JENIS_KARYA_PRIVAT, teksAksesBukti } from './rencana-bukti.js?v=2026-11-06-f01099';
-import { tautanBerkas, temuanPakai } from './tautan-privat.js?v=2026-11-06-f01099';
-import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-06-f01099';
-import { periksaBerkas, kolomSidik, teksTemuan } from './sidik-berkas.js?v=2026-11-06-f01099';
-import { htmlContoh, pasangContoh, durasiKS, JENIS_BUKTI_KS } from './manfaat-kerjasama.js?v=2026-11-06-f01099';
-import { pasangMenu } from './menu.js?v=2026-11-06-f01099';
-import { pasangPrestasi, pasangVerifikasiPrestasi } from './prestasi.js?v=2026-11-06-f01099';
-import { htmlSaran } from './saran-bukti.js?v=2026-11-06-f01099';
-import { pasangBkd, pasangVerifikasiBkd } from './bkd.js?v=2026-11-06-f01099';
+import { JENIS_BUKTI_KARYA, namaJenisBukti, JENIS_KARYA_PRIVAT, teksAksesBukti } from './rencana-bukti.js?v=2026-11-07-884746';
+import { tautanBerkas, temuanPakai } from './tautan-privat.js?v=2026-11-07-884746';
+import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-07-884746';
+import { periksaBerkas, kolomSidik, teksTemuan } from './sidik-berkas.js?v=2026-11-07-884746';
+import { htmlContoh, pasangContoh, durasiKS, JENIS_BUKTI_KS } from './manfaat-kerjasama.js?v=2026-11-07-884746';
+import { pasangMenu } from './menu.js?v=2026-11-07-884746';
+import { pasangPrestasi, pasangVerifikasiPrestasi } from './prestasi.js?v=2026-11-07-884746';
+import { htmlSaran } from './saran-bukti.js?v=2026-11-07-884746';
+import { pasangBkd, pasangVerifikasiBkd } from './bkd.js?v=2026-11-07-884746';
+import { htmlTautanButir, butirKarya, tsBaris } from './tautan-butir.js?v=2026-11-07-884746';
 
 const app = document.getElementById('app');
 if (!SUPABASE_URL || !SUPABASE_ANON_KEY
@@ -420,7 +421,7 @@ async function mulai(){
   const [ds, kl, sk] = await Promise.all([
     // Calon penulis: dosen aktif. Admin/asesor yang bukan DTPS (mis. admin
     // staf/tendik) bukan dosen, jadi tidak ditawarkan (pemilik 2026-11-03).
-    sb.from('dosen').select('id,nama,nidn').eq('aktif', true)
+    sb.from('dosen').select('id,nama,nidn,dtps').eq('aktif', true)
       .or('dtps.eq.true,peran.in.(dosen,pimpinan)').order('nama'),
     sb.from('ref_kelompok_dana').select('*').order('urutan'),
     sb.from('ref_skema_dana').select('*').eq('aktif', true).order('urutan'),
@@ -550,6 +551,20 @@ function fieldHTML(f){
 // ubah = { k: baris karya lengkap, mode: 'langsung' | 'ajuan' } untuk mengubah
 // karya yang sudah ada (pemilik 2026-11-04, patch 20): pelapor mengubah langsung
 // karya yang belum terverifikasi; selain itu lewat ajuan yang disetujui admin.
+// Butir yang dapat memakai isian tiap tab (tautan-butir.js). 35 dan 46
+// bersyarat: karya utama (terbitan bereputasi, penulis pertama/korespondensi)
+// dan publikasi dengan mahasiswa sebagai penulis pertama.
+const BUTIR_TAB = { publikasi: ['6', '33', '35', '46'], kegiatan: ['6', '10', '11', '23', '25', '31', '32'],
+  luaran: ['34', '35'], rekognisi: ['37'], integrasi: ['17'] };
+
+// Tautan baris karya ke butirnya pada TS karya itu. Yang ditolak tidak dipakai.
+function tautanKarya(k){
+  if(k.status === 'ditolak') return '';
+  const ok = k.status === 'terverifikasi';
+  return `<div class="rec-m">${htmlTautanButir(butirKarya(k), tsBaris(k.tahun, k.bulan),
+    ok ? 'Dipakai di' : 'Masuk setelah diverifikasi:')}</div>`;
+}
+
 function tampilForm(key, ubah = null){
   const F = FORM[key];
   const ajuan = ubah?.mode === 'ajuan';
@@ -566,6 +581,7 @@ function tampilForm(key, ubah = null){
     <p class="hint">${!ubah ? F.hint : ajuan
       ? 'Ubah isian yang perlu diperbaiki. Perubahan baru berlaku setelah disetujui admin prodi; sampai saat itu data lama tetap tampil. Bukti dikelola lewat tombol Bukti di Karya saya.'
       : 'Karya ini belum terverifikasi, jadi perubahan langsung tersimpan dan karya kembali menunggu verifikasi admin. Bukti dikelola lewat tombol Bukti di Karya saya.'}</p>
+    <p class="hint">${htmlTautanButir(BUTIR_TAB[key], null, 'Isian tab ini dapat dipakai di')}</p>
     ${htmlSaran(key)}
     <form id="frm" class="grid">
       ${F.f.map(fieldHTML).join('')}
@@ -1688,6 +1704,7 @@ function barisKarya(k, aksi='', ekstra=''){
       <div class="rec-m">${meta.map(x=>`<span>${esc(x)}</span>`).join('')}</div>
       ${nama.length?`<div class="rec-m"><span>${esc(nama.join(' · '))}</span></div>`:''}
       ${k.catatan?`<div class="rec-m"><span>Catatan: ${esc(k.catatan)}</span></div>`:''}
+      ${tautanKarya(k)}
       ${ekstra}
     </div>
     <div class="rec-a"><span class="tag">${rapi(k.status)}</span>${aksi}</div>

@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-06-f01099">
+<link rel="stylesheet" href="tema.css?v=2026-11-07-884746">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
@@ -77,7 +77,7 @@
   .masuk{max-width:420px;margin:40px auto;background:#fff;border:1px solid var(--line);padding:20px}
   .masuk input{width:100%;padding:8px 10px;margin:8px 0;font:inherit}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-06-f01099">
+<link rel="stylesheet" href="kepala.css?v=2026-11-07-884746">
 </head>
 <body>
 
@@ -91,7 +91,7 @@
 
 <main class="wrap" id="isi"></main>
 
-<script src="config.js?v=2026-11-06-f01099"></script>
+<script src="config.js?v=2026-11-07-884746"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -108,16 +108,17 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-06-f01099';
-import { pasangMenu } from './menu.js?v=2026-11-06-f01099';
-import { unggahKePustaka, opsiPustaka, opsiJenis, labelDokumen, cariDokumen } from './pustaka-dokumen.js?v=2026-11-06-f01099';
-import { pasangRapikan } from './rapikan-berkas.js?v=2026-11-06-f01099';
-import { htmlContoh, pasangContoh, JENIS_BUKTI_KS } from './manfaat-kerjasama.js?v=2026-11-06-f01099';
-import { infoJenis } from './rencana-bukti.js?v=2026-11-06-f01099';
-import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-06-f01099';
-import { htmlSaran } from './saran-bukti.js?v=2026-11-06-f01099';
-import { tautanBerkas, privatkanLama } from './tautan-privat.js?v=2026-11-06-f01099';
-import { unggahLKD, bukaLKD, pendidikanTotal, pendidikanPS } from './bkd.js?v=2026-11-06-f01099';
+import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-07-884746';
+import { pasangMenu } from './menu.js?v=2026-11-07-884746';
+import { unggahKePustaka, opsiPustaka, opsiJenis, labelDokumen, cariDokumen } from './pustaka-dokumen.js?v=2026-11-07-884746';
+import { pasangRapikan } from './rapikan-berkas.js?v=2026-11-07-884746';
+import { htmlContoh, pasangContoh, JENIS_BUKTI_KS } from './manfaat-kerjasama.js?v=2026-11-07-884746';
+import { infoJenis } from './rencana-bukti.js?v=2026-11-07-884746';
+import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-07-884746';
+import { nomorButir, htmlTautanButir } from './tautan-butir.js?v=2026-11-07-884746';
+import { htmlSaran } from './saran-bukti.js?v=2026-11-07-884746';
+import { tautanBerkas, privatkanLama } from './tautan-privat.js?v=2026-11-07-884746';
+import { unggahLKD, bukaLKD, pendidikanTotal, pendidikanPS } from './bkd.js?v=2026-11-07-884746';
 
 /* =====================================================================
    DATA PRODI — data kuantitatif LKPS diisi admin di situs (keputusan
@@ -757,7 +758,8 @@ async function bukaTab(){
   SUNTING = null;
   const T = AKTIF;
   if (T.khusus) return bukaPustaka();
-  $('panel').innerHTML = `<p class="ket"><b>Butir ${esc(T.butir)}.</b> ${esc(T.ket)}</p>${saranTab(T)}
+  $('panel').innerHTML = `<p class="ket">${nomorButir(T.butir).length
+    ? `<b>${htmlTautanButir(nomorButir(T.butir), null, 'Dipakai di')}.</b>` : `<b>${esc(T.butir)}.</b>`} ${esc(T.ket)}</p>${saranTab(T)}
     <form id="form" novalidate><div class="grid">${kolomForm(T).map(isian).join('')}
       ${T.privat ? blokLKD() : blokBukti(T)}</div>
       <div class="aksi"><button type="submit" class="btn" id="simpan">Tambah baris</button>

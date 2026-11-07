@@ -58,3 +58,8 @@
   --mono:'IBM Plex Mono',ui-monospace,monospace;
   --serif:'IBM Plex Serif',Georgia,serif;
 }
+
+/* Tautan isian -> kartu butir di skor.html (tautan-butir.js, pemilik 2026-11-07). */
+.ke-butir-data{font-size:12px;color:var(--muted)}
+.ke-butir-data a{color:var(--biru-2);font-weight:500}
+.ke-butir-data small{font-size:11px}
