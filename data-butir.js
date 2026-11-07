@@ -274,3 +274,47 @@ export function dataButir(no, P, TS, D){
   return f ? f(P || {}, TS, D || {}) : null;
 }
 export const BUTIR_DATA_BARIS = Object.keys(DEF);
+
+// ---------------------------------------------------------------------
+//  Pemuat baris sumber (dipakai skor.html dan rincian.html). Tabel yang
+//  belum ada atau tidak boleh dibaca cukup kosong; kartu lalu menampilkan
+//  PERIKSA atau catatan. RLS: lkps_bukti hanya admin.
+// ---------------------------------------------------------------------
+const semua = async (sb, t, q = x => x) => { const { data, error } = await q(sb.from(t).select('*'));
+  if (error) console.warn(t, error.message); return data || []; };
+
+// Butir 6 dan 46: karya terverifikasi dengan mitra dan peran mahasiswa.
+// Tanpa kolom patch 10/24 (relevan_visi, kerjasama_id) kueri diulang tanpa keduanya.
+async function ambilKarya(sb){
+  const q = kol => sb.from('karya').select(kol).eq('status', 'terverifikasi').limit(5000);
+  for (const kol of ['id,kategori,tahun,bulan,judul,relevan_visi,kerjasama_id,karya_mitra(institusi,tingkat),karya_mahasiswa(peran)',
+                     'id,kategori,tahun,bulan,judul,karya_mitra(institusi,tingkat),karya_mahasiswa(peran)']){
+    const { data, error } = await q(kol);
+    if (!error) return data || [];
+    console.warn('karya', error.message);
+  }
+  return [];
+}
+async function ambilBukti(sb){
+  const q = kol => sb.from('lkps_bukti').select(kol);
+  const { data, error } = await q('tabel,baris_id,judul,url,dokumen(url)');
+  return error ? ((await q('tabel,baris_id,judul,url')).data || []) : (data || []);
+}
+
+// Cukup untuk butir 6 (rincian.html).
+export async function ambilDataKerjasama(sb){
+  const [kerjasama, karya, bukti] = await Promise.all([semua(sb, 'lkps_kerjasama'), ambilKarya(sb), ambilBukti(sb)]);
+  return { kerjasama, karya, bukti };
+}
+
+// Semua butir (skor.html). dana: baris DANA yang sudah dimuat skor.html.
+export async function ambilDataButir(sb, { dana = [] } = {}){
+  const [ks, mhs, kohort, tracer, kepuasan, prestasi, pubMhs, luaranMhs, dosen, ...pend] = await Promise.all([
+    ambilDataKerjasama(sb), semua(sb, 'lkps_mahasiswa_ta'), semua(sb, 'lkps_kohort_lulusan'), semua(sb, 'lkps_tracer_lulusan'),
+    semua(sb, 'lkps_kepuasan_pengguna'), semua(sb, 'lkps_prestasi_mahasiswa', q => q.eq('status', 'terverifikasi')),
+    semua(sb, 'lkps_publikasi_mahasiswa'), semua(sb, 'lkps_luaran_mahasiswa'), semua(sb, 'dosen'),
+    ...TABEL_PENDUKUNG.map(t => semua(sb, t))]);
+  return { ...ks, mhs, kohort, tracer, kepuasan, prestasi, pubMhs, luaranMhs, dana,
+    dosen: dosen.map(d => ({ nama: d.nama, peran: d.peran, dtps: d.dtps, aktif: d.aktif, pendidikan: d.pendidikan, jabatan: d.jabatan })),
+    pendukung: Object.fromEntries(TABEL_PENDUKUNG.map((t, i) => [t, pend[i]])) };
+}

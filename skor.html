@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-07-b18421">
+<link rel="stylesheet" href="tema.css?v=2026-11-07-6d5624">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
@@ -285,7 +285,7 @@
   :focus-visible{outline:2px solid var(--biru-2);outline-offset:1px}
   @media(prefers-reduced-motion:reduce){.kartu{transition:none}.kartu:hover{transform:none}}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-07-b18421">
+<link rel="stylesheet" href="kepala.css?v=2026-11-07-6d5624">
 </head>
 <body>
 
@@ -350,7 +350,7 @@ setTimeout(function(){
   });
 }, 8000);
 </script>
-<script src="config.js?v=2026-11-07-b18421"></script>
+<script src="config.js?v=2026-11-07-6d5624"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -367,22 +367,22 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { BUTIR, isiPetaBukti, cariBukti, daftarBukti, kolomBukti } from './rincian.js?v=2026-11-07-b18421';
+import { BUTIR, isiPetaBukti, cariBukti, daftarBukti, kolomBukti } from './rincian.js?v=2026-11-07-6d5624';
 import { BUTIR_MANUAL, SEKSI_MANUAL, kunciButir, kunciBuktiButir, skorManual, tkKepuasan }
-  from './butir-manual.js?v=2026-11-07-b18421';
-import { BOBOT_TOTAL, bobotButir } from './bobot.js?v=2026-11-07-b18421';
-import { ambilDaftarLKPS } from './data-lkps.js?v=2026-11-07-b18421';
-import { ambilNarasi } from './led-narasi.js?v=2026-11-07-b18421';
-import { cekPitaWT, adaTingkat, sesuaiTracer } from './tracer-skor.js?v=2026-11-07-b18421';
-import { htmlRencana, buktiButir } from './rencana-bukti.js?v=2026-11-07-b18421';
-import { htmlPanel, pasangPanel } from './panel-bukti.js?v=2026-11-07-b18421';
-import { pasangMenu } from './menu.js?v=2026-11-07-b18421';
-import { barisBkd } from './tautan-butir.js?v=2026-11-07-b18421';
-import { bukaLKD } from './bkd.js?v=2026-11-07-b18421';
-import { dataButir, pendukungButir, TABEL_PENDUKUNG } from './data-butir.js?v=2026-11-07-b18421';
-import { TAB_DATA } from './kelengkapan.js?v=2026-11-07-b18421';
+  from './butir-manual.js?v=2026-11-07-6d5624';
+import { BOBOT_TOTAL, bobotButir } from './bobot.js?v=2026-11-07-6d5624';
+import { ambilDaftarLKPS } from './data-lkps.js?v=2026-11-07-6d5624';
+import { ambilNarasi } from './led-narasi.js?v=2026-11-07-6d5624';
+import { cekPitaWT, adaTingkat, sesuaiTracer } from './tracer-skor.js?v=2026-11-07-6d5624';
+import { htmlRencana, buktiButir } from './rencana-bukti.js?v=2026-11-07-6d5624';
+import { htmlPanel, pasangPanel } from './panel-bukti.js?v=2026-11-07-6d5624';
+import { pasangMenu } from './menu.js?v=2026-11-07-6d5624';
+import { barisBkd } from './tautan-butir.js?v=2026-11-07-6d5624';
+import { bukaLKD } from './bkd.js?v=2026-11-07-6d5624';
+import { dataButir, pendukungButir, ambilDataButir } from './data-butir.js?v=2026-11-07-6d5624';
+import { TAB_DATA } from './kelengkapan.js?v=2026-11-07-6d5624';
 import { statusSyarat, syaratButir, SYARAT_UNGGUL, SYARAT_RERATA, SASARAN,
-         statusRerata, gabungSyarat, statusRentang } from './syarat-unggul.js?v=2026-11-07-b18421';
+         statusRerata, gabungSyarat, statusRentang } from './syarat-unggul.js?v=2026-11-07-6d5624';
 
 // config.js mendefinisikan window.SB_URL dan window.SB_KEY — pemetaan di
 // bawah ini WAJIB ada. skor.html versi sebelumnya melewatkannya dan mati
@@ -406,7 +406,7 @@ const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 // Naikkan setiap kali skor.html / rincian.js / butir-manual.js / bobot.js
 // diubah. Ditampilkan di kaki halaman supaya ketahuan seketika kalau
 // peramban masih memakai salinan lama dari cache.
-const VERSI = '2026-11-07-b18421';
+const VERSI = '2026-11-07-6d5624';
 // Label versi di judul diisi dari VERSI supaya keduanya tidak bisa berbeda.
 { const el = document.querySelector('.versi-statis'); if (el) el.textContent = 'v' + VERSI; }
 // =====================================================================
@@ -519,8 +519,8 @@ async function unduhLKPS(idTombol){
     // Hanya tertulis di berkas unduhan, tidak disimpan di situs (pemilik 2026-11-06).
     const sandiLkd = idTombol === 'unduhIndeksBukti' ? (prompt('Kata sandi berkas privat yang ditulis di indeks untuk asesor '
       + '(sama dengan LKD_SANDI di Apps Script). Kosongkan bila diberikan terpisah:') || '').trim() : '';
-    const buat = idTombol === 'unduhIndeksBukti' ? (await import('./lkps-bukti.js?v=2026-11-07-b18421')).buatIndeksBukti
-      : (await import('./lkps-tabel.js?v=2026-11-07-b18421')).buatTabelLKPS;
+    const buat = idTombol === 'unduhIndeksBukti' ? (await import('./lkps-bukti.js?v=2026-11-07-6d5624')).buatIndeksBukti
+      : (await import('./lkps-tabel.js?v=2026-11-07-6d5624')).buatTabelLKPS;
     const hasil = await buat({ D, ts, prodi: D.prodi, institusi: D.institusi, rencanaKepuasan,
       daftar, sandiLkd });
     a.textContent = idTombol === 'unduhIndeksBukti' ? `Indeks terunduh (${hasil.sel} tautan, ${hasil.lembar.length} tabel)`
@@ -544,7 +544,7 @@ async function unduhLED(){
   const asli = a.textContent;
   a.textContent = 'Menyusun draf LED…';
   try {
-    const { buatLED } = await import('./led.js?v=2026-11-07-b18421');
+    const { buatLED } = await import('./led.js?v=2026-11-07-6d5624');
     const ts = CTX_LED.tsData;
     const hasil = await buatLED({
       D, ts, taDari, f2, versi: VERSI,
@@ -2172,34 +2172,6 @@ function pasangTS(){
     }));
 }
 
-// Baris sumber untuk "Data yang dipakai". Tabel yang belum ada atau tidak
-// boleh dibaca cukup kosong; kartu lalu menampilkan PERIKSA atau catatan.
-async function ambilDataButir(){
-  const semua = async (t, q = x => x) => { const { data, error } = await q(sb.from(t).select('*'));
-    if (error) console.warn(t, error.message); return data || []; };
-  const karya = async () => {
-    const q = kol => sb.from('karya').select(kol).eq('status', 'terverifikasi').limit(5000);
-    for (const kol of ['id,kategori,tahun,bulan,judul,relevan_visi,kerjasama_id,karya_mitra(institusi,tingkat),karya_mahasiswa(peran)',
-                       'id,kategori,tahun,bulan,judul,karya_mitra(institusi,tingkat),karya_mahasiswa(peran)']){
-      const { data, error } = await q(kol);
-      if (!error) return data || [];
-      console.warn('karya', error.message);
-    }
-    return [];
-  };
-  const bukti = async () => { const q = kol => sb.from('lkps_bukti').select(kol);
-    const { data, error } = await q('tabel,baris_id,judul,url,dokumen(url)');
-    return error ? ((await q('tabel,baris_id,judul,url')).data || []) : (data || []); };
-  const [mhs, kohort, tracer, kepuasan, prestasi, pubMhs, luaranMhs, kerjasama, k, dosen, b, ...pend] = await Promise.all([
-    semua('lkps_mahasiswa_ta'), semua('lkps_kohort_lulusan'), semua('lkps_tracer_lulusan'), semua('lkps_kepuasan_pengguna'),
-    semua('lkps_prestasi_mahasiswa', q => q.eq('status', 'terverifikasi')), semua('lkps_publikasi_mahasiswa'),
-    semua('lkps_luaran_mahasiswa'), semua('lkps_kerjasama'), karya(),
-    semua('dosen'), bukti(), ...TABEL_PENDUKUNG.map(t => semua(t))]);
-  return { mhs, kohort, tracer, kepuasan, prestasi, pubMhs, luaranMhs, kerjasama, karya: k, dana: DANA,
-    dosen: dosen.map(d => ({ nama: d.nama, peran: d.peran, dtps: d.dtps, aktif: d.aktif, pendidikan: d.pendidikan, jabatan: d.jabatan })),
-    bukti: b, pendukung: Object.fromEntries(TABEL_PENDUKUNG.map((t, i) => [t, pend[i]])) };
-}
-
 async function mulai(){
   const { data: { session } } = await sb.auth.getSession();
   if (!session) return layarMasuk();
@@ -2240,7 +2212,7 @@ async function mulai(){
       + 'sks_ps_lain_luar,sks_penelitian,sks_pkm,sks_penunjang').eq('verifikasi', 'terverifikasi'),
     sb.from('dosen').select('nama,nidn,dtps,peran')]);
   BKD = bkdR.data || []; DOSEN_BKD = dosR.data || [];
-  P_DATA = await ambilDataButir();
+  P_DATA = await ambilDataButir(sb, { dana: DANA });
   if (bkdR.error) console.warn('BKD tidak terbaca (patch 39?):', bkdR.error.message);
   PENG_GAGAL = !!pengR.error;
   DOK = dokR.data || [];

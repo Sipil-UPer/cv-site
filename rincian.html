@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-07-b18421">
+<link rel="stylesheet" href="tema.css?v=2026-11-07-6d5624">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
@@ -76,7 +76,7 @@
   @media print{.hero{background:#fff;color:#000;border-bottom:2px solid #000}
     h1,.sub,.no{color:#000}.balik,.tautan{display:none}}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-07-b18421">
+<link rel="stylesheet" href="kepala.css?v=2026-11-07-6d5624">
 </head>
 <body>
 
@@ -91,7 +91,7 @@
 
 <main class="wrap" id="isi"></main>
 
-<script src="config.js?v=2026-11-07-b18421"></script>
+<script src="config.js?v=2026-11-07-6d5624"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -108,8 +108,9 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { BUTIR, isiPetaBukti, cariBukti, daftarBukti, kolomBukti } from './rincian.js?v=2026-11-07-b18421';
-import { pasangMenu } from './menu.js?v=2026-11-07-b18421';
+import { BUTIR, isiPetaBukti, cariBukti, daftarBukti, kolomBukti } from './rincian.js?v=2026-11-07-6d5624';
+import { pasangMenu } from './menu.js?v=2026-11-07-6d5624';
+import { dataButir, ambilDataKerjasama } from './data-butir.js?v=2026-11-07-6d5624';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g,
   c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -128,6 +129,7 @@ if (!SB_URL || !SB_KEY || SB_URL.includes('xxxx')){
 const sb = createClient(SB_URL, SB_KEY);
 
 let D = null, TS = null;
+let P6 = null;   // butir 6: baris yang sama dengan kartu skor (data-butir.js, pemilik 2026-11-07)
 
 // Gerbang yang sama dengan skor.html: harus login DAN terdaftar di tabel
 // `dosen`. Asesor masuk lewat baris dosen dengan peran 'asesor' dan
@@ -157,6 +159,9 @@ async function mulai(){
   D = await jsonR.json();
   // karya_bukti kosong (bukan galat fatal) bila patch 14 belum dijalankan.
   isiPetaBukti(buktiR.data || [], kbR.data || []);
+  // Butir 6 memuat juga Data prodi › Kerja sama dan aturan mitra induk,
+  // sehingga daftarnya sama dengan kartu di skor.html.
+  if (NO === '6') P6 = await ambilDataKerjasama(sb);
   if (kbR.error) console.warn('karya_bukti tidak terbaca:', kbR.error.message);
   if (buktiR.error)
     console.warn('Bukti tidak terbaca:', buktiR.error.message);
@@ -189,6 +194,7 @@ function render(saya){
 
   $('hNo').textContent = `BUTIR ${NO} · APS-AV 2025 · TS ${TS}`;
   $('hJudul').textContent = def.judul;
+  if (NO === '6' && P6) return renderData(nav, dataButir('6', P6, TS, D));
 
   const daftar = def.baris(D, TS);
   const n = def.penyebut(D, TS);
@@ -230,6 +236,38 @@ function render(saya){
         <b>${daftar.filter(r => cariBukti(r)).length}</b> dari
         <b>${daftar.length}</b> baris.</div>` : ''}
       ${def.catatan ? `<div class="ctt">${def.catatan}</div>` : ''}
+    </div>
+    <footer>Diperbarui ${esc(D.diperbarui)}. Daftar ini memakai penyaring yang
+    sama dengan kartu di halaman skor. Tautan bukti dibaca dari basis data di
+    balik RLS dan tidak pernah masuk berkas publik. Alat bantu internal, bukan
+    penilaian resmi.</footer>`;
+}
+
+// Daftar dari data-butir.js (butir 6): kolom, bukti per baris, dan
+// pemeriksaan terhadap angka data.json, sama dengan blok di kartu skor.
+function renderData(nav, x){
+  $('hJudul').textContent = x.judul;
+  const bukti = r => r._bukti || (r._karya ? daftarBukti(r._karya) : []);
+  const sel = (r, k) => `<td>${esc(r[k] ?? '—')}</td>`;
+  const selBukti = r => { const xs = bukti(r);
+    return `<td>${xs.length ? xs.map(b => `<a class="bukti" href="${esc(b.url)}" target="_blank"
+      rel="noopener nofollow" title="${esc(b.label)}">&#128206; ${esc(b.label)}</a>`).join(' ')
+      : '<span class="bukti-kos">tanpa bukti</span>'}</td>`; };
+  const cocok = x.pakai === x.pembanding;
+  const cek = x.pembanding == null ? '' : `<div class="cek${cocok ? '' : ' beda'}">${cocok
+    ? `${x.pakai} ${esc(x.labelPakai)}, sama dengan angka pada kartu skor.`
+    : `PERIKSA: daftar ${x.pakai} ${esc(x.labelPakai)}, angka kartu ${x.pembanding}. Data situs dibangun
+       tiap jam; isian yang baru saja diubah baru masuk kartu setelah pembangunan berikutnya.`}</div>`;
+  $('isi').innerHTML = `${nav}
+    <div class="kartu">
+      ${x.baris.length ? `<div class="gulir"><table class="r">
+        <thead><tr>${x.kolom.map(([th]) => `<th>${esc(th)}</th>`).join('')}<th>Bukti</th></tr></thead>
+        <tbody>${x.baris.map(r => `<tr>${x.kolom.map(([, k]) => sel(r, k)).join('')}${selBukti(r)}</tr>`).join('')}</tbody>
+      </table></div>` : `<p class="kosong">Tidak ada baris pada jendela TS ${TS}.</p>`}
+      ${cek}
+      ${x.baris.length ? `<div class="rekap">Bukti tertaut:
+        <b>${x.baris.filter(r => bukti(r).length).length}</b> dari <b>${x.baris.length}</b> baris.</div>` : ''}
+      ${x.catatan ? `<div class="ctt">${esc(x.catatan)}</div>` : ''}
     </div>
     <footer>Diperbarui ${esc(D.diperbarui)}. Daftar ini memakai penyaring yang
     sama dengan kartu di halaman skor. Tautan bukti dibaca dari basis data di
