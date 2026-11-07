@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-07-6d5624">
+<link rel="stylesheet" href="tema.css?v=2026-11-07-e3503c">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
@@ -31,6 +31,9 @@
   .cek{font-family:var(--mono);font-size:12px;color:var(--muted);
        margin-top:12px;padding-top:10px;border-top:1px solid var(--line-soft)}
   .cek.beda{color:var(--merah)}
+  h2.sub{font:600 12px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--biru-2);margin:0 0 10px}
+  .btn-lkd{font:500 11px var(--mono);color:var(--biru-2);background:none;border:1px solid var(--line);border-radius:2px;padding:3px 7px;cursor:pointer}
+  .kartu + .kartu{margin-top:14px}
   .ctt{font-size:12.5px;color:var(--muted);margin-top:10px}
   .kosong{color:var(--muted);font-size:13.5px;padding:18px 0}
   .gulir{overflow-x:auto}
@@ -76,7 +79,7 @@
   @media print{.hero{background:#fff;color:#000;border-bottom:2px solid #000}
     h1,.sub,.no{color:#000}.balik,.tautan{display:none}}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-07-6d5624">
+<link rel="stylesheet" href="kepala.css?v=2026-11-07-e3503c">
 </head>
 <body>
 
@@ -91,7 +94,7 @@
 
 <main class="wrap" id="isi"></main>
 
-<script src="config.js?v=2026-11-07-6d5624"></script>
+<script src="config.js?v=2026-11-07-e3503c"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -108,9 +111,12 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { BUTIR, isiPetaBukti, cariBukti, daftarBukti, kolomBukti } from './rincian.js?v=2026-11-07-6d5624';
-import { pasangMenu } from './menu.js?v=2026-11-07-6d5624';
-import { dataButir, ambilDataKerjasama } from './data-butir.js?v=2026-11-07-6d5624';
+import { BUTIR, isiPetaBukti, cariBukti, daftarBukti, kolomBukti } from './rincian.js?v=2026-11-07-e3503c';
+import { pasangMenu } from './menu.js?v=2026-11-07-e3503c';
+import { dataButir, pendukungButir, ambilDataButir, htmlTabelData, BUTIR_RINCIAN_DATA } from './data-butir.js?v=2026-11-07-e3503c';
+import { BUTIR_DATA } from './butir-data.js?v=2026-11-07-e3503c';
+import { BUTIR_MANUAL } from './butir-manual.js?v=2026-11-07-e3503c';
+import { bukaLKD } from './bkd.js?v=2026-11-07-e3503c';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g,
   c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -129,7 +135,11 @@ if (!SB_URL || !SB_KEY || SB_URL.includes('xxxx')){
 const sb = createClient(SB_URL, SB_KEY);
 
 let D = null, TS = null;
-let P6 = null;   // butir 6: baris yang sama dengan kartu skor (data-butir.js, pemilik 2026-11-07)
+let P = null;    // baris sumber data-butir.js: semua butir selain butir karya (pemilik 2026-11-07)
+// Semua butir yang punya rincian: butir karya (rincian.js) + butir data-butir.js.
+const SEMUA = [...new Set([...Object.keys(BUTIR), ...BUTIR_RINCIAN_DATA])].sort((a, b) => a - b);
+const JUDUL = Object.fromEntries([...BUTIR_DATA, ...BUTIR_MANUAL].map(b => [String(b.no), b.judul]));
+const PAKAI_DATA = no => no === '6' || !BUTIR[no];
 
 // Gerbang yang sama dengan skor.html: harus login DAN terdaftar di tabel
 // `dosen`. Asesor masuk lewat baris dosen dengan peran 'asesor' dan
@@ -159,9 +169,16 @@ async function mulai(){
   D = await jsonR.json();
   // karya_bukti kosong (bukan galat fatal) bila patch 14 belum dijalankan.
   isiPetaBukti(buktiR.data || [], kbR.data || []);
-  // Butir 6 memuat juga Data prodi › Kerja sama dan aturan mitra induk,
-  // sehingga daftarnya sama dengan kartu di skor.html.
-  if (NO === '6') P6 = await ambilDataKerjasama(sb);
+  // Butir selain butir karya (dan butir 6, yang memuat juga Data prodi ›
+  // Kerja sama) memakai baris dan penyaring yang sama dengan kartu skor.html.
+  if (PAKAI_DATA(NO)){
+    const { data: dana, error: eD } = await sb.from('karya')
+      .select('id,induk_id,tahun,bulan,kategori,besaran_dana,judul,bukti_url')
+      .eq('status', 'terverifikasi').in('kategori', ['penelitian', 'pkm']);
+    if (eD) console.warn('dana:', eD.message);
+    P = await ambilDataButir(sb, { dana: dana || [] });
+    P.admin = saya.peran === 'admin';
+  }
   if (kbR.error) console.warn('karya_bukti tidak terbaca:', kbR.error.message);
   if (buktiR.error)
     console.warn('Bukti tidak terbaca:', buktiR.error.message);
@@ -179,22 +196,28 @@ function render(saya){
   $('hSub').textContent = `Masuk sebagai ${saya.nama}${saya.peran && saya.peran !== 'dosen'
       ? ' (' + saya.peran + ')' : ''}`;
 
-  const nav = `<div class="tautan">${Object.keys(BUTIR).map(n =>
+  const nav = `<div class="tautan">${SEMUA.map(n =>
     `<a href="rincian.html?butir=${esc(n)}&ts=${TS}"
         aria-current="${n === NO}">Butir ${esc(n)}</a>`).join('')}</div>`;
 
+  if (P && PAKAI_DATA(NO)){
+    const xs = [dataButir(NO, P, TS, D), ...pendukungButir(NO, P)].filter(Boolean);
+    if (xs.length){
+      $('hNo').textContent = `BUTIR ${NO} · APS-AV 2025 · TS ${TS}`;
+      return renderData(nav, xs);
+    }
+  }
   if (!def){
     $('hNo').textContent = 'RINCIAN BUTIR';
     $('hJudul').textContent = 'Butir tidak dikenal';
     $('isi').innerHTML = `<div class="kartu"><p class="kosong">Tidak ada
       rincian untuk butir <code>${esc(NO)}</code>. Butir yang tersedia:
-      ${Object.keys(BUTIR).join(', ')}.</p>${nav}</div>`;
+      ${SEMUA.join(', ')}.</p>${nav}</div>`;
     return;
   }
 
   $('hNo').textContent = `BUTIR ${NO} · APS-AV 2025 · TS ${TS}`;
   $('hJudul').textContent = def.judul;
-  if (NO === '6' && P6) return renderData(nav, dataButir('6', P6, TS, D));
 
   const daftar = def.baris(D, TS);
   const n = def.penyebut(D, TS);
@@ -243,37 +266,28 @@ function render(saya){
     penilaian resmi.</footer>`;
 }
 
-// Daftar dari data-butir.js (butir 6): kolom, bukti per baris, dan
-// pemeriksaan terhadap angka data.json, sama dengan blok di kartu skor.
-function renderData(nav, x){
-  $('hJudul').textContent = x.judul;
-  const bukti = r => r._bukti || (r._karya ? daftarBukti(r._karya) : []);
-  const sel = (r, k) => `<td>${esc(r[k] ?? '—')}</td>`;
-  const selBukti = r => { const xs = bukti(r);
-    return `<td>${xs.length ? xs.map(b => `<a class="bukti" href="${esc(b.url)}" target="_blank"
-      rel="noopener nofollow" title="${esc(b.label)}">&#128206; ${esc(b.label)}</a>`).join(' ')
-      : '<span class="bukti-kos">tanpa bukti</span>'}</td>`; };
-  const cocok = x.pakai === x.pembanding;
-  const cek = x.pembanding == null ? '' : `<div class="cek${cocok ? '' : ' beda'}">${cocok
-    ? `${x.pakai} ${esc(x.labelPakai)}, sama dengan angka pada kartu skor.`
-    : `PERIKSA: daftar ${x.pakai} ${esc(x.labelPakai)}, angka kartu ${x.pembanding}. Data situs dibangun
-       tiap jam; isian yang baru saja diubah baru masuk kartu setelah pembangunan berikutnya.`}</div>`;
-  $('isi').innerHTML = `${nav}
-    <div class="kartu">
-      ${x.baris.length ? `<div class="gulir"><table class="r">
-        <thead><tr>${x.kolom.map(([th]) => `<th>${esc(th)}</th>`).join('')}<th>Bukti</th></tr></thead>
-        <tbody>${x.baris.map(r => `<tr>${x.kolom.map(([, k]) => sel(r, k)).join('')}${selBukti(r)}</tr>`).join('')}</tbody>
-      </table></div>` : `<p class="kosong">Tidak ada baris pada jendela TS ${TS}.</p>`}
-      ${cek}
-      ${x.baris.length ? `<div class="rekap">Bukti tertaut:
-        <b>${x.baris.filter(r => bukti(r).length).length}</b> dari <b>${x.baris.length}</b> baris.</div>` : ''}
-      ${x.catatan ? `<div class="ctt">${esc(x.catatan)}</div>` : ''}
-    </div>
+// Blok dari data-butir.js: tabel, bukti, dan pemeriksaan yang sama dengan
+// kartu di skor.html (htmlTabelData), satu blok per sumber data.
+function renderData(nav, xs){
+  $('hJudul').textContent = JUDUL[NO] || xs[0].judul;
+  const K = { tabel: 'r', cek: 'cek', bukti: 'bukti', kosong: 'bukti-kos' };
+  const blok = xs.map(x => {
+    const { tabel, cek, ctt, ringkas } = htmlTabelData(x, { esc, buktiKarya: daftarBukti, admin: P.admin, ts: TS, k: K });
+    return `<div class="kartu"><h2 class="sub">${x.pendukung ? 'Data pendukung (tidak menghitung skor)' : 'Data yang dipakai'}
+      &mdash; ${esc(x.judul)}: ${ringkas}</h2>${tabel}${cek}${ctt}
+      ${x.tab && P.admin ? `<p class="ctt"><a href="data-prodi.html?tab=${esc(x.tab)}">Buka di Data prodi &#8599;</a></p>` : ''}</div>`;
+  }).join('');
+  $('isi').innerHTML = `${nav}${blok}
+    <p class="ctt"><a href="skor.html?ts=${TS}#butir-${esc(NO)}">Kembali ke kartu butir ${esc(NO)} di halaman skor</a></p>
     <footer>Diperbarui ${esc(D.diperbarui)}. Daftar ini memakai penyaring yang
     sama dengan kartu di halaman skor. Tautan bukti dibaca dari basis data di
     balik RLS dan tidak pernah masuk berkas publik. Alat bantu internal, bukan
     penilaian resmi.</footer>`;
 }
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-lkd]');
+  if (b) { e.preventDefault(); bukaLKD(sb, b.dataset.lkd); }
+});
 
 function layarMasuk(){
   $('hJudul').textContent = 'Perlu masuk';

@@ -24,6 +24,8 @@
        pakai, pembanding, labelPakai, catatan }
    ===================================================================== */
 
+import { barisBkd } from './tautan-butir.js?v=2026-11-07-e3503c';
+
 const angka = v => { const x = parseFloat(String(v ?? '').replace(',', '.')); return Number.isFinite(x) ? x : 0; };
 const bulat = v => Math.trunc(angka(v));
 // _ts_baris bangun.py: bulan >= 9 masuk TS berikutnya.
@@ -194,6 +196,21 @@ const DEF = {
       pembanding: jumlah((D.akreditasi || {}).kerjasama, ['internasional', 'nasional', 'wilayah', 'tanpa_tingkat'], TS - 2, TS),
       catatan: 'Kerja sama Data prodi dihitung sekali untuk tiap TS dalam rentang berlakunya; mitra karya sekali pada TS karyanya.' };
   },
+  // Butir 30: rbk_prodi (supabase/39) — BKD terverifikasi DTPS bukan asesor, TA = TS;
+  // beban = SKS/2 per dosen. Pembanding: jumlah dosen dan RBK hasil rbk_prodi.
+  '30': (P, TS) => {
+    const { baris, rbk } = barisBkd(P.bkd, P.dosen, TS);
+    const r = (P.rbk || []).find(x => x.tahun_akademik === `${TS - 1}/${TS}`);
+    const sks = v => String(v).replace('.', ',');
+    const b = baris.map(x => ({ ...x, _semester: x.semester.join(', ') + (x.lengkap ? '' : ' (belum dua semester)'),
+      _sks: sks(x.sks), _beban: sks(x.beban), _lkd: x.berkas.map(f => ({ url: f.url, label: 'LKD ' + f.semester })) }));
+    const beda = r && rbk != null && Math.abs(rbk - +r.rbk) >= 1e-3;
+    return { judul: `BKD terverifikasi TS ${TS - 1}/${TS}`, tab: 'bkd', tabel: 'lkps_bkd',
+      kolom: [['Dosen DTPS', 'nama'], ['Semester', '_semester'], ['SKS BKD', '_sks'], ['Beban (sks/2)', '_beban']],
+      baris: b, pakai: b.length, labelPakai: 'dosen', pembanding: r ? r.n_dosen : null,
+      periksa: beda ? `rata-rata daftar ${sks(rbk)} sks, RBK kartu ${sks(Math.round(+r.rbk * 10000) / 10000)} sks.` : '',
+      catatan: rbk == null ? '' : `Rata-rata beban ${sks(rbk)} sks per semester (RBK).` };
+  },
   // butirDanaKarya: DANA kategori itu, TS-2..TS (tanpa saringan relevan_visi, sama dengan skor).
   '10': (P, TS) => dana(P, TS, 'penelitian'),
   '11': (P, TS) => dana(P, TS, 'pkm'),
@@ -309,12 +326,50 @@ export async function ambilDataKerjasama(sb){
 
 // Semua butir (skor.html). dana: baris DANA yang sudah dimuat skor.html.
 export async function ambilDataButir(sb, { dana = [] } = {}){
-  const [ks, mhs, kohort, tracer, kepuasan, prestasi, pubMhs, luaranMhs, dosen, ...pend] = await Promise.all([
+  const rbk = async () => { const { data, error } = await sb.rpc('rbk_prodi'); if (error) console.warn('rbk_prodi', error.message); return data || []; };
+  const [ks, mhs, kohort, tracer, kepuasan, prestasi, pubMhs, luaranMhs, dosen, bkd, rb, ...pend] = await Promise.all([
     ambilDataKerjasama(sb), semua(sb, 'lkps_mahasiswa_ta'), semua(sb, 'lkps_kohort_lulusan'), semua(sb, 'lkps_tracer_lulusan'),
     semua(sb, 'lkps_kepuasan_pengguna'), semua(sb, 'lkps_prestasi_mahasiswa', q => q.eq('status', 'terverifikasi')),
     semua(sb, 'lkps_publikasi_mahasiswa'), semua(sb, 'lkps_luaran_mahasiswa'), semua(sb, 'dosen'),
+    // RLS lkps_bkd: admin semua baris, dosen hanya miliknya.
+    semua(sb, 'lkps_bkd', q => q.eq('verifikasi', 'terverifikasi')), rbk(),
     ...TABEL_PENDUKUNG.map(t => semua(sb, t))]);
-  return { ...ks, mhs, kohort, tracer, kepuasan, prestasi, pubMhs, luaranMhs, dana,
-    dosen: dosen.map(d => ({ nama: d.nama, peran: d.peran, dtps: d.dtps, aktif: d.aktif, pendidikan: d.pendidikan, jabatan: d.jabatan })),
+  return { ...ks, mhs, kohort, tracer, kepuasan, prestasi, pubMhs, luaranMhs, dana, bkd, rbk: rb,
+    dosen: dosen.map(d => ({ nama: d.nama, nidn: d.nidn, peran: d.peran, dtps: d.dtps, aktif: d.aktif, pendidikan: d.pendidikan, jabatan: d.jabatan })),
     pendukung: Object.fromEntries(TABEL_PENDUKUNG.map((t, i) => [t, pend[i]])) };
+}
+
+// Semua butir yang punya daftar data di modul ini (rincian.html melengkapinya
+// dengan butir karya di rincian.js).
+export const BUTIR_RINCIAN_DATA = [...new Set([...Object.keys(DEF), ...Object.keys(SUMBER_MANUAL)])];
+
+// Tabel satu blok data + pemeriksaan + catatan; dipakai skor.html (kartu) dan
+// rincian.html (halaman penuh) supaya keduanya tampil sama. k: nama kelas CSS
+// halaman pemanggil; buktiKarya(r._karya) mengembalikan tautan bukti karya.
+export function htmlTabelData(x, { esc, buktiKarya = () => [], admin = false, ts = null, k = {} }){
+  const K = { tabel: 'rinci-t', cek: 'rinci-cek', bukti: 'bukti-sel', kosong: 'isian', ...k };
+  const pendek = v => { const t = String(v ?? ''); return t.length > 140 ? t.slice(0, 137) + '…' : t; };
+  const sel = v => v === true ? 'ya' : v === false ? 'tidak' : v == null || v === '' ? '—' : esc(pendek(v));
+  const tautan = r => r._bukti || (r._karya ? buktiKarya(r._karya) : []);
+  const isiBukti = r => {
+    const a = tautan(r).map(b => `<a class="${K.bukti}" href="${esc(b.url)}" target="_blank" rel="noopener nofollow">${esc(pendek(b.label || 'Bukti'))}</a>`);
+    const l = (r._lkd || []).map(b => `<button type="button" class="btn-lkd" data-lkd="${esc(b.url)}">${esc(b.label)}</button>`);
+    return a.length || l.length ? [...a, ...l].join(' ') : `<span class="${K.kosong}">tanpa bukti</span>`;
+  };
+  const adaBukti = r => tautan(r).length || (r._lkd || []).length;
+  const kolB = !x.tanpaBukti;
+  const tabel = x.baris.length ? `<div class="gulir"><table class="${K.tabel}"><thead><tr>${x.kolom.map(([th]) => `<th>${esc(th)}</th>`).join('')}${kolB ? '<th>Bukti</th>' : ''}</tr></thead>
+    <tbody>${x.baris.map(r => `<tr>${x.kolom.map(([, c]) => `<td>${sel(r[c])}</td>`).join('')}${kolB ? `<td>${isiBukti(r)}</td>` : ''}</tr>`).join('')}</tbody></table></div>`
+    : `<p class="${K.kosong}">Belum ada baris yang memenuhi syarat${ts ? ` untuk TS ${ts - 1}/${ts}` : ''}${admin ? '' : ' (atau belum dapat Anda baca)'}.</p>`;
+  let cek = '';
+  if (!x.pendukung && x.pembanding != null){
+    cek = x.pakai === x.pembanding && !x.periksa
+      ? `<div class="${K.cek}">${x.pakai} ${esc(x.labelPakai)}, sama dengan angka yang dipakai kartu.</div>`
+      : `<div class="${K.cek} beda">PERIKSA: daftar ${x.pakai} ${esc(x.labelPakai)}, angka kartu ${x.pembanding}${x.periksa ? '; ' + esc(x.periksa) : '.'} `
+        + (admin ? 'Data situs dibangun tiap jam; isian yang baru saja diubah baru masuk kartu setelah pembangunan berikutnya.'
+                 : 'Sebagian baris mungkin hanya dapat dibaca admin.') + `</div>`;
+  }
+  const ctt = x.catatan ? `<div class="${K.cek}">${esc(x.catatan)}</div>` : '';
+  const ringkas = `${x.baris.length} baris${x.baris.length && kolB ? ` · bukti ${x.baris.filter(adaBukti).length}/${x.baris.length}` : ''}`;
+  return { tabel, cek, ctt, ringkas };
 }
