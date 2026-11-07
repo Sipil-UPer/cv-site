@@ -24,7 +24,7 @@
        pakai, pembanding, labelPakai, catatan }
    ===================================================================== */
 
-import { barisBkd } from './tautan-butir.js?v=2026-11-07-e3503c';
+import { barisBkd } from './tautan-butir.js?v=2026-11-07-7987ea';
 
 const angka = v => { const x = parseFloat(String(v ?? '').replace(',', '.')); return Number.isFinite(x) ? x : 0; };
 const bulat = v => Math.trunc(angka(v));
@@ -211,11 +211,49 @@ const DEF = {
       periksa: beda ? `rata-rata daftar ${sks(rbk)} sks, RBK kartu ${sks(Math.round(+r.rbk * 10000) / 10000)} sks.` : '',
       catatan: rbk == null ? '' : `Rata-rata beban ${sks(rbk)} sks per semester (RBK).` };
   },
+  // Butir 35 (bangun.py utama_pasang): publikasi terverifikasi & relevan yang teks
+  // jenis/tingkat/indeksasinya memuat bereputasi/scopus/ieee/spie/wos, dosen
+  // penulis pertama atau korespondensi; ditambah luaran paten (bagian 1), semua
+  // dosennya. Hanya DTPS, TS-2..TS. Skor menghitung DOSEN unik.
+  '35': (P, TS, D) => {
+    const slug = n => String(n || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+    const dtps = new Set(dosenDTPS(P.dosen).map(d => slug(d.nama)));
+    const b = [], lihat = new Set();
+    const tambah = (k, nama, peran) => {
+      const sg = slug(nama), ts = tsBaris(k.tahun, k.bulan);
+      if (!dtps.has(sg) || !dalam(ts, TS - 2, TS) || lihat.has(sg + '|' + k.id)) return;
+      lihat.add(sg + '|' + k.id);
+      b.push({ _slug: sg, nama, tahun: k.tahun, _ts: ts, judul: k.judul, _peran: peran,
+        _jenis: k.kategori === 'luaran' ? rapi(k.sub_jenis) : [k.jenis, k.indeksasi || k.tingkat].filter(Boolean).map(rapi).join(' · '),
+        _karya: { kategori: k.kategori, tahun: k.tahun, judul: k.judul } });
+    };
+    (P.karya || []).filter(k => k.relevan_visi !== false).forEach(k => {
+      const pen = (k.karya_penulis || []).filter(a => a.dosen?.nama);
+      if (k.kategori === 'publikasi'){
+        const teks = `${k.jenis || ''} ${k.tingkat || ''} ${k.indeksasi || ''}`.toLowerCase();
+        if (!['bereputasi', 'scopus', 'ieee', 'spie', 'wos'].some(x => teks.includes(x))) return;
+        pen.filter(a => a.peran === 'penulis_pertama' || a.korespondensi)
+          .forEach(a => tambah(k, a.dosen.nama, a.peran === 'penulis_pertama' ? (a.korespondensi ? 'penulis pertama, korespondensi' : 'penulis pertama') : 'korespondensi'));
+      } else if (k.kategori === 'luaran' && ['paten', 'paten_sederhana'].includes(String(k.sub_jenis || '').trim().toLowerCase())){
+        pen.forEach(a => tambah(k, a.dosen.nama, 'pemegang paten'));
+      }
+    });
+    b.sort((x, y) => String(x.nama).localeCompare(String(y.nama)) || y._ts - x._ts);
+    const rinci = (D.dtps || {}).karya_utama_rinci;
+    return { judul: 'Karya utama DTPS, 3 TS', tab: null, tabel: 'karya',
+      kolom: [['Dosen', 'nama'], ['Th', 'tahun'], ['Karya', 'judul'], ['Terbitan / jenis', '_jenis'], ['Peran', '_peran']],
+      baris: b, pakai: new Set(b.map(r => r._slug)).size, labelPakai: 'dosen dengan karya utama',
+      pembanding: Array.isArray(rinci) ? new Set(rinci.filter(x => dalam(x.tahun, TS - 2, TS)).map(x => x.slug)).size : null,
+      catatan: 'Satu dosen bisa punya beberapa karya; skor menghitung dosennya sekali.' };
+  },
   // butirDanaKarya: DANA kategori itu, TS-2..TS (tanpa saringan relevan_visi, sama dengan skor).
   '10': (P, TS) => dana(P, TS, 'penelitian'),
   '11': (P, TS) => dana(P, TS, 'pkm'),
   // butir27/28: dosen DTPS (masuk_dtps bangun.py).
   '27': (P, TS, D) => dtpsBaris(P, D, 'Pendidikan', 'pendidikan', d => doktor(d) ? 'doktor' : ''),
+  // butir26: NDTPS = jumlah DTPS (NDTT dari isian ndtt, bukan baris).
+  '26': (P, TS, D) => ({ ...dtpsBaris(P, D, 'Jabatan', 'jabatan', d => rapi(d.pendidikan) || '—'),
+    kolom: [['Dosen', 'nama'], ['Jabatan', '_isi'], ['Pendidikan', '_hitung']] }),
   '28': (P, TS, D) => dtpsBaris(P, D, 'Jabatan', 'jabatan',
     d => ['lektor', 'lektor_kepala', 'guru_besar'].includes(jabatanKey(d)) ? 'L/LK/GB' : ''),
 };
@@ -262,7 +300,15 @@ const PENDUKUNG = {
   fas_k3l: ['lkps_fasilitas_k3l', 'Fasilitas K3L', [['Sarana', 'nama_sarana'], ['Fungsi', 'fungsi'], ['Unit', 'jumlah_unit'], ['Kondisi', 'kondisi']]],
   spmi: ['lkps_spmi_ppepp', 'SPMI (PPEPP)', [['Tahap', 'tahap'], ['Keterangan', 'keterangan']]],
   target: ['lkps_target_kinerja', 'Target IKU/IKT', [['Indikator', 'nama'], ['TS', 'tahun_ts'], ['Target', 'target'], ['Capaian', 'capaian']]],
+  kerjasama: ['lkps_kerjasama', 'Kerja sama aktif, 3 TS', [['Mitra', 'mitra'], ['Jenis', 'jenis'], ['Tingkat', 'tingkat'], ['Mulai', 'tahun_mulai'], ['Selesai', 'tahun_selesai'], ['Kegiatan', 'kegiatan']]],
+  dana: ['lkps_penggunaan_dana', 'Penggunaan dana, 3 TS', [['Tahun akademik', 'tahun_akademik'], ['Jenis', 'jenis'], ['UPPS (Rp)', 'dana_upps'], ['Program studi (Rp)', 'dana_ps']]],
+  tracer: ['lkps_tracer_lulusan', 'Tracer study, lulusan TS-2 s.d. TS-1', [['Tahun lulus', 'tahun_lulus'], ['Lulusan', 'jumlah_lulusan'], ['Terlacak', 'jumlah_terlacak']]],
 };
+// Penyaring jendela untuk data pendukung bertahun (sama dengan butir berumus terkait).
+const aktif3 = (r, no, TS) => { const t0 = bulat(r.tahun_mulai); if (!t0) return false;
+  const t1 = bulat(r.tahun_selesai) || Math.max(t0, new Date().getFullYear() + 1);
+  return [TS - 2, TS - 1, TS].some(t => dalam(t, t0, t1)); };
+const ta3 = (r, no, TS) => dalam(tsTA(r.tahun_akademik), TS - 2, TS);
 // butir -> [tab, saring baris]. Butir 15 hanya MK ber-RPS, 19 MK basic science, 20 MK capstone,
 // 22/24 tema penelitian/PkM, 54/56 indikator yang menunjuk butir itu.
 const SUMBER_MANUAL = {
@@ -272,17 +318,32 @@ const SUMBER_MANUAL = {
   '24': [['tema', r => ['pkm', 'keduanya'].includes(r.jenis)]],
   '29': [['tendik']], '38': [['prasarana']], '39': [['dok_k3l'], ['fas_k3l']],
   '53': [['spmi']], '55': [['spmi']], '54': [['target', (r, no) => String(r.butir) === no]], '56': [['target', (r, no) => String(r.butir) === no]],
+  // Pemilik 2026-11-07: semua butir masuk rincian; data pendukung bila ada tabelnya.
+  '7': [['kerjasama', aktif3]], '8': [['dana', ta3]], '9': [['dana', ta3]], '10': [['dana', ta3]], '11': [['dana', ta3]],
+  '48': [['tracer', (r, no, TS) => dalam(bulat(r.tahun_lulus), TS - 2, TS - 1)]],
+  '17': [],
 };
 
-export function pendukungButir(no, P){
+export function pendukungButir(no, P, TS, D = {}){
   const src = SUMBER_MANUAL[String(no)];
   if (!src) return [];
-  return src.map(([tab, saring]) => {
+  const xs = src.map(([tab, saring]) => {
     const [tabel, judul, kolom] = PENDUKUNG[tab];
-    const baris = (P.pendukung?.[tabel] || []).filter(r => r.aktif !== false && (!saring || saring(r, String(no))))
+    const baris = (P.pendukung?.[tabel] || []).filter(r => r.aktif !== false && (!saring || saring(r, String(no), TS)))
       .map(pasang(tabel, P));
     return { judul, tab, tabel, kolom, baris, pakai: baris.length, pembanding: null, labelPakai: 'baris', pendukung: true };
   });
+  // Butir 17: kegiatan integrasi terverifikasi, jendela sama dengan konteks kartu
+  // (butir-manual.js: D.integrasi, tahun TS-2..TS; tahun = TS, bangun.py).
+  if (String(no) === '17'){
+    const baris = (D.integrasi || []).filter(r => dalam(r.tahun_ts ?? r.tahun, TS - 2, TS))
+      .sort((a, b) => (b.tahun_ts ?? b.tahun) - (a.tahun_ts ?? a.tahun))
+      .map(r => ({ ...r, _bentuk: rapi(r.bentuk), _karya: { kategori: 'integrasi', tahun: r.tahun, judul: r.judul_kegiatan } }));
+    xs.push({ judul: 'Integrasi MK terverifikasi, 3 TS', tab: null, tabel: 'karya', baris, pakai: baris.length, pembanding: null,
+      labelPakai: 'kegiatan', pendukung: true,
+      kolom: [['Th', 'tahun'], ['Mata kuliah', 'mata_kuliah'], ['Kegiatan', 'judul_kegiatan'], ['Bentuk', '_bentuk'], ['Dosen', 'dosen']] });
+  }
+  return xs;
 }
 export const TABEL_PENDUKUNG = [...new Set(Object.values(PENDUKUNG).map(x => x[0]))];
 
@@ -304,8 +365,10 @@ const semua = async (sb, t, q = x => x) => { const { data, error } = await q(sb.
 // Tanpa kolom patch 10/24 (relevan_visi, kerjasama_id) kueri diulang tanpa keduanya.
 async function ambilKarya(sb){
   const q = kol => sb.from('karya').select(kol).eq('status', 'terverifikasi').limit(5000);
-  for (const kol of ['id,kategori,tahun,bulan,judul,relevan_visi,kerjasama_id,karya_mitra(institusi,tingkat),karya_mahasiswa(peran)',
-                     'id,kategori,tahun,bulan,judul,karya_mitra(institusi,tingkat),karya_mahasiswa(peran)']){
+  // jenis..karya_penulis: butir 35 (karya utama).
+  const UTAMA = ',jenis,tingkat,indeksasi,sub_jenis,karya_penulis(peran,korespondensi,dosen(nama))';
+  for (const kol of ['id,kategori,tahun,bulan,judul,relevan_visi,kerjasama_id,karya_mitra(institusi,tingkat),karya_mahasiswa(peran)' + UTAMA,
+                     'id,kategori,tahun,bulan,judul,karya_mitra(institusi,tingkat),karya_mahasiswa(peran)' + UTAMA]){
     const { data, error } = await q(kol);
     if (!error) return data || [];
     console.warn('karya', error.message);
