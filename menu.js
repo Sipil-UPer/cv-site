@@ -21,7 +21,9 @@ const isiKarya = s => s.peran !== 'asesor' && !(s.peran === 'pimpinan' && !s.akt
 export const MODUL = [
   { judul: 'Input data', ket: 'Karya dosen dan data prodi yang dipakai semua modul.', halaman: [
     { href: 'input.html', judul: 'Karya dosen', boleh: isiKarya,
-      ket: 'Publikasi, penelitian, PkM, luaran, rekognisi, dan buktinya. Admin juga memverifikasi di sini.' },
+      ket: 'Publikasi, penelitian, PkM, luaran, rekognisi, dan buktinya.' },
+    { href: 'verifikasi.html', judul: 'Verifikasi', boleh: admin,
+      ket: 'Karya dosen, profil dosen, BKD, dan prestasi mahasiswa yang menunggu keputusan admin.' },
     { href: 'data-prodi.html', judul: 'Data prodi', boleh: admin,
       ket: 'Mahasiswa, lulusan, tracer, kerja sama, BKD, prestasi mahasiswa.' },
     { href: 'profil.html', judul: 'Profil saya',

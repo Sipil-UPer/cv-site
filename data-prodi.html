@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-07-7987ea">
+<link rel="stylesheet" href="tema.css?v=2026-11-08-7f9df9">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
@@ -77,7 +77,7 @@
   .masuk{max-width:420px;margin:40px auto;background:#fff;border:1px solid var(--line);padding:20px}
   .masuk input{width:100%;padding:8px 10px;margin:8px 0;font:inherit}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-07-7987ea">
+<link rel="stylesheet" href="kepala.css?v=2026-11-08-7f9df9">
 </head>
 <body>
 
@@ -91,7 +91,7 @@
 
 <main class="wrap" id="isi"></main>
 
-<script src="config.js?v=2026-11-07-7987ea"></script>
+<script src="config.js?v=2026-11-08-7f9df9"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -108,17 +108,17 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-07-7987ea';
-import { pasangMenu } from './menu.js?v=2026-11-07-7987ea';
-import { unggahKePustaka, opsiPustaka, opsiJenis, labelDokumen, cariDokumen } from './pustaka-dokumen.js?v=2026-11-07-7987ea';
-import { pasangRapikan } from './rapikan-berkas.js?v=2026-11-07-7987ea';
-import { htmlContoh, pasangContoh, JENIS_BUKTI_KS } from './manfaat-kerjasama.js?v=2026-11-07-7987ea';
-import { infoJenis } from './rencana-bukti.js?v=2026-11-07-7987ea';
-import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-07-7987ea';
-import { nomorButir, htmlTautanButir } from './tautan-butir.js?v=2026-11-07-7987ea';
-import { htmlSaran } from './saran-bukti.js?v=2026-11-07-7987ea';
-import { tautanBerkas, privatkanLama } from './tautan-privat.js?v=2026-11-07-7987ea';
-import { unggahLKD, bukaLKD, pendidikanTotal, pendidikanPS } from './bkd.js?v=2026-11-07-7987ea';
+import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-08-7f9df9';
+import { pasangMenu } from './menu.js?v=2026-11-08-7f9df9';
+import { unggahKePustaka, opsiPustaka, opsiJenis, labelDokumen, cariDokumen } from './pustaka-dokumen.js?v=2026-11-08-7f9df9';
+import { pasangRapikan } from './rapikan-berkas.js?v=2026-11-08-7f9df9';
+import { htmlContoh, pasangContoh, JENIS_BUKTI_KS } from './manfaat-kerjasama.js?v=2026-11-08-7f9df9';
+import { infoJenis } from './rencana-bukti.js?v=2026-11-08-7f9df9';
+import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-08-7f9df9';
+import { nomorButir, htmlTautanButir } from './tautan-butir.js?v=2026-11-08-7f9df9';
+import { htmlSaran } from './saran-bukti.js?v=2026-11-08-7f9df9';
+import { tautanBerkas, privatkanLama } from './tautan-privat.js?v=2026-11-08-7f9df9';
+import { unggahLKD, bukaLKD, pendidikanTotal, pendidikanPS } from './bkd.js?v=2026-11-08-7f9df9';
 
 /* =====================================================================
    DATA PRODI — data kuantitatif LKPS diisi admin di situs (keputusan
@@ -515,7 +515,7 @@ const TABEL = [
       : r.ipk_maks != null && r.rerata_ipk_lulusan != null && r.ipk_maks < r.rerata_ipk_lulusan ? 'IPK maksimum lebih kecil dari rerata.' : '' },
   { id: 'bkd', tabel: 'lkps_bkd', judul: 'Beban kerja dosen', butir: '30',
     ket: 'Satu baris per dosen per semester (Tabel 4.c), dari bagian C LKD. DTPS mengisi sendiri di Input › BKD saya '
-       + 'dan dihitung setelah diverifikasi di Input › Verifikasi; tab ini untuk dosen lain dan koreksi admin. '
+       + 'dan dihitung setelah diverifikasi di halaman Verifikasi; tab ini untuk dosen lain dan koreksi admin. '
        + 'Tabel 4.c dan butir 30 memakai SKS BKD; SKS Lebih hanya dicatat. Tidak pernah dipublikasikan.',
     // Tersimpan PS ini = total - PS lain; total hanya ada di form (pemilik 2026-11-06).
     siapkan: r => { r.pendidikan_total = pendidikanTotal(r); },
@@ -549,7 +549,7 @@ const TABEL = [
   { id: 'prestasi', tabel: 'lkps_prestasi_mahasiswa', judul: 'Prestasi mahasiswa', butir: '43',
     ket: 'Satu baris per prestasi (Tabel 6.c.1 akademik, 6.c.2 nonakademik), 5 tahun terakhir. '
        + 'Nama dan NIM tidak dipublikasikan; situs hanya menampilkan jumlah. Dosen pembimbing juga mengisi di '
-       + 'Input › Prestasi mahasiswa; isiannya dihitung setelah diverifikasi di Input › Verifikasi.',
+       + 'Input › Prestasi mahasiswa; isiannya dihitung setelah diverifikasi di halaman Verifikasi.',
     tanda: r => r.status && r.status !== 'terverifikasi' ? `<br><b>${esc(r.status)}</b>` : '',
     label: r => `${r.nama_kegiatan || 'Prestasi'}`, tahun: r => r.tahun,
     kolom: [

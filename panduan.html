@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-07-7987ea">
+<link rel="stylesheet" href="tema.css?v=2026-11-08-7f9df9">
 <style>
   /* Panduan pengguna ruang kerja (pemilik 2026-11-04). Bagian admin hanya
      tampil untuk peran admin. Perbarui bila tombol atau halaman berubah. */
@@ -40,7 +40,7 @@
   @media(max-width:640px){nav.isi ol{columns:1}.wrap{padding:18px 16px 60px}}
   @media print{nav.isi{display:none}section{break-inside:avoid}}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-07-7987ea">
+<link rel="stylesheet" href="kepala.css?v=2026-11-08-7f9df9">
 </head>
 <body>
 
@@ -168,13 +168,19 @@
   <div id="bagian-admin" hidden>
   <section id="verifikasi" class="admin">
     <h2>9. Verifikasi dan ajuan <span class="peran">admin</span></h2>
-    <p>Buka <b>Karya dosen › Verifikasi</b>.</p>
+    <p>Buka halaman <b>Verifikasi</b> (menu Input data, atau tautan <b>Verifikasi</b> di
+      Karya dosen). Tab <b>Karya dosen</b>, <b>Profil dosen</b>, <b>BKD</b>, dan <b>Prestasi mahasiswa</b>
+      masing-masing menampilkan jumlah yang menunggu; angka total juga tampil di kartu ruang kerja.
+      Tab Karya dosen berisi:</p>
     <ul>
       <li><b>Menunggu verifikasi</b>: periksa isian dan buktinya, lalu <b>Verifikasi</b> atau <b>Tolak</b> (alasan dibaca dosen). Kotak relevansi visi menandai karya di luar visi keilmuan: tampil di profil, tidak dihitung di butir prodi.</li>
       <li><b>Ajuan hapus karya</b>: <b>Setujui hapus</b> menghapus karya beserta berkas buktinya (ke Sampah Drive); <b>Tolak</b> menyimpan alasan.</li>
       <li><b>Ajuan perubahan karya</b>: tabel <i>Isian | Lama | Baru</i>. <b>Setujui</b> menerapkan semua perubahan sekaligus; <b>Tolak</b> dengan alasan.</li>
       <li><b>Klaim penulis untuk ditinjau</b>: dosen yang mengaku ikut menulis karya rekan.</li>
     </ul>
+    <p>Tab lain: <b>Profil dosen</b> (ajuan dari halaman Profil saya, tabel <i>Isian | Sekarang | Diajukan</i>),
+      <b>BKD</b> (cocokkan dengan bagian C LKD), dan <b>Prestasi mahasiswa</b> (periksa sertifikat atau piagam).
+      Masing-masing: <b>Setujui</b> atau <b>Verifikasi</b>, atau <b>Tolak</b> dengan alasan yang dibaca pengajunya.</p>
     <p class="cat">Bukti yang dihapus admin masuk Sampah Google Drive akun prodi dan bisa dipulihkan
       30 hari (drive.google.com › Sampah › Pulihkan); catatannya di situs harus dibuat ulang.</p>
   </section>
@@ -186,7 +192,7 @@
       <li>Peran: <span class="tbl">dosen</span> mengisi karya; <span class="tbl">admin</span> semua halaman;
         <span class="tbl">pimpinan</span> melihat skor dan rincian per dosen; <span class="tbl">asesor</span> hanya melihat.</li>
       <li><b>Aktif</b> = boleh masuk situs. <b>DTPS</b> = dihitung sebagai dosen tetap prodi (pembagi NDTPS). Dosen yang pindah dinonaktifkan, jangan dihapus.</li>
-      <li><b>Ajuan perubahan profil</b> dari dosen disetujui atau ditolak di halaman ini.</li>
+      <li><b>Ajuan perubahan profil</b> dari dosen diputuskan di halaman <b>Verifikasi</b>, tab Profil dosen.</li>
       <li><b>Profil untuk LKPS (Tabel 4.a)</b> pada formulir ubah: <b>kategori dosen</b> (Dosen Tetap, Dosen Tidak Tetap,
         Dosen Industri; kosong untuk staf dan asesor) dan dua penilaian prodi: sesuai kompetensi inti PS, dan
         bidang keahlian sesuai MK yang diampu. Tanda V di LKPS hanya muncul bila dicentang. Isian profil
@@ -261,7 +267,7 @@
   </div>
 </main>
 
-<script src="config.js?v=2026-11-07-7987ea"></script>
+<script src="config.js?v=2026-11-08-7f9df9"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -278,7 +284,7 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { gerbang } from './menu.js?v=2026-11-07-7987ea';
+import { gerbang } from './menu.js?v=2026-11-08-7f9df9';
 
 // Bagian admin hanya untuk peran admin (isinya bukan rahasia; disembunyikan
 // supaya panduan dosen tetap ringkas).

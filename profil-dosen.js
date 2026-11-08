@@ -14,6 +14,10 @@ export const JENJANG = [['sarjana', 'Sarjana'], ['sarjana_terapan', 'Sarjana Ter
   ['doktor', 'Doktor'], ['doktor_terapan', 'Doktor Terapan']];
 export const JENIS_SERTIFIKAT = [['kompetensi', 'Kompetensi'], ['profesi', 'Profesi'], ['industri', 'Industri']];
 export const SKIP = [['', '—'], ['IPM', 'IPM'], ['IPU', 'IPU']];
+// Jabatan akademik (kolom dosen.jabatan); dipakai kelola-dosen.html dan verifikasi-profil.js.
+export const JABATAN = [['', 'Belum punya jabatan'], ['tenaga_pengajar', 'Tenaga pengajar'],
+  ['asisten_ahli', 'Asisten ahli'], ['lektor', 'Lektor'], ['lektor_kepala', 'Lektor kepala'],
+  ['guru_besar', 'Guru besar']];
 
 // Kolom riwayat dan sertifikat; [kunci, label, lebar input]
 const KOLOM_RIWAYAT = [['perguruan_tinggi', 'Perguruan tinggi'], ['program_studi', 'Program studi'],

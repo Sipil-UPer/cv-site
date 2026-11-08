@@ -1,11 +1,11 @@
 // BKD diisi DTPS dari Laporan Kinerja Dosen (LKD) SISTER (pemilik 2026-11-06,
 // supabase/39-patch-bkd-dosen.sql). Dipakai input.html: tab BKD saya
-// (pasangBkd) dan tab Verifikasi (pasangVerifikasiBkd). Dosen lain diisi admin
+// (pasangBkd) dan verifikasi.html (pasangVerifikasiBkd). Dosen lain diisi admin
 // di Data prodi. Berkas LKD privat: lihat unggahLKD dan bukaLKD.
 
-import { ubahan } from './prestasi.js?v=2026-11-07-7987ea';
-import { htmlSaran } from './saran-bukti.js?v=2026-11-07-7987ea';
-import { htmlTautanButir, tsDariTA } from './tautan-butir.js?v=2026-11-07-7987ea';
+import { ubahan } from './prestasi.js?v=2026-11-08-7f9df9';
+import { htmlSaran } from './saran-bukti.js?v=2026-11-08-7f9df9';
+import { htmlTautanButir, tsDariTA } from './tautan-butir.js?v=2026-11-08-7f9df9';
 
 // Bagian C LKD. Pendidikan dipecah per PS untuk Tabel 4.c; SISTER tidak
 // punya kolom prodi, jadi dosen memilahnya menurut kode kelas.
@@ -192,7 +192,7 @@ export async function pasangBkd(wadah, { sb, saya }){
         if (!alasan?.trim()) return tulis('err', 'Alasan wajib diisi.');
         const { error } = await sb.from('ajuan_bkd').insert({ bkd_id: r.id, data, lama, alasan: alasan.trim() });
         if (error) throw error;
-        isiForm(null); tulis('ok', 'Ajuan terkirim; admin memutuskannya di tab Verifikasi.');
+        isiForm(null); tulis('ok', 'Ajuan terkirim; admin memutuskannya di halaman Verifikasi.');
       }
       await muat();
     } catch (e) {
@@ -253,7 +253,7 @@ export async function pasangBkd(wadah, { sb, saya }){
   await muat();
 }
 
-// ---------- tab Verifikasi (admin) ----------
+// ---------- verifikasi.html, tab BKD (admin) ----------
 
 export async function pasangVerifikasiBkd(boxIsian, boxAjuan, { sb, dosen }){
   const nama = n => (dosen.find(d => d.nidn === n) || {}).nama || n;

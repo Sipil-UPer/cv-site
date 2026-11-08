@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-07-7987ea">
+<link rel="stylesheet" href="tema.css?v=2026-11-08-7f9df9">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
@@ -54,7 +54,7 @@
   .masuk{max-width:420px;margin:40px auto;background:#fff;border:1px solid var(--line);padding:20px}
   .masuk input{width:100%;padding:8px 10px;margin:8px 0;font:inherit}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-07-7987ea">
+<link rel="stylesheet" href="kepala.css?v=2026-11-08-7f9df9">
 </head>
 <body>
 
@@ -68,7 +68,7 @@
 
 <main class="wrap" id="isi"></main>
 
-<script src="config.js?v=2026-11-07-7987ea"></script>
+<script src="config.js?v=2026-11-08-7f9df9"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -85,10 +85,11 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { pasangMenu } from './menu.js?v=2026-11-07-7987ea';
-import { htmlSaran } from './saran-bukti.js?v=2026-11-07-7987ea';
-import { ISIAN_PROFIL as ISIAN_PROFIL_LKPS, KOLOM_PROFIL, KATEGORI, tampil as tampilIsian,
-  formLKPS, bacaFormLKPS, pasangEditor } from './profil-dosen.js?v=2026-11-07-7987ea';
+import { pasangMenu } from './menu.js?v=2026-11-08-7f9df9';
+import { htmlSaran } from './saran-bukti.js?v=2026-11-08-7f9df9';
+import { KOLOM_PROFIL, KATEGORI, JABATAN,
+  formLKPS, bacaFormLKPS, pasangEditor } from './profil-dosen.js?v=2026-11-08-7f9df9';
+import { hitungVerifikasi } from './verifikasi-hitung.js?v=2026-11-08-7f9df9';
 
 /* =====================================================================
    KELOLA DOSEN — daftar dosen prodi diisi admin di situs (keputusan
@@ -120,9 +121,6 @@ const sb = createClient(SB_URL, SB_KEY);
 const PERAN = [['dosen', 'Dosen'], ['admin', 'Admin'], ['pimpinan', 'Pimpinan'], ['asesor', 'Asesor']];
 const PERAN_BUKAN_DTPS = ['asesor'];
 const PENDIDIKAN = [['', '—'], ['S2', 'S2'], ['S3', 'S3']];
-const JABATAN = [['', 'Belum punya jabatan'], ['tenaga_pengajar', 'Tenaga pengajar'],
-  ['asisten_ahli', 'Asisten ahli'], ['lektor', 'Lektor'], ['lektor_kepala', 'Lektor kepala'],
-  ['guru_besar', 'Guru besar']];
 const POLA = {
   sinta_id: [/^[0-9]+$/, 'hanya angka'],
   scopus_id: [/^[0-9]+$/, 'hanya angka'],
@@ -172,62 +170,17 @@ async function mulai(){
       DTPS prodi ini, dan asesor: aktif ya, DTPS tidak. Dosen yang pindah tidak dihapus, cukup
       dinonaktifkan. Skor berubah setelah situs dibangun ulang (otomatis tiap jam).</div>
     ${htmlSaran('dosen')}
-    <h2>Ajuan perubahan profil</h2>
-    <div class="b" id="ajuanProfil"><p class="kosong">Memuat&hellip;</p></div>
+    <div class="b"><p class="ket" style="margin:0">Ajuan perubahan profil dari dosen diputuskan di
+      <a href="verifikasi.html#profil">halaman Verifikasi</a><span id="nProfil"></span>.</p></div>
     <div class="b" id="form"></div>
     <h2>Daftar dosen</h2>
     <div class="gulir" id="daftar"><p class="kosong">Memuat&hellip;</p></div>`;
   await muat();
-  await muatAjuanProfil();
+  hitungVerifikasi(sb).then(n => { if (n.profil) $('nProfil').textContent = ` (${n.profil} menunggu)`; });
 }
 
-// Ajuan perubahan profil dari profil.html (supabase/20-patch-ajuan-ubah.sql,
-// pemilik 2026-11-04). Setujui -> rpc setujui_ajuan_ubah menerapkan kolom
-// "Diajukan" ke tabel dosen; Tolak -> alasan dilihat dosen di profil.html.
-const ISIAN_PROFIL = ISIAN_PROFIL_LKPS;
-
-async function muatAjuanProfil(){
-  const box = $('ajuanProfil');
-  const { data: aj, error } = await sb.from('ajuan_ubah')
-    .select('id,dosen_id,data,lama,alasan,dibuat_pada')
-    .eq('jenis', 'profil').eq('status', 'menunggu').order('dibuat_pada');
-  if (error) { box.innerHTML = `<p class="kosong">Tabel ajuan_ubah belum bisa dibaca (${esc(error.message)}).
-    Jalankan supabase/20-patch-ajuan-ubah.sql.</p>`; return; }
-  if (!aj?.length) { box.innerHTML = '<p class="kosong">Tidak ada ajuan perubahan profil.</p>'; return; }
-  const tampil = (k, v) => tampilIsian(k, v, JABATAN);
-  box.innerHTML = aj.map(a => {
-    const d = DOSEN.find(x => x.id === a.dosen_id) || {};
-    return `<div style="margin-bottom:16px"><p class="ket"><b>${esc(d.nama || 'dosen')}</b>,
-      ${esc(String(a.dibuat_pada).slice(0, 10))}. Keterangan: ${esc(a.alasan || '-')}</p>
-      <div class="gulir"><table class="t"><thead><tr><th>Isian</th><th>Sekarang</th><th>Diajukan</th></tr></thead><tbody>${
-        ISIAN_PROFIL.filter(([k]) => k in (a.data || {})).map(([k, l]) =>
-          `<tr><td>${esc(l)}</td><td>${esc(tampil(k, d.id ? d[k] : a.lama?.[k]))}</td>
-            <td style="background:#EAF4EC">${esc(tampil(k, a.data[k]))}</td></tr>`).join('')
-      }</tbody></table></div>
-      <div class="aksi"><button class="btn kecil" data-su="${a.id}">Setujui</button>
-        <button class="btn ghost kecil" data-tu="${a.id}">Tolak</button></div></div>`;
-  }).join('');
-  box.querySelectorAll('[data-su]').forEach(b => {
-    b.onclick = async () => {
-      if (!confirm('Terapkan perubahan profil ini?')) return;
-      b.disabled = true;
-      const { error: e } = await sb.rpc('setujui_ajuan_ubah', { a: +b.dataset.su });
-      if (e) alert('Gagal menerapkan: ' + e.message);
-      await muat();
-      await muatAjuanProfil();
-    };
-  });
-  box.querySelectorAll('[data-tu]').forEach(b => {
-    b.onclick = async () => {
-      const c = prompt('Alasan penolakan (akan dilihat dosen):');
-      if (c === null) return;
-      const { error: e } = await sb.from('ajuan_ubah')
-        .update({ status: 'ditolak', catatan_admin: c.trim() || '-' }).eq('id', +b.dataset.tu);
-      if (e) alert('Gagal: ' + e.message);
-      await muatAjuanProfil();
-    };
-  });
-}
+// Ajuan perubahan profil diputuskan di verifikasi.html (verifikasi-profil.js,
+// pemilik 2026-11-08).
 
 async function muat(){
   let { data, error } = await sb.from('dosen').select(KOLOM + ',' + KOLOM_PROFIL).order('nama');

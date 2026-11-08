@@ -1,13 +1,13 @@
 // Prestasi mahasiswa yang diisi dosen pembimbing (pemilik 2026-11-06,
 // supabase/38-patch-prestasi-dosen.sql). Dipakai input.html: tab Prestasi
-// mahasiswa (pasangPrestasi) dan tab Verifikasi (pasangVerifikasiPrestasi).
+// mahasiswa (pasangPrestasi) dan verifikasi.html (pasangVerifikasiPrestasi).
 // Admin tetap bisa mengisi langsung di Data prodi.
 
-import { periksaBerkas, kolomSidik, teksTemuan } from './sidik-berkas.js?v=2026-11-07-7987ea';
-import { buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-07-7987ea';
-import { htmlSaran } from './saran-bukti.js?v=2026-11-07-7987ea';
-import { tautanBerkas, temuanPakai } from './tautan-privat.js?v=2026-11-07-7987ea';
-import { htmlTautanButir, tsBaris } from './tautan-butir.js?v=2026-11-07-7987ea';
+import { periksaBerkas, kolomSidik, teksTemuan } from './sidik-berkas.js?v=2026-11-08-7f9df9';
+import { buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-08-7f9df9';
+import { htmlSaran } from './saran-bukti.js?v=2026-11-08-7f9df9';
+import { tautanBerkas, temuanPakai } from './tautan-privat.js?v=2026-11-08-7f9df9';
+import { htmlTautanButir, tsBaris } from './tautan-butir.js?v=2026-11-08-7f9df9';
 
 export const TABEL = 'lkps_prestasi_mahasiswa';
 
@@ -280,7 +280,7 @@ export async function pasangPrestasi(wadah, { sb, saya, dosen }){
         if (!alasan?.trim()) return tulis('err', 'Alasan wajib diisi.');
         const { error } = await sb.from('ajuan_prestasi').insert({ prestasi_id: r.id, data, lama, alasan: alasan.trim() });
         if (error) throw error;
-        isiForm(null); tulis('ok', 'Ajuan terkirim; admin memutuskannya di tab Verifikasi.');
+        isiForm(null); tulis('ok', 'Ajuan terkirim; admin memutuskannya di halaman Verifikasi.');
       }
       await muat();
     } catch (e) { tulis('err', /ajuan_prestasi_menunggu/.test(e.message || '') ? 'Masih ada ajuan yang menunggu untuk prestasi ini.'
@@ -390,7 +390,7 @@ export async function pasangPrestasi(wadah, { sb, saya, dosen }){
   await muat();
 }
 
-// ---------- tab Verifikasi (admin) ----------
+// ---------- verifikasi.html, tab Prestasi (admin) ----------
 
 export async function pasangVerifikasiPrestasi(boxIsian, boxAjuan, { sb, dosen }){
   const tampilKolom = (k, v) => k === 'pembimbing' ? (v || []).map(n => namaDosen(dosen, n)).join(', ')

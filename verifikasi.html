@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Verifikasi — Kinerja Program Studi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tema.css?v=2026-11-08-7f9df9">
+<style>
+  /* gaya dari input.html, supaya panel karya, BKD, dan prestasi tampil sama */
+  :root{--bg:#EEF0ED; --ink:#161E26; --muted:#616C76; --line:#D8DDD8; --line-soft:#E8EBE7; --accent:var(--biru); --accent-soft:var(--biru-m7); --pending:#8A5A00; --pending-soft:#FAF0DC; --reject:#8C2F2F; --reject-soft:#F7E7E7;}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
+       font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:960px;margin:0 auto;padding:0 20px 80px}
+  .hero-in{max-width:960px}
+
+  nav.tabs{display:flex;gap:2px;flex-wrap:wrap;margin:26px 0 20px;border-bottom:1px solid var(--line)}
+  nav.tabs button{appearance:none;border:0;background:none;cursor:pointer;
+    font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;
+    color:var(--muted);padding:10px 14px;border-bottom:2px solid transparent;margin-bottom:-1px}
+  nav.tabs button[aria-selected="true"]{color:var(--accent);border-bottom-color:var(--accent)}
+  nav.tabs button:hover{color:var(--ink)}
+
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:2px;
+         padding:22px 24px;margin-bottom:22px}
+  .panel h2{font-family:var(--serif);font-size:18px;font-weight:600;margin:0 0 4px}
+  .panel .hint{color:var(--muted);font-size:13px;margin:0 0 20px}
+
+  .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px 18px}
+  .fld{display:flex;flex-direction:column;gap:5px}
+  .fld.full{grid-column:1/-1}
+  .fld[hidden]{display:none}
+  label{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;
+        text-transform:uppercase;color:var(--muted)}
+  label .req{color:var(--reject)}
+  .sub{font-size:12px;color:var(--muted);font-family:var(--sans);
+       text-transform:none;letter-spacing:0;margin-top:-2px}
+  input,select,textarea{font-family:var(--sans);font-size:14px;color:var(--ink);
+    background:#fff;border:1px solid var(--line);border-radius:2px;padding:8px 10px;width:100%}
+  input[type=file]{padding:6px;font-size:12.5px}
+  select[disabled]{background:var(--bg);color:var(--muted)}
+  :focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+
+  .rekan{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));
+         gap:2px 14px;border:1px solid var(--line);border-radius:2px;padding:10px 12px;
+         max-height:170px;overflow:auto;background:#fff}
+  .rekan label{display:flex;gap:7px;align-items:center;font-family:var(--sans);
+    font-size:13.5px;text-transform:none;letter-spacing:0;color:var(--ink);
+    padding:3px 0;cursor:pointer}
+  .rekan input{width:auto;margin:0}
+
+  .rekan-item{display:flex;gap:10px;align-items:center;flex-wrap:wrap;
+    padding:6px 0;border-bottom:1px solid var(--line-soft)}
+  .rekan-item:last-child{border-bottom:0}
+  .rekan-item .r-peran{padding:5px 8px;font:inherit;font-size:13px}
+  .rekan-item select:disabled, .rekan-item input:disabled{opacity:.45}
+  .mhs-baris{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .mhs-baris input{flex:1;min-width:110px}
+  .mhs-baris input.nim{flex:0 0 130px}
+  .mhs-daftar{margin-top:9px}
+  .mhs-item{display:flex;gap:10px;align-items:center;padding:6px 0;
+            border-top:1px solid var(--line-soft);font-size:13.5px}
+  .mhs-item:first-child{border-top:0}
+  .mhs-baris select{flex:0 0 150px}
+  .mhs-baris select#f_bukti_jenis{flex:0 0 260px;max-width:100%}
+  .mhs-baris label.cek{flex:0 0 auto;font-size:13px;white-space:nowrap}
+  .mhs-item .n{flex:1}
+  .mhs-item .i{font-family:var(--mono);font-size:12px;color:var(--muted);
+               flex:0 0 120px}
+  .cek{display:flex;gap:8px;align-items:center;font-family:var(--sans);
+       font-size:14px;text-transform:none;letter-spacing:0;color:var(--ink);
+       cursor:pointer;padding:8px 0}
+  .cek input{width:auto;margin:0}
+  .aksi{display:flex;align-items:center;gap:14px;margin-top:18px;flex-wrap:wrap}
+  .btn{font-family:var(--sans);font-size:14px;font-weight:500;cursor:pointer;
+    border-radius:2px;padding:9px 18px;border:1px solid var(--accent);
+    background:var(--accent);color:#fff}
+  .btn:hover{background:#0a423d}
+  .btn[disabled]{opacity:.5;cursor:default}
+  .btn.ghost{background:none;color:var(--accent)}
+  .btn.ghost:hover{background:var(--accent-soft)}
+  .btn.sm{font-size:12.5px;padding:5px 11px}
+  .btn.danger{border-color:var(--reject);background:none;color:var(--reject)}
+  .btn.danger:hover{background:var(--reject-soft)}
+  .msg{font-size:13px}
+  .msg.ok{color:var(--accent)} .msg.err{color:var(--reject)}
+
+  /* peringatan duplikat — elemen paling penting di halaman ini */
+  .dup{border:1px solid var(--pending);background:var(--pending-soft);
+       border-radius:2px;padding:16px 18px;margin:18px 0 0;grid-column:1/-1}
+  .dup h3{font-family:var(--serif);font-size:15px;font-weight:600;margin:0 0 4px;color:var(--pending)}
+  .dup p{margin:0 0 10px;font-size:13.5px}
+  .dup .karya{background:#fff;border:1px solid #E8D5A8;padding:11px 13px;
+              border-radius:2px;margin-bottom:12px}
+  .dup .karya b{font-weight:500;display:block;line-height:1.4}
+  .dup .karya span{font-family:var(--mono);font-size:11px;color:var(--muted);
+                   display:block;margin-top:4px}
+
+  .rec{display:flex;gap:14px;padding:13px 0;border-top:1px solid var(--line-soft)}
+  .spine{width:3px;flex:none;border-radius:2px;background:var(--pending)}
+  .rec[data-s="terverifikasi"] .spine{background:var(--accent)}
+  .rec[data-s="ditolak"] .spine{background:var(--reject)}
+  .rec-b{flex:1;min-width:0}
+  .rec-j{font-weight:500;line-height:1.35}
+  .rec-m{font-family:var(--mono);font-size:11px;letter-spacing:.05em;color:var(--muted);
+         margin-top:3px;display:flex;gap:10px;flex-wrap:wrap}
+  .rec-a{display:flex;gap:8px;align-items:flex-start;flex-wrap:wrap}
+  .bukti-saya{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:4px}
+  ul.antrean{margin:6px 0;padding-left:18px;font-size:13px}
+  ul.antrean li{margin:2px 0;word-break:break-word}
+  details.kb{margin-top:6px;font-size:13px}
+  details.kb summary{cursor:pointer;color:var(--accent);font-weight:500}
+  details.kb ul{margin:6px 0;padding-left:18px}
+  details.kb li{margin:3px 0;word-break:break-word}
+  details.kb .btn.sm{padding:2px 9px;font-size:11.5px;margin-left:4px}
+  .kb-f{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:6px 0}
+  .kb-f select, .kb-f input[type=text], .kb-f input[type=url]{flex:1 1 180px;padding:5px 7px;font:inherit}
+  .kb-m, .kb-kos{font-size:12px;color:var(--muted)}
+  .vb{display:block;margin-top:4px}
+  .vb ul{margin:2px 0 0;padding-left:18px;text-transform:none;letter-spacing:0}
+  .vb a{color:var(--accent);word-break:break-word}
+  .bukti-saya a{color:var(--accent);word-break:break-all}
+  .bukti-saya .btn.sm{padding:2px 9px;font-size:11.5px}
+  .tag{font-family:var(--mono);font-size:10px;letter-spacing:.09em;text-transform:uppercase;
+       padding:2px 7px;border-radius:2px;background:var(--pending-soft);color:var(--pending);
+       white-space:nowrap}
+  .rec[data-s="terverifikasi"] .tag{background:var(--accent-soft);color:var(--accent)}
+  .rec[data-s="ditolak"] .tag{background:var(--reject-soft);color:var(--reject)}
+  .kosong{color:var(--muted);font-size:13.5px;padding:14px 0}
+
+  .masuk{max-width:400px;margin:64px auto}
+  code{font-family:var(--mono);font-size:12.5px;background:var(--bg);padding:1px 5px}
+  /* ajuan perubahan (sisa gaya, dipakai verifikasi.html juga) */
+  .ajuan-ubah{border:1px solid var(--line);border-radius:3px;padding:12px 14px;margin-bottom:12px}
+  table.beda{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:10px}
+  table.beda th,table.beda td{border-bottom:1px solid var(--line-soft);padding:6px 8px;
+    text-align:left;vertical-align:top}
+  table.beda th{font-family:var(--mono);font-size:11px;letter-spacing:.08em;
+    text-transform:uppercase;color:var(--muted)}
+  table.beda td:first-child{width:24%;color:var(--muted)}
+  table.beda td:nth-child(3){background:#EAF4EC}
+  @media(max-width:640px){.grid{grid-template-columns:1fr}}
+  /* angka yang menunggu pada tab (verifikasi.html) */
+  nav.tabs button .n{display:inline-block;min-width:18px;margin-left:6px;padding:0 6px;border-radius:9px;
+    font-size:11px;letter-spacing:0;text-align:center;background:var(--line);color:var(--muted)}
+  nav.tabs button .n.ada{background:var(--pending);color:#fff}
+  .info-v{font-size:13.5px;color:var(--muted);margin:22px 0 0}
+</style>
+<link rel="stylesheet" href="kepala.css?v=2026-11-08-7f9df9">
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-in">
+    <div class="hero-inst" data-identitas></div>
+    <h1>Verifikasi</h1>
+    <div class="sub" id="hSub">Karya dosen, profil dosen, BKD, dan prestasi mahasiswa yang menunggu keputusan admin</div>
+  </div>
+</header>
+
+<div class="wrap" id="app"></div>
+
+<script src="config.js?v=2026-11-08-7f9df9"></script>
+<script>
+// Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
+// halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
+addEventListener('error', function (e) {
+  if (document.getElementById('galat-muat')) return;
+  var d = document.createElement('div');
+  d.id = 'galat-muat';
+  d.style.cssText = 'margin:16px;padding:12px 14px;border:1px solid var(--merah);' +
+    'background:var(--merah-m3);color:#14212E;font:14px/1.5 system-ui,sans-serif';
+  d.textContent = 'Halaman gagal dimuat: ' + (e.message || 'galat skrip') +
+    '. Tekan Ctrl+Shift+R untuk memuat ulang tanpa cache; bila tetap muncul, kirim pesan ini ke admin.';
+  document.body.insertBefore(d, document.body.firstChild);
+});
+</script>
+<script type="module">
+/* =====================================================================
+   VERIFIKASI — satu halaman untuk semua yang menunggu keputusan admin
+   (pemilik 2026-11-08): karya dosen (dulu tab Verifikasi di input.html),
+   ajuan profil dosen (dulu di kelola-dosen.html), BKD, dan prestasi
+   mahasiswa. Tab per jenis dengan angka yang menunggu
+   (verifikasi-hitung.js). RLS di Supabase tetap penjaga sebenarnya.
+   ===================================================================== */
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+import { pasangMenu } from './menu.js?v=2026-11-08-7f9df9';
+import { pasangVerifikasiKarya } from './verifikasi-karya.js?v=2026-11-08-7f9df9';
+import { pasangVerifikasiProfil } from './verifikasi-profil.js?v=2026-11-08-7f9df9';
+import { pasangVerifikasiBkd } from './bkd.js?v=2026-11-08-7f9df9';
+import { pasangVerifikasiPrestasi } from './prestasi.js?v=2026-11-08-7f9df9';
+import { hitungVerifikasi, TAB_VERIFIKASI } from './verifikasi-hitung.js?v=2026-11-08-7f9df9';
+import { pasangHapusBuktiAdmin } from './karya-tampil.js?v=2026-11-08-7f9df9';
+
+const app = document.getElementById('app');
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c =>
+  ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+const SB_URL = window.SB_URL || '', SB_KEY = window.SB_KEY || '';
+if (!SB_URL || !SB_KEY || SB_URL.includes('XXXXXXXX') || SB_KEY.includes('GANTI')) {
+  app.innerHTML = `<div class="masuk"><div class="panel"><h2>Belum dikonfigurasi</h2>
+    <p class="hint">Buka berkas <code>config.js</code> di folder yang sama, lalu isi
+    <code>SB_URL</code> dan <code>SB_KEY</code>.</p></div></div>`;
+  throw new Error('konfigurasi kosong');
+}
+const sb = createClient(SB_URL, SB_KEY);
+
+let saya = null, dosenList = [];
+
+// Isi tiap tab; panel BKD dan prestasi memakai modulnya (bkd.js, prestasi.js).
+const panel = (id, judul, hint) => `<div class="panel"><h2>${judul}</h2>
+  <p class="hint">${hint}</p><div id="${id}" class="kosong">Memuat…</div></div>`;
+const TAB = {
+  karya: ['Karya dosen', isi => pasangVerifikasiKarya(isi, { sb, dosen: dosenList })],
+  profil: ['Profil dosen', isi => {
+    isi.innerHTML = panel('vpr', 'Ajuan perubahan profil',
+      `Diajukan dosen di halaman Profil saya. Setujui = kolom "Diajukan" diterapkan ke
+      data dosen. Tolak = data tetap, alasan penolakan dilihat dosennya. Data dosen lain
+      diubah langsung di <a href="kelola-dosen.html">Kelola dosen</a>.`);
+    return pasangVerifikasiProfil($('vpr'), { sb });
+  }],
+  bkd: ['BKD', isi => {
+    isi.innerHTML = panel('vb', 'BKD menunggu verifikasi',
+      `Cocokkan angka dengan bagian C LKD. Hanya yang terverifikasi
+      dihitung di Tabel 4.c dan butir 30. Berkas LKD privat, dibuka lewat tombol.`)
+      + panel('ab', 'Ajuan perubahan BKD',
+      `Perubahan pada BKD yang sudah terverifikasi. Setujui = diterapkan.
+      Tolak = data tetap, alasan dilihat pengajunya.`);
+    return pasangVerifikasiBkd($('vb'), $('ab'), { sb, dosen: dosenList });
+  }],
+  prestasi: ['Prestasi mahasiswa', isi => {
+    isi.innerHTML = panel('vp', 'Prestasi mahasiswa menunggu verifikasi',
+      `Diisi dosen pembimbing. Hanya yang terverifikasi dihitung di butir 43
+      dan Tabel 6.c. Periksa sertifikat atau piagamnya, dan peringatan prestasi ganda.`)
+      + panel('ap', 'Ajuan perubahan dan hapus prestasi',
+      `Setujui = perubahan diterapkan, atau prestasi dihapus dan berkas
+      buktinya dipindah ke Sampah Drive. Tolak = data tetap, alasan dilihat pengajunya.`);
+    return pasangVerifikasiPrestasi($('vp'), $('ap'), { sb, dosen: dosenList });
+  }],
+};
+
+async function mulai(){
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) return layarMasuk();
+  const { data } = await sb.from('dosen').select('*').ilike('email', session.user.email).maybeSingle();
+  if (!data) { app.innerHTML = `<div class="masuk"><div class="panel"><h2>Email belum terdaftar</h2>
+    <p class="hint"><strong>${esc(session.user.email)}</strong> belum ada di daftar dosen prodi.</p></div></div>`; return; }
+  saya = data;
+  pasangMenu(sb);
+  if (saya.peran !== 'admin') {
+    $('hSub').textContent = `Masuk sebagai ${saya.nama}`;
+    app.innerHTML = '<p class="kosong">Halaman ini khusus admin prodi.</p>';
+    return;
+  }
+  $('hSub').textContent = `Masuk sebagai ${saya.nama} (admin). Karya dosen, profil dosen, BKD, dan prestasi mahasiswa yang menunggu keputusan.`;
+  // Sama dengan daftar dosen di input.html (nama pengaju, NIDN BKD, pembimbing prestasi).
+  const { data: ds } = await sb.from('dosen').select('id,nama,nidn,dtps').eq('aktif', true)
+    .or('dtps.eq.true,peran.in.(dosen,pimpinan)').order('nama');
+  dosenList = ds || [];
+  pasangHapusBuktiAdmin(sb, () => saya?.peran === 'admin');
+  await layarUtama();
+}
+
+async function layarUtama(){
+  app.innerHTML = `<p class="info-v">Angka pada tab = jumlah yang menunggu keputusan. Entri baru
+    hanya dihitung di skor dan LKPS setelah diverifikasi di sini.</p>
+    <nav class="tabs" role="tablist">${TAB_VERIFIKASI.map(t =>
+      `<button role="tab" data-t="${t}" aria-selected="false">${TAB[t][0]}<span class="n" data-n="${t}">…</span></button>`).join('')}
+    </nav><div id="isi"></div>`;
+  const n = await perbaruiAngka();
+  const awal = location.hash.slice(1);
+  bukaTab(TAB[awal] ? awal : TAB_VERIFIKASI.find(t => n[t]) || 'karya');
+  app.querySelectorAll('nav.tabs button').forEach(b => {
+    b.onclick = () => { history.replaceState(null, '', '#' + b.dataset.t); bukaTab(b.dataset.t); };
+  });
+  // Tautan ke #profil, #bkd, ... saat halaman sudah terbuka.
+  addEventListener('hashchange', () => { const t = location.hash.slice(1); if (TAB[t]) bukaTab(t); });
+  // Angka tab dihitung ulang setiap isi panel berubah (setelah Setujui/Tolak).
+  let tunda = null;
+  new MutationObserver(() => { clearTimeout(tunda); tunda = setTimeout(perbaruiAngka, 600); })
+    .observe($('isi'), { childList: true, subtree: true });
+}
+
+async function perbaruiAngka(){
+  const n = await hitungVerifikasi(sb);
+  TAB_VERIFIKASI.forEach(t => {
+    const e = app.querySelector(`[data-n="${t}"]`);
+    if (!e) return;
+    e.textContent = n[t];
+    e.classList.toggle('ada', n[t] > 0);
+  });
+  return n;
+}
+
+function bukaTab(t){
+  app.querySelectorAll('nav.tabs button').forEach(b => b.setAttribute('aria-selected', String(b.dataset.t === t)));
+  const isi = $('isi');
+  isi.innerHTML = '<p class="kosong">Memuat…</p>';
+  Promise.resolve(TAB[t][1](isi)).catch(e => {
+    isi.innerHTML = `<p class="kosong">Gagal memuat: ${esc(e.message || e)}</p>`;
+  });
+}
+
+function layarMasuk(){
+  app.innerHTML = `<div class="masuk"><div class="panel">
+    <h2>Masuk</h2>
+    <p class="hint">Gunakan email kampus yang sudah didaftarkan admin prodi.
+    Kami kirimkan tautan masuk — tidak ada kata sandi yang perlu diingat.</p>
+    <div class="fld"><label for="em">Alamat email</label>
+      <input id="em" type="email" autocomplete="email" placeholder="nama@kampus.ac.id"></div>
+    <div class="aksi"><button class="btn" id="kirim">Kirim tautan masuk</button>
+      <span class="msg" id="m"></span></div>
+  </div></div>`;
+  const em = $('em'), m = $('m'), kirim = $('kirim');
+  em.onkeydown = e => { if (e.key === 'Enter') kirim.click(); };
+  kirim.onclick = async () => {
+    m.className = 'msg';
+    if (!em.value.includes('@')) { m.className = 'msg err'; m.textContent = 'Masukkan email yang valid.'; return; }
+    kirim.disabled = true; m.textContent = 'Mengirim…';
+    const { error } = await sb.auth.signInWithOtp({ email: em.value.trim(),
+      options: { emailRedirectTo: location.href.split('#')[0] } });
+    kirim.disabled = false;
+    if (error) { m.className = 'msg err'; m.textContent = error.message; }
+    else { m.className = 'msg ok'; m.textContent = 'Tautan terkirim. Periksa kotak masuk Anda.'; }
+  };
+}
+
+sb.auth.onAuthStateChange(ev => { if (ev === 'SIGNED_IN' && !saya) mulai(); });
+mulai();
+</script>
+</body>
+</html>

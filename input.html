@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-07-7987ea">
+<link rel="stylesheet" href="tema.css?v=2026-11-08-7f9df9">
 <style>
   :root{--bg:#EEF0ED; --ink:#161E26; --muted:#616C76; --line:#D8DDD8; --line-soft:#E8EBE7; --accent:var(--biru); --accent-soft:var(--biru-m7); --pending:#8A5A00; --pending-soft:#FAF0DC; --reject:#8C2F2F; --reject-soft:#F7E7E7;}
   *{box-sizing:border-box}
@@ -22,6 +22,10 @@
     color:var(--muted);padding:10px 14px;border-bottom:2px solid transparent;margin-bottom:-1px}
   nav.tabs button[aria-selected="true"]{color:var(--accent);border-bottom-color:var(--accent)}
   nav.tabs button:hover{color:var(--ink)}
+  nav.tabs a.ke-verif{margin-left:auto;align-self:center;font-family:var(--mono);font-size:12px;
+    letter-spacing:.08em;text-transform:uppercase;color:var(--accent);text-decoration:none;padding:10px 4px}
+  nav.tabs a.ke-verif .n{background:var(--pending);color:#fff;border-radius:9px;padding:0 6px;
+    font-size:11px;margin-right:3px}
 
   .panel{background:var(--panel);border:1px solid var(--line);border-radius:2px;
          padding:22px 24px;margin-bottom:22px}
@@ -132,7 +136,7 @@
 
   .masuk{max-width:400px;margin:64px auto}
   code{font-family:var(--mono);font-size:12.5px;background:var(--bg);padding:1px 5px}
-  /* ajuan perubahan (tab Verifikasi) */
+  /* ajuan perubahan (sisa gaya, dipakai verifikasi.html juga) */
   .ajuan-ubah{border:1px solid var(--line);border-radius:3px;padding:12px 14px;margin-bottom:12px}
   table.beda{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:10px}
   table.beda th,table.beda td{border-bottom:1px solid var(--line-soft);padding:6px 8px;
@@ -143,7 +147,7 @@
   table.beda td:nth-child(3){background:#EAF4EC}
   @media(max-width:640px){.grid{grid-template-columns:1fr}}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-07-7987ea">
+<link rel="stylesheet" href="kepala.css?v=2026-11-08-7f9df9">
 </head>
 <body>
 
@@ -157,7 +161,7 @@
 
 <div class="wrap" id="app"></div>
 
-<script src="config.js?v=2026-11-07-7987ea"></script>
+<script src="config.js?v=2026-11-08-7f9df9"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -181,16 +185,21 @@ const SUPABASE_URL = window.SB_URL;
 const SUPABASE_ANON_KEY = window.SB_KEY;
 
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { JENIS_BUKTI_KARYA, namaJenisBukti, JENIS_KARYA_PRIVAT, teksAksesBukti } from './rencana-bukti.js?v=2026-11-07-7987ea';
-import { tautanBerkas, temuanPakai } from './tautan-privat.js?v=2026-11-07-7987ea';
-import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-07-7987ea';
-import { periksaBerkas, kolomSidik, teksTemuan } from './sidik-berkas.js?v=2026-11-07-7987ea';
-import { htmlContoh, pasangContoh, durasiKS, JENIS_BUKTI_KS } from './manfaat-kerjasama.js?v=2026-11-07-7987ea';
-import { pasangMenu } from './menu.js?v=2026-11-07-7987ea';
-import { pasangPrestasi, pasangVerifikasiPrestasi } from './prestasi.js?v=2026-11-07-7987ea';
-import { htmlSaran } from './saran-bukti.js?v=2026-11-07-7987ea';
-import { pasangBkd, pasangVerifikasiBkd } from './bkd.js?v=2026-11-07-7987ea';
-import { htmlTautanButir, butirKarya, tsBaris } from './tautan-butir.js?v=2026-11-07-7987ea';
+import { JENIS_BUKTI_KARYA, namaJenisBukti, JENIS_KARYA_PRIVAT, teksAksesBukti } from './rencana-bukti.js?v=2026-11-08-7f9df9';
+import { tautanBerkas, temuanPakai } from './tautan-privat.js?v=2026-11-08-7f9df9';
+import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-08-7f9df9';
+import { periksaBerkas, kolomSidik, teksTemuan } from './sidik-berkas.js?v=2026-11-08-7f9df9';
+import { pasangContoh, durasiKS } from './manfaat-kerjasama.js?v=2026-11-08-7f9df9';
+import { pasangMenu } from './menu.js?v=2026-11-08-7f9df9';
+import { pasangPrestasi } from './prestasi.js?v=2026-11-08-7f9df9';
+import { htmlSaran } from './saran-bukti.js?v=2026-11-08-7f9df9';
+import { pasangBkd } from './bkd.js?v=2026-11-08-7f9df9';
+import { htmlTautanButir } from './tautan-butir.js?v=2026-11-08-7f9df9';
+import { ISIAN_32, ISIAN_25, TINGKAT, FORM } from './form-karya.js?v=2026-11-08-7f9df9';
+import { barisKarya as htmlBarisKarya, muatBuktiKarya, daftarBuktiKarya as daftarBuktiDari,
+  htmlDaftarBukti as htmlDaftarBuktiDari, berkasMilikKarya as berkasMilikDari,
+  pasangHapusBuktiAdmin } from './karya-tampil.js?v=2026-11-08-7f9df9';
+import { hitungVerifikasi } from './verifikasi-hitung.js?v=2026-11-08-7f9df9';
 
 const app = document.getElementById('app');
 if (!SUPABASE_URL || !SUPABASE_ANON_KEY
@@ -203,204 +212,10 @@ if (!SUPABASE_URL || !SUPABASE_ANON_KEY
 }
 
 const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-const TH = new Date().getFullYear();
-const TAHUN = Array.from({length:12},(_,i)=>String(TH+1-i));
-// Bulan opsional: memetakan karya ke tahun akademik (TS, Sep-Agu).
-const BULAN = [['1','Januari'],['2','Februari'],
-  ['3','Maret'],['4','April'],['5','Mei'],['6','Juni'],['7','Juli'],
-  ['8','Agustus'],['9','September'],['10','Oktober'],['11','November'],
-  ['12','Desember']];
-// Dropdown "berasal dari kegiatan": diisi saat form dibuka dengan
-// kegiatan penelitian/PkM milik dosen ini yang sudah tersimpan.
-const F_INDUK = {n:'induk_id', l:'Berasal dari penelitian / PkM', t:'select',
-  o:[['', '— tidak ada / mandiri —']],
-  sub:'Pilih kegiatan yang menghasilkan karya ini. Hanya kegiatan Anda '
-    + 'sendiri yang tampil; kosongkan bila tidak berasal dari kegiatan '
-    + 'yang tercatat.'};
-
-// Kerja sama induk (MoU/PKS/IA) yang dicatat admin di Data prodi
-// (supabase/24-patch-kerjasama-induk.sql). Diisi saat form dibuka;
-// dihapus dari form bila daftarnya belum bisa dibaca (patch belum jalan).
-const F_KERJASAMA = {n:'kerjasama_id', l:'Kerja sama induk (MoU/PKS/IA)', t:'select', full:1,
-  o:[['', '— tidak terkait kerja sama yang tercatat —']],
-  sub:'Pilih bila kegiatan ini dilaksanakan dalam kerja sama yang sudah dicatat admin prodi. '
-    + 'Di LKPS 2.a kegiatan ini tampil dengan tanggal, manfaat, dan bukti kerja sama itu. '
-    + 'Kerja sama belum ada di daftar? Minta admin menambahkannya di Data prodi.'};
-
-// Isian LKPS 2.a dari dosen (supabase/32-patch-isian-kerjasama.sql). Durasi dan
-// status tidak diisi: dihitung rumus templat dari kedua tanggal.
-const ISIAN_32 = ['manfaat_ks', 'mulai_ks', 'selesai_ks', 'jenis_bukti_ks'];
-const F_MANFAAT_KS = {n:'manfaat_ks', l:'Manfaat kerja sama bagi program studi', t:'textarea', full:1,
-  ph:'Mis. Mendukung topik tugas akhir 3 mahasiswa dan memperkaya materi mata kuliah Hidrologi dengan data lapangan dari mitra.',
-  sub:'LKPS 2.a kolom 7. Isi bila kegiatan ini bersama mitra. Sebutkan manfaat nyata bagi prodi, bukan tujuan kegiatan; '
-    + 'kosong = memakai isian kerja sama induk.' + htmlContoh('f_manfaat_ks', ['penelitian', 'pkm'])};
-const F_MULAI_KS = {n:'mulai_ks', l:'Tanggal awal kerja sama', t:'date', sub:'Sesuai surat penugasan atau perjanjian.'};
-const F_SELESAI_KS = {n:'selesai_ks', l:'Tanggal akhir kerja sama', t:'date', sub:'<span id="durasi_ks">Durasi dan status dihitung dari kedua tanggal.</span>'};
-const F_BUKTI_KS = {n:'jenis_bukti_ks', l:'Bukti kerja sama', t:'select', full:1, o:JENIS_BUKTI_KS,
-  sub:'LKPS 2.a kolom 12. Unggah berkasnya di bagian bukti, atau tautkan yang sudah ada.'};
-
-// Isian LKPS tambahan (supabase/25-patch-isian-karya.sql). Nilai sah sama
-// dengan daftar pilihan templat LKPS. Dibuang dari form bila kolomnya
-// belum ada (siapkanIsian25), supaya simpan tidak gagal.
-const ISIAN_25 = ['jumlah_sitasi', 'tema_id', 'keterlibatan_mhs', 'tkt', 'nomor_tkt', 'bukti_integrasi', 'sesuai_rps'];
-const F_SITASI = {n:'jumlah_sitasi', l:'Jumlah sitasi (3 tahun terakhir)', t:'number', ph:'0',
-  // Tafsiran 4.i (pemilik 2026-11-04): artikel tahun berapa pun, yang dihitung
-  // sitasi yang DITERIMA dalam tiga tahun terakhir (TS-2 s.d. TS).
-  sub:'LKPS 4.i: sitasi yang <b>diterima</b> artikel ini dalam tiga tahun terakhir (TS-2 s.d. TS), '
-    + 'bukan total sepanjang masa. Artikel lama boleh, asal disitasi dalam tiga tahun itu. '
-    + 'Hanya jurnal/prosiding terindeks <b>Scopus atau WoS</b> yang masuk tabel. '
-    + 'Kolom LKPS meminta angka <b>Google Scholar</b>: jumlahkan batang grafik sitasi tiga tahun itu di halaman artikel; '
-    + 'pembanding di Scopus: <i>Citation overview</i> dengan rentang tahun. '
-    + 'Simpan tangkapan layarnya sebagai bukti (jenis Lainnya); perbarui tiap tahun.'};
-const F_TEMA = {n:'tema_id', l:'Tema peta jalan', t:'select', o:[['', '— belum dipilih —']],
-  sub:'Tema peta jalan penelitian/PkM prodi (daftar diisi admin di Data prodi). LKPS 6.h.1, 6.i, dan 3.a.3.'};
-const F_KETERLIBATAN = {n:'keterlibatan_mhs', l:'Bentuk keterlibatan mahasiswa', t:'select',
-  o:[['tugas_akhir','Tugas akhir'], ['perancangan','Perancangan'],
-     ['pengembangan_produk','Pengembangan produk/jasa'], ['lainnya','Kegiatan lain yang relevan']],
-  sub:'Untuk penelitian yang melibatkan mahasiswa (LKPS 6.h.1).'};
-const F_TKT = {n:'tkt', l:'Tingkat kesiapan teknologi (TKT)', t:'select',
-  o:[...Array.from({length:9}, (_, i) => [String(i+1), 'TKT ' + (i+1)])],
-  sub:'Untuk teknologi tepat guna dan produk (LKPS 4.f.3).'};
-const F_NOMOR_TKT = {n:'nomor_tkt', l:'Nomor sertifikat TKT', t:'text',
-  sub:'Untuk teknologi tepat guna dan produk (LKPS 4.f.3).'};
-const F_BUKTI_INTEGRASI = {n:'bukti_integrasi', l:'Bukti sahih integrasi', t:'select',
-  o:[['naskah_hibah','Naskah hibah'], ['laporan_akhir','Laporan akhir'], ['publikasi','Publikasi'],
-     ['lainnya','Bukti sahih lainnya']]};
-const F_RPS = {n:'sesuai_rps', l:'Sudah tercantum di RPS', t:'select', o:[['true','Ya'], ['false','Belum']]};
-
-const F_BULAN = {n:'bulan', l:'Bulan', t:'select', w:1, o:BULAN,
-  sub:'Menentukan tahun akademik (TS): September ke atas masuk TS berikutnya'};
-const TINGKAT = [['internasional','Internasional'],['nasional','Nasional'],
-                 ['wilayah_lokal','Wilayah / lokal']];
-
 const esc = s => String(s ?? '').replace(/[&<>"']/g,c=>
   ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const rapi = s => s ? String(s).replace(/_/g,' ') : '';
 const norm = s => String(s||'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
-
-// ---------------------------------------------------------------------
-//  Definisi form
-//  Tipe field khusus:
-//    'skema'  → dua dropdown bertingkat: kelompok, lalu skema
-// ---------------------------------------------------------------------
-const FORM = {
-  publikasi: {
-    judul:'Publikasi',
-    hint:'Artikel jurnal, prosiding, buku, dan HKI. Isi DOI bila ada — itu yang mencegah entri ganda.',
-    peran:[['penulis_pertama','Penulis pertama'],['anggota','Anggota']],
-    korespondensi:true, mitra:true, mahasiswa:'publikasi',
-    f:[
-      {n:'judul', l:'Judul karya', t:'text', w:1, full:1},
-      {n:'jenis', l:'Jenis', t:'select', w:1, o:[['jurnal','Artikel jurnal'],
-        ['prosiding','Prosiding'],['buku','Buku'],['bab_buku','Bab dalam buku'],
-        ['haki_paten','HKI / paten'],['lainnya','Lainnya']]},
-      {n:'tahun', l:'Tahun terbit', t:'select', w:1, o:TAHUN.map(y=>[y,y])},
-      F_BULAN,
-      F_INDUK,
-      {n:'nama_terbitan', l:'Nama jurnal / penerbit', t:'text'},
-      {n:'tingkat', l:'Tingkat', t:'select', w:1, o:TINGKAT},
-      {n:'indeksasi', l:'Indeksasi', t:'select', o:[['scopus_q1','Scopus Q1'],
-        ['scopus_q2','Scopus Q2'],['scopus_q3','Scopus Q3'],['scopus_q4','Scopus Q4'],
-        ['wos','Web of Science'],['sinta_1_2','SINTA 1–2'],['sinta_3_4','SINTA 3–4'],
-        ['sinta_5_6','SINTA 5–6'],['tidak_terindeks','Tidak terindeks']]},
-      {n:'doi', l:'DOI', t:'text', ph:'10.1016/j.jhydrol.2025.132000'},
-      F_SITASI,
-      {n:'url', l:'Tautan', t:'url', full:1, ph:'https://'},
-    ]
-  },
-  kegiatan: {
-    judul:'Penelitian & pengabdian',
-    hint:'Satu entri untuk satu kegiatan, bukan per anggota. Agar tidak ganda, sebaiknya hanya ketua yang menginput; anggota mendaftarkan diri lewat tab Karya prodi.',
-    peran:[['ketua','Ketua'],['anggota','Anggota']],
-    mitra:true, mahasiswa:'kegiatan',
-    f:[
-      {n:'judul', l:'Judul kegiatan', t:'text', w:1, full:1},
-      {n:'kategori', l:'Jenis', t:'select', w:1,
-        o:[['penelitian','Penelitian'],['pkm','Pengabdian kepada masyarakat']]},
-      {n:'tahun', l:'Tahun pelaksanaan', t:'select', w:1, o:TAHUN.map(y=>[y,y])},
-      F_BULAN,
-      {n:'skema', t:'skema', full:1},
-      {n:'tingkat', l:'Tingkat kegiatan', t:'select', w:1, o:TINGKAT},
-      F_KERJASAMA,
-      F_MANFAAT_KS,
-      F_MULAI_KS,
-      F_SELESAI_KS,
-      F_BUKTI_KS,
-      F_TEMA,
-      F_KETERLIBATAN,
-      {n:'nama_pemberi_dana', l:'Nama pemberi dana', t:'text',
-        sub:'Contoh: DPPM Kemendiktisaintek, LPPM Universitas, PT ABC'},
-      {n:'besaran_dana', l:'Besaran dana (Rp)', t:'number', ph:'25000000'},
-      {n:'keterangan', l:'Keterangan tambahan', t:'text', full:1,
-        sub:'Wajib diisi bila memilih skema "lainnya": tuliskan nama skema sebenarnya'},
-    ]
-  },
-  luaran: {
-    judul:'Luaran & HKI',
-    hint:'Paten, hak cipta, teknologi tepat guna, produk, dan buku (LKPS 4.f). Lampirkan sertifikat atau bukti pendaftaran.',
-    peran:[['ketua','Pemilik utama'],['anggota','Anggota']],
-    mitra:true, mahasiswa:'kegiatan',
-    f:[
-      {n:'judul', l:'Judul luaran', t:'text', w:1, full:1},
-      {n:'sub_jenis', l:'Jenis', t:'select', w:1, o:[
-        ['paten','Paten'],['paten_sederhana','Paten sederhana'],
-        ['hak_cipta','Hak cipta'],['desain_industri','Desain produk industri'],
-        ['merek','Merek'],['ttg','Teknologi tepat guna'],['produk','Produk'],
-        ['buku_isbn','Buku ber-ISBN'],['book_chapter','Book chapter']]},
-      {n:'tahun', l:'Tahun', t:'select', w:1, o:TAHUN.map(y=>[y,y])},
-      F_BULAN,
-      F_INDUK,
-      {n:'nama_terbitan', l:'Nomor pendaftaran / penerbit', t:'text',
-        sub:'Nomor paten/hak cipta, atau nama penerbit untuk buku'},
-      F_TKT,
-      F_NOMOR_TKT,
-      {n:'url', l:'Tautan', t:'url', full:1, ph:'https://'},
-      {n:'keterangan', l:'Keterangan', t:'text', full:1},
-    ]
-  },
-  rekognisi: {
-    judul:'Rekognisi',
-    hint:'Pengakuan atas kepakaran Anda (LKPS 4.j): pembicara undangan, editor, mitra bestari, penghargaan, dan sejenisnya.',
-    peran:[['ketua','Penerima']],
-    f:[
-      {n:'judul', l:'Nama kegiatan / pengakuan', t:'text', w:1, full:1,
-        sub:'Contoh: Invited speaker Seminar Nasional HATHI 2026'},
-      {n:'sub_jenis', l:'Bentuk', t:'select', w:1, o:[
-        ['invited_speaker','Pembicara undangan'],['narasumber','Narasumber'],
-        ['editor','Editor jurnal/buku'],['mitra_bestari','Mitra bestari / reviewer'],
-        ['penghargaan','Penghargaan'],['visiting','Visiting scholar/lecturer'],
-        ['juri','Juri / asesor'],['lainnya','Lainnya']]},
-      {n:'tahun', l:'Tahun', t:'select', w:1, o:TAHUN.map(y=>[y,y])},
-      F_BULAN,
-      {n:'tingkat', l:'Tingkat', t:'select', w:1, o:TINGKAT},
-      {n:'keterangan', l:'Keterangan', t:'text', full:1},
-    ]
-  },
-  integrasi: {
-    judul:'Integrasi ke pembelajaran',
-    hint:'Penelitian atau PkM yang dimasukkan ke mata kuliah: sebagai bahan kajian, studi kasus, bab buku ajar, atau modul.',
-    peran:[['ketua','Pengampu']],
-    f:[
-      {n:'mata_kuliah', l:'Mata kuliah', t:'select', w:1, o:[],
-       sub:'Diambil dari daftar mata kuliah prodi. Hubungi admin bila '
-         + 'mata kuliah Anda belum terdaftar.'},
-      {n:'induk_id', l:'Penelitian / PkM yang diintegrasikan', t:'select',
-       w:1, full:1, o:[],
-       sub:'Dipilih dari kegiatan Anda yang sudah tersimpan. Bila belum ada, '
-         + 'input kegiatannya lebih dulu di tab Penelitian &amp; PkM.'},
-      {n:'sub_jenis', l:'Bentuk integrasi', t:'select', w:1, o:[
-        ['bahan_kajian','Bahan kajian'],['studi_kasus','Studi kasus'],
-        ['bab_buku_ajar','Bab buku ajar'],['modul_praktikum','Modul praktikum'],
-        ['tugas_proyek','Tugas / proyek mahasiswa'],['lainnya','Lainnya']]},
-      {n:'tahun', l:'Tahun ajaran (mulai)', t:'select', w:1, o:TAHUN.map(y=>[y,y])},
-      F_BUKTI_INTEGRASI,
-      F_RPS,
-      {n:'keterangan', l:'Keterangan', t:'text', full:1},
-    ]
-  }
-};
-
-// ---------------------------------------------------------------------
 let saya = null, dosenList = [], refKelompok = [], refSkema = [];
 
 async function mulai(){
@@ -414,7 +229,6 @@ async function mulai(){
   pasangMenu(sb);
   // Asesor, dan pimpinan (dekan) yang bukan DTPS prodi ini, hanya melihat
   // skor; tidak mengisi karya. Dekan yang DTPS (aktif) mengisi seperti dosen.
-  // Batas tampilan, sama seperti tab Verifikasi untuk admin.
   if(saya.peran === 'asesor' || (saya.peran === 'pimpinan' && !saya.aktif))
     return layarHanyaLihat();
 
@@ -481,11 +295,17 @@ function layarUtama(){
                 ['saya','Karya saya'],['semua','Karya prodi']];
   // Dosen lain diisi admin di Data prodi (pemilik 2026-11-06).
   if(saya.dtps) tabs.splice(tabs.findIndex(t => t[0] === 'saya'), 0, ['bkd','BKD saya']);
-  if(saya.peran==='admin') tabs.push(['verifikasi','Verifikasi']);
+  // Verifikasi admin pindah ke halaman sendiri (pemilik 2026-11-08).
+  const keVerif = saya.peran==='admin'
+    ? `<a class="ke-verif" href="verifikasi.html">Verifikasi <span id="nVerif"></span>&#8599;</a>` : '';
 
   app.innerHTML = `<nav class="tabs" role="tablist">${tabs.map(([k,l],i)=>
     `<button role="tab" data-t="${k}" aria-selected="${i===0}">${l}</button>`).join('')}
-    </nav><div id="isi"></div>`;
+    ${keVerif}</nav><div id="isi"></div>`;
+  if(keVerif) hitungVerifikasi(sb).then(n => {
+    const e = document.getElementById('nVerif');
+    if(e && n.total) e.innerHTML = `<b class="n">${n.total}</b>`;
+  });
   app.querySelectorAll('nav.tabs button').forEach(b=>{
     b.onclick = ()=>{
       app.querySelectorAll('nav.tabs button').forEach(x=>x.setAttribute('aria-selected','false'));
@@ -500,7 +320,7 @@ function layarUtama(){
 // tab yang lupa didaftarkan dulu gagal senyap (undefined bukan fungsi).
 const buka = t => FORM[t]
   ? tampilForm(t)
-  : ({saya:karyaSaya, semua:karyaProdi, verifikasi:tampilVerifikasi,
+  : ({saya:karyaSaya, semua:karyaProdi,
       prestasi:() => pasangPrestasi(document.getElementById('isi'), { sb, saya, dosen: dosenList }),
       bkd:() => pasangBkd(document.getElementById('isi'), { sb, saya })})[t]();
 
@@ -556,14 +376,6 @@ function fieldHTML(f){
 // dan publikasi dengan mahasiswa sebagai penulis pertama.
 const BUTIR_TAB = { publikasi: ['6', '33', '35', '46'], kegiatan: ['6', '10', '11', '23', '25', '31', '32'],
   luaran: ['34', '35'], rekognisi: ['37'], integrasi: ['17'] };
-
-// Tautan baris karya ke butirnya pada TS karya itu. Yang ditolak tidak dipakai.
-function tautanKarya(k){
-  if(k.status === 'ditolak') return '';
-  const ok = k.status === 'terverifikasi';
-  return `<div class="rec-m">${htmlTautanButir(butirKarya(k), tsBaris(k.tahun, k.bulan),
-    ok ? 'Dipakai di' : 'Masuk setelah diverifikasi:')}</div>`;
-}
 
 function tampilForm(key, ubah = null){
   const F = FORM[key];
@@ -1384,7 +1196,7 @@ async function simpan(key){
 //  Ubah karya dan ajuan perubahan (pemilik 2026-11-04, patch 20)
 //    pelapor + belum terverifikasi -> Ubah langsung (rpc ubah_karya);
 //    selain itu (terverifikasi, atau penulis bukan pelapor) -> ajuan_ubah,
-//    diputuskan admin di tab Verifikasi (rpc setujui_ajuan_ubah).
+//    diputuskan admin di verifikasi.html (rpc setujui_ajuan_ubah).
 //  Yang dikirim hanya isian yang berubah; daftar penulis/mitra/mahasiswa
 //  yang berubah dikirim utuh dan menggantikan daftar lama.
 // ---------------------------------------------------------------------
@@ -1563,153 +1375,13 @@ function aksiUbah(k){
     : `<button class="btn ghost sm" data-aju="${k.id}" title="Perubahan berlaku setelah disetujui admin">Ajukan perubahan</button>`);
 }
 
-// Label isian untuk tabel perbandingan admin.
-function labelKolom(c){
-  const khusus = { kategori: 'Jenis kegiatan', skema_kode: 'Skema', judul: 'Judul' };
-  if(khusus[c]) return khusus[c];
-  for(const F of Object.values(FORM)){
-    const f = F.f.find(x => x.n === c);
-    if(f?.l) return f.l;
-  }
-  return rapi(c);
-}
-
-function tabelBeda(a, nama, karya){
-  const kosong = '<span class="kosong">—</span>';
-  const nilai = (c, v) => {
-    if(v == null || v === '') return kosong;
-    if(c === 'skema_kode') return esc(namaSkema(v) || v);
-    if(c === 'induk_id') return esc(karya.get(v)?.judul || v);
-    if(c === 'kerjasama_id') return esc(NAMA_KS[v] || 'kerja sama #' + v);
-    if(c === 'tema_id') return esc(NAMA_TEMA[v] || 'tema #' + v);
-    if(c === 'sesuai_rps') return String(v) === 'true' ? 'Ya' : 'Belum';
-    if(c === 'jenis_bukti_ks') return esc((JENIS_BUKTI_KS.find(x => x[0] === v) || [])[1] || v);
-    return esc(rapi(String(v)));
-  };
-  const daftar = xs => xs.length ? xs.map(esc).join('<br>') : kosong;
-  const tanda = p => rapi(p.peran) + (p.korespondensi ? ', korespondensi' : '');
-  const pen = xs => (xs || []).map(p => `${nama.get(p.dosen_id) || 'dosen'} (${tanda(p)})`);
-  const mtr = xs => (xs || []).map(m => [m.institusi, rapi(m.tingkat), m.negara].filter(Boolean).join(', '));
-  const mhs = xs => (xs || []).map(m => `${m.nim} ${m.nama} (${tanda(m)})`);
-  const baris = Object.keys(a.data?.karya || {}).map(c =>
-    [labelKolom(c), nilai(c, a.lama?.karya?.[c]), nilai(c, a.data.karya[c])]);
-  if(a.data?.penulis)   baris.push(['Penulis dari prodi', daftar(pen(a.lama?.penulis)), daftar(pen(a.data.penulis))]);
-  if(a.data?.mitra)     baris.push(['Institusi mitra', daftar(mtr(a.lama?.mitra)), daftar(mtr(a.data.mitra))]);
-  if(a.data?.mahasiswa) baris.push(['Mahasiswa terlibat', daftar(mhs(a.lama?.mahasiswa)), daftar(mhs(a.data.mahasiswa))]);
-  return `<table class="beda"><thead><tr><th>Isian</th><th>Lama</th><th>Baru</th></tr></thead><tbody>${
-    baris.map(([l, x, y]) => `<tr><td>${esc(l)}</td><td>${x}</td><td>${y}</td></tr>`).join('')}</tbody></table>`;
-}
-
-// Panel "Ajuan perubahan karya" di tab Verifikasi (admin).
-async function muatAjuanUbahKarya(){
-  const box = document.getElementById('au');
-  if(!box) return;
-  const { data: aj, error } = await sb.from('ajuan_ubah')
-    .select('id,karya_id,data,lama,alasan,oleh,dibuat_pada')
-    .eq('jenis', 'karya').eq('status', 'menunggu').order('dibuat_pada');
-  if(error){ box.className = 'kosong'; box.textContent = 'Tabel ajuan_ubah belum bisa dibaca ('
-    + error.message + '). Jalankan supabase/20-patch-ajuan-ubah.sql.'; return; }
-  if(!aj?.length){ box.className = 'kosong'; box.textContent = 'Tidak ada ajuan perubahan.'; return; }
-  // Nama dosen dan judul karya/induk yang dirujuk ajuan.
-  const idDosen = new Set(), idKarya = new Set();
-  aj.forEach(a => {
-    idDosen.add(a.oleh); idKarya.add(a.karya_id);
-    [a.data, a.lama].forEach(s => {
-      (s?.penulis || []).forEach(p => idDosen.add(p.dosen_id));
-      if(s?.karya?.induk_id) idKarya.add(s.karya.induk_id);
-    });
-  });
-  const [{ data: ds }, { data: ks }] = await Promise.all([
-    sb.from('dosen').select('id,nama').in('id', [...idDosen]),
-    sb.from('karya').select('id,judul,tahun,kategori').in('id', [...idKarya]),
-  ]);
-  const nama = new Map((ds || []).map(d => [d.id, d.nama]));
-  const karya = new Map((ks || []).map(k => [k.id, k]));
-  // Nama kerja sama induk yang dirujuk ajuan (24-patch-kerjasama-induk.sql).
-  const idKS = [...new Set(aj.flatMap(a => [a.data?.karya?.kerjasama_id, a.lama?.karya?.kerjasama_id]).filter(Boolean))];
-  if(idKS.length){
-    const { data: kk } = await sb.from('lkps_kerjasama').select('id,mitra,kegiatan').in('id', idKS);
-    (kk || []).forEach(x => { NAMA_KS[x.id] = x.mitra + (x.kegiatan ? ' — ' + x.kegiatan : ''); });
-  }
-  // Nama tema peta jalan yang dirujuk ajuan (25-patch-isian-karya.sql).
-  const idTema = [...new Set(aj.flatMap(a => [a.data?.karya?.tema_id, a.lama?.karya?.tema_id]).filter(Boolean))];
-  if(idTema.length){
-    const { data: tt } = await sb.from('ref_tema_peta_jalan').select('id,nama').in('id', idTema);
-    (tt || []).forEach(x => { NAMA_TEMA[x.id] = x.nama; });
-  }
-  box.className = '';
-  box.innerHTML = aj.map(a => {
-    const k = karya.get(a.karya_id) || {};
-    return `<div class="ajuan-ubah">
-      <div><b>${esc(k.judul || '(karya)')}</b>
-        <span class="tag">${esc(String(k.tahun || ''))} · ${esc(rapi(k.kategori))}</span></div>
-      <div class="hint" style="margin:4px 0 0">Diajukan ${esc(nama.get(a.oleh) || 'dosen')},
-        ${esc(String(a.dibuat_pada).slice(0, 10))}. Alasan: ${esc(a.alasan || '-')}</div>
-      ${tabelBeda(a, nama, karya)}
-      <div class="aksi" style="margin:10px 0 0">
-        <button class="btn sm" data-su="${a.id}">Setujui</button>
-        <button class="btn danger sm" data-tu="${a.id}">Tolak</button></div></div>`;
-  }).join('');
-  box.querySelectorAll('[data-su]').forEach(b => {
-    b.onclick = async () => {
-      if(!confirm('Terapkan perubahan ini? Data lama diganti dengan kolom "Baru".')) return;
-      b.disabled = true;
-      const { error: e } = await sb.rpc('setujui_ajuan_ubah', { a: +b.dataset.su });
-      if(e) alert('Gagal menerapkan: ' + (e.code === '23505' ? 'DOI sudah terdaftar pada karya lain.' : e.message));
-      muatAjuanUbahKarya();
-    };
-  });
-  box.querySelectorAll('[data-tu]').forEach(b => {
-    b.onclick = async () => {
-      const c = prompt('Alasan penolakan (akan dilihat dosen):');
-      if(c === null) return;
-      const { error: e } = await sb.from('ajuan_ubah')
-        .update({ status: 'ditolak', catatan_admin: c.trim() || '-' }).eq('id', +b.dataset.tu);
-      if(e) alert('Gagal: ' + e.message);
-      muatAjuanUbahKarya();
-    };
-  });
-}
-
 // ---------------------------------------------------------------------
 //  Daftar karya
 // ---------------------------------------------------------------------
 const namaSkema = kode => refSkema.find(s=>s.kode===kode)?.nama || '';
 
-// Nama penulis beserta penanda posisi dan korespondensi.
-// Keduanya berdiri sendiri: seorang dosen bisa sekaligus penulis
-// pertama dan penulis korespondensi.
-const daftarPenulis = kp => (kp||[]).map(p=>{
-  const n = p.dosen?.nama; if(!n) return null;
-  const tanda = [
-    p.peran==='penulis_pertama' ? 'penulis pertama' : null,
-    p.peran==='ketua'           ? 'ketua'           : null,
-    p.korespondensi             ? 'korespondensi'   : null,
-  ].filter(Boolean).join(', ');
-  return tanda ? `${n} (${tanda})` : n;
-}).filter(Boolean);
-
-function barisKarya(k, aksi='', ekstra=''){
-  const nama = daftarPenulis(k.karya_penulis);
-  const nMhs = (k.karya_mahasiswa||[]).length;
-  const mitra = (k.karya_mitra||[]).map(m=>m.institusi).filter(Boolean);
-  const meta = [k.tahun, rapi(k.kategori), rapi(k.tingkat),
-                k.nama_terbitan, namaSkema(k.skema_kode),
-                mitra.length ? 'mitra: ' + mitra.join(', ') : null,
-                nMhs ? `${nMhs} mahasiswa` : null].filter(Boolean);
-  return `<div class="rec" data-s="${k.status}">
-    <div class="spine"></div>
-    <div class="rec-b">
-      <div class="rec-j">${esc(k.judul)}</div>
-      <div class="rec-m">${meta.map(x=>`<span>${esc(x)}</span>`).join('')}</div>
-      ${nama.length?`<div class="rec-m"><span>${esc(nama.join(' · '))}</span></div>`:''}
-      ${k.catatan?`<div class="rec-m"><span>Catatan: ${esc(k.catatan)}</span></div>`:''}
-      ${tautanKarya(k)}
-      ${ekstra}
-    </div>
-    <div class="rec-a"><span class="tag">${rapi(k.status)}</span>${aksi}</div>
-  </div>`;
-}
+// Baris karya (karya-tampil.js; dipakai juga verifikasi.html).
+const barisKarya = (k, aksi='', ekstra='') => htmlBarisKarya(k, aksi, ekstra, namaSkema);
 
 // Tautan bukti milik dosen, ditampilkan utuh dengan tombol salin supaya
 // bisa langsung ditempel ke SISTER/BKD (permintaan pemilik 2026-11-03).
@@ -1752,72 +1424,14 @@ const keB64 = f => new Promise((ok, gagal) => {
   r.readAsDataURL(f);
 });
 
-// Muat karya induk (penelitian/PkM asal) dan semua bukti jamak untuk daftar
-// karya ini; dipakai tab Karya saya dan Verifikasi.
+// Muat karya induk, bukti jamak, ajuan hapus dan ajuan ubah untuk daftar
+// karya ini (karya-tampil.js); dipakai tab Karya saya dan Karya prodi.
 async function muatBuktiUntuk(data){
-  INDUK = new Map(data.map(k => [k.id, k]));
-  const indukIds = [...new Set(data.map(k => k.induk_id).filter(i => i && !INDUK.has(i)))];
-  if(indukIds.length){
-    const { data: ind } = await sb.from('karya').select('id,judul,kategori,bukti_url').in('id', indukIds);
-    (ind || []).forEach(k => INDUK.set(k.id, k));
-  }
-  const ids = [...INDUK.keys()];
-  KB = new Map();
-  AJUAN = new Map();
-  if(!ids.length){ KB_GAGAL = ''; return; }
-  // Banyak karya (Karya prodi): ambil seluruh tabel, daftar id terlalu
-  // panjang untuk alamat permintaan; dipetakan per karya di bawah.
-  const saring = q => ids.length > 100 ? q : q.in('karya_id', ids);
-  const { data: kb, error: eKb } = await saring(sb.from('karya_bukti')
-    .select('id,karya_id,jenis,judul,url,oleh'));
-  KB_GAGAL = eKb ? eKb.message : '';
-  const { data: aj, error: eAj } = await saring(sb.from('ajuan_hapus')
-    .select('id,karya_id,alasan,oleh,dibuat'));
-  AJUAN_GAGAL = eAj ? eAj.message : '';
-  AJUAN = new Map((aj || []).map(a => [a.karya_id, a]));
-  const { data: au, error: eAu } = await saring(sb.from('ajuan_ubah')
-    .select('id,karya_id,oleh,status,alasan,catatan_admin').eq('jenis', 'karya'));
-  AJUAN_UBAH_GAGAL = eAu ? eAu.message : '';
-  AJUAN_UBAH = new Map();
-  (au || []).forEach(a => {
-    if(!AJUAN_UBAH.has(a.karya_id)) AJUAN_UBAH.set(a.karya_id, []);
-    AJUAN_UBAH.get(a.karya_id).push(a);
-  });
-  (kb || []).forEach(b => { if(!KB.has(b.karya_id)) KB.set(b.karya_id, []); KB.get(b.karya_id).push(b); });
+  ({ KB, INDUK, AJUAN, AJUAN_UBAH, KB_GAGAL, AJUAN_GAGAL, AJUAN_UBAH_GAGAL } = await muatBuktiKarya(sb, data));
 }
-
-// Daftar tautan bukti tanpa formulir (tab Verifikasi).
-// Tautan berkas milik karya ini sendiri (isian awal + karya_bukti), tanpa
-// bukti warisan induk: berkas warisan masih dipakai karya induknya.
-function berkasMilikKarya(k){
-  return daftarBuktiKarya(k).filter(x => x.id || x.lama).map(x => x.url);
-}
-
-// hapus=true (layar admin): tombol Hapus pada bukti milik karya ini
-// (bukan bukti warisan induk); berkasnya dibuang ke Sampah Drive.
-function htmlDaftarBukti(k, hapus = false){
-  const xs = daftarBuktiKarya(k);
-  if(!xs.length) return '';
-  return `<div class="rec-m vb"><span>Bukti (${xs.length}):</span><ul>${xs.map(x =>
-    `<li><a href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.label)}</a>${
-      hapus && (x.id || x.lama) ? ` <button type="button" class="btn ghost sm" data-adm-hapus="1"
-        data-url="${esc(x.url)}" ${x.lama ? `data-lama="${esc(x.lama)}"` : `data-id="${esc(x.id)}"`}>Hapus</button>` : ''}</li>`).join('')}</ul></div>`;
-}
-
-function daftarBuktiKarya(k){
-  const xs = [];
-  if(k.bukti_url) xs.push({ url: k.bukti_url, label: 'Bukti (isian awal)', lama: k.id });
-  (KB.get(k.id) || []).forEach(b => xs.push({ url: b.url, id: b.id, milik: b.oleh === saya.id,
-    label: namaJenisBukti(b.jenis) + (b.judul ? ': ' + b.judul : '') }));
-  const ind = k.induk_id && INDUK.get(k.induk_id);
-  if(ind){
-    const aw = `dari ${ind.kategori === 'pkm' ? 'PkM' : 'penelitian'} "${ind.judul}": `;
-    if(ind.bukti_url) xs.push({ url: ind.bukti_url, label: aw + 'Bukti' });
-    (KB.get(ind.id) || []).forEach(b => xs.push({ url: b.url,
-      label: aw + namaJenisBukti(b.jenis) + (b.judul ? ': ' + b.judul : '') }));
-  }
-  return xs;
-}
+const htmlDaftarBukti = (k, hapus = false) => htmlDaftarBuktiDari(k, { KB, INDUK }, hapus);
+const daftarBuktiKarya = k => daftarBuktiDari(k, { KB, INDUK }, saya.id);
+const berkasMilikKarya = k => berkasMilikDari(k, { KB, INDUK });
 
 function panelBuktiKarya(k){
   const xs = daftarBuktiKarya(k);
@@ -1980,7 +1594,7 @@ async function muatKaryaSaya(wadahId, batas){
 
 // Tombol hapus per karya (keputusan pemilik 2026-11-03):
 //   belum terverifikasi + dilaporkan sendiri -> Hapus langsung;
-//   terverifikasi -> Ajukan hapus (alasan), admin memutuskan di Verifikasi;
+//   terverifikasi -> Ajukan hapus (alasan), admin memutuskan di verifikasi.html;
 //   sudah diajukan -> tanda menunggu + Batalkan (bagi pengajunya).
 function aksiHapus(k){
   if(k.status !== 'terverifikasi')
@@ -2057,201 +1671,8 @@ async function karyaProdi(){
   gambar();
 }
 
-// Panel "Ajuan hapus karya" di tab Verifikasi (admin).
-async function muatAjuanHapus(){
-  const box = document.getElementById('ah');
-  if(!box) return;
-  const { data: aj, error } = await sb.from('ajuan_hapus')
-    .select('id,karya_id,alasan,oleh,dibuat').order('dibuat');
-  if(error){ box.className='kosong'; box.textContent = 'Tabel ajuan_hapus belum bisa dibaca (' + error.message
-    + '). Jalankan supabase/15-patch-ajuan-hapus.sql.'; return; }
-  if(!aj?.length){ box.className='kosong'; box.textContent='Tidak ada ajuan hapus.'; return; }
-  const { data: ks } = await sb.from('karya')
-    .select('*, karya_penulis(peran, korespondensi, dosen(nama)), karya_mahasiswa(nim), karya_mitra(institusi)')
-    .in('id', aj.map(a => a.karya_id));
-  const perId = new Map((ks || []).map(k => [k.id, k]));
-  await muatBuktiUntuk(ks || []);
-  const nama = id => (dosenList.find(d => d.id === id) || {}).nama || 'dosen';
-  box.className='';
-  box.innerHTML = aj.filter(a => perId.has(a.karya_id)).map(a => {
-    const k = perId.get(a.karya_id);
-    return barisKarya(k,
-      `<button class="btn danger sm" data-sh="${k.id}">Setujui hapus</button>
-       <button class="btn ghost sm" data-th="${k.id}">Tolak</button>`,
-      `<div class="rec-m"><span>Diajukan ${esc(nama(a.oleh))}, ${esc(String(a.dibuat).slice(0, 10))}:
-        ${esc(a.alasan)}</span></div>` + htmlDaftarBukti(k, true));
-  }).join('');
-  box.querySelectorAll('[data-sh]').forEach(b => {
-    b.onclick = async () => {
-      const k = perId.get(b.dataset.sh);
-      const urls = berkasMilikKarya(k);
-      if(!confirm(`Hapus permanen karya "${k.judul}"? Penulis, bukti, dan ajuannya ikut terhapus` +
-        (urls.length ? `; ${urls.length} berkas buktinya dipindah ke Sampah Drive (bisa dipulihkan 30 hari).` : '.'))) return;
-      try{ await buangSemua(sb, urls); }
-      catch(err){ alert('Gagal membuang berkas: ' + (err.message || err)); return; }
-      const { error: e } = await sb.from('karya').delete().eq('id', k.id);
-      if(e) alert('Gagal menghapus: ' + e.message);
-      muatAjuanHapus();
-    };
-  });
-  box.querySelectorAll('[data-th]').forEach(b => {
-    b.onclick = async () => {
-      const k = perId.get(b.dataset.th);
-      const c = prompt('Alasan penolakan (akan dilihat dosen di catatan karya):');
-      if(c === null) return;
-      const { error: e1 } = await sb.from('karya')
-        .update({ catatan: 'Ajuan hapus ditolak: ' + (c.trim() || '-') }).eq('id', k.id);
-      const { error: e2 } = await sb.from('ajuan_hapus').delete().eq('karya_id', k.id);
-      if(e1 || e2) alert('Gagal: ' + (e1 || e2).message);
-      muatAjuanHapus();
-    };
-  });
-}
-
-// ---------------------------------------------------------------------
-//  Verifikasi (admin)
-// ---------------------------------------------------------------------
-async function tampilVerifikasi(){
-  document.getElementById('isi').innerHTML = `
-    <div class="panel"><h2>Menunggu verifikasi</h2>
-      <p class="hint">Buka tautan bukti dan pastikan dapat diakses sebelum memverifikasi. Entri tanpa bukti sebaiknya dikembalikan ke dosennya.</p>
-      <div id="vf" class="kosong">Memuat…</div></div>
-    <div class="panel"><h2>Ajuan hapus karya</h2>
-      <p class="hint">Karya terverifikasi yang diajukan dosen untuk dihapus.
-      Setujui = karya dihapus beserta penulis dan buktinya (berkas di Drive
-      tetap). Tolak = karya tetap, alasan penolakan ditulis di catatan karya.</p>
-      <div id="ah" class="kosong">Memuat…</div></div>
-    <div class="panel"><h2>Ajuan perubahan karya</h2>
-      <p class="hint">Perubahan yang diajukan dosen pada karya terverifikasi (atau
-      oleh penulis yang bukan pelapor). Setujui = kolom "Baru" diterapkan, status
-      karya tetap. Tolak = data tetap, alasan penolakan dilihat pengajunya.</p>
-      <div id="au" class="kosong">Memuat…</div></div>
-    <div class="panel"><h2>Prestasi mahasiswa menunggu verifikasi</h2>
-      <p class="hint">Diisi dosen pembimbing. Hanya yang terverifikasi dihitung di butir 43
-      dan Tabel 6.c. Periksa sertifikat atau piagamnya, dan peringatan prestasi ganda.</p>
-      <div id="vp" class="kosong">Memuat…</div></div>
-    <div class="panel"><h2>Ajuan perubahan dan hapus prestasi</h2>
-      <p class="hint">Setujui = perubahan diterapkan, atau prestasi dihapus dan berkas
-      buktinya dipindah ke Sampah Drive. Tolak = data tetap, alasan dilihat pengajunya.</p>
-      <div id="ap" class="kosong">Memuat…</div></div>
-    <div class="panel"><h2>BKD menunggu verifikasi</h2>
-      <p class="hint">Cocokkan angka dengan bagian C LKD. Hanya yang terverifikasi
-      dihitung di Tabel 4.c dan butir 30. Berkas LKD privat, dibuka lewat tombol.</p>
-      <div id="vb" class="kosong">Memuat…</div></div>
-    <div class="panel"><h2>Ajuan perubahan BKD</h2>
-      <p class="hint">Perubahan pada BKD yang sudah terverifikasi. Setujui = diterapkan.
-      Tolak = data tetap, alasan dilihat pengajunya.</p>
-      <div id="ab" class="kosong">Memuat…</div></div>
-    <div class="panel"><h2>Klaim penulis untuk ditinjau</h2>
-      <p class="hint">Dosen yang mendaftarkan dirinya sendiri pada karya yang
-      diinput orang lain. Hapus bila keliru.</p>
-      <div id="kl" class="kosong">Memuat…</div></div>`;
-
-  const [{ data }, { data: kataVisi }] = await Promise.all([
-    sb.from('karya')
-      .select('*, karya_penulis(peran, korespondensi, dosen(nama)), karya_mahasiswa(nim), karya_mitra(institusi)')
-      .eq('status','diajukan').order('dibuat_pada'),
-    sb.from('ref_kata_visi').select('kata'),
-  ]);
-  // Kata kunci hanya MENYOROT kandidat tidak relevan; keputusannya tetap
-  // pada centang admin. Daftar kosong = tidak ada sorotan.
-  const kunciVisi = (kataVisi || []).map(x => x.kata.toLowerCase());
-  const mungkinLuar = k => kunciVisi.length
-    && !kunciVisi.some(w => (k.judul || '').toLowerCase().includes(w));
-  const box = document.getElementById('vf');
-  if(!data?.length){ box.className='kosong'; box.textContent='Tidak ada entri yang menunggu.'; }
-  else {
-    // Semua bukti: isian awal, karya_bukti, dan bukti penelitian/PkM induk.
-    await muatBuktiUntuk(data);
-    box.className='';
-    box.innerHTML = data.map(k=>barisKarya(k,
-      `<label class="cek" style="margin-right:6px" title="Karya mendukung visi keilmuan prodi. Hilangkan centang bila di luar bidang — karya tetap tampil di profil dosen, hanya tidak dihitung pada butir akreditasi prodi.">
-         <input type="checkbox" data-r="${k.id}" ${k.relevan_visi === false ? '' : 'checked'}>
-         sesuai visi</label>
-       ${mungkinLuar(k) ? '<span class="tag" style="background:#FFF3D6;color:#7A5A00" title="Judul tidak memuat satu pun kata kunci visi keilmuan — periksa relevansinya.">periksa relevansi</span>' : ''}
-       ${k.bukti_path
-          ? `<button class="btn ghost sm" data-f="${k.bukti_path}">Bukti lama</button>`
-          : (daftarBuktiKarya(k).length ? '' : '<span class="tag">tanpa bukti</span>')}
-       <button class="btn sm" data-v="${k.id}">Verifikasi</button>
-       <button class="btn danger sm" data-x="${k.id}">Tolak</button>`,
-      htmlDaftarBukti(k, true))).join('');
-
-    // Entri lama masih menyimpan berkasnya di bucket Supabase.
-    box.querySelectorAll('[data-f]').forEach(b=>{
-      b.onclick = async()=>{
-        const { data:s } = await sb.storage.from('bukti').createSignedUrl(b.dataset.f, 300);
-        if(s?.signedUrl) window.open(s.signedUrl,'_blank','noopener');
-      };
-    });
-    const ubah = async(id, status)=>{
-      const patch = { status };
-      const cek = box.querySelector(`[data-r="${id}"]`);
-      if(cek) patch.relevan_visi = cek.checked;
-      if(status==='ditolak'){
-        const c = prompt('Alasan penolakan (akan dilihat dosen):');
-        if(c===null) return;
-        patch.catatan = c;
-      }
-      await sb.from('karya').update(patch).eq('id', id);
-      tampilVerifikasi();
-    };
-    box.querySelectorAll('[data-v]').forEach(b=>b.onclick=()=>ubah(b.dataset.v,'terverifikasi'));
-    box.querySelectorAll('[data-x]').forEach(b=>b.onclick=()=>ubah(b.dataset.x,'ditolak'));
-  }
-
-  await muatAjuanHapus();
-  await muatAjuanUbahKarya();
-  await pasangVerifikasiPrestasi(document.getElementById('vp'), document.getElementById('ap'), { sb, dosen: dosenList });
-  await pasangVerifikasiBkd(document.getElementById('vb'), document.getElementById('ab'), { sb, dosen: dosenList });
-
-  const { data:klaim } = await sb.from('karya_penulis')
-    .select('karya_id, dosen_id, peran, korespondensi, ditambahkan_pada, dosen(nama), karya(judul,tahun)')
-    .eq('ditambahkan_sendiri', true).order('ditambahkan_pada',{ascending:false});
-  const kb = document.getElementById('kl');
-  if(!klaim?.length){ kb.className='kosong'; kb.textContent='Belum ada klaim.'; return; }
-  kb.className='';
-  kb.innerHTML = klaim.map(c=>`<div class="rec" data-s="diajukan">
-    <div class="spine"></div>
-    <div class="rec-b">
-      <div class="rec-j">${esc(c.dosen?.nama||'')} — ${esc(rapi(c.peran))}${
-      c.korespondensi ? ', korespondensi' : ''}</div>
-      <div class="rec-m"><span>${esc(c.karya?.judul||'')}</span>
-        <span>${c.karya?.tahun||''}</span></div>
-    </div>
-    <div class="rec-a">
-      <button class="btn danger sm" data-d="${c.karya_id}|${c.dosen_id}">Hapus klaim</button>
-    </div></div>`).join('');
-  kb.querySelectorAll('[data-d]').forEach(b=>{
-    b.onclick = async()=>{
-      if(!confirm('Hapus klaim penulis ini?')) return;
-      const [ki,di] = b.dataset.d.split('|');
-      await sb.from('karya_penulis').delete().eq('karya_id',ki).eq('dosen_id',di);
-      tampilVerifikasi();
-    };
-  });
-}
-
-// Hapus bukti karya oleh admin (Verifikasi, Ajuan hapus, Karya prodi):
-// buang berkas ke Sampah Drive dulu, lalu hapus catatannya; bukti isian
-// awal (karya.bukti_url) dikosongkan.
-document.addEventListener('click', async e => {
-  const b = e.target.closest('[data-adm-hapus]');
-  if(!b || !saya || saya.peran !== 'admin') return;
-  if(!confirm('Hapus bukti ini? ' + PESAN_SAMPAH)) return;
-  b.disabled = true;
-  try{
-    await buangBerkas(sb, b.dataset.url);
-    const { error } = b.dataset.lama
-      ? await sb.from('karya').update({ bukti_url: null }).eq('id', b.dataset.lama)
-      : await sb.from('karya_bukti').delete().eq('id', +b.dataset.id);
-    if(error) throw error;
-    const li = b.closest('li');
-    if(li) li.remove();
-  }catch(err){
-    alert('Gagal menghapus: ' + (err.message || err));
-    b.disabled = false;
-  }
-});
+// Hapus bukti karya oleh admin (Karya prodi): karya-tampil.js.
+pasangHapusBuktiAdmin(sb, () => saya?.peran === 'admin');
 
 sb.auth.onAuthStateChange(ev=>{ if(ev==='SIGNED_IN' && !saya) mulai(); });
 mulai();
