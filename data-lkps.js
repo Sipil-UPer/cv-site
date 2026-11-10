@@ -32,7 +32,9 @@ export async function ambilDaftarLKPS(sb){
     const q = kol => sb.from('karya').select(kol).eq('status', 'terverifikasi').limit(5000);
     // Sitasi per tahun (42-patch-sitasi-tahunan.sql); tanpa patch: tanpa tabel itu.
     const SITASI = ',karya_sitasi(tahun,jumlah,sumber)';
-    for (const kol of [KARYA_DASAR + ',kerjasama_id' + KARYA_25 + KARYA_32 + SITASI,
+    // ID OpenAlex (44-patch-openalex-id.sql): tautan karya yang mengutip di 4.i.
+    for (const kol of [KARYA_DASAR + ',kerjasama_id' + KARYA_25 + KARYA_32 + SITASI + ',openalex_id',
+                       KARYA_DASAR + ',kerjasama_id' + KARYA_25 + KARYA_32 + SITASI,
                        KARYA_DASAR + ',kerjasama_id' + KARYA_25 + KARYA_32,
                        KARYA_DASAR + ',kerjasama_id' + KARYA_25, KARYA_DASAR + ',kerjasama_id']) {
       const { data, error } = await q(kol);

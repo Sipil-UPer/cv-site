@@ -8,6 +8,11 @@
 export const SUMBER_SITASI = { openalex: 'OpenAlex', google_scholar: 'Google Scholar', scopus: 'Scopus', manual: 'manual' };
 
 // TS dinamai menurut tahun akhirnya: TS 2026 = 2025/2026 -> tahun kalender 2023..2026.
+// Daftar karya yang mengutip di OpenAlex pada jendela sitasi TS (publik, tanpa
+// login; pemilik 2026-11-10). oa = karya.openalex_id; '' bila belum dicocokkan.
+export const tautanPengutip = (oa, ts) => /^W\d+$/.test(String(oa || ''))
+  ? `https://openalex.org/works?filter=cites:${oa},publication_year:${ts - 3}-${ts}` : '';
+
 export const tahunJendela = ts => [ts - 3, ts];
 
 // k.karya_sitasi: [{tahun, jumlah, sumber}]. Hasil {n, asal: 'tahunan' | 'lama' | null}.

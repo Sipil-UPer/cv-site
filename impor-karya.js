@@ -64,6 +64,9 @@ export function peranDari(w, orcid) {
            korespondensi: !!a?.is_corresponding, dikenali: !!a };
 }
 
+// ID OpenAlex ('W' + angka) dari URL work; null bila tidak ada (44-patch-openalex-id.sql).
+export const idOA = s => (String(s || '').match(/W\d+$/) || [null])[0];
+
 // Draf karya dari satu work OpenAlex. hariIni: 'YYYY-MM-DD'.
 export function drafDari(w, { orcid = '', hariIni }) {
   const ts = tsDari(hariIni);
@@ -75,6 +78,8 @@ export function drafDari(w, { orcid = '', hariIni }) {
       tahun: w.publication_year || null, bulan,
       nama_terbitan: w.primary_location?.source?.display_name || null,
       doi: doi || null, url: w.primary_location?.landing_page_url || (doi ? `https://doi.org/${doi}` : null),
+      // Tautan "karya yang mengutip" untuk asesor (pemilik 2026-11-10).
+      ...(idOA(w.id) ? { openalex_id: idOA(w.id) } : {}),
     },
     // Baris karya_sitasi (sumber OpenAlex) dan jumlah untuk TS berjalan (pratinjau).
     sitasi: sitasiTahunan(w, +hariIni.slice(0, 4)).map(r => ({ ...r, sumber: 'openalex', diambil: hariIni })),
@@ -152,13 +157,15 @@ export async function ambilBanyakDoi(dois, ambil = fetch, ukuran = 50) {
 
 // Rencana pembaruan sitasi untuk karya ber-DOI. karya: [{id, doi, karya_sitasi:[{tahun, jumlah, sumber}]}].
 // Tahun yang kosong atau bersumber OpenAlex diisi/diperbarui; angka isian dosen
-// (google_scholar/scopus/manual) tidak disentuh. Hasil: {baris, diperbarui, dibiarkan, tidakDitemukan, sama}.
+// (google_scholar/scopus/manual) tidak disentuh. Hasil: {baris, diperbarui, dibiarkan, tidakDitemukan, sama, oa}.
+// oa = [{id, oa}] karya yang ID OpenAlex-nya belum tercatat atau berubah (catat_openalex).
 export function rencanaSitasi(karya, works, hariIni) {
-  const tahunIni = +hariIni.slice(0, 4), baris = [], diperbarui = new Set(), tidakDitemukan = [];
+  const tahunIni = +hariIni.slice(0, 4), baris = [], diperbarui = new Set(), tidakDitemukan = [], oa = [];
   let dibiarkan = 0, sama = 0;
   for (const k of karya) {
     const w = works.get(rapiDoi(k.doi));
     if (!w) { tidakDitemukan.push(k); continue; }
+    if (idOA(w.id) && idOA(w.id) !== k.openalex_id) oa.push({ id: k.id, oa: idOA(w.id) });
     const ada = new Map((k.karya_sitasi || []).map(r => [+r.tahun, r]));
     for (const r of sitasiTahunan(w, tahunIni)) {
       const lama = ada.get(r.tahun);
@@ -168,7 +175,7 @@ export function rencanaSitasi(karya, works, hariIni) {
       diperbarui.add(k.id);
     }
   }
-  return { baris, diperbarui: diperbarui.size, dibiarkan, tidakDitemukan, sama };
+  return { baris, diperbarui: diperbarui.size, dibiarkan, tidakDitemukan, sama, oa };
 }
 
 // Lima kandidat OpenAlex untuk satu judul (pencarian teks, 10 kredit).
