@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-10-420267">
+<link rel="stylesheet" href="tema.css?v=2026-11-10-9c67d2">
 <style>
   :root{--bg:#EEF0ED; --ink:#161E26; --muted:#616C76; --line:#D8DDD8; --line-soft:#E8EBE7; --accent:var(--biru); --accent-soft:var(--biru-m7); --pending:#8A5A00; --pending-soft:#FAF0DC; --reject:#8C2F2F; --reject-soft:#F7E7E7;}
   *{box-sizing:border-box}
@@ -159,7 +159,7 @@
   .sitasi-sel small{color:var(--muted);font-size:10.5px;font-family:var(--sans)}
   @media(max-width:640px){.grid{grid-template-columns:1fr}}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-10-420267">
+<link rel="stylesheet" href="kepala.css?v=2026-11-10-9c67d2">
 </head>
 <body>
 
@@ -173,7 +173,7 @@
 
 <div class="wrap" id="app"></div>
 
-<script src="config.js?v=2026-11-10-420267"></script>
+<script src="config.js?v=2026-11-10-9c67d2"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -197,24 +197,24 @@ const SUPABASE_URL = window.SB_URL;
 const SUPABASE_ANON_KEY = window.SB_KEY;
 
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { JENIS_BUKTI_KARYA, namaJenisBukti, JENIS_KARYA_PRIVAT, teksAksesBukti } from './rencana-bukti.js?v=2026-11-10-420267';
-import { tautanBerkas, temuanPakai } from './tautan-privat.js?v=2026-11-10-420267';
-import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-10-420267';
-import { periksaBerkas, kolomSidik, teksTemuan } from './sidik-berkas.js?v=2026-11-10-420267';
-import { pasangContoh, durasiKS } from './manfaat-kerjasama.js?v=2026-11-10-420267';
-import { pasangMenu } from './menu.js?v=2026-11-10-420267';
-import { pasangPrestasi } from './prestasi.js?v=2026-11-10-420267';
-import { htmlSaran } from './saran-bukti.js?v=2026-11-10-420267';
-import { pasangBkd } from './bkd.js?v=2026-11-10-420267';
-import { htmlTautanButir } from './tautan-butir.js?v=2026-11-10-420267';
-import { ISIAN_32, ISIAN_25, TINGKAT, FORM } from './form-karya.js?v=2026-11-10-420267';
+import { JENIS_BUKTI_KARYA, namaJenisBukti, JENIS_KARYA_PRIVAT, teksAksesBukti } from './rencana-bukti.js?v=2026-11-10-9c67d2';
+import { tautanBerkas, temuanPakai } from './tautan-privat.js?v=2026-11-10-9c67d2';
+import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-10-9c67d2';
+import { periksaBerkas, kolomSidik, teksTemuan } from './sidik-berkas.js?v=2026-11-10-9c67d2';
+import { pasangContoh, durasiKS } from './manfaat-kerjasama.js?v=2026-11-10-9c67d2';
+import { pasangMenu } from './menu.js?v=2026-11-10-9c67d2';
+import { pasangPrestasi } from './prestasi.js?v=2026-11-10-9c67d2';
+import { htmlSaran } from './saran-bukti.js?v=2026-11-10-9c67d2';
+import { pasangBkd } from './bkd.js?v=2026-11-10-9c67d2';
+import { htmlTautanButir } from './tautan-butir.js?v=2026-11-10-9c67d2';
+import { ISIAN_32, ISIAN_25, TINGKAT, FORM } from './form-karya.js?v=2026-11-10-9c67d2';
 import { barisKarya as htmlBarisKarya, muatBuktiKarya, daftarBuktiKarya as daftarBuktiDari,
   htmlDaftarBukti as htmlDaftarBuktiDari, berkasMilikKarya as berkasMilikDari,
-  pasangHapusBuktiAdmin } from './karya-tampil.js?v=2026-11-10-420267';
-import { hitungVerifikasi } from './verifikasi-hitung.js?v=2026-11-10-420267';
+  pasangHapusBuktiAdmin } from './karya-tampil.js?v=2026-11-10-9c67d2';
+import { hitungVerifikasi } from './verifikasi-hitung.js?v=2026-11-10-9c67d2';
 import { daftarDoi, ambilDoi, drafDari, rapiDoi, sitasiTahunan, cariJudul, bacaBibtex, judulRapi, pilihCocok,
-  drafDariBib, teksBatas } from './impor-karya.js?v=2026-11-10-420267';
-import { SUMBER_SITASI } from './sitasi.js?v=2026-11-10-420267';
+  drafDariBib, teksBatas, karyaOrcid } from './impor-karya.js?v=2026-11-10-9c67d2';
+import { SUMBER_SITASI } from './sitasi.js?v=2026-11-10-9c67d2';
 
 const app = document.getElementById('app');
 if (!SUPABASE_URL || !SUPABASE_ANON_KEY
@@ -1679,14 +1679,17 @@ function karyaSaya(){
     tiap karya bisa disalin dan ditempel ke SISTER/BKD; tautan folder membuka
     semua berkas di dalamnya.</p>
     <p><button type="button" class="btn ghost sm" id="salin-semua" hidden></button></p>
-    <details class="impor" id="impor"><summary><b>Impor publikasi</b> — dari DOI atau ekspor Google Scholar, menjadi draf</summary>
+    <details class="impor" id="impor"><summary><b>Impor publikasi</b> — dari DOI, ORCID, atau ekspor Google Scholar, menjadi draf</summary>
       <p class="hint">Tempel satu DOI atau lebih (satu per baris). Data diambil dari OpenAlex dan disimpan
       sebagai <b>draf</b>: hanya terlihat oleh Anda, belum dikirim ke admin. Lengkapi drafnya (tingkat,
       indeksasi, payung penelitian, mitra, mahasiswa, bukti), lalu klik <b>Simpan dan ajukan</b>.
       Sitasi per tahun diisi dari OpenAlex sebagai nilai awal (kolom Sitasi di bawah = tahun kalender yang
       beririsan dengan TS-2 s.d. TS); ganti dengan angka Google Scholar bila ada.</p>
       <div class="fld"><textarea id="imp_doi" rows="3" placeholder="10.1016/j.contoh.2023.100302"></textarea></div>
-      <p><button type="button" class="btn sm" id="imp_cari">Cari</button></p>
+      <p><button type="button" class="btn sm" id="imp_cari">Cari</button>
+        <button type="button" class="btn ghost sm" id="imp_orcid">Tarik semua dari ORCID saya</button></p>
+      <p class="hint">Tarik dari ORCID mengambil semua karya yang tercatat di OpenAlex untuk ORCID di <b>Profil saya</b>
+      (paling lengkap untuk artikel internasional). Supaya lengkap, hubungkan Scopus dan Crossref di profil orcid.org Anda.</p>
       <p class="hint" style="margin-top:10px">Atau unggah ekspor <b>Google Scholar</b> (BibTeX): buka profil Google Scholar
       Anda, centang artikel (kotak paling atas = semua), klik <b>Export › BibTeX</b>, simpan berkasnya, lalu pilih di sini.
       DOI dan sitasi per tahun dicari otomatis di OpenAlex menurut judul; yang tidak ditemukan dibuat dari data Google Scholar.</p>
@@ -1817,6 +1820,41 @@ function pasangImpor(){
   };
   const sudahAda = (doi, sudah) => ({ doi, boleh: false, klaim: sudah.milik ? null : sudah.id,
     ket: sudah.milik ? 'Sudah ada di Karya saya.' : 'Sudah ada di situs (diinput rekan).' });
+  // Semua karya dari ORCID di profil (OpenAlex; pemilik 2026-11-10).
+  document.getElementById('imp_orcid').onclick = async () => {
+    if(!saya.orcid){
+      msg.className = 'msg err';
+      msg.innerHTML = 'ORCID belum diisi. Isi dulu di <a href="profil.html">Profil saya</a>.';
+      return;
+    }
+    msg.className = 'msg'; msg.textContent = `Mengambil karya ORCID ${saya.orcid} dari OpenAlex…`;
+    let r;
+    try{ r = await karyaOrcid(saya.orcid); }
+    catch(e){ msg.className = 'msg err'; msg.textContent = e.batas ? teksBatas(e) : 'Gagal: ' + (e.message || e); return; }
+    if(!r || !r.works.length){
+      msg.className = 'msg err';
+      msg.textContent = 'OpenAlex belum mengenal karya untuk ORCID ini. Periksa ORCID di Profil saya, dan hubungkan '
+        + 'Scopus/Crossref di orcid.org agar publikasinya tercatat. Sementara itu, pakai DOI atau ekspor Google Scholar.';
+      return;
+    }
+    const ada = await karyaAda();
+    calon = [];
+    const dilihat = new Set();
+    for(const w of [...r.works].sort((a, b) => (b.publication_year || 0) - (a.publication_year || 0))){
+      const doi = rapiDoi(w.doi), kunci = judulRapi(w.title);
+      if(!kunci || dilihat.has(doi || kunci)) continue;
+      dilihat.add(doi || kunci);
+      const d = drafDari(w, { orcid: saya.orcid, hariIni });
+      const sudah = (doi && ada.doi.get(doi)) || ada.judul.get(kunci);
+      if(sudah){ calon.push({ ...sudahAda(w.title, sudah), d }); continue; }
+      calon.push({ doi: doi || w.title, d, boleh: true, pilih: d.centang,
+        ket: (doi ? '' : 'Tanpa DOI. ') + (d.centang ? '' : `Jenis "${d.tipe || 'tanpa tahun'}" tidak dicentang bawaan.`) });
+    }
+    msg.className = 'msg';
+    msg.textContent = `OpenAlex: ${r.works.length} karya atas nama "${r.nama}". Pastikan nama itu Anda. `
+      + `${calon.filter(c => c.boleh).length} belum ada di situs.`;
+    gambar();
+  };
   // Ekspor Google Scholar (BibTeX): DOI dicari di OpenAlex menurut judul.
   document.getElementById('imp_bib').onchange = async ev => {
     const berkas = ev.target.files[0];

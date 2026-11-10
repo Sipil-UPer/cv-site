@@ -116,6 +116,26 @@ export async function ambilDoi(doi, ambil = fetch) {
   return periksa(r);
 }
 
+// Semua karya satu ORCID (pemilik 2026-11-10): penulis OpenAlex dari ORCID
+// (/authors/orcid:), lalu karyanya per 100 (/works?filter=author.id:). Hasil
+// {nama, jumlah, works}; nama ditampilkan agar dosen memastikan itu dirinya.
+// null bila ORCID tidak dikenal OpenAlex.
+export async function karyaOrcid(orcid, ambil = fetch, maksHalaman = 5) {
+  const o = String(orcid || '').trim().replace(/^https?:\/\/orcid\.org\//i, '');
+  const ra = await ambil(`${OPENALEX}/authors/orcid:${encodeURIComponent(o)}`);
+  if (ra.status === 404) return null;
+  const a = await periksa(ra);
+  const id = String(a.id || '').split('/').pop();
+  const works = [];
+  for (let hal = 1; hal <= maksHalaman; hal++) {
+    const r = await ambil(`${OPENALEX}/works?filter=author.id:${id}&per_page=100&page=${hal}&select=${PILIH}`);
+    const j = await periksa(r);
+    works.push(...(j.results || []));
+    if (works.length >= (j.meta?.count ?? 0) || !(j.results || []).length) break;
+  }
+  return { nama: a.display_name || '', jumlah: a.works_count ?? works.length, works };
+}
+
 // Banyak DOI sekaligus (filter doi:a|b|..., sampai 100 nilai per filter menurut
 // dokumentasi OpenAlex; dipakai 50 agar alamat tidak terlalu panjang).
 // Hasil: Map DOI rapi -> work. Untuk tombol admin "Perbarui sitasi" (pemilik 2026-11-10).
