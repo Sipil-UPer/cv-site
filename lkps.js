@@ -15,10 +15,10 @@
    angka yang sama dengan halaman skor. Lembar lain dibiarkan untuk diisi
    prodi; kolom yang tidak disimpan situs (mis. pita waktu tunggu) kosong.
    ===================================================================== */
-import { versiUntukTS, daftarProdi, STATUS_PS, tglTeks } from './pustaka-dokumen.js?v=2026-11-10-07fa96';
-import { teksPendidikan } from './profil-dosen.js?v=2026-11-10-07fa96';
-import { barisKerjaSama } from './kerjasama-karya.js?v=2026-11-10-07fa96';
-import { karya4i } from './sitasi.js?v=2026-11-10-07fa96';
+import { versiUntukTS, daftarProdi, STATUS_PS, tglTeks } from './pustaka-dokumen.js?v=2026-11-10-cfe13d';
+import { teksPendidikan } from './profil-dosen.js?v=2026-11-10-cfe13d';
+import { barisKerjaSama } from './kerjasama-karya.js?v=2026-11-10-cfe13d';
+import { karya4i } from './sitasi.js?v=2026-11-10-cfe13d';
 
 const TEMPLATE = 'lkps-template.xlsx';
 export const JSZIP = 'https://cdn.jsdelivr.net/npm/jszip@3.10.1/+esm';
@@ -188,7 +188,8 @@ export function petaDaftar(C){
   // (supabase/22-patch-profil-dosen.sql); "V" hanya bila admin menilai.
   const dtps = (X.dosen || []).filter(d => d.dtps && d.peran !== 'asesor')
     .sort((a, b) => a.nama.localeCompare(b.nama));
-  const profil = (X.dosen || []).filter(d => d.peran !== 'asesor' && (d.kategori || d.dtps))
+  // Yang tidak aktif tidak dihitung (pemilik 2026-11-10), sama dengan butir 26.
+  const profil = (X.dosen || []).filter(d => d.aktif !== false && d.peran !== 'asesor' && (d.kategori || d.dtps))
     .sort((a, b) => a.nama.localeCompare(b.nama));
   const mk = (X.mk || []).filter(m => m.aktif !== false)
     .sort((a, b) => ((a.semester ?? 99) - (b.semester ?? 99)) || ((a.urutan ?? 100) - (b.urutan ?? 100))

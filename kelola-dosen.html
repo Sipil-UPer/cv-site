@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-10-07fa96">
+<link rel="stylesheet" href="tema.css?v=2026-11-10-cfe13d">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
@@ -54,7 +54,7 @@
   .masuk{max-width:420px;margin:40px auto;background:#fff;border:1px solid var(--line);padding:20px}
   .masuk input{width:100%;padding:8px 10px;margin:8px 0;font:inherit}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-10-07fa96">
+<link rel="stylesheet" href="kepala.css?v=2026-11-10-cfe13d">
 </head>
 <body>
 
@@ -68,7 +68,7 @@
 
 <main class="wrap" id="isi"></main>
 
-<script src="config.js?v=2026-11-10-07fa96"></script>
+<script src="config.js?v=2026-11-10-cfe13d"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -85,11 +85,11 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { pasangMenu } from './menu.js?v=2026-11-10-07fa96';
-import { htmlSaran } from './saran-bukti.js?v=2026-11-10-07fa96';
+import { pasangMenu } from './menu.js?v=2026-11-10-cfe13d';
+import { htmlSaran } from './saran-bukti.js?v=2026-11-10-cfe13d';
 import { KOLOM_PROFIL, KATEGORI, JABATAN,
-  formLKPS, bacaFormLKPS, pasangEditor } from './profil-dosen.js?v=2026-11-10-07fa96';
-import { hitungVerifikasi } from './verifikasi-hitung.js?v=2026-11-10-07fa96';
+  formLKPS, bacaFormLKPS, pasangEditor } from './profil-dosen.js?v=2026-11-10-cfe13d';
+import { hitungVerifikasi } from './verifikasi-hitung.js?v=2026-11-10-cfe13d';
 
 /* =====================================================================
    KELOLA DOSEN — daftar dosen prodi diisi admin di situs (keputusan
@@ -120,6 +120,18 @@ const sb = createClient(SB_URL, SB_KEY);
 // Nilai sah; sama dengan PERAN_SAH, PETUNJUK_EXCEL dan validasi() di bangun.py.
 const PERAN = [['dosen', 'Dosen'], ['admin', 'Admin'], ['pimpinan', 'Pimpinan'], ['asesor', 'Asesor']];
 const PERAN_BUKAN_DTPS = ['asesor'];
+// Kelompok dosen -> [kunci, label, dtps, kategori] (pemilik 2026-11-10; APS-AV 2025:
+// DTPS = dosen tetap berkeahlian sesuai kompetensi inti; industri dihitung DTT).
+const KELOMPOK = [
+  ['dtps', 'DTPS (dosen tetap, keahlian sesuai kompetensi inti prodi)', true, 'tetap'],
+  ['dt', 'Dosen tetap PT dari prodi lain (DT)', false, 'tetap'],
+  ['dtt', 'Dosen tidak tetap (DTT)', false, 'tidak_tetap'],
+  ['industri', 'Dosen industri/praktisi (dihitung DTT)', false, 'industri'],
+];
+function kelompokDari(r){
+  if (r.dtps) return 'dtps';
+  return { tetap: 'dt', tidak_tetap: 'dtt', industri: 'industri' }[r.kategori] || '';
+}
 const PENDIDIKAN = [['', '—'], ['S2', 'S2'], ['S3', 'S3']];
 const POLA = {
   sinta_id: [/^[0-9]+$/, 'hanya angka'],
@@ -240,12 +252,16 @@ function isiForm(d){
       <div class="fld"><label>ORCID</label><input id="f_orcid" value="${esc(r.orcid)}"></div>
       <div class="fld"><label>Status</label>
         <label class="cek"><input type="checkbox" id="f_aktif"${r.aktif ? ' checked' : ''}${diriSendiri ? ' disabled' : ''}>Aktif (boleh masuk situs)</label>
-        <label class="cek"><input type="checkbox" id="f_dtps"${r.dtps ? ' checked' : ''}>Dihitung DTPS prodi</label></div>
+        ${ADA_LKPS ? '' : `<label class="cek"><input type="checkbox" id="f_dtps"${r.dtps ? ' checked' : ''}>Dihitung DTPS prodi</label>`}</div>
+      ${ADA_LKPS ? `<div class="fld"><label>Kelompok dosen</label>
+        ${KELOMPOK.map(([k, ket]) => `<label class="cek"><input type="checkbox" data-kelompok="${k}"${
+          kelompokDari(r) === k ? ' checked' : ''}>${ket}</label>`).join('')}
+        <small>Pilih satu; yang lain terkunci sampai centangnya dilepas. DTPS mengisi datanya sendiri;
+          DT prodi lain, DTT, dan industri diisi admin. Hanya yang <b>Aktif</b> dihitung di butir 26 dan Tabel 4.a.
+          Kosongkan untuk staf/asesor yang bukan dosen.</small></div>` : ''}
     </div>
     ${ADA_LKPS ? `<details style="margin-top:14px"><summary><b>Profil untuk LKPS (Tabel 4.a)</b></summary>
       <div class="grid" style="margin-top:10px">
-        <div class="fld"><label>Kategori dosen</label><select id="f_kategori">${opsi(KATEGORI, r.kategori)}</select>
-          <small>Kosongkan untuk staf/asesor yang bukan dosen; hanya yang berkategori masuk Tabel 4.a.</small></div>
         <div class="fld"><label>Penilaian prodi</label>
           <label class="cek"><input type="checkbox" id="f_sesuai_kompetensi_inti"${r.sesuai_kompetensi_inti ? ' checked' : ''}>Sesuai kompetensi inti PS</label>
           <label class="cek"><input type="checkbox" id="f_sesuai_keahlian_mk"${r.sesuai_keahlian_mk ? ' checked' : ''}>Bidang keahlian sesuai MK yang diampu</label></div>
@@ -253,11 +269,24 @@ function isiForm(d){
       ${formLKPS(r)}</details>` : ''}
     <div class="aksi"><button class="btn" id="simpan">${d ? 'Simpan perubahan' : 'Tambah'}</button>
       ${d ? '<button class="btn ghost" id="batal">Batal</button>' : ''}<span class="msg" id="pesan"></span></div>`;
+  // Kelompok saling meniadakan (pemilik 2026-11-10): satu dicentang, sisanya terkunci.
   const sinkronDtps = () => {
     const asesor = PERAN_BUKAN_DTPS.includes($('f_peran').value);
-    $('f_dtps').disabled = asesor;
-    if (asesor) $('f_dtps').checked = false;
+    if (!ADA_LKPS) {
+      $('f_dtps').disabled = asesor;
+      if (asesor) $('f_dtps').checked = false;
+      return;
+    }
+    const kotak = [...document.querySelectorAll('[data-kelompok]')];
+    if (asesor) kotak.forEach(c => { c.checked = false; });
+    const pilih = kotak.find(c => c.checked);
+    kotak.forEach(c => { c.disabled = asesor || (pilih && c !== pilih); });
+    const inti = $('f_sesuai_kompetensi_inti');
+    const dtps = pilih?.dataset.kelompok === 'dtps';
+    if (dtps) inti.checked = true;   // DTPS = keahlian sesuai kompetensi inti
+    inti.disabled = dtps;
   };
+  document.querySelectorAll('[data-kelompok]').forEach(c => { c.onchange = sinkronDtps; });
   $('f_peran').onchange = sinkronDtps;
   sinkronDtps();
   if (ADA_LKPS) pasangEditor($('form'));
@@ -272,10 +301,12 @@ async function simpan(){
     pendidikan: v('pendidikan') || null, jabatan: v('jabatan') || null,
     sinta_id: idSaja(v('sinta_id')) || null, scopus_id: idSaja(v('scopus_id')) || null,
     orcid: idSaja(v('orcid')) || null,
-    aktif: $('f_aktif').checked, dtps: $('f_dtps').checked,
+    aktif: $('f_aktif').checked, dtps: ADA_LKPS ? false : $('f_dtps').checked,
   };
+  const kel = KELOMPOK.find(([k]) => document.querySelector(`[data-kelompok="${k}"]`)?.checked);
   if (ADA_LKPS) Object.assign(isi, bacaFormLKPS(isi.pendidikan), {
-    kategori: $('f_kategori').value || null,
+    dtps: kel ? kel[2] : false,
+    kategori: kel ? kel[3] : null,
     sesuai_kompetensi_inti: $('f_sesuai_kompetensi_inti').checked,
     sesuai_keahlian_mk: $('f_sesuai_keahlian_mk').checked,
   });

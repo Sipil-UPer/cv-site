@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-10-07fa96">
+<link rel="stylesheet" href="tema.css?v=2026-11-10-cfe13d">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
@@ -285,7 +285,7 @@
   :focus-visible{outline:2px solid var(--biru-2);outline-offset:1px}
   @media(prefers-reduced-motion:reduce){.kartu{transition:none}.kartu:hover{transform:none}}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-10-07fa96">
+<link rel="stylesheet" href="kepala.css?v=2026-11-10-cfe13d">
 </head>
 <body>
 
@@ -350,7 +350,7 @@ setTimeout(function(){
   });
 }, 8000);
 </script>
-<script src="config.js?v=2026-11-10-07fa96"></script>
+<script src="config.js?v=2026-11-10-cfe13d"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -367,23 +367,23 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { BUTIR, isiPetaBukti, cariBukti, daftarBukti, kolomBukti } from './rincian.js?v=2026-11-10-07fa96';
+import { BUTIR, isiPetaBukti, cariBukti, daftarBukti, kolomBukti } from './rincian.js?v=2026-11-10-cfe13d';
 import { BUTIR_MANUAL, SEKSI_MANUAL, kunciButir, kunciBuktiButir, skorManual, tkKepuasan }
-  from './butir-manual.js?v=2026-11-10-07fa96';
-import { BOBOT_TOTAL, bobotButir } from './bobot.js?v=2026-11-10-07fa96';
-import { ambilDaftarLKPS } from './data-lkps.js?v=2026-11-10-07fa96';
-import { ambilNarasi } from './led-narasi.js?v=2026-11-10-07fa96';
-import { cekPitaWT, adaTingkat, sesuaiTracer } from './tracer-skor.js?v=2026-11-10-07fa96';
-import { htmlRencana, buktiButir } from './rencana-bukti.js?v=2026-11-10-07fa96';
-import { htmlPanel, pasangPanel } from './panel-bukti.js?v=2026-11-10-07fa96';
-import { pasangMenu } from './menu.js?v=2026-11-10-07fa96';
-import { bukaLKD } from './bkd.js?v=2026-11-10-07fa96';
-import { ambilBanyakDoi, rencanaSitasi, teksBatas } from './impor-karya.js?v=2026-11-10-07fa96';
-import { karya4i } from './sitasi.js?v=2026-11-10-07fa96';
-import { dataButir, pendukungButir, ambilDataButir, htmlTabelData } from './data-butir.js?v=2026-11-10-07fa96';
-import { TAB_DATA } from './kelengkapan.js?v=2026-11-10-07fa96';
+  from './butir-manual.js?v=2026-11-10-cfe13d';
+import { BOBOT_TOTAL, bobotButir } from './bobot.js?v=2026-11-10-cfe13d';
+import { ambilDaftarLKPS } from './data-lkps.js?v=2026-11-10-cfe13d';
+import { ambilNarasi } from './led-narasi.js?v=2026-11-10-cfe13d';
+import { cekPitaWT, adaTingkat, sesuaiTracer } from './tracer-skor.js?v=2026-11-10-cfe13d';
+import { htmlRencana, buktiButir } from './rencana-bukti.js?v=2026-11-10-cfe13d';
+import { htmlPanel, pasangPanel } from './panel-bukti.js?v=2026-11-10-cfe13d';
+import { pasangMenu } from './menu.js?v=2026-11-10-cfe13d';
+import { bukaLKD } from './bkd.js?v=2026-11-10-cfe13d';
+import { ambilBanyakDoi, rencanaSitasi, teksBatas } from './impor-karya.js?v=2026-11-10-cfe13d';
+import { karya4i } from './sitasi.js?v=2026-11-10-cfe13d';
+import { dataButir, pendukungButir, ambilDataButir, htmlTabelData } from './data-butir.js?v=2026-11-10-cfe13d';
+import { TAB_DATA } from './kelengkapan.js?v=2026-11-10-cfe13d';
 import { statusSyarat, syaratButir, SYARAT_UNGGUL, SYARAT_RERATA, SASARAN,
-         statusRerata, gabungSyarat, statusRentang } from './syarat-unggul.js?v=2026-11-10-07fa96';
+         statusRerata, gabungSyarat, statusRentang } from './syarat-unggul.js?v=2026-11-10-cfe13d';
 
 // config.js mendefinisikan window.SB_URL dan window.SB_KEY — pemetaan di
 // bawah ini WAJIB ada. skor.html versi sebelumnya melewatkannya dan mati
@@ -407,7 +407,7 @@ const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 // Naikkan setiap kali skor.html / rincian.js / butir-manual.js / bobot.js
 // diubah. Ditampilkan di kaki halaman supaya ketahuan seketika kalau
 // peramban masih memakai salinan lama dari cache.
-const VERSI = '2026-11-10-07fa96';
+const VERSI = '2026-11-10-cfe13d';
 // Label versi di judul diisi dari VERSI supaya keduanya tidak bisa berbeda.
 { const el = document.querySelector('.versi-statis'); if (el) el.textContent = 'v' + VERSI; }
 // =====================================================================
@@ -568,8 +568,8 @@ async function unduhLKPS(idTombol){
     // Hanya tertulis di berkas unduhan, tidak disimpan di situs (pemilik 2026-11-06).
     const sandiLkd = idTombol === 'unduhIndeksBukti' ? (prompt('Kata sandi berkas privat yang ditulis di indeks untuk asesor '
       + '(sama dengan LKD_SANDI di Apps Script). Kosongkan bila diberikan terpisah:') || '').trim() : '';
-    const buat = idTombol === 'unduhIndeksBukti' ? (await import('./lkps-bukti.js?v=2026-11-10-07fa96')).buatIndeksBukti
-      : (await import('./lkps-tabel.js?v=2026-11-10-07fa96')).buatTabelLKPS;
+    const buat = idTombol === 'unduhIndeksBukti' ? (await import('./lkps-bukti.js?v=2026-11-10-cfe13d')).buatIndeksBukti
+      : (await import('./lkps-tabel.js?v=2026-11-10-cfe13d')).buatTabelLKPS;
     const hasil = await buat({ D, ts, prodi: D.prodi, institusi: D.institusi, rencanaKepuasan,
       daftar, sandiLkd });
     a.textContent = idTombol === 'unduhIndeksBukti' ? `Indeks terunduh (${hasil.sel} tautan, ${hasil.lembar.length} tabel)`
@@ -593,7 +593,7 @@ async function unduhLED(){
   const asli = a.textContent;
   a.textContent = 'Menyusun draf LED…';
   try {
-    const { buatLED } = await import('./led.js?v=2026-11-10-07fa96');
+    const { buatLED } = await import('./led.js?v=2026-11-10-cfe13d');
     const ts = CTX_LED.tsData;
     const hasil = await buatLED({
       D, ts, taDari, f2, versi: VERSI,
@@ -1129,16 +1129,28 @@ async function muatSitasiKarya(){
 //   19: Σ SKS mata kuliah aktif bertanda basic science (Tabel 3.a.4)
 //   9:  Σ dana PS baris a–f Tabel 2.b ("Biaya Operasional Pendidikan") ÷ mahasiswa aktif,
 //       per tahun akademik, dirata-rata TS-2 s.d. TS (satuan rupiah)
-let MK_DATA = null, DANA_PRODI = null, MHS_TA = null;
+let MK_DATA = null, DANA_PRODI = null, MHS_TA = null, DOSEN_KAT = null;
 async function muatDataProdiSkor(){
-  const [mk, dn, mh] = await Promise.all([
+  const [mk, dn, mh, ds] = await Promise.all([
     sb.from('ref_mata_kuliah').select('kode,sks,sks_kuliah,sks_seminar,sks_praktikum,basic_science,aktif'),
     sb.from('lkps_penggunaan_dana').select('tahun_akademik,jenis,dana_ps'),
     sb.from('lkps_mahasiswa_ta').select('tahun_akademik,jumlah_mahasiswa_aktif'),
+    sb.from('dosen').select('kategori,aktif,peran'),
   ]);
   MK_DATA = mk.error ? null : (mk.data || []).filter(m => m.aktif !== false);
   DANA_PRODI = dn.error ? null : (dn.data || []);
   MHS_TA = mh.error ? null : (mh.data || []);
+  DOSEN_KAT = ds.error ? null : (ds.data || []);
+}
+// Butir 26 (pemilik 2026-11-10): NDT = dosen aktif berkategori tetap (DTPS dan dosen
+// tetap PT dari prodi lain); NDTT = berkategori tidak tetap atau industri. Kategori
+// diisi di Kelola dosen. null = belum ada dosen berkategori -> isian manual ndtt.
+function hitungDosen(){
+  const xs = (DOSEN_KAT || []).filter(d => d.aktif !== false && d.peran !== 'asesor' && d.kategori);
+  if (!xs.length) return null;
+  return { ndt: xs.filter(d => d.kategori === 'tetap').length,
+           ndtt: xs.filter(d => d.kategori === 'tidak_tetap' || d.kategori === 'industri').length,
+           industri: xs.filter(d => d.kategori === 'industri').length };
 }
 // SKS satu mata kuliah: jumlah komponen kuliah/seminar/praktikum bila diisi, selain itu kolom sks.
 function sksMK(m){
@@ -1304,12 +1316,16 @@ function butirKegMhs(no, judul, kategori){
     'Melibatkan = minimal satu mahasiswa tercatat pada karya. Jendela ' + taRange(3) + '.');
 }
 
-// Butir 26 — kecukupan DTPS.
+// Butir 26 — kecukupan DTPS. PDTT = NDTT / (NDT + NDTT) (pemilik 2026-11-10): NDT dan
+// NDTT dari kategori dosen di Kelola dosen (hitungDosen); syarat 5 dan 12 memakai NDTPS.
+// DTPS pasti dosen tetap, jadi NDT tidak kurang dari NDTPS.
 function butir26(){
   const N = ndtps();
-  const ndtt = IS('ndtt');
+  const h = hitungDosen();
+  const ndtt = h ? h.ndtt : IS('ndtt');
   if (ndtt == null) return kartuManualKosong(26, 'Kecukupan jumlah DTPS (Tabel 4.a LKPS)', 'ndtt');
-  const PDTT = (ndtt / ((N + ndtt) || 1)) * 100;
+  const ndt = h ? Math.max(h.ndt, N) : N;
+  const PDTT = (ndtt / ((ndt + ndtt) || 1)) * 100;
   let skor;
   if (N < 5) skor = 0;
   else if (N >= 12 && PDTT <= 10) skor = 4;
@@ -1319,12 +1335,16 @@ function butir26(){
   const isi = `
     <div class="gulir"><table class="rin"><tbody>
       <tr><td>NDTPS</td><td>${N}</td></tr>
-      <tr><td>NDTT (dosen tidak tetap)</td><td>${ndtt}</td></tr>
-      <tr><td><b>PDTT</b></td><td><b>${f2(PDTT)}%</b></td></tr>
+      <tr><td>NDT (dosen tetap, termasuk dosen tetap PT dari prodi lain)</td><td>${ndt}</td></tr>
+      <tr><td>NDTT (dosen tidak tetap dan industri)</td><td>${ndtt}</td></tr>
+      <tr><td><b>PDTT = NDTT / (NDT + NDTT)</b></td><td><b>${f2(PDTT)}%</b></td></tr>
     </tbody></table></div>
     <div class="rumus">NDTPS ≥ 12 dan PDTT ≤ 10% → 4 · rumus antara lihat instrumen · NDTPS &lt; 5 → 0</div>`;
-  return kartuButir(26, 'Kecukupan jumlah DTPS (Tabel 4.a LKPS)', isi, skor,
-    'NDTPS memakai jumlah dosen aktif; NDT dianggap sama dengan NDTPS.');
+  return kartuButir(26, 'Kecukupan jumlah DTPS (Tabel 4.a LKPS)', isi, skor, h
+    ? `Dihitung dari kategori dosen aktif di Kelola dosen: ${h.ndt} tetap, ${h.ndtt} tidak tetap/industri`
+      + (h.industri ? ` (${h.industri} industri)` : '') + '.'
+      + (h.ndt < N ? ` Ada DTPS yang kategorinya belum diisi; NDT memakai NDTPS (${N}).` : '')
+    : 'Kategori dosen belum diisi di Kelola dosen; NDTT memakai isian manual dan NDT dianggap sama dengan NDTPS.');
 }
 
 // Butir 27 & 28 — kualifikasi dan jabatan (versi skor dari data dtps).

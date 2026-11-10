@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-10-07fa96">
+<link rel="stylesheet" href="tema.css?v=2026-11-10-cfe13d">
 <style>
   :root{--bg:#EEF0ED; --ink:#161E26; --muted:#616C76; --line:#D8DDD8; --line-soft:#E8EBE7; --accent:var(--biru); --accent-soft:var(--biru-m7); --pending:#8A5A00; --pending-soft:#FAF0DC; --reject:#8C2F2F; --reject-soft:#F7E7E7;}
   *{box-sizing:border-box}
@@ -159,7 +159,7 @@
   .sitasi-sel small{color:var(--muted);font-size:10.5px;font-family:var(--sans)}
   @media(max-width:640px){.grid{grid-template-columns:1fr}}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-10-07fa96">
+<link rel="stylesheet" href="kepala.css?v=2026-11-10-cfe13d">
 </head>
 <body>
 
@@ -173,7 +173,7 @@
 
 <div class="wrap" id="app"></div>
 
-<script src="config.js?v=2026-11-10-07fa96"></script>
+<script src="config.js?v=2026-11-10-cfe13d"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -197,24 +197,24 @@ const SUPABASE_URL = window.SB_URL;
 const SUPABASE_ANON_KEY = window.SB_KEY;
 
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { JENIS_BUKTI_KARYA, namaJenisBukti, JENIS_KARYA_PRIVAT, teksAksesBukti } from './rencana-bukti.js?v=2026-11-10-07fa96';
-import { tautanBerkas, temuanPakai } from './tautan-privat.js?v=2026-11-10-07fa96';
-import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-10-07fa96';
-import { periksaBerkas, kolomSidik, teksTemuan } from './sidik-berkas.js?v=2026-11-10-07fa96';
-import { pasangContoh, durasiKS } from './manfaat-kerjasama.js?v=2026-11-10-07fa96';
-import { pasangMenu } from './menu.js?v=2026-11-10-07fa96';
-import { pasangPrestasi } from './prestasi.js?v=2026-11-10-07fa96';
-import { htmlSaran } from './saran-bukti.js?v=2026-11-10-07fa96';
-import { pasangBkd } from './bkd.js?v=2026-11-10-07fa96';
-import { htmlTautanButir } from './tautan-butir.js?v=2026-11-10-07fa96';
-import { ISIAN_32, ISIAN_25, TINGKAT, FORM } from './form-karya.js?v=2026-11-10-07fa96';
+import { JENIS_BUKTI_KARYA, namaJenisBukti, JENIS_KARYA_PRIVAT, teksAksesBukti } from './rencana-bukti.js?v=2026-11-10-cfe13d';
+import { tautanBerkas, temuanPakai } from './tautan-privat.js?v=2026-11-10-cfe13d';
+import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-10-cfe13d';
+import { periksaBerkas, kolomSidik, teksTemuan } from './sidik-berkas.js?v=2026-11-10-cfe13d';
+import { pasangContoh, durasiKS } from './manfaat-kerjasama.js?v=2026-11-10-cfe13d';
+import { pasangMenu } from './menu.js?v=2026-11-10-cfe13d';
+import { pasangPrestasi } from './prestasi.js?v=2026-11-10-cfe13d';
+import { htmlSaran } from './saran-bukti.js?v=2026-11-10-cfe13d';
+import { pasangBkd } from './bkd.js?v=2026-11-10-cfe13d';
+import { htmlTautanButir } from './tautan-butir.js?v=2026-11-10-cfe13d';
+import { ISIAN_32, ISIAN_25, TINGKAT, FORM } from './form-karya.js?v=2026-11-10-cfe13d';
 import { barisKarya as htmlBarisKarya, muatBuktiKarya, daftarBuktiKarya as daftarBuktiDari,
   htmlDaftarBukti as htmlDaftarBuktiDari, berkasMilikKarya as berkasMilikDari,
-  pasangHapusBuktiAdmin } from './karya-tampil.js?v=2026-11-10-07fa96';
-import { hitungVerifikasi } from './verifikasi-hitung.js?v=2026-11-10-07fa96';
+  pasangHapusBuktiAdmin } from './karya-tampil.js?v=2026-11-10-cfe13d';
+import { hitungVerifikasi } from './verifikasi-hitung.js?v=2026-11-10-cfe13d';
 import { daftarDoi, ambilDoi, drafDari, rapiDoi, sitasiTahunan, cariJudul, bacaBibtex, judulRapi, pilihCocok,
-  drafDariBib, teksBatas, karyaOrcid } from './impor-karya.js?v=2026-11-10-07fa96';
-import { SUMBER_SITASI } from './sitasi.js?v=2026-11-10-07fa96';
+  drafDariBib, teksBatas, karyaOrcid } from './impor-karya.js?v=2026-11-10-cfe13d';
+import { SUMBER_SITASI } from './sitasi.js?v=2026-11-10-cfe13d';
 
 const app = document.getElementById('app');
 if (!SUPABASE_URL || !SUPABASE_ANON_KEY
