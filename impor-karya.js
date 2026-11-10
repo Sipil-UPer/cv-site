@@ -116,6 +116,41 @@ export async function ambilDoi(doi, ambil = fetch) {
   return periksa(r);
 }
 
+// Banyak DOI sekaligus (filter doi:a|b|..., sampai 100 nilai per filter menurut
+// dokumentasi OpenAlex; dipakai 50 agar alamat tidak terlalu panjang).
+// Hasil: Map DOI rapi -> work. Untuk tombol admin "Perbarui sitasi" (pemilik 2026-11-10).
+export async function ambilBanyakDoi(dois, ambil = fetch, ukuran = 50) {
+  const hasil = new Map(), semua = [...new Set(dois.map(rapiDoi).filter(Boolean))];
+  for (let i = 0; i < semua.length; i += ukuran) {
+    const kel = semua.slice(i, i + ukuran);
+    const filter = 'doi:' + kel.map(d => encodeURIComponent(d.includes(',') ? `"${d}"` : d)).join('|');
+    const r = await ambil(`${OPENALEX}/works?filter=${filter}&per_page=${ukuran}&select=id,doi,publication_year,counts_by_year`);
+    for (const w of (await periksa(r)).results || []) hasil.set(rapiDoi(w.doi), w);
+  }
+  return hasil;
+}
+
+// Rencana pembaruan sitasi untuk karya ber-DOI. karya: [{id, doi, karya_sitasi:[{tahun, jumlah, sumber}]}].
+// Tahun yang kosong atau bersumber OpenAlex diisi/diperbarui; angka isian dosen
+// (google_scholar/scopus/manual) tidak disentuh. Hasil: {baris, diperbarui, dibiarkan, tidakDitemukan, sama}.
+export function rencanaSitasi(karya, works, hariIni) {
+  const tahunIni = +hariIni.slice(0, 4), baris = [], diperbarui = new Set(), tidakDitemukan = [];
+  let dibiarkan = 0, sama = 0;
+  for (const k of karya) {
+    const w = works.get(rapiDoi(k.doi));
+    if (!w) { tidakDitemukan.push(k); continue; }
+    const ada = new Map((k.karya_sitasi || []).map(r => [+r.tahun, r]));
+    for (const r of sitasiTahunan(w, tahunIni)) {
+      const lama = ada.get(r.tahun);
+      if (lama && lama.sumber !== 'openalex') { dibiarkan++; continue; }
+      if (lama && +lama.jumlah === r.jumlah) { sama++; continue; }
+      baris.push({ karya_id: k.id, tahun: r.tahun, jumlah: r.jumlah, sumber: 'openalex', diambil: hariIni });
+      diperbarui.add(k.id);
+    }
+  }
+  return { baris, diperbarui: diperbarui.size, dibiarkan, tidakDitemukan, sama };
+}
+
 // Lima kandidat OpenAlex untuk satu judul (pencarian teks, 10 kredit).
 export async function cariJudul(judul, ambil = fetch) {
   const r = await ambil(`${OPENALEX}/works?search=${encodeURIComponent(String(judul).slice(0, 200))}&per_page=5&select=${PILIH}`);

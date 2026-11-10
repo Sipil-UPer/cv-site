@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-10-e8b1fd">
+<link rel="stylesheet" href="tema.css?v=2026-11-10-420267">
 <style>
   /* Panduan pengguna ruang kerja (pemilik 2026-11-04). Bagian admin hanya
      tampil untuk peran admin. Perbarui bila tombol atau halaman berubah. */
@@ -40,7 +40,7 @@
   @media(max-width:640px){nav.isi ol{columns:1}.wrap{padding:18px 16px 60px}}
   @media print{nav.isi{display:none}section{break-inside:avoid}}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-10-e8b1fd">
+<link rel="stylesheet" href="kepala.css?v=2026-11-10-420267">
 </head>
 <body>
 
@@ -256,6 +256,7 @@
       <li><b>A. Penghalang status</b>: syarat perlu yang belum terpenuhi.</li>
       <li><b>B. Peluang poin terbesar dan simulasi</b>: ubah angka, klik <b>Hitung simulasi</b> untuk melihat dampaknya; <b>Kosongkan simulasi</b> mengembalikan.</li>
       <li><b>Unduh draf LED TS … (.docx)</b>: templat LED LAM Teknik terisi narasi umum, tabel data, grafik bernomor, dan tabel pendukung (daftar dosen, tendik, kerja sama, mata kuliah dan RPS, capstone, prasarana, K3L, perangkat SPMI, daftar karya). Fakta yang ada di sistem terisi sendiri dan dokumen pustaka yang disebut dalam kalimat langsung bertaut; <b>tabel bukti</b> terisi tautannya dari pustaka, bukti butir, dan bukti baris Data prodi. Yang bertanda [isi] adalah fakta yang tidak ada di sistem: analisis, target, atau berkas yang belum diunggah. Skor penilaian sendiri tidak dimuat; penyusun tinggal menguatkan narasi.</li>
+      <li><b>Perbarui sitasi dari OpenAlex</b>: mengisi sitasi per tahun semua publikasi ber-DOI yang sudah diajukan atau terverifikasi, dalam beberapa permintaan saja. Tahun yang kosong atau bersumber OpenAlex diperbarui; angka yang diisi dosen (Google Scholar, Scopus, manual) tidak diubah. Jalankan sebelum mengunduh tabel LKPS, karena Tabel 4.i menjumlahkan sitasi tahun yang beririsan dengan TS-2 s.d. TS. Publikasi tanpa DOI diisi dosen sendiri.</li>
       <li><b>Unduh indeks bukti LKPS TS … (.docx)</b>: Word berisi No tabel LKPS, item, dan link untuk ke-44 tabel wajib Sarjana. Tautan diambil dari bukti karya, DOI, bukti baris Data prodi, dan pustaka; tabel tanpa bukti tetap tampil dengan sel kosong. Simpan sebagai PDF dari Word bila perlu.</li>
       <li><b>Unduh tabel LKPS TS … (.xlsx)</b>: workbook sendiri berisi <b>ke-44 tabel wajib Sarjana</b> LAM Teknik, yang kosong juga, pada alamat sel yang sama dengan templat resmi. Lembar <b>Petunjuk</b> menjadi daftar isi: status tiap tabel, tempat mengisi datanya di situs, dan blok salin (tidak menutup sel rumus). Salin blok, lalu di templat klik sel kiri atas yang sama dan pakai <b>Tempel Spesial › Values + Skip blanks</b>. Di lembar tabel: kuning = data situs, putih = belum ada data, abu-abu = dihitung rumus templat; tab hijau = tabel berisi data. Isian lembar Menu ditolak Excel bila ditempel, jadi diketik; nilainya tertulis di Petunjuk.</li>
       <li>Kedua berkas memakai TS yang dipilih di bagian atas halaman; TS-nya tertulis pada label tombol.</li>
@@ -271,7 +272,7 @@
   </div>
 </main>
 
-<script src="config.js?v=2026-11-10-e8b1fd"></script>
+<script src="config.js?v=2026-11-10-420267"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -288,7 +289,7 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { gerbang } from './menu.js?v=2026-11-10-e8b1fd';
+import { gerbang } from './menu.js?v=2026-11-10-420267';
 
 // Bagian admin hanya untuk peran admin (isinya bukan rahasia; disembunyikan
 // supaya panduan dosen tetap ringkas).

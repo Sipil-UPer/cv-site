@@ -3,11 +3,11 @@
 // mahasiswa (pasangPrestasi) dan verifikasi.html (pasangVerifikasiPrestasi).
 // Admin tetap bisa mengisi langsung di Data prodi.
 
-import { periksaBerkas, kolomSidik, teksTemuan } from './sidik-berkas.js?v=2026-11-10-e8b1fd';
-import { buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-10-e8b1fd';
-import { htmlSaran } from './saran-bukti.js?v=2026-11-10-e8b1fd';
-import { tautanBerkas, temuanPakai } from './tautan-privat.js?v=2026-11-10-e8b1fd';
-import { htmlTautanButir, tsBaris } from './tautan-butir.js?v=2026-11-10-e8b1fd';
+import { periksaBerkas, kolomSidik, teksTemuan } from './sidik-berkas.js?v=2026-11-10-420267';
+import { buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-10-420267';
+import { htmlSaran } from './saran-bukti.js?v=2026-11-10-420267';
+import { tautanBerkas, temuanPakai } from './tautan-privat.js?v=2026-11-10-420267';
+import { htmlTautanButir, tsBaris } from './tautan-butir.js?v=2026-11-10-420267';
 
 export const TABEL = 'lkps_prestasi_mahasiswa';
 
