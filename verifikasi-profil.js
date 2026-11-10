@@ -4,7 +4,7 @@
 // dosen; Tolak -> alasan dilihat dosen di profil.html. Dipindah dari
 // kelola-dosen.html (pemilik 2026-11-08).
 
-import { ISIAN_PROFIL, KOLOM_PROFIL, JABATAN, tampil as tampilIsian } from './profil-dosen.js?v=2026-11-10-7efbdb';
+import { ISIAN_PROFIL, KOLOM_PROFIL, JABATAN, tampil as tampilIsian } from './profil-dosen.js?v=2026-11-10-e8b1fd';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g,
   c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));

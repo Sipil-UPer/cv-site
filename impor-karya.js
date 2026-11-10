@@ -86,9 +86,138 @@ export function drafDari(w, { orcid = '', hariIni }) {
 }
 
 // ---- Panggilan API (tidak diuji tanpa jaringan) ----------------------
+// Batas harian OpenAlex per alamat IP tanpa kunci API (diamati 2026-11-10):
+// 1000 kredit; pencarian judul memakan 10 kredit, jadi sekitar 100 pencarian
+// per hari, dibagi semua pengguna di jaringan yang sama. Jawaban 429 menjadi
+// galat {batas: true, tunggu: detik} agar halaman berhenti memanggil.
+async function periksa(r) {
+  if (r.status === 429) {
+    const e = new Error('Batas harian OpenAlex untuk jaringan ini habis.');
+    e.batas = true;
+    e.tunggu = +(r.headers.get('retry-after') || 0) || null;
+    throw e;
+  }
+  if (!r.ok) throw new Error(`OpenAlex ${r.status}`);
+  return r.json();
+}
+
+// Pesan batas habis dengan perkiraan jam pulih (waktu lokal pengguna).
+export function teksBatas(e, sekarang = new Date()) {
+  if (!e?.tunggu) return 'Batas harian OpenAlex untuk jaringan ini habis; coba lagi besok.';
+  const pulih = new Date(sekarang.getTime() + e.tunggu * 1000);
+  const jam = `${String(pulih.getHours()).padStart(2, '0')}.${String(pulih.getMinutes()).padStart(2, '0')}`;
+  const besok = pulih.toDateString() !== sekarang.toDateString();
+  return `Batas harian OpenAlex untuk jaringan ini habis; coba lagi sekitar pukul ${jam}${besok ? ' besok' : ''}.`;
+}
+
 export async function ambilDoi(doi, ambil = fetch) {
   const r = await ambil(`${OPENALEX}/works/doi:${encodeURI(rapiDoi(doi))}?select=${PILIH}`);
   if (r.status === 404) return null;
-  if (!r.ok) throw new Error(`OpenAlex ${r.status}`);
-  return r.json();
+  return periksa(r);
+}
+
+// Lima kandidat OpenAlex untuk satu judul (pencarian teks, 10 kredit).
+export async function cariJudul(judul, ambil = fetch) {
+  const r = await ambil(`${OPENALEX}/works?search=${encodeURIComponent(String(judul).slice(0, 200))}&per_page=5&select=${PILIH}`);
+  return (await periksa(r)).results || [];
+}
+
+// ---- Ekspor Google Scholar (BibTeX), pemilik 2026-11-10 ----------------
+// Google Scholar tidak punya API; dosen mengekspor daftarnya sendiri dari
+// profil (pilih artikel > Export > BibTeX) lalu mengunggah berkasnya.
+
+// Sisa markup LaTeX yang muncul di ekspor Google Scholar.
+export const rapiLatex = s => String(s || '').replace(/\\([_&%$#])/g, '$1').replace(/~/g, ' ')
+  .replace(/--/g, '–').replace(/[{}]/g, '').replace(/\s+/g, ' ').trim();
+
+// Entri BibTeX -> [{jenis, kunci, title, author, journal, booktitle, publisher, year, ...}].
+// Nilai dalam kurung kurawal bersarang, tanda kutip, atau angka polos.
+export function bacaBibtex(teks) {
+  const t = String(teks || ''), out = [], re = /@(\w+)\s*\{/g;
+  let m;
+  while ((m = re.exec(t))) {
+    let i = re.lastIndex, d = 1;
+    while (i < t.length && d > 0) { if (t[i] === '{') d++; else if (t[i] === '}') d--; i++; }
+    const isi = t.slice(re.lastIndex, i - 1);
+    re.lastIndex = i;
+    const jenis = m[1].toLowerCase();
+    if (['comment', 'string', 'preamble'].includes(jenis)) continue;
+    const koma = isi.indexOf(',');
+    const badan = koma < 0 ? '' : isi.slice(koma + 1), f = {};
+    let j = 0;
+    const nama = /\s*([\w-]+)\s*=\s*/y, sisa = /\s*,?/y;
+    while (j < badan.length) {
+      nama.lastIndex = j;
+      const r = nama.exec(badan);
+      if (!r) break;
+      j = nama.lastIndex;
+      let v = '';
+      if (badan[j] === '{') {
+        let k = j + 1, d2 = 1;
+        while (k < badan.length && d2 > 0) { if (badan[k] === '{') d2++; else if (badan[k] === '}') d2--; k++; }
+        v = badan.slice(j + 1, k - 1); j = k;
+      } else if (badan[j] === '"') {
+        const k = badan.indexOf('"', j + 1);
+        v = badan.slice(j + 1, k < 0 ? undefined : k); j = k < 0 ? badan.length : k + 1;
+      } else {
+        const k = badan.slice(j).search(/[,\n]/);
+        v = badan.slice(j, k < 0 ? undefined : j + k); j = k < 0 ? badan.length : j + k;
+      }
+      f[r[1].toLowerCase()] = rapiLatex(v);
+      sisa.lastIndex = j; sisa.exec(badan); j = sisa.lastIndex;
+    }
+    out.push({ jenis, kunci: koma < 0 ? isi.trim() : isi.slice(0, koma).trim(), ...f });
+  }
+  return out;
+}
+
+// Judul untuk dibandingkan: huruf kecil, hanya huruf dan angka (aksara apa pun).
+export const judulRapi = s => String(s || '').toLowerCase().replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
+
+// Kemiripan dua judul (Dice pada pasangan huruf), 0..1.
+export function mirip(a, b) {
+  const x = judulRapi(a), y = judulRapi(b);
+  if (!x || !y) return 0;
+  if (x === y) return 1;
+  const pas = s => { const m = new Map(); for (let i = 0; i < s.length - 1; i++) { const p = s.slice(i, i + 2); m.set(p, (m.get(p) || 0) + 1); } return m; };
+  const px = pas(x), py = pas(y);
+  let sama = 0;
+  for (const [p, n] of px) sama += Math.min(n, py.get(p) || 0);
+  return (2 * sama) / (Math.max(1, x.length - 1) + Math.max(1, y.length - 1));
+}
+
+// Kandidat OpenAlex yang cocok dengan entri: judul >= 0,9 mirip, tahun selisih <= 1.
+export function pilihCocok(e, kandidat, ambang = 0.9) {
+  let terbaik = null, nilai = 0;
+  for (const w of kandidat || []) {
+    if (e.year && w.publication_year && Math.abs(+e.year - w.publication_year) > 1) continue;
+    const s = mirip(e.title, w.title);
+    if (s > nilai) { nilai = s; terbaik = w; }
+  }
+  return nilai >= ambang ? terbaik : null;
+}
+
+const JENIS_BIB = { article: 'jurnal', inproceedings: 'prosiding', conference: 'prosiding', proceedings: 'prosiding',
+  book: 'buku', incollection: 'bab_buku', inbook: 'bab_buku' };
+
+// Dosen penulis pertama bila nama keluarga penulis pertama ada di namanya.
+export function pertamaDariBib(author, namaSaya) {
+  const satu = String(author || '').split(/\s+and\s+/i)[0] || '';
+  const keluarga = (satu.includes(',') ? satu.split(',')[0] : satu.trim().split(/\s+/).pop() || '').toLowerCase().trim();
+  const bagian = String(namaSaya || '').toLowerCase().split(/[^\p{L}]+/u).filter(Boolean);
+  return !!keluarga && bagian.includes(keluarga);
+}
+
+// Draf dari entri BibTeX saja (tanpa kecocokan OpenAlex): tanpa DOI dan sitasi.
+export function drafDariBib(e, { namaSaya = '' } = {}) {
+  const tahun = /^\d{4}$/.test(e.year || '') ? +e.year : null;
+  return {
+    karya: { kategori: 'publikasi', status: 'draf', judul: e.title || '', jenis: JENIS_BIB[e.jenis] || 'lainnya',
+      tahun, bulan: null, nama_terbitan: e.journal || e.booktitle || e.publisher || e.school || null, doi: null, url: null },
+    penulis: { peran: pertamaDariBib(e.author, namaSaya) ? 'penulis_pertama' : 'anggota', korespondensi: false, dikenali: false },
+    centang: !!tahun && e.jenis in JENIS_BIB,
+    tipe: e.jenis,
+    sitasi: [],
+    sitasiTS: null,
+  };
 }

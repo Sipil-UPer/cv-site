@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-10-7efbdb">
+<link rel="stylesheet" href="tema.css?v=2026-11-10-e8b1fd">
 <style>
   :root{--bg:#EEF0ED; --ink:#161E26; --muted:#616C76; --line:#D8DDD8; --line-soft:#E8EBE7; --accent:var(--biru); --accent-soft:var(--biru-m7); --pending:#8A5A00; --pending-soft:#FAF0DC; --reject:#8C2F2F; --reject-soft:#F7E7E7;}
   *{box-sizing:border-box}
@@ -159,7 +159,7 @@
   .sitasi-sel small{color:var(--muted);font-size:10.5px;font-family:var(--sans)}
   @media(max-width:640px){.grid{grid-template-columns:1fr}}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-10-7efbdb">
+<link rel="stylesheet" href="kepala.css?v=2026-11-10-e8b1fd">
 </head>
 <body>
 
@@ -173,7 +173,7 @@
 
 <div class="wrap" id="app"></div>
 
-<script src="config.js?v=2026-11-10-7efbdb"></script>
+<script src="config.js?v=2026-11-10-e8b1fd"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -197,23 +197,24 @@ const SUPABASE_URL = window.SB_URL;
 const SUPABASE_ANON_KEY = window.SB_KEY;
 
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { JENIS_BUKTI_KARYA, namaJenisBukti, JENIS_KARYA_PRIVAT, teksAksesBukti } from './rencana-bukti.js?v=2026-11-10-7efbdb';
-import { tautanBerkas, temuanPakai } from './tautan-privat.js?v=2026-11-10-7efbdb';
-import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-10-7efbdb';
-import { periksaBerkas, kolomSidik, teksTemuan } from './sidik-berkas.js?v=2026-11-10-7efbdb';
-import { pasangContoh, durasiKS } from './manfaat-kerjasama.js?v=2026-11-10-7efbdb';
-import { pasangMenu } from './menu.js?v=2026-11-10-7efbdb';
-import { pasangPrestasi } from './prestasi.js?v=2026-11-10-7efbdb';
-import { htmlSaran } from './saran-bukti.js?v=2026-11-10-7efbdb';
-import { pasangBkd } from './bkd.js?v=2026-11-10-7efbdb';
-import { htmlTautanButir } from './tautan-butir.js?v=2026-11-10-7efbdb';
-import { ISIAN_32, ISIAN_25, TINGKAT, FORM } from './form-karya.js?v=2026-11-10-7efbdb';
+import { JENIS_BUKTI_KARYA, namaJenisBukti, JENIS_KARYA_PRIVAT, teksAksesBukti } from './rencana-bukti.js?v=2026-11-10-e8b1fd';
+import { tautanBerkas, temuanPakai } from './tautan-privat.js?v=2026-11-10-e8b1fd';
+import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-10-e8b1fd';
+import { periksaBerkas, kolomSidik, teksTemuan } from './sidik-berkas.js?v=2026-11-10-e8b1fd';
+import { pasangContoh, durasiKS } from './manfaat-kerjasama.js?v=2026-11-10-e8b1fd';
+import { pasangMenu } from './menu.js?v=2026-11-10-e8b1fd';
+import { pasangPrestasi } from './prestasi.js?v=2026-11-10-e8b1fd';
+import { htmlSaran } from './saran-bukti.js?v=2026-11-10-e8b1fd';
+import { pasangBkd } from './bkd.js?v=2026-11-10-e8b1fd';
+import { htmlTautanButir } from './tautan-butir.js?v=2026-11-10-e8b1fd';
+import { ISIAN_32, ISIAN_25, TINGKAT, FORM } from './form-karya.js?v=2026-11-10-e8b1fd';
 import { barisKarya as htmlBarisKarya, muatBuktiKarya, daftarBuktiKarya as daftarBuktiDari,
   htmlDaftarBukti as htmlDaftarBuktiDari, berkasMilikKarya as berkasMilikDari,
-  pasangHapusBuktiAdmin } from './karya-tampil.js?v=2026-11-10-7efbdb';
-import { hitungVerifikasi } from './verifikasi-hitung.js?v=2026-11-10-7efbdb';
-import { daftarDoi, ambilDoi, drafDari, rapiDoi, sitasiTahunan } from './impor-karya.js?v=2026-11-10-7efbdb';
-import { SUMBER_SITASI } from './sitasi.js?v=2026-11-10-7efbdb';
+  pasangHapusBuktiAdmin } from './karya-tampil.js?v=2026-11-10-e8b1fd';
+import { hitungVerifikasi } from './verifikasi-hitung.js?v=2026-11-10-e8b1fd';
+import { daftarDoi, ambilDoi, drafDari, rapiDoi, sitasiTahunan, cariJudul, bacaBibtex, judulRapi, pilihCocok,
+  drafDariBib, teksBatas } from './impor-karya.js?v=2026-11-10-e8b1fd';
+import { SUMBER_SITASI } from './sitasi.js?v=2026-11-10-e8b1fd';
 
 const app = document.getElementById('app');
 if (!SUPABASE_URL || !SUPABASE_ANON_KEY
@@ -1678,14 +1679,19 @@ function karyaSaya(){
     tiap karya bisa disalin dan ditempel ke SISTER/BKD; tautan folder membuka
     semua berkas di dalamnya.</p>
     <p><button type="button" class="btn ghost sm" id="salin-semua" hidden></button></p>
-    <details class="impor" id="impor"><summary><b>Impor publikasi</b> — dari DOI, menjadi draf</summary>
+    <details class="impor" id="impor"><summary><b>Impor publikasi</b> — dari DOI atau ekspor Google Scholar, menjadi draf</summary>
       <p class="hint">Tempel satu DOI atau lebih (satu per baris). Data diambil dari OpenAlex dan disimpan
       sebagai <b>draf</b>: hanya terlihat oleh Anda, belum dikirim ke admin. Lengkapi drafnya (tingkat,
       indeksasi, payung penelitian, mitra, mahasiswa, bukti), lalu klik <b>Simpan dan ajukan</b>.
       Sitasi per tahun diisi dari OpenAlex sebagai nilai awal (kolom Sitasi di bawah = tahun kalender yang
       beririsan dengan TS-2 s.d. TS); ganti dengan angka Google Scholar bila ada.</p>
       <div class="fld"><textarea id="imp_doi" rows="3" placeholder="10.1016/j.contoh.2023.100302"></textarea></div>
-      <p><button type="button" class="btn sm" id="imp_cari">Cari</button> <span class="msg" id="imp_msg"></span></p>
+      <p><button type="button" class="btn sm" id="imp_cari">Cari</button></p>
+      <p class="hint" style="margin-top:10px">Atau unggah ekspor <b>Google Scholar</b> (BibTeX): buka profil Google Scholar
+      Anda, centang artikel (kotak paling atas = semua), klik <b>Export › BibTeX</b>, simpan berkasnya, lalu pilih di sini.
+      DOI dan sitasi per tahun dicari otomatis di OpenAlex menurut judul; yang tidak ditemukan dibuat dari data Google Scholar.</p>
+      <div class="fld"><input type="file" id="imp_bib" accept=".bib,.txt,.bibtex,text/plain"></div>
+      <p><span class="msg" id="imp_msg"></span></p>
       <div id="imp_hasil"></div>
     </details>
     <div id="dsaya" class="kosong">Memuat…</div></div>`;
@@ -1749,7 +1755,7 @@ function pasangSitasi(awal){
       });
       gambar();
       msg.className = 'msg ok'; msg.textContent = `${n} tahun diisi dari OpenAlex; angka yang Anda isi sendiri tidak diubah. Klik Simpan.`;
-    }catch(e){ msg.className = 'msg err'; msg.textContent = 'Gagal: ' + (e.message || e); }
+    }catch(e){ msg.className = 'msg err'; msg.textContent = e.batas ? teksBatas(e) : 'Gagal: ' + (e.message || e); }
   };
 }
 
@@ -1787,7 +1793,7 @@ function pasangImpor(){
       <th>Jurnal / prosiding</th><th>Sitasi</th><th>Keterangan</th></tr></thead><tbody>${calon.map((c, i) => `<tr>
         <td><input type="checkbox" data-imp="${i}" ${c.boleh ? '' : 'disabled'} ${c.boleh && c.pilih ? 'checked' : ''}></td>
         <td>${esc(c.d?.karya.judul || c.doi)}</td><td>${c.d?.karya.tahun || ''}</td>
-        <td>${esc(c.d?.karya.nama_terbitan || '')}</td><td>${c.d ? c.d.sitasiTS : ''}</td>
+        <td>${esc(c.d?.karya.nama_terbitan || '')}</td><td>${c.d?.sitasiTS ?? ''}</td>
         <td>${c.ket}${c.klaim ? ` <button type="button" class="btn ghost sm" data-imp-klaim="${c.klaim}">Tambahkan saya sebagai penulis</button>` : ''}</td>
       </tr>`).join('')}</tbody></table></div>
       <p><button type="button" class="btn sm" id="imp_simpan">Jadikan draf</button></p>`;
@@ -1802,11 +1808,62 @@ function pasangImpor(){
     }; });
     document.getElementById('imp_simpan').onclick = simpanDraf;
   };
-  // Karya yang sudah ada di situs (yang terlihat): DOI -> {id, penulis saya?}.
+  // Karya yang sudah ada di situs (yang terlihat), menurut DOI dan judul: {id, penulis saya?}.
   const karyaAda = async () => {
-    const { data } = await sb.from('karya').select('id,doi,status,karya_penulis(dosen_id)').eq('kategori', 'publikasi').limit(5000);
-    return new Map((data || []).filter(k => k.doi).map(k => [rapiDoi(k.doi),
-      { id: k.id, milik: (k.karya_penulis || []).some(p => p.dosen_id === saya.id) }]));
+    const { data } = await sb.from('karya').select('id,doi,judul,status,karya_penulis(dosen_id)').eq('kategori', 'publikasi').limit(5000);
+    const info = k => ({ id: k.id, milik: (k.karya_penulis || []).some(p => p.dosen_id === saya.id) });
+    return { doi: new Map((data || []).filter(k => k.doi).map(k => [rapiDoi(k.doi), info(k)])),
+             judul: new Map((data || []).filter(k => k.judul).map(k => [judulRapi(k.judul), info(k)])) };
+  };
+  const sudahAda = (doi, sudah) => ({ doi, boleh: false, klaim: sudah.milik ? null : sudah.id,
+    ket: sudah.milik ? 'Sudah ada di Karya saya.' : 'Sudah ada di situs (diinput rekan).' });
+  // Ekspor Google Scholar (BibTeX): DOI dicari di OpenAlex menurut judul.
+  document.getElementById('imp_bib').onchange = async ev => {
+    const berkas = ev.target.files[0];
+    if(!berkas) return;
+    const teks = await berkas.text();
+    ev.target.value = '';
+    if(/^\s*"?(authors?|title)"?\s*,/i.test(teks)){
+      msg.className = 'msg err'; msg.textContent = 'Berkas ini CSV. Ekspor ulang dari Google Scholar dengan pilihan BibTeX.'; return;
+    }
+    const entri = bacaBibtex(teks).filter(e => judulRapi(e.title));
+    if(!entri.length){ msg.className = 'msg err'; msg.textContent = 'Tidak ada entri BibTeX di berkas ini.'; return; }
+    msg.className = 'msg';
+    const ada = await karyaAda();
+    calon = [];
+    const dilihat = new Set();
+    let batas = null;                                            // galat 429: berhenti memanggil OpenAlex
+    for(const [i, e] of entri.entries()){
+      const kunci = judulRapi(e.title);
+      if(dilihat.has(kunci)) continue;                          // judul ganda di berkas
+      dilihat.add(kunci);
+      // Yang sudah ada atau tidak dicentang bawaan tidak dicari: hemat kredit OpenAlex.
+      const sudahJudul = ada.judul.get(kunci);
+      if(sudahJudul){ calon.push({ ...sudahAda(e.title, sudahJudul), d: drafDariBib(e) }); continue; }
+      const dBib = drafDariBib(e, { namaSaya: saya.nama });
+      let w = null, catatan = '';
+      if(dBib.centang && !batas){
+        msg.textContent = `Mencari di OpenAlex ${i + 1}/${entri.length}…`;
+        try{ w = pilihCocok(e, await cariJudul(e.title)); await new Promise(r => setTimeout(r, 150)); }
+        catch(err){ if(err.batas) batas = err; }
+      }
+      if(!w) catatan = batas && dBib.centang ? 'DOI belum dicari: ' + teksBatas(batas) + ' Draf dibuat dari data Google Scholar.'
+        : dBib.centang ? 'Tidak ditemukan di OpenAlex; dibuat dari data Google Scholar (tanpa DOI dan sitasi).'
+        : 'Tidak dicentang bawaan (disertasi, data, atau tanpa tahun).';
+      const doi = w?.doi ? rapiDoi(w.doi) : '';
+      if(doi && dilihat.has('doi:' + doi)) continue;             // dua entri, satu artikel
+      if(doi) dilihat.add('doi:' + doi);
+      const sudah = (doi && ada.doi.get(doi)) || (w && ada.judul.get(judulRapi(w.title)));
+      if(sudah){ calon.push({ ...sudahAda(e.title, sudah), d: dBib }); continue; }
+      const d = w ? drafDari(w, { orcid: saya.orcid, hariIni }) : dBib;
+      if(w && !d.penulis.dikenali) d.penulis = dBib.penulis;
+      calon.push({ doi: doi || e.title, d, boleh: true, pilih: d.centang,
+        ket: (w ? 'DOI ditemukan di OpenAlex.' : catatan) + (w && !d.centang ? ' Tidak dicentang bawaan.' : '') });
+    }
+    msg.className = batas ? 'msg err' : 'msg';
+    msg.textContent = `${calon.filter(c => c.boleh).length} karya baru dari ${entri.length} entri.`
+      + (batas ? ' ' + teksBatas(batas) + ' Sitasi bisa ditarik nanti dari formulir tiap draf.' : '');
+    gambar();
   };
   document.getElementById('imp_cari').onclick = async () => {
     const dois = daftarDoi(document.getElementById('imp_doi').value);
@@ -1815,12 +1872,8 @@ function pasangImpor(){
     const ada = await karyaAda();
     calon = [];
     for(const doi of dois){
-      const sudah = ada.get(doi);
-      if(sudah){
-        calon.push({ doi, boleh: false, ket: sudah.milik ? 'Sudah ada di Karya saya.' : 'Sudah ada di situs (diinput rekan).',
-                     klaim: sudah.milik ? null : sudah.id });
-        continue;
-      }
+      const sudah = ada.doi.get(doi);
+      if(sudah){ calon.push(sudahAda(doi, sudah)); continue; }
       try{
         const w = await ambilDoi(doi);
         if(!w){ calon.push({ doi, boleh: false, ket: 'Tidak ditemukan di OpenAlex; isi manual di tab Publikasi.' }); continue; }
@@ -1828,7 +1881,10 @@ function pasangImpor(){
         calon.push({ doi, d, boleh: true, pilih: d.centang,
           ket: (d.centang ? '' : `Jenis "${d.tipe || 'tanpa tahun'}" tidak dicentang bawaan. `)
             + (d.penulis.dikenali ? '' : 'ORCID Anda tidak tercantum di data ini; periksa bahwa ini karya Anda.') });
-      }catch(e){ calon.push({ doi, boleh: false, ket: 'Gagal mengambil: ' + (e.message || e) }); }
+      }catch(e){
+        calon.push({ doi, boleh: false, ket: e.batas ? teksBatas(e) : 'Gagal mengambil: ' + (e.message || e) });
+        if(e.batas) break;                                       // DOI berikutnya pasti ditolak juga
+      }
     }
     msg.textContent = '';
     gambar();
