@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-10-b98a72">
+<link rel="stylesheet" href="tema.css?v=2026-11-10-be8213">
 <style>
   :root{--bg:#EEF0ED; --ink:#161E26; --muted:#616C76; --line:#D8DDD8; --line-soft:#E8EBE7; --accent:var(--biru); --accent-soft:var(--biru-m7); --pending:#8A5A00; --pending-soft:#FAF0DC; --reject:#8C2F2F; --reject-soft:#F7E7E7;}
   *{box-sizing:border-box}
@@ -145,9 +145,16 @@
     text-transform:uppercase;color:var(--muted)}
   table.beda td:first-child{width:24%;color:var(--muted)}
   table.beda td:nth-child(3){background:#EAF4EC}
+  /* Impor publikasi ke draf (pemilik 2026-11-10) */
+  .impor{margin:10px 0 16px;padding:10px 12px;border:1px solid var(--line-soft);border-radius:6px}
+  .impor summary{cursor:pointer}
+  .impor textarea{width:100%;font-family:var(--mono);font-size:13px}
+  .gulir{overflow-x:auto}
+  table.rin{width:100%;border-collapse:collapse;font-size:13px;margin-top:6px}
+  table.rin th,table.rin td{border-bottom:1px solid var(--line-soft);padding:5px 7px;text-align:left;vertical-align:top}
   @media(max-width:640px){.grid{grid-template-columns:1fr}}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-10-b98a72">
+<link rel="stylesheet" href="kepala.css?v=2026-11-10-be8213">
 </head>
 <body>
 
@@ -161,7 +168,7 @@
 
 <div class="wrap" id="app"></div>
 
-<script src="config.js?v=2026-11-10-b98a72"></script>
+<script src="config.js?v=2026-11-10-be8213"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -185,21 +192,22 @@ const SUPABASE_URL = window.SB_URL;
 const SUPABASE_ANON_KEY = window.SB_KEY;
 
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { JENIS_BUKTI_KARYA, namaJenisBukti, JENIS_KARYA_PRIVAT, teksAksesBukti } from './rencana-bukti.js?v=2026-11-10-b98a72';
-import { tautanBerkas, temuanPakai } from './tautan-privat.js?v=2026-11-10-b98a72';
-import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-10-b98a72';
-import { periksaBerkas, kolomSidik, teksTemuan } from './sidik-berkas.js?v=2026-11-10-b98a72';
-import { pasangContoh, durasiKS } from './manfaat-kerjasama.js?v=2026-11-10-b98a72';
-import { pasangMenu } from './menu.js?v=2026-11-10-b98a72';
-import { pasangPrestasi } from './prestasi.js?v=2026-11-10-b98a72';
-import { htmlSaran } from './saran-bukti.js?v=2026-11-10-b98a72';
-import { pasangBkd } from './bkd.js?v=2026-11-10-b98a72';
-import { htmlTautanButir } from './tautan-butir.js?v=2026-11-10-b98a72';
-import { ISIAN_32, ISIAN_25, TINGKAT, FORM } from './form-karya.js?v=2026-11-10-b98a72';
+import { JENIS_BUKTI_KARYA, namaJenisBukti, JENIS_KARYA_PRIVAT, teksAksesBukti } from './rencana-bukti.js?v=2026-11-10-be8213';
+import { tautanBerkas, temuanPakai } from './tautan-privat.js?v=2026-11-10-be8213';
+import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-10-be8213';
+import { periksaBerkas, kolomSidik, teksTemuan } from './sidik-berkas.js?v=2026-11-10-be8213';
+import { pasangContoh, durasiKS } from './manfaat-kerjasama.js?v=2026-11-10-be8213';
+import { pasangMenu } from './menu.js?v=2026-11-10-be8213';
+import { pasangPrestasi } from './prestasi.js?v=2026-11-10-be8213';
+import { htmlSaran } from './saran-bukti.js?v=2026-11-10-be8213';
+import { pasangBkd } from './bkd.js?v=2026-11-10-be8213';
+import { htmlTautanButir } from './tautan-butir.js?v=2026-11-10-be8213';
+import { ISIAN_32, ISIAN_25, TINGKAT, FORM } from './form-karya.js?v=2026-11-10-be8213';
 import { barisKarya as htmlBarisKarya, muatBuktiKarya, daftarBuktiKarya as daftarBuktiDari,
   htmlDaftarBukti as htmlDaftarBuktiDari, berkasMilikKarya as berkasMilikDari,
-  pasangHapusBuktiAdmin } from './karya-tampil.js?v=2026-11-10-b98a72';
-import { hitungVerifikasi } from './verifikasi-hitung.js?v=2026-11-10-b98a72';
+  pasangHapusBuktiAdmin } from './karya-tampil.js?v=2026-11-10-be8213';
+import { hitungVerifikasi } from './verifikasi-hitung.js?v=2026-11-10-be8213';
+import { daftarDoi, ambilDoi, drafDari, rapiDoi } from './impor-karya.js?v=2026-11-10-be8213';
 
 const app = document.getElementById('app');
 if (!SUPABASE_URL || !SUPABASE_ANON_KEY
@@ -493,7 +501,9 @@ function tampilForm(key, ubah = null){
       <div id="dupBox"></div>
 
       <div class="aksi full">
-        <button class="btn" type="submit" id="sub">${ubah ? (ajuan ? 'Kirim ajuan' : 'Simpan perubahan') : 'Simpan'}</button>
+        <button class="btn" type="submit" id="sub">${ubah ? (ajuan ? 'Kirim ajuan'
+          : ubah.k.status === 'draf' ? 'Simpan dan ajukan' : 'Simpan perubahan') : 'Simpan'}</button>
+        ${ubah?.k.status === 'draf' ? '<button class="btn ghost" type="button" id="subDraf">Simpan draf</button>' : ''}
         ${ubah ? '<button class="btn ghost" type="button" id="batalUbah">Batal</button>' : ''}
         <span class="msg" id="fm"></span>
       </div>
@@ -512,6 +522,15 @@ function tampilForm(key, ubah = null){
     Promise.all(muat).then(() => isiUbah(key, ubah.k));
     document.getElementById('batalUbah').onclick = () => bukaTab('saya');
     document.getElementById('frm').onsubmit = e=>{ e.preventDefault(); simpanUbah(key, ubah); };
+    // Simpan draf: tanpa pemeriksaan isian wajib, tidak dikirim ke admin.
+    const sd = document.getElementById('subDraf');
+    if(sd) sd.onclick = () => simpanUbah(key, { ...ubah, tetapDraf: true });
+    if(ubah.k.sumber_sitasi) Promise.all(muat).then(() => {
+      const s = document.getElementById('f_jumlah_sitasi')?.parentElement.querySelector('.sub');
+      const nama = { openalex: 'OpenAlex', google_scholar: 'Google Scholar', scopus: 'Scopus', manual: 'diisi manual' };
+      if(s) s.insertAdjacentHTML('afterbegin', `<b>Angka saat ini: ${nama[ubah.k.sumber_sitasi] || ubah.k.sumber_sitasi}${
+        ubah.k.sitasi_diambil ? ', ' + esc(ubah.k.sitasi_diambil) : ''}.</b> `);
+    });
     return;
   }
   pasangUnggah();
@@ -1291,9 +1310,11 @@ function isiUbah(key, k){
   });
 }
 
-async function simpanUbah(key, { k, mode }){
+async function simpanUbah(key, { k, mode, tetapDraf }){
   const frm = document.getElementById('frm'), fm = document.getElementById('fm'),
         sub = document.getElementById('sub');
+  // Draf (41-patch-draf-karya.sql): "Simpan draf" tetap draf; tombol utama menyimpan lalu mengajukan.
+  const draf = k.status === 'draf', ajukan = draf && !tetapDraf;
   const gagal = t => { fm.className = 'msg err'; fm.textContent = t; };
   fm.className = 'msg'; fm.textContent = '';
 
@@ -1312,7 +1333,7 @@ async function simpanUbah(key, { k, mode }){
     return gagal('Ada institusi mitra yang belum ditekan "Tambah".');
   if(document.getElementById('mhs_nim')?.value.trim() || document.getElementById('mhs_nama')?.value.trim())
     return gagal('Ada mahasiswa yang belum ditekan "Tambah".');
-  if(!lanjutTanpaPayung(key, isi.induk_id)) return;
+  if((!draf || ajukan) && !lanjutTanpaPayung(key, isi.induk_id)) return;
   const alasan = (document.getElementById('f_alasan')?.value || '').trim();
   if(mode === 'ajuan' && !alasan) return gagal('Alasan perubahan wajib diisi.');
 
@@ -1347,7 +1368,7 @@ async function simpanUbah(key, { k, mode }){
     const kunciS = xs => xs.map(m => `${m.nim}|${m.nama}|${m.peran}|${!!m.korespondensi}`).sort().join(';');
     if(kunciS(mhsSementara) !== kunciS(sLama)){ data.mahasiswa = mhsSementara; lama.mahasiswa = sLama; }
   }
-  if(!Object.keys(data).length) return gagal('Tidak ada isian yang berubah.');
+  if(!Object.keys(data).length && !ajukan) return gagal('Tidak ada isian yang berubah.');
 
   const pertama = penulis.filter(r => r.peran === 'penulis_pertama' || r.peran === 'ketua').length;
   if(data.penulis && pertama > 1 && !confirm(
@@ -1355,15 +1376,26 @@ async function simpanUbah(key, { k, mode }){
       + 'Itu sah untuk co-first author, tetapi sering juga salah pilih. Lanjutkan?')) return;
 
   sub.disabled = true;
-  fm.textContent = mode === 'ajuan' ? 'Mengirim ajuan…' : 'Menyimpan…';
+  fm.textContent = mode === 'ajuan' ? 'Mengirim ajuan…' : ajukan ? 'Menyimpan dan mengajukan…' : 'Menyimpan…';
   try{
     const { error } = mode === 'ajuan'
       ? await sb.from('ajuan_ubah').insert({ jenis: 'karya', karya_id: k.id, data, lama,
                                              alasan, oleh: saya.id })
-      : await sb.rpc('ubah_karya', { k: k.id, d: data });
+      : Object.keys(data).length ? await sb.rpc('ubah_karya', { k: k.id, d: data }) : { error: null };
     if(error) throw error;
+    // Angka sitasi diganti dosen: sumbernya bukan lagi impor otomatis.
+    if(mode !== 'ajuan' && data.karya && 'jumlah_sitasi' in data.karya && k.sumber_sitasi){
+      await sb.from('karya').update({ sumber_sitasi: 'manual', sitasi_diambil: new Date().toISOString().slice(0, 10) })
+        .eq('id', k.id);
+    }
+    if(ajukan){
+      const { error: eA } = await sb.rpc('ajukan_karya', { k: k.id });
+      if(eA) throw eA;
+    }
     alert(mode === 'ajuan'
       ? 'Ajuan perubahan terkirim. Perubahan berlaku setelah disetujui admin prodi.'
+      : ajukan ? 'Karya diajukan dan menunggu verifikasi admin prodi.'
+      : draf ? 'Draf tersimpan. Belum dikirim ke admin; klik "Lengkapi & ajukan" bila sudah lengkap.'
       : 'Perubahan tersimpan. Karya kembali menunggu verifikasi admin prodi.');
     bukaTab('saya');
   }catch(err){
@@ -1386,6 +1418,8 @@ function aksiUbah(k){
   const h = tolak ? `<span class="tag" style="background:#F7E7E7;color:#8C2F2F" title="Alasan admin: ${
       esc(tolak.catatan_admin || '-')}">perubahan ditolak</span>
     <button class="btn ghost sm" data-ut="${tolak.id}" data-alasan="${esc(tolak.catatan_admin || '-')}">Lihat alasan</button>` : '';
+  if(k.status === 'draf')
+    return `<button class="btn sm" data-ubah="${k.id}" title="Draf belum dikirim ke admin">Lengkapi &amp; ajukan</button>`;
   return h + (k.dilaporkan_oleh === saya.id && k.status !== 'terverifikasi'
     ? `<button class="btn ghost sm" data-ubah="${k.id}">Ubah</button>`
     : `<button class="btn ghost sm" data-aju="${k.id}" title="Perubahan berlaku setelah disetujui admin">Ajukan perubahan</button>`);
@@ -1632,8 +1666,102 @@ function karyaSaya(){
     tiap karya bisa disalin dan ditempel ke SISTER/BKD; tautan folder membuka
     semua berkas di dalamnya.</p>
     <p><button type="button" class="btn ghost sm" id="salin-semua" hidden></button></p>
+    <details class="impor" id="impor"><summary><b>Impor publikasi</b> — dari DOI, menjadi draf</summary>
+      <p class="hint">Tempel satu DOI atau lebih (satu per baris). Data diambil dari OpenAlex dan disimpan
+      sebagai <b>draf</b>: hanya terlihat oleh Anda, belum dikirim ke admin. Lengkapi drafnya (tingkat,
+      indeksasi, payung penelitian, mitra, mahasiswa, bukti), lalu klik <b>Simpan dan ajukan</b>.
+      Sitasi diisi dari OpenAlex sebagai nilai awal (tahun kalender yang beririsan dengan TS-2 s.d. TS);
+      ganti dengan angka Google Scholar bila ada.</p>
+      <div class="fld"><textarea id="imp_doi" rows="3" placeholder="10.1016/j.contoh.2023.100302"></textarea></div>
+      <p><button type="button" class="btn sm" id="imp_cari">Cari</button> <span class="msg" id="imp_msg"></span></p>
+      <div id="imp_hasil"></div>
+    </details>
     <div id="dsaya" class="kosong">Memuat…</div></div>`;
+  pasangImpor();
   muatKaryaSaya('dsaya', null);
+}
+
+// ---------------------------------------------------------------------
+//  Impor publikasi menjadi draf (impor-karya.js; supabase/41-patch-draf-karya.sql).
+//  Pemilik 2026-11-10: draf hanya untuk penulisnya; diajukan setelah lengkap.
+// ---------------------------------------------------------------------
+function pasangImpor(){
+  const msg = document.getElementById('imp_msg'), hasil = document.getElementById('imp_hasil');
+  const hariIni = new Date().toISOString().slice(0, 10);
+  let calon = [];
+  const gambar = () => {
+    if(!calon.length){ hasil.innerHTML = ''; return; }
+    hasil.innerHTML = `<div class="gulir"><table class="rin"><thead><tr><th></th><th>Judul</th><th>Tahun</th>
+      <th>Jurnal / prosiding</th><th>Sitasi</th><th>Keterangan</th></tr></thead><tbody>${calon.map((c, i) => `<tr>
+        <td><input type="checkbox" data-imp="${i}" ${c.boleh ? '' : 'disabled'} ${c.boleh && c.pilih ? 'checked' : ''}></td>
+        <td>${esc(c.d?.karya.judul || c.doi)}</td><td>${c.d?.karya.tahun || ''}</td>
+        <td>${esc(c.d?.karya.nama_terbitan || '')}</td><td>${c.d ? c.d.karya.jumlah_sitasi : ''}</td>
+        <td>${c.ket}${c.klaim ? ` <button type="button" class="btn ghost sm" data-imp-klaim="${c.klaim}">Tambahkan saya sebagai penulis</button>` : ''}</td>
+      </tr>`).join('')}</tbody></table></div>
+      <p><button type="button" class="btn sm" id="imp_simpan">Jadikan draf</button></p>`;
+    hasil.querySelectorAll('[data-imp]').forEach(x => { x.onchange = () => { calon[+x.dataset.imp].pilih = x.checked; }; });
+    hasil.querySelectorAll('[data-imp-klaim]').forEach(b => { b.onclick = async () => {
+      b.disabled = true;
+      const { error } = await sb.from('karya_penulis').insert({ karya_id: b.dataset.impKlaim, dosen_id: saya.id,
+        peran: 'anggota', korespondensi: false, ditambahkan_sendiri: true });
+      if(error){ alert('Gagal: ' + error.message); b.disabled = false; return; }
+      b.replaceWith('Anda ditambahkan sebagai penulis; karya ini kini ada di Karya saya.');
+      muatKaryaSaya('dsaya', null);
+    }; });
+    document.getElementById('imp_simpan').onclick = simpanDraf;
+  };
+  // Karya yang sudah ada di situs (yang terlihat): DOI -> {id, penulis saya?}.
+  const karyaAda = async () => {
+    const { data } = await sb.from('karya').select('id,doi,status,karya_penulis(dosen_id)').eq('kategori', 'publikasi').limit(5000);
+    return new Map((data || []).filter(k => k.doi).map(k => [rapiDoi(k.doi),
+      { id: k.id, milik: (k.karya_penulis || []).some(p => p.dosen_id === saya.id) }]));
+  };
+  document.getElementById('imp_cari').onclick = async () => {
+    const dois = daftarDoi(document.getElementById('imp_doi').value);
+    if(!dois.length){ msg.className = 'msg err'; msg.textContent = 'Tidak ada DOI yang dikenali.'; return; }
+    msg.className = 'msg'; msg.textContent = `Mencari ${dois.length} DOI…`;
+    const ada = await karyaAda();
+    calon = [];
+    for(const doi of dois){
+      const sudah = ada.get(doi);
+      if(sudah){
+        calon.push({ doi, boleh: false, ket: sudah.milik ? 'Sudah ada di Karya saya.' : 'Sudah ada di situs (diinput rekan).',
+                     klaim: sudah.milik ? null : sudah.id });
+        continue;
+      }
+      try{
+        const w = await ambilDoi(doi);
+        if(!w){ calon.push({ doi, boleh: false, ket: 'Tidak ditemukan di OpenAlex; isi manual di tab Publikasi.' }); continue; }
+        const d = drafDari(w, { orcid: saya.orcid, hariIni });
+        calon.push({ doi, d, boleh: true, pilih: d.centang,
+          ket: (d.centang ? '' : `Jenis "${d.tipe || 'tanpa tahun'}" tidak dicentang bawaan. `)
+            + (d.penulis.dikenali ? '' : 'ORCID Anda tidak tercantum di data ini; periksa bahwa ini karya Anda.') });
+      }catch(e){ calon.push({ doi, boleh: false, ket: 'Gagal mengambil: ' + (e.message || e) }); }
+    }
+    msg.textContent = '';
+    gambar();
+  };
+  async function simpanDraf(){
+    const pilih = calon.filter(c => c.boleh && c.pilih && c.d);
+    if(!pilih.length){ msg.className = 'msg err'; msg.textContent = 'Belum ada yang dicentang.'; return; }
+    msg.className = 'msg'; msg.textContent = 'Menyimpan draf…';
+    let jadi = 0; const galat = [];
+    for(const c of pilih){
+      const { data: k, error } = await sb.from('karya').insert({ ...c.d.karya, dilaporkan_oleh: saya.id })
+        .select('id').single();
+      if(error){ galat.push(`${c.doi}: ${error.code === '23505'
+        ? 'DOI ini sudah dicatat dosen lain (mungkin masih draf). Minta rekan menambahkan Anda sebagai penulis.'
+        : error.message}`); continue; }
+      const { error: eP } = await sb.from('karya_penulis').insert({ karya_id: k.id, dosen_id: saya.id,
+        peran: c.d.penulis.peran, korespondensi: c.d.penulis.korespondensi, ditambahkan_sendiri: false });
+      if(eP){ await sb.from('karya').delete().eq('id', k.id); galat.push(`${c.doi}: ${eP.message}`); continue; }
+      jadi++; c.boleh = false; c.ket = 'Tersimpan sebagai draf.';
+    }
+    msg.className = galat.length ? 'msg err' : 'msg ok';
+    msg.textContent = `${jadi} draf tersimpan.` + (galat.length ? ' Gagal: ' + galat.join(' · ') : '');
+    gambar();
+    muatKaryaSaya('dsaya', null);
+  }
 }
 
 async function karyaProdi(){
@@ -1647,6 +1775,7 @@ async function karyaProdi(){
 
   const { data } = await sb.from('karya')
     .select('*, karya_penulis(dosen_id, peran, korespondensi, dosen(nama))')
+    .neq('status', 'draf')   // draf hanya di Karya saya (41-patch-draf-karya.sql)
     .order('tahun',{ascending:false}).limit(300);
   const semua = data || [];
   const admin = saya.peran === 'admin';

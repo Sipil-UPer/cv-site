@@ -2,11 +2,11 @@
 // ajuan perubahan, klaim penulis, dan publikasi/luaran tanpa payung. Dipindah dari tab Verifikasi di
 // input.html saat verifikasi dijadikan halaman tersendiri (pemilik 2026-11-08).
 
-import { buangSemua } from './hapus-berkas.js?v=2026-11-10-b98a72';
-import { JENIS_BUKTI_KS } from './manfaat-kerjasama.js?v=2026-11-10-b98a72';
-import { labelKolom } from './form-karya.js?v=2026-11-10-b98a72';
+import { buangSemua } from './hapus-berkas.js?v=2026-11-10-be8213';
+import { JENIS_BUKTI_KS } from './manfaat-kerjasama.js?v=2026-11-10-be8213';
+import { labelKolom } from './form-karya.js?v=2026-11-10-be8213';
 import { esc, rapi, barisKarya, muatBuktiKarya, daftarBuktiKarya, berkasMilikKarya,
-  htmlDaftarBukti } from './karya-tampil.js?v=2026-11-10-b98a72';
+  htmlDaftarBukti } from './karya-tampil.js?v=2026-11-10-be8213';
 
 const PILIH = '*, karya_penulis(peran, korespondensi, dosen(nama)), karya_mahasiswa(nim), karya_mitra(institusi)';
 
@@ -248,10 +248,10 @@ export async function pasangVerifikasiKarya(wadah, { sb, dosen }){
     const box = kotak('tp');
     const [{ data: tp, error }, { data: keg }] = await Promise.all([
       sb.from('karya').select('id,judul,tahun,kategori,status,karya_penulis(dosen_id,dosen(nama)),karya_mitra(institusi)')
-        .in('kategori', ['publikasi', 'luaran']).is('induk_id', null).neq('status', 'ditolak')
+        .in('kategori', ['publikasi', 'luaran']).is('induk_id', null).in('status', ['diajukan', 'terverifikasi'])
         .order('tahun', { ascending: false }),
       sb.from('karya').select('id,judul,tahun,kategori,status,karya_penulis(dosen_id)')
-        .in('kategori', ['penelitian', 'pkm']).neq('status', 'ditolak').order('tahun', { ascending: false }),
+        .in('kategori', ['penelitian', 'pkm']).in('status', ['diajukan', 'terverifikasi']).order('tahun', { ascending: false }),
     ]);
     if(error){ box.className = 'kosong'; box.textContent = 'Gagal memuat: ' + error.message; return; }
     if(!tp?.length){ box.className = 'kosong'; box.textContent = 'Semua publikasi dan luaran sudah punya payung.'; return; }
