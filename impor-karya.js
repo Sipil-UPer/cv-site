@@ -35,9 +35,20 @@ export const centangBawaan = w => !!w.publication_year && !BUKAN_PUBLIKASI.inclu
 // TS dinamai menurut tahun akhirnya; September ke atas masuk TS berikutnya.
 export const tsDari = hariIni => +hariIni.slice(0, 4) + (+hariIni.slice(5, 7) >= 9 ? 1 : 0);
 
-// Sitasi "tiga tahun terakhir" LKPS 4.i dari sitasi per tahun kalender: tahun
-// yang beririsan dengan TS-2 s.d. TS dihitung, yaitu dari tahun awal TS-2
-// sampai tahun akhir TS (empat tahun kalender; pemilik 2026-11-10).
+// Sitasi per tahun kalender (42-patch-sitasi-tahunan.sql). OpenAlex
+// counts_by_year mencakup sepuluh tahun terakhir dan tidak memuat tahun
+// bersitasi nol: tahun sejak terbit di dalam rentang itu diisi 0; tahun
+// yang lebih tua tidak diketahui dan dibiarkan kosong.
+export function sitasiTahunan(w, tahunIni) {
+  const ada = new Map((w.counts_by_year || []).map(c => [c.year, c.cited_by_count || 0]));
+  const awal = Math.max(w.publication_year || tahunIni, tahunIni - 9);
+  const out = [];
+  for (let t = awal; t <= tahunIni; t++) out.push({ tahun: t, jumlah: ada.get(t) || 0 });
+  return out;
+}
+
+// Sitasi "tiga tahun terakhir" LKPS 4.i: tahun kalender yang beririsan
+// dengan TS-2 s.d. TS (tahun awal TS-2 sampai tahun akhir TS; pemilik 2026-11-10).
 export function sitasi3(w, ts) {
   return (w.counts_by_year || []).filter(c => c.year >= ts - 3 && c.year <= ts)
     .reduce((n, c) => n + (c.cited_by_count || 0), 0);
@@ -64,8 +75,10 @@ export function drafDari(w, { orcid = '', hariIni }) {
       tahun: w.publication_year || null, bulan,
       nama_terbitan: w.primary_location?.source?.display_name || null,
       doi: doi || null, url: w.primary_location?.landing_page_url || (doi ? `https://doi.org/${doi}` : null),
-      jumlah_sitasi: sitasi3(w, ts), sumber_sitasi: 'openalex', sitasi_diambil: hariIni,
     },
+    // Baris karya_sitasi (sumber OpenAlex) dan jumlah untuk TS berjalan (pratinjau).
+    sitasi: sitasiTahunan(w, +hariIni.slice(0, 4)).map(r => ({ ...r, sumber: 'openalex', diambil: hariIni })),
+    sitasiTS: sitasi3(w, ts),
     penulis: peranDari(w, orcid),
     centang: centangBawaan(w),
     tipe: w.type || '',

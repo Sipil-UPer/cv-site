@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-10-be8213">
+<link rel="stylesheet" href="tema.css?v=2026-11-10-7efbdb">
 <style>
   :root{--bg:#EEF0ED; --ink:#161E26; --muted:#616C76; --line:#D8DDD8; --line-soft:#E8EBE7; --accent:var(--biru); --accent-soft:var(--biru-m7); --pending:#8A5A00; --pending-soft:#FAF0DC; --reject:#8C2F2F; --reject-soft:#F7E7E7;}
   *{box-sizing:border-box}
@@ -152,9 +152,14 @@
   .gulir{overflow-x:auto}
   table.rin{width:100%;border-collapse:collapse;font-size:13px;margin-top:6px}
   table.rin th,table.rin td{border-bottom:1px solid var(--line-soft);padding:5px 7px;text-align:left;vertical-align:top}
+  /* Sitasi per tahun (pemilik 2026-11-10) */
+  .sitasi-grid{display:flex;flex-wrap:wrap;gap:8px;margin:4px 0 6px}
+  .sitasi-sel{display:flex;flex-direction:column;align-items:center;font-family:var(--mono);font-size:12px;width:76px}
+  .sitasi-sel input{width:100%;text-align:center;margin:2px 0}
+  .sitasi-sel small{color:var(--muted);font-size:10.5px;font-family:var(--sans)}
   @media(max-width:640px){.grid{grid-template-columns:1fr}}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-10-be8213">
+<link rel="stylesheet" href="kepala.css?v=2026-11-10-7efbdb">
 </head>
 <body>
 
@@ -168,7 +173,7 @@
 
 <div class="wrap" id="app"></div>
 
-<script src="config.js?v=2026-11-10-be8213"></script>
+<script src="config.js?v=2026-11-10-7efbdb"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -192,22 +197,23 @@ const SUPABASE_URL = window.SB_URL;
 const SUPABASE_ANON_KEY = window.SB_KEY;
 
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { JENIS_BUKTI_KARYA, namaJenisBukti, JENIS_KARYA_PRIVAT, teksAksesBukti } from './rencana-bukti.js?v=2026-11-10-be8213';
-import { tautanBerkas, temuanPakai } from './tautan-privat.js?v=2026-11-10-be8213';
-import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-10-be8213';
-import { periksaBerkas, kolomSidik, teksTemuan } from './sidik-berkas.js?v=2026-11-10-be8213';
-import { pasangContoh, durasiKS } from './manfaat-kerjasama.js?v=2026-11-10-be8213';
-import { pasangMenu } from './menu.js?v=2026-11-10-be8213';
-import { pasangPrestasi } from './prestasi.js?v=2026-11-10-be8213';
-import { htmlSaran } from './saran-bukti.js?v=2026-11-10-be8213';
-import { pasangBkd } from './bkd.js?v=2026-11-10-be8213';
-import { htmlTautanButir } from './tautan-butir.js?v=2026-11-10-be8213';
-import { ISIAN_32, ISIAN_25, TINGKAT, FORM } from './form-karya.js?v=2026-11-10-be8213';
+import { JENIS_BUKTI_KARYA, namaJenisBukti, JENIS_KARYA_PRIVAT, teksAksesBukti } from './rencana-bukti.js?v=2026-11-10-7efbdb';
+import { tautanBerkas, temuanPakai } from './tautan-privat.js?v=2026-11-10-7efbdb';
+import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-10-7efbdb';
+import { periksaBerkas, kolomSidik, teksTemuan } from './sidik-berkas.js?v=2026-11-10-7efbdb';
+import { pasangContoh, durasiKS } from './manfaat-kerjasama.js?v=2026-11-10-7efbdb';
+import { pasangMenu } from './menu.js?v=2026-11-10-7efbdb';
+import { pasangPrestasi } from './prestasi.js?v=2026-11-10-7efbdb';
+import { htmlSaran } from './saran-bukti.js?v=2026-11-10-7efbdb';
+import { pasangBkd } from './bkd.js?v=2026-11-10-7efbdb';
+import { htmlTautanButir } from './tautan-butir.js?v=2026-11-10-7efbdb';
+import { ISIAN_32, ISIAN_25, TINGKAT, FORM } from './form-karya.js?v=2026-11-10-7efbdb';
 import { barisKarya as htmlBarisKarya, muatBuktiKarya, daftarBuktiKarya as daftarBuktiDari,
   htmlDaftarBukti as htmlDaftarBuktiDari, berkasMilikKarya as berkasMilikDari,
-  pasangHapusBuktiAdmin } from './karya-tampil.js?v=2026-11-10-be8213';
-import { hitungVerifikasi } from './verifikasi-hitung.js?v=2026-11-10-be8213';
-import { daftarDoi, ambilDoi, drafDari, rapiDoi } from './impor-karya.js?v=2026-11-10-be8213';
+  pasangHapusBuktiAdmin } from './karya-tampil.js?v=2026-11-10-7efbdb';
+import { hitungVerifikasi } from './verifikasi-hitung.js?v=2026-11-10-7efbdb';
+import { daftarDoi, ambilDoi, drafDari, rapiDoi, sitasiTahunan } from './impor-karya.js?v=2026-11-10-7efbdb';
+import { SUMBER_SITASI } from './sitasi.js?v=2026-11-10-7efbdb';
 
 const app = document.getElementById('app');
 if (!SUPABASE_URL || !SUPABASE_ANON_KEY
@@ -405,6 +411,7 @@ function tampilForm(key, ubah = null){
     ${htmlSaran(key)}
     <form id="frm" class="grid">
       ${F.f.map(fieldHTML).join('')}
+      ${key === 'publikasi' ? htmlSitasi() : ''}
 
       <div class="fld"><label for="f_peran">Posisi saya <span class="req">*</span></label>
         <select id="f_peran" required>${F.peran.map(([v,l])=>
@@ -494,9 +501,10 @@ function tampilForm(key, ubah = null){
           karya ini.</div></div>
 
       ${ajuan ? `<div class="fld full"><label for="f_alasan">Alasan perubahan <span class="req">*</span></label>
-        <input id="f_alasan" type="text" required autocomplete="off"
+        <input id="f_alasan" type="text" autocomplete="off"
                placeholder="Contoh: judul salah ketik; DOI baru terbit">
-        <div class="sub">Dibaca admin saat memutuskan ajuan.</div></div>` : ''}
+        <div class="sub">Dibaca admin saat memutuskan ajuan. Wajib bila mengubah isian selain sitasi;
+          sitasi per tahun langsung tersimpan tanpa ajuan.</div></div>` : ''}
 
       <div id="dupBox"></div>
 
@@ -519,21 +527,19 @@ function tampilForm(key, ubah = null){
   const muat = [isiInduk(), isiDaftarIntegrasi(), isiMataKuliah(), isiKerjasama(), siapkanIsian25(), siapkanIsian32()];
   pasangDurasiKS();
   if(ubah){
-    Promise.all(muat).then(() => isiUbah(key, ubah.k));
+    Promise.all(muat).then(() => {
+      isiUbah(key, ubah.k);
+      if(key === 'publikasi') pasangSitasi(ubah.k.karya_sitasi || []);   // setelah tahun terbit terisi
+    });
     document.getElementById('batalUbah').onclick = () => bukaTab('saya');
     document.getElementById('frm').onsubmit = e=>{ e.preventDefault(); simpanUbah(key, ubah); };
     // Simpan draf: tanpa pemeriksaan isian wajib, tidak dikirim ke admin.
     const sd = document.getElementById('subDraf');
     if(sd) sd.onclick = () => simpanUbah(key, { ...ubah, tetapDraf: true });
-    if(ubah.k.sumber_sitasi) Promise.all(muat).then(() => {
-      const s = document.getElementById('f_jumlah_sitasi')?.parentElement.querySelector('.sub');
-      const nama = { openalex: 'OpenAlex', google_scholar: 'Google Scholar', scopus: 'Scopus', manual: 'diisi manual' };
-      if(s) s.insertAdjacentHTML('afterbegin', `<b>Angka saat ini: ${nama[ubah.k.sumber_sitasi] || ubah.k.sumber_sitasi}${
-        ubah.k.sitasi_diambil ? ', ' + esc(ubah.k.sitasi_diambil) : ''}.</b> `);
-    });
     return;
   }
   pasangUnggah();
+  if(key === 'publikasi') pasangSitasi([]);
   document.getElementById('frm').onsubmit = e=>{ e.preventDefault(); simpan(key); };
   muatKaryaSaya('daftar', 6);
 }
@@ -1200,6 +1206,8 @@ async function simpan(key){
       if(eMt) throw eMt;
     }
 
+    if(key === 'publikasi') await simpanSitasi(k.id);   // sitasi per tahun (patch 42)
+
     // Berkas bukti dari antrean: satu baris karya_bukti per berkas.
     let catatanBukti = '';
     if(antreanBukti.length){
@@ -1245,10 +1253,12 @@ function kolomForm(key){
 }
 
 async function bukaUbah(id, mode){
-  const { data: k, error } = await sb.from('karya')
-    .select('*, karya_penulis(dosen_id, peran, korespondensi, dosen(nama)), '
-          + 'karya_mitra(institusi, tingkat, negara), karya_mahasiswa(nim, nama, peran, korespondensi)')
+  const PILIH_UBAH = '*, karya_penulis(dosen_id, peran, korespondensi, dosen(nama)), '
+          + 'karya_mitra(institusi, tingkat, negara), karya_mahasiswa(nim, nama, peran, korespondensi)';
+  // Sitasi per tahun (42-patch-sitasi-tahunan.sql); tanpa patch: dimuat tanpa tabel itu.
+  let { data: k, error } = await sb.from('karya').select(PILIH_UBAH + ', karya_sitasi(tahun, jumlah, sumber, diambil)')
     .eq('id', id).single();
+  if(error) ({ data: k, error } = await sb.from('karya').select(PILIH_UBAH).eq('id', id).single());
   if(error || !k){ alert('Karya tidak bisa dimuat: ' + (error?.message || 'tidak ditemukan')); return; }
   const key = KUNCI_FORM[k.kategori];
   if(!key){ alert('Kategori karya ini belum punya form ubah.'); return; }
@@ -1333,9 +1343,7 @@ async function simpanUbah(key, { k, mode, tetapDraf }){
     return gagal('Ada institusi mitra yang belum ditekan "Tambah".');
   if(document.getElementById('mhs_nim')?.value.trim() || document.getElementById('mhs_nama')?.value.trim())
     return gagal('Ada mahasiswa yang belum ditekan "Tambah".');
-  if((!draf || ajukan) && !lanjutTanpaPayung(key, isi.induk_id)) return;
   const alasan = (document.getElementById('f_alasan')?.value || '').trim();
-  if(mode === 'ajuan' && !alasan) return gagal('Alasan perubahan wajib diisi.');
 
   // Hanya yang berubah. Angka dari basis data dibandingkan sebagai teks.
   const sama = (a, b) => String(a ?? '') === String(b ?? '');
@@ -1368,7 +1376,12 @@ async function simpanUbah(key, { k, mode, tetapDraf }){
     const kunciS = xs => xs.map(m => `${m.nim}|${m.nama}|${m.peran}|${!!m.korespondensi}`).sort().join(';');
     if(kunciS(mhsSementara) !== kunciS(sLama)){ data.mahasiswa = mhsSementara; lama.mahasiswa = sLama; }
   }
-  if(!Object.keys(data).length && !ajukan) return gagal('Tidak ada isian yang berubah.');
+  // Sitasi per tahun disimpan langsung, juga pada karya terverifikasi (pemilik 2026-11-10).
+  const adaData = Object.keys(data).length > 0, adaSitasi = adaUbahSitasi();
+  if(!adaData && !adaSitasi && !ajukan) return gagal('Tidak ada isian yang berubah.');
+  if(mode === 'ajuan' && adaData && !alasan) return gagal('Alasan perubahan wajib diisi.');
+  // Konfirmasi payung hanya bila isian karya berubah atau draf diajukan, bukan saat memperbarui sitasi saja.
+  if((adaData || ajukan) && (!draf || ajukan) && !lanjutTanpaPayung(key, isi.induk_id)) return;
 
   const pertama = penulis.filter(r => r.peran === 'penulis_pertama' || r.peran === 'ketua').length;
   if(data.penulis && pertama > 1 && !confirm(
@@ -1378,22 +1391,21 @@ async function simpanUbah(key, { k, mode, tetapDraf }){
   sub.disabled = true;
   fm.textContent = mode === 'ajuan' ? 'Mengirim ajuan…' : ajukan ? 'Menyimpan dan mengajukan…' : 'Menyimpan…';
   try{
-    const { error } = mode === 'ajuan'
+    const { error } = !adaData ? { error: null }
+      : mode === 'ajuan'
       ? await sb.from('ajuan_ubah').insert({ jenis: 'karya', karya_id: k.id, data, lama,
                                              alasan, oleh: saya.id })
-      : Object.keys(data).length ? await sb.rpc('ubah_karya', { k: k.id, d: data }) : { error: null };
+      : await sb.rpc('ubah_karya', { k: k.id, d: data });
     if(error) throw error;
-    // Angka sitasi diganti dosen: sumbernya bukan lagi impor otomatis.
-    if(mode !== 'ajuan' && data.karya && 'jumlah_sitasi' in data.karya && k.sumber_sitasi){
-      await sb.from('karya').update({ sumber_sitasi: 'manual', sitasi_diambil: new Date().toISOString().slice(0, 10) })
-        .eq('id', k.id);
-    }
+    if(adaSitasi) await simpanSitasi(k.id);
     if(ajukan){
       const { error: eA } = await sb.rpc('ajukan_karya', { k: k.id });
       if(eA) throw eA;
     }
-    alert(mode === 'ajuan'
+    alert(!adaData && !ajukan ? 'Sitasi tersimpan.'
+      : mode === 'ajuan'
       ? 'Ajuan perubahan terkirim. Perubahan berlaku setelah disetujui admin prodi.'
+        + (adaSitasi ? ' Sitasi per tahun langsung tersimpan.' : '')
       : ajukan ? 'Karya diajukan dan menunggu verifikasi admin prodi.'
       : draf ? 'Draf tersimpan. Belum dikirim ke admin; klik "Lengkapi & ajukan" bila sudah lengkap.'
       : 'Perubahan tersimpan. Karya kembali menunggu verifikasi admin prodi.');
@@ -1670,8 +1682,8 @@ function karyaSaya(){
       <p class="hint">Tempel satu DOI atau lebih (satu per baris). Data diambil dari OpenAlex dan disimpan
       sebagai <b>draf</b>: hanya terlihat oleh Anda, belum dikirim ke admin. Lengkapi drafnya (tingkat,
       indeksasi, payung penelitian, mitra, mahasiswa, bukti), lalu klik <b>Simpan dan ajukan</b>.
-      Sitasi diisi dari OpenAlex sebagai nilai awal (tahun kalender yang beririsan dengan TS-2 s.d. TS);
-      ganti dengan angka Google Scholar bila ada.</p>
+      Sitasi per tahun diisi dari OpenAlex sebagai nilai awal (kolom Sitasi di bawah = tahun kalender yang
+      beririsan dengan TS-2 s.d. TS); ganti dengan angka Google Scholar bila ada.</p>
       <div class="fld"><textarea id="imp_doi" rows="3" placeholder="10.1016/j.contoh.2023.100302"></textarea></div>
       <p><button type="button" class="btn sm" id="imp_cari">Cari</button> <span class="msg" id="imp_msg"></span></p>
       <div id="imp_hasil"></div>
@@ -1679,6 +1691,86 @@ function karyaSaya(){
     <div id="dsaya" class="kosong">Memuat…</div></div>`;
   pasangImpor();
   muatKaryaSaya('dsaya', null);
+}
+
+// ---------------------------------------------------------------------
+//  Sitasi per tahun (supabase/42-patch-sitasi-tahunan.sql, pemilik 2026-11-10):
+//  satu kotak per tahun kalender sejak tahun terbit. Disimpan langsung, juga
+//  pada karya terverifikasi (tanpa ajuan). Tarik dari OpenAlex tidak menimpa
+//  angka yang diisi dosen.
+// ---------------------------------------------------------------------
+let sitasiSementara = new Map();   // tahun -> {jumlah, sumber, diambil, ubah}
+const hariIniTeks = () => new Date().toISOString().slice(0, 10);
+
+function htmlSitasi(){
+  return `<div class="fld full" id="sitasi_fld"><label>Sitasi per tahun</label>
+    <div class="sitasi-grid" id="sitasi_grid"></div>
+    <div class="sub">Jumlah sitasi yang <b>diterima</b> artikel ini pada tiap tahun kalender. LKPS 4.i (sitasi tiga
+      tahun terakhir, hanya jurnal/prosiding terindeks <b>Scopus atau WoS</b>) dihitung situs dari tahun yang beririsan
+      dengan TS-2 s.d. TS. Kolom LKPS meminta angka <b>Google Scholar</b>: salin batang grafik sitasi per tahun dari
+      halaman artikel. Angka bisa diubah kapan saja, juga setelah karya terverifikasi; tahun berjalan diperbarui tiap tahun.
+      <br><button type="button" class="btn ghost sm" id="sitasi_tarik">Tarik dari OpenAlex</button>
+      <span class="msg" id="sitasi_msg"></span></div></div>`;
+}
+
+function pasangSitasi(awal){
+  sitasiSementara = new Map((awal || []).map(r => [+r.tahun, { jumlah: r.jumlah, sumber: r.sumber, diambil: r.diambil, ubah: false }]));
+  const grid = document.getElementById('sitasi_grid');
+  if(!grid) return;
+  const tahunIni = new Date().getFullYear();
+  const gambar = () => {
+    const terbit = +document.getElementById('f_tahun')?.value || tahunIni;
+    const dari = Math.min(terbit, ...[...sitasiSementara.keys()]);
+    const tahun = [];
+    for(let t = Math.min(dari, tahunIni); t <= tahunIni; t++) tahun.push(t);
+    grid.innerHTML = tahun.map(t => { const s = sitasiSementara.get(t);
+      return `<label class="sitasi-sel">${t}<input type="number" min="0" step="1" data-st="${t}" value="${s ? s.jumlah : ''}">
+        <small>${s ? esc(SUMBER_SITASI[s.sumber] || s.sumber) : '&nbsp;'}</small></label>`; }).join('');
+    grid.querySelectorAll('[data-st]').forEach(x => { x.oninput = () => {
+      sitasiSementara.set(+x.dataset.st, { jumlah: x.value, sumber: 'manual', diambil: hariIniTeks(), ubah: true });
+      x.nextElementSibling.textContent = 'manual';
+    }; });
+  };
+  gambar();
+  document.getElementById('f_tahun')?.addEventListener('change', gambar);
+  const msg = document.getElementById('sitasi_msg');
+  document.getElementById('sitasi_tarik').onclick = async () => {
+    const doi = rapiDoi(document.querySelector('#frm [name=doi]')?.value);
+    if(!doi){ msg.className = 'msg err'; msg.textContent = 'Isi DOI dulu.'; return; }
+    msg.className = 'msg'; msg.textContent = 'Menarik dari OpenAlex…';
+    try{
+      const w = await ambilDoi(doi);
+      if(!w){ msg.className = 'msg err'; msg.textContent = 'DOI tidak ditemukan di OpenAlex.'; return; }
+      let n = 0;
+      sitasiTahunan(w, tahunIni).forEach(r => {
+        const s = sitasiSementara.get(r.tahun);
+        if(s && s.sumber !== 'openalex') return;           // angka isian dosen tidak ditimpa
+        sitasiSementara.set(r.tahun, { jumlah: r.jumlah, sumber: 'openalex', diambil: hariIniTeks(), ubah: true }); n++;
+      });
+      gambar();
+      msg.className = 'msg ok'; msg.textContent = `${n} tahun diisi dari OpenAlex; angka yang Anda isi sendiri tidak diubah. Klik Simpan.`;
+    }catch(e){ msg.className = 'msg err'; msg.textContent = 'Gagal: ' + (e.message || e); }
+  };
+}
+
+const adaUbahSitasi = () => [...sitasiSementara.values()].some(s => s.ubah);
+
+// Simpan perubahan sitasi karya ini: kotak kosong = baris dihapus.
+async function simpanSitasi(karyaId){
+  const ubah = [...sitasiSementara.entries()].filter(([, s]) => s.ubah);
+  if(!ubah.length) return;
+  const hapus = ubah.filter(([, s]) => s.jumlah === '' || s.jumlah == null).map(([t]) => t);
+  const isi = ubah.filter(([, s]) => s.jumlah !== '' && s.jumlah != null)
+    .map(([t, s]) => ({ karya_id: karyaId, tahun: t, jumlah: Math.max(0, Math.round(+s.jumlah)), sumber: s.sumber, diambil: s.diambil }));
+  if(hapus.length){
+    const { error } = await sb.from('karya_sitasi').delete().eq('karya_id', karyaId).in('tahun', hapus);
+    if(error) throw new Error('Sitasi gagal disimpan: ' + error.message);
+  }
+  if(isi.length){
+    const { error } = await sb.from('karya_sitasi').upsert(isi, { onConflict: 'karya_id,tahun' });
+    if(error) throw new Error('Sitasi gagal disimpan: ' + error.message);
+  }
+  ubah.forEach(([, s]) => { s.ubah = false; });
 }
 
 // ---------------------------------------------------------------------
@@ -1695,7 +1787,7 @@ function pasangImpor(){
       <th>Jurnal / prosiding</th><th>Sitasi</th><th>Keterangan</th></tr></thead><tbody>${calon.map((c, i) => `<tr>
         <td><input type="checkbox" data-imp="${i}" ${c.boleh ? '' : 'disabled'} ${c.boleh && c.pilih ? 'checked' : ''}></td>
         <td>${esc(c.d?.karya.judul || c.doi)}</td><td>${c.d?.karya.tahun || ''}</td>
-        <td>${esc(c.d?.karya.nama_terbitan || '')}</td><td>${c.d ? c.d.karya.jumlah_sitasi : ''}</td>
+        <td>${esc(c.d?.karya.nama_terbitan || '')}</td><td>${c.d ? c.d.sitasiTS : ''}</td>
         <td>${c.ket}${c.klaim ? ` <button type="button" class="btn ghost sm" data-imp-klaim="${c.klaim}">Tambahkan saya sebagai penulis</button>` : ''}</td>
       </tr>`).join('')}</tbody></table></div>
       <p><button type="button" class="btn sm" id="imp_simpan">Jadikan draf</button></p>`;
@@ -1755,6 +1847,11 @@ function pasangImpor(){
       const { error: eP } = await sb.from('karya_penulis').insert({ karya_id: k.id, dosen_id: saya.id,
         peran: c.d.penulis.peran, korespondensi: c.d.penulis.korespondensi, ditambahkan_sendiri: false });
       if(eP){ await sb.from('karya').delete().eq('id', k.id); galat.push(`${c.doi}: ${eP.message}`); continue; }
+      // Sitasi per tahun dari OpenAlex (42-patch-sitasi-tahunan.sql); gagal di sini tidak membatalkan draf.
+      if(c.d.sitasi.length){
+        const { error: eS } = await sb.from('karya_sitasi').insert(c.d.sitasi.map(r => ({ karya_id: k.id, ...r })));
+        if(eS) galat.push(`${c.doi}: draf tersimpan, sitasi tidak (${eS.message})`);
+      }
       jadi++; c.boleh = false; c.ket = 'Tersimpan sebagai draf.';
     }
     msg.className = galat.length ? 'msg err' : 'msg ok';

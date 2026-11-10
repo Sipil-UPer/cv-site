@@ -9,9 +9,10 @@
    Tautan di dalam teks memakai token ⟦url|label⟧; auto() di led.js
    mengubahnya menjadi hyperlink Word.
    ===================================================================== */
-import { versiUntukTS } from './pustaka-dokumen.js?v=2026-11-10-be8213';
-import { infoJenis, JENIS_DOKUMEN, kelompokDokumen, buktiButir, saranDokumen } from './rencana-bukti.js?v=2026-11-10-be8213';
-import { teksPendidikan } from './profil-dosen.js?v=2026-11-10-be8213';
+import { versiUntukTS } from './pustaka-dokumen.js?v=2026-11-10-7efbdb';
+import { infoJenis, JENIS_DOKUMEN, kelompokDokumen, buktiButir, saranDokumen } from './rencana-bukti.js?v=2026-11-10-7efbdb';
+import { teksPendidikan } from './profil-dosen.js?v=2026-11-10-7efbdb';
+import { karya4i } from './sitasi.js?v=2026-11-10-7efbdb';
 
 export const tokenTautan = (url, label) => `⟦${url}|${String(label).replace(/[⟦⟧|]/g, ' ')}⟧`;
 const isi = t => `[isi: ${t}]`;
@@ -243,9 +244,7 @@ export function tabelPenjelas(no, C){
       (X.tendik || []).filter(t => t.aktif !== false).map(t => [t.nama, TENDIK[t.jabatan] || t.jabatan || '—',
         String(t.pendidikan || '—').toUpperCase(), t.sertifikat || '—', String(t.unit_kerja || '—').toUpperCase()]), 'pada Tabel 4.b LKPS');
     case '36': return buat('Karya ilmiah DTPS yang disitasi', ['No', 'Judul', 'Tahun', 'Sitasi 3 tahun terakhir'],
-      (X.karya || []).filter(k => k.kategori === 'publikasi' && +k.jumlah_sitasi > 0 && ['jurnal', 'prosiding'].includes(k.jenis)
-          && /^(scopus|wos)/.test(k.indeksasi || '') && k.relevan_visi !== false)
-        .sort((a, b) => +b.jumlah_sitasi - +a.jumlah_sitasi).map(k => [k.judul, String(k.tahun), String(k.jumlah_sitasi)]), 'pada Tabel 4.i LKPS');
+      karya4i(X.karya, ts).map(({ k, n }) => [k.judul, String(k.tahun), String(n)]), 'pada Tabel 4.i LKPS');
     case '38': return buat('Prasarana dan peralatan utama', ['No', 'Prasarana', 'Jumlah', 'Alat', 'Dimiliki/standar', 'Kondisi'],
       (X.prasarana || []).map(r => [r.prasarana, String(r.jumlah_prasarana ?? '—'), r.alat || '—',
         `${r.jumlah_dimiliki ?? '—'}/${r.jumlah_standar ?? '—'}`, String(r.kondisi || '—').replace(/_/g, ' ')]), 'pada Tabel 5.a LKPS');

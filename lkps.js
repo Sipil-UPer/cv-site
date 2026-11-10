@@ -15,9 +15,10 @@
    angka yang sama dengan halaman skor. Lembar lain dibiarkan untuk diisi
    prodi; kolom yang tidak disimpan situs (mis. pita waktu tunggu) kosong.
    ===================================================================== */
-import { versiUntukTS, daftarProdi, STATUS_PS, tglTeks } from './pustaka-dokumen.js?v=2026-11-10-be8213';
-import { teksPendidikan } from './profil-dosen.js?v=2026-11-10-be8213';
-import { barisKerjaSama } from './kerjasama-karya.js?v=2026-11-10-be8213';
+import { versiUntukTS, daftarProdi, STATUS_PS, tglTeks } from './pustaka-dokumen.js?v=2026-11-10-7efbdb';
+import { teksPendidikan } from './profil-dosen.js?v=2026-11-10-7efbdb';
+import { barisKerjaSama } from './kerjasama-karya.js?v=2026-11-10-7efbdb';
+import { karya4i } from './sitasi.js?v=2026-11-10-7efbdb';
 
 const TEMPLATE = 'lkps-template.xlsx';
 export const JSZIP = 'https://cdn.jsdelivr.net/npm/jszip@3.10.1/+esm';
@@ -515,14 +516,13 @@ export function petaDaftar(C){
     const u = p.find(x => x.peran === 'penulis_pertama' || x.peran === 'ketua') || p.find(x => x.korespondensi) || p[0];
     return u ? u.dosen.nama : '';
   };
-  (X.karya || []).filter(k => k.status === 'terverifikasi' && k.kategori === 'publikasi' && +k.jumlah_sitasi > 0
-      && ['jurnal', 'prosiding'].includes(k.jenis) && /^(scopus|wos)/.test(k.indeksasi || '') && k.relevan_visi !== false)
-    .sort((a, b) => (+b.jumlah_sitasi - +a.jumlah_sitasi) || urut(a, b))
-    .forEach((k, i) => {
+  // Sitasi untuk TS ini dari sitasi per tahun (sitasi.js, pemilik 2026-11-10).
+  karya4i((X.karya || []).filter(k => k.status === 'terverifikasi'), ts)
+    .forEach(({ k, n }, i) => {
       const r = 6 + i;
       set('4i', `B${r}`, penulisDTPS(k));
       set('4i', `C${r}`, [k.judul, k.nama_terbitan, k.tahun].filter(Boolean).join(', ') + (k.doi ? `. DOI: ${k.doi}` : ''));
-      set('4i', `D${r}`, +k.jumlah_sitasi);
+      set('4i', `D${r}`, n);
     });
 
   // 4.h kinerja DTPS: jurnal/prosiding internasional terindeks Scopus/WoS dan paten,

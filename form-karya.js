@@ -1,7 +1,7 @@
 // Definisi formulir karya dosen (FORM) dan isiannya. Dipindah dari input.html
 // supaya verifikasi.html memakai label isian yang sama (pemilik 2026-11-08).
 
-import { htmlContoh, JENIS_BUKTI_KS } from './manfaat-kerjasama.js?v=2026-11-10-be8213';
+import { htmlContoh, JENIS_BUKTI_KS } from './manfaat-kerjasama.js?v=2026-11-10-7efbdb';
 
 const rapi = s => s ? String(s).replace(/_/g,' ') : '';
 
@@ -46,6 +46,8 @@ export const F_BUKTI_KS = {n:'jenis_bukti_ks', l:'Bukti kerja sama', t:'select',
 // dengan daftar pilihan templat LKPS. Dibuang dari form bila kolomnya
 // belum ada (siapkanIsian25), supaya simpan tidak gagal.
 export const ISIAN_25 = ['jumlah_sitasi', 'tema_id', 'keterlibatan_mhs', 'tkt', 'nomor_tkt', 'bukti_integrasi', 'sesuai_rps'];
+// Sejak 42-patch-sitasi-tahunan.sql (pemilik 2026-11-10) formulir memakai sitasi
+// per tahun; isian total ini tidak lagi ditampilkan, angkanya jadi cadangan.
 export const F_SITASI = {n:'jumlah_sitasi', l:'Jumlah sitasi (3 tahun terakhir)', t:'number', ph:'0',
   // Tafsiran 4.i (pemilik 2026-11-04): artikel tahun berapa pun, yang dihitung
   // sitasi yang DITERIMA dalam tiga tahun terakhir (TS-2 s.d. TS).
@@ -102,7 +104,7 @@ export const FORM = {
         ['wos','Web of Science'],['sinta_1_2','SINTA 1–2'],['sinta_3_4','SINTA 3–4'],
         ['sinta_5_6','SINTA 5–6'],['tidak_terindeks','Tidak terindeks']]},
       {n:'doi', l:'DOI', t:'text', ph:'10.1016/j.jhydrol.2025.132000'},
-      F_SITASI,
+      // Sitasi: kotak per tahun di input.html (htmlSitasi), bukan F_SITASI (pemilik 2026-11-10).
       {n:'url', l:'Tautan', t:'url', full:1, ph:'https://'},
     ]
   },

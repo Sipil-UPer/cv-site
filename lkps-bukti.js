@@ -8,10 +8,11 @@
    Data prodi (lkps_bukti, tautan_bukti), dan dokumen pustaka sesuai tabelnya.
    Pemilihan baris mengikuti lkps.js petaDaftar (jendela TS, kategori karya).
    ===================================================================== */
-import { versiUntukTS } from './pustaka-dokumen.js?v=2026-11-10-be8213';
-import { JSZIP } from './lkps.js?v=2026-11-10-be8213';
-import { labelDokumenLED } from './led-isi.js?v=2026-11-10-be8213';
-import { barisKerjaSama } from './kerjasama-karya.js?v=2026-11-10-be8213';
+import { versiUntukTS } from './pustaka-dokumen.js?v=2026-11-10-7efbdb';
+import { JSZIP } from './lkps.js?v=2026-11-10-7efbdb';
+import { labelDokumenLED } from './led-isi.js?v=2026-11-10-7efbdb';
+import { barisKerjaSama } from './kerjasama-karya.js?v=2026-11-10-7efbdb';
+import { karya4i } from './sitasi.js?v=2026-11-10-7efbdb';
 
 const OUTLINE = 'lkps-outline.json';
 const DOCX = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
@@ -104,8 +105,7 @@ export function indeksBukti(C, wajib){
     '3a3': () => itemKarya(karya.filter(k => k.kategori === 'integrasi')),
     '3b': () => itemKarya(karya.filter(k => k.kategori === 'penelitian')), '3c': () => itemKarya(karya.filter(k => k.kategori === 'pkm')),
     '4d': () => itemKarya(karya.filter(k => k.kategori === 'publikasi')), '4h': () => itemKarya(karya.filter(unggul)),
-    '4i': () => itemKarya((X.karya || []).filter(k => k.kategori === 'publikasi' && +k.jumlah_sitasi > 0 && ['jurnal', 'prosiding'].includes(k.jenis)
-      && /^(scopus|wos)/.test(k.indeksasi || '') && k.relevan_visi !== false)),
+    '4i': () => itemKarya(karya4i(X.karya, ts).map(x => x.k)),
     '4j': () => itemKarya(karya.filter(k => k.kategori === 'rekognisi')),
     '6c1': () => prestasi('akademik'), '6c2': () => prestasi('non'),
     '6h1': () => itemKarya(karya.filter(k => k.kategori === 'penelitian' && (k.karya_mahasiswa || []).length)),

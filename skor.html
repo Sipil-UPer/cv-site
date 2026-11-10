@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-10-be8213">
+<link rel="stylesheet" href="tema.css?v=2026-11-10-7efbdb">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
@@ -285,7 +285,7 @@
   :focus-visible{outline:2px solid var(--biru-2);outline-offset:1px}
   @media(prefers-reduced-motion:reduce){.kartu{transition:none}.kartu:hover{transform:none}}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-10-be8213">
+<link rel="stylesheet" href="kepala.css?v=2026-11-10-7efbdb">
 </head>
 <body>
 
@@ -350,7 +350,7 @@ setTimeout(function(){
   });
 }, 8000);
 </script>
-<script src="config.js?v=2026-11-10-be8213"></script>
+<script src="config.js?v=2026-11-10-7efbdb"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -367,21 +367,21 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { BUTIR, isiPetaBukti, cariBukti, daftarBukti, kolomBukti } from './rincian.js?v=2026-11-10-be8213';
+import { BUTIR, isiPetaBukti, cariBukti, daftarBukti, kolomBukti } from './rincian.js?v=2026-11-10-7efbdb';
 import { BUTIR_MANUAL, SEKSI_MANUAL, kunciButir, kunciBuktiButir, skorManual, tkKepuasan }
-  from './butir-manual.js?v=2026-11-10-be8213';
-import { BOBOT_TOTAL, bobotButir } from './bobot.js?v=2026-11-10-be8213';
-import { ambilDaftarLKPS } from './data-lkps.js?v=2026-11-10-be8213';
-import { ambilNarasi } from './led-narasi.js?v=2026-11-10-be8213';
-import { cekPitaWT, adaTingkat, sesuaiTracer } from './tracer-skor.js?v=2026-11-10-be8213';
-import { htmlRencana, buktiButir } from './rencana-bukti.js?v=2026-11-10-be8213';
-import { htmlPanel, pasangPanel } from './panel-bukti.js?v=2026-11-10-be8213';
-import { pasangMenu } from './menu.js?v=2026-11-10-be8213';
-import { bukaLKD } from './bkd.js?v=2026-11-10-be8213';
-import { dataButir, pendukungButir, ambilDataButir, htmlTabelData } from './data-butir.js?v=2026-11-10-be8213';
-import { TAB_DATA } from './kelengkapan.js?v=2026-11-10-be8213';
+  from './butir-manual.js?v=2026-11-10-7efbdb';
+import { BOBOT_TOTAL, bobotButir } from './bobot.js?v=2026-11-10-7efbdb';
+import { ambilDaftarLKPS } from './data-lkps.js?v=2026-11-10-7efbdb';
+import { ambilNarasi } from './led-narasi.js?v=2026-11-10-7efbdb';
+import { cekPitaWT, adaTingkat, sesuaiTracer } from './tracer-skor.js?v=2026-11-10-7efbdb';
+import { htmlRencana, buktiButir } from './rencana-bukti.js?v=2026-11-10-7efbdb';
+import { htmlPanel, pasangPanel } from './panel-bukti.js?v=2026-11-10-7efbdb';
+import { pasangMenu } from './menu.js?v=2026-11-10-7efbdb';
+import { bukaLKD } from './bkd.js?v=2026-11-10-7efbdb';
+import { dataButir, pendukungButir, ambilDataButir, htmlTabelData } from './data-butir.js?v=2026-11-10-7efbdb';
+import { TAB_DATA } from './kelengkapan.js?v=2026-11-10-7efbdb';
 import { statusSyarat, syaratButir, SYARAT_UNGGUL, SYARAT_RERATA, SASARAN,
-         statusRerata, gabungSyarat, statusRentang } from './syarat-unggul.js?v=2026-11-10-be8213';
+         statusRerata, gabungSyarat, statusRentang } from './syarat-unggul.js?v=2026-11-10-7efbdb';
 
 // config.js mendefinisikan window.SB_URL dan window.SB_KEY — pemetaan di
 // bawah ini WAJIB ada. skor.html versi sebelumnya melewatkannya dan mati
@@ -405,7 +405,7 @@ const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 // Naikkan setiap kali skor.html / rincian.js / butir-manual.js / bobot.js
 // diubah. Ditampilkan di kaki halaman supaya ketahuan seketika kalau
 // peramban masih memakai salinan lama dari cache.
-const VERSI = '2026-11-10-be8213';
+const VERSI = '2026-11-10-7efbdb';
 // Label versi di judul diisi dari VERSI supaya keduanya tidak bisa berbeda.
 { const el = document.querySelector('.versi-statis'); if (el) el.textContent = 'v' + VERSI; }
 // =====================================================================
@@ -518,8 +518,8 @@ async function unduhLKPS(idTombol){
     // Hanya tertulis di berkas unduhan, tidak disimpan di situs (pemilik 2026-11-06).
     const sandiLkd = idTombol === 'unduhIndeksBukti' ? (prompt('Kata sandi berkas privat yang ditulis di indeks untuk asesor '
       + '(sama dengan LKD_SANDI di Apps Script). Kosongkan bila diberikan terpisah:') || '').trim() : '';
-    const buat = idTombol === 'unduhIndeksBukti' ? (await import('./lkps-bukti.js?v=2026-11-10-be8213')).buatIndeksBukti
-      : (await import('./lkps-tabel.js?v=2026-11-10-be8213')).buatTabelLKPS;
+    const buat = idTombol === 'unduhIndeksBukti' ? (await import('./lkps-bukti.js?v=2026-11-10-7efbdb')).buatIndeksBukti
+      : (await import('./lkps-tabel.js?v=2026-11-10-7efbdb')).buatTabelLKPS;
     const hasil = await buat({ D, ts, prodi: D.prodi, institusi: D.institusi, rencanaKepuasan,
       daftar, sandiLkd });
     a.textContent = idTombol === 'unduhIndeksBukti' ? `Indeks terunduh (${hasil.sel} tautan, ${hasil.lembar.length} tabel)`
@@ -543,7 +543,7 @@ async function unduhLED(){
   const asli = a.textContent;
   a.textContent = 'Menyusun draf LED…';
   try {
-    const { buatLED } = await import('./led.js?v=2026-11-10-be8213');
+    const { buatLED } = await import('./led.js?v=2026-11-10-7efbdb');
     const ts = CTX_LED.tsData;
     const hasil = await buatLED({
       D, ts, taDari, f2, versi: VERSI,

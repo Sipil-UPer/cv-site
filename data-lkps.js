@@ -30,7 +30,11 @@ export async function ambilDaftarLKPS(sb){
   const KARYA_32 = ',manfaat_ks,mulai_ks,selesai_ks,jenis_bukti_ks';
   const ambilKarya = async () => {
     const q = kol => sb.from('karya').select(kol).eq('status', 'terverifikasi').limit(5000);
-    for (const kol of [KARYA_DASAR + ',kerjasama_id' + KARYA_25 + KARYA_32, KARYA_DASAR + ',kerjasama_id' + KARYA_25, KARYA_DASAR + ',kerjasama_id']) {
+    // Sitasi per tahun (42-patch-sitasi-tahunan.sql); tanpa patch: tanpa tabel itu.
+    const SITASI = ',karya_sitasi(tahun,jumlah,sumber)';
+    for (const kol of [KARYA_DASAR + ',kerjasama_id' + KARYA_25 + KARYA_32 + SITASI,
+                       KARYA_DASAR + ',kerjasama_id' + KARYA_25 + KARYA_32,
+                       KARYA_DASAR + ',kerjasama_id' + KARYA_25, KARYA_DASAR + ',kerjasama_id']) {
       const { data, error } = await q(kol);
       if (!error) return data || [];
     }
