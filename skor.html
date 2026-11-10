@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-10-3ece7c">
+<link rel="stylesheet" href="tema.css?v=2026-11-10-19f94a">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
@@ -80,6 +80,7 @@
   .pb-tu td,.pb-tu th,.tu td,.tu th{border-bottom:1px solid var(--line-soft);padding:4px 6px;text-align:left;vertical-align:top}
   .pb-tu tr.ada td:last-child,.tu tr.ada td:last-child{color:var(--hijau);font-weight:600}
   .pb-tu tr.belum td,.tu tr.belum td{color:var(--muted)}
+  .no .pj{text-transform:none;letter-spacing:0;color:var(--ungu)}
   .pb-unsur{font-family:var(--mono);font-size:9.5px;text-transform:uppercase;background:#ECE6F5;color:var(--ungu);padding:1px 6px;border-radius:2px}
   .pb-a{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:6px;font-size:12.5px}
   .pb-a select, .pb-a input[type=text], .pb-a input[type=url]{flex:1 1 200px;padding:5px 7px;font:inherit;border:1px solid var(--line);background:#fff}
@@ -293,7 +294,7 @@
   :focus-visible{outline:2px solid var(--biru-2);outline-offset:1px}
   @media(prefers-reduced-motion:reduce){.kartu{transition:none}.kartu:hover{transform:none}}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-10-3ece7c">
+<link rel="stylesheet" href="kepala.css?v=2026-11-10-19f94a">
 </head>
 <body>
 
@@ -358,7 +359,7 @@ setTimeout(function(){
   });
 }, 8000);
 </script>
-<script src="config.js?v=2026-11-10-3ece7c"></script>
+<script src="config.js?v=2026-11-10-19f94a"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -375,24 +376,24 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { BUTIR, isiPetaBukti, cariBukti, daftarBukti, kolomBukti } from './rincian.js?v=2026-11-10-3ece7c';
+import { BUTIR, isiPetaBukti, cariBukti, daftarBukti, kolomBukti } from './rincian.js?v=2026-11-10-19f94a';
 import { BUTIR_MANUAL, SEKSI_MANUAL, kunciButir, kunciBuktiButir, skorManual, tkKepuasan }
-  from './butir-manual.js?v=2026-11-10-3ece7c';
-import { BOBOT_TOTAL, bobotButir } from './bobot.js?v=2026-11-10-3ece7c';
-import { UNSUR, hitungUnsur, UNSUR_BUTIR, KUNCI_UNSUR, skorKunci, unsurAda } from './unsur-butir.js?v=2026-11-10-3ece7c';
-import { ambilDaftarLKPS } from './data-lkps.js?v=2026-11-10-3ece7c';
-import { ambilNarasi } from './led-narasi.js?v=2026-11-10-3ece7c';
-import { cekPitaWT, adaTingkat, sesuaiTracer } from './tracer-skor.js?v=2026-11-10-3ece7c';
-import { htmlRencana, buktiButir } from './rencana-bukti.js?v=2026-11-10-3ece7c';
-import { htmlPanel, pasangPanel } from './panel-bukti.js?v=2026-11-10-3ece7c';
-import { pasangMenu } from './menu.js?v=2026-11-10-3ece7c';
-import { bukaLKD } from './bkd.js?v=2026-11-10-3ece7c';
-import { ambilBanyakDoi, rencanaSitasi, teksBatas } from './impor-karya.js?v=2026-11-10-3ece7c';
-import { karya4i, tautanPengutip } from './sitasi.js?v=2026-11-10-3ece7c';
-import { dataButir, pendukungButir, ambilDataButir, htmlTabelData } from './data-butir.js?v=2026-11-10-3ece7c';
-import { TAB_DATA } from './kelengkapan.js?v=2026-11-10-3ece7c';
+  from './butir-manual.js?v=2026-11-10-19f94a';
+import { BOBOT_TOTAL, bobotButir } from './bobot.js?v=2026-11-10-19f94a';
+import { UNSUR, hitungUnsur, UNSUR_BUTIR, KUNCI_UNSUR, skorKunci, unsurAda, pihakUnsur, pihakButir } from './unsur-butir.js?v=2026-11-10-19f94a';
+import { ambilDaftarLKPS } from './data-lkps.js?v=2026-11-10-19f94a';
+import { ambilNarasi } from './led-narasi.js?v=2026-11-10-19f94a';
+import { cekPitaWT, adaTingkat, sesuaiTracer } from './tracer-skor.js?v=2026-11-10-19f94a';
+import { htmlRencana, buktiButir } from './rencana-bukti.js?v=2026-11-10-19f94a';
+import { htmlPanel, pasangPanel } from './panel-bukti.js?v=2026-11-10-19f94a';
+import { pasangMenu } from './menu.js?v=2026-11-10-19f94a';
+import { bukaLKD } from './bkd.js?v=2026-11-10-19f94a';
+import { ambilBanyakDoi, rencanaSitasi, teksBatas } from './impor-karya.js?v=2026-11-10-19f94a';
+import { karya4i, tautanPengutip } from './sitasi.js?v=2026-11-10-19f94a';
+import { dataButir, pendukungButir, ambilDataButir, htmlTabelData } from './data-butir.js?v=2026-11-10-19f94a';
+import { TAB_DATA } from './kelengkapan.js?v=2026-11-10-19f94a';
 import { statusSyarat, syaratButir, SYARAT_UNGGUL, SYARAT_RERATA, SASARAN,
-         statusRerata, gabungSyarat, statusRentang } from './syarat-unggul.js?v=2026-11-10-3ece7c';
+         statusRerata, gabungSyarat, statusRentang } from './syarat-unggul.js?v=2026-11-10-19f94a';
 
 // config.js mendefinisikan window.SB_URL dan window.SB_KEY — pemetaan di
 // bawah ini WAJIB ada. skor.html versi sebelumnya melewatkannya dan mati
@@ -416,7 +417,7 @@ const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 // Naikkan setiap kali skor.html / rincian.js / butir-manual.js / bobot.js
 // diubah. Ditampilkan di kaki halaman supaya ketahuan seketika kalau
 // peramban masih memakai salinan lama dari cache.
-const VERSI = '2026-11-10-3ece7c';
+const VERSI = '2026-11-10-19f94a';
 // Label versi di judul diisi dari VERSI supaya keduanya tidak bisa berbeda.
 { const el = document.querySelector('.versi-statis'); if (el) el.textContent = 'v' + VERSI; }
 // =====================================================================
@@ -631,8 +632,8 @@ async function unduhLKPS(idTombol){
     // Hanya tertulis di berkas unduhan, tidak disimpan di situs (pemilik 2026-11-06).
     const sandiLkd = idTombol === 'unduhIndeksBukti' ? (prompt('Kata sandi berkas privat yang ditulis di indeks untuk asesor '
       + '(sama dengan LKD_SANDI di Apps Script). Kosongkan bila diberikan terpisah:') || '').trim() : '';
-    const buat = idTombol === 'unduhIndeksBukti' ? (await import('./lkps-bukti.js?v=2026-11-10-3ece7c')).buatIndeksBukti
-      : (await import('./lkps-tabel.js?v=2026-11-10-3ece7c')).buatTabelLKPS;
+    const buat = idTombol === 'unduhIndeksBukti' ? (await import('./lkps-bukti.js?v=2026-11-10-19f94a')).buatIndeksBukti
+      : (await import('./lkps-tabel.js?v=2026-11-10-19f94a')).buatTabelLKPS;
     const hasil = await buat({ D, ts, prodi: D.prodi, institusi: D.institusi, rencanaKepuasan,
       daftar, sandiLkd });
     a.textContent = idTombol === 'unduhIndeksBukti' ? `Indeks terunduh (${hasil.sel} tautan, ${hasil.lembar.length} tabel)`
@@ -656,7 +657,7 @@ async function unduhLED(){
   const asli = a.textContent;
   a.textContent = 'Menyusun draf LED…';
   try {
-    const { buatLED } = await import('./led.js?v=2026-11-10-3ece7c');
+    const { buatLED } = await import('./led.js?v=2026-11-10-19f94a');
     const ts = CTX_LED.tsData;
     const hasil = await buatLED({
       D, ts, taDari, f2, versi: VERSI,
@@ -960,7 +961,7 @@ function kartuButir(no, judul, isi, skor, catatan, lencana){
     sy && sy.tahu && !sy.u5ok ? ' syarat-gagal' : ''}" id="butir-${no}">
     <div class="butir">
     <div>
-      <div class="no">Butir ${no} · APS-AV 2025</div>
+      <div class="no">Butir ${no} · APS-AV 2025${pihakButir(no) ? ` · <span class="pj">Penanggung jawab: ${esc(pihakButir(no))}</span>` : ''}</div>
       <h3>${esc(judul)}${lencana || ''}${
         syaratButir(no) ? '<span class="syarat">syarat perlu</span>' : ''}</h3>
       ${isi}
@@ -1259,9 +1260,10 @@ function htmlUnsurKartu(no){
   const d = UNSUR_BUTIR[no];
   if (!d) return '';
   const ada = unsurAda(no, UNSUR_BUKTI);
-  return `<div class="gulir"><table class="tu"><thead><tr><th>Unsur</th><th>Bukti yang dibutuhkan</th><th>Bukti</th></tr></thead><tbody>${
+  return `<div class="gulir"><table class="tu"><thead><tr><th>Unsur</th><th>Bukti yang dibutuhkan</th><th>Penanggung jawab</th>
+    <th>Bukti</th></tr></thead><tbody>${
     Object.entries(d.unsur).map(([n, l]) => `<tr class="${ada.has(+n) ? 'ada' : 'belum'}"><td>${n}</td><td>${esc(l)}</td>
-      <td>${ada.has(+n) ? '✓ ada' : '— belum'}</td></tr>`).join('')}</tbody></table></div>
+      <td>${esc(pihakUnsur(no, n))}</td><td>${ada.has(+n) ? '✓ ada' : '— belum'}</td></tr>`).join('')}</tbody></table></div>
     <p class="ctt" style="margin:4px 0 8px">${d.komponen.map(k => esc(k.aturan)).join(' · ')}. ${ada.size
       ? 'Skor dihitung dari bukti per unsur.' : 'Belum ada bukti; skor 0.'}
       Admin mengunggah atau menautkan bukti per unsur di panel bukti kartu ini atau di halaman isi butir.</p>`;

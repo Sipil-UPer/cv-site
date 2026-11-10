@@ -2,13 +2,13 @@
 // kelengkapan.html mengambil data, modul ini menghitung. Aturan terisi sama
 // dengan halaman sumbernya: kotak narasi seperti narasi-led.html, bukti butir
 // seperti rekap bukti di skor.html.
-import { BUTIR_MANUAL } from './butir-manual.js?v=2026-11-10-3ece7c';
-import { UNSUR_BUTIR } from './unsur-butir.js?v=2026-11-10-3ece7c';
-import { BUTIR_DATA } from './butir-data.js?v=2026-11-10-3ece7c';
-import { faktaNarasi, anggotaTim } from './led-isi.js?v=2026-11-10-3ece7c';
-import { pisahKalimat } from './led-narasi.js?v=2026-11-10-3ece7c';
-import { masihKerangka } from './led-saran.js?v=2026-11-10-3ece7c';
-import { JENIS_DOKUMEN, buktiButir } from './rencana-bukti.js?v=2026-11-10-3ece7c';
+import { BUTIR_MANUAL } from './butir-manual.js?v=2026-11-10-19f94a';
+import { UNSUR_BUTIR, pihakUnsur } from './unsur-butir.js?v=2026-11-10-19f94a';
+import { BUTIR_DATA } from './butir-data.js?v=2026-11-10-19f94a';
+import { faktaNarasi, anggotaTim } from './led-isi.js?v=2026-11-10-19f94a';
+import { pisahKalimat } from './led-narasi.js?v=2026-11-10-19f94a';
+import { masihKerangka } from './led-saran.js?v=2026-11-10-19f94a';
+import { JENIS_DOKUMEN, buktiButir } from './rencana-bukti.js?v=2026-11-10-19f94a';
 
 // Tab Data prodi: [id tab, tabel, judul, butir]; sama dengan TABEL di data-prodi.html.
 export const TAB_DATA = [
@@ -91,7 +91,7 @@ export function rekapKelengkapan(S){
     baris('Jenis dokumen di pustaka', JENIS_DOKUMEN.length - belumDok.length, JENIS_DOKUMEN.length, { href: 'input-butir.html', kurang: belumDok.map(j => j.nama) }),
     baris('Butir yang punya bukti', nos.length - belumBukti.length, nos.length, { href: 'input-butir.html', kurang: belumBukti.map(no => `Butir ${no}`) }),
     baris('Unsur penilaian berbukti', semuaUnsur.length - belumUnsur.length, semuaUnsur.length, { href: 'input-butir.html',
-      kurang: belumUnsur.map(([no, n, l]) => `Butir ${no} unsur ${n}: ${l}`) }),
+      kurang: belumUnsur.map(([no, n, l]) => `[${pihakUnsur(no, n)}] Butir ${no} unsur ${n}: ${l}`) }),
   ];
 
   const karya = (S.karya || []).filter(k => k.status !== 'ditolak' && k.status !== 'draf');

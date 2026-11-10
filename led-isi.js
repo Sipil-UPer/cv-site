@@ -9,10 +9,10 @@
    Tautan di dalam teks memakai token ⟦url|label⟧; auto() di led.js
    mengubahnya menjadi hyperlink Word.
    ===================================================================== */
-import { versiUntukTS } from './pustaka-dokumen.js?v=2026-11-10-3ece7c';
-import { infoJenis, JENIS_DOKUMEN, kelompokDokumen, buktiButir, saranDokumen } from './rencana-bukti.js?v=2026-11-10-3ece7c';
-import { teksPendidikan } from './profil-dosen.js?v=2026-11-10-3ece7c';
-import { karya4i } from './sitasi.js?v=2026-11-10-3ece7c';
+import { versiUntukTS } from './pustaka-dokumen.js?v=2026-11-10-19f94a';
+import { infoJenis, JENIS_DOKUMEN, kelompokDokumen, buktiButir, saranDokumen } from './rencana-bukti.js?v=2026-11-10-19f94a';
+import { teksPendidikan } from './profil-dosen.js?v=2026-11-10-19f94a';
+import { karya4i } from './sitasi.js?v=2026-11-10-19f94a';
 
 export const tokenTautan = (url, label) => `⟦${url}|${String(label).replace(/[⟦⟧|]/g, ' ')}⟧`;
 const isi = t => `[isi: ${t}]`;
@@ -162,7 +162,9 @@ export function buktiOtomatis(no, C){
   const sudah = new Set(), hasil = [];
   const tambah = (label, url) => { if (url && !sudah.has(url)) { sudah.add(url); hasil.push({ label, url }); } };
   buktiButir(no, opsi).forEach(x => {
-    if (x.url) tambah(x.label + (x.lain.length ? `; versi lain: ${x.lain.map(v => v.tahun).join(', ')}` : ''), x.url);
+    // Bukti per unsur (pemilik 2026-11-10): label diawali nomor unsurnya.
+    if (x.url) tambah((x.unsur ? `Unsur ${x.unsur}: ` : '') + x.label
+      + (x.lain.length ? `; versi lain: ${x.lain.map(v => v.tahun).join(', ')}` : ''), x.url);
   });
   kelompokDokumen(C.dokumen, no, C.ts).forEach(g => (g.utama ? [g.utama] : g.lain).forEach(r => tambah(labelDokumenLED(r), r.url)));
   const baris = (C.daftar || {}).buktiBaris || [];

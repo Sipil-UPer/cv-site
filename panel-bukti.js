@@ -27,11 +27,11 @@
      unggah = {url, ext[], maxMb, accept} dari config.js, atau null.
    ===================================================================== */
 
-import { JENIS_DOKUMEN, infoJenis, buktiButir } from './rencana-bukti.js?v=2026-11-10-3ece7c';
-import { tautanBerkas, temuanPakai } from './tautan-privat.js?v=2026-11-10-3ece7c';
-import { buangBerkas, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-10-3ece7c';
-import { periksaBerkas, kolomSidik, teksTemuan } from './sidik-berkas.js?v=2026-11-10-3ece7c';
-import { UNSUR_BUTIR } from './unsur-butir.js?v=2026-11-10-3ece7c';
+import { JENIS_DOKUMEN, infoJenis, buktiButir } from './rencana-bukti.js?v=2026-11-10-19f94a';
+import { tautanBerkas, temuanPakai } from './tautan-privat.js?v=2026-11-10-19f94a';
+import { buangBerkas, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-10-19f94a';
+import { periksaBerkas, kolomSidik, teksTemuan } from './sidik-berkas.js?v=2026-11-10-19f94a';
+import { UNSUR_BUTIR, pihakUnsur } from './unsur-butir.js?v=2026-11-10-19f94a';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g,
   c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -125,9 +125,9 @@ function htmlUnsurPanel(no, xs){
   if (!d) return '';
   const ada = new Set(xs.map(x => +x.unsur).filter(Boolean));
   const pilih = unsurPilih(no);
-  return `<table class="pb-tu"><thead><tr><th>Unsur</th><th>Bukti yang dibutuhkan</th><th></th></tr></thead><tbody>${
+  return `<table class="pb-tu"><thead><tr><th>Unsur</th><th>Bukti yang dibutuhkan</th><th>Penanggung jawab</th><th></th></tr></thead><tbody>${
     Object.entries(d.unsur).map(([n, l]) => `<tr class="${ada.has(+n) ? 'ada' : 'belum'}"><td>${n}</td><td>${esc(l)}</td>
-      <td>${ada.has(+n) ? '✓' : '—'}</td></tr>`).join('')}</tbody></table>
+      <td>${esc(pihakUnsur(no, n))}</td><td>${ada.has(+n) ? '✓' : '—'}</td></tr>`).join('')}</tbody></table>
     <div class="pb-a"><label>Bukti berikut untuk <select data-pb-unsur="${esc(no)}">
       <option value="">bukti umum (bukan unsur penilaian)</option>
       ${Object.entries(d.unsur).map(([n, l]) => `<option value="${n}"${pilih === +n ? ' selected' : ''}>Unsur ${n}: ${esc(l)}</option>`).join('')}

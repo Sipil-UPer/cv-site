@@ -360,3 +360,44 @@ export function hitungUnsur(no, { mk, peta, bukti, ts }){
   const terbaik = rinci.reduce((a, b) => (b.skor > a.skor ? b : a));
   return { skor: terbaik.skor, terbaik, rinci };
 }
+
+// ---------------------------------------------------------------------
+// Penanggung jawab (pemilik 2026-11-10): siapa menyiapkan bukti tiap unsur,
+// dan siapa menyediakan data untuk butir yang dihitung dari data. Mengikuti
+// bunyi matriks ("UPPS memiliki…" = UPPS, "Program Studi…" = prodi) dan pemilik
+// dokumennya. Ubah di sini bila pembagian di kampus berbeda.
+//   U Universitas · F UPPS (fakultas) · P Prodi · S SPM (penjaminan mutu) · D Dosen
+// ---------------------------------------------------------------------
+export const PIHAK = { U: 'Universitas', F: 'UPPS', P: 'Prodi', S: 'SPM', D: 'Dosen' };
+// '1-3:F 4:P,S' -> {1: ['F'], 2: ['F'], 3: ['F'], 4: ['P', 'S']}
+const pj = spec => Object.fromEntries(spec.trim().split(/\s+/).flatMap(bag => {
+  const [rentang, kode] = bag.split(':');
+  const [a, b = a] = rentang.split('-').map(Number);
+  return Array.from({ length: b - a + 1 }, (_, i) => [a + i, kode.split(',')]);
+}));
+export const PJ_UNSUR = {
+  '1': pj('1:F,U 2:F 3:P 4:F'), '2': pj('1:F,P 2-4:F'), '3': pj('1:F,P 2:S 3-4:F'),
+  '4': pj('1-2:U 3-8:F'), '5': pj('1-7:F'), '7': pj('1-2:P 3:S'), '8': pj('1-2:U 3:F 4-5:U'),
+  '12': pj('1-5:P'), '13': pj('1-9:P'), '14': pj('1-7:P'), '15': pj('1-8:P'), '16': pj('1-4:P 5-8:S'),
+  '17': pj('1-5:P'), '20': pj('1-4:P'), '21': pj('1:U 2:P 3:U 4:F 5-8:P'), '22': pj('1:F 2:F,P 3-4:F'),
+  '24': pj('1:F 2:F,P 3-4:F'), '29': pj('1:U 2:F 3-5:U'), '38': pj('1-2:P 3-7:U'), '39': pj('1:U 2-3:F 4:U'),
+  '48': pj('1-4:U 5:P'), '53': pj('1:U 2-9:S 10-11:U'), '54': pj('1-3:F 4:S'), '55': pj('1:F 2-4:S'),
+  '56': pj('1:S 2:F 3:S 4:F'), '57': pj('1-4:S 5:F 6-7:S'), '58': pj('1-8:F'), '59': pj('1-6:F'),
+  '60': pj('1:F 2:U 3:F 4:S 5:F 6:U'),
+};
+// Butir yang dihitung dari data: penyedia datanya.
+export const PJ_DATA = {
+  '6': 'P', '9': 'U', '10': 'U', '11': 'U', '18': 'P', '19': 'P', '23': 'D,P', '25': 'D,P', '26': 'U,P',
+  '27': 'U', '28': 'U', '30': 'D', '31': 'D', '32': 'D', '33': 'D', '34': 'D', '35': 'D', '36': 'D', '37': 'D',
+  '40': 'U', '41': 'U', '42': 'U', '43': 'P,U', '44': 'U', '45': 'U', '46': 'D', '47': 'D',
+  '49': 'U', '50': 'U', '51': 'U', '52': 'P',
+};
+const nama = kode => kode.map(k => PIHAK[k]).join(', ');
+// Penanggung jawab satu unsur, mis. 'UPPS, Universitas'; '' bila tidak diatur.
+export const pihakUnsur = (no, n) => nama(PJ_UNSUR[String(no)]?.[+n] || []);
+// Semua pihak untuk satu butir (urutan PIHAK), untuk kepala kartu.
+export function pihakButir(no){
+  const u = PJ_UNSUR[String(no)], d = PJ_DATA[String(no)];
+  const kode = new Set(u ? Object.values(u).flat() : d ? d.split(',') : []);
+  return Object.keys(PIHAK).filter(k => kode.has(k)).map(k => PIHAK[k]).join(', ');
+}
