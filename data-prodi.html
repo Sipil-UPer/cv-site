@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-10-565656">
+<link rel="stylesheet" href="tema.css?v=2026-11-10-77899f">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
@@ -84,7 +84,7 @@
   .masuk{max-width:420px;margin:40px auto;background:#fff;border:1px solid var(--line);padding:20px}
   .masuk input{width:100%;padding:8px 10px;margin:8px 0;font:inherit}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-10-565656">
+<link rel="stylesheet" href="kepala.css?v=2026-11-10-77899f">
 </head>
 <body>
 
@@ -98,7 +98,7 @@
 
 <main class="wrap" id="isi"></main>
 
-<script src="config.js?v=2026-11-10-565656"></script>
+<script src="config.js?v=2026-11-10-77899f"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -115,18 +115,18 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-10-565656';
-import { pasangMenu } from './menu.js?v=2026-11-10-565656';
-import { unggahKePustaka, opsiPustaka, opsiJenis, labelDokumen, cariDokumen } from './pustaka-dokumen.js?v=2026-11-10-565656';
-import { pasangRapikan } from './rapikan-berkas.js?v=2026-11-10-565656';
-import { UNSUR, skorUnsur, pihakUnsur } from './unsur-butir.js?v=2026-11-10-565656';
-import { htmlContoh, pasangContoh, JENIS_BUKTI_KS } from './manfaat-kerjasama.js?v=2026-11-10-565656';
-import { infoJenis } from './rencana-bukti.js?v=2026-11-10-565656';
-import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-10-565656';
-import { nomorButir, htmlTautanButir } from './tautan-butir.js?v=2026-11-10-565656';
-import { htmlSaran } from './saran-bukti.js?v=2026-11-10-565656';
-import { tautanBerkas, privatkanLama } from './tautan-privat.js?v=2026-11-10-565656';
-import { unggahLKD, bukaLKD, pendidikanTotal, pendidikanPS } from './bkd.js?v=2026-11-10-565656';
+import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-10-77899f';
+import { pasangMenu } from './menu.js?v=2026-11-10-77899f';
+import { unggahKePustaka, opsiPustaka, opsiJenis, labelDokumen, cariDokumen } from './pustaka-dokumen.js?v=2026-11-10-77899f';
+import { pasangRapikan } from './rapikan-berkas.js?v=2026-11-10-77899f';
+import { UNSUR, skorUnsur, pihakUnsur } from './unsur-butir.js?v=2026-11-10-77899f';
+import { htmlContoh, pasangContoh, JENIS_BUKTI_KS } from './manfaat-kerjasama.js?v=2026-11-10-77899f';
+import { infoJenis } from './rencana-bukti.js?v=2026-11-10-77899f';
+import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-10-77899f';
+import { nomorButir, htmlTautanButir } from './tautan-butir.js?v=2026-11-10-77899f';
+import { htmlSaran } from './saran-bukti.js?v=2026-11-10-77899f';
+import { tautanBerkas, privatkanLama } from './tautan-privat.js?v=2026-11-10-77899f';
+import { unggahLKD, bukaLKD, pendidikanTotal, pendidikanPS } from './bkd.js?v=2026-11-10-77899f';
 
 /* =====================================================================
    DATA PRODI — data kuantitatif LKPS diisi admin di situs (keputusan
@@ -314,6 +314,8 @@ const TABEL = [
         o: [['universitas', 'Universitas'], ['fakultas', 'Fakultas'], ['prodi', 'Prodi']] },
       { k: 'inti', l: 'MK kompetensi (inti)', t: 'cek' },
       { k: 'rps_ada', l: 'Dokumen RPS ada', t: 'cek' },
+      // Butir 15 (45-patch-rps-lengkap.sql, pemilik 2026-11-10): unsur 1/4 dihitung dari kolom ini.
+      { k: 'rps_9_komponen', l: 'RPS memuat 9 komponen (butir 15)', t: 'cek', patch45: true },
       { k: 'basic_science', l: 'Basic science / matematika (3.a.4)', t: 'cek' },
       { k: 'capstone', l: 'MK capstone design (3.a.5)', t: 'cek' },
       { k: 'capstone_pendukung', l: 'MK pendukung capstone (bila MK ini capstone)', t: 'jamak',
@@ -658,6 +660,8 @@ let SAYA = null, DOSEN = [], AKTIF = TABEL[0], BARIS = [], SUNTING = null;
 let DOK = [], DOK_GAGAL = '', ADA29 = true, ADA30 = true;
 // ADA43 = lkps_bukti.unsur ada (43-patch-unsur-bukti.sql): bukti per unsur butir 20, 22, 24.
 let ADA43 = true;
+// ADA45 = ref_mata_kuliah.rps_9_komponen ada (45-patch-rps-lengkap.sql).
+let ADA45 = true;
 pasangContoh();
 const dokPer = id => DOK.find(d => d.id === id) || null;
 // Bukti jamak per baris (tabel lkps_bukti, supabase/17-patch-lkps-bukti.sql).
@@ -665,7 +669,7 @@ const dokPer = id => DOK.find(d => d.id === id) || null;
 let LB = new Map(), LB_GAGAL = '', ANTREAN = [];
 // Kolom tautan lama (bukti_url / tautan_bukti) tidak lagi diisi di form;
 // isinya tetap tampil sebagai "Bukti (lama)".
-const kolomForm = T => T.kolom.filter(c => c.t !== 'url');
+const kolomForm = T => T.kolom.filter(c => c.t !== 'url' && !(c.patch45 && !ADA45));
 const kolomLama = T => (T.kolom.find(c => c.t === 'url') || {}).k;
 
 async function mulai(){
@@ -689,6 +693,7 @@ async function mulai(){
   ADA29 = !(await sb.from('lkps_bukti').select('dokumen_id').limit(1)).error;
   ADA30 = !(await sb.from('dokumen').select('nomor,tanggal').limit(1)).error;   // 30-patch-spmi.sql
   ADA43 = !(await sb.from('lkps_bukti').select('unsur').limit(1)).error;
+  ADA45 = !(await sb.from('ref_mata_kuliah').select('rps_9_komponen').limit(1)).error;
   await muatPustaka();
   const awal = new URLSearchParams(location.search).get('tab');
   AKTIF = TABEL.find(t => t.id === awal) || TABEL[0];

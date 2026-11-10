@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-10-565656">
+<link rel="stylesheet" href="tema.css?v=2026-11-10-77899f">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
@@ -81,6 +81,7 @@
   .pb-tu tr.ada td:last-child,.tu tr.ada td:last-child{color:var(--hijau);font-weight:600}
   .pb-tu tr.belum td,.tu tr.belum td{color:var(--muted)}
   .no .pj{text-transform:none;letter-spacing:0;color:var(--ungu)}
+  .tu small.contoh,.pb-tu small.contoh{color:var(--muted);font-size:11.5px}
   .pb-unsur{font-family:var(--mono);font-size:9.5px;text-transform:uppercase;background:#ECE6F5;color:var(--ungu);padding:1px 6px;border-radius:2px}
   .pb-a{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:6px;font-size:12.5px}
   .pb-a select, .pb-a input[type=text], .pb-a input[type=url]{flex:1 1 200px;padding:5px 7px;font:inherit;border:1px solid var(--line);background:#fff}
@@ -294,7 +295,7 @@
   :focus-visible{outline:2px solid var(--biru-2);outline-offset:1px}
   @media(prefers-reduced-motion:reduce){.kartu{transition:none}.kartu:hover{transform:none}}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-10-565656">
+<link rel="stylesheet" href="kepala.css?v=2026-11-10-77899f">
 </head>
 <body>
 
@@ -359,7 +360,7 @@ setTimeout(function(){
   });
 }, 8000);
 </script>
-<script src="config.js?v=2026-11-10-565656"></script>
+<script src="config.js?v=2026-11-10-77899f"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -376,24 +377,25 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { BUTIR, isiPetaBukti, cariBukti, daftarBukti, kolomBukti } from './rincian.js?v=2026-11-10-565656';
+import { BUTIR, isiPetaBukti, cariBukti, daftarBukti, kolomBukti } from './rincian.js?v=2026-11-10-77899f';
 import { BUTIR_MANUAL, SEKSI_MANUAL, kunciButir, kunciBuktiButir, skorManual, tkKepuasan }
-  from './butir-manual.js?v=2026-11-10-565656';
-import { BOBOT_TOTAL, bobotButir } from './bobot.js?v=2026-11-10-565656';
-import { UNSUR, hitungUnsur, UNSUR_BUTIR, KUNCI_UNSUR, skorKunci, unsurAda, pihakUnsur, pihakButir } from './unsur-butir.js?v=2026-11-10-565656';
-import { ambilDaftarLKPS } from './data-lkps.js?v=2026-11-10-565656';
-import { ambilNarasi } from './led-narasi.js?v=2026-11-10-565656';
-import { cekPitaWT, adaTingkat, sesuaiTracer } from './tracer-skor.js?v=2026-11-10-565656';
-import { htmlRencana, buktiButir } from './rencana-bukti.js?v=2026-11-10-565656';
-import { htmlPanel, pasangPanel } from './panel-bukti.js?v=2026-11-10-565656';
-import { pasangMenu } from './menu.js?v=2026-11-10-565656';
-import { bukaLKD } from './bkd.js?v=2026-11-10-565656';
-import { ambilBanyakDoi, rencanaSitasi, teksBatas } from './impor-karya.js?v=2026-11-10-565656';
-import { karya4i, tautanPengutip } from './sitasi.js?v=2026-11-10-565656';
-import { dataButir, pendukungButir, ambilDataButir, htmlTabelData } from './data-butir.js?v=2026-11-10-565656';
-import { TAB_DATA } from './kelengkapan.js?v=2026-11-10-565656';
+  from './butir-manual.js?v=2026-11-10-77899f';
+import { BOBOT_TOTAL, bobotButir } from './bobot.js?v=2026-11-10-77899f';
+import { UNSUR, hitungUnsur, UNSUR_BUTIR, KUNCI_UNSUR, skorKunci, unsurAda, pihakUnsur, pihakButir } from './unsur-butir.js?v=2026-11-10-77899f';
+import { ambilDaftarLKPS } from './data-lkps.js?v=2026-11-10-77899f';
+import { ambilNarasi } from './led-narasi.js?v=2026-11-10-77899f';
+import { cekPitaWT, adaTingkat, sesuaiTracer } from './tracer-skor.js?v=2026-11-10-77899f';
+import { htmlRencana, buktiButir } from './rencana-bukti.js?v=2026-11-10-77899f';
+import { htmlPanel, pasangPanel } from './panel-bukti.js?v=2026-11-10-77899f';
+import { pasangMenu } from './menu.js?v=2026-11-10-77899f';
+import { bukaLKD } from './bkd.js?v=2026-11-10-77899f';
+import { tautanBerkas } from './tautan-privat.js?v=2026-11-10-77899f';
+import { ambilBanyakDoi, rencanaSitasi, teksBatas } from './impor-karya.js?v=2026-11-10-77899f';
+import { karya4i, tautanPengutip } from './sitasi.js?v=2026-11-10-77899f';
+import { dataButir, pendukungButir, ambilDataButir, htmlTabelData } from './data-butir.js?v=2026-11-10-77899f';
+import { TAB_DATA } from './kelengkapan.js?v=2026-11-10-77899f';
 import { statusSyarat, syaratButir, SYARAT_UNGGUL, SYARAT_RERATA, SASARAN,
-         statusRerata, gabungSyarat, statusRentang } from './syarat-unggul.js?v=2026-11-10-565656';
+         statusRerata, gabungSyarat, statusRentang } from './syarat-unggul.js?v=2026-11-10-77899f';
 
 // config.js mendefinisikan window.SB_URL dan window.SB_KEY — pemetaan di
 // bawah ini WAJIB ada. skor.html versi sebelumnya melewatkannya dan mati
@@ -417,7 +419,7 @@ const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 // Naikkan setiap kali skor.html / rincian.js / butir-manual.js / bobot.js
 // diubah. Ditampilkan di kaki halaman supaya ketahuan seketika kalau
 // peramban masih memakai salinan lama dari cache.
-const VERSI = '2026-11-10-565656';
+const VERSI = '2026-11-10-77899f';
 // Label versi di judul diisi dari VERSI supaya keduanya tidak bisa berbeda.
 { const el = document.querySelector('.versi-statis'); if (el) el.textContent = 'v' + VERSI; }
 // =====================================================================
@@ -632,8 +634,8 @@ async function unduhLKPS(idTombol){
     // Hanya tertulis di berkas unduhan, tidak disimpan di situs (pemilik 2026-11-06).
     const sandiLkd = idTombol === 'unduhIndeksBukti' ? (prompt('Kata sandi berkas privat yang ditulis di indeks untuk asesor '
       + '(sama dengan LKD_SANDI di Apps Script). Kosongkan bila diberikan terpisah:') || '').trim() : '';
-    const buat = idTombol === 'unduhIndeksBukti' ? (await import('./lkps-bukti.js?v=2026-11-10-565656')).buatIndeksBukti
-      : (await import('./lkps-tabel.js?v=2026-11-10-565656')).buatTabelLKPS;
+    const buat = idTombol === 'unduhIndeksBukti' ? (await import('./lkps-bukti.js?v=2026-11-10-77899f')).buatIndeksBukti
+      : (await import('./lkps-tabel.js?v=2026-11-10-77899f')).buatTabelLKPS;
     const hasil = await buat({ D, ts, prodi: D.prodi, institusi: D.institusi, rencanaKepuasan,
       daftar, sandiLkd });
     a.textContent = idTombol === 'unduhIndeksBukti' ? `Indeks terunduh (${hasil.sel} tautan, ${hasil.lembar.length} tabel)`
@@ -657,7 +659,7 @@ async function unduhLED(){
   const asli = a.textContent;
   a.textContent = 'Menyusun draf LED…';
   try {
-    const { buatLED } = await import('./led.js?v=2026-11-10-565656');
+    const { buatLED } = await import('./led.js?v=2026-11-10-77899f');
     const ts = CTX_LED.tsData;
     const hasil = await buatLED({
       D, ts, taDari, f2, versi: VERSI,
@@ -832,7 +834,8 @@ function butirManual(b){
   const konteks = b.konteks ? b.konteks(D, TS) : '';
   const isi = `
     ${konteks ? `<p class="ctt" style="margin:0 0 10px">
-      <b>Data pendukung:</b> ${esc(konteks)}</p>` : ''}${htmlUnsurKartu(b.no)}
+      <b>Data pendukung:</b> ${esc(konteks)}</p>` : ''}${htmlUnsurKartu(b.no)}${
+      ADMIN && ['20', '22', '24'].includes(b.no) ? htmlBuktiBaris(b.no) : ''}
     <div class="gulir"><table class="rin"><thead><tr>
       <th>Komponen</th><th>Nilai</th></tr></thead><tbody>${baris}</tbody></table></div>
     <div class="rumus">${esc(rumus)}</div>
@@ -842,7 +845,7 @@ function butirManual(b){
          atau tautkan di <a href="input-butir.html">halaman isi butir</a>.</p>`}`;
   const ket = [b.tabel, b.ket].filter(Boolean).join(' · ');
   const adaBukti = ['20', '22', '24'].includes(b.no) ? !!unsurButir(b.no)?.terbaik?.ada.size
-                 : unsurAda(b.no, UNSUR_BUKTI).size > 0;
+                 : unsurAda(b.no, buktiEfektif()).size > 0;
   return kartuButir(b.no, b.judul, isi, skor,
     (dariBukti ? 'Skor dihitung dari kelengkapan bukti per unsur; mutu isinya tetap dinilai asesor. '
       : (lengkap ? '' : 'Belum lengkap — isi di <a href="input-butir.html">halaman isi butir</a>. ')
@@ -850,7 +853,7 @@ function butirManual(b){
     (b.no === '30' && rbkTS() ? '<span class="manual">dihitung dari BKD</span>'
       : b.no === '18' && hitungMK()?.jp != null ? '<span class="manual">dihitung dari mata kuliah</span>'
       : b.no === '52' ? '<span class="manual">dihitung dari Kepuasan pengguna</span>'
-      : b.hitung ? '<span class="manual">berumus · angka isian</span>'
+      : b.hitung ? '<span class="manual">belum ada data</span>'
       : skor == null ? '<span class="manual">bukti belum terbaca</span>'
       : adaBukti ? `<span class="manual">dihitung dari bukti${['20', '22', '24'].includes(b.no) ? ' Data prodi' : ' per unsur'}</span>`
       : '<span class="manual">belum ada bukti</span>'));
@@ -1193,23 +1196,30 @@ function IS(k){
   // Selalu dari isian; aspek yang belum diisi bernilai 0 (pemilik 2026-11-10).
   if (k === 'tk_total') return tkKepuasan(D, TS);
   // Butir 30: RBK dari BKD terverifikasi; isian rbk_sks hanya cadangan (pemilik 2026-11-06).
-  if (k === 'rbk_sks') { const r = rbkTS(); if (r) return +r.rbk; }
-  // Butir 18, 19, 9 dari Data prodi; isian manual hanya cadangan (pemilik 2026-11-10).
-  if (k === 'jp_jam' || k === 'jb_jam') { const h = hitungMK(); if (h && h.jp != null) return k === 'jp_jam' ? h.jp : h.jb; }
-  if (k === 'sks_basic_sciences') { const h = hitungMK(); if (h && h.basic != null) return h.basic; }
-  if (k === 'bop') { const b = hitungBOP(); if (b) return b.nilai; }
+  // Butir berumus hanya dari data, tanpa isian manual (pemilik 2026-11-10):
+  // 30 dari BKD, 18/19 dari mata kuliah, 9 dari penggunaan dana. Data terbaca
+  // tetapi kosong = dihitung dari nol; data belum terbaca = null.
+  if (k === 'rbk_sks') { const r = rbkTS(); return r ? +r.rbk : null; }
+  if (k === 'jp_jam' || k === 'jb_jam') {
+    if (!MK_DATA) return null;
+    const h = hitungMK();
+    return h ? (k === 'jp_jam' ? (h.jp ?? 0) : h.jb) : 0;
+  }
+  if (k === 'sks_basic_sciences') { if (!MK_DATA) return null; return hitungMK()?.basic ?? 0; }
+  if (k === 'bop') { const b = hitungBOP(); return b ? b.nilai : null; }
+  if (k === 'ndtt' || k === 'kib_3th') return null;
   // Butir 20, 22, 24 dari bukti per unsur di Data prodi; isian b20/b22/b24 cadangan (pemilik 2026-11-10).
   // Butir kualitatif hanya dari bukti, tanpa isian manual (pemilik 2026-11-10):
   // 20/22/24 dari Data prodi, lainnya dari bukti per unsur di kartu butir.
   if (k === 'b20' || k === 'b22' || k === 'b24') { const h = unsurButir(k.slice(1)); return h ? h.skor : null; }
-  if (KUNCI_UNSUR[k]) return skorKunci(k, UNSUR_BUKTI);
+  if (KUNCI_UNSUR[k]) return skorKunci(k, buktiEfektif());
   return (PENG[k] == null || PENG[k] === '' ? null : +PENG[k]);
 }
 function ISteks(k){ return PENG[k] == null ? '' : String(PENG[k]).trim(); }
 const rbkTS = () => RBK.get(`${TS - 1}/${TS}`) || null;
 let P_DATA = null;   // baris Supabase untuk "Data yang dipakai" (data-butir.js, pemilik 2026-11-07)
 // Publikasi terverifikasi + sitasi per tahun untuk butir 36 (42-patch-sitasi-tahunan.sql,
-// pemilik 2026-11-10). null = tidak terbaca (belum login / kolom belum ada) -> isian manual.
+// pemilik 2026-11-10). null = tidak terbaca (belum login / kolom belum ada) -> belum terhitung.
 let KARYA_SITASI = null;
 async function muatSitasiKarya(){
   const kol = 'id,kategori,jenis,indeksasi,relevan_visi,tahun,judul,jumlah_sitasi';
@@ -1220,27 +1230,29 @@ async function muatSitasiKarya(){
   if (error) ({ data, error } = await q(kol));
   KARYA_SITASI = error ? null : (data || []);
 }
-// Butir 9, 18, 19 dihitung dari Data prodi (pemilik 2026-11-10); isian manual
-// bop / jp_jam, jb_jam / sks_basic_sciences di tabel pengaturan hanya cadangan.
+// Butir 9, 18, 19 dihitung dari Data prodi saja (pemilik 2026-11-10); isian lama
+// bop / jp_jam, jb_jam / sks_basic_sciences di tabel pengaturan tidak dipakai lagi.
 //   18: JP = Σ SKS praktikum × 50, JB = Σ SKS × 50 mata kuliah aktif (rumus LKPS Excel, Tabel 3.a.1)
 //   19: Σ SKS mata kuliah aktif bertanda basic science (Tabel 3.a.4)
 //   9:  Σ dana PS baris a–f Tabel 2.b ("Biaya Operasional Pendidikan") ÷ mahasiswa aktif,
 //       per tahun akademik, dirata-rata TS-2 s.d. TS (satuan rupiah)
 let MK_DATA = null, DANA_PRODI = null, MHS_TA = null, DOSEN_KAT = null;
 // Butir 20, 22, 24 (43-patch-unsur-bukti.sql): dokumen peta jalan dan nomor unsur
-// yang ada buktinya (unsur_bukti(), tanpa tautan). null = belum terbaca -> isian manual.
+// yang ada buktinya (unsur_bukti(), tanpa tautan). null = belum terbaca.
 let PETA_JALAN = null, UNSUR_BUKTI = null;
 async function muatDataProdiSkor(){
   const kolMK = 'id,kode,nama,sks,sks_kuliah,sks_seminar,sks_praktikum,basic_science,aktif';
   const [mk0, dn, mh, ds, pj, ub] = await Promise.all([
-    sb.from('ref_mata_kuliah').select(kolMK + ',capstone'),
+    sb.from('ref_mata_kuliah').select(kolMK + ',capstone,rps_ada,rps_url,rps_9_komponen'),
     sb.from('lkps_penggunaan_dana').select('tahun_akademik,jenis,dana_ps'),
     sb.from('lkps_mahasiswa_ta').select('tahun_akademik,jumlah_mahasiswa_aktif'),
     sb.from('dosen').select('kategori,aktif,peran'),
     sb.from('lkps_peta_jalan').select('id,jenis,judul,tahun_mulai,tahun_selesai'),
     sb.rpc('unsur_bukti'),
   ]);
-  const mk = mk0.error ? await sb.from('ref_mata_kuliah').select(kolMK) : mk0;
+  // Tanpa 45-patch-rps-lengkap.sql / 23-patch-kurikulum.sql: kolom yang ada saja.
+  let mk = mk0;
+  for (const kol of [kolMK + ',capstone,rps_ada,rps_url', kolMK]) if (mk.error) mk = await sb.from('ref_mata_kuliah').select(kol);
   MK_DATA = mk.error ? null : (mk.data || []).filter(m => m.aktif !== false);
   DANA_PRODI = dn.error ? null : (dn.data || []);
   MHS_TA = mh.error ? null : (mh.data || []);
@@ -1248,7 +1260,28 @@ async function muatDataProdiSkor(){
   PETA_JALAN = pj.error ? null : (pj.data || []);
   UNSUR_BUKTI = ub.error ? null : (ub.data || []);
 }
-// Skor butir 20/22/24 dari bukti per unsur (unsur-butir.js); null -> isian manual.
+// Butir 15 unsur 1 dan 4 dari Data prodi › Mata kuliah (45-patch-rps-lengkap.sql,
+// pemilik 2026-11-10): semua MK aktif ber-RPS dan bercentang 9 komponen -> unsur 1;
+// ada RPS tetapi belum semua/lengkap -> unsur 4. Unggahan unsur 1/4 di kartu diabaikan.
+function rpsMK(){
+  if (!MK_DATA) return null;
+  const ada = m => !!(m.rps_ada || m.rps_url);
+  const lengkap = MK_DATA.filter(m => ada(m) && m.rps_9_komponen === true);
+  return { n: MK_DATA.length, ada: MK_DATA.filter(ada).length, lengkap: lengkap.length,
+           belum: MK_DATA.filter(m => !(ada(m) && m.rps_9_komponen === true)) };
+}
+function unsurRPS(){
+  const r = rpsMK();
+  if (!r || !r.n) return [];
+  return r.lengkap === r.n ? [{ tabel: 'butir', baris_id: 15, unsur: 1 }]
+       : r.ada ? [{ tabel: 'butir', baris_id: 15, unsur: 4 }] : [];
+}
+// Bukti per unsur yang dipakai untuk skor: unsur_bukti() + turunan data (RPS).
+function buktiEfektif(){
+  if (!UNSUR_BUKTI) return null;
+  return [...UNSUR_BUKTI.filter(b => !(b.tabel === 'butir' && +b.baris_id === 15 && [1, 4].includes(+b.unsur))), ...unsurRPS()];
+}
+// Skor butir 20/22/24 dari bukti per unsur (unsur-butir.js); null = data belum terbaca.
 // "Dari bukti" (dulu kualitatif) = butir yang dinilai dari bukti per unsur. Butir manual
 // berumus angka (hitung: 18 JP/JB, 30 RBK dari BKD, 52 ΣTKi) dan butir 20/22/24
 // yang dihitung dari bukti per unsur adalah kuantitatif (pemilik 2026-11-10).
@@ -1258,16 +1291,120 @@ function kualitatif(no){
 }
 // Tabel unsur di kartu: bukti yang dibutuhkan, ada/belum, dan aturan skornya.
 function htmlUnsurKartu(no){
+  // 20/22/24 (pemilik 2026-11-10): tabel unsur yang sama, status dari baris Data prodi terlengkap.
+  if (['20', '22', '24'].includes(String(no))) {
+    const daftar = no === '20' ? UNSUR.capstone : UNSUR.peta_jalan;
+    const h = unsurButir(no), ada = h?.terbaik?.ada || new Set();
+    const asal = h?.terbaik ? `Status dari ${no === '20' ? 'MK capstone' : 'dokumen peta jalan'} "${esc(h.terbaik.label)}".`
+      : `Belum ada ${no === '20' ? 'MK bercentang capstone' : 'dokumen peta jalan yang berlaku pada TS ini'}; skor 0.`;
+    return `<div class="gulir"><table class="tu"><thead><tr><th>Unsur</th><th>Bukti yang dibutuhkan</th><th>Penanggung jawab</th>
+      <th>Bukti</th></tr></thead><tbody>${daftar.map((l, i) => `<tr class="${ada.has(i + 1) ? 'ada' : 'belum'}"><td>${i + 1}</td>
+      <td>${esc(l)}</td><td>${esc(pihakUnsur(no, i + 1))}</td><td>${ada.has(i + 1) ? '✓ ada' : '— belum'}</td></tr>`).join('')}
+      </tbody></table></div><p class="ctt" style="margin:4px 0 8px">Unsur 1–4 berurutan (4 = semua). ${asal}
+      Bukti per unsur diisi di ${no === '20' ? 'Data prodi › Mata kuliah' : 'Data prodi › Dokumen peta jalan'} atau di panel di bawah.</p>`;
+  }
   const d = UNSUR_BUTIR[no];
   if (!d) return '';
-  const ada = unsurAda(no, UNSUR_BUKTI);
+  const ada = unsurAda(no, buktiEfektif());
   return `<div class="gulir"><table class="tu"><thead><tr><th>Unsur</th><th>Bukti yang dibutuhkan</th><th>Penanggung jawab</th>
     <th>Bukti</th></tr></thead><tbody>${
     Object.entries(d.unsur).map(([n, l]) => `<tr class="${ada.has(+n) ? 'ada' : 'belum'}"><td>${n}</td><td>${esc(l)}</td>
+      ${d.contoh?.[n] ? `<br><small class="contoh">Contoh: ${esc(d.contoh[n])}</small>` : ''}</td>
       <td>${esc(pihakUnsur(no, n))}</td><td>${ada.has(+n) ? '✓ ada' : '— belum'}</td></tr>`).join('')}</tbody></table></div>
+    ${no === '15' ? catatanRPS() : ''}
     <p class="ctt" style="margin:4px 0 8px">${d.komponen.map(k => esc(k.aturan)).join(' · ')}. ${ada.size
       ? 'Skor dihitung dari bukti per unsur.' : 'Belum ada bukti; skor 0.'}
       Admin mengunggah atau menautkan bukti per unsur di panel bukti kartu ini atau di halaman isi butir.</p>`;
+}
+// ---------------------------------------------------------------------
+//  Butir 20/22/24 dari kartu (pemilik 2026-11-10): bukti per unsur langsung
+//  di kartu, tersimpan sebagai bukti baris MK capstone / dokumen peta jalan
+//  (lkps_bukti), jadi sama dengan isian di Data prodi. Khusus admin.
+// ---------------------------------------------------------------------
+let LB_UNSUR = [];   // lkps_bukti berunsur untuk ref_mata_kuliah dan lkps_peta_jalan (admin)
+async function muatBuktiBaris(){
+  if (!ADMIN) return;
+  const { data } = await sb.from('lkps_bukti').select('id,tabel,baris_id,judul,url,unsur')
+    .in('tabel', ['ref_mata_kuliah', 'lkps_peta_jalan']).not('unsur', 'is', null);
+  LB_UNSUR = data || [];
+}
+const barisUnsur = no => no === '20'
+  ? { tabel: 'ref_mata_kuliah', rows: (MK_DATA || []).filter(m => m.capstone),
+      label: m => `${m.kode || ''} ${m.nama || ''}`.trim(), daftar: UNSUR.capstone, tab: 'mk', kosong: 'MK bercentang capstone' }
+  : { tabel: 'lkps_peta_jalan', rows: (PETA_JALAN || []).filter(r => r.jenis === (no === '22' ? 'penelitian' : 'pkm')),
+      label: r => r.judul || 'Peta jalan', daftar: UNSUR.peta_jalan, tab: 'peta_dok',
+      kosong: `dokumen peta jalan ${no === '22' ? 'penelitian' : 'PkM'}` };
+function htmlBuktiBaris(no){
+  const x = barisUnsur(no);
+  if (!x.rows.length) return `<p class="ctt"><b>Tambah bukti:</b> belum ada ${x.kosong}. Buat dulu di
+    <a href="data-prodi.html?tab=${x.tab}">Data prodi</a>; setelah itu bukti per unsur bisa ditambahkan di sini.</p>`;
+  const bukti = LB_UNSUR.filter(b => b.tabel === x.tabel);
+  return `<div class="pb" data-pbr="${esc(no)}"><div class="pb-j">Tambah bukti per unsur (tersimpan juga di Data prodi)</div>
+    ${x.rows.map(r => { const xs = bukti.filter(b => +b.baris_id === +r.id); return `<p class="pb-ket"><b>${esc(x.label(r))}</b>${
+      xs.length ? '' : ' — belum ada bukti'}</p>${xs.length ? `<ul class="pb-l">${xs.map(b => `<li><span class="pb-unsur">unsur ${b.unsur}</span>
+      <a href="${esc(b.url)}" target="_blank" rel="noopener nofollow">${esc(b.judul || 'Bukti')}</a></li>`).join('')}</ul>` : ''}`; }).join('')}
+    <div class="pb-a">${x.rows.length > 1 ? `<select data-pbr-baris>${x.rows.map(r => `<option value="${r.id}">${esc(x.label(r))}</option>`).join('')}</select>` : ''}
+      <select data-pbr-unsur>${x.daftar.map((l, i) => `<option value="${i + 1}">Unsur ${i + 1} (${esc(pihakUnsur(no, i + 1))}): ${esc(l)}</option>`).join('')}</select></div>
+    ${UNGGAH ? `<div class="pb-a"><input type="file" data-pbr-berkas accept="${esc(UNGGAH.accept)}" multiple>
+      <button type="button" data-pbr-aksi="unggah">Unggah</button></div>` : ''}
+    <div class="pb-a"><input type="text" data-pbr-judul placeholder="Judul bukti"><input type="url" data-pbr-url placeholder="https://…">
+      <button type="button" data-pbr-aksi="tautan">Tambah tautan</button></div>
+    <div class="pb-m" data-pbr-msg></div></div>`;
+}
+document.addEventListener('click', async e => {
+  const tombol = e.target.closest('[data-pbr-aksi]');
+  if (!tombol) return;
+  const box = tombol.closest('[data-pbr]'), no = box.dataset.pbr, x = barisUnsur(no);
+  const msg = (cls, s) => { const m = box.querySelector('[data-pbr-msg]'); m.className = 'pb-m' + (cls ? ' ' + cls : ''); m.textContent = s; };
+  const id = +(box.querySelector('[data-pbr-baris]')?.value || x.rows[0]?.id);
+  const r = x.rows.find(y => +y.id === id), unsur = +box.querySelector('[data-pbr-unsur]').value;
+  const simpan = async items => {
+    const { error } = await sb.from('lkps_bukti').insert(items.map(b => ({ tabel: x.tabel, baris_id: id, judul: b.judul,
+      url: b.url, oleh: SAYA_EMAIL, unsur })));
+    if (error) return msg('buruk', 'Gagal menyimpan: ' + error.message);
+    const u = await sb.rpc('unsur_bukti');
+    if (!u.error) UNSUR_BUKTI = u.data || [];
+    await muatBuktiBaris();
+    const y = window.scrollY; render(); pasangSeksi(); window.scrollTo(0, y);
+  };
+  if (tombol.dataset.pbrAksi === 'tautan') {
+    const judul = box.querySelector('[data-pbr-judul]').value.trim(), url = box.querySelector('[data-pbr-url]').value.trim();
+    if (!/^https?:\/\/\S+$/i.test(url)) return msg('buruk', 'Isi tautan https://… yang sah.');
+    return simpan([{ judul: judul || 'Bukti', url }]);
+  }
+  const berkas = [...(box.querySelector('[data-pbr-berkas]')?.files || [])];
+  if (!berkas.length) return msg('buruk', 'Pilih berkas dulu.');
+  const ditolak = berkas.filter(f => !UNGGAH.ext.includes(((f.name.match(/\.([^.]+)$/) || [])[1] || '').toLowerCase())
+    || (UNGGAH.maxMb && f.size > UNGGAH.maxMb * 1024 * 1024));
+  if (ditolak.length) return msg('buruk', `Ditolak: ${ditolak.map(f => f.name).join(', ')}. Diterima: ${UNGGAH.ext.join(', ')}, maksimal ${UNGGAH.maxMb} MB.`);
+  tombol.disabled = true;
+  try {
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) throw new Error('Sesi login habis. Muat ulang halaman.');
+    const items = [];
+    for (const f of berkas) {
+      msg('', `Mengunggah ${f.name}…`);
+      const data = await new Promise((ok, gagal) => { const fr = new FileReader();
+        fr.onload = () => ok(String(fr.result).split(',')[1] || ''); fr.onerror = () => gagal(new Error('Berkas tidak terbaca.')); fr.readAsDataURL(f); });
+      const res = await fetch(UNGGAH.url, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ token: session.access_token, kind: 'dokumen', jenis: x.tabel, tahun: String(TS),
+          judul: x.label(r).slice(0, 80), mode: 'tambah', filename: f.name, data }) });
+      const out = await res.json();
+      if (!out.ok) throw new Error(out.error || 'Unggah gagal.');
+      items.push({ judul: f.name, url: tautanBerkas(out) });
+    }
+    await simpan(items);
+  } catch (err) { msg('buruk', err.message || String(err)); }
+  finally { tombol.disabled = false; }
+});
+function catatanRPS(){
+  const r = rpsMK();
+  if (!r) return '';
+  if (!r.n) return '<p class="ctt"><b>RPS:</b> belum ada mata kuliah aktif di Data prodi › Mata kuliah.</p>';
+  const contoh = r.belum.slice(0, 8).map(m => esc(`${m.kode || ''} ${m.nama || ''}`.trim())).join('; ');
+  return `<p class="ctt"><b>RPS (unsur 1 dan 4, dari Data prodi › Mata kuliah):</b> ${r.lengkap} dari ${r.n} MK aktif
+    ber-RPS lengkap 9 komponen; ${r.ada} MK punya RPS.${r.belum.length ? ` Belum lengkap: ${contoh}${r.belum.length > 8
+      ? `, dan ${r.belum.length - 8} lainnya` : ''}. Centang "Dokumen RPS ada" dan "RPS memuat 9 komponen" pada MK-nya.` : ''}</p>`;
 }
 function unsurButir(no){
   return hitungUnsur(no, { mk: MK_DATA, peta: PETA_JALAN, bukti: UNSUR_BUKTI, ts: TS });
@@ -1288,7 +1425,7 @@ function catatanUnsur(no){
 }
 // Butir 26 (pemilik 2026-11-10): NDT = dosen aktif berkategori tetap (DTPS dan dosen
 // tetap PT dari prodi lain); NDTT = berkategori tidak tetap atau industri. Kategori
-// diisi di Kelola dosen. null = belum ada dosen berkategori -> isian manual ndtt.
+// diisi di Kelola dosen. null = belum ada dosen berkategori (kartu: belum ada data).
 function hitungDosen(){
   const xs = (DOSEN_KAT || []).filter(d => d.aktif !== false && d.peran !== 'asesor' && d.kategori);
   if (!xs.length) return null;
@@ -1330,22 +1467,28 @@ function catatanMK(no){
   const h = hitungMK();
   if (no === '18') return h && h.jp != null
     ? ` Dihitung dari ${h.n} mata kuliah aktif (Data prodi › Mata kuliah): JP = Σ SKS praktikum × 50, JB = Σ SKS × 50.`
-    : ' SKS praktikum mata kuliah belum diisi; memakai isian manual.';
+    : ' Belum ada mata kuliah aktif dengan SKS praktikum/penugasan (Data prodi › Mata kuliah).';
   return '';
 }
 function catatanRbk(){
   const r = rbkTS();
   return r ? ` Dihitung dari BKD terverifikasi: ${r.n_dosen} DTPS, ${r.n_lengkap} lengkap dua semester. `
     + `Bila SKS Lebih ikut dihitung, RBK menjadi ${f2(+r.rbk_lebih)} (hanya informasi).`
-    : ' Belum ada BKD terverifikasi untuk TS ini; memakai isian manual.';
+    : ' Belum ada BKD terverifikasi untuk TS ini; skor belum terhitung.';
 }
 function taRange(n){ return `TS ${taDari(TS - n + 1)} s.d. ${taDari(TS)}`; }
 function ndtps(){ return (D.dtps || {}).jumlah || 0; }
 
+// Butir berumus yang datanya belum ada (pemilik 2026-11-10: tanpa isian manual).
+const SUMBER_DATA = {
+  bop: 'Data prodi › Penggunaan dana (dana PS baris a–f) dan Mahasiswa per TS',
+  sks_basic_sciences: 'Data prodi › Mata kuliah (centang basic science)',
+  ndtt: 'Kelola dosen (kelompok dosen DTPS/DT/DTT)',
+  kib_3th: 'publikasi dosen dengan sitasi per tahun (tombol Perbarui sitasi dari OpenAlex)',
+};
 function kartuManualKosong(no, judul, kunci){
-  return kartuButir(no, judul, `<p class="kosong">Belum diisi — admin mengisi
-    <code>${kunci}</code> pada tabel <code>pengaturan</code> di Supabase
-    (lihat petunjuk di patch 09).</p>`, null, '');
+  return kartuButir(no, judul, `<p class="kosong">Belum ada data — isi di ${esc(SUMBER_DATA[kunci] || 'Data prodi')}.</p>`,
+    null, '');
 }
 
 // Butir 6 — kerja sama. Skor = (I + 2×II) / 3.
@@ -1423,7 +1566,7 @@ function butirDana(no, judul, kunci, amb, pengali){
     ? 'Dihitung dari Data prodi › Penggunaan dana (dana PS, baris a–f Biaya Operasional Pendidikan) ÷ mahasiswa aktif: '
       + bop.per.map(x => `${x.ta} Rp ${Math.round(x.dana).toLocaleString('id-ID')} ÷ ${x.mhs} = Rp ${Math.round(x.nilai).toLocaleString('id-ID')}`).join('; ')
       + (bop.per.length < 3 ? ` (baru ${bop.per.length} dari 3 tahun akademik berisi dana dan jumlah mahasiswa).` : '.')
-    : kunci === 'bop' ? 'Penggunaan dana atau jumlah mahasiswa aktif belum diisi di Data prodi; memakai isian manual.'
+    : kunci === 'bop' ? 'Penggunaan dana atau jumlah mahasiswa aktif belum diisi di Data prodi.'
     : 'Dari tabel pengaturan Supabase; hanya terbaca oleh dosen terdaftar.');
 }
 
@@ -1436,7 +1579,7 @@ function butir19(){
     `<div class="rumus">≥25 SKS → 4 · 20–24 → 3 · 15–19 → 2 · 10–14 → 1 · &lt;10 → 0 · terisi: ${v} SKS</div>`,
     skor, hitungMK()?.basic != null
       ? `Dihitung dari ${hitungMK().nBasic} mata kuliah aktif bertanda basic science (Data prodi › Mata kuliah, Tabel 3.a.4).`
-      : 'Belum ada mata kuliah bertanda basic science; memakai isian manual.');
+      : 'Belum ada mata kuliah aktif bertanda basic science (Data prodi › Mata kuliah): 0 SKS.');
 }
 
 // Butir 23 & 25 — kegiatan melibatkan mahasiswa.
@@ -1466,7 +1609,7 @@ function butirKegMhs(no, judul, kategori){
 function butir26(){
   const N = ndtps();
   const h = hitungDosen();
-  const ndtt = h ? h.ndtt : IS('ndtt');
+  const ndtt = h ? h.ndtt : null;   // tanpa isian manual (pemilik 2026-11-10)
   if (ndtt == null) return kartuManualKosong(26, 'Kecukupan jumlah DTPS (Tabel 4.a LKPS)', 'ndtt');
   const ndt = h ? Math.max(h.ndt, N) : N;
   const PDTT = (ndtt / ((ndt + ndtt) || 1)) * 100;
@@ -1545,7 +1688,8 @@ function butir36(){
   const N = ndtps(), judul = 'Karya ilmiah bereputasi yang disitasi (Tabel 4.i LKPS)';
   const auto = KARYA_SITASI ? karya4i(KARYA_SITASI, TS) : null;
   const pakaiAuto = !!(auto && auto.length);
-  const v = pakaiAuto ? auto.length : IS('kib_3th');
+  // Tanpa isian manual kib_3th (pemilik 2026-11-10): terbaca tetapi kosong = 0 judul.
+  const v = auto ? auto.length : null;
   if (v == null || !N) return kartuManualKosong(36, judul, 'kib_3th');
   const P = v / N;
   const skor = P >= 0.25 ? 4 : 2 + 8 * P;
@@ -1568,7 +1712,7 @@ function butir36(){
       ? `KIB = ${v} judul jurnal/prosiding Scopus/WoS yang disitasi pada tahun ${TS - 3}–${TS} (beririsan dengan TS-2 s.d. TS), `
         + `dihitung otomatis dari sitasi per tahun${lama ? `; ${lama} memakai angka total lama` : ''}. `
         + 'Perbarui lewat tombol Perbarui sitasi dari OpenAlex atau isian dosen.'
-      : 'Belum ada sitasi tercatat untuk TS ini; memakai isian manual kib_3th (Scopus/Google Scholar).');
+      : 'Belum ada publikasi Scopus/WoS bersitasi pada jendela TS ini: KIB = 0. Isi sitasi per tahun di karya dosen atau tekan Perbarui sitasi dari OpenAlex.');
 }
 
 // Butir 37 — rekognisi DTPS.
@@ -2115,7 +2259,7 @@ function bagianRekapBukti(ctx){
 // Unsur berbukti untuk rekap: butir 38, 39, 48, 53-60 (kartu butir) dan
 // 20/22/24 (Data prodi, baris terlengkap). null = bukan butir berunsur.
 function hitungUnsurRekap(no){
-  if (UNSUR_BUTIR[no]) return { ada: unsurAda(no, UNSUR_BUKTI).size, n: Object.keys(UNSUR_BUTIR[no].unsur).length };
+  if (UNSUR_BUTIR[no]) return { ada: unsurAda(no, buktiEfektif()).size, n: Object.keys(UNSUR_BUTIR[no].unsur).length };
   if (['20', '22', '24'].includes(no)) { const h = unsurButir(no); return { ada: h?.terbaik ? h.terbaik.ada.size : 0, n: 4 }; }
   return null;
 }
@@ -2496,6 +2640,7 @@ async function mulai(){
   P_DATA = await ambilDataButir(sb, { dana: DANA });
   await muatSitasiKarya();
   await muatDataProdiSkor();
+  await muatBuktiBaris();   // bukti per unsur butir 20/22/24 di kartu (admin)
   PENG_GAGAL = !!pengR.error;
   DOK = dokR.data || [];
   BB = bbR.data || [];

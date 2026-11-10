@@ -106,27 +106,27 @@ export const BUTIR_MANUAL = [
   {no:'20', judul:'Proyek rekayasa penciri bidang prodi (capstone design)',
    tabel:'Tabel 3.a.5 LKPS', seksi:'pendidikan',
    ket:'Panduan pelaksanaan, rumusan CPMK, penggunaan standar keteknikan ' +
-       'dan batasan realistis, bukti sahih pelaksanaan. Dihitung otomatis dari bukti per unsur ' +
-       'MK capstone (Data prodi › Mata kuliah); isian di sini hanya dipakai bila belum ada.'},
+       'dan batasan realistis, bukti sahih pelaksanaan. Dihitung dari bukti per unsur MK capstone ' +
+       '(Data prodi › Mata kuliah, atau langsung di kartu ini); tanpa MK capstone = 0.'},
   {no:'21', judul:'Suasana akademik', seksi:'pendidikan',
    komponen:['Pengelolaan suasana akademik',
              'Integritas dan kebebasan ilmiah'],
    gabung:(i,ii)=>(i+ii)/2, rumus:'Skor = (I + II) / 2'},
   {no:'22', judul:'Penelitian — peta jalan', seksi:'pendidikan',
    ket:'Peta jalan penelitian mendukung VMTS, memayungi tema dosen dan ' +
-       'mahasiswa, dievaluasi berkala, berdampak bagi masyarakat. Dihitung otomatis dari bukti ' +
-       'per unsur (Data prodi › Dokumen peta jalan); isian di sini hanya dipakai bila belum ada.'},
+       'mahasiswa, dievaluasi berkala, berdampak bagi masyarakat. Dihitung dari bukti per unsur ' +
+       '(Data prodi › Dokumen peta jalan, atau langsung di kartu ini); tanpa dokumen = 0.'},
   {no:'24', judul:'PkM — peta jalan', seksi:'pendidikan',
    ket:'Peta jalan PkM mendukung VMTS, memayungi tema dosen dan mahasiswa, ' +
-       'dievaluasi berkala, berdampak bagi masyarakat. Dihitung otomatis dari bukti per unsur ' +
-       '(Data prodi › Dokumen peta jalan); isian di sini hanya dipakai bila belum ada.'},
+       'dievaluasi berkala, berdampak bagi masyarakat. Dihitung dari bukti per unsur ' +
+       '(Data prodi › Dokumen peta jalan, atau langsung di kartu ini); tanpa dokumen = 0.'},
 
   // ---- IV. Sumber Daya Manusia --------------------------------------
   {no:'29', judul:'Tenaga kependidikan', tabel:'Tabel 4.b LKPS', seksi:'dosen',
    ket:'Kecukupan dan kualifikasi laboran/teknisi/administrator sistem, ' +
        'serta persentase yang bersertifikat kompetensi.'},
   {no:'30', judul:'Beban kerja DTPS', tabel:'Tabel 4.c LKPS', seksi:'dosen',
-   ket:'RBK dihitung otomatis dari BKD terverifikasi. Isian di sini hanya dipakai bila TS itu belum punya BKD terverifikasi.',
+   ket:'RBK dihitung otomatis dari BKD terverifikasi (pemilik 2026-11-10: tanpa isian manual).',
    hitung:{kunci:['rbk_sks'], label:['RBK — rerata beban kerja DTPS (sks)'],
            rumus:'12–16 sks → 4 · 16–20 sks → (64 − 3×RBK)/4 · skor terendah 1',
            f:(rbk)=>{ if(!rbk) return null;

@@ -175,6 +175,20 @@ export const UNSUR_BUTIR = {
       6: 'Jadwal kegiatan terjadwal tiap 5–6 bulan',
       7: 'Jadwal kegiatan terjadwal tiap 3–4 bulan',
       8: 'Jadwal kegiatan terjadwal tiap 1–2 bulan' },
+    // Contoh kegiatan dan bukti (pemilik 2026-11-10), tampil di bawah tiap unsur.
+    contoh: {
+      1: 'Peraturan/SK rektor tentang kebebasan akademik, mimbar akademik, dan otonomi keilmuan; kode etik akademik.',
+      2: 'Program tahunan prodi: kuliah tamu praktisi, seminar hasil penelitian dosen, diskusi ilmiah dosen–mahasiswa, '
+        + 'kunjungan proyek/lapangan, kompetisi mahasiswa (jembatan, beton, desain), studium generale.',
+      3: 'Ruang seminar/diskusi, laboratorium yang terbuka untuk riset mahasiswa, akses jurnal dan perpustakaan digital, '
+        + 'lisensi perangkat lunak teknik.',
+      4: 'Survei suasana akademik ke mahasiswa dan dosen tiap semester, laporan hasil dan tindak lanjutnya, notulen rapat evaluasi.',
+      5: 'Kegiatan ilmiah terbuka (seminar, kuliah tamu, kolokium, seminar proposal/hasil terbuka, webinar, bedah jurnal) '
+        + 'yang jaraknya lebih dari 6 bulan. Bukti: jadwal 12 bulan terakhir, undangan, daftar hadir, foto, notulen.',
+      6: 'Kegiatan seperti unsur 5 yang terjadwal setidaknya tiap 5–6 bulan (sekitar 2 kali setahun).',
+      7: 'Kegiatan seperti unsur 5 yang terjadwal setidaknya tiap 3–4 bulan (sekitar 3–4 kali setahun).',
+      8: 'Kegiatan seperti unsur 5 yang terjadwal tiap 1–2 bulan (6 kali atau lebih setahun, merata). '
+        + 'Cukup unggah jadwal 12 bulan terakhir dan pilih unsur frekuensi tertinggi yang tercapai.' },
     komponen: [
       { kunci: 'b21_i', nomor: [1, 2, 3, 4], aturan: 'I: unsur 1–4 berurutan, terendah 1', f: ada => Math.max(1, urut(ada, 1, 4)) },
       { kunci: 'b21_ii', nomor: [5, 6, 7, 8], aturan: 'II: tiap 1–2 bulan → 4, 3–4 → 3, 5–6 → 2, lebih jarang → 1',

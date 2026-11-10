@@ -27,11 +27,11 @@
      unggah = {url, ext[], maxMb, accept} dari config.js, atau null.
    ===================================================================== */
 
-import { JENIS_DOKUMEN, infoJenis, buktiButir } from './rencana-bukti.js?v=2026-11-10-565656';
-import { tautanBerkas, temuanPakai } from './tautan-privat.js?v=2026-11-10-565656';
-import { buangBerkas, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-10-565656';
-import { periksaBerkas, kolomSidik, teksTemuan } from './sidik-berkas.js?v=2026-11-10-565656';
-import { UNSUR_BUTIR, pihakUnsur } from './unsur-butir.js?v=2026-11-10-565656';
+import { JENIS_DOKUMEN, infoJenis, buktiButir } from './rencana-bukti.js?v=2026-11-10-77899f';
+import { tautanBerkas, temuanPakai } from './tautan-privat.js?v=2026-11-10-77899f';
+import { buangBerkas, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-10-77899f';
+import { periksaBerkas, kolomSidik, teksTemuan } from './sidik-berkas.js?v=2026-11-10-77899f';
+import { UNSUR_BUTIR, pihakUnsur } from './unsur-butir.js?v=2026-11-10-77899f';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g,
   c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -126,7 +126,8 @@ function htmlUnsurPanel(no, xs){
   const ada = new Set(xs.map(x => +x.unsur).filter(Boolean));
   const pilih = unsurPilih(no);
   return `<table class="pb-tu"><thead><tr><th>Unsur</th><th>Bukti yang dibutuhkan</th><th>Penanggung jawab</th><th></th></tr></thead><tbody>${
-    Object.entries(d.unsur).map(([n, l]) => `<tr class="${ada.has(+n) ? 'ada' : 'belum'}"><td>${n}</td><td>${esc(l)}</td>
+    Object.entries(d.unsur).map(([n, l]) => `<tr class="${ada.has(+n) ? 'ada' : 'belum'}"><td>${n}</td><td>${esc(l)}${
+      d.contoh?.[n] ? `<br><small class="contoh">Contoh: ${esc(d.contoh[n])}</small>` : ''}</td>
       <td>${esc(pihakUnsur(no, n))}</td><td>${ada.has(+n) ? '✓' : '—'}</td></tr>`).join('')}</tbody></table>
     <div class="pb-a"><label>Bukti berikut untuk <select data-pb-unsur="${esc(no)}">
       <option value="">bukti umum (bukan unsur penilaian)</option>
