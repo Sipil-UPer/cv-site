@@ -758,7 +758,8 @@ function butirManual(b){
       <td>${nilai[i] == null ? '<span class="isian">belum diisi</span>'
                              : esc(f2(nilai[i]))}</td></tr>`).join('');
   const rumus = (b.hitung ? b.hitung.rumus
-              : b.rumus || 'Skor diisi langsung dari matriks penilaian (0–4).') + (b.no === '30' ? catatanRbk() : '');
+              : b.rumus || 'Skor diisi langsung dari matriks penilaian (0–4).') + (b.no === '30' ? catatanRbk() : '')
+              + (b.no === '18' ? catatanMK('18') : '');
   const bukti = ISteks(kunciBuktiButir(b));
   const konteks = b.konteks ? b.konteks(D, TS) : '';
   const isi = `
@@ -776,7 +777,9 @@ function butirManual(b){
     (lengkap ? '' : 'Belum lengkap — isi di <a href="input-butir.html">halaman ' +
       'isi butir</a>. ') +
     'Nilai ini penilaian sendiri, bukan penilaian asesor. ' + ket,
-    (b.no === '30' && rbkTS() ? '<span class="manual">dihitung dari BKD</span>' : '<span class="manual">diisi manual</span>'));
+    (b.no === '30' && rbkTS() ? '<span class="manual">dihitung dari BKD</span>'
+      : b.no === '18' && hitungMK()?.jp != null ? '<span class="manual">dihitung dari mata kuliah</span>'
+      : '<span class="manual">diisi manual</span>'));
 }
 
 // Tanda syarat perlu peringkat. Satu butir yang gagal menggugurkan sasaran
@@ -1101,6 +1104,10 @@ function IS(k){
   if (k === 'tk_total') { const tk = tkKepuasan(D, TS); if (tk != null) return tk; }
   // Butir 30: RBK dari BKD terverifikasi; isian rbk_sks hanya cadangan (pemilik 2026-11-06).
   if (k === 'rbk_sks') { const r = rbkTS(); if (r) return +r.rbk; }
+  // Butir 18, 19, 9 dari Data prodi; isian manual hanya cadangan (pemilik 2026-11-10).
+  if (k === 'jp_jam' || k === 'jb_jam') { const h = hitungMK(); if (h && h.jp != null) return k === 'jp_jam' ? h.jp : h.jb; }
+  if (k === 'sks_basic_sciences') { const h = hitungMK(); if (h && h.basic != null) return h.basic; }
+  if (k === 'bop') { const b = hitungBOP(); if (b) return b.nilai; }
   return (PENG[k] == null || PENG[k] === '' ? null : +PENG[k]);
 }
 function ISteks(k){ return PENG[k] == null ? '' : String(PENG[k]).trim(); }
@@ -1115,6 +1122,60 @@ async function muatSitasiKarya(){
   let { data, error } = await q(kol + ',karya_sitasi(tahun,jumlah)');
   if (error) ({ data, error } = await q(kol));
   KARYA_SITASI = error ? null : (data || []);
+}
+// Butir 9, 18, 19 dihitung dari Data prodi (pemilik 2026-11-10); isian manual
+// bop / jp_jam, jb_jam / sks_basic_sciences di tabel pengaturan hanya cadangan.
+//   18: JP = Σ SKS praktikum × 50, JB = Σ SKS × 50 mata kuliah aktif (rumus LKPS Excel, Tabel 3.a.1)
+//   19: Σ SKS mata kuliah aktif bertanda basic science (Tabel 3.a.4)
+//   9:  Σ dana PS baris a–f Tabel 2.b ("Biaya Operasional Pendidikan") ÷ mahasiswa aktif,
+//       per tahun akademik, dirata-rata TS-2 s.d. TS (satuan rupiah)
+let MK_DATA = null, DANA_PRODI = null, MHS_TA = null;
+async function muatDataProdiSkor(){
+  const [mk, dn, mh] = await Promise.all([
+    sb.from('ref_mata_kuliah').select('kode,sks,sks_kuliah,sks_seminar,sks_praktikum,basic_science,aktif'),
+    sb.from('lkps_penggunaan_dana').select('tahun_akademik,jenis,dana_ps'),
+    sb.from('lkps_mahasiswa_ta').select('tahun_akademik,jumlah_mahasiswa_aktif'),
+  ]);
+  MK_DATA = mk.error ? null : (mk.data || []).filter(m => m.aktif !== false);
+  DANA_PRODI = dn.error ? null : (dn.data || []);
+  MHS_TA = mh.error ? null : (mh.data || []);
+}
+// SKS satu mata kuliah: jumlah komponen kuliah/seminar/praktikum bila diisi, selain itu kolom sks.
+function sksMK(m){
+  const k = [m.sks_kuliah, m.sks_seminar, m.sks_praktikum];
+  return k.some(x => x != null && x !== '') ? k.reduce((s, x) => s + (+x || 0), 0) : (+m.sks || 0);
+}
+function hitungMK(){
+  if (!MK_DATA || !MK_DATA.length) return null;
+  const basic = MK_DATA.filter(m => m.basic_science);
+  const adaPraktikum = MK_DATA.some(m => m.sks_praktikum != null && m.sks_praktikum !== '');
+  return { n: MK_DATA.length, nBasic: basic.length,
+    basic: basic.length ? basic.reduce((s, m) => s + sksMK(m), 0) : null,
+    jp: adaPraktikum ? MK_DATA.reduce((s, m) => s + (+m.sks_praktikum || 0), 0) * 50 : null,
+    jb: MK_DATA.reduce((s, m) => s + sksMK(m), 0) * 50 };
+}
+const JENIS_BOP = ['biaya_dosen', 'biaya_tendik', 'operasional_pembelajaran', 'operasional_tidak_langsung',
+  'operasional_luar_pt', 'investasi'];
+function hitungBOP(){
+  if (!DANA_PRODI || !MHS_TA) return null;
+  const per = [];
+  for (let t = TS - 2; t <= TS; t++) {
+    const ta = `${t - 1}/${t}`;
+    const dana = DANA_PRODI.filter(d => d.tahun_akademik === ta && JENIS_BOP.includes(d.jenis) && d.dana_ps != null);
+    const mhs = +(MHS_TA.find(x => x.tahun_akademik === ta)?.jumlah_mahasiswa_aktif || 0);
+    if (dana.length && mhs > 0) {
+      const jml = dana.reduce((s, d) => s + (+d.dana_ps || 0), 0);
+      per.push({ ta, dana: jml, mhs, nilai: jml / mhs });
+    }
+  }
+  return per.length ? { nilai: Math.round(per.reduce((s, x) => s + x.nilai, 0) / per.length), per } : null;
+}
+function catatanMK(no){
+  const h = hitungMK();
+  if (no === '18') return h && h.jp != null
+    ? ` Dihitung dari ${h.n} mata kuliah aktif (Data prodi › Mata kuliah): JP = Σ SKS praktikum × 50, JB = Σ SKS × 50.`
+    : ' SKS praktikum mata kuliah belum diisi; memakai isian manual.';
+  return '';
 }
 function catatanRbk(){
   const r = rbkTS();
@@ -1201,8 +1262,13 @@ function butirDana(no, judul, kunci, amb, pengali){
       <tr><td>Nilai rata-rata / tahun (3 tahun)</td>
       <td>Rp ${v.toLocaleString('id-ID')}</td></tr></tbody></table></div>
     <div class="rumus">≥ Rp ${amb.toLocaleString('id-ID')} → 4 · di bawah itu → ${pengali === 1 ? '' : pengali + ' × '}nilai / 5.000.000</div>`;
-  return kartuButir(no, judul, isi, skor,
-    'Dari tabel pengaturan Supabase; hanya terbaca oleh dosen terdaftar.');
+  const bop = kunci === 'bop' ? hitungBOP() : null;
+  return kartuButir(no, judul, isi, skor, bop
+    ? 'Dihitung dari Data prodi › Penggunaan dana (dana PS, baris a–f Biaya Operasional Pendidikan) ÷ mahasiswa aktif: '
+      + bop.per.map(x => `${x.ta} Rp ${Math.round(x.dana).toLocaleString('id-ID')} ÷ ${x.mhs} = Rp ${Math.round(x.nilai).toLocaleString('id-ID')}`).join('; ')
+      + (bop.per.length < 3 ? ` (baru ${bop.per.length} dari 3 tahun akademik berisi dana dan jumlah mahasiswa).` : '.')
+    : kunci === 'bop' ? 'Penggunaan dana atau jumlah mahasiswa aktif belum diisi di Data prodi; memakai isian manual.'
+    : 'Dari tabel pengaturan Supabase; hanya terbaca oleh dosen terdaftar.');
 }
 
 // Butir 19 — basic sciences (pita skor diskrit).
@@ -1212,7 +1278,9 @@ function butir19(){
   const skor = v >= 25 ? 4 : v >= 20 ? 3 : v >= 15 ? 2 : v >= 10 ? 1 : 0;
   return kartuButir(19, 'Mata kuliah basic sciences dan matematika (Tabel 3.a.4 LKPS)',
     `<div class="rumus">≥25 SKS → 4 · 20–24 → 3 · 15–19 → 2 · 10–14 → 1 · &lt;10 → 0 · terisi: ${v} SKS</div>`,
-    skor, 'Samakan angkanya dengan butir 3 syarat perlu di ambang.js.');
+    skor, hitungMK()?.basic != null
+      ? `Dihitung dari ${hitungMK().nBasic} mata kuliah aktif bertanda basic science (Data prodi › Mata kuliah, Tabel 3.a.4).`
+      : 'Belum ada mata kuliah bertanda basic science; memakai isian manual.');
 }
 
 // Butir 23 & 25 — kegiatan melibatkan mahasiswa.
@@ -2243,6 +2311,7 @@ async function mulai(){
   (rbk || []).forEach(r => RBK.set(r.tahun_akademik, r));
   P_DATA = await ambilDataButir(sb, { dana: DANA });
   await muatSitasiKarya();
+  await muatDataProdiSkor();
   PENG_GAGAL = !!pengR.error;
   DOK = dokR.data || [];
   BB = bbR.data || [];
