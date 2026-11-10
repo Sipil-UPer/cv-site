@@ -106,17 +106,20 @@ export const BUTIR_MANUAL = [
   {no:'20', judul:'Proyek rekayasa penciri bidang prodi (capstone design)',
    tabel:'Tabel 3.a.5 LKPS', seksi:'pendidikan',
    ket:'Panduan pelaksanaan, rumusan CPMK, penggunaan standar keteknikan ' +
-       'dan batasan realistis, bukti sahih pelaksanaan.'},
+       'dan batasan realistis, bukti sahih pelaksanaan. Dihitung otomatis dari bukti per unsur ' +
+       'MK capstone (Data prodi › Mata kuliah); isian di sini hanya dipakai bila belum ada.'},
   {no:'21', judul:'Suasana akademik', seksi:'pendidikan',
    komponen:['Pengelolaan suasana akademik',
              'Integritas dan kebebasan ilmiah'],
    gabung:(i,ii)=>(i+ii)/2, rumus:'Skor = (I + II) / 2'},
   {no:'22', judul:'Penelitian — peta jalan', seksi:'pendidikan',
    ket:'Peta jalan penelitian mendukung VMTS, memayungi tema dosen dan ' +
-       'mahasiswa, dievaluasi berkala, berdampak bagi masyarakat.'},
+       'mahasiswa, dievaluasi berkala, berdampak bagi masyarakat. Dihitung otomatis dari bukti ' +
+       'per unsur (Data prodi › Dokumen peta jalan); isian di sini hanya dipakai bila belum ada.'},
   {no:'24', judul:'PkM — peta jalan', seksi:'pendidikan',
    ket:'Peta jalan PkM mendukung VMTS, memayungi tema dosen dan mahasiswa, ' +
-       'dievaluasi berkala, berdampak bagi masyarakat.'},
+       'dievaluasi berkala, berdampak bagi masyarakat. Dihitung otomatis dari bukti per unsur ' +
+       '(Data prodi › Dokumen peta jalan); isian di sini hanya dipakai bila belum ada.'},
 
   // ---- IV. Sumber Daya Manusia --------------------------------------
   {no:'29', judul:'Tenaga kependidikan', tabel:'Tabel 4.b LKPS', seksi:'dosen',
@@ -152,16 +155,15 @@ export const BUTIR_MANUAL = [
            label:['ΣTKi — jumlah tingkat kepuasan 7 aspek'],
            rumus:'Skor = ΣTKi / 7 · TKi = (4×a) + (3×b) + (2×c) + d, dalam pecahan',
            f:(t)=>t == null ? null : Math.max(0, Math.min(4, t/7))},
-   // ΣTKi diambil dari Data prodi › Kepuasan pengguna bila ketujuh aspek TS
-   // itu terisi (tkKepuasan); isian tk_total hanya cadangan (pemilik 2026-11-04).
+   // ΣTKi selalu dari Data prodi › Kepuasan pengguna (pemilik 2026-11-10);
+   // aspek kosong atau tidak berjumlah 100% bernilai 0. Tanpa isian manual.
    konteks:(D, ts)=>{
-     const n = new Set(barisKepuasan(D, ts).map(r => r.aspek)).size;
-     const tk = tkKepuasan(D, ts);
-     return tk != null
-       ? `ΣTKi = ${tk.toFixed(3)} dari Data prodi › Kepuasan pengguna (TS ${ts - 1}/${ts}).`
-       : `Data prodi › Kepuasan pengguna TS ${ts - 1}/${ts}: ${n} dari 7 aspek terisi`
-         + (n ? ' (atau persentasenya tidak berjumlah 100)' : '')
-         + '; skor memakai isian tk_total bila ada.';
+     const c = cekKepuasan(D, ts);
+     if (c.total == null) return `Data prodi › Kepuasan pengguna TS ${ts - 1}/${ts} belum diisi; skor belum terhitung.`;
+     return `ΣTKi = ${c.total.toFixed(3)} dari Data prodi › Kepuasan pengguna (TS ${ts - 1}/${ts})`
+       + (c.kosong.length ? `; belum diisi (dihitung 0): ${c.kosong.join(', ')}` : '')
+       + (c.salah.length ? `; persentase tidak berjumlah 100 (dihitung 0): ${c.salah.join(', ')}` : '')
+       + '.';
    }},
 
   // ---- VII. Sistem Penjaminan Mutu ----------------------------------
@@ -235,18 +237,23 @@ function barisKepuasan(D, ts){
 // ΣTKi untuk satu TS, atau null bila belum lengkap: ketujuh aspek harus ada
 // dan keempat persentase tiap aspek berjumlah 100 (±1, sama dengan patch 21).
 // TKi = 4a + 3b + 2c + d dengan a..d dalam pecahan.
-export function tkKepuasan(D, ts){
+// ΣTKi dari isian yang ada (pemilik 2026-11-10: selalu dihitung dari isian).
+// Aspek yang belum diisi, atau persentasenya tidak berjumlah 100, bernilai 0;
+// null hanya bila TS itu belum punya baris sama sekali.
+export function cekKepuasan(D, ts){
   const per = new Map(barisKepuasan(D, ts).map(r => [r.aspek, r]));
-  if (!ASPEK_KEPUASAN.every(([a]) => per.has(a))) return null;
   let total = 0;
-  for (const [a] of ASPEK_KEPUASAN){
+  const kosong = [], salah = [];
+  for (const [a, nama] of ASPEK_KEPUASAN){
     const r = per.get(a);
+    if (!r) { kosong.push(nama); continue; }
     const p = [r.sangat_baik, r.baik, r.cukup, r.kurang].map(Number);
-    if (p.some(x => !Number.isFinite(x)) || Math.abs(p[0] + p[1] + p[2] + p[3] - 100) > 1) return null;
+    if (p.some(x => !Number.isFinite(x)) || Math.abs(p[0] + p[1] + p[2] + p[3] - 100) > 1) { salah.push(nama); continue; }
     total += (4 * p[0] + 3 * p[1] + 2 * p[2] + p[3]) / 100;
   }
-  return total;
+  return { total: per.size ? total : null, kosong, salah, n: per.size };
 }
+export const tkKepuasan = (D, ts) => cekKepuasan(D, ts).total;
 
 export function skorManual(b, ambil){
   const kunci = kunciButir(b);

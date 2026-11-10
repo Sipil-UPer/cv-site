@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-10-cfe13d">
+<link rel="stylesheet" href="tema.css?v=2026-11-10-d7b58a">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
@@ -59,6 +59,13 @@
   .unggah-baris input[type=text],.unggah-baris input[type=url]{flex:1 1 200px;width:auto}
   ul.bukti-l{margin:2px 0 4px;padding-left:18px;font-size:13px}
   ul.bukti-l li{margin:2px 0;word-break:break-word}
+  /* Bukti per unsur butir 20/22/24 (pemilik 2026-11-10). */
+  .unsur-status{font-size:13px;background:#FAF8FD;border-left:3px solid var(--ungu);padding:8px 12px;margin:4px 0 8px}
+  .unsur-status ol{margin:4px 0;padding-left:20px;list-style:none}
+  .unsur-status li.ada{color:var(--hijau)}
+  .unsur-status li.belum{color:var(--muted)}
+  .tag-unsur{font-family:var(--mono);font-size:10px;text-transform:uppercase;background:#ECE6F5;
+    color:var(--ungu);padding:1px 6px;border-radius:2px}
   .aksi{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:14px}
   button.btn{font:inherit;font-size:13px;padding:7px 14px;border:1px solid var(--biru);
     background:var(--biru);color:#fff;cursor:pointer;border-radius:2px}
@@ -77,7 +84,7 @@
   .masuk{max-width:420px;margin:40px auto;background:#fff;border:1px solid var(--line);padding:20px}
   .masuk input{width:100%;padding:8px 10px;margin:8px 0;font:inherit}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-10-cfe13d">
+<link rel="stylesheet" href="kepala.css?v=2026-11-10-d7b58a">
 </head>
 <body>
 
@@ -91,7 +98,7 @@
 
 <main class="wrap" id="isi"></main>
 
-<script src="config.js?v=2026-11-10-cfe13d"></script>
+<script src="config.js?v=2026-11-10-d7b58a"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -108,17 +115,18 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-10-cfe13d';
-import { pasangMenu } from './menu.js?v=2026-11-10-cfe13d';
-import { unggahKePustaka, opsiPustaka, opsiJenis, labelDokumen, cariDokumen } from './pustaka-dokumen.js?v=2026-11-10-cfe13d';
-import { pasangRapikan } from './rapikan-berkas.js?v=2026-11-10-cfe13d';
-import { htmlContoh, pasangContoh, JENIS_BUKTI_KS } from './manfaat-kerjasama.js?v=2026-11-10-cfe13d';
-import { infoJenis } from './rencana-bukti.js?v=2026-11-10-cfe13d';
-import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-10-cfe13d';
-import { nomorButir, htmlTautanButir } from './tautan-butir.js?v=2026-11-10-cfe13d';
-import { htmlSaran } from './saran-bukti.js?v=2026-11-10-cfe13d';
-import { tautanBerkas, privatkanLama } from './tautan-privat.js?v=2026-11-10-cfe13d';
-import { unggahLKD, bukaLKD, pendidikanTotal, pendidikanPS } from './bkd.js?v=2026-11-10-cfe13d';
+import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-10-d7b58a';
+import { pasangMenu } from './menu.js?v=2026-11-10-d7b58a';
+import { unggahKePustaka, opsiPustaka, opsiJenis, labelDokumen, cariDokumen } from './pustaka-dokumen.js?v=2026-11-10-d7b58a';
+import { pasangRapikan } from './rapikan-berkas.js?v=2026-11-10-d7b58a';
+import { UNSUR, skorUnsur } from './unsur-butir.js?v=2026-11-10-d7b58a';
+import { htmlContoh, pasangContoh, JENIS_BUKTI_KS } from './manfaat-kerjasama.js?v=2026-11-10-d7b58a';
+import { infoJenis } from './rencana-bukti.js?v=2026-11-10-d7b58a';
+import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-10-d7b58a';
+import { nomorButir, htmlTautanButir } from './tautan-butir.js?v=2026-11-10-d7b58a';
+import { htmlSaran } from './saran-bukti.js?v=2026-11-10-d7b58a';
+import { tautanBerkas, privatkanLama } from './tautan-privat.js?v=2026-11-10-d7b58a';
+import { unggahLKD, bukaLKD, pendidikanTotal, pendidikanPS } from './bkd.js?v=2026-11-10-d7b58a';
 
 /* =====================================================================
    DATA PRODI — data kuantitatif LKPS diisi admin di situs (keputusan
@@ -291,6 +299,9 @@ const TABEL = [
        + 'diampu" Tabel 4.a. Unggah dokumen RPS sebagai bukti baris. Daftar ini juga menjadi pilihan MK pada '
        + 'isian karya integrasi penelitian/PkM.',
     label: r => `${r.kode || ''} ${r.nama || 'Mata kuliah'}`.trim(), tahun: () => null,
+    // Butir 20: bukti per unsur hanya untuk MK capstone (pemilik 2026-11-10).
+    unsur: { butir: '20', daftar: UNSUR.capstone, aktif: () => !!$('f_capstone')?.checked,
+      mati: 'Centang "MK capstone design" untuk mengisi bukti per unsur butir 20.' },
     kolom: [
       { k: 'kode', l: 'Kode MK', t: 'teks', wajib: true },
       { k: 'nama', l: 'Nama mata kuliah', t: 'teks', wajib: true, lebar: true },
@@ -337,6 +348,27 @@ const TABEL = [
       { k: 'urutan', l: 'Urutan tampil', t: 'int' },
     ],
     olah: r => { if (r.urutan == null) r.urutan = 100; } },
+  // Butir 22, 24: dokumen peta jalan dengan bukti per unsur (pemilik 2026-11-10).
+  { id: 'peta_dok', tabel: 'lkps_peta_jalan', judul: 'Dokumen peta jalan', butir: '22, 24',
+    patch: '43-patch-unsur-bukti.sql', urut: ['jenis', 'urutan'],
+    ket: 'Satu baris per dokumen peta jalan UPPS: penelitian (butir 22) dan PkM (butir 24). Unggah bukti '
+       + 'untuk tiap unsur matriks; skor = banyaknya unsur berurutan mulai unsur 1 yang ada buktinya. '
+       + 'Daftar tema tetap di tab Peta jalan.',
+    label: r => `Peta jalan ${r.jenis === 'pkm' ? 'PkM' : 'penelitian'}${r.judul ? ' — ' + r.judul : ''}`,
+    tahun: r => r.tahun_mulai || null,
+    unsur: { butir: r => (r?.jenis === 'pkm' ? '24' : '22'), daftar: UNSUR.peta_jalan, aktif: () => true },
+    kolom: [
+      { k: 'jenis', l: 'Peta jalan', t: 'pilihan', wajib: true,
+        o: [['penelitian', 'Penelitian (butir 22)'], ['pkm', 'PkM (butir 24)']] },
+      { k: 'judul', l: 'Judul dokumen', t: 'teks', wajib: true, lebar: true },
+      { k: 'tahun_mulai', l: 'Berlaku mulai tahun', t: 'int' },
+      { k: 'tahun_selesai', l: 'Berlaku sampai tahun (kosong = masih berlaku)', t: 'int' },
+      { k: 'keterangan', l: 'Keterangan', t: 'teks', lebar: true },
+      { k: 'urutan', l: 'Urutan tampil', t: 'int' },
+    ],
+    olah: r => { if (r.urutan == null) r.urutan = 100; },
+    cek: r => r.tahun_mulai != null && r.tahun_selesai != null && r.tahun_selesai < r.tahun_mulai
+      ? 'Tahun selesai tidak boleh sebelum tahun mulai.' : '' },
   { id: 'vmts', tabel: 'lkps_vmts', judul: 'VMTS', butir: '1–3', patch: '27-patch-institusi-upps.sql',
     urut: ['jenis'],
     ket: 'Tabel 1 LKPS: satu baris per jenis — VMTS perguruan tinggi, VMTS UPPS, dan visi keilmuan program studi '
@@ -612,7 +644,7 @@ TABEL.unshift({ id: 'dokumen', judul: 'Dokumen', khusus: true, butir: 'semua',
      + '(versi lama ke _arsip Drive), tidak membuat salinan. Unggah di sini atau langsung dari bukti baris di tab lain.' });
 // Jenis dokumen yang disarankan per tab (site/rencana-bukti.js JENIS_DOKUMEN).
 const SARAN_DOK = { target: ['dokumen_iku_ikt', 'laporan_kinerja'], tracer: ['laporan_tracer', 'data_survei_mentah'], kepuasan: ['survei_pengguna', 'data_survei_mentah'], kerjasama: ['dokumen_kerjasama', 'pedoman_kerjasama'],
-  mk: ['rps', 'kurikulum'], tema: ['peta_jalan_penelitian', 'peta_jalan_pkm'], vmts: ['sk_vmts', 'statuta', 'renstra_pt', 'renstra_upps'],
+  mk: ['rps', 'kurikulum'], tema: ['peta_jalan_penelitian', 'peta_jalan_pkm'], peta_dok: ['peta_jalan_penelitian', 'peta_jalan_pkm'], vmts: ['sk_vmts', 'statuta', 'renstra_pt', 'renstra_upps'],
   prodi_upps: ['sk_akreditasi_prodi'], dana: ['laporan_keuangan', 'laporan_audit_keuangan'], tendik: ['berkas_pribadi', 'sertifikat'], prasarana: ['pedoman_sarpras'],
   dok_k3l: ['dokumen_k3l', 'kebijakan_k3l'], fas_k3l: ['kebijakan_k3l'], spmi: ['kebijakan_spmi', 'laporan_ami', 'laporan_rtm'], bkd: ['rekap_bkd'], prestasi: ['sertifikat'],
   luaran: ['sertifikat'], kohort: ['data_mahasiswa'], mahasiswa: ['data_mahasiswa'], publikasi: ['lainnya'] };
@@ -623,6 +655,8 @@ const saranTab = T => htmlSaran(({ publikasi: 'publikasi_mhs', luaran: 'luaran_m
 let SAYA = null, DOSEN = [], AKTIF = TABEL[0], BARIS = [], SUNTING = null;
 // Pustaka dokumen; ADA29 = lkps_bukti bisa menunjuk dokumen (patch 29).
 let DOK = [], DOK_GAGAL = '', ADA29 = true, ADA30 = true;
+// ADA43 = lkps_bukti.unsur ada (43-patch-unsur-bukti.sql): bukti per unsur butir 20, 22, 24.
+let ADA43 = true;
 pasangContoh();
 const dokPer = id => DOK.find(d => d.id === id) || null;
 // Bukti jamak per baris (tabel lkps_bukti, supabase/17-patch-lkps-bukti.sql).
@@ -653,6 +687,7 @@ async function mulai(){
   DOSEN = (ds || []).filter(d => d.nidn && (d.dtps || ['dosen', 'pimpinan'].includes(d.peran)));
   ADA29 = !(await sb.from('lkps_bukti').select('dokumen_id').limit(1)).error;
   ADA30 = !(await sb.from('dokumen').select('nomor,tanggal').limit(1)).error;   // 30-patch-spmi.sql
+  ADA43 = !(await sb.from('lkps_bukti').select('unsur').limit(1)).error;
   await muatPustaka();
   const awal = new URLSearchParams(location.search).get('tab');
   AKTIF = TABEL.find(t => t.id === awal) || TABEL[0];
@@ -691,11 +726,23 @@ function blokBukti(T){
     : (UNGGAH ? `<div class="unggah-baris"><input type="file" id="bk_berkas" accept="${esc(UNGGAH.accept)}" multiple>
           <button type="button" class="btn ghost kecil" data-unggah="1">Unggah berkas</button></div>` : '');
   return `<div class="fld lebar"><label>Bukti baris ini (boleh lebih dari satu)</label>
-        <ul class="bukti-l" id="bukti-l"></ul>${pustaka}
+        ${blokUnsur(T)}<ul class="bukti-l" id="bukti-l"></ul>${pustaka}
         <div class="unggah-baris"><input type="text" id="bk_judul" placeholder="Judul tautan luar (mis. DOI artikel)">
           <input type="url" id="bk_url" placeholder="https://…">
           <button type="button" class="btn ghost kecil" data-tautan="1">Tambah tautan luar</button></div></div>`;
 }
+
+// Bukti per unsur butir 20/22/24 (unsur-butir.js): pilih unsur sebelum menautkan,
+// mengunggah, atau menambah tautan; ringkasan unsur terpenuhi di #unsur-status.
+function blokUnsur(T){
+  if (!T.unsur || !ADA43) return '';
+  return `<div id="unsur-blok"><div class="unsur-status" id="unsur-status"></div>
+    <div class="unggah-baris" id="unsur-pilih"><select id="bk_unsur">
+      <option value="">Bukti umum (bukan unsur penilaian)</option>
+      ${T.unsur.daftar.map((u, i) => `<option value="${i + 1}">Unsur ${i + 1}: ${esc(u)}</option>`).join('')}
+    </select></div><p class="ket" id="unsur-mati" hidden></p></div>`;
+}
+const unsurDipilih = () => (AKTIF.unsur && ADA43 && AKTIF.unsur.aktif() && +$('bk_unsur')?.value) || null;
 
 // LKD privat (Code.gs kind 'bkd'), bukan bukti baris biasa yang punya tautan publik.
 const blokLKD = () => `<div class="fld lebar"><label for="lkd_berkas">PDF LKD (privat)</label>
@@ -731,7 +778,7 @@ function ketUnggah(){
 const GRUP_TAB = [
   ['Dokumen', ['dokumen']],
   ['Dosen & SDM', ['bkd', 'tendik']],
-  ['Kurikulum & penelitian', ['mk', 'tema', 'kerjasama']],
+  ['Kurikulum & penelitian', ['mk', 'tema', 'peta_dok', 'kerjasama']],
   ['Mahasiswa & lulusan', ['mahasiswa', 'kohort', 'prestasi', 'publikasi', 'luaran', 'tracer', 'kepuasan']],
   ['Institusi & keuangan', ['vmts', 'prodi_upps', 'dana']],
   ['Sarana & K3L', ['prasarana', 'dok_k3l', 'fas_k3l']],
@@ -768,6 +815,8 @@ async function bukaTab(){
     <div class="gulir" id="daftar"><p class="kosong">Memuat…</p></div>`;
   $('form').onsubmit = e => { e.preventDefault(); simpan(); };
   $('batal').onclick = () => isiForm(null);
+  // Centang capstone / jenis peta jalan mengubah slot unsur.
+  $('form').addEventListener('change', e => { if (['f_capstone', 'f_jenis'].includes(e.target.id)) gambarBukti(); });
   if ($('bk_jenis')) ['bk_jenis', 'bk_tahun', 'bk_dj'].forEach(i => { $(i).oninput = ketUnggah; });
   setelUnggah(null);
   ANTREAN = [];
@@ -922,7 +971,8 @@ async function muatBaris(){
     const r = SUNTING ? BARIS.find(x => x.id === SUNTING) : null;
     isiJamak(c, r ? r[c.k] : [...($('f_' + c.k)?.querySelectorAll('input:checked') || [])].map(x => x.value));
   });
-  const lb = await sb.from('lkps_bukti').select(ADA29 ? 'id,baris_id,judul,url,dokumen_id' : 'id,baris_id,judul,url')
+  const lb = await sb.from('lkps_bukti').select((ADA29 ? 'id,baris_id,judul,url,dokumen_id' : 'id,baris_id,judul,url')
+      + (ADA43 ? ',unsur' : ''))
     .eq('tabel', T.tabel).order('id');
   LB_GAGAL = lb.error ? lb.error.message : '';
   LB = new Map();
@@ -1061,9 +1111,10 @@ function buktiBaris(r){
   return [...(lama ? [{ judul: 'Bukti (lama)', url: lama }] : []), ...(LB.get(r.id) || []).map(pustaka)];
 }
 // Baris lkps_bukti dari satu bukti (tautan pustaka atau tautan luar).
-const barisBukti = (b, barisId) => b.dokumen_id
+const barisBukti = (b, barisId) => ({ ...(b.dokumen_id
   ? { tabel: AKTIF.tabel, baris_id: barisId, dokumen_id: b.dokumen_id, judul: '', oleh: SAYA.email }
-  : { tabel: AKTIF.tabel, baris_id: barisId, judul: b.judul, url: b.url, oleh: SAYA.email };
+  : { tabel: AKTIF.tabel, baris_id: barisId, judul: b.judul, url: b.url, oleh: SAYA.email }),
+  ...(b.unsur ? { unsur: b.unsur } : {}) });
 
 // Bukti di form: baris yang diubah (tersimpan) atau baris baru (antrean).
 function gambarBukti(){
@@ -1076,16 +1127,38 @@ function gambarBukti(){
                    : x.pustaka ? `data-lepas-bukti="${x.id}"` : `data-hapus-bukti="${x.id}" data-url="${esc(x.url)}"` }))
                : ANTREAN.map((x, i) => ({ ...x, ...(x.dokumen_id ? { pustaka: true, url: dokPer(x.dokumen_id)?.url || '',
                    judul: labelDokumen(dokPer(x.dokumen_id)) } : {}), hapus: `data-hapus-antrean="${i}"` }));
-  ul.innerHTML = xs.length ? xs.map(x => `<li>${x.pustaka ? '<span class="tag-pustaka">pustaka</span> ' : ''}<a href="${esc(x.url)}"
+  gambarUnsur(xs);
+  ul.innerHTML = xs.length ? xs.map(x => `<li>${x.unsur ? `<span class="tag-unsur">unsur ${x.unsur}</span> ` : ''}${
+    x.pustaka ? '<span class="tag-pustaka">pustaka</span> ' : ''}<a href="${esc(x.url)}"
     target="_blank" rel="noopener nofollow">${esc(x.judul)}</a>
     ${x.hapus ? `<button type="button" class="btn bahaya kecil" ${x.hapus} title="${x.pustaka ? 'Lepas dari baris' : 'Hapus'}">×</button>` : ''}</li>`).join('')
     : `<li class="kosong">${r ? 'Belum ada bukti.' : 'Belum ada bukti; yang diunggah akan tersimpan bersama baris ini.'}</li>`;
 }
 
+// Ringkasan unsur: mana yang sudah ada buktinya dan skor butir dari baris ini.
+function gambarUnsur(xs){
+  const box = $('unsur-status');
+  if (!box) return;
+  const T = AKTIF, aktif = T.unsur.aktif();
+  $('unsur-pilih').hidden = !aktif;
+  $('unsur-mati').hidden = aktif || !T.unsur.mati;
+  $('unsur-mati').textContent = T.unsur.mati || '';
+  if (!aktif) { box.innerHTML = ''; return; }
+  const ada = new Set(xs.map(x => +x.unsur).filter(Boolean));
+  const no = typeof T.unsur.butir === 'function' ? T.unsur.butir({ jenis: $('f_jenis')?.value }) : T.unsur.butir;
+  box.innerHTML = `<b>Unsur butir ${esc(no)}</b> (skor dari baris ini: ${skorUnsur(ada)} dari 4)<ol>${
+    T.unsur.daftar.map((u, i) => `<li class="${ada.has(i + 1) ? 'ada' : 'belum'}">${
+      ada.has(i + 1) ? '✓' : '—'} ${esc(u)}</li>`).join('')}</ol>
+    <small>Skor = banyaknya unsur berurutan mulai unsur 1 yang ada buktinya.</small>`;
+}
+
 async function tambahBukti(items){
-  // Dokumen pustaka yang sudah tertaut ke baris ini tidak ditautkan dua kali.
-  const sudah = new Set((SUNTING ? LB.get(SUNTING) || [] : ANTREAN).map(x => x.dokumen_id).filter(Boolean));
-  const baru = items.filter(b => !b.dokumen_id || !sudah.has(b.dokumen_id));
+  // Dokumen pustaka yang sudah tertaut ke baris ini (untuk unsur yang sama) tidak ditautkan dua kali.
+  const u = unsurDipilih();
+  items = items.map(b => ({ ...b, unsur: u }));
+  const kunci = x => `${x.dokumen_id}|${x.unsur || ''}`;
+  const sudah = new Set((SUNTING ? LB.get(SUNTING) || [] : ANTREAN).filter(x => x.dokumen_id).map(kunci));
+  const baru = items.filter(b => !b.dokumen_id || !sudah.has(kunci(b)));
   if (!baru.length) return tulis('buruk', 'Dokumen itu sudah menjadi bukti baris ini.');
   items = baru;
   if (!SUNTING) { ANTREAN.push(...items); gambarBukti(); return tulis('ok', `${items.length} bukti siap; tersimpan saat baris disimpan.`); }

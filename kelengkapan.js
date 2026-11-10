@@ -2,18 +2,20 @@
 // kelengkapan.html mengambil data, modul ini menghitung. Aturan terisi sama
 // dengan halaman sumbernya: kotak narasi seperti narasi-led.html, bukti butir
 // seperti rekap bukti di skor.html.
-import { BUTIR_MANUAL } from './butir-manual.js?v=2026-11-10-cfe13d';
-import { BUTIR_DATA } from './butir-data.js?v=2026-11-10-cfe13d';
-import { faktaNarasi, anggotaTim } from './led-isi.js?v=2026-11-10-cfe13d';
-import { pisahKalimat } from './led-narasi.js?v=2026-11-10-cfe13d';
-import { masihKerangka } from './led-saran.js?v=2026-11-10-cfe13d';
-import { JENIS_DOKUMEN, buktiButir } from './rencana-bukti.js?v=2026-11-10-cfe13d';
+import { BUTIR_MANUAL } from './butir-manual.js?v=2026-11-10-d7b58a';
+import { UNSUR_BUTIR } from './unsur-butir.js?v=2026-11-10-d7b58a';
+import { BUTIR_DATA } from './butir-data.js?v=2026-11-10-d7b58a';
+import { faktaNarasi, anggotaTim } from './led-isi.js?v=2026-11-10-d7b58a';
+import { pisahKalimat } from './led-narasi.js?v=2026-11-10-d7b58a';
+import { masihKerangka } from './led-saran.js?v=2026-11-10-d7b58a';
+import { JENIS_DOKUMEN, buktiButir } from './rencana-bukti.js?v=2026-11-10-d7b58a';
 
 // Tab Data prodi: [id tab, tabel, judul, butir]; sama dengan TABEL di data-prodi.html.
 export const TAB_DATA = [
   ['prodi_upps', 'lkps_prodi_upps', 'Prodi di UPPS', 'PS, 6.a'], ['vmts', 'lkps_vmts', 'VMTS', '1–3'],
   ['kerjasama', 'lkps_kerjasama', 'Kerja sama', '6–7'], ['dana', 'lkps_penggunaan_dana', 'Penggunaan dana', '8–11'],
   ['mk', 'ref_mata_kuliah', 'Mata kuliah', '15, 17, 19, 20'], ['tema', 'ref_tema_peta_jalan', 'Peta jalan', '22–25'],
+  ['peta_dok', 'lkps_peta_jalan', 'Dokumen peta jalan', '22, 24'],
   ['tendik', 'lkps_tendik', 'Tenaga kependidikan', '29'], ['bkd', 'lkps_bkd', 'Beban kerja dosen', '30'],
   ['prasarana', 'lkps_prasarana', 'Prasarana & alat', '38'], ['dok_k3l', 'lkps_dokumen_k3l', 'Dokumen K3L', '39'],
   ['fas_k3l', 'lkps_fasilitas_k3l', 'Fasilitas K3L', '39'], ['mahasiswa', 'lkps_mahasiswa_ta', 'Mahasiswa per TS', '40–45'],
@@ -81,12 +83,15 @@ export function rekapKelengkapan(S){
   const adaBukti = no => peng.some(p => p.kunci === `bukti_b${no}` && p.nilai != null && String(p.nilai).trim()) ||
     buktiButir(no, { dokumen: dok, butirBukti: S.butirBukti, ts: S.ts }).some(x => x.url);
   const belumBukti = nos.filter(no => !adaBukti(no));
-  const angka = peng.filter(p => !String(p.kunci).startsWith('bukti_b'));
-  const belumAngka = angka.filter(p => p.nilai == null || p.nilai === '');
+  // Butir kualitatif dinilai dari bukti per unsur, bukan isian angka (pemilik 2026-11-10).
+  const berbukti = new Set((S.butirBukti || []).filter(b => b.unsur).map(b => `${b.butir}|${b.unsur}`));
+  const semuaUnsur = Object.entries(UNSUR_BUTIR).flatMap(([no, d]) => Object.entries(d.unsur).map(([n, l]) => [no, n, l]));
+  const belumUnsur = semuaUnsur.filter(([no, n]) => !berbukti.has(`${no}|${n}`));
   const bukti = [
     baris('Jenis dokumen di pustaka', JENIS_DOKUMEN.length - belumDok.length, JENIS_DOKUMEN.length, { href: 'input-butir.html', kurang: belumDok.map(j => j.nama) }),
     baris('Butir yang punya bukti', nos.length - belumBukti.length, nos.length, { href: 'input-butir.html', kurang: belumBukti.map(no => `Butir ${no}`) }),
-    baris('Isian angka butir', angka.length - belumAngka.length, angka.length || 1, { href: 'input-butir.html', kurang: belumAngka.map(p => p.keterangan || p.kunci) }),
+    baris('Unsur penilaian berbukti', semuaUnsur.length - belumUnsur.length, semuaUnsur.length, { href: 'input-butir.html',
+      kurang: belumUnsur.map(([no, n, l]) => `Butir ${no} unsur ${n}: ${l}`) }),
   ];
 
   const karya = (S.karya || []).filter(k => k.status !== 'ditolak' && k.status !== 'draf');

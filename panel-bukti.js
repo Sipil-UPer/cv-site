@@ -27,21 +27,29 @@
      unggah = {url, ext[], maxMb, accept} dari config.js, atau null.
    ===================================================================== */
 
-import { JENIS_DOKUMEN, infoJenis, buktiButir } from './rencana-bukti.js?v=2026-11-10-cfe13d';
-import { tautanBerkas, temuanPakai } from './tautan-privat.js?v=2026-11-10-cfe13d';
-import { buangBerkas, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-10-cfe13d';
-import { periksaBerkas, kolomSidik, teksTemuan } from './sidik-berkas.js?v=2026-11-10-cfe13d';
+import { JENIS_DOKUMEN, infoJenis, buktiButir } from './rencana-bukti.js?v=2026-11-10-d7b58a';
+import { tautanBerkas, temuanPakai } from './tautan-privat.js?v=2026-11-10-d7b58a';
+import { buangBerkas, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-10-d7b58a';
+import { periksaBerkas, kolomSidik, teksTemuan } from './sidik-berkas.js?v=2026-11-10-d7b58a';
+import { UNSUR_BUTIR } from './unsur-butir.js?v=2026-11-10-d7b58a';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g,
   c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
+
+// Bukti per unsur (butir 38, 39, 48, 53-60; pemilik 2026-11-10): unsur yang
+// sedang dipilih per butir. Pengecekan "sudah tertaut" berlaku per unsur, jadi
+// satu dokumen boleh menjadi bukti beberapa unsur.
+const PILIH_UNSUR = new Map();
+const unsurPilih = no => (UNSUR_BUTIR[String(no)] && PILIH_UNSUR.get(String(no))) || null;
+const samaUnsur = no => b => String(b.butir) === String(no) && (b.unsur || null) === unsurPilih(no);
 
 // Dokumen yang bisa ditautkan ke butir `no`: tanpa yang sudah tertaut di butir ini.
 //   j:<jenis> dokumen jenis tunggal (selalu versi berlaku), d:<id> entri pustaka,
 //   u:<id> berkas yang diunggah di butir lain (baris butir_bukti).
 export function pilihanBukti(no, k){
   const dok = k.dokumen || [], bb = k.butirBukti || [];
-  const di = bb.filter(b => String(b.butir) === String(no));
+  const di = bb.filter(samaUnsur(no));
   const jenis = new Set(di.map(b => b.jenis_dokumen).filter(Boolean));
   const dokId = new Set(di.map(b => b.dokumen_id).filter(Boolean));
   const url = new Set(di.map(b => b.url).filter(Boolean));
@@ -56,16 +64,16 @@ export function pilihanBukti(no, k){
   const semua = [...tunggal, ...banyak];
   const dikenal = new Set(dok.map(d => d.url));
   const sudah = new Set();
-  const berkas = bb.filter(b => b.url && String(b.butir) !== String(no) && !url.has(b.url) && !dikenal.has(b.url))
+  const berkas = bb.filter(b => b.url && !url.has(b.url) && !dikenal.has(b.url))
     .filter(b => !sudah.has(b.url) && sudah.add(b.url))
-    .map(b => ({ nilai: `u:${b.id}`, label: `${b.judul || 'Berkas bukti'} (butir ${b.butir})` }));
+    .map(b => ({ nilai: `u:${b.id}`, label: `${b.judul || 'Berkas bukti'} (butir ${b.butir}${b.unsur ? ', unsur ' + b.unsur : ''})` }));
   return { saran: semua.filter(x => x.saran), lain: semua.filter(x => !x.saran), berkas };
 }
 
 // Baris butir_bukti untuk dokumen yang sudah tersimpan, atau null bila sudah tertaut di butir ini.
 export function barisTaut(no, k, b){
   const dok = k.dokumen || [];
-  const di = (k.butirBukti || []).filter(x => String(x.butir) === String(no));
+  const di = (k.butirBukti || []).filter(samaUnsur(no));
   const d = b.dokumen_id ? dok.find(x => x.id === b.dokumen_id) : dok.find(x => b.url && x.url === b.url);
   if (d) {
     const ada = di.some(x => x.dokumen_id === d.id || x.jenis_dokumen === d.jenis || x.url === d.url);
@@ -91,7 +99,8 @@ export function htmlPanel(no, k){
   const u = k.unggah;
   return `<div class="pb" id="pb-${esc(no)}">
     <div class="pb-j">Kelola bukti butir ${esc(no)} (${xs.length})</div>
-    ${xs.length ? `<ul class="pb-l">${xs.map(x => `<li>${x.url
+    ${htmlUnsurPanel(no, xs)}
+    ${xs.length ? `<ul class="pb-l">${xs.map(x => `<li>${x.unsur ? `<span class="pb-unsur">unsur ${esc(x.unsur)}</span> ` : ''}${x.url
         ? `<a href="${esc(x.url)}" target="_blank" rel="noopener nofollow">${esc(x.label)}</a>`
         : `${esc(x.label)} <span class="pb-kos">· ${esc(x.ket)}</span>`}
       <span class="pb-ket">${esc(x.ket)}</span>
@@ -110,6 +119,21 @@ export function htmlPanel(no, k){
   </div>`;
 }
 
+// Tabel unsur (✓/—, bukti yang dibutuhkan) dan pilihan unsur untuk bukti berikutnya.
+function htmlUnsurPanel(no, xs){
+  const d = UNSUR_BUTIR[String(no)];
+  if (!d) return '';
+  const ada = new Set(xs.map(x => +x.unsur).filter(Boolean));
+  const pilih = unsurPilih(no);
+  return `<table class="pb-tu"><thead><tr><th>Unsur</th><th>Bukti yang dibutuhkan</th><th></th></tr></thead><tbody>${
+    Object.entries(d.unsur).map(([n, l]) => `<tr class="${ada.has(+n) ? 'ada' : 'belum'}"><td>${n}</td><td>${esc(l)}</td>
+      <td>${ada.has(+n) ? '✓' : '—'}</td></tr>`).join('')}</tbody></table>
+    <div class="pb-a"><label>Bukti berikut untuk <select data-pb-unsur="${esc(no)}">
+      <option value="">bukti umum (bukan unsur penilaian)</option>
+      ${Object.entries(d.unsur).map(([n, l]) => `<option value="${n}"${pilih === +n ? ' selected' : ''}>Unsur ${n}: ${esc(l)}</option>`).join('')}
+    </select></label></div>`;
+}
+
 const keB64 = f => new Promise((ok, gagal) => {
   const r = new FileReader();
   r.onload = () => ok(String(r.result).split(',')[1] || '');
@@ -122,10 +146,11 @@ export function pasangPanel(c){
   const selesai = async () => { await c.muatUlang(); c.segarkan(); };
   const simpan = async (no, baris) => {
     const { error } = await c.sb.from('butir_bukti').insert(
-      (Array.isArray(baris) ? baris : [baris]).map(b => ({ butir: +no, oleh: c.oleh(), ...b })));
+      (Array.isArray(baris) ? baris : [baris]).map(b => ({ butir: +no, oleh: c.oleh(), ...b,
+        ...(unsurPilih(no) ? { unsur: unsurPilih(no) } : {}) })));
     if (error) {
       tulis(no, 'buruk', /duplicate|unique/i.test(error.message)
-        ? 'Dokumen itu sudah tertaut di butir ini.' : 'Gagal menyimpan: ' + error.message);
+        ? 'Dokumen itu sudah tertaut di butir ini (untuk unsur yang sama).' : 'Gagal menyimpan: ' + error.message);
       return false;
     }
     await selesai();
@@ -231,6 +256,13 @@ export function pasangPanel(c){
     },
   };
 
+  // Ganti unsur: pilihan dokumen dihitung ulang untuk unsur itu.
+  document.addEventListener('change', e => {
+    const s = e.target.closest('[data-pb-unsur]');
+    if (!s) return;
+    PILIH_UNSUR.set(s.dataset.pbUnsur, +s.value || null);
+    c.segarkan();
+  });
   document.addEventListener('click', e => {
     const b = e.target.closest('[data-pb]');
     if (!b) return;

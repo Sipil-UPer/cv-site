@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-10-cfe13d">
+<link rel="stylesheet" href="tema.css?v=2026-11-10-d7b58a">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
@@ -34,6 +34,12 @@
   .pb-j{font-weight:600;color:var(--biru);margin-bottom:4px}
   .pb-l{margin:4px 0 8px;padding-left:20px}
   .pb-l li{margin:3px 0}
+  /* Bukti per unsur (unsur-butir.js, pemilik 2026-11-10). */
+  .pb-tu,.tu{width:100%;border-collapse:collapse;font-size:12.5px;margin:6px 0 8px}
+  .pb-tu td,.pb-tu th,.tu td,.tu th{border-bottom:1px solid var(--line-soft);padding:4px 6px;text-align:left;vertical-align:top}
+  .pb-tu tr.ada td:last-child,.tu tr.ada td:last-child{color:var(--hijau);font-weight:600}
+  .pb-tu tr.belum td,.tu tr.belum td{color:var(--muted)}
+  .pb-unsur{font-family:var(--mono);font-size:9.5px;text-transform:uppercase;background:#ECE6F5;color:var(--ungu);padding:1px 6px;border-radius:2px}
   .pb-l .kn{margin-left:6px}
   .pb-a{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:6px}
   .pb-a select, .pb-a input[type=text], .pb-a input[type=url]{flex:1 1 220px;padding:6px 8px;font:inherit;border:1px solid var(--line);background:#fff}
@@ -98,7 +104,7 @@
                 color:#fff;font-family:var(--mono);font-size:12px;
                 letter-spacing:.07em;text-transform:uppercase;cursor:pointer;border-radius:2px}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-10-cfe13d">
+<link rel="stylesheet" href="kepala.css?v=2026-11-10-d7b58a">
 </head>
 <body>
 
@@ -112,7 +118,7 @@
 
 <main class="wrap" id="isi"></main>
 
-<script src="config.js?v=2026-11-10-cfe13d"></script>
+<script src="config.js?v=2026-11-10-d7b58a"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -130,14 +136,15 @@ addEventListener('error', function (e) {
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 import { BUTIR_MANUAL, SEKSI_MANUAL, kunciButir, kunciBuktiButir, skorManual }
-  from './butir-manual.js?v=2026-11-10-cfe13d';
-import { BUTIR_DATA } from './butir-data.js?v=2026-11-10-cfe13d';
-import { htmlRencana, JENIS_DOKUMEN, infoJenis, buktiButir } from './rencana-bukti.js?v=2026-11-10-cfe13d';
-import { htmlPanel, pasangPanel } from './panel-bukti.js?v=2026-11-10-cfe13d';
-import { buangBerkas, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-10-cfe13d';
-import { pasangYatim } from './berkas-yatim.js?v=2026-11-10-cfe13d';
-import { unggahKePustaka, labelDokumen } from './pustaka-dokumen.js?v=2026-11-10-cfe13d';
-import { pasangMenu } from './menu.js?v=2026-11-10-cfe13d';
+  from './butir-manual.js?v=2026-11-10-d7b58a';
+import { BUTIR_DATA } from './butir-data.js?v=2026-11-10-d7b58a';
+import { htmlRencana, JENIS_DOKUMEN, infoJenis, buktiButir } from './rencana-bukti.js?v=2026-11-10-d7b58a';
+import { htmlPanel, pasangPanel } from './panel-bukti.js?v=2026-11-10-d7b58a';
+import { buangBerkas, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-10-d7b58a';
+import { pasangYatim } from './berkas-yatim.js?v=2026-11-10-d7b58a';
+import { unggahKePustaka, labelDokumen } from './pustaka-dokumen.js?v=2026-11-10-d7b58a';
+import { pasangMenu } from './menu.js?v=2026-11-10-d7b58a';
+import { UNSUR_BUTIR, skorKunci } from './unsur-butir.js?v=2026-11-10-d7b58a';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g,
   c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -310,7 +317,10 @@ function kartu(b){
   const rumus = b.hitung ? b.hitung.rumus
               : b.rumus || 'Skor diisi langsung dari matriks penilaian (0–4).';
   const kb = kunciBuktiButir(b);
-  const batas = b.hitung ? '' : ' min="0" max="4" step="0.01"';
+  // Butir kualitatif dinilai dari bukti per unsur, tanpa isian angka (pemilik 2026-11-10).
+  const dariBukti = !b.hitung;
+  // Butir 52 selalu dari Data prodi › Kepuasan pengguna (pemilik 2026-11-10).
+  const dariData = b.no === '52';
   return `<div class="b" id="b-${esc(b.no)}">
     <div class="b-kep">
       <span class="b-no">Butir ${esc(b.no)}</span>
@@ -319,13 +329,19 @@ function kartu(b){
     </div>
     ${b.ket ? `<div class="b-ket">${esc(b.ket)}</div>` : ''}
     ${b.tabel ? `<div class="b-ket">${esc(b.tabel)}</div>` : ''}
-    <div class="b-rm">${esc(rumus)}</div>
+    ${dariData ? `<div class="b-rm">${esc(rumus)}. Dihitung dari <a href="data-prodi.html?tab=kepuasan">Data prodi ›
+        Kepuasan pengguna</a>; aspek yang belum diisi bernilai 0.</div>`
+      : dariBukti ? `<div class="b-rm">${['20', '22', '24'].includes(b.no)
+        ? `Skor dari bukti per unsur di <a href="data-prodi.html?tab=${b.no === '20' ? 'mk' : 'peta_dok'}">Data prodi › ${
+            b.no === '20' ? 'Mata kuliah (centang capstone)' : 'Dokumen peta jalan'}</a>; skor terhitung di halaman Skor.`
+        : 'Skor dari bukti per unsur: pilih unsur di panel bukti, lalu unggah atau tautkan. Tanpa bukti = 0.'}</div>`
+      : `<div class="b-rm">${esc(rumus)}</div>
     ${kunci.map((k, i) => `<div class="fld">
       <label for="i-${esc(k)}">${esc(label[i])}
         <span class="kn">· ${esc(k)}</span></label>
-      <input type="number"${batas} id="i-${esc(k)}" data-kunci="${esc(k)}"
-             value="${esc(NILAI[k] ?? '')}" placeholder="kosongkan bila belum dinilai">
-    </div>`).join('')}
+      <input type="number" id="i-${esc(k)}" data-kunci="${esc(k)}"
+             value="${esc(NILAI[k] ?? '')}" placeholder="kosongkan bila belum ada data">
+    </div>`).join('')}`}
     ${blokBukti(b.no)}
   </div>`;
 }
@@ -485,6 +501,7 @@ function segarkanRencana(){
     }
     const pb = $('pb-' + no);
     if (pb) pb.outerHTML = htmlPanel(no, keadaanPanel());
+    if (k.id.startsWith('b-')) perbaruiSkor(k);
   });
   gambarDaftarDokumen();
 }
@@ -514,7 +531,10 @@ function perbaruiSkor(kartuEl){
   const b = BUTIR_MANUAL.find(x => x.no === no);
   if (!b) return;
   const el = kartuEl.querySelector('[data-sk]');
-  const { skor } = skorManual(b, bacaAngka);
+  // Butir berunsur: dari bukti tersimpan (BB); 20/22/24 dihitung di halaman Skor.
+  const unsur = BB.filter(x => x.unsur).map(x => ({ tabel: 'butir', baris_id: x.butir, unsur: x.unsur }));
+  const { skor } = UNSUR_BUTIR[no] ? skorManual(b, k => skorKunci(k, unsur))
+                 : b.hitung && no !== '52' ? skorManual(b, bacaAngka) : { skor: null };
   el.textContent = skor == null ? '—' : f2(skor);
   el.className = 'b-sk' + (skor == null ? ' kos' : skor >= 4 ? ' n4' : '');
 }

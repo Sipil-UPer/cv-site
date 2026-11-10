@@ -863,10 +863,14 @@ export const namaJenisBukti = id => (JENIS_BUKTI_KARYA.find(j => j[0] === id) ||
 //                    terbaru <= ts), versi lain sebagai riwayat;
 //   dokumen_id    -> satu entri dokumen (jenis banyak);
 //   url           -> berkas/tautan yang diunggah langsung di butir.
-// Hasil: [{id, sumber, label, url, lain: [{tahun, url}], ket}].
+// Hasil: [{id, sumber, label, url, lain: [{tahun, url}], ket, unsur}].
 export function buktiButir(no, opsi = {}){
   const dok = opsi.dokumen || [];
-  return (opsi.butirBukti || []).filter(b => String(b.butir) === String(no)).map(b => {
+  return (opsi.butirBukti || []).filter(b => String(b.butir) === String(no)).map(b => ({ ...satuBukti(b, dok, opsi),
+    unsur: b.unsur || null }));
+}
+function satuBukti(b, dok, opsi){
+  {
     if (b.jenis_dokumen) {
       const j = infoJenis(b.jenis_dokumen);
       const g = kelompokDokumen(dok.filter(d => d.jenis === b.jenis_dokumen), null, opsi.ts)[0];
@@ -882,7 +886,7 @@ export function buktiButir(no, opsi = {}){
         url: d ? d.url : '' };
     }
     return { id: b.id, sumber: 'url', label: b.judul || 'Berkas bukti', url: b.url, lain: [], ket: 'diunggah di butir' };
-  });
+  }
 }
 
 // Jenis pustaka yang lazim untuk butir ini (JENIS_DOKUMEN.butir) tetapi
