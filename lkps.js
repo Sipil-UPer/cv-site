@@ -17,6 +17,7 @@
    ===================================================================== */
 import { versiUntukTS, daftarProdi, STATUS_PS, tglTeks } from './pustaka-dokumen.js?v=2026-11-08-7f9df9';
 import { teksPendidikan } from './profil-dosen.js?v=2026-11-08-7f9df9';
+import { barisKerjaSama } from './kerjasama-karya.js';
 
 const TEMPLATE = 'lkps-template.xlsx';
 export const JSZIP = 'https://cdn.jsdelivr.net/npm/jszip@3.10.1/+esm';
@@ -271,25 +272,18 @@ export function petaDaftar(C){
   //    mitra karya yang sama dengan mitra induk tidak diulang;
   //  - induk aktif (selesai >= TS-2 atau tanpa akhir) tanpa karya terkait
   //    di jendela TS -> barisnya sendiri;
-  //  - mitra pada karya tanpa induk -> seperti sebelumnya (tanpa tanggal).
+  //  - mitra pada karya: aturan payung di kerjasama-karya.js (pemilik
+  //    2026-11-10), sama dengan skor butir 6 di bangun.py.
   // Durasi (J) dan status (K) adalah rumus templat dari tanggal H dan I.
   const kerjaSama = { pendidikan: [], penelitian: [], pkm: [] };
   const semuaKS = new Map((X.kerjasama || []).filter(k => k.id != null).map(k => [k.id, k]));
-  const kegiatanKS = karya.filter(k => k.kategori === 'penelitian' || k.kategori === 'pkm').sort(urut);
-  const dipakai = new Set(kegiatanKS.map(k => k.kerjasama_id).filter(id => semuaKS.has(id)));
-  const sama = (a, b) => String(a || '').trim().toLowerCase() === String(b || '').trim().toLowerCase();
+  const barisKarya = barisKerjaSama((X.karya || []).filter(k => k.status === 'terverifikasi'), semuaKS)
+    .filter(b => dalam(b.ts));
+  const dipakai = new Set(barisKarya.filter(b => b.dariInduk).map(b => b.karya.kerjasama_id));
   (X.kerjasama || []).filter(k => !k.tahun_selesai || +k.tahun_selesai >= ts - 2)
     .filter(k => !dipakai.has(k.id))
     .forEach(k => kerjaSama[k.jenis]?.push({ mitra: k.mitra, tingkat: k.tingkat, judul: k.kegiatan, ks: k }));
-  // Isian dosen pada karya (32-patch-isian-kerjasama.sql) didahulukan; kosong = data induk.
-  const isianKS = (k, ks) => ({ manfaat: k.manfaat_ks || ks?.manfaat, tanggal_mulai: k.mulai_ks || ks?.tanggal_mulai,
-    tanggal_selesai: k.selesai_ks || ks?.tanggal_selesai, jenis_bukti: k.jenis_bukti_ks || ks?.jenis_bukti });
-  kegiatanKS.forEach(k => {
-    const ks = semuaKS.get(k.kerjasama_id);
-    if (ks) kerjaSama[k.kategori].push({ mitra: ks.mitra, tingkat: ks.tingkat, judul: k.judul, ks: isianKS(k, ks) });
-    (k.karya_mitra || []).filter(m => !ks || !sama(m.institusi, ks.mitra)).forEach(m =>
-      kerjaSama[k.kategori].push({ mitra: m.institusi, tingkat: m.tingkat, judul: k.judul, ks: isianKS(k, null) }));
-  });
+  barisKarya.forEach(b => kerjaSama[b.kategori].push(b));
   [['2a1', 'pendidikan', 13], ['2a2', 'penelitian', 12], ['2a3', 'pkm', 12]].forEach(([l, j, r0]) =>
     kerjaSama[j].forEach((k, i) => {
       const r = r0 + i;

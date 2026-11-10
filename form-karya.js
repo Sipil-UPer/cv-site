@@ -16,9 +16,10 @@ export const BULAN = [['1','Januari'],['2','Februari'],
 // kegiatan penelitian/PkM milik dosen ini yang sudah tersimpan.
 export const F_INDUK = {n:'induk_id', l:'Berasal dari penelitian / PkM', t:'select',
   o:[['', '— tidak ada / mandiri —']],
-  sub:'Pilih kegiatan yang menghasilkan karya ini. Hanya kegiatan Anda '
-    + 'sendiri yang tampil; kosongkan bila tidak berasal dari kegiatan '
-    + 'yang tercatat.'};
+  sub:'Payung penelitian: pilih kegiatan yang menghasilkan karya ini. Hanya kegiatan '
+    + 'yang mencantumkan Anda yang tampil. Dengan payung, karya ini menjadi bukti luaran '
+    + 'kerja sama kegiatan itu (LKPS 2.a). Tanpa payung, karya bermitra dicatat sebagai '
+    + 'kerja sama tersendiri, dan admin prodi dapat membantu mencatat penelitiannya.'};
 
 // Kerja sama induk (MoU/PKS/IA) yang dicatat admin di Data prodi
 // (supabase/24-patch-kerjasama-induk.sql). Diisi saat form dibuka;

@@ -1049,6 +1049,20 @@ function tampilDuplikat(d, peran, koresp){
 }
 
 // ---------------------------------------------------------------------
+// Payung penelitian (pemilik 2026-11-10): publikasi/luaran tanpa payung
+// tetap boleh disimpan, tetapi dosen diminta memastikan. Dengan mitra, karya
+// itu menjadi baris kerja sama tersendiri di LKPS 2.a sampai payungnya diisi
+// (kerjasama-karya.js); admin melihat daftarnya di verifikasi.html, tab Karya.
+function lanjutTanpaPayung(key, indukId){
+  if(!['publikasi', 'luaran'].includes(key) || indukId) return true;
+  const saran = 'Bila karya ini berasal dari penelitian atau PkM, pilih di "Berasal dari penelitian / PkM". '
+    + 'Bila penelitiannya belum tercatat, admin prodi akan melihat karya ini dan dapat membantu mencatatnya.';
+  return confirm('Karya ini belum dikaitkan dengan penelitian atau PkM payungnya.\n\n'
+    + (mitraSementara.length
+      ? 'Karena ada mitra, karya ini dicatat sebagai kerja sama tersendiri di LKPS 2.a sampai payungnya diisi.\n\n' : '')
+    + saran + '\n\nSimpan tanpa payung?');
+}
+
 async function simpan(key){
   const frm = document.getElementById('frm'), fm = document.getElementById('fm'),
         sub = document.getElementById('sub');
@@ -1109,6 +1123,7 @@ async function simpan(key){
     fm.textContent='Tautan bukti harus berupa alamat https:// yang lengkap.';
     return;
   }
+  if(!lanjutTanpaPayung(key, isi.induk_id)) return;
 
   sub.disabled = true;
 
@@ -1297,6 +1312,7 @@ async function simpanUbah(key, { k, mode }){
     return gagal('Ada institusi mitra yang belum ditekan "Tambah".');
   if(document.getElementById('mhs_nim')?.value.trim() || document.getElementById('mhs_nama')?.value.trim())
     return gagal('Ada mahasiswa yang belum ditekan "Tambah".');
+  if(!lanjutTanpaPayung(key, isi.induk_id)) return;
   const alasan = (document.getElementById('f_alasan')?.value || '').trim();
   if(mode === 'ajuan' && !alasan) return gagal('Alasan perubahan wajib diisi.');
 

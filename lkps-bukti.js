@@ -11,6 +11,7 @@
 import { versiUntukTS } from './pustaka-dokumen.js?v=2026-11-08-7f9df9';
 import { JSZIP } from './lkps.js?v=2026-11-08-7f9df9';
 import { labelDokumenLED } from './led-isi.js?v=2026-11-08-7f9df9';
+import { barisKerjaSama } from './kerjasama-karya.js';
 
 const OUTLINE = 'lkps-outline.json';
 const DOCX = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
@@ -74,8 +75,22 @@ export function indeksBukti(C, wajib){
     ...(X.kerjasama || []).filter(k => k.jenis === jenis && (!k.tahun_selesai || +k.tahun_selesai >= ts - 2))
       .map(k => ({ item: `${k.mitra}${k.kegiatan ? ` — ${k.kegiatan}` : ''}`, tautan: unik([
         ...(k.tautan_bukti ? [{ t: 'Bukti', url: k.tautan_bukti }] : []), ...barisDari('lkps_kerjasama', k.id)]) })),
-    ...(kat ? karya.filter(k => k.kategori === kat && (k.kerjasama_id || (k.karya_mitra || []).length))
-      .map(k => ({ item: `${(k.karya_mitra || []).map(m => m.institusi).join(', ') || 'Mitra'} — ${k.judul}`, tautan: tautanKarya(k) })) : [])];
+    ...(kat ? itemKSKarya(kat) : [])];
+  // Kerja sama dari karya (kerjasama-karya.js, pemilik 2026-11-10): satu item
+  // per kegiatan atau per publikasi tanpa payung; publikasi/luaran berpayung
+  // menjadi bukti luaran kegiatannya.
+  const itemKSKarya = kat => {
+    const kelompok = new Map();
+    barisKerjaSama((X.karya || []).filter(k => k.status === 'terverifikasi'), new Map((X.kerjasama || []).map(k => [k.id, k])))
+      .filter(b => b.kategori === kat && b.ts >= ts - 2 && b.ts <= ts)
+      .forEach(b => {
+        const g = kelompok.get(b.karya.id) || kelompok.set(b.karya.id, { b, mitra: [] }).get(b.karya.id);
+        if (!g.mitra.includes(b.mitra)) g.mitra.push(b.mitra);
+      });
+    return [...kelompok.values()].map(({ b, mitra }) => ({ item: `${mitra.join(', ') || 'Mitra'} — ${b.judul}`,
+      tautan: unik([...tautanKarya(b.karya),
+        ...b.luaran.flatMap(l => tautanKarya(l).map(x => ({ t: `Luaran: ${x.t}`, url: x.url })))]) }));
+  };
   const prestasi = awal => (X.prestasi || []).filter(p => (p.bidang || '').startsWith(awal))
     .filter(p => { const t = +p.bulan >= 9 ? +p.tahun + 1 : +p.tahun; return t >= ts - 4 && t <= ts; })
     .map(p => ({ item: `${p.nama_kegiatan} (${p.tahun})`, tautan: unik([

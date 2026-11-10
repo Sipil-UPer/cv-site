@@ -1,5 +1,5 @@
 // Tab Karya di verifikasi.html (admin): karya menunggu verifikasi, ajuan hapus,
-// ajuan perubahan, dan klaim penulis. Dipindah dari tab Verifikasi di
+// ajuan perubahan, klaim penulis, dan publikasi/luaran tanpa payung. Dipindah dari tab Verifikasi di
 // input.html saat verifikasi dijadikan halaman tersendiri (pemilik 2026-11-08).
 
 import { buangSemua } from './hapus-berkas.js?v=2026-11-08-7f9df9';
@@ -10,7 +10,7 @@ import { esc, rapi, barisKarya, muatBuktiKarya, daftarBuktiKarya, berkasMilikKar
 
 const PILIH = '*, karya_penulis(peran, korespondensi, dosen(nama)), karya_mahasiswa(nim), karya_mitra(institusi)';
 
-// wadah: elemen tempat keempat panel; dosen: [{id, nama}] untuk nama pengaju.
+// wadah: elemen tempat kelima panel; dosen: [{id, nama}] untuk nama pengaju.
 export async function pasangVerifikasiKarya(wadah, { sb, dosen }){
   wadah.innerHTML = `
     <div class="panel"><h2>Menunggu verifikasi</h2>
@@ -29,7 +29,16 @@ export async function pasangVerifikasiKarya(wadah, { sb, dosen }){
     <div class="panel"><h2>Klaim penulis untuk ditinjau</h2>
       <p class="hint">Dosen yang mendaftarkan dirinya sendiri pada karya yang
       diinput orang lain. Hapus bila keliru.</p>
-      <div id="kl" class="kosong">Memuat…</div></div>`;
+      <div id="kl" class="kosong">Memuat…</div></div>
+    <div class="panel"><h2>Publikasi dan luaran tanpa payung penelitian</h2>
+      <p class="hint">Publikasi dan luaran yang belum dikaitkan dengan penelitian atau PkM
+      asalnya. Yang bermitra dicatat sebagai kerja sama tersendiri di LKPS 2.a sampai
+      payungnya diisi; dengan payung, karya itu menjadi bukti luaran kerja sama
+      kegiatannya. Pilih kegiatan payung lalu klik Tautkan. Bila penelitiannya belum
+      tercatat, minta dosennya mencatat penelitian itu (misalnya berdasarkan SK
+      penelitian mandiri) di Input data, lalu tautkan di sini. Panel ini tidak
+      dihitung sebagai "menunggu".</p>
+      <div id="tp" class="kosong">Memuat…</div></div>`;
   const kotak = id => wadah.querySelector('#' + id);
 
   // Nama skema dana untuk baris karya (semua skema, termasuk yang tidak aktif).
@@ -234,7 +243,53 @@ export async function pasangVerifikasiKarya(wadah, { sb, dosen }){
     });
   }
 
-  await Promise.all([muatMenunggu(), muatAjuanHapus(), muatAjuanUbah(), muatKlaim()]);
+  // Payung penelitian (pemilik 2026-11-10): aturan kerja samanya di kerjasama-karya.js.
+  async function muatTanpaPayung(){
+    const box = kotak('tp');
+    const [{ data: tp, error }, { data: keg }] = await Promise.all([
+      sb.from('karya').select('id,judul,tahun,kategori,status,karya_penulis(dosen_id,dosen(nama)),karya_mitra(institusi)')
+        .in('kategori', ['publikasi', 'luaran']).is('induk_id', null).neq('status', 'ditolak')
+        .order('tahun', { ascending: false }),
+      sb.from('karya').select('id,judul,tahun,kategori,status,karya_penulis(dosen_id)')
+        .in('kategori', ['penelitian', 'pkm']).neq('status', 'ditolak').order('tahun', { ascending: false }),
+    ]);
+    if(error){ box.className = 'kosong'; box.textContent = 'Gagal memuat: ' + error.message; return; }
+    if(!tp?.length){ box.className = 'kosong'; box.textContent = 'Semua publikasi dan luaran sudah punya payung.'; return; }
+    const penulis = k => new Set((k.karya_penulis || []).map(p => p.dosen_id));
+    const pilihan = k => { const ps = penulis(k);
+      return (keg || []).filter(g => (g.karya_penulis || []).some(p => ps.has(p.dosen_id))); };
+    const judulPendek = s => s.length > 70 ? s.slice(0, 70) + '…' : s;
+    box.className = '';
+    box.innerHTML = `<p class="hint">${tp.length} karya, ${tp.filter(k => (k.karya_mitra || []).length).length} di antaranya bermitra.</p>`
+      + tp.map(k => { const ops = pilihan(k), mitra = (k.karya_mitra || []).map(m => m.institusi).filter(Boolean);
+        return `<div class="rec" data-s="${esc(k.status)}">
+      <div class="spine"></div>
+      <div class="rec-b">
+        <div class="rec-j">${esc(k.judul)}</div>
+        <div class="rec-m"><span>${k.tahun || ''}</span><span>${esc(rapi(k.kategori))}</span>
+          <span>${esc((k.karya_penulis || []).map(p => p.dosen?.nama).filter(Boolean).join(' · '))}</span></div>
+        ${mitra.length ? `<div class="rec-m"><span>Mitra: ${esc(mitra.join(', '))} (kerja sama tersendiri)</span></div>` : ''}
+        ${ops.length ? `<div class="rec-m"><select data-tp-pilih="${k.id}" style="max-width:100%">
+            <option value="">— pilih penelitian / PkM payung —</option>${ops.map(g => `<option value="${g.id}">${esc(
+              `${g.tahun} · ${g.kategori === 'pkm' ? 'PkM' : 'Penelitian'} · ${judulPendek(g.judul || '')}`
+              + (g.status === 'terverifikasi' ? '' : ' (belum terverifikasi)'))}</option>`).join('')}</select></div>`
+          : '<div class="rec-m"><span>Belum ada penelitian/PkM yang mencantumkan penulisnya.</span></div>'}
+      </div>
+      <div class="rec-a"><span class="tag">${esc(rapi(k.status))}</span>
+        ${ops.length ? `<button class="btn sm" data-tp="${k.id}">Tautkan</button>` : ''}</div></div>`; }).join('');
+    box.querySelectorAll('[data-tp]').forEach(b => {
+      b.onclick = async () => {
+        const induk = box.querySelector(`[data-tp-pilih="${b.dataset.tp}"]`)?.value;
+        if(!induk){ alert('Pilih penelitian atau PkM payungnya dulu.'); return; }
+        b.disabled = true;
+        const { error: e } = await sb.from('karya').update({ induk_id: induk }).eq('id', b.dataset.tp);
+        if(e){ alert('Gagal menautkan: ' + e.message); b.disabled = false; return; }
+        muatTanpaPayung();
+      };
+    });
+  }
+
+  await Promise.all([muatMenunggu(), muatAjuanHapus(), muatAjuanUbah(), muatKlaim(), muatTanpaPayung()]);
 }
 
 // Tabel Isian | Lama | Baru untuk satu ajuan ubah karya.
