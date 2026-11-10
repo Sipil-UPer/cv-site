@@ -401,3 +401,17 @@ export function pihakButir(no){
   const kode = new Set(u ? Object.values(u).flat() : d ? d.split(',') : []);
   return Object.keys(PIHAK).filter(k => kode.has(k)).map(k => PIHAK[k]).join(', ');
 }
+
+// Penanggung jawab tiap "bukti yang dianjurkan" (rencana-bukti.js RENCANA_BUKTI,
+// urutan sama) pada butir yang dihitung dari data (pemilik 2026-11-10).
+// Butir berunsur memakai PJ_UNSUR di tabel unsurnya.
+export const PJ_BUKTI = {
+  '6': ['U', 'P,D', 'P', 'P'], '9': ['U', 'U', 'U'], '10': ['U', 'U'], '11': ['U', 'U'],
+  '18': ['P', 'P'], '19': ['P', 'D'], '23': ['D', 'D'], '25': ['D', 'D'], '26': ['U', 'U', 'P'],
+  '27': ['U', 'F'], '28': ['U', 'F'], '30': ['D'], '31': ['D', 'D'], '32': ['D', 'D'], '33': ['D', 'D'],
+  '34': ['D', 'D', 'D'], '35': ['D', 'D'], '36': ['D'], '37': ['D'], '40': ['U'], '41': ['U'], '42': ['U'],
+  '43': ['P', 'U'], '44': ['U'], '45': ['U'], '46': ['D'], '47': ['D'], '49': ['U'], '50': ['U'], '51': ['U'],
+  '52': ['P', 'P'],
+};
+// Penanggung jawab bukti ke-i (0-based) yang dianjurkan untuk butir `no`; '' bila tidak diatur.
+export const pihakBukti = (no, i) => nama(String(PJ_BUKTI[String(no)]?.[i] || '').split(',').filter(Boolean));

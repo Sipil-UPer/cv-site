@@ -2,13 +2,13 @@
 // kelengkapan.html mengambil data, modul ini menghitung. Aturan terisi sama
 // dengan halaman sumbernya: kotak narasi seperti narasi-led.html, bukti butir
 // seperti rekap bukti di skor.html.
-import { BUTIR_MANUAL } from './butir-manual.js?v=2026-11-10-19f94a';
-import { UNSUR_BUTIR, pihakUnsur } from './unsur-butir.js?v=2026-11-10-19f94a';
-import { BUTIR_DATA } from './butir-data.js?v=2026-11-10-19f94a';
-import { faktaNarasi, anggotaTim } from './led-isi.js?v=2026-11-10-19f94a';
-import { pisahKalimat } from './led-narasi.js?v=2026-11-10-19f94a';
-import { masihKerangka } from './led-saran.js?v=2026-11-10-19f94a';
-import { JENIS_DOKUMEN, buktiButir } from './rencana-bukti.js?v=2026-11-10-19f94a';
+import { BUTIR_MANUAL } from './butir-manual.js?v=2026-11-10-565656';
+import { UNSUR_BUTIR, pihakUnsur } from './unsur-butir.js?v=2026-11-10-565656';
+import { BUTIR_DATA } from './butir-data.js?v=2026-11-10-565656';
+import { faktaNarasi, anggotaTim } from './led-isi.js?v=2026-11-10-565656';
+import { pisahKalimat } from './led-narasi.js?v=2026-11-10-565656';
+import { masihKerangka } from './led-saran.js?v=2026-11-10-565656';
+import { JENIS_DOKUMEN, buktiButir } from './rencana-bukti.js?v=2026-11-10-565656';
 
 // Tab Data prodi: [id tab, tabel, judul, butir]; sama dengan TABEL di data-prodi.html.
 export const TAB_DATA = [

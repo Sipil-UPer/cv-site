@@ -27,11 +27,11 @@
      unggah = {url, ext[], maxMb, accept} dari config.js, atau null.
    ===================================================================== */
 
-import { JENIS_DOKUMEN, infoJenis, buktiButir } from './rencana-bukti.js?v=2026-11-10-19f94a';
-import { tautanBerkas, temuanPakai } from './tautan-privat.js?v=2026-11-10-19f94a';
-import { buangBerkas, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-10-19f94a';
-import { periksaBerkas, kolomSidik, teksTemuan } from './sidik-berkas.js?v=2026-11-10-19f94a';
-import { UNSUR_BUTIR, pihakUnsur } from './unsur-butir.js?v=2026-11-10-19f94a';
+import { JENIS_DOKUMEN, infoJenis, buktiButir } from './rencana-bukti.js?v=2026-11-10-565656';
+import { tautanBerkas, temuanPakai } from './tautan-privat.js?v=2026-11-10-565656';
+import { buangBerkas, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-10-565656';
+import { periksaBerkas, kolomSidik, teksTemuan } from './sidik-berkas.js?v=2026-11-10-565656';
+import { UNSUR_BUTIR, pihakUnsur } from './unsur-butir.js?v=2026-11-10-565656';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g,
   c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -100,7 +100,7 @@ export function htmlPanel(no, k){
   return `<div class="pb" id="pb-${esc(no)}">
     <div class="pb-j">Kelola bukti butir ${esc(no)} (${xs.length})</div>
     ${htmlUnsurPanel(no, xs)}
-    ${xs.length ? `<ul class="pb-l">${xs.map(x => `<li>${x.unsur ? `<span class="pb-unsur">unsur ${esc(x.unsur)}</span> ` : ''}${x.url
+    ${xs.length ? `<ul class="pb-l">${xs.map(x => `<li>${x.unsur ? `<span class="pb-unsur">unsur ${esc(x.unsur)} · ${esc(pihakUnsur(no, x.unsur))}</span> ` : ''}${x.url
         ? `<a href="${esc(x.url)}" target="_blank" rel="noopener nofollow">${esc(x.label)}</a>`
         : `${esc(x.label)} <span class="pb-kos">· ${esc(x.ket)}</span>`}
       <span class="pb-ket">${esc(x.ket)}</span>
@@ -130,7 +130,7 @@ function htmlUnsurPanel(no, xs){
       <td>${esc(pihakUnsur(no, n))}</td><td>${ada.has(+n) ? '✓' : '—'}</td></tr>`).join('')}</tbody></table>
     <div class="pb-a"><label>Bukti berikut untuk <select data-pb-unsur="${esc(no)}">
       <option value="">bukti umum (bukan unsur penilaian)</option>
-      ${Object.entries(d.unsur).map(([n, l]) => `<option value="${n}"${pilih === +n ? ' selected' : ''}>Unsur ${n}: ${esc(l)}</option>`).join('')}
+      ${Object.entries(d.unsur).map(([n, l]) => `<option value="${n}"${pilih === +n ? ' selected' : ''}>Unsur ${n} (${esc(pihakUnsur(no, n))}): ${esc(l)}</option>`).join('')}
     </select></label></div>`;
 }
 

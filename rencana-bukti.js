@@ -10,6 +10,8 @@
    2026-11-03).
    ===================================================================== */
 
+import { pihakBukti, UNSUR_BUTIR } from './unsur-butir.js?v=2026-11-10-565656';
+
 export const RENCANA_BUKTI = {
  "1": {
   "bagian": "C.1 IKU a",
@@ -914,7 +916,8 @@ export function htmlRencana(no, opsi = {}){
     <summary>Bukti yang disiapkan untuk skor 4 (${xs.length} tertaut, ${r.bukti.length} dianjurkan)</summary>
     <p><b>Yang dinilai:</b> ${esc(r.skor4).replace(/\n/g, '<br>')}</p>
     ${daftarDok}<p><b>Bukti yang dianjurkan:</b></p>
-    <ul>${r.bukti.map(b => `<li>${esc(b)}</li>`).join('')}</ul>
+    <ul>${r.bukti.map((b, i) => `<li>${esc(b)}${pihakBukti(no, i) ? ` <span class="rb-ket">· ${esc(pihakBukti(no, i))}</span>` : ''}</li>`).join('')}</ul>
+    ${UNSUR_BUTIR[String(no)] ? '<p class="rb-ket">Penanggung jawab tiap unsur ada di tabel unsur kartu ini.</p>' : ''}
     <p class="rb-ket">${r.lkps ? `Tabel LKPS: ${esc(r.lkps)} · ` : ''}Bagian LED: ${esc(r.bagian)} ·
       Sumber: ${esc(r.unit)}<br>Narasi: ${esc(r.narasi)}</p>
   </details>`;

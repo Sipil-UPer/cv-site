@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-10-19f94a">
+<link rel="stylesheet" href="tema.css?v=2026-11-10-565656">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
@@ -84,7 +84,7 @@
   .masuk{max-width:420px;margin:40px auto;background:#fff;border:1px solid var(--line);padding:20px}
   .masuk input{width:100%;padding:8px 10px;margin:8px 0;font:inherit}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-10-19f94a">
+<link rel="stylesheet" href="kepala.css?v=2026-11-10-565656">
 </head>
 <body>
 
@@ -98,7 +98,7 @@
 
 <main class="wrap" id="isi"></main>
 
-<script src="config.js?v=2026-11-10-19f94a"></script>
+<script src="config.js?v=2026-11-10-565656"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -115,18 +115,18 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-10-19f94a';
-import { pasangMenu } from './menu.js?v=2026-11-10-19f94a';
-import { unggahKePustaka, opsiPustaka, opsiJenis, labelDokumen, cariDokumen } from './pustaka-dokumen.js?v=2026-11-10-19f94a';
-import { pasangRapikan } from './rapikan-berkas.js?v=2026-11-10-19f94a';
-import { UNSUR, skorUnsur, pihakUnsur } from './unsur-butir.js?v=2026-11-10-19f94a';
-import { htmlContoh, pasangContoh, JENIS_BUKTI_KS } from './manfaat-kerjasama.js?v=2026-11-10-19f94a';
-import { infoJenis } from './rencana-bukti.js?v=2026-11-10-19f94a';
-import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-10-19f94a';
-import { nomorButir, htmlTautanButir } from './tautan-butir.js?v=2026-11-10-19f94a';
-import { htmlSaran } from './saran-bukti.js?v=2026-11-10-19f94a';
-import { tautanBerkas, privatkanLama } from './tautan-privat.js?v=2026-11-10-19f94a';
-import { unggahLKD, bukaLKD, pendidikanTotal, pendidikanPS } from './bkd.js?v=2026-11-10-19f94a';
+import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-10-565656';
+import { pasangMenu } from './menu.js?v=2026-11-10-565656';
+import { unggahKePustaka, opsiPustaka, opsiJenis, labelDokumen, cariDokumen } from './pustaka-dokumen.js?v=2026-11-10-565656';
+import { pasangRapikan } from './rapikan-berkas.js?v=2026-11-10-565656';
+import { UNSUR, skorUnsur, pihakUnsur } from './unsur-butir.js?v=2026-11-10-565656';
+import { htmlContoh, pasangContoh, JENIS_BUKTI_KS } from './manfaat-kerjasama.js?v=2026-11-10-565656';
+import { infoJenis } from './rencana-bukti.js?v=2026-11-10-565656';
+import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-10-565656';
+import { nomorButir, htmlTautanButir } from './tautan-butir.js?v=2026-11-10-565656';
+import { htmlSaran } from './saran-bukti.js?v=2026-11-10-565656';
+import { tautanBerkas, privatkanLama } from './tautan-privat.js?v=2026-11-10-565656';
+import { unggahLKD, bukaLKD, pendidikanTotal, pendidikanPS } from './bkd.js?v=2026-11-10-565656';
 
 /* =====================================================================
    DATA PRODI — data kuantitatif LKPS diisi admin di situs (keputusan
@@ -228,7 +228,8 @@ const TABEL = [
   { id: 'kepuasan', tabel: 'lkps_kepuasan_pengguna', judul: 'Kepuasan pengguna', butir: '52',
     ket: 'Tabel 6.g.2 LKPS: tujuh baris per TAHUN AKADEMIK, satu per aspek, persentase jawaban '
        + 'pengguna lulusan (sangat baik + baik + cukup + kurang = 100). Skor 52 = ΣTKi / 7 dengan '
-       + 'TKi = 4a + 3b + 2c + d, dihitung otomatis bila ketujuh aspek TS itu terisi.',
+       + 'TKi = 4a + 3b + 2c + d. Skor selalu dihitung dari baris yang ada: aspek yang belum diisi bernilai 0, '
+       + 'jadi isi ketujuh aspek agar skornya penuh (pemilik 2026-11-10).',
     label: r => `Kepuasan ${ASPEK_KEPUASAN.find(([v]) => v === r.aspek)?.[1] || r.aspek || ''} ${r.tahun_akademik || ''}`,
     tahun: r => r.tahun_akademik ? +String(r.tahun_akademik).slice(5) : null,
     kolom: [
@@ -732,6 +733,81 @@ function blokBukti(T){
           <button type="button" class="btn ghost kecil" data-tautan="1">Tambah tautan luar</button></div></div>`;
 }
 
+// ---------------------------------------------------------------------
+//  Kepuasan pengguna sekali isi (pemilik 2026-11-10): tujuh aspek satu
+//  tahun akademik dalam satu tabel; baris lama diperbarui, yang belum ada
+//  ditambahkan (unique tahun_akademik, aspek; 21-patch-kepuasan-pengguna.sql).
+// ---------------------------------------------------------------------
+const KOLOM_PERSEN = ['sangat_baik', 'baik', 'cukup', 'kurang'];
+const taKini = () => { const d = new Date(), y = d.getFullYear(); return d.getMonth() >= 8 ? `${y}/${y + 1}` : `${y - 1}/${y}`; };
+function gambarMassalKepuasan(ta){
+  const box = $('massal');
+  if (!box) return;
+  const tas = [...new Set(BARIS.map(r => r.tahun_akademik).filter(Boolean))].sort().reverse();
+  const awal = ta || tas[0] || taKini();
+  const per = new Map(BARIS.filter(r => r.tahun_akademik === awal).map(r => [r.aspek, r]));
+  const bukti = [...per.values()].find(r => r.bukti_url)?.bukti_url || '';
+  box.innerHTML = `<details class="massal" open><summary><b>Isi sekaligus: tujuh aspek satu tahun akademik</b>
+      (${per.size} dari 7 aspek ${esc(awal)} sudah ada)</summary>
+    <div class="unggah-baris"><label>Tahun akademik survei <input id="m_ta" value="${esc(awal)}" placeholder="2025/2026"
+      list="m_ta_ada"></label><datalist id="m_ta_ada">${tas.map(x => `<option value="${esc(x)}">`).join('')}</datalist>
+      <button type="button" class="btn ghost kecil" id="m_muat">Tampilkan</button></div>
+    <div class="gulir"><table class="t"><thead><tr><th>Aspek</th><th>Sangat baik %</th><th>Baik %</th><th>Cukup %</th>
+      <th>Kurang %</th><th>Jumlah</th><th>Rencana tindak lanjut</th></tr></thead><tbody>
+    ${ASPEK_KEPUASAN.map(([a, l]) => { const r = per.get(a) || {}; return `<tr data-aspek="${a}"><td>${esc(l)}</td>
+      ${KOLOM_PERSEN.map(k => `<td><input type="number" min="0" max="100" step="0.01" data-k="${k}"
+        value="${r[k] ?? ''}" style="width:78px"></td>`).join('')}
+      <td data-jml>—</td><td><input data-k="rencana_tindak_lanjut" value="${esc(r.rencana_tindak_lanjut || '')}"></td></tr>`; }).join('')}
+    </tbody></table></div>
+    <div class="unggah-baris"><label>Tautan laporan survei (dipakai ketujuh baris)
+      <input type="url" id="m_bukti" value="${esc(bukti)}" placeholder="https://…" style="min-width:320px"></label></div>
+    <p class="ket">Kosongkan keempat persentase untuk aspek yang belum ada datanya (dihitung 0 di butir 52).
+      Tiap baris yang diisi harus berjumlah 100.</p>
+    <div class="aksi"><button type="button" class="btn" id="m_simpan">Simpan tujuh aspek</button>
+      <span class="msg" id="m_msg"></span></div></details>`;
+  const hitung = () => box.querySelectorAll('tr[data-aspek]').forEach(tr => {
+    const v = KOLOM_PERSEN.map(k => tr.querySelector(`[data-k="${k}"]`).value.trim());
+    const sel = tr.querySelector('[data-jml]');
+    if (v.every(x => x === '')) { sel.textContent = '—'; sel.style.color = ''; return; }
+    const j = v.reduce((a, x) => a + (+x || 0), 0);
+    sel.textContent = String(Math.round(j * 100) / 100);
+    sel.style.color = Math.abs(j - 100) > 1 ? 'var(--merah)' : 'var(--hijau)';
+  });
+  box.oninput = hitung;
+  hitung();
+  $('m_muat').onclick = () => gambarMassalKepuasan($('m_ta').value.trim());
+  $('m_simpan').onclick = simpanMassalKepuasan;
+}
+async function simpanMassalKepuasan(){
+  // Formulir digambar ulang setelah simpan: elemen pesan dicari setiap kali.
+  const tulisM = (cls, s) => { const msg = $('m_msg'); msg.className = 'msg' + (cls ? ' ' + cls : ''); msg.textContent = s; };
+  const ta = $('m_ta').value.trim(), bukti = $('m_bukti').value.trim();
+  const m = ta.match(/^(\d{4})\/(\d{4})$/);
+  if (!m || +m[2] !== +m[1] + 1) return tulisM('buruk', 'Tahun akademik ditulis seperti 2025/2026.');
+  if (bukti && !/^https?:\/\/\S+$/i.test(bukti)) return tulisM('buruk', 'Tautan laporan survei tidak sah.');
+  const baris = [], salah = [];
+  $('massal').querySelectorAll('tr[data-aspek]').forEach(tr => {
+    const v = Object.fromEntries(KOLOM_PERSEN.map(k => [k, tr.querySelector(`[data-k="${k}"]`).value.trim()]));
+    const nama = tr.cells[0].textContent;
+    if (Object.values(v).every(x => x === '')) return;
+    if (Object.values(v).some(x => x === '')) return salah.push(`${nama}: isi keempat persentase`);
+    const j = KOLOM_PERSEN.reduce((a, k) => a + +v[k], 0);
+    if (Math.abs(j - 100) > 1) return salah.push(`${nama}: berjumlah ${j}`);
+    baris.push({ tahun_akademik: ta, aspek: tr.dataset.aspek, ...Object.fromEntries(KOLOM_PERSEN.map(k => [k, +v[k]])),
+      rencana_tindak_lanjut: tr.querySelector('[data-k="rencana_tindak_lanjut"]').value.trim() || null,
+      bukti_url: bukti || null, oleh: SAYA.email, diperbarui: new Date().toISOString() });
+  });
+  if (salah.length) return tulisM('buruk', 'Periksa: ' + salah.join('; ') + '.');
+  if (!baris.length) return tulisM('buruk', 'Belum ada aspek yang diisi.');
+  $('m_simpan').disabled = true;
+  const { error } = await sb.from('lkps_kepuasan_pengguna').upsert(baris, { onConflict: 'tahun_akademik,aspek' });
+  $('m_simpan').disabled = false;
+  if (error) return tulisM('buruk', 'Gagal menyimpan: ' + error.message);
+  await muatBaris();
+  gambarMassalKepuasan(ta);
+  tulisM('ok', `${baris.length} aspek ${ta} tersimpan.` + (baris.length < 7 ? ` ${7 - baris.length} aspek belum diisi (dihitung 0).` : ''));
+}
+
 // Bukti per unsur butir 20/22/24 (unsur-butir.js): pilih unsur sebelum menautkan,
 // mengunggah, atau menambah tautan; ringkasan unsur terpenuhi di #unsur-status.
 function blokUnsur(T){
@@ -807,6 +883,7 @@ async function bukaTab(){
   if (T.khusus) return bukaPustaka();
   $('panel').innerHTML = `<p class="ket">${nomorButir(T.butir).length
     ? `<b>${htmlTautanButir(nomorButir(T.butir), null, 'Dipakai di')}.</b>` : `<b>${esc(T.butir)}.</b>`} ${esc(T.ket)}</p>${saranTab(T)}
+    ${T.id === 'kepuasan' ? '<div id="massal"></div>' : ''}
     <form id="form" novalidate><div class="grid">${kolomForm(T).map(isian).join('')}
       ${T.privat ? blokLKD() : blokBukti(T)}</div>
       <div class="aksi"><button type="submit" class="btn" id="simpan">Tambah baris</button>
@@ -966,6 +1043,7 @@ async function muatBaris(){
   }
   BARIS = data || [];
   if (T.siapkan) BARIS.forEach(T.siapkan);
+  if (T.id === 'kepuasan') gambarMassalKepuasan($('m_ta')?.value.trim());
   // Pilihan jamak bisa bergantung pada baris tab ini (mis. MK pendukung).
   kolomForm(T).filter(c => c.t === 'jamak').forEach(c => {
     const r = SUNTING ? BARIS.find(x => x.id === SUNTING) : null;
@@ -1146,7 +1224,8 @@ function gambarUnsur(xs){
   if (!aktif) { box.innerHTML = ''; return; }
   const ada = new Set(xs.map(x => +x.unsur).filter(Boolean));
   const no = typeof T.unsur.butir === 'function' ? T.unsur.butir({ jenis: $('f_jenis')?.value }) : T.unsur.butir;
-  box.innerHTML = `<b>Unsur butir ${esc(no)}</b> (skor dari baris ini: ${skorUnsur(ada)} dari 4)<ol>${
+  box.innerHTML = `<b>Unsur butir ${esc(no)}</b>${no === '20' ? ' — khusus MK capstone; MK lain tidak memakai unsur ini' : ''}
+    (skor dari baris ini: ${skorUnsur(ada)} dari 4)<ol>${
     T.unsur.daftar.map((u, i) => `<li class="${ada.has(i + 1) ? 'ada' : 'belum'}">${
       ada.has(i + 1) ? '✓' : '—'} ${esc(u)} <small>· ${esc(pihakUnsur(no, i + 1))}</small></li>`).join('')}</ol>
     <small>Skor = banyaknya unsur berurutan mulai unsur 1 yang ada buktinya.</small>`;
