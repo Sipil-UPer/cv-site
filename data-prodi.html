@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-11-47188b">
+<link rel="stylesheet" href="tema.css?v=2026-11-11-90203f">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
@@ -84,7 +84,7 @@
   .masuk{max-width:420px;margin:40px auto;background:#fff;border:1px solid var(--line);padding:20px}
   .masuk input{width:100%;padding:8px 10px;margin:8px 0;font:inherit}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-11-47188b">
+<link rel="stylesheet" href="kepala.css?v=2026-11-11-90203f">
 </head>
 <body>
 
@@ -98,7 +98,7 @@
 
 <main class="wrap" id="isi"></main>
 
-<script src="config.js?v=2026-11-11-47188b"></script>
+<script src="config.js?v=2026-11-11-90203f"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -115,18 +115,18 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-11-47188b';
-import { pasangMenu } from './menu.js?v=2026-11-11-47188b';
-import { unggahKePustaka, opsiPustaka, opsiJenis, labelDokumen, cariDokumen } from './pustaka-dokumen.js?v=2026-11-11-47188b';
-import { pasangRapikan } from './rapikan-berkas.js?v=2026-11-11-47188b';
-import { UNSUR, skorUnsur, pihakUnsur } from './unsur-butir.js?v=2026-11-11-47188b';
-import { htmlContoh, pasangContoh, JENIS_BUKTI_KS } from './manfaat-kerjasama.js?v=2026-11-11-47188b';
-import { infoJenis } from './rencana-bukti.js?v=2026-11-11-47188b';
-import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-11-47188b';
-import { nomorButir, htmlTautanButir } from './tautan-butir.js?v=2026-11-11-47188b';
-import { htmlSaran } from './saran-bukti.js?v=2026-11-11-47188b';
-import { tautanBerkas, privatkanLama } from './tautan-privat.js?v=2026-11-11-47188b';
-import { unggahLKD, buangLKD, bukaLKD, pendidikanTotal, pendidikanPS } from './bkd.js?v=2026-11-11-47188b';
+import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-11-90203f';
+import { pasangMenu } from './menu.js?v=2026-11-11-90203f';
+import { unggahKePustaka, opsiPustaka, opsiJenis, labelDokumen, cariDokumen } from './pustaka-dokumen.js?v=2026-11-11-90203f';
+import { pasangRapikan } from './rapikan-berkas.js?v=2026-11-11-90203f';
+import { UNSUR, skorUnsur, pihakUnsur } from './unsur-butir.js?v=2026-11-11-90203f';
+import { htmlContoh, pasangContoh, JENIS_BUKTI_KS } from './manfaat-kerjasama.js?v=2026-11-11-90203f';
+import { infoJenis } from './rencana-bukti.js?v=2026-11-11-90203f';
+import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-11-90203f';
+import { nomorButir, htmlTautanButir } from './tautan-butir.js?v=2026-11-11-90203f';
+import { htmlSaran } from './saran-bukti.js?v=2026-11-11-90203f';
+import { tautanBerkas, privatkanLama } from './tautan-privat.js?v=2026-11-11-90203f';
+import { unggahLKD, buangLKD, bukaLKD, pendidikanTotal, pendidikanPS } from './bkd.js?v=2026-11-11-90203f';
 
 /* =====================================================================
    DATA PRODI — data kuantitatif LKPS diisi admin di situs (keputusan
@@ -744,6 +744,52 @@ function blokBukti(T){
 }
 
 // ---------------------------------------------------------------------
+//  Ringkasan capaian IKU/IKT (pemilik 2026-11-11): dari baris tab ini.
+//  Arah minimal: % = capaian / target; maksimal: % = target / capaian.
+//  Status: tercapai, hampir (>= 80%), belum, atau capaian belum diisi.
+// ---------------------------------------------------------------------
+function nilaiCapaian(r){
+  const tg = r.target == null ? null : +r.target, cp = r.capaian == null ? null : +r.capaian;
+  if (tg == null || cp == null || !Number.isFinite(tg) || !Number.isFinite(cp)) return { status: 'kosong', persen: null };
+  const maks = r.arah === 'maksimal';
+  const tercapai = maks ? cp <= tg : cp >= tg;
+  const persen = maks ? (cp > 0 ? (tg / cp) * 100 : 100) : (tg > 0 ? (cp / tg) * 100 : 100);
+  return { status: tercapai ? 'tercapai' : persen >= 80 ? 'hampir' : 'belum', persen };
+}
+function gambarCapaianIKU(ts){
+  const box = $('capaian-iku');
+  if (!box) return;
+  const tsAda = [...new Set(BARIS.map(r => +r.tahun_ts).filter(Boolean))].sort((a, b) => b - a);
+  if (!tsAda.length) { box.innerHTML = ''; return; }
+  const pilih = tsAda.includes(+ts) ? +ts : tsAda[0];
+  const kini = BARIS.filter(r => +r.tahun_ts === pilih);
+  const lalu = new Map(BARIS.filter(r => +r.tahun_ts === pilih - 1).map(r => [`${r.jenis}|${String(r.nama).trim().toLowerCase()}`, r]));
+  const warna = { tercapai: 'var(--hijau)', hampir: '#B8860B', belum: 'var(--merah)', kosong: 'var(--muted)' };
+  const teks = { tercapai: 'tercapai', hampir: 'hampir (≥ 80%)', belum: 'belum', kosong: 'capaian belum diisi' };
+  const angka = v => v == null ? '—' : (Math.round(+v * 100) / 100).toLocaleString('id-ID');
+  const blok = jenis => {
+    const xs = kini.filter(r => r.jenis === jenis).sort((a, b) => (a.urutan ?? 100) - (b.urutan ?? 100));
+    if (!xs.length) return `<p class="ket">Belum ada ${jenis.toUpperCase()} untuk TS ${pilih - 1}/${pilih}.</p>`;
+    const n = xs.map(nilaiCapaian), ok = n.filter(x => x.status === 'tercapai').length, isi = n.filter(x => x.status !== 'kosong').length;
+    return `<p class="ket"><b>${jenis.toUpperCase()}: ${ok} dari ${xs.length} tercapai</b>${isi < xs.length ? ` (${xs.length - isi} belum diisi capaiannya)` : ''}.</p>
+      <div class="gulir"><table class="t"><thead><tr><th>Indikator</th><th>Target</th><th>Capaian</th><th>%</th><th>Status</th>
+        <th>TS sebelumnya</th></tr></thead><tbody>${xs.map((r, i) => {
+        const c = n[i], p = lalu.get(`${r.jenis}|${String(r.nama).trim().toLowerCase()}`), s = r.satuan ? ' ' + esc(r.satuan) : '';
+        return `<tr><td>${esc(r.nama)}${r.butir ? ` <small>(butir ${r.butir})</small>` : ''}</td>
+          <td>${r.arah === 'maksimal' ? '≤' : '≥'} ${angka(r.target)}${s}</td><td>${angka(r.capaian)}${r.capaian != null ? s : ''}</td>
+          <td>${c.persen == null ? '—' : Math.round(c.persen) + '%'}</td>
+          <td style="color:${warna[c.status]};font-weight:600">${teks[c.status]}</td>
+          <td>${p ? angka(p.capaian) + (p.capaian != null ? s : '') : '—'}</td></tr>`; }).join('')}</tbody></table></div>`;
+  };
+  box.innerHTML = `<details class="massal" open><summary><b>Capaian IKU/IKT</b> — TS
+      <select id="ci_ts">${tsAda.map(t => `<option value="${t}"${t === pilih ? ' selected' : ''}>${t - 1}/${t}</option>`).join('')}</select></summary>
+    ${blok('iku')}${blok('ikt')}
+    <p class="ket">% = capaian ÷ target (arah minimal) atau target ÷ capaian (arah maksimal). Hampir = setidaknya 80% dari target.
+      Isi atau ubah angka lewat formulir di bawah.</p></details>`;
+  $('ci_ts').onchange = e => gambarCapaianIKU(e.target.value);
+}
+
+// ---------------------------------------------------------------------
 //  Impor CSV mata kuliah (pemilik 2026-11-10): MK baru ditambahkan, MK yang
 //  kodenya sudah ada diperbarui hanya pada kolom yang terisi di CSV. RPS,
 //  bukti, dan pengampu diisi sesudahnya lewat formulir.
@@ -1024,7 +1070,7 @@ async function bukaTab(){
   if (T.khusus) return bukaPustaka();
   $('panel').innerHTML = `<p class="ket">${nomorButir(T.butir).length
     ? `<b>${htmlTautanButir(nomorButir(T.butir), null, 'Dipakai di')}.</b>` : `<b>${esc(T.butir)}.</b>`} ${esc(T.ket)}</p>${saranTab(T)}
-    ${T.id === 'kepuasan' ? '<div id="massal"></div>' : ''}${T.id === 'mk' ? '<div id="impor-mk"></div>' : ''}
+    ${T.id === 'kepuasan' ? '<div id="massal"></div>' : ''}${T.id === 'mk' ? '<div id="impor-mk"></div>' : ''}${T.id === 'target' ? '<div id="capaian-iku"></div>' : ''}
     <form id="form" novalidate><div class="grid">${kolomForm(T).map(isian).join('')}
       ${T.privat ? blokLKD() : blokBukti(T)}</div>
       <div class="aksi"><button type="submit" class="btn" id="simpan">Tambah baris</button>
@@ -1186,6 +1232,7 @@ async function muatBaris(){
   if (T.siapkan) BARIS.forEach(T.siapkan);
   if (T.id === 'kepuasan') gambarMassalKepuasan($('m_ta')?.value.trim());
   if (T.id === 'mk' && $('impor-mk') && !$('impor-mk').innerHTML) gambarImporMK();
+  if (T.id === 'target') gambarCapaianIKU($('ci_ts')?.value);
   // Pilihan jamak bisa bergantung pada baris tab ini (mis. MK pendukung).
   kolomForm(T).filter(c => c.t === 'jamak').forEach(c => {
     const r = SUNTING ? BARIS.find(x => x.id === SUNTING) : null;
