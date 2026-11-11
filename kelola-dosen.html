@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-11-36ddad">
+<link rel="stylesheet" href="tema.css?v=2026-11-11-d391ce">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
@@ -54,7 +54,7 @@
   .masuk{max-width:420px;margin:40px auto;background:#fff;border:1px solid var(--line);padding:20px}
   .masuk input{width:100%;padding:8px 10px;margin:8px 0;font:inherit}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-11-36ddad">
+<link rel="stylesheet" href="kepala.css?v=2026-11-11-d391ce">
 </head>
 <body>
 
@@ -68,7 +68,7 @@
 
 <main class="wrap" id="isi"></main>
 
-<script src="config.js?v=2026-11-11-36ddad"></script>
+<script src="config.js?v=2026-11-11-d391ce"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -85,11 +85,12 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { pasangMenu } from './menu.js?v=2026-11-11-36ddad';
-import { htmlSaran } from './saran-bukti.js?v=2026-11-11-36ddad';
+import { pasangMenu } from './menu.js?v=2026-11-11-d391ce';
+import { htmlSaran } from './saran-bukti.js?v=2026-11-11-d391ce';
+import { unduhCV } from './cv-dosen.js?v=2026-11-11-d391ce';
 import { KOLOM_PROFIL, KATEGORI, JABATAN,
-  formLKPS, bacaFormLKPS, pasangEditor } from './profil-dosen.js?v=2026-11-11-36ddad';
-import { hitungVerifikasi } from './verifikasi-hitung.js?v=2026-11-11-36ddad';
+  formLKPS, bacaFormLKPS, pasangEditor } from './profil-dosen.js?v=2026-11-11-d391ce';
+import { hitungVerifikasi } from './verifikasi-hitung.js?v=2026-11-11-d391ce';
 
 /* =====================================================================
    KELOLA DOSEN — daftar dosen prodi diisi admin di situs (keputusan
@@ -215,7 +216,10 @@ async function muat(){
 function gambarDaftar(){
   const n = DOSEN.filter(d => d.dtps && d.aktif !== false).length;
   $('daftar').innerHTML = `<p class="ket">${DOSEN.length} orang; ${n} dihitung DTPS.${ADA_LKPS ? '' :
-      ' Profil LKPS 4.a belum tersedia: jalankan supabase/22-patch-profil-dosen.sql.'}</p>
+      ' Profil LKPS 4.a belum tersedia: jalankan supabase/22-patch-profil-dosen.sql.'}
+      <label class="ket" style="margin-left:12px">CV: <select id="cv_gaya"><option value="cv">CV akademik</option>
+        <option value="hibah">Biodata pengusul hibah (A–J)</option></select> periode karya <select id="cv_periode"><option value="semua">semua tahun</option>
+        <option value="5">5 tahun terakhir</option></select></label> <span class="msg" id="cv_msg"></span></p>
     <table class="t"><thead><tr><th>Nama</th><th>NIDN/kode</th><th>Email</th><th>Peran</th>
       ${ADA_LKPS ? '<th>Kategori</th>' : ''}<th>Pendidikan</th><th>Jabatan</th><th>Aktif</th><th>DTPS</th><th></th></tr></thead><tbody>${
     DOSEN.map(d => `<tr class="${d.id === SUNTING ? 'sunting' : ''}${d.aktif ? '' : ' nonaktif'}">
@@ -223,8 +227,19 @@ function gambarDaftar(){
       <td>${esc(nama(PERAN, d.peran))}</td>${ADA_LKPS ? `<td>${esc(nama(KATEGORI, d.kategori))}</td>` : ''}<td>${esc(d.pendidikan || '—')}</td>
       <td>${esc(nama(JABATAN, d.jabatan))}</td><td>${d.aktif ? 'ya' : 'tidak'}</td>
       <td>${d.dtps ? 'ya' : 'tidak'}</td>
-      <td><button class="btn ghost kecil" data-ubah="${esc(d.id)}">Ubah</button></td></tr>`).join('')
+      <td><button class="btn ghost kecil" data-ubah="${esc(d.id)}">Ubah</button>
+        <button class="btn ghost kecil" data-cv-dosen="${esc(d.id)}" title="Unduh CV dosen ini (.docx)">CV</button></td></tr>`).join('')
   }</tbody></table>`;
+  // CV dosen otomatis (pemilik 2026-11-11): admin mengunduh CV dosen mana pun.
+  $('daftar').querySelectorAll('[data-cv-dosen]').forEach(b => {
+    b.onclick = async () => {
+      const d = DOSEN.find(x => x.id === b.dataset.cvDosen), m = $('cv_msg');
+      b.disabled = true; m.textContent = `Menyusun CV ${d.nama}…`;
+      try { await unduhCV(d, $('cv_periode').value, $('cv_gaya').value, sb); m.textContent = `Berkas ${d.nama} diunduh.`; }
+      catch (err) { m.textContent = 'Gagal: ' + (err.message || err); }
+      finally { b.disabled = false; }
+    };
+  });
   $('daftar').querySelectorAll('[data-ubah]').forEach(b => {
     b.onclick = () => { SUNTING = b.dataset.ubah; gambarDaftar(); isiForm(DOSEN.find(d => d.id === SUNTING));
                         $('form').scrollIntoView({ behavior: 'smooth' }); };
