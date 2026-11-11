@@ -22,12 +22,15 @@ export const MODUL = [
   { judul: 'Input data', ket: 'Karya dosen dan data prodi yang dipakai semua modul.', halaman: [
     { href: 'input.html', judul: 'Karya dosen', boleh: isiKarya,
       ket: 'Publikasi, penelitian, PkM, luaran, rekognisi, dan buktinya.' },
+    // Sama dengan boleh_hibah() di supabase/58-patch-hibah.sql.
+    { href: 'hibah.html', judul: 'Pengajuan hibah', boleh: s => s.peran !== 'asesor',
+      ket: 'Panggilan hibah dan proposal tim: tenggat, status, dana; didanai menjadi draf karya.' },
     { href: 'verifikasi.html', judul: 'Verifikasi', boleh: admin,
       ket: 'Karya dosen, profil dosen, BKD, dan prestasi mahasiswa yang menunggu keputusan admin.' },
     { href: 'data-prodi.html', judul: 'Data prodi', boleh: admin,
       ket: 'Mahasiswa, lulusan, tracer, kerja sama, BKD, prestasi mahasiswa.' },
     { href: 'pengingat.html', judul: 'Pengingat', boleh: admin,
-      ket: 'Kirim pengingat email: BKD belum diisi, karya perlu diperbaiki, bukti per pihak.' },
+      ket: 'Kirim pengingat email: BKD belum diisi, karya perlu diperbaiki, bukti per pihak, tenggat hibah.' },
     { href: 'nilai-cpl.html', judul: 'Berkas nilai CPL', boleh: isiKarya,
       ket: 'Unggah Template_Input_Data_CPL per kelas (diperiksa sebelum dikirim, disimpan privat); admin: daftar kelas dan pengingat.' },
     { href: 'kelola-survei.html', judul: 'Survei kepuasan', boleh: admin,

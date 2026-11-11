@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Pengajuan hibah — Kinerja Program Studi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tema.css?v=2026-11-11-6b330f">
+<link rel="stylesheet" href="kepala.css?v=2026-11-11-6b330f">
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
+  .wrap{max-width:1100px;margin:0 auto;padding:18px 20px 80px}
+  .kosong, .ket{color:var(--muted)}
+  .ket{font-size:13px}
+  /* Pengajuan hibah (pemilik 2026-11-11) */
+  .kartu{background:var(--panel);border:1px solid var(--line);padding:14px 18px;margin-bottom:16px}
+  .kartu h2{font-size:17px;margin:0 0 8px;color:var(--biru)}
+  .kartu h3{font-size:14px;margin:14px 0 6px;color:var(--ink)}
+  table.ds{width:100%;border-collapse:collapse;font-size:13.5px}
+  table.ds th{text-align:left;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--line);padding:5px 8px}
+  table.ds td{padding:7px 8px;border-bottom:1px solid var(--line-soft);vertical-align:top}
+  .b{font:12.5px/1.4 var(--sans);padding:4px 10px;border:1px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer;margin:0 4px 4px 0}
+  .b:hover{border-color:var(--biru);color:var(--biru)}
+  .b.utama{background:var(--biru);color:#fff;border-color:var(--biru)}
+  .b.bahaya:hover{border-color:var(--merah);color:var(--merah)}
+  .b:disabled{opacity:.6;cursor:default}
+  .msg{font-size:13px;white-space:pre-line} .msg.buruk{color:var(--merah)} .msg.ok{color:var(--hijau)}
+  .gulir{overflow-x:auto}
+  .saring{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
+  select, input[type=text], input[type=number], input[type=date], input[type=url], textarea{font:inherit;font-size:14px;padding:5px 7px;border:1px solid var(--line);background:var(--panel);color:var(--ink);max-width:100%}
+  textarea{width:100%;min-height:60px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px 14px}
+  .grid label{display:flex;flex-direction:column;font-size:13px;color:var(--muted);gap:3px}
+  .grid label.lebar{grid-column:1/-1}
+  .grid input, .grid select{width:100%}
+  .chip{display:inline-block;font-size:11.5px;font-weight:600;padding:1px 8px;border:1px solid currentColor}
+  .st-rencana{color:var(--muted)} .st-diajukan{color:#B8860B} .st-didanai{color:var(--hijau)} .st-ditolak{color:var(--merah)} .st-batal{color:var(--muted)}
+  .lewat{color:var(--merah);font-weight:600} .dekat{color:#B8860B;font-weight:600}
+  .tim{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:13.5px}
+  .tim label{display:flex;gap:5px;align-items:center;color:var(--ink)}
+</style>
+</head>
+<body>
+<header class="hero"><div class="hero-in">
+  <div class="hero-inst" data-identitas></div>
+  <h1>Pengajuan hibah</h1>
+  <div class="sub" id="hSub">Memuat…</div>
+</div></header>
+<main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
+<script src="config.js?v=2026-11-11-6b330f"></script>
+<script>
+// Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
+addEventListener('error', function (e) {
+  if (document.getElementById('galat-muat')) return;
+  var d = document.createElement('div');
+  d.id = 'galat-muat';
+  d.style.cssText = 'margin:16px;padding:12px 14px;border:1px solid var(--merah);' +
+    'background:var(--merah-m3);color:var(--ink);font:14px/1.5 system-ui,sans-serif';
+  d.textContent = 'Halaman gagal dimuat: ' + (e.message || 'galat skrip') +
+    '. Tekan Ctrl+Shift+R untuk memuat ulang tanpa cache; bila tetap muncul, kirim pesan ini ke admin.';
+  document.body.insertBefore(d, document.body.firstChild);
+});
+</script>
+<script type="module">
+// Pengajuan hibah (pemilik 2026-11-11; 58-patch-hibah.sql). Proposal terlihat oleh
+// timnya; admin dan pimpinan melihat semua. Didanai -> "Jadikan karya" membuat
+// karya berstatus draf dengan tim sebagai penulis (41-patch-draf-karya.sql).
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+import { gerbang } from './menu.js?v=2026-11-11-6b330f';
+import { selisihHari } from './masa-berlaku.js?v=2026-11-11-6b330f';
+import { STATUS, KATEGORI, juta, tglID, teksHari, tenggatBerikut, timUrut, panggilanTerbuka, karyaDariHibah, judulNorm, HARI_PENGINGAT } from './hibah.js?v=2026-11-11-6b330f';
+
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const $ = id => document.getElementById(id);
+const sb = createClient(window.SB_URL, window.SB_KEY);
+const tabelBelumAda = e => e && /does not exist|schema cache/i.test(e.message || '');
+let SAYA = null, ADMIN = false, SEMUA = false, AJUAN = [], PANGGILAN = [], DOSEN = [], KELOMPOK = [], SKEMA = [];
+let UBAH = null;          // proposal yang sedang diubah (null = baru)
+let UBAH_P = null;        // panggilan yang sedang diubah (admin)
+
+const anggota = a => (a.hibah_tim || []).some(t => t.dosen_id === SAYA.id) || a.dibuat_oleh === SAYA.id;
+const bolehUbah = a => ADMIN || anggota(a);
+const namaSkema = k => SKEMA.find(s => s.kode === k)?.nama || '';
+const nilai = (el) => { const v = el.value.trim(); return v === '' ? null : v; };
+
+async function muat(){
+  const [a, p] = await Promise.all([
+    sb.from('hibah_ajuan').select('*, hibah_tim(peran, dosen_id, dosen(nama, email))').order('tahun_usulan', { ascending: false }).order('dibuat', { ascending: false }),
+    sb.from('hibah_panggilan').select('*').order('tenggat', { ascending: true, nullsFirst: false })]);
+  if (tabelBelumAda(a.error) || tabelBelumAda(p.error)) throw new Error('Tabel hibah belum ada: admin menjalankan supabase/58-patch-hibah.sql.');
+  if (a.error) throw a.error;
+  if (p.error) throw p.error;
+  AJUAN = a.data || []; PANGGILAN = p.data || [];
+}
+
+// ---------------------------------------------------------------------
+// Panggilan hibah
+function htmlPanggilan(){
+  const tampilLama = $('p_lama')?.checked;
+  const xs = tampilLama ? [...PANGGILAN].sort((a, b) => String(b.tenggat || '').localeCompare(String(a.tenggat || ''))) : panggilanTerbuka(PANGGILAN);
+  const baris = xs.map(p => {
+    const h = p.tenggat ? selisihHari(String(p.tenggat).slice(0, 10)) : null;
+    return `<tr><td>${p.tautan ? `<a href="${esc(p.tautan)}" target="_blank" rel="noopener">${esc(p.judul)}</a>` : esc(p.judul)}
+        ${p.keterangan ? `<br><small class="ket">${esc(p.keterangan)}</small>` : ''}</td>
+      <td>${esc(p.penyelenggara || '')}</td><td>${esc(KATEGORI[p.kategori] || '')}${p.skema_kode ? `<br><small class="ket">${esc(namaSkema(p.skema_kode))}</small>` : ''}</td>
+      <td>${p.tenggat ? `${tglID(p.tenggat)}<br><small class="${h < 0 ? 'lewat' : h <= HARI_PENGINGAT ? 'dekat' : 'ket'}">${teksHari(h)}</small>` : '—'}</td>
+      <td><button type="button" class="b" data-siapkan="${p.id}">Siapkan proposal</button>
+        ${ADMIN ? `<button type="button" class="b" data-ubah-p="${p.id}">Ubah</button><button type="button" class="b bahaya" data-hapus-p="${p.id}">Hapus</button>
+          <br><small class="ket">${p.diumumkan ? `diumumkan ${tglID(String(p.diumumkan).slice(0, 10))}` : 'belum diumumkan'}</small>` : ''}</td></tr>`;
+  }).join('');
+  return `<section class="kartu"><h2>Panggilan hibah</h2>
+    <p class="ket">Panggilan proposal (call for proposal) yang dicatat admin. "Siapkan proposal" mengisi formulir di bawah dengan
+      data panggilan itu.${ADMIN ? ' Pengumuman ke semua dosen dikirim dari <a href="pengingat.html#j-panggilan">Pengingat › Panggilan hibah</a>.' : ''}</p>
+    <div class="saring"><label class="ket"><input type="checkbox" id="p_lama" ${tampilLama ? 'checked' : ''}> tampilkan juga yang sudah lewat</label></div>
+    ${xs.length ? `<div class="gulir"><table class="ds"><thead><tr><th>Panggilan</th><th>Penyelenggara</th><th>Kategori</th><th>Tenggat</th><th></th></tr></thead>
+      <tbody>${baris}</tbody></table></div>` : '<p class="kosong">Tidak ada panggilan hibah yang terbuka.</p>'}
+    ${ADMIN ? `<h3 id="fp_judul">${UBAH_P ? 'Ubah panggilan' : 'Tambah panggilan'}</h3>
+      <div class="grid">
+        <label class="lebar">Judul panggilan *<input type="text" id="fp_judulp" maxlength="300" value="${esc(UBAH_P?.judul || '')}"></label>
+        <label>Penyelenggara<input type="text" id="fp_peny" maxlength="200" value="${esc(UBAH_P?.penyelenggara || '')}" placeholder="mis. DPPM Kemdiktisaintek"></label>
+        <label>Kategori<select id="fp_kat">${Object.entries(KATEGORI).map(([k, v]) => `<option value="${k}" ${(UBAH_P?.kategori || 'keduanya') === k ? 'selected' : ''}>${v}</option>`).join('')}</select></label>
+        <label>Skema (opsional)<select id="fp_skema"><option value="">—</option>${SKEMA.map(s => `<option value="${esc(s.kode)}" ${UBAH_P?.skema_kode === s.kode ? 'selected' : ''}>${esc(s.nama)}</option>`).join('')}</select></label>
+        <label>Tenggat<input type="date" id="fp_tenggat" value="${esc(UBAH_P?.tenggat || '')}"></label>
+        <label class="lebar">Tautan panduan/pendaftaran<input type="url" id="fp_tautan" value="${esc(UBAH_P?.tautan || '')}" placeholder="https://"></label>
+        <label class="lebar">Keterangan<textarea id="fp_ket">${esc(UBAH_P?.keterangan || '')}</textarea></label>
+      </div>
+      <p><button type="button" class="b utama" id="fp_simpan">Simpan panggilan</button>
+        ${UBAH_P ? '<button type="button" class="b" id="fp_batal">Batal</button>' : ''}<span class="msg" id="fp_msg"></span></p>` : ''}
+  </section>`;
+}
+
+async function simpanPanggilan(){
+  const m = $('fp_msg');
+  const d = { judul: nilai($('fp_judulp')), penyelenggara: nilai($('fp_peny')), kategori: $('fp_kat').value,
+    skema_kode: nilai($('fp_skema')), tenggat: nilai($('fp_tenggat')), tautan: nilai($('fp_tautan')), keterangan: nilai($('fp_ket')) };
+  if (!d.judul) { m.className = 'msg buruk'; m.textContent = 'Judul panggilan wajib diisi.'; return; }
+  if (d.tautan && !/^https?:\/\//i.test(d.tautan)) { m.className = 'msg buruk'; m.textContent = 'Tautan harus diawali https://'; return; }
+  m.className = 'msg'; m.textContent = 'Menyimpan…';
+  const { error } = UBAH_P ? await sb.from('hibah_panggilan').update(d).eq('id', UBAH_P.id)
+    : await sb.from('hibah_panggilan').insert({ ...d, oleh: SAYA.email });
+  if (error) { m.className = 'msg buruk'; m.textContent = error.message; return; }
+  UBAH_P = null; await muat(); gambar();
+}
+
+// ---------------------------------------------------------------------
+// Daftar proposal
+function htmlDaftar(){
+  const st = $('s_status')?.value || '', th = $('s_tahun')?.value || '';
+  const tahun = [...new Set(AJUAN.map(a => a.tahun_usulan))].sort((a, b) => b - a);
+  const xs = AJUAN.filter(a => (!st || a.status === st) && (!th || String(a.tahun_usulan) === th));
+  const baris = xs.map(a => {
+    const t = tenggatBerikut(a);
+    const timTeks = timUrut(a).map(x => `${esc(x.dosen?.nama || '?')}${x.peran === 'ketua' ? ' (ketua)' : ''}`).join(', ');
+    const aksi = bolehUbah(a) ? `<button type="button" class="b" data-ubah="${a.id}">Ubah</button>
+        ${a.status === 'didanai' && !a.karya_id ? `<button type="button" class="b utama" data-karya="${a.id}">Jadikan karya</button>` : ''}
+        <button type="button" class="b bahaya" data-hapus="${a.id}">Hapus</button>` : '';
+    return `<tr><td><b>${esc(a.judul)}</b><br><small class="ket">${timTeks || 'tim belum diisi'}${a.anggota_luar ? `; ${esc(a.anggota_luar)}` : ''}</small></td>
+      <td>${esc(KATEGORI[a.kategori] || a.kategori)}<br><small class="ket">${esc(namaSkema(a.skema_kode) || 'skema belum dipilih')}</small></td>
+      <td>${esc(a.tahun_usulan)}</td>
+      <td><span class="chip st-${esc(a.status)}">${esc(STATUS[a.status] || a.status)}</span>
+        ${a.karya_id ? '<br><small><a href="input.html">sudah jadi karya ›</a></small>' : ''}</td>
+      <td>${t ? `${esc(t.label)}<br><span class="${t.hari < 0 ? 'lewat' : t.hari <= HARI_PENGINGAT ? 'dekat' : 'ket'}">${tglID(t.tanggal)}, ${teksHari(t.hari)}</span>` : '—'}</td>
+      <td>${juta(a.dana_usulan)}${a.status === 'didanai' ? ` / <b>${juta(a.dana_disetujui)}</b>` : ''}</td>
+      <td>${aksi}<div class="msg" id="m-${a.id}"></div></td></tr>`;
+  }).join('');
+  return `<section class="kartu"><h2>${SEMUA ? 'Semua proposal hibah' : 'Proposal hibah saya'}</h2>
+    <p class="ket">${SEMUA ? 'Admin dan pimpinan melihat semua proposal; dosen hanya melihat proposal timnya.'
+      : 'Proposal tempat Anda menjadi ketua, anggota, atau pembuatnya. Dosen lain tidak melihatnya; admin dan pimpinan melihat semua.'}
+      Proposal yang <b>didanai</b> bisa dijadikan karya penelitian/PkM berstatus draf di Input › Karya saya.</p>
+    <div class="saring"><label class="ket">Status <select id="s_status"><option value="">semua</option>
+        ${Object.entries(STATUS).map(([k, v]) => `<option value="${k}" ${st === k ? 'selected' : ''}>${v}</option>`).join('')}</select></label>
+      <label class="ket">Tahun usulan <select id="s_tahun"><option value="">semua</option>
+        ${tahun.map(y => `<option ${th === String(y) ? 'selected' : ''}>${y}</option>`).join('')}</select></label>
+      ${SAYA.peran !== 'asesor' ? '<button type="button" class="b utama" id="baru">+ Tambah proposal</button>' : ''}</div>
+    ${xs.length ? `<div class="gulir"><table class="ds"><thead><tr><th>Judul dan tim</th><th>Kategori / skema</th><th>Tahun</th><th>Status</th>
+      <th>Tenggat berikut</th><th>Dana (juta Rp) usulan / disetujui</th><th></th></tr></thead><tbody>${baris}</tbody></table></div>`
+      : `<p class="kosong">${AJUAN.length ? 'Tidak ada proposal yang cocok dengan saringan.' : 'Belum ada proposal.'}</p>`}
+  </section>`;
+}
+
+// ---------------------------------------------------------------------
+// Formulir proposal
+function opsiSkema(kategori, kelompok, pilih){
+  return SKEMA.filter(s => s.aktif !== false && (s.kategori === 'keduanya' || s.kategori === kategori) && (!kelompok || s.kelompok === kelompok))
+    .map(s => `<option value="${esc(s.kode)}" ${s.kode === pilih ? 'selected' : ''}>${esc(s.nama)}</option>`).join('');
+}
+
+function htmlForm(a){
+  const v = k => esc(a?.[k] ?? '');
+  const kat = a?.kategori || 'penelitian';
+  const kel = SKEMA.find(s => s.kode === a?.skema_kode)?.kelompok || '';
+  const ketua = (a?.hibah_tim || []).find(t => t.peran === 'ketua')?.dosen_id || (a ? '' : SAYA.id);
+  const ang = new Set((a?.hibah_tim || []).filter(t => t.peran !== 'ketua').map(t => t.dosen_id));
+  return `<section class="kartu" id="form"><h2>${a?.id ? 'Ubah proposal' : 'Proposal baru'}</h2>
+    <div class="grid">
+      <label>Kategori *<select id="f_kategori"><option value="penelitian" ${kat === 'penelitian' ? 'selected' : ''}>Penelitian</option>
+        <option value="pkm" ${kat === 'pkm' ? 'selected' : ''}>PkM</option></select></label>
+      <label class="lebar">Judul proposal *<input type="text" id="f_judul" maxlength="500" value="${v('judul')}"></label>
+      <label>Panggilan hibah<select id="f_panggilan"><option value="">—</option>
+        ${PANGGILAN.map(p => `<option value="${p.id}" ${String(a?.panggilan_id || '') === String(p.id) ? 'selected' : ''}>${esc(p.judul)}</option>`).join('')}</select></label>
+      <label>Kelompok pendanaan<select id="f_kelompok"><option value="">—</option>
+        ${KELOMPOK.map(k => `<option value="${esc(k.kode)}" ${k.kode === kel ? 'selected' : ''}>${esc(k.nama)}</option>`).join('')}</select></label>
+      <label>Skema <small>(wajib sebelum dijadikan karya)</small><select id="f_skema"><option value="">—</option>${opsiSkema(kat, kel, a?.skema_kode)}</select></label>
+      <label>Nama pemberi dana<input type="text" id="f_pemberi" value="${v('nama_pemberi_dana')}" placeholder="mis. DPPM, LPPM, mitra"></label>
+      <label>Tahun usulan *<input type="number" id="f_tahun" min="2000" max="2100" value="${a?.tahun_usulan ?? new Date().getFullYear()}"></label>
+      <label>Status<select id="f_status">${Object.entries(STATUS).map(([k, s]) => `<option value="${k}" ${(a?.status || 'rencana') === k ? 'selected' : ''}>${s}</option>`).join('')}</select></label>
+    </div>
+    <h3>Pengajuan</h3>
+    <div class="grid">
+      <label>Tenggat kirim proposal<input type="date" id="f_tenggat" value="${v('tenggat_ajuan')}"></label>
+      <label>Tanggal dikirim<input type="date" id="f_tglajuan" value="${v('tanggal_ajuan')}"></label>
+      <label>Dana diusulkan (Rp)<input type="number" id="f_dana_u" min="0" step="1000" value="${v('dana_usulan')}"></label>
+    </div>
+    <h3>Bila didanai</h3>
+    <div class="grid">
+      <label>Dana disetujui (Rp)<input type="number" id="f_dana_d" min="0" step="1000" value="${v('dana_disetujui')}"></label>
+      <label>Tahun pelaksanaan<input type="number" id="f_mulai" min="2000" max="2100" value="${v('tahun_mulai')}"></label>
+      <label>Tenggat laporan kemajuan<input type="date" id="f_tk" value="${v('tenggat_kemajuan')}"></label>
+      <label>Laporan kemajuan dikirim<input type="date" id="f_ks" value="${v('kemajuan_selesai')}"></label>
+      <label>Tenggat laporan akhir<input type="date" id="f_ta" value="${v('tenggat_akhir')}"></label>
+      <label>Laporan akhir dikirim<input type="date" id="f_as" value="${v('akhir_selesai')}"></label>
+    </div>
+    <h3>Tim</h3>
+    <div class="grid"><label>Ketua *<select id="f_ketua"><option value="">—</option>
+      ${DOSEN.map(d => `<option value="${d.id}" ${d.id === ketua ? 'selected' : ''}>${esc(d.nama)}</option>`).join('')}</select></label></div>
+    <p class="ket" style="margin:8px 0 4px">Anggota dari prodi</p>
+    <div class="tim">${DOSEN.map(d => `<label><input type="checkbox" data-anggota="${d.id}" ${ang.has(d.id) ? 'checked' : ''}> ${esc(d.nama)}</label>`).join('')}</div>
+    <div class="grid" style="margin-top:10px">
+      <label class="lebar">Anggota lain (mahasiswa, mitra; teks bebas)<input type="text" id="f_luar" value="${v('anggota_luar')}"></label>
+      <label class="lebar">Catatan<textarea id="f_catatan">${v('catatan')}</textarea></label>
+    </div>
+    <p><button type="button" class="b utama" id="f_simpan">Simpan proposal</button>
+      <button type="button" class="b" id="f_batal">Batal</button><span class="msg" id="f_msg"></span></p>
+  </section>`;
+}
+
+function pasangForm(){
+  const isiSkema = () => { const s = $('f_skema').value;
+    $('f_skema').innerHTML = '<option value="">—</option>' + opsiSkema($('f_kategori').value, $('f_kelompok').value, s); };
+  $('f_kategori').onchange = $('f_kelompok').onchange = isiSkema;
+  $('f_panggilan').onchange = () => {
+    const p = PANGGILAN.find(x => String(x.id) === $('f_panggilan').value); if (!p) return;
+    if (!$('f_tenggat').value && p.tenggat) $('f_tenggat').value = p.tenggat;
+    if (!$('f_pemberi').value && p.penyelenggara) $('f_pemberi').value = p.penyelenggara;
+    if (p.kategori !== 'keduanya') $('f_kategori').value = p.kategori;
+    if (p.skema_kode) { const s = SKEMA.find(x => x.kode === p.skema_kode); if (s) $('f_kelompok').value = s.kelompok; isiSkema(); $('f_skema').value = p.skema_kode; }
+  };
+  $('f_ketua').onchange = () => { const k = $('f_ketua').value; const c = document.querySelector(`[data-anggota="${k}"]`); if (c) c.checked = false; };
+  $('f_batal').onclick = () => { UBAH = null; gambar(); };
+  $('f_simpan').onclick = simpanAjuan;
+}
+
+async function simpanAjuan(){
+  const m = $('f_msg'), gagal = t => { m.className = 'msg buruk'; m.textContent = t; };
+  const angka = el => { const x = nilai(el); return x == null ? null : Number(x); };
+  const d = { kategori: $('f_kategori').value, judul: nilai($('f_judul')), panggilan_id: angka($('f_panggilan')),
+    skema_kode: nilai($('f_skema')), nama_pemberi_dana: nilai($('f_pemberi')), tahun_usulan: angka($('f_tahun')),
+    status: $('f_status').value, tenggat_ajuan: nilai($('f_tenggat')), tanggal_ajuan: nilai($('f_tglajuan')),
+    dana_usulan: angka($('f_dana_u')), dana_disetujui: angka($('f_dana_d')), tahun_mulai: angka($('f_mulai')),
+    tenggat_kemajuan: nilai($('f_tk')), kemajuan_selesai: nilai($('f_ks')), tenggat_akhir: nilai($('f_ta')), akhir_selesai: nilai($('f_as')),
+    anggota_luar: nilai($('f_luar')), catatan: nilai($('f_catatan')) };
+  if (!d.judul) return gagal('Judul proposal wajib diisi.');
+  if (!d.tahun_usulan || d.tahun_usulan < 2000 || d.tahun_usulan > 2100) return gagal('Tahun usulan tidak sah.');
+  if (d.tahun_mulai != null && (d.tahun_mulai < 2000 || d.tahun_mulai > 2100)) return gagal('Tahun pelaksanaan tidak sah.');
+  const ketua = $('f_ketua').value;
+  if (!ketua) return gagal('Pilih ketua tim.');
+  const tim = [{ dosen_id: ketua, peran: 'ketua' },
+    ...[...document.querySelectorAll('[data-anggota]:checked')].map(c => c.dataset.anggota).filter(x => x !== ketua).map(x => ({ dosen_id: x, peran: 'anggota' }))];
+  // Yang bukan admin dan bukan pembuat kehilangan akses bila mengeluarkan dirinya dari tim.
+  const pembuat = UBAH ? UBAH.dibuat_oleh === SAYA.id : true;
+  if (!ADMIN && !pembuat && !tim.some(t => t.dosen_id === SAYA.id)
+      && !confirm('Anda tidak lagi tercantum di tim. Setelah disimpan, proposal ini tidak terlihat oleh Anda. Lanjutkan?')) return;
+  m.className = 'msg'; m.textContent = 'Menyimpan…';
+  try {
+    let id = UBAH?.id;
+    if (id) {
+      const { error } = await sb.from('hibah_ajuan').update(d).eq('id', id);
+      if (error) throw error;
+      // Urutan menjaga akses dan "satu ketua": turunkan semua ke anggota, pasang tim baru, lalu buang yang keluar.
+      const r1 = await sb.from('hibah_tim').update({ peran: 'anggota' }).eq('ajuan_id', id);
+      if (r1.error) throw r1.error;
+      const r2 = await sb.from('hibah_tim').upsert(tim.map(t => ({ ...t, ajuan_id: id })), { onConflict: 'ajuan_id,dosen_id' });
+      if (r2.error) throw r2.error;
+      const r3 = await sb.from('hibah_tim').delete().eq('ajuan_id', id).not('dosen_id', 'in', `(${tim.map(t => t.dosen_id).join(',')})`);
+      if (r3.error) throw r3.error;
+    } else {
+      const { data, error } = await sb.from('hibah_ajuan').insert({ ...d, dibuat_oleh: SAYA.id }).select('id').single();
+      if (error) throw error;
+      id = data.id;
+      const { error: eT } = await sb.from('hibah_tim').insert(tim.map(t => ({ ...t, ajuan_id: id })));
+      if (eT) throw eT;
+    }
+    UBAH = null; await muat(); gambar();
+    $('pesan').className = 'msg ok'; $('pesan').textContent = 'Proposal tersimpan.';
+  } catch (e) { gagal(e.message || String(e)); }
+}
+
+// ---------------------------------------------------------------------
+// Jadikan karya: draf penelitian/PkM, tim sebagai penulis.
+async function jadikanKarya(a){
+  const m = $('m-' + a.id), tulis = (k, t) => { m.className = 'msg ' + k; m.textContent = t; };
+  const { karya, penulis, galat } = karyaDariHibah(a, SAYA.id);
+  if (galat) return tulis('buruk', galat);
+  // Karya berjudul sama (karya.judul_norm) sudah ada: tautkan saja, jangan buat ganda.
+  const { data: sama } = await sb.from('karya').select('id,status,tahun').eq('kategori', karya.kategori).eq('judul_norm', judulNorm(karya.judul)).limit(1);
+  if (sama?.length) {
+    if (!confirm(`Sudah ada karya ${KATEGORI[karya.kategori]} berjudul sama (tahun ${sama[0].tahun}, status ${sama[0].status}). Tautkan proposal ke karya itu tanpa membuat draf baru?`)) return;
+    const { error } = await sb.from('hibah_ajuan').update({ karya_id: sama[0].id }).eq('id', a.id);
+    if (error) return tulis('buruk', error.message);
+    await muat(); gambar(); return;
+  }
+  if (!confirm(`Buat draf karya ${KATEGORI[karya.kategori]} "${karya.judul}" (${karya.tahun}) dengan ${penulis.length} dosen sebagai penulis?`)) return;
+  tulis('', 'Membuat draf…');
+  const { data: k, error } = await sb.from('karya').insert(karya).select('id').single();
+  if (error) return tulis('buruk', error.message);
+  const { error: eP } = await sb.from('karya_penulis').insert(penulis.map(p => ({ ...p, karya_id: k.id })));
+  if (eP) { await sb.from('karya').delete().eq('id', k.id); return tulis('buruk', 'Penulis gagal disimpan, draf dibatalkan: ' + eP.message); }
+  const { error: eA } = await sb.from('hibah_ajuan').update({ karya_id: k.id }).eq('id', a.id);
+  await muat(); gambar();
+  $('pesan').className = eA ? 'msg buruk' : 'msg ok';
+  $('pesan').innerHTML = eA ? `Draf karya dibuat, tetapi tautan ke proposal gagal: ${esc(eA.message)}`
+    : `Draf karya dibuat. Lengkapi di <a href="input.html">Input › Karya saya</a> (tingkat, mitra, mahasiswa, bukti), lalu tekan <b>Simpan dan ajukan</b>.`;
+}
+
+async function hapus(a){
+  if (!confirm(`Hapus proposal "${a.judul}"? Karya yang sudah dibuat darinya tidak ikut terhapus.`)) return;
+  const { error } = await sb.from('hibah_ajuan').delete().eq('id', a.id);
+  if (error) { $('m-' + a.id).className = 'msg buruk'; $('m-' + a.id).textContent = error.message; return; }
+  await muat(); gambar();
+}
+
+// ---------------------------------------------------------------------
+function gambar(){
+  $('isi').innerHTML = `<p class="msg" id="pesan"></p>${htmlDaftar()}${UBAH ? htmlForm(UBAH.id ? UBAH : UBAH.isi) : ''}${htmlPanggilan()}`;
+  if (UBAH) pasangForm();
+  $('s_status').onchange = $('s_tahun').onchange = gambar;
+  $('p_lama').onchange = gambar;
+  if ($('baru')) $('baru').onclick = () => { UBAH = { isi: null }; gambar(); $('form').scrollIntoView({ behavior: 'smooth' }); };
+  document.querySelectorAll('[data-ubah]').forEach(b => b.onclick = () => {
+    UBAH = AJUAN.find(a => a.id === b.dataset.ubah); gambar(); $('form').scrollIntoView({ behavior: 'smooth' }); });
+  document.querySelectorAll('[data-karya]').forEach(b => b.onclick = () => jadikanKarya(AJUAN.find(a => a.id === b.dataset.karya)));
+  document.querySelectorAll('[data-hapus]').forEach(b => b.onclick = () => hapus(AJUAN.find(a => a.id === b.dataset.hapus)));
+  document.querySelectorAll('[data-siapkan]').forEach(b => b.onclick = () => {
+    const p = PANGGILAN.find(x => String(x.id) === b.dataset.siapkan);
+    UBAH = { isi: null }; gambar();
+    $('f_panggilan').value = String(p.id); $('f_panggilan').onchange();
+    $('form').scrollIntoView({ behavior: 'smooth' });
+  });
+  if (ADMIN) {
+    $('fp_simpan').onclick = simpanPanggilan;
+    if ($('fp_batal')) $('fp_batal').onclick = () => { UBAH_P = null; gambar(); };
+    document.querySelectorAll('[data-ubah-p]').forEach(b => b.onclick = () => {
+      UBAH_P = PANGGILAN.find(p => String(p.id) === b.dataset.ubahP); gambar(); $('fp_judul').scrollIntoView({ behavior: 'smooth' }); });
+    document.querySelectorAll('[data-hapus-p]').forEach(b => b.onclick = async () => {
+      const p = PANGGILAN.find(x => String(x.id) === b.dataset.hapusP);
+      if (!confirm(`Hapus panggilan "${p.judul}"? Proposal yang memakainya tetap ada.`)) return;
+      const { error } = await sb.from('hibah_panggilan').delete().eq('id', p.id);
+      if (error) { alert(error.message); return; }
+      await muat(); gambar();
+    });
+  }
+}
+
+async function mulai(){
+  SAYA = await gerbang(sb);
+  if (!SAYA) return;
+  ADMIN = SAYA.peran === 'admin';
+  SEMUA = ADMIN || SAYA.peran === 'pimpinan';
+  $('hSub').textContent = `Masuk sebagai ${SAYA.nama}`;
+  if (SAYA.peran === 'asesor') { $('isi').innerHTML = '<p class="kosong">Halaman ini untuk dosen dan admin prodi.</p>'; return; }
+  const [kl, sk, ds] = await Promise.all([
+    sb.from('ref_kelompok_dana').select('kode,nama,urutan').order('urutan'),
+    sb.from('ref_skema_dana').select('kode,nama,kelompok,kategori,aktif,urutan').order('urutan'),
+    // Sama dengan daftar rekan di input.html: DTPS, atau dosen/pimpinan.
+    sb.from('dosen').select('id,nama,peran,dtps').or('dtps.eq.true,peran.in.(dosen,pimpinan)').order('nama')]);
+  KELOMPOK = kl.data || []; SKEMA = sk.data || []; DOSEN = ds.data || [];
+  await muat();
+  gambar();
+}
+mulai().catch(e => { $('isi').innerHTML = `<p class="kosong">Gagal memuat: ${esc(e.message || String(e))}</p>`; });
+</script>
+</body>
+</html>

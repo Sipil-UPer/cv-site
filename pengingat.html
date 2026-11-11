@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-11-d391ce">
-<link rel="stylesheet" href="kepala.css?v=2026-11-11-d391ce">
+<link rel="stylesheet" href="tema.css?v=2026-11-11-6b330f">
+<link rel="stylesheet" href="kepala.css?v=2026-11-11-6b330f">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
@@ -72,7 +72,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-11-d391ce"></script>
+<script src="config.js?v=2026-11-11-6b330f"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -93,11 +93,12 @@ addEventListener('error', function (e) {
 // Script (Code.gs kind 'kirim_pengingat', maks. 30 per kirim). Tidak ada yang
 // terkirim tanpa tombol Kirim.
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { gerbang } from './menu.js?v=2026-11-11-d391ce';
-import { tugasPerPihak } from './kelengkapan.js?v=2026-11-11-d391ce';
-import { PIHAK } from './unsur-butir.js?v=2026-11-11-d391ce';
-import { penerimaTemuan, HARI_DEKAT } from './temuan-ami.js?v=2026-11-11-d391ce';
-import { daftarBerlaku, penerimaBerlaku, htmlBerlaku, HARI_SEGERA } from './masa-berlaku.js?v=2026-11-11-d391ce';
+import { gerbang } from './menu.js?v=2026-11-11-6b330f';
+import { tugasPerPihak } from './kelengkapan.js?v=2026-11-11-6b330f';
+import { PIHAK } from './unsur-butir.js?v=2026-11-11-6b330f';
+import { penerimaTemuan, HARI_DEKAT } from './temuan-ami.js?v=2026-11-11-6b330f';
+import { daftarBerlaku, penerimaBerlaku, htmlBerlaku, HARI_SEGERA } from './masa-berlaku.js?v=2026-11-11-6b330f';
+import { penerimaHibah, penerimaPanggilan, HARI_PENGINGAT } from './hibah.js?v=2026-11-11-6b330f';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
@@ -120,7 +121,8 @@ function htmlJenis(id, judul, ket, penerima, subjek, isi){
         <span class="msg" id="m-${id}"></span></div>` : '<p class="kosong">Tidak ada penerima.</p>'}</section>`;
 }
 
-async function kirim(id, penerima){
+// setelah(): dijalankan bila ada yang terkirim (mis. menandai panggilan hibah sudah diumumkan).
+async function kirim(id, penerima, setelah){
   const box = $('j-' + id), m = $('m-' + id);
   const subjek = box.querySelector('.subjek').value.trim(), pola = box.querySelector('textarea').value;
   const pilih = [...box.querySelectorAll('[data-i]:checked')].map(c => penerima[+c.dataset.i]);
@@ -138,6 +140,7 @@ async function kirim(id, penerima){
     if (!out.ok) throw new Error(/tidak dikenal/i.test(out.error || '') ? 'Apps Script belum diperbarui: terbitkan ulang Code.gs.' : out.error);
     m.className = out.gagal?.length ? 'msg buruk' : 'msg ok';
     m.textContent = `${out.terkirim} terkirim${out.gagal?.length ? `; gagal: ${out.gagal.join('; ')}` : ''}. Sisa kuota hari ini: ${out.sisa}.`;
+    if (out.terkirim && setelah) await setelah();
   } catch (e) { m.className = 'msg buruk'; m.textContent = e.message || String(e); }
 }
 
@@ -165,7 +168,15 @@ function gambar(){
   const { penerima: ami, tanpaEmail } = penerimaTemuan(DATA.temuan, emailPihak);
   // 5. Masa berlaku MoU/SK/dokumen (53-patch-berlaku-dokumen.sql, masa-berlaku.js).
   const berlaku = penerimaBerlaku(DATA.berlaku, emailPihak.P, PIHAK.P);
-  const J = { bkd: bkdBelum, tolak, pihak, ami, berlaku };
+  // 6. Hibah (58-patch-hibah.sql, hibah.js): tenggat pengajuan, tenggat laporan, pengumuman panggilan.
+  const hAjuan = penerimaHibah(DATA.hibah, 'pengajuan'), hLapor = penerimaHibah(DATA.hibah, 'laporan');
+  const hPanggil = penerimaPanggilan(dosen, DATA.panggilan);
+  const tanpa = xs => xs.length ? ` <b>${xs.length} proposal tanpa email ketua/tim</b> (${xs.map(a => esc(String(a.judul).slice(0, 40))).join(', ')}).` : '';
+  const J = { bkd: bkdBelum, tolak, pihak, ami, berlaku, hibah_ajuan: hAjuan.penerima, hibah_laporan: hLapor.penerima, panggilan: hPanggil.penerima };
+  const SETELAH = { panggilan: async () => {
+    const ids = hPanggil.panggilan.map(p => p.id);
+    if (ids.length) await sb.from('hibah_panggilan').update({ diumumkan: new Date().toISOString() }).in('id', ids);
+  } };
   $('daftar').innerHTML =
     `<section class="jenis" id="masa-berlaku"><h2>Masa berlaku</h2>
       <p class="ket">Kerja sama, kerja sama di karya dosen, SK akreditasi prodi, peta jalan, dokumen pustaka yang diberi
@@ -192,12 +203,26 @@ function gambar(){
       atau email pihak di bawah.` : ''}${DATA.temuanGalat ? ` (${esc(DATA.temuanGalat)})` : ''}`, ami,
       'Pengingat tindak lanjut temuan AMI',
       `Yth. {nama},\n\nTindak lanjut temuan audit mutu internal berikut mendekati atau melewati tenggat:\n{rinci}\n\nMohon segera ditindaklanjuti dan buktinya dikirim ke program studi; status dapat dilihat di Monitoring:\n${situs}monitoring.html\n\nTerima kasih.\n${PRODI}`)
+    + (DATA.hibahGalat ? `<section class="jenis"><h2>Hibah</h2><p class="kosong">${esc(DATA.hibahGalat)}</p></section>`
+      : htmlJenis('hibah_ajuan', 'Tenggat pengajuan hibah', `Proposal berstatus rencana yang tenggat kirimnya ≤ ${HARI_PENGINGAT} hari lagi
+        dan belum diberi tanggal dikirim; ke ketua tim (seluruh tim bila ketua belum dipilih).${tanpa(hAjuan.tanpaEmail)}`, hAjuan.penerima,
+        'Pengingat tenggat pengajuan hibah',
+        `Yth. {nama},\n\nTenggat pengiriman proposal hibah berikut sudah dekat:\n{rinci}\n\nSetelah proposal dikirim, mohon status dan tanggal kirimnya diperbarui di situs kinerja prodi:\n${situs}hibah.html\n\nTerima kasih.\n${PRODI}`)
+      + htmlJenis('hibah_laporan', 'Tenggat laporan hibah', `Hibah didanai yang laporan kemajuan atau akhirnya sudah lewat tenggat (setahun terakhir)
+        atau tinggal ≤ ${HARI_PENGINGAT} hari, dan tanggal dikirimnya belum diisi; ke ketua tim.${tanpa(hLapor.tanpaEmail)}`, hLapor.penerima,
+        'Pengingat tenggat laporan hibah',
+        `Yth. {nama},\n\nLaporan hibah berikut mendekati atau melewati tenggat:\n{rinci}\n\nSetelah laporan dikirim, mohon tanggalnya diisi di situs kinerja prodi (Pengajuan hibah › Ubah):\n${situs}hibah.html\n\nTerima kasih.\n${PRODI}`)
+      + htmlJenis('panggilan', 'Panggilan hibah', `Pengumuman ke semua dosen aktif: panggilan yang masih terbuka dan
+        ${hPanggil.panggilan.some(p => p.diumumkan) ? '<b>semuanya sudah pernah diumumkan</b> (dikirim ulang)' : 'belum pernah diumumkan'}
+        (${hPanggil.panggilan.length} panggilan). Panggilan dicatat di <a href="hibah.html">Pengajuan hibah</a>; setelah terkirim ditandai "diumumkan".`,
+        hPanggil.penerima, 'Info panggilan hibah penelitian dan PkM',
+        `Yth. {nama},\n\nBerikut panggilan hibah yang sedang dibuka:\n{rinci}\n\nBila berminat, catat rencana proposal dan tim Anda di situs kinerja prodi agar tenggatnya ikut diingatkan:\n${situs}hibah.html\n\nTerima kasih.\n${PRODI}`))
     + `<section class="jenis"><h2>Email tiap pihak</h2><p class="ket">Dipakai pengingat bukti per pihak; tersimpan di peramban ini saja.</p>
       ${['U', 'F', 'P', 'S'].map(k => `<label class="baris"><span>${esc(PIHAK[k])}</span>
         <input type="email" data-pihak="${k}" value="${esc(emailPihak[k] || '')}" placeholder="email unit"></label>`).join('')}
       <p class="ket">Juga dipakai pengingat tindak lanjut AMI bila email penanggung jawab temuan kosong.</p>
       <div class="aksi"><button type="button" class="btn ghost" id="simpan-pihak">Simpan email pihak</button></div></section>`;
-  document.querySelectorAll('[data-kirim]').forEach(b => { b.onclick = () => kirim(b.dataset.kirim, J[b.dataset.kirim]); });
+  document.querySelectorAll('[data-kirim]').forEach(b => { b.onclick = () => kirim(b.dataset.kirim, J[b.dataset.kirim], SETELAH[b.dataset.kirim]); });
   const aman = () => $('masa-berlaku').classList.toggle('tampil-aman', $('tampil-aman').checked);
   $('tampil-aman').onchange = aman;
   $('simpan-pihak').onclick = () => {
@@ -230,8 +255,15 @@ async function mulai(){
     fetch('data.json?v=' + Date.now()).then(r => r.ok ? r.json() : {}).catch(() => ({})),
     sb.from('ami_temuan').select('kode,siklus,uraian,pihak,pj_nama,pj_email,tenggat,status')]);
   PRODI = [dj.prodi, dj.institusi].filter(Boolean).join(' ') || 'Program Studi';
+  // Hibah (58-patch-hibah.sql); tabel belum ada = pesan, bukan halaman gagal.
+  const [hb, hp] = await Promise.all([
+    sb.from('hibah_ajuan').select('judul,status,tenggat_ajuan,tanggal_ajuan,tenggat_kemajuan,kemajuan_selesai,tenggat_akhir,akhir_selesai,hibah_tim(peran,dosen(nama,email))'),
+    sb.from('hibah_panggilan').select('*')]);
+  const eH = hb.error || hp.error;
   DATA = { dosen: ds.data || [], bkd: bk.data || [], ditolak: kt.data || [], butirBukti: bb.data || [],
-           berlaku, temuan: tm.data || [], temuanGalat: tm.error && !/does not exist|schema cache/i.test(tm.error.message) ? tm.error.message : '' };
+           berlaku, temuan: tm.data || [], temuanGalat: tm.error && !/does not exist|schema cache/i.test(tm.error.message) ? tm.error.message : '',
+           hibah: hb.data || [], panggilan: hp.data || [],
+           hibahGalat: eH ? (/does not exist|schema cache/i.test(eH.message) ? 'Tabel hibah belum ada: jalankan supabase/58-patch-hibah.sql.' : eH.message) : '' };
   $('isi').innerHTML = `<p class="ket">Periksa penerima dan isi, lalu tekan Kirim. Email keluar dari akun Google prodi
       (kuota Gmail sekitar 100 per hari); balasan diarahkan ke email Anda.</p>
     <div class="aksi"><label>Tahun akademik BKD <input id="p_ta" value="${taKini()}" size="10"></label>

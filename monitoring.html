@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-11-d391ce">
+<link rel="stylesheet" href="tema.css?v=2026-11-11-6b330f">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
@@ -174,7 +174,7 @@
     font-size:13px;line-height:1.5}
   @media print{.png-baris, #ami-admin, .kontrol-seksi{display:none}}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-11-d391ce">
+<link rel="stylesheet" href="kepala.css?v=2026-11-11-6b330f">
 </head>
 <body>
 
@@ -497,6 +497,10 @@ ${seksiLipat('cakupan', 'Cakupan', '', `
     <p class="ket">Ketercapaian capaian pembelajaran lulusan dari berkas nilai per kelas (Template_Input_Data_CPL), dihitung run_cpl.py
     di komputer admin. Bukti butir 13 unsur 9, butir 14 unsur 5 (tinjauan rutin pencapaian CPL), butir 15 unsur 5, dan butir 16 unsur 1.</p>
     <div class="kartu" id="cpl-isi"><p class="kosong">Memuat…</p></div><div id="cpl-admin"></div>
+`, true)}${seksiLipat('hibah', 'Pengajuan hibah', 'penelitian dan PkM · tingkat keberhasilan', `
+    <p class="ket">Proposal hibah yang dicatat dosen di Input data › Pengajuan hibah, per tahun usulan dan per skema. Hanya angka;
+    judul dan tim terlihat oleh tim pengusul, admin, dan pimpinan. Tingkat keberhasilan = didanai dibagi yang sudah diputuskan.</p>
+    <div class="kartu" id="hibah-isi"><p class="kosong">Memuat…</p></div>
 `, true)}${seksiLipat('matriks', 'Matriks kinerja dosen', '', `
     <p class="ket">Klik judul kolom untuk mengurutkan. Klik nama dosen untuk melihat rinciannya.</p>
     <div class="kartu"><div class="gulir">${tabelMatriks(H)}</div>
@@ -564,6 +568,7 @@ ${seksiLipat('cakupan', 'Cakupan', '', `
   gambarIKU();
   gambarTemuan();
   gambarCPL();
+  gambarHibah();
   window.segarkanAMI?.();
 }
 
@@ -590,6 +595,17 @@ function gambarCPL(){
   window.adminCPL?.(document.getElementById('cpl-admin'));
 }
 window.setelCPL = (r, galat) => { CPL.r = r; CPL.galat = galat || ''; gambarCPL(); };
+// Pengajuan hibah (58-patch-hibah.sql): angka dari hibah_rekap(); null = lewat tautan AMI.
+const HIBAH = { rows: undefined, galat: '' };
+function gambarHibah(){
+  const box = document.getElementById('hibah-isi'), M = window.HIBAH;
+  if (!box) return;
+  box.innerHTML = HIBAH.galat ? `<p class="kosong">Rekap hibah gagal dimuat: ${esc(HIBAH.galat)}</p>`
+    : HIBAH.rows === null ? '<p class="kosong">Rekap hibah tidak ditampilkan lewat tautan AMI.</p>'
+    : !M || HIBAH.rows === undefined ? '<p class="kosong">Memuat…</p>'
+    : M.htmlRekap(HIBAH.rows);
+}
+window.setelHibah = (rows, galat) => { HIBAH.rows = rows; HIBAH.galat = galat || ''; gambarHibah(); };
 window.setelTemuan = (baris, bukti, galat) => {
   TEMUAN.baris = baris; TEMUAN.bukti = bukti || []; TEMUAN.galat = galat || ''; gambarTemuan();
 };
@@ -1018,7 +1034,7 @@ function kartuRinci(judul, peta){
       <div class="an">${v}</div></div>`).join('')}</div>`;
 }
 </script>
-<script src="config.js?v=2026-11-11-d391ce"></script>
+<script src="config.js?v=2026-11-11-6b330f"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -1037,12 +1053,14 @@ addEventListener('error', function (e) {
 // Ruang kerja, khusus email terdaftar (pemilik 2026-11-04); tanpa login hanya
 // lewat tautan AMI yang masih berlaku (pemilik 2026-11-11, 50-patch-tautan-ami.sql).
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { gerbang } from './menu.js?v=2026-11-11-d391ce';
-import * as CAPAIAN_IKU from './capaian-iku.js?v=2026-11-11-d391ce';
-import * as TEMUAN_AMI from './temuan-ami.js?v=2026-11-11-d391ce';
-import * as TAUTAN_AMI from './ami-tautan.js?v=2026-11-11-d391ce';
-import * as CAPAIAN_CPL from './capaian-cpl.js?v=2026-11-11-d391ce';
+import { gerbang } from './menu.js?v=2026-11-11-6b330f';
+import * as CAPAIAN_IKU from './capaian-iku.js?v=2026-11-11-6b330f';
+import * as TEMUAN_AMI from './temuan-ami.js?v=2026-11-11-6b330f';
+import * as TAUTAN_AMI from './ami-tautan.js?v=2026-11-11-6b330f';
+import * as CAPAIAN_CPL from './capaian-cpl.js?v=2026-11-11-6b330f';
+import * as HIBAH from './hibah.js?v=2026-11-11-6b330f';
 const sb = createClient(window.SB_URL, window.SB_KEY);
+window.HIBAH = HIBAH;
 window.CAPAIAN_CPL = CAPAIAN_CPL;
 document.head.insertAdjacentHTML('beforeend', `<style>${CAPAIAN_CPL.CSS_CPL}</style>`);
 window.CAPAIAN_IKU = CAPAIAN_IKU;
@@ -1061,10 +1079,16 @@ if (tokenAMI) {
     window.setelIKU(data.iku || [], '');
     window.setelTemuan(data.temuan || [], data.bukti_temuan || [], '');
     window.setelCPL(data.cpl || null, '');
+    window.setelHibah(null, '');
   }
 } else {
   const saya = await gerbang(sb);
   window.mulaiHalaman();
+  // Pengajuan hibah (58-patch-hibah.sql): hanya angka, untuk semua pengguna terdaftar.
+  sb.rpc('hibah_rekap').then(({ data, error }) => {
+    const belumAda = error && /does not exist|schema cache|Could not find the function/i.test(error.message);
+    window.setelHibah(belumAda ? [] : (data || []), error && !belumAda ? error.message : '');
+  }, e => window.setelHibah([], e.message || String(e)));
   // Target IKU/IKT (49-patch-iku-monitoring.sql: dosen terdaftar boleh membaca).
   sb.from('lkps_target_kinerja').select('*').then(({ data, error }) => {
     const belumAda = error && /does not exist|schema cache/i.test(error.message);
