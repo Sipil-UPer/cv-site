@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-11-105192">
+<link rel="stylesheet" href="tema.css?v=2026-11-11-50b589">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
@@ -84,7 +84,7 @@
   .masuk{max-width:420px;margin:40px auto;background:#fff;border:1px solid var(--line);padding:20px}
   .masuk input{width:100%;padding:8px 10px;margin:8px 0;font:inherit}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-11-105192">
+<link rel="stylesheet" href="kepala.css?v=2026-11-11-50b589">
 </head>
 <body>
 
@@ -98,7 +98,7 @@
 
 <main class="wrap" id="isi"></main>
 
-<script src="config.js?v=2026-11-11-105192"></script>
+<script src="config.js?v=2026-11-11-50b589"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -115,18 +115,19 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-11-105192';
-import { pasangMenu } from './menu.js?v=2026-11-11-105192';
-import { unggahKePustaka, opsiPustaka, opsiJenis, labelDokumen, cariDokumen } from './pustaka-dokumen.js?v=2026-11-11-105192';
-import { pasangRapikan } from './rapikan-berkas.js?v=2026-11-11-105192';
-import { UNSUR, skorUnsur, pihakUnsur } from './unsur-butir.js?v=2026-11-11-105192';
-import { htmlContoh, pasangContoh, JENIS_BUKTI_KS } from './manfaat-kerjasama.js?v=2026-11-11-105192';
-import { infoJenis } from './rencana-bukti.js?v=2026-11-11-105192';
-import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-11-105192';
-import { nomorButir, htmlTautanButir } from './tautan-butir.js?v=2026-11-11-105192';
-import { htmlSaran } from './saran-bukti.js?v=2026-11-11-105192';
-import { tautanBerkas, privatkanLama } from './tautan-privat.js?v=2026-11-11-105192';
-import { unggahLKD, buangLKD, bukaLKD, pendidikanTotal, pendidikanPS } from './bkd.js?v=2026-11-11-105192';
+import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-11-50b589';
+import { pasangMenu } from './menu.js?v=2026-11-11-50b589';
+import { unggahKePustaka, opsiPustaka, opsiJenis, labelDokumen, cariDokumen } from './pustaka-dokumen.js?v=2026-11-11-50b589';
+import { pasangRapikan } from './rapikan-berkas.js?v=2026-11-11-50b589';
+import { UNSUR, skorUnsur, pihakUnsur } from './unsur-butir.js?v=2026-11-11-50b589';
+import { OPSI_SUMBER, hitungSumber } from './iku-otomatis.js?v=2026-11-11-50b589';
+import { htmlContoh, pasangContoh, JENIS_BUKTI_KS } from './manfaat-kerjasama.js?v=2026-11-11-50b589';
+import { infoJenis } from './rencana-bukti.js?v=2026-11-11-50b589';
+import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-11-50b589';
+import { nomorButir, htmlTautanButir } from './tautan-butir.js?v=2026-11-11-50b589';
+import { htmlSaran } from './saran-bukti.js?v=2026-11-11-50b589';
+import { tautanBerkas, privatkanLama } from './tautan-privat.js?v=2026-11-11-50b589';
+import { unggahLKD, buangLKD, bukaLKD, pendidikanTotal, pendidikanPS } from './bkd.js?v=2026-11-11-50b589';
 
 /* =====================================================================
    DATA PRODI — data kuantitatif LKPS diisi admin di situs (keputusan
@@ -500,6 +501,8 @@ const TABEL = [
       { k: 'arah', l: 'Arah target', t: 'pilihan', wajib: true, o: [['minimal', 'Minimal (capaian ≥ target)'], ['maksimal', 'Maksimal (capaian ≤ target)']] },
       { k: 'target', l: 'Target', t: 'num' },
       { k: 'capaian', l: 'Capaian', t: 'num' },
+      // 48-patch-sumber-iku.sql (pemilik 2026-11-11): capaian dihitung dari data situs.
+      { k: 'sumber', l: 'Sumber capaian otomatis (kosong = capaian diisi manual)', t: 'pilihan', o: OPSI_SUMBER, patch48: true },
       { k: 'tujuan_strategis', l: 'IKT: tujuan strategis yang didukung', t: 'teks', lebar: true },
       { k: 'dampak', l: 'IKT: dampak positif dan terukur', t: 'teks', lebar: true },
       { k: 'daya_saing', l: 'IKT: daya saing internasional', t: 'teks', lebar: true },
@@ -666,6 +669,8 @@ let ADA43 = true;
 let ADA45 = true;
 // ADA46 = ref_mata_kuliah.sifat ada (46-patch-sifat-mk.sql).
 let ADA46 = true;
+// ADA48 = lkps_target_kinerja.sumber ada (48-patch-sumber-iku.sql).
+let ADA48 = true;
 pasangContoh();
 const dokPer = id => DOK.find(d => d.id === id) || null;
 // Bukti jamak per baris (tabel lkps_bukti, supabase/17-patch-lkps-bukti.sql).
@@ -673,7 +678,7 @@ const dokPer = id => DOK.find(d => d.id === id) || null;
 let LB = new Map(), LB_GAGAL = '', ANTREAN = [];
 // Kolom tautan lama (bukti_url / tautan_bukti) tidak lagi diisi di form;
 // isinya tetap tampil sebagai "Bukti (lama)".
-const kolomForm = T => T.kolom.filter(c => c.t !== 'url' && !(c.patch45 && !ADA45) && !(c.patch46 && !ADA46));
+const kolomForm = T => T.kolom.filter(c => c.t !== 'url' && !(c.patch45 && !ADA45) && !(c.patch46 && !ADA46) && !(c.patch48 && !ADA48));
 const kolomLama = T => (T.kolom.find(c => c.t === 'url') || {}).k;
 
 async function mulai(){
@@ -699,6 +704,7 @@ async function mulai(){
   ADA43 = !(await sb.from('lkps_bukti').select('unsur').limit(1)).error;
   ADA45 = !(await sb.from('ref_mata_kuliah').select('rps_9_komponen').limit(1)).error;
   ADA46 = !(await sb.from('ref_mata_kuliah').select('sifat').limit(1)).error;
+  ADA48 = !(await sb.from('lkps_target_kinerja').select('sumber').limit(1)).error;
   await muatPustaka();
   const awal = new URLSearchParams(location.search).get('tab');
   AKTIF = TABEL.find(t => t.id === awal) || TABEL[0];
@@ -756,14 +762,28 @@ function nilaiCapaian(r){
   const persen = maks ? (cp > 0 ? (tg / cp) * 100 : 100) : (tg > 0 ? (cp / tg) * 100 : 100);
   return { status: tercapai ? 'tercapai' : persen >= 80 ? 'hampir' : 'belum', persen };
 }
+// data.json publik untuk capaian otomatis (iku-otomatis.js), dimuat sekali.
+let D_PUBLIK, D_PUBLIK_JANJI = null;
+function dataPublik(){
+  if (D_PUBLIK !== undefined) return D_PUBLIK;
+  if (!D_PUBLIK_JANJI) D_PUBLIK_JANJI = fetch('data.json?v=' + Date.now()).then(r => r.ok ? r.json() : null)
+    .catch(() => null).then(d => { D_PUBLIK = d; if (AKTIF?.id === 'target') gambarCapaianIKU($('ci_ts')?.value); });
+  return null;
+}
+// Baris dengan capaian otomatis bila bersumber (capaian tersimpan tidak diubah).
+const denganOtomatis = r => {
+  const h = r.sumber ? hitungSumber(r.sumber, dataPublik(), r.tahun_ts) : null;
+  return h ? { ...r, capaian: h.nilai, _oto: h } : r;
+};
 function gambarCapaianIKU(ts){
   const box = $('capaian-iku');
   if (!box) return;
   const tsAda = [...new Set(BARIS.map(r => +r.tahun_ts).filter(Boolean))].sort((a, b) => b - a);
   if (!tsAda.length) { box.innerHTML = ''; return; }
   const pilih = tsAda.includes(+ts) ? +ts : tsAda[0];
-  const kini = BARIS.filter(r => +r.tahun_ts === pilih);
-  const lalu = new Map(BARIS.filter(r => +r.tahun_ts === pilih - 1).map(r => [`${r.jenis}|${String(r.nama).trim().toLowerCase()}`, r]));
+  const kini = BARIS.filter(r => +r.tahun_ts === pilih).map(denganOtomatis);
+  const lalu = new Map(BARIS.filter(r => +r.tahun_ts === pilih - 1).map(denganOtomatis)
+    .map(r => [`${r.jenis}|${String(r.nama).trim().toLowerCase()}`, r]));
   const warna = { tercapai: 'var(--hijau)', hampir: '#B8860B', belum: 'var(--merah)', kosong: 'var(--muted)' };
   const teks = { tercapai: 'tercapai', hampir: 'hampir (≥ 80%)', belum: 'belum', kosong: 'capaian belum diisi' };
   const angka = v => v == null ? '—' : (Math.round(+v * 100) / 100).toLocaleString('id-ID');
@@ -775,7 +795,8 @@ function gambarCapaianIKU(ts){
       <div class="gulir"><table class="t"><thead><tr><th>Indikator</th><th>Target</th><th>Capaian</th><th>%</th><th>Status</th>
         <th>TS sebelumnya</th></tr></thead><tbody>${xs.map((r, i) => {
         const c = n[i], p = lalu.get(`${r.jenis}|${String(r.nama).trim().toLowerCase()}`), s = r.satuan ? ' ' + esc(r.satuan) : '';
-        return `<tr><td>${esc(r.nama)}${r.butir ? ` <small>(butir ${r.butir})</small>` : ''}</td>
+        return `<tr><td>${esc(r.nama)}${r.butir ? ` <small>(butir ${r.butir})</small>` : ''}${r._oto
+          ? `<br><small class="ket">otomatis: ${esc(r._oto.ket)}</small>` : ''}</td>
           <td>${r.arah === 'maksimal' ? '≤' : '≥'} ${angka(r.target)}${s}</td><td>${angka(r.capaian)}${r.capaian != null ? s : ''}</td>
           <td>${c.persen == null ? '—' : Math.round(c.persen) + '%'}</td>
           <td style="color:${warna[c.status]};font-weight:600">${teks[c.status]}</td>
@@ -785,8 +806,20 @@ function gambarCapaianIKU(ts){
       <select id="ci_ts">${tsAda.map(t => `<option value="${t}"${t === pilih ? ' selected' : ''}>${t - 1}/${t}</option>`).join('')}</select></summary>
     ${blok('iku')}${blok('ikt')}
     <p class="ket">% = capaian ÷ target (arah minimal) atau target ÷ capaian (arah maksimal). Hampir = setidaknya 80% dari target.
-      Isi atau ubah angka lewat formulir di bawah.</p></details>`;
+      Indikator bersumber otomatis dihitung dari data situs (data.json, diperbarui tiap jam); lainnya dari kolom capaian.</p>
+    ${kini.some(r => r._oto && +r._oto.nilai !== +(BARIS.find(b => b.id === r.id) || {}).capaian)
+      ? `<div class="aksi"><button type="button" class="btn ghost kecil" id="ci_salin">Salin capaian otomatis ke kolom capaian
+          (untuk draf LED)</button><span class="msg" id="ci_msg"></span></div>` : ''}</details>`;
   $('ci_ts').onchange = e => gambarCapaianIKU(e.target.value);
+  if ($('ci_salin')) $('ci_salin').onclick = async () => {
+    const xs = kini.filter(r => r._oto && +r._oto.nilai !== +(BARIS.find(b => b.id === r.id) || {}).capaian);
+    for (const r of xs) {
+      const { error } = await sb.from('lkps_target_kinerja').update({ capaian: r._oto.nilai, oleh: SAYA.email,
+        diperbarui: new Date().toISOString() }).eq('id', r.id);
+      if (error) { $('ci_msg').className = 'msg buruk'; $('ci_msg').textContent = 'Gagal: ' + error.message; return; }
+    }
+    await muatBaris();
+  };
 }
 
 // ---------------------------------------------------------------------
