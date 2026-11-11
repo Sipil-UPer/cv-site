@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-11-908c00">
+<link rel="stylesheet" href="tema.css?v=2026-11-11-093b1f">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
@@ -62,7 +62,7 @@
   footer{margin-top:44px;border-top:1px solid var(--line);padding-top:18px;
          font-size:12.5px;color:var(--muted)}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-11-908c00">
+<link rel="stylesheet" href="kepala.css?v=2026-11-11-093b1f">
 </head>
 <body>
 
@@ -682,7 +682,7 @@ window.mulaiHalaman = () => fetch('data.json?v=' + Date.now())
       `<p class="kosong">Data belum tersedia. Hubungi admin prodi.</p>`;
   });
 </script>
-<script src="config.js?v=2026-11-11-908c00"></script>
+<script src="config.js?v=2026-11-11-093b1f"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -700,7 +700,7 @@ addEventListener('error', function (e) {
 <script type="module">
 // Ruang kerja, khusus email terdaftar (pemilik 2026-11-04).
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { gerbang } from './menu.js?v=2026-11-11-908c00';
+import { gerbang } from './menu.js?v=2026-11-11-093b1f';
 await gerbang(createClient(window.SB_URL, window.SB_KEY));
 window.mulaiHalaman();
 </script>
