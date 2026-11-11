@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-11-928fdb">
+<link rel="stylesheet" href="tema.css?v=2026-11-11-76634e">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
@@ -84,7 +84,7 @@
   .masuk{max-width:420px;margin:40px auto;background:#fff;border:1px solid var(--line);padding:20px}
   .masuk input{width:100%;padding:8px 10px;margin:8px 0;font:inherit}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-11-928fdb">
+<link rel="stylesheet" href="kepala.css?v=2026-11-11-76634e">
 </head>
 <body>
 
@@ -98,7 +98,7 @@
 
 <main class="wrap" id="isi"></main>
 
-<script src="config.js?v=2026-11-11-928fdb"></script>
+<script src="config.js?v=2026-11-11-76634e"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -115,20 +115,21 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-11-928fdb';
-import { pasangMenu } from './menu.js?v=2026-11-11-928fdb';
-import { unggahKePustaka, opsiPustaka, opsiJenis, labelDokumen, cariDokumen } from './pustaka-dokumen.js?v=2026-11-11-928fdb';
-import { pasangRapikan } from './rapikan-berkas.js?v=2026-11-11-928fdb';
-import { UNSUR, skorUnsur, pihakUnsur } from './unsur-butir.js?v=2026-11-11-928fdb';
-import { OPSI_SUMBER } from './iku-otomatis.js?v=2026-11-11-928fdb';
-import { denganOtomatis as otomatisDari, tsTersedia, htmlCapaianIKU, KET_CAPAIAN } from './capaian-iku.js?v=2026-11-11-928fdb';
-import { htmlContoh, pasangContoh, JENIS_BUKTI_KS } from './manfaat-kerjasama.js?v=2026-11-11-928fdb';
-import { infoJenis } from './rencana-bukti.js?v=2026-11-11-928fdb';
-import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-11-928fdb';
-import { nomorButir, htmlTautanButir } from './tautan-butir.js?v=2026-11-11-928fdb';
-import { htmlSaran } from './saran-bukti.js?v=2026-11-11-928fdb';
-import { tautanBerkas, privatkanLama } from './tautan-privat.js?v=2026-11-11-928fdb';
-import { unggahLKD, buangLKD, bukaLKD, pendidikanTotal, pendidikanPS } from './bkd.js?v=2026-11-11-928fdb';
+import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-11-76634e';
+import { pasangMenu } from './menu.js?v=2026-11-11-76634e';
+import { unggahKePustaka, opsiPustaka, opsiJenis, labelDokumen, cariDokumen } from './pustaka-dokumen.js?v=2026-11-11-76634e';
+import { pasangRapikan } from './rapikan-berkas.js?v=2026-11-11-76634e';
+import { UNSUR, skorUnsur, pihakUnsur } from './unsur-butir.js?v=2026-11-11-76634e';
+import { OPSI_SUMBER } from './iku-otomatis.js?v=2026-11-11-76634e';
+import { denganOtomatis as otomatisDari, tsTersedia, htmlCapaianIKU, KET_CAPAIAN } from './capaian-iku.js?v=2026-11-11-76634e';
+import { KATEGORI_TEMUAN, STATUS_TEMUAN, PIHAK_TEMUAN, ringkasTemuan, htmlRingkasTemuan } from './temuan-ami.js?v=2026-11-11-76634e';
+import { htmlContoh, pasangContoh, JENIS_BUKTI_KS } from './manfaat-kerjasama.js?v=2026-11-11-76634e';
+import { infoJenis } from './rencana-bukti.js?v=2026-11-11-76634e';
+import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-11-76634e';
+import { nomorButir, htmlTautanButir } from './tautan-butir.js?v=2026-11-11-76634e';
+import { htmlSaran } from './saran-bukti.js?v=2026-11-11-76634e';
+import { tautanBerkas, privatkanLama } from './tautan-privat.js?v=2026-11-11-76634e';
+import { unggahLKD, buangLKD, bukaLKD, pendidikanTotal, pendidikanPS } from './bkd.js?v=2026-11-11-76634e';
 
 /* =====================================================================
    DATA PRODI — data kuantitatif LKPS diisi admin di situs (keputusan
@@ -526,6 +527,40 @@ const TABEL = [
       { k: 'peningkatan_dokumen_id', l: 'Dokumen peningkatan', t: 'dokumen', saran: ['dokumen_peningkatan_mutu', 'laporan_kinerja'] },
       { k: 'keterangan', l: 'Keterangan', t: 'teks', lebar: true },
     ] },
+  // 51-patch-temuan-ami.sql (pemilik 2026-11-11): temuan AMI dan tindak lanjut (PPEPP).
+  { id: 'temuan', tabel: 'ami_temuan', judul: 'Temuan AMI', butir: '53, 55', patch: '51-patch-temuan-ami.sql',
+    urut: ['tahun_ts', 'kode'],
+    ket: 'Satu baris per temuan dari laporan AMI. Isi rencana tindak lanjut, penanggung jawab, dan tenggat; lalu perbarui status: '
+       + 'Terbuka → Dalam proses → Selesai (tindakan selesai, menunggu verifikasi) → Ditutup (auditor/GPM memverifikasi efektif). '
+       + 'Unggah bukti tindak lanjut pada baris ini. Temuan tampil di Monitoring dan di tautan AMI; yang lewat atau dekat tenggat '
+       + 'masuk Pengingat. Bukti tindak lanjut ikut tercantum di butir 55 draf LED; tautan Monitoring untuk AMI (Monitoring, panel admin) '
+       + 'bisa diunggah sebagai bukti butir 55 unsur 3. Contoh: siklus AMI 2026, kode T-03, standar Pembelajaran, butir 15, KTS minor, "RPS 4 MK belum '
+       + 'ditinjau tahun ini", rencana "tinjauan RPS oleh tim kurikulum", pihak Prodi, tenggat 31/01/2027.',
+    label: r => `${r.kode ? r.kode + ' ' : ''}${String(r.uraian || 'Temuan').slice(0, 60)}`, tahun: r => r.tahun_ts,
+    kolom: [
+      { k: 'siklus', l: 'Siklus audit (mis. AMI 2026)', t: 'teks' },
+      { k: 'tahun_ts', l: 'Tahun TS (tahun akhir, mis. 2026)', t: 'tahun', wajib: true },
+      { k: 'tanggal_audit', l: 'Tanggal audit', t: 'tanggal' },
+      { k: 'kode', l: 'Kode temuan (mis. T-03)', t: 'teks' },
+      { k: 'standar', l: 'Standar SPMI', t: 'teks' },
+      { k: 'butir', l: 'Butir terkait (1–60)', t: 'int' },
+      { k: 'kategori', l: 'Kategori', t: 'pilihan', wajib: true, o: KATEGORI_TEMUAN },
+      { k: 'uraian', l: 'Uraian temuan', t: 'paragraf', wajib: true },
+      { k: 'akar_masalah', l: 'Akar masalah', t: 'paragraf' },
+      { k: 'rencana', l: 'Rencana tindak lanjut', t: 'paragraf' },
+      { k: 'pihak', l: 'Pihak penanggung jawab', t: 'pilihan', o: PIHAK_TEMUAN },
+      { k: 'pj_nama', l: 'Nama penanggung jawab', t: 'teks' },
+      { k: 'pj_email', l: 'Email penanggung jawab (untuk pengingat; kosong = email pihak)', t: 'teks' },
+      { k: 'tenggat', l: 'Tenggat tindak lanjut', t: 'tanggal' },
+      { k: 'status', l: 'Status (kosong = Terbuka)', t: 'pilihan', o: STATUS_TEMUAN },
+      { k: 'tanggal_selesai', l: 'Tanggal tindakan selesai', t: 'tanggal' },
+      { k: 'verifikasi', l: 'Hasil verifikasi efektivitas', t: 'paragraf' },
+    ],
+    olah: r => { if (!r.status) r.status = 'terbuka'; if (r.pj_email) r.pj_email = r.pj_email.trim(); },
+    cek: r => r.butir != null && (r.butir < 1 || r.butir > 60) ? 'Butir harus 1 sampai 60.'
+      : r.pj_email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(r.pj_email) ? 'Email penanggung jawab tidak sah.'
+      : ['selesai', 'ditutup'].includes(r.status) && !r.tanggal_selesai ? 'Isi tanggal tindakan selesai untuk status Selesai atau Ditutup.'
+      : r.status === 'ditutup' && !String(r.verifikasi || '').trim() ? 'Isi hasil verifikasi efektivitas sebelum menutup temuan.' : '' },
   { id: 'mahasiswa', tabel: 'lkps_mahasiswa_ta', judul: 'Mahasiswa per TS', butir: '40–45',
     ket: 'Satu baris per TAHUN AKADEMIK (TS = 1 Sep s.d. 31 Agu), angka gabungan. Mahasiswa aktif = NM '
        + '(butir 40, 43, 46); lulusan + rerata IPK = butir 42; mahasiswa asing = butir 41. Masa studi dan '
@@ -655,7 +690,7 @@ TABEL.unshift({ id: 'dokumen', judul: 'Dokumen', khusus: true, butir: 'semua',
 const SARAN_DOK = { target: ['dokumen_iku_ikt', 'laporan_kinerja'], tracer: ['laporan_tracer', 'data_survei_mentah'], kepuasan: ['survei_pengguna', 'data_survei_mentah'], kerjasama: ['dokumen_kerjasama', 'pedoman_kerjasama'],
   mk: ['rps', 'kurikulum'], tema: ['peta_jalan_penelitian', 'peta_jalan_pkm'], peta_dok: ['peta_jalan_penelitian', 'peta_jalan_pkm'], vmts: ['sk_vmts', 'statuta', 'renstra_pt', 'renstra_upps'],
   prodi_upps: ['sk_akreditasi_prodi'], dana: ['laporan_keuangan', 'laporan_audit_keuangan'], tendik: ['berkas_pribadi', 'sertifikat'], prasarana: ['pedoman_sarpras'],
-  dok_k3l: ['dokumen_k3l', 'kebijakan_k3l'], fas_k3l: ['kebijakan_k3l'], spmi: ['kebijakan_spmi', 'laporan_ami', 'laporan_rtm'], bkd: ['rekap_bkd'], prestasi: ['sertifikat'],
+  dok_k3l: ['dokumen_k3l', 'kebijakan_k3l'], fas_k3l: ['kebijakan_k3l'], spmi: ['kebijakan_spmi', 'laporan_ami', 'laporan_rtm'], temuan: ['laporan_ami', 'dokumen_peningkatan_mutu', 'laporan_rtm'], bkd: ['rekap_bkd'], prestasi: ['sertifikat'],
   luaran: ['sertifikat'], kohort: ['data_mahasiswa'], mahasiswa: ['data_mahasiswa'], publikasi: ['lainnya'] };
 TABEL.forEach(T => { T.dok = SARAN_DOK[T.id] || ['lainnya']; });
 // Kunci saran-bukti.js: publikasi dan luaran di sana milik form karya dosen.
@@ -1177,7 +1212,7 @@ const GRUP_TAB = [
   ['Mahasiswa & lulusan', ['mahasiswa', 'kohort', 'prestasi', 'publikasi', 'luaran', 'tracer', 'kepuasan']],
   ['Institusi & keuangan', ['vmts', 'prodi_upps', 'dana']],
   ['Sarana & K3L', ['prasarana', 'dok_k3l', 'fas_k3l']],
-  ['SPMI', ['spmi', 'target']],
+  ['SPMI', ['spmi', 'target', 'temuan']],
 ];
 const grupTab = T => (GRUP_TAB.find(([, ids]) => ids.includes(T.id)) || ['Lainnya'])[0];
 
@@ -1202,7 +1237,7 @@ async function bukaTab(){
   if (T.khusus) return bukaPustaka();
   $('panel').innerHTML = `<p class="ket">${nomorButir(T.butir).length
     ? `<b>${htmlTautanButir(nomorButir(T.butir), null, 'Dipakai di')}.</b>` : `<b>${esc(T.butir)}.</b>`} ${esc(T.ket)}</p>${saranTab(T)}
-    ${T.id === 'kepuasan' ? '<div id="massal"></div>' : ''}${T.id === 'mk' ? '<div id="impor-mk"></div>' : ''}${T.id === 'target' ? '<div id="capaian-iku"></div><div id="impor-iku"></div>' : ''}
+    ${T.id === 'kepuasan' ? '<div id="massal"></div>' : ''}${T.id === 'mk' ? '<div id="impor-mk"></div>' : ''}${T.id === 'target' ? '<div id="capaian-iku"></div><div id="impor-iku"></div>' : ''}${T.id === 'temuan' ? '<div id="ringkas-temuan"></div>' : ''}
     <form id="form" novalidate><div class="grid">${kolomForm(T).map(isian).join('')}
       ${T.privat ? blokLKD() : blokBukti(T)}</div>
       <div class="aksi"><button type="submit" class="btn" id="simpan">Tambah baris</button>
@@ -1366,6 +1401,7 @@ async function muatBaris(){
   if (T.id === 'mk' && $('impor-mk') && !$('impor-mk').innerHTML) gambarImporMK();
   if (T.id === 'target') gambarCapaianIKU($('ci_ts')?.value);
   if (T.id === 'target' && $('impor-iku') && !$('impor-iku').innerHTML) gambarImporIKU();
+  if (T.id === 'temuan' && $('ringkas-temuan')) $('ringkas-temuan').innerHTML = htmlRingkasTemuan(ringkasTemuan(BARIS));
   // Pilihan jamak bisa bergantung pada baris tab ini (mis. MK pendukung).
   kolomForm(T).filter(c => c.t === 'jamak').forEach(c => {
     const r = SUNTING ? BARIS.find(x => x.id === SUNTING) : null;

@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-11-928fdb">
+<link rel="stylesheet" href="tema.css?v=2026-11-11-76634e">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
@@ -174,7 +174,7 @@
     font-size:13px;line-height:1.5}
   @media print{.png-baris, #ami-admin, .kontrol-seksi{display:none}}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-11-928fdb">
+<link rel="stylesheet" href="kepala.css?v=2026-11-11-76634e">
 </head>
 <body>
 
@@ -489,6 +489,10 @@ ${seksiLipat('cakupan', 'Cakupan', '', `
     <p class="ket">Indikator kinerja utama dan tambahan prodi, di luar akreditasi. Target diisi
     admin di Data prodi › Target IKU/IKT; pemilih TS di bawah terpisah dari pemilih periode di atas.</p>
     <div class="kartu" id="iku-isi"></div>
+`, true)}${seksiLipat('temuan', 'Temuan AMI dan tindak lanjut', 'siklus PPEPP', `
+    <p class="ket">Temuan audit mutu internal beserta rencana, penanggung jawab, tenggat, status, dan bukti tindak lanjutnya.
+    Diisi admin di Data prodi › SPMI › Temuan AMI. Urutan: yang lewat tenggat dulu, lalu tenggat terdekat.</p>
+    <div class="kartu" id="temuan-isi"><p class="kosong">Memuat…</p></div>
 `, true)}${seksiLipat('matriks', 'Matriks kinerja dosen', '', `
     <p class="ket">Klik judul kolom untuk mengurutkan. Klik nama dosen untuk melihat rinciannya.</p>
     <div class="kartu"><div class="gulir">${tabelMatriks(H)}</div>
@@ -554,8 +558,23 @@ ${seksiLipat('cakupan', 'Cakupan', '', `
     };
   });
   gambarIKU();
+  gambarTemuan();
   window.segarkanAMI?.();
 }
+
+// Temuan AMI (51-patch-temuan-ami.sql): baris dan bukti dimuat skrip modul
+// (window.setelTemuan); tabel dari temuan-ami.js.
+const TEMUAN = { baris: null, bukti: [], galat: '' };
+function gambarTemuan(){
+  const box = document.getElementById('temuan-isi'), M = window.TEMUAN_AMI;
+  if (!box) return;
+  box.innerHTML = TEMUAN.galat ? `<p class="kosong">Temuan AMI gagal dimuat: ${esc(TEMUAN.galat)}</p>`
+    : !M || TEMUAN.baris === null ? '<p class="kosong">Memuat…</p>'
+    : M.htmlTemuan(TEMUAN.baris, M.buktiPerBaris(TEMUAN.bukti), { kelasTabel: 'sp' });
+}
+window.setelTemuan = (baris, bukti, galat) => {
+  TEMUAN.baris = baris; TEMUAN.bukti = bukti || []; TEMUAN.galat = galat || ''; gambarTemuan();
+};
 
 // Periode yang sedang tampil, untuk tautan AMI baru (ami-tautan.js).
 window.keadaanMonitoring = () => {
@@ -981,7 +1000,7 @@ function kartuRinci(judul, peta){
       <div class="an">${v}</div></div>`).join('')}</div>`;
 }
 </script>
-<script src="config.js?v=2026-11-11-928fdb"></script>
+<script src="config.js?v=2026-11-11-76634e"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -1000,12 +1019,15 @@ addEventListener('error', function (e) {
 // Ruang kerja, khusus email terdaftar (pemilik 2026-11-04); tanpa login hanya
 // lewat tautan AMI yang masih berlaku (pemilik 2026-11-11, 50-patch-tautan-ami.sql).
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { gerbang } from './menu.js?v=2026-11-11-928fdb';
-import * as CAPAIAN_IKU from './capaian-iku.js?v=2026-11-11-928fdb';
-import * as TAUTAN_AMI from './ami-tautan.js?v=2026-11-11-928fdb';
+import { gerbang } from './menu.js?v=2026-11-11-76634e';
+import * as CAPAIAN_IKU from './capaian-iku.js?v=2026-11-11-76634e';
+import * as TEMUAN_AMI from './temuan-ami.js?v=2026-11-11-76634e';
+import * as TAUTAN_AMI from './ami-tautan.js?v=2026-11-11-76634e';
 const sb = createClient(window.SB_URL, window.SB_KEY);
 window.CAPAIAN_IKU = CAPAIAN_IKU;
 window.TAUTAN_AMI = TAUTAN_AMI;
+window.TEMUAN_AMI = TEMUAN_AMI;
+const tabelBelumAda = e => e && /does not exist|schema cache/i.test(e.message);
 const tokenAMI = new URLSearchParams(location.search).get('ami');
 if (tokenAMI) {
   const { data, error } = await sb.rpc('ami_buka', { p_token: tokenAMI });
@@ -1016,6 +1038,7 @@ if (tokenAMI) {
     window.AMI = data;
     window.mulaiHalaman();
     window.setelIKU(data.iku || [], '');
+    window.setelTemuan(data.temuan || [], data.bukti_temuan || [], '');
   }
 } else {
   const saya = await gerbang(sb);
@@ -1025,6 +1048,12 @@ if (tokenAMI) {
     const belumAda = error && /does not exist|schema cache/i.test(error.message);
     window.setelIKU(belumAda ? [] : (data || []), error && !belumAda ? error.message : '');
   }, e => window.setelIKU([], e.message || String(e)));
+  // Temuan AMI dan buktinya (51-patch-temuan-ami.sql: dosen terdaftar boleh membaca).
+  Promise.all([sb.from('ami_temuan').select('*'),
+               sb.from('lkps_bukti').select('baris_id,judul,url').eq('tabel', 'ami_temuan')])
+    .then(([t, b]) => window.setelTemuan(tabelBelumAda(t.error) ? [] : (t.data || []), b.data || [],
+      t.error && !tabelBelumAda(t.error) ? t.error.message : ''),
+      e => window.setelTemuan([], [], e.message || String(e)));
   if (saya?.peran === 'admin') {
     const wadah = document.getElementById('ami-admin');
     wadah.hidden = false;

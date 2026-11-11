@@ -59,6 +59,9 @@ export const SARAN_BUKTI = {
   spmi: { tabel: '7.a, 7.b', isi: [P('Nomor dan tanggal dokumen SPMI'), P('Tautan dokumen tiap tahap PPEPP'),
     R('Laporan AMI dan RTM')] },
   target: { tabel: 'butir 54–56', isi: [U('Dokumen IKU/IKT yang disahkan'), U('Laporan kinerja')] },
+  // 51-patch-temuan-ami.sql (pemilik 2026-11-11): bukti tindak lanjut per temuan.
+  temuan: { tabel: 'butir 53, 55', isi: [U('Bukti tindakan perbaikan (notulen, SK, dokumen revisi, foto)'),
+    U('Hasil verifikasi efektivitas oleh auditor/GPM'), R('Laporan AMI dan formulir temuan')] },
 
   // kelola-dosen.html: tidak ada kolom bukti di sana, simpan di pustaka.
   dosen: { tabel: '4.a', isi: [P('Nomor sertifikat pendidik'), R('Ijazah'), R('SK jabatan akademik')],

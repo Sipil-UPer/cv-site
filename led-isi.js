@@ -9,10 +9,10 @@
    Tautan di dalam teks memakai token ⟦url|label⟧; auto() di led.js
    mengubahnya menjadi hyperlink Word.
    ===================================================================== */
-import { versiUntukTS } from './pustaka-dokumen.js?v=2026-11-11-928fdb';
-import { infoJenis, JENIS_DOKUMEN, kelompokDokumen, buktiButir, saranDokumen } from './rencana-bukti.js?v=2026-11-11-928fdb';
-import { teksPendidikan } from './profil-dosen.js?v=2026-11-11-928fdb';
-import { karya4i } from './sitasi.js?v=2026-11-11-928fdb';
+import { versiUntukTS } from './pustaka-dokumen.js?v=2026-11-11-76634e';
+import { infoJenis, JENIS_DOKUMEN, kelompokDokumen, buktiButir, saranDokumen } from './rencana-bukti.js?v=2026-11-11-76634e';
+import { teksPendidikan } from './profil-dosen.js?v=2026-11-11-76634e';
+import { karya4i } from './sitasi.js?v=2026-11-11-76634e';
 
 export const tokenTautan = (url, label) => `⟦${url}|${String(label).replace(/[⟦⟧|]/g, ' ')}⟧`;
 const isi = t => `[isi: ${t}]`;
@@ -143,7 +143,7 @@ const TABEL_BUTIR = {
   lkps_bkd: ['30'], lkps_prasarana: ['38'], lkps_dokumen_k3l: ['39'], lkps_fasilitas_k3l: ['39'],
   lkps_mahasiswa_ta: ['40', '41', '42'], lkps_prestasi_mahasiswa: ['43'], lkps_kohort_lulusan: ['44', '45'],
   lkps_publikasi_mahasiswa: ['46'], lkps_luaran_mahasiswa: ['47'], lkps_tracer_lulusan: ['48', '49', '50', '51'],
-  lkps_kepuasan_pengguna: ['52'], lkps_spmi_ppepp: ['53', '55'], lkps_target_kinerja: ['54', '55', '56'],
+  lkps_kepuasan_pengguna: ['52'], lkps_spmi_ppepp: ['53', '55'], lkps_target_kinerja: ['54', '55', '56'], ami_temuan: ['55'],
 };
 // Lembar LKPS (LKPS_TABEL.sheet) -> tabel Data prodi.
 const TABEL_LEMBAR = [[/^Menu|^PS/, 'lkps_prodi_upps'], [/^1$/, 'lkps_vmts'], [/^2a/, 'lkps_kerjasama'], [/^2b/, 'lkps_penggunaan_dana'],
