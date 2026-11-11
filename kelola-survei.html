@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Survei kepuasan — Kinerja Program Studi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tema.css?v=2026-11-11-dd6efa">
+<link rel="stylesheet" href="kepala.css?v=2026-11-11-dd6efa">
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
+  .wrap{max-width:1040px;margin:0 auto;padding:18px 20px 80px}
+  .kosong, .ket{color:var(--muted)}
+  .ket{font-size:13px}
+  /* Survei kepuasan (pemilik 2026-11-11) */
+  .kartu{background:var(--panel);border:1px solid var(--line);padding:14px 18px;margin-bottom:16px}
+  .kartu h2{font-size:17px;margin:0 0 8px;color:var(--biru)}
+  table.ds{width:100%;border-collapse:collapse;font-size:13.5px}
+  table.ds th{text-align:left;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--line);padding:5px 8px}
+  table.ds td{padding:7px 8px;border-bottom:1px solid var(--line-soft);vertical-align:top}
+  .b{font:12px/1.4 var(--sans);padding:4px 9px;border:1px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer;margin:0 3px 3px 0}
+  .b:hover{border-color:var(--biru);color:var(--biru)}
+  .b.utama{background:var(--biru);color:#fff;border-color:var(--biru);font-size:14px;padding:7px 16px}
+  .b.bahaya{color:var(--merah)}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px 14px}
+  .grid label{font-size:13px;color:var(--muted);display:flex;flex-direction:column;gap:3px}
+  .grid input, .grid select, textarea, table.pq input, table.pq select{font:inherit;font-size:14px;padding:5px 7px;border:1px solid var(--line);background:var(--panel);color:var(--ink)}
+  textarea{width:100%;min-height:70px}
+  table.pq{width:100%;border-collapse:collapse;margin-top:8px;font-size:13.5px}
+  table.pq td{padding:3px 4px;vertical-align:top}
+  table.pq input.teks{width:100%}
+  table.pq input.kode{width:90px} table.pq input.aspek{width:140px}
+  .msg{font-size:13.5px} .msg.buruk{color:var(--merah)} .msg.ok{color:var(--hijau)}
+  .st{font-size:12px;font-weight:600}
+  .rinci{background:var(--bg);border:1px solid var(--line-soft);padding:8px 14px;margin:6px 0}
+  .komentar li{margin:4px 0;white-space:pre-line}
+</style>
+</head>
+<body>
+<header class="hero"><div class="hero-in">
+  <div class="hero-inst" data-identitas></div>
+  <h1>Survei kepuasan</h1>
+  <div class="sub" id="hSub">Memuat…</div>
+</div></header>
+<main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
+<script src="config.js?v=2026-11-11-dd6efa"></script>
+<script>
+// Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
+addEventListener('error', function (e) {
+  if (document.getElementById('galat-muat')) return;
+  var d = document.createElement('div');
+  d.id = 'galat-muat';
+  d.style.cssText = 'margin:16px;padding:12px 14px;border:1px solid var(--merah);' +
+    'background:var(--merah-m3);color:var(--ink);font:14px/1.5 system-ui,sans-serif';
+  d.textContent = 'Halaman gagal dimuat: ' + (e.message || 'galat skrip') +
+    '. Tekan Ctrl+Shift+R untuk memuat ulang tanpa cache; bila tetap muncul, kirim pesan ini ke admin.';
+  document.body.insertBefore(d, document.body.firstChild);
+});
+</script>
+<script type="module">
+// Kelola survei kepuasan (pemilik 2026-11-11; 54-patch-survei-kepuasan.sql).
+// Admin membuat survei per kelompok dari templat bawaan (bisa disunting),
+// membagikan tautan survei.html?t=<token>, menutup, dan membaca hasil.
+// Pertanyaan dikunci setelah ada responden supaya rekap tetap sah.
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+import { gerbang } from './menu.js?v=2026-11-11-dd6efa';
+import { KELOMPOK_SURVEI, labelKelompok, templatSurvei, cekPertanyaan, hitungDariJawaban, rekapSurvei,
+  komentarSurvei, keTabel62, csvJawaban, htmlRekap, CSS_SURVEI, JENIS_PERTANYAAN, IDENTITAS, teksOpsi, bacaOpsi,
+  teksSyarat, bacaSyarat, ringkasLain, htmlLain, aspekTindakLanjut, temuanDariAspek, kodeTemuanSurvei,
+  masukanKurikulum, csvKurikulum } from './survei-kepuasan.js?v=2026-11-11-dd6efa';
+
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const $ = id => document.getElementById(id);
+const sb = createClient(window.SB_URL, window.SB_KEY);
+document.head.insertAdjacentHTML('beforeend', `<style>${CSS_SURVEI}</style>`);
+const iso = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+const tgl = s => String(s || '').slice(0, 10).split('-').reverse().join('/');
+const tsKini = () => { const d = new Date(); return d.getMonth() >= 8 ? d.getFullYear() + 1 : d.getFullYear(); };
+const urlSurvei = t => new URL('survei.html?t=' + t, location.href).href;
+let SAYA = null, SURVEI = [], JAWAB = new Map(), UBAH = null, PQ = [], BUKA = null, KEL = 'mahasiswa';
+// Kode temuan yang sudah dibuat dari survei (51-patch-temuan-ami.sql), supaya tombol tidak dobel.
+let KODE_TEMUAN = new Set(), TEMUAN_ADA = true;
+
+function status(s){
+  const h = iso(new Date());
+  if (s.dicabut) return ['dicabut', 'var(--merah)'];
+  if (h < s.mulai) return ['belum dibuka', 'var(--muted)'];
+  if (h > s.selesai) return ['ditutup', 'var(--muted)'];
+  return ['dibuka', 'var(--hijau)'];
+}
+
+async function muat(){
+  const [s, j] = await Promise.all([
+    sb.from('survei').select('*').order('dibuat', { ascending: false }),
+    (async () => { const out = []; for (let a = 0; ; a += 1000) {
+      const { data, error } = await sb.from('survei_jawaban').select('id,survei_id,diisi,jawaban,nama,nim,email').order('id').range(a, a + 999);
+      if (error) throw new Error(error.message); out.push(...(data || [])); if (!data || data.length < 1000) return out; } })()
+      .catch(e => ({ galat: e.message }))]);
+  if (s.error) throw new Error(/does not exist|schema cache/i.test(s.error.message)
+    ? 'Tabel survei belum ada: jalankan supabase/54-patch-survei-kepuasan.sql.' : s.error.message);
+  SURVEI = s.data || [];
+  const tm = await sb.from('ami_temuan').select('kode').then(r => r, e => ({ error: e }));
+  TEMUAN_ADA = !tm.error;
+  KODE_TEMUAN = new Set((tm.data || []).map(r => r.kode).filter(k => String(k || '').startsWith('SV')));
+  JAWAB = new Map();
+  (Array.isArray(j) ? j : []).forEach(r => { if (!JAWAB.has(r.survei_id)) JAWAB.set(r.survei_id, []); JAWAB.get(r.survei_id).push(r); });
+}
+
+function gambar(){
+  $('isi').innerHTML = `<p class="ket">Survei kepuasan anonim untuk butir 57 (seluruh pemangku), butir 7 unsur 3 (mitra), dan butir 52
+      (pengguna lulusan, Tabel 6.g.2). Buat survei, bagikan tautannya, lalu baca hasilnya di sini. Rekap angka tampil publik di
+      <a href="hasil-survei.html">Hasil survei kepuasan</a> (bila "publik" dicentang); isian saran hanya terlihat admin.</p>
+    <div class="kartu" id="form-survei"></div>
+    <div class="kartu"><h2>Daftar survei</h2>${SURVEI.length ? `<div class="gulir"><table class="ds"><thead><tr><th>Survei</th><th>Kelompok</th>
+      <th>Periode</th><th>Status</th><th>Responden</th><th></th></tr></thead><tbody>${SURVEI.map(s => {
+        const [st, w] = status(s), n = (JAWAB.get(s.id) || []).length;
+        return `<tr><td><b>${esc(s.judul)}</b><br><small class="ket">TS ${s.tahun_ts - 1}/${s.tahun_ts}${s.publik ? ' · publik' : ' · tidak publik'}</small></td>
+          <td>${esc(labelKelompok(s.kelompok))}</td><td>${tgl(s.mulai)} – ${tgl(s.selesai)}</td>
+          <td><span class="st" style="color:${w}">${st}</span></td><td>${n}</td>
+          <td><button class="b" data-salin="${s.id}">Salin tautan</button><a class="b" href="${esc(urlSurvei(s.token))}" target="_blank" rel="noopener">Buka</a>
+            <button class="b" data-hasil="${s.id}">${BUKA === s.id ? 'Tutup hasil' : 'Hasil'}</button><button class="b" data-ubah="${s.id}">Ubah</button>
+            <button class="b" data-cabut="${s.id}">${s.dicabut ? 'Buka kembali' : 'Cabut'}</button>
+            <button class="b bahaya" data-hapus="${s.id}">Hapus</button></td></tr>
+          ${BUKA === s.id ? `<tr><td colspan="6"><div class="rinci" id="rinci"></div></td></tr>` : ''}`;
+      }).join('')}</tbody></table></div>` : '<p class="kosong">Belum ada survei.</p>'}</div>
+    ${htmlKurikulum()}`;
+  gambarForm();
+  if ($('kur_csv')) $('kur_csv').onclick = () => unduh(csvKurikulum(masukanKurikulum(SURVEI, JAWAB)), `masukan-kurikulum-${iso(new Date())}.csv`);
+  if (BUKA) gambarHasil(SURVEI.find(s => s.id === BUKA));
+  pasang();
+}
+
+const unduh = (isi, nama) => {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([isi], { type: 'text/csv;charset=utf-8' }));
+  a.download = nama; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1500);
+};
+const f2 = x => x == null ? '—' : (+x).toFixed(2).replace('.', ',');
+
+// Masukan kurikulum lintas survei (pemilik 2026-11-11): butir 12 unsur 2 (internal) dan 3 (eksternal),
+// unsur 5 (kebutuhan pengguna), butir 13 unsur 2, butir 48 unsur 5.
+function htmlKurikulum(){
+  const m = masukanKurikulum(SURVEI, JAWAB).filter(x => x.n);
+  const blok = (judul, xs) => `<h3 style="font-size:15px;margin:12px 0 4px">${judul}</h3>${xs.length ? xs.map(x => `<div class="rinci">
+      <b>${esc(x.s.judul)}</b> <span class="ket">(${esc(labelKelompok(x.s.kelompok))}, ${x.n} responden)</span>
+      ${x.skala.map(q => `<p style="margin:4px 0">${esc(q.teks)} — rerata <b>${f2(q.rerata)}</b>, ${f2(q.puas)}% puas</p>`).join('')}
+      ${x.isian.map(q => `<p style="margin:6px 0 2px" class="ket">${esc(q.teks)} (${q.isi.length})</p>
+        ${q.isi.length ? `<ol class="komentar">${q.isi.map(t => `<li>${esc(t)}</li>`).join('')}</ol>` : ''}`).join('')}</div>`).join('')
+    : '<p class="kosong">Belum ada.</p>'}`;
+  return `<div class="kartu"><h2>Masukan untuk pengembangan kurikulum</h2>
+    <p class="ket">Pertanyaan beraspek "kurikulum" dari semua survei. Bahan rapat evaluasi kurikulum: butir 12 (keterlibatan pemangku
+      internal dan eksternal, kesesuaian dengan kebutuhan pengguna), butir 13 unsur 2 (survei pengguna), dan butir 48 unsur 5
+      (pemakaian hasil untuk kurikulum). Unggah notulen rapat yang memakai bahan ini sebagai bukti butir 12.</p>
+    ${m.length ? `${blok('Pemangku internal (mahasiswa, dosen, tendik)', m.filter(x => x.internal))}
+      ${blok('Pemangku eksternal (mitra, pengguna lulusan)', m.filter(x => !x.internal))}
+      <p><button class="b" id="kur_csv">Unduh CSV masukan kurikulum</button></p>` : '<p class="kosong">Belum ada jawaban untuk pertanyaan kurikulum.</p>'}</div>`;
+}
+
+function gambarForm(){
+  const s = UBAH, n = s ? (JAWAB.get(s.id) || []).length : 0, kunci = n > 0;
+  const k = s?.kelompok || KEL, ts = s?.tahun_ts || tsKini();
+  if (!PQ.length) PQ = s ? s.pertanyaan.map(q => ({ ...q })) : templatSurvei(k);
+  const awal = new Date(), akhir = new Date(); akhir.setDate(akhir.getDate() + 30);
+  $('form-survei').innerHTML = `<h2>${s ? 'Ubah survei' : 'Survei baru'}</h2>
+    <div class="grid">
+      <label>Kelompok responden<select id="s_kelompok"${s ? ' disabled' : ''}>${KELOMPOK_SURVEI.map(([v, l]) => `<option value="${v}"${v === k ? ' selected' : ''}>${l}</option>`).join('')}</select></label>
+      <label>Judul<input id="s_judul" maxlength="150" value="${esc(s?.judul || `Survei kepuasan ${labelKelompok(k).toLowerCase()} ${ts - 1}/${ts}`)}"></label>
+      <label>TS (tahun akhir)<input id="s_ts" type="number" min="2000" max="2100" value="${ts}"></label>
+      <label>Dibuka<input id="s_mulai" type="date" value="${s?.mulai || iso(awal)}"></label>
+      <label>Ditutup<input id="s_selesai" type="date" value="${s?.selesai || iso(akhir)}"></label>
+      <label>Identitas responden<select id="s_identitas">${IDENTITAS.map(([v, l]) => `<option value="${v}"${v === (s?.identitas || 'tidak') ? ' selected' : ''}>${l}</option>`).join('')}</select></label>
+      <label>Ambang % puas (tindak lanjut bila di bawah)<input id="s_puas" type="number" min="0" max="100" step="1" value="${s?.ambang_puas ?? 75}"></label>
+      <label>Ambang rerata (1–4)<input id="s_rerata" type="number" min="1" max="4" step="0.05" value="${s?.ambang_rerata ?? 3}"></label>
+      <label style="flex-direction:row;align-items:center;gap:6px;margin-top:18px"><input id="s_publik" type="checkbox"${s ? (s.publik ? ' checked' : '') : ' checked'}> Rekap publik</label>
+    </div>
+    <p><label class="ket">Pengantar (opsional; kosong = pengantar bawaan tentang anonimitas)<textarea id="s_pengantar" maxlength="2000">${esc(s?.pengantar || '')}</textarea></label></p>
+    <p class="ket">Pertanyaan ${kunci ? `<b>dikunci: survei ini sudah punya ${n} responden</b>` : `(templat bawaan ${esc(labelKelompok(k).toLowerCase())}, silakan disunting)${
+      k === 'pengguna' ? '. Untuk pengguna lulusan, kode ketujuh aspek jangan diubah agar hasil bisa disalin ke Tabel 6.g.2' : ''}.
+      <b>Opsi</b>: untuk pilihan/centang tulis "a; b; c", untuk angka tulis rentang "0-120" (kosong = bebas).
+      <b>Syarat</b>: "kode=nilai1|nilai2" (tampil hanya bila pertanyaan pilihan <i>kode</i> dijawab salah satu nilai itu).
+      Aspek "kurikulum" dihimpun ke kartu Masukan kurikulum.`}</p>
+    <div class="gulir"><table class="pq"><thead><tr class="ket"><td></td><td>Kode</td><td>Aspek</td><td>Pertanyaan</td><td>Jenis</td>
+      <td>Opsi / rentang</td><td>Wajib</td><td>Syarat</td><td></td></tr></thead><tbody>${PQ.map((q, i) => `<tr data-i="${i}"><td class="ket">${i + 1}</td>
+      <td><input class="kode" data-k="id" value="${esc(q.id)}" title="Kode" ${kunci ? 'disabled' : ''}></td>
+      <td><input class="aspek" data-k="aspek" value="${esc(q.aspek)}" title="Aspek" ${kunci ? 'disabled' : ''}></td>
+      <td style="min-width:260px"><input class="teks" data-k="teks" value="${esc(q.teks)}" title="Pertanyaan" ${kunci ? 'disabled' : ''}></td>
+      <td><select data-k="jenis" ${kunci ? 'disabled' : ''}>${JENIS_PERTANYAAN.map(([v, l]) => `<option value="${v}"${q.jenis === v ? ' selected' : ''}>${l}</option>`).join('')}</select></td>
+      <td><input data-k="opsi" style="width:170px" value="${esc(q.jenis === 'angka' ? (q.min != null || q.max != null ? `${q.min ?? ''}-${q.max ?? ''}` : '') : teksOpsi(q.opsi))}"
+        title="Opsi atau rentang" ${kunci ? 'disabled' : ''}></td>
+      <td style="text-align:center"><input type="checkbox" data-k="wajib" ${q.wajib ?? ['skala', 'pilihan'].includes(q.jenis) ? 'checked' : ''} ${kunci ? 'disabled' : ''}></td>
+      <td><input data-k="syarat" style="width:150px" value="${esc(teksSyarat(q.syarat))}" title="Syarat tampil" ${kunci ? 'disabled' : ''}></td>
+      <td>${kunci ? '' : `<button class="b bahaya" data-hapus-q="${i}" title="Hapus pertanyaan">×</button>`}</td></tr>`).join('')}</tbody></table></div>
+    ${kunci ? '' : `<p><button class="b" id="tambah-q">Tambah pertanyaan</button><button class="b" id="templat-q">Muat ulang templat</button></p>`}
+    <p><button class="b utama" id="s_simpan">${s ? 'Simpan perubahan' : 'Buat survei'}</button>
+      ${s ? '<button class="b" id="s_batal">Batal</button>' : ''} <span class="msg" id="s_msg"></span></p>`;
+  // Baca penyunting ke bentuk tersimpan: opsi -> larik, rentang -> min/max, syarat -> objek.
+  const bacaPQ = () => document.querySelectorAll('table.pq tbody tr').forEach(tr => {
+    const q = PQ[+tr.dataset.i], v = k => tr.querySelector(`[data-k="${k}"]`);
+    ['id', 'aspek', 'teks', 'jenis'].forEach(k => { q[k] = v(k).value.trim(); });
+    const opsi = v('opsi').value.trim();
+    delete q.opsi; delete q.min; delete q.max;
+    if (q.jenis === 'pilihan' || q.jenis === 'centang') q.opsi = bacaOpsi(opsi);
+    if (q.jenis === 'angka') { const m = opsi.match(/^\s*(-?\d+(?:[.,]\d+)?)?\s*-\s*(-?\d+(?:[.,]\d+)?)?\s*$/);
+      if (m?.[1]) q.min = +m[1].replace(',', '.'); if (m?.[2]) q.max = +m[2].replace(',', '.'); }
+    const bawaan = ['skala', 'pilihan'].includes(q.jenis);
+    if (v('wajib').checked === bawaan) delete q.wajib; else q.wajib = v('wajib').checked;
+    const sy = bacaSyarat(v('syarat').value); if (sy) q.syarat = sy; else delete q.syarat;
+  });
+  $('s_kelompok').onchange = () => { bacaPQ(); KEL = $('s_kelompok').value;
+    if (confirm('Ganti pertanyaan dengan templat kelompok ini?')) PQ = templatSurvei(KEL);
+    const t = +$('s_ts').value;
+    simpanSementara();
+    $('s_judul').value = `Survei kepuasan ${labelKelompok(KEL).toLowerCase()} ${t - 1}/${t}`; };
+  document.querySelectorAll('[data-hapus-q]').forEach(b => b.onclick = () => { bacaPQ(); PQ.splice(+b.dataset.hapusQ, 1); simpanSementara(); });
+  if ($('tambah-q')) $('tambah-q').onclick = () => { bacaPQ(); PQ.push({ id: `q${PQ.length + 1}`, aspek: 'lainnya', teks: '', jenis: 'skala' }); simpanSementara(); };
+  if ($('templat-q')) $('templat-q').onclick = () => { if (confirm('Ganti semua pertanyaan dengan templat bawaan?')) { PQ = templatSurvei($('s_kelompok').value); simpanSementara(); } };
+  if ($('s_batal')) $('s_batal').onclick = () => { UBAH = null; PQ = []; gambar(); };
+  $('s_simpan').onclick = async () => {
+    const m = $('s_msg'), tulis = (c, t) => { m.className = 'msg ' + c; m.textContent = t; };
+    if (!kunci) bacaPQ();
+    const isi = { kelompok: $('s_kelompok').value, judul: $('s_judul').value.trim(), tahun_ts: +$('s_ts').value,
+      mulai: $('s_mulai').value, selesai: $('s_selesai').value, pengantar: $('s_pengantar').value.trim() || null,
+      publik: $('s_publik').checked, identitas: $('s_identitas').value, ambang_puas: +$('s_puas').value,
+      ambang_rerata: +$('s_rerata').value, ...(kunci ? {} : { pertanyaan: PQ }) };
+    const g = isi.judul.length < 3 ? 'Judul minimal 3 karakter.' : !isi.mulai || !isi.selesai ? 'Isi tanggal dibuka dan ditutup.'
+      : !(isi.ambang_puas >= 0 && isi.ambang_puas <= 100) || !(isi.ambang_rerata >= 1 && isi.ambang_rerata <= 4) ? 'Ambang % puas 0–100 dan rerata 1–4.'
+      : !kunci && document.querySelector('table.pq [data-k="syarat"]') && [...document.querySelectorAll('table.pq [data-k="syarat"]')]
+          .some(el => el.value.trim() && !bacaSyarat(el.value)) ? 'Syarat ditulis kode=nilai1|nilai2.'
+      : isi.selesai < isi.mulai ? 'Tanggal tutup tidak boleh sebelum tanggal buka.' : kunci ? '' : cekPertanyaan(PQ);
+    if (g) return tulis('buruk', g);
+    $('s_simpan').disabled = true; tulis('', 'Menyimpan…');
+    const { error } = s ? await sb.from('survei').update(isi).eq('id', s.id)
+      : await sb.from('survei').insert({ ...isi, oleh: SAYA.email });
+    $('s_simpan').disabled = false;
+    if (error) return tulis('buruk', 'Gagal: ' + error.message);
+    UBAH = null; PQ = []; KEL = 'mahasiswa';
+    await muat(); gambar();
+    $('s_msg').className = 'msg ok'; $('s_msg').textContent = s ? 'Perubahan tersimpan.' : 'Survei dibuat. Salin tautannya di daftar di bawah.';
+  };
+  function simpanSementara(){
+    const ids = ['s_kelompok', 's_judul', 's_ts', 's_mulai', 's_selesai', 's_pengantar', 's_identitas', 's_puas', 's_rerata'];
+    const nilai = ids.map(id => $(id).value), pub = $('s_publik').checked;
+    gambarForm(); ids.forEach((id, i) => { $(id).value = nilai[i]; }); $('s_publik').checked = pub; }
+}
+
+function gambarHasil(s){
+  const box = $('rinci');
+  if (!box || !s) return;
+  const rows = JAWAB.get(s.id) || [];
+  const hitung = hitungDariJawaban(s.pertanyaan, rows);
+  const kom = komentarSurvei(s.pertanyaan, rows);
+  const rk = rekapSurvei(s.pertanyaan, hitung);
+  const tl = rows.length ? aspekTindakLanjut(rk, s) : [];
+  box.innerHTML = `${htmlRekap(rk, rows.length)}${htmlLain(s.pertanyaan, ringkasLain(s.pertanyaan, rows), rows.length)}
+    <div class="kartu" style="margin:10px 0"><h2 style="font-size:15px">Tindak lanjut PPEPP</h2>
+      <p class="ket">Aspek dengan % puas di bawah ${f2(s.ambang_puas ?? 75)} atau rerata di bawah ${f2(s.ambang_rerata ?? 3)}. "Jadikan tindak lanjut"
+        membuat baris di Data prodi › Temuan AMI (peluang peningkatan) yang kemudian diberi PJ, tenggat, dan bukti, serta masuk Monitoring dan Pengingat.</p>
+      ${!TEMUAN_ADA ? '<p class="ket">Tabel temuan belum ada: jalankan supabase/51-patch-temuan-ami.sql.</p>'
+        : tl.length ? `<ul>${tl.map(a => { const ada = KODE_TEMUAN.has(kodeTemuanSurvei(s, a.aspek));
+          return `<li><b>${esc(a.label)}</b>: ${esc(a.alasan.join('; '))} ${ada ? '<span class="ket">— sudah ada di Temuan AMI</span>'
+            : `<button class="b" data-tl="${esc(a.aspek)}">Jadikan tindak lanjut</button>`}</li>`; }).join('')}</ul>`
+        : `<p class="ket">${rows.length ? 'Semua aspek di atas ambang.' : 'Belum ada responden.'}</p>`}</div>
+    ${kom.map(q => `<p><b>${esc(q.teks)}</b> <span class="ket">(${q.isi.length} isian; hanya terlihat admin)</span></p>
+      ${q.isi.length ? `<ol class="komentar">${q.isi.map(t => `<li>${esc(t)}</li>`).join('')}</ol>` : ''}`).join('')}
+    <p><button class="b" id="h_csv"${rows.length ? '' : ' disabled'}>Unduh CSV jawaban</button>
+      ${s.kelompok === 'pengguna' ? `<button class="b" id="h_62"${rows.length ? '' : ' disabled'}>Salin ke Tabel 6.g.2 (TA ${s.tahun_ts - 1}/${s.tahun_ts})</button>` : ''}
+      <span class="msg" id="h_msg"></span></p>`;
+  $('h_csv').onclick = () => {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([csvJawaban(s.pertanyaan, rows)], { type: 'text/csv;charset=utf-8' }));
+    a.download = `survei-${s.kelompok}-${s.tahun_ts}-${s.id}.csv`; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1500);
+  };
+  box.querySelectorAll('[data-tl]').forEach(b => b.onclick = async () => {
+    const a = tl.find(x => x.aspek === b.dataset.tl);
+    b.disabled = true;
+    const { error } = await sb.from('ami_temuan').insert({ ...temuanDariAspek(s, a, rows.length), oleh: SAYA.email });
+    if (error) { b.disabled = false; alert('Gagal: ' + error.message); return; }
+    KODE_TEMUAN.add(kodeTemuanSurvei(s, a.aspek));
+    b.outerHTML = '<span class="ket">— dibuat; lengkapi PJ dan tenggat di <a href="data-prodi.html?tab=temuan">Data prodi › Temuan AMI</a></span>';
+  });
+  if ($('h_62')) $('h_62').onclick = async () => {
+    const baris = keTabel62(hitung, s.tahun_ts), m = $('h_msg');
+    if (!baris.length) { m.className = 'msg buruk'; m.textContent = 'Tidak ada aspek 6.g.2 dalam survei ini (kode aspek diubah?).'; return; }
+    if (!confirm(`Tulis ${baris.length} aspek kepuasan pengguna TA ${s.tahun_ts - 1}/${s.tahun_ts} ke Data prodi › Kepuasan pengguna? Isian TA itu untuk aspek yang sama akan diganti.`)) return;
+    const { error } = await sb.from('lkps_kepuasan_pengguna').upsert(baris.map(r => ({ ...r, oleh: SAYA.email })), { onConflict: 'tahun_akademik,aspek' });
+    m.className = error ? 'msg buruk' : 'msg ok';
+    m.textContent = error ? 'Gagal: ' + error.message : `${baris.length} aspek tersalin. Rencana tindak lanjut dan bukti diisi di Data prodi › Kepuasan pengguna.`;
+  };
+}
+
+function pasang(){
+  document.querySelectorAll('[data-salin]').forEach(b => b.onclick = async () => {
+    const s = SURVEI.find(x => x.id === +b.dataset.salin), u = urlSurvei(s.token);
+    try { await navigator.clipboard.writeText(u); b.textContent = 'Tersalin'; } catch { prompt('Salin tautan ini:', u); }
+  });
+  document.querySelectorAll('[data-hasil]').forEach(b => b.onclick = () => { BUKA = BUKA === +b.dataset.hasil ? null : +b.dataset.hasil; gambar(); });
+  document.querySelectorAll('[data-ubah]').forEach(b => b.onclick = () => {
+    UBAH = SURVEI.find(x => x.id === +b.dataset.ubah); PQ = []; gambar(); $('form-survei').scrollIntoView({ behavior: 'smooth' }); });
+  document.querySelectorAll('[data-cabut]').forEach(b => b.onclick = async () => {
+    const s = SURVEI.find(x => x.id === +b.dataset.cabut);
+    if (!confirm(s.dicabut ? 'Buka kembali survei ini (sesuai tanggalnya)?' : 'Cabut survei ini? Formulir langsung tertutup.')) return;
+    const { error } = await sb.from('survei').update({ dicabut: !s.dicabut }).eq('id', s.id);
+    if (error) alert('Gagal: ' + error.message); else { await muat(); gambar(); }
+  });
+  document.querySelectorAll('[data-hapus]').forEach(b => b.onclick = async () => {
+    const s = SURVEI.find(x => x.id === +b.dataset.hapus), n = (JAWAB.get(s.id) || []).length;
+    if (!confirm(`Hapus survei "${s.judul}"${n ? ` beserta ${n} jawabannya` : ''}? Tidak bisa dipulihkan.`)) return;
+    const { error } = await sb.from('survei').delete().eq('id', s.id);
+    if (error) alert('Gagal: ' + error.message); else { if (BUKA === s.id) BUKA = null; await muat(); gambar(); }
+  });
+}
+
+async function mulai(){
+  SAYA = await gerbang(sb);
+  if (!SAYA) return;
+  $('hSub').textContent = `Masuk sebagai ${SAYA.nama}`;
+  if (SAYA.peran !== 'admin') { $('isi').innerHTML = '<p class="kosong">Halaman ini khusus admin prodi.</p>'; return; }
+  await muat();
+  gambar();
+}
+mulai().catch(e => { $('isi').innerHTML = `<p class="kosong">Gagal memuat: ${esc(e.message)}</p>`; });
+</script>
+</body>
+</html>

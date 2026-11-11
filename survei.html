@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Survei kepuasan — Program Studi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tema.css?v=2026-11-11-dd6efa">
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15.5px;line-height:1.55;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:760px;margin:0 auto;padding:0 16px 90px}
+  .hero{background:var(--biru);color:#fff;border-bottom:4px solid var(--merah)}
+  .hero-in{max-width:760px;margin:0 auto;padding:28px 16px 22px}
+  h1{font-family:var(--serif);font-size:clamp(22px,4.2vw,30px);font-weight:600;margin:0;line-height:1.2;color:#fff}
+  .prodi{color:var(--biru-m4);font-size:14px;margin-top:6px}
+  .kosong, .ket{color:var(--muted)}
+  .ket{font-size:13.5px}
+  .pengantar{background:var(--panel);border:1px solid var(--line);padding:14px 18px;margin:20px 0;white-space:pre-line}
+  fieldset{border:1px solid var(--line);background:var(--panel);margin:0 0 12px;padding:12px 16px 14px}
+  legend{font-weight:600;padding:0 4px;font-size:15px}
+  .no{font-family:var(--mono);color:var(--muted);font-size:12px;margin-right:6px}
+  .pilih{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:8px}
+  .pilih label{display:flex;flex-direction:column;align-items:center;gap:4px;border:1px solid var(--line);padding:8px 4px;
+    cursor:pointer;font-size:13px;text-align:center;border-radius:3px}
+  .pilih input{margin:0}
+  .pilih label:has(input:checked){border-color:var(--biru);background:rgba(var(--biru-rgb),.08);font-weight:600}
+  @media (max-width:480px){.pilih{grid-template-columns:repeat(2,1fr)}}
+  textarea{width:100%;min-height:90px;font:inherit;padding:8px;border:1px solid var(--line);margin-top:6px}
+  .aksi{display:flex;gap:12px;align-items:center;margin-top:16px;flex-wrap:wrap}
+  button{font:inherit;font-weight:600;padding:10px 22px;border:0;background:var(--biru);color:#fff;cursor:pointer;border-radius:3px}
+  button:disabled{opacity:.6;cursor:default}
+  .msg{font-size:14px}
+  .msg.buruk{color:var(--merah)}
+  .selesai{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--hijau);padding:18px;margin-top:24px}
+  .belum{outline:2px solid var(--merah)}
+  .wajib{color:var(--merah)}
+  .opsi{display:flex;flex-direction:column;gap:6px;margin-top:8px;font-size:14.5px}
+  .opsi label{display:flex;gap:8px;align-items:center;cursor:pointer}
+  fieldset input[type=number], fieldset input[type=text], .idn input{font:inherit;padding:7px 9px;border:1px solid var(--line);margin-top:6px;width:100%;max-width:420px}
+  .idn{display:grid;gap:6px}
+  .idn label{display:flex;flex-direction:column;font-size:13.5px;color:var(--muted)}
+</style>
+</head>
+<body>
+<header class="hero"><div class="hero-in">
+  <h1 id="judul">Survei kepuasan</h1>
+  <div class="prodi" id="hProdi"></div>
+</div></header>
+<main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
+<script src="config.js?v=2026-11-11-dd6efa"></script>
+<script>
+// Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
+addEventListener('error', function (e) {
+  if (document.getElementById('galat-muat')) return;
+  var d = document.createElement('div');
+  d.id = 'galat-muat';
+  d.style.cssText = 'margin:16px;padding:12px 14px;border:1px solid var(--merah);' +
+    'background:var(--merah-m3);color:var(--ink);font:14px/1.5 system-ui,sans-serif';
+  d.textContent = 'Halaman gagal dimuat: ' + (e.message || 'galat skrip') +
+    '. Tekan Ctrl+Shift+R untuk memuat ulang tanpa cache.';
+  document.body.insertBefore(d, document.body.firstChild);
+});
+</script>
+<script type="module">
+// Formulir survei kepuasan untuk responden tanpa login (pemilik 2026-11-11;
+// 54-patch-survei-kepuasan.sql). Isian anonim; satu kali per peramban
+// (id acak di localStorage, dijaga juga oleh indeks unik di basis data).
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+import { SKALA, labelKelompok, aktifQ, wajibQ, cekJawaban } from './survei-kepuasan.js?v=2026-11-11-dd6efa';
+
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const $ = id => document.getElementById(id);
+const sb = createClient(window.SB_URL, window.SB_KEY);
+const token = new URLSearchParams(location.search).get('t') || '';
+const simpan = { get: k => { try { return localStorage.getItem(k); } catch { return null; } },
+                 set: (k, v) => { try { localStorage.setItem(k, v); } catch { /* mode privat */ } } };
+const tgl = s => String(s || '').split('-').reverse().join('/');
+function klien(){
+  let k = simpan.get('surveiKlien');
+  if (!/^[0-9a-f-]{36}$/.test(k || '')) { k = crypto.randomUUID(); simpan.set('surveiKlien', k); }
+  return k;
+}
+const selesai = (judul, teks) => { $('isi').innerHTML = `<div class="selesai"><b>${esc(judul)}</b><p>${esc(teks)}</p></div>`; };
+
+fetch('data.json?v=' + Date.now()).then(r => r.ok ? r.json() : {}).catch(() => ({}))
+  .then(d => { $('hProdi').textContent = [d.prodi, d.institusi].filter(Boolean).join(' · '); });
+
+async function mulai(){
+  if (!token) return selesai('Tautan tidak lengkap', 'Buka survei dari tautan yang dibagikan program studi.');
+  const { data: s, error } = await sb.rpc('survei_buka', { p_token: token });
+  if (error || !s) return selesai('Survei tidak ditemukan', 'Tautan survei tidak berlaku atau sudah ditutup oleh program studi.');
+  $('judul').textContent = s.judul;
+  document.title = `${s.judul} — Survei kepuasan`;
+  if (!s.buka) return selesai('Survei tidak sedang dibuka',
+    `Survei ini dibuka ${tgl(s.mulai)} sampai ${tgl(s.selesai)}. Terima kasih atas perhatian Anda.`);
+  if (simpan.get('surveiSelesai:' + token)) return selesai('Terima kasih', 'Anda sudah mengisi survei ini dari perangkat ini.');
+  const xs = s.pertanyaan || [];
+  const idn = s.identitas || 'tidak';
+  const nama = q => esc(q.id), tanda = q => wajibQ(q) ? ' <span class="wajib" title="wajib">*</span>' : '';
+  const masukan = q => {
+    if (q.jenis === 'skala') return `<div class="pilih">${SKALA.slice().reverse().map(([v, l]) =>
+      `<label><input type="radio" name="${nama(q)}" value="${v}">${esc(l)}</label>`).join('')}</div>`;
+    if (q.jenis === 'pilihan' || q.jenis === 'centang') return `<div class="opsi">${(q.opsi || []).map(o =>
+      `<label><input type="${q.jenis === 'pilihan' ? 'radio' : 'checkbox'}" name="${nama(q)}" value="${esc(o)}"> ${esc(o)}</label>`).join('')}</div>`;
+    if (q.jenis === 'angka') return `<input type="number" name="${nama(q)}" step="any"${q.min != null ? ` min="${esc(q.min)}"` : ''}${q.max != null ? ` max="${esc(q.max)}"` : ''}>`;
+    if (q.jenis === 'singkat') return `<input type="text" name="${nama(q)}" maxlength="200">`;
+    return `<textarea name="${nama(q)}" maxlength="2000"></textarea>`;
+  };
+  $('isi').innerHTML = `<div class="pengantar">${esc(s.pengantar || `Survei ${labelKelompok(s.kelompok).toLowerCase()}, TS ${s.tahun_ts - 1}/${s.tahun_ts}. `
+      + (idn === 'tidak' ? 'Isian bersifat anonim: nama dan email Anda tidak diminta dan tidak tercatat.'
+        : 'Identitas Anda hanya dibaca admin program studi dan tidak pernah ditampilkan dalam rekap.'))}
+      <br><span class="ket">Dibuka sampai ${tgl(s.selesai)}. Tanda * = wajib.</span></div>
+    <form id="f">${idn !== 'tidak' ? `<fieldset><legend>Identitas${idn === 'wajib' ? ' <span class="wajib">*</span>' : ' (opsional)'}</legend>
+        <div class="idn"><label>Nama<input id="i_nama" maxlength="120" autocomplete="name"></label>
+          <label>NIM<input id="i_nim" maxlength="30"></label><label>Email<input id="i_email" type="email" maxlength="120" autocomplete="email"></label></div>
+        ${idn === 'wajib' ? '<p class="ket">Isi nama serta NIM atau email.</p>' : ''}</fieldset>` : ''}
+      ${xs.map(q => `<fieldset data-q="${nama(q)}"><legend>${esc(q.teks)}${tanda(q)}</legend>${masukan(q)}</fieldset>`).join('')}
+      <div class="aksi"><button type="submit" id="kirim">Kirim jawaban</button><span class="msg" id="msg"></span></div></form>`;
+  const sel = q => `[name="${CSS.escape(q.id)}"]`;
+  const baca = () => {
+    const j = {};
+    xs.forEach(q => {
+      if (q.jenis === 'skala' || q.jenis === 'pilihan') { const v = document.querySelector(`${sel(q)}:checked`); if (v) j[q.id] = q.jenis === 'skala' ? +v.value : v.value; }
+      else if (q.jenis === 'centang') { const v = [...document.querySelectorAll(`${sel(q)}:checked`)].map(x => x.value); if (v.length) j[q.id] = v; }
+      else { const t = document.querySelector(sel(q)).value.trim(); if (t !== '') j[q.id] = q.jenis === 'angka' ? Number(t) : t; }
+    });
+    return j;
+  };
+  // Pertanyaan bersyarat: tampil hanya bila jawaban acuannya cocok; isian yang disembunyikan dikosongkan.
+  const atur = () => {
+    const j = baca();
+    xs.forEach(q => {
+      const fs = document.querySelector(`fieldset[data-q="${CSS.escape(q.id)}"]`), aktif = aktifQ(q, j);
+      fs.hidden = !aktif;
+      if (!aktif) fs.querySelectorAll('input, textarea').forEach(el => { if (el.type === 'radio' || el.type === 'checkbox') el.checked = false; else el.value = ''; });
+    });
+  };
+  $('f').addEventListener('change', atur);
+  atur();
+  $('f').onsubmit = async e => {
+    e.preventDefault();
+    atur();
+    const jawaban = baca(), m = $('msg');
+    document.querySelectorAll('fieldset.belum').forEach(f => f.classList.remove('belum'));
+    const kurang = xs.filter(q => aktifQ(q, jawaban) && wajibQ(q) && jawaban[q.id] === undefined)
+      .map(q => document.querySelector(`fieldset[data-q="${CSS.escape(q.id)}"]`));
+    kurang.forEach(f => f.classList.add('belum'));
+    if (kurang.length) { m.className = 'msg buruk'; m.textContent = `${kurang.length} pertanyaan wajib belum dijawab.`; kurang[0].scrollIntoView({ behavior: 'smooth', block: 'center' }); return; }
+    const g = cekJawaban(xs, jawaban);
+    if (g) { m.className = 'msg buruk'; m.textContent = g; return; }
+    const identitas = idn === 'tidak' ? null : { nama: $('i_nama').value.trim(), nim: $('i_nim').value.trim(), email: $('i_email').value.trim() };
+    if (idn === 'wajib' && (!identitas.nama || (!identitas.nim && !identitas.email))) { m.className = 'msg buruk'; m.textContent = 'Isi nama serta NIM atau email.'; return; }
+    $('kirim').disabled = true; m.className = 'msg'; m.textContent = 'Mengirim…';
+    const { error: e2 } = await sb.rpc('survei_kirim', { p_token: token, p_klien: klien(), p_jawaban: jawaban, p_identitas: identitas });
+    if (e2) {
+      $('kirim').disabled = false; m.className = 'msg buruk';
+      m.textContent = e2.message || 'Gagal mengirim.';
+      if (/sudah Anda isi/.test(e2.message || '')) simpan.set('surveiSelesai:' + token, '1');
+      return;
+    }
+    simpan.set('surveiSelesai:' + token, '1');
+    selesai('Terima kasih', 'Jawaban Anda sudah tersimpan. Rekap hasil survei dapat dilihat di halaman Hasil survei kepuasan program studi.');
+  };
+}
+mulai().catch(e => selesai('Gagal memuat', e.message || String(e)));
+</script>
+</body>
+</html>

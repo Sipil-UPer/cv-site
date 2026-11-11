@@ -28,6 +28,8 @@ export const MODUL = [
       ket: 'Mahasiswa, lulusan, tracer, kerja sama, BKD, prestasi mahasiswa.' },
     { href: 'pengingat.html', judul: 'Pengingat', boleh: admin,
       ket: 'Kirim pengingat email: BKD belum diisi, karya perlu diperbaiki, bukti per pihak.' },
+    { href: 'kelola-survei.html', judul: 'Survei kepuasan', boleh: admin,
+      ket: 'Survei anonim mahasiswa, dosen, tendik, mitra, pengguna lulusan: buat, bagikan tautan, baca hasil.' },
     { href: 'mutu-data.html', judul: 'Mutu data', boleh: admin,
       ket: 'Data yang perlu diperbaiki: karya tanpa bukti, DOI ganda, judul mirip, ID dosen, RPS, tracer.' },
     { href: 'profil.html', judul: 'Profil saya',
@@ -42,6 +44,8 @@ export const MODUL = [
       ket: 'Grafik siap pakai untuk laporan dan LED.' },
     { href: 'sdgs.html', judul: 'Rekap SDGs',
       ket: 'Karya dosen per Tujuan Pembangunan Berkelanjutan (SDGs); halaman publik.' },
+    { href: 'hasil-survei.html', judul: 'Hasil survei kepuasan',
+      ket: 'Rekap survei kepuasan per kelompok dan aspek; halaman publik.' },
   ]},
   { judul: 'Akreditasi', ket: 'Skor LAM, bukti, dan draf LED.', halaman: [
     { href: 'skor.html', judul: 'Skor & LED',

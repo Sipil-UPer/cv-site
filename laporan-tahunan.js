@@ -3,8 +3,8 @@
 // halaman Skor: data.json publik, capaian IKU/IKT (Data prodi), dan perkiraan
 // status akreditasi. Untuk rapat tinjauan manajemen dan laporan kinerja;
 // bebas disunting di Word.
-import { hitungSumber } from './iku-otomatis.js?v=2026-11-11-2e6ff9';
-import { SDGS } from './form-karya.js?v=2026-11-11-2e6ff9';
+import { hitungSumber } from './iku-otomatis.js?v=2026-11-11-dd6efa';
+import { SDGS } from './form-karya.js?v=2026-11-11-dd6efa';
 
 const JSZIP = 'https://cdn.jsdelivr.net/npm/jszip@3.10.1/+esm';
 const LEBAR = 9360;   // A4, margin 1440/1106 twip
