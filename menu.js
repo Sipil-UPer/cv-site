@@ -26,6 +26,8 @@ export const MODUL = [
       ket: 'Karya dosen, profil dosen, BKD, dan prestasi mahasiswa yang menunggu keputusan admin.' },
     { href: 'data-prodi.html', judul: 'Data prodi', boleh: admin,
       ket: 'Mahasiswa, lulusan, tracer, kerja sama, BKD, prestasi mahasiswa.' },
+    { href: 'pengingat.html', judul: 'Pengingat', boleh: admin,
+      ket: 'Kirim pengingat email: BKD belum diisi, karya perlu diperbaiki, bukti per pihak.' },
     { href: 'profil.html', judul: 'Profil saya',
       ket: 'Nama, SINTA, Scopus, ORCID, pendidikan, jabatan; perubahan disetujui admin.' },
     { href: 'kelola-dosen.html', judul: 'Kelola dosen', boleh: admin,

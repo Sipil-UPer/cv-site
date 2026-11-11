@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Pengingat — Kinerja Program Studi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tema.css?v=2026-11-11-c023fe">
+<link rel="stylesheet" href="kepala.css?v=2026-11-11-c023fe">
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
+  .wrap{max-width:1000px;margin:0 auto;padding:18px 20px 80px}
+  .kosong{color:var(--muted)}
+  .ringkas{display:flex;gap:14px;align-items:center;flex-wrap:wrap;background:var(--panel);border:1px solid var(--line);
+    border-top:4px solid var(--aksi);padding:14px 18px;margin-bottom:16px}
+  .ringkas b{font-size:18px;color:var(--biru)}
+  .bar{flex:1;min-width:160px;height:10px;background:var(--line-soft);border-radius:5px;overflow:hidden}
+  .bar i{display:block;height:100%;background:var(--aksi)}
+  .ringkas label{font-size:14px;cursor:pointer}"
+  /* Tugas per pihak (pemilik 2026-11-11) */
+  .pihak-tab{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 12px}
+  .pihak-tab button{font:inherit;font-size:13px;padding:5px 10px;border:1px solid var(--line);background:var(--panel);cursor:pointer}
+  .pihak-tab button[aria-pressed="true"]{background:var(--biru);color:#fff;border-color:var(--biru)}
+  ol.tugas{padding-left:20px;font-size:14px}
+  ol.tugas li{margin:4px 0}
+  @media print{ body.cetak-tugas > *:not(main), body.cetak-tugas #isi > *:not(#tugas),
+    body.cetak-tugas .pihak-tab, body.cetak-tugas #cetak-tugas{display:none !important} }
+  section.bag{background:var(--panel);border:1px solid var(--line);margin-bottom:12px;padding:6px 18px 10px}
+  section.bag h2{font-size:16px;color:var(--biru);margin:8px 0 6px;display:flex;justify-content:space-between;gap:10px}
+  section.bag h2 small{font-weight:400;font-size:13px;color:var(--muted);white-space:nowrap}
+  .item{display:grid;grid-template-columns:92px 1fr 90px 64px;gap:10px;align-items:start;padding:7px 0;border-top:1px solid var(--line-soft)}
+  .chip{font-size:12px;font-weight:600;padding:1px 7px;border-radius:3px;text-align:center;border:1px solid currentColor}
+  .chip.selesai{color:var(--hijau)}
+  .chip.sebagian{color:var(--aksi)}
+  .chip.belum{color:var(--merah)}
+  .ket{font-size:13px;color:var(--muted)}
+  .angka{font-family:var(--mono);font-size:13px;text-align:right}
+  .item a{font-size:13px;color:var(--aksi)}
+  .item details{font-size:13px;color:var(--muted)}
+  .item summary{cursor:pointer}
+  .item ul{margin:4px 0 0;padding-left:18px}
+  .hanya-belum .item.selesai-baris{display:none}
+  @media (max-width:640px){.item{grid-template-columns:82px 1fr}.angka{text-align:left}}
+</style>
+<style>
+  /* Pengingat (pemilik 2026-11-11) */
+  .jenis{background:var(--panel);border:1px solid var(--line);padding:14px 16px;margin:14px 0}
+  .jenis h2{margin:0 0 6px;font-size:17px}
+  .baris{display:grid;grid-template-columns:auto 1fr;gap:6px 10px;align-items:start;font-size:14px;margin:6px 0}
+  .baris input[type=email]{width:100%}
+  textarea{width:100%;min-height:150px;font:13px/1.5 var(--mono);padding:8px}
+  input[type=text].subjek{width:100%;padding:6px;font:inherit}
+  .aksi{display:flex;gap:10px;align-items:center;margin-top:10px}
+  .ket{color:var(--muted);font-size:13px}
+</style>
+</head>
+<body>
+<header class="hero"><div class="hero-in">
+  <div class="hero-inst" data-identitas></div>
+  <h1>Pengingat</h1>
+  <div class="sub" id="hSub">Memuat…</div>
+</div></header>
+<main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
+<script src="config.js?v=2026-11-11-c023fe"></script>
+<script>
+// Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
+// halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
+addEventListener('error', function (e) {
+  if (document.getElementById('galat-muat')) return;
+  var d = document.createElement('div');
+  d.id = 'galat-muat';
+  d.style.cssText = 'margin:16px;padding:12px 14px;border:1px solid var(--merah);' +
+    'background:var(--merah-m3);color:var(--ink);font:14px/1.5 system-ui,sans-serif';
+  d.textContent = 'Halaman gagal dimuat: ' + (e.message || 'galat skrip') +
+    '. Tekan Ctrl+Shift+R untuk memuat ulang tanpa cache; bila tetap muncul, kirim pesan ini ke admin.';
+  document.body.insertBefore(d, document.body.firstChild);
+});
+</script>
+<script type="module">
+// Pengingat lewat email (pemilik 2026-11-11). Admin melihat penerima dan isi,
+// menyunting, lalu mengirim; email keluar dari akun Google prodi lewat Apps
+// Script (Code.gs kind 'kirim_pengingat', maks. 30 per kirim). Tidak ada yang
+// terkirim tanpa tombol Kirim.
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+import { gerbang } from './menu.js?v=2026-11-11-c023fe';
+import { tugasPerPihak } from './kelengkapan.js?v=2026-11-11-c023fe';
+import { PIHAK } from './unsur-butir.js?v=2026-11-11-c023fe';
+
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const $ = id => document.getElementById(id);
+const sb = createClient(window.SB_URL, window.SB_KEY);
+const situs = location.href.replace(/[^/]*$/, '');
+const taKini = () => { const d = new Date(), y = d.getFullYear(); return d.getMonth() >= 8 ? `${y}/${y + 1}` : `${y - 1}/${y}`; };
+const semKini = () => { const m = new Date().getMonth(); return m >= 1 && m <= 7 ? 'genap' : 'ganjil'; };
+const simpanAman = { get: k => { try { return localStorage.getItem(k); } catch (e) { return null; } },
+  set: (k, v) => { try { localStorage.setItem(k, v); } catch (e) { /* abaikan */ } } };
+let DATA = null, PRODI = '';
+
+// Satu kelompok pengingat: daftar penerima (centang) + subjek + isi berpola.
+function htmlJenis(id, judul, ket, penerima, subjek, isi){
+  return `<section class="jenis" id="j-${id}"><h2>${esc(judul)} (${penerima.length})</h2><p class="ket">${ket}</p>
+    ${penerima.length ? `<div>${penerima.map((p, i) => `<label class="baris"><input type="checkbox" data-i="${i}" checked>
+      <span><b>${esc(p.nama)}</b> &lt;${esc(p.email)}&gt;${p.rinci ? `<br><span class="ket">${esc(p.rinci)}</span>` : ''}</span></label>`).join('')}</div>
+      <p><label>Subjek<br><input type="text" class="subjek" value="${esc(subjek)}"></label></p>
+      <p><label>Isi (<code>{nama}</code> dan <code>{rinci}</code> diganti per penerima)<br><textarea>${esc(isi)}</textarea></label></p>
+      <div class="aksi"><button type="button" class="btn" data-kirim="${id}">Kirim ke yang dicentang</button>
+        <span class="msg" id="m-${id}"></span></div>` : '<p class="kosong">Tidak ada penerima.</p>'}</section>`;
+}
+
+async function kirim(id, penerima){
+  const box = $('j-' + id), m = $('m-' + id);
+  const subjek = box.querySelector('.subjek').value.trim(), pola = box.querySelector('textarea').value;
+  const pilih = [...box.querySelectorAll('[data-i]:checked')].map(c => penerima[+c.dataset.i]);
+  if (!pilih.length) { m.className = 'msg buruk'; m.textContent = 'Belum ada penerima yang dicentang.'; return; }
+  if (pilih.length > 30) { m.className = 'msg buruk'; m.textContent = 'Paling banyak 30 sekali kirim.'; return; }
+  if (!confirm(`Kirim ${pilih.length} email dari akun Google prodi?`)) return;
+  const pesan = pilih.map(p => ({ ke: p.email, subjek, isi: pola.replaceAll('{nama}', p.nama).replaceAll('{rinci}', p.rinci || '') }));
+  m.className = 'msg'; m.textContent = 'Mengirim…';
+  try {
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) throw new Error('Sesi login habis. Muat ulang halaman.');
+    const res = await fetch(window.UPLOAD_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ token: session.access_token, kind: 'kirim_pengingat', pengirim: PRODI, pesan }) });
+    const out = await res.json();
+    if (!out.ok) throw new Error(/tidak dikenal/i.test(out.error || '') ? 'Apps Script belum diperbarui: terbitkan ulang Code.gs.' : out.error);
+    m.className = out.gagal?.length ? 'msg buruk' : 'msg ok';
+    m.textContent = `${out.terkirim} terkirim${out.gagal?.length ? `; gagal: ${out.gagal.join('; ')}` : ''}. Sisa kuota hari ini: ${out.sisa}.`;
+  } catch (e) { m.className = 'msg buruk'; m.textContent = e.message || String(e); }
+}
+
+function gambar(){
+  const ta = $('p_ta').value.trim(), sem = $('p_sem').value;
+  const { dosen, bkd, ditolak, butirBukti } = DATA;
+  // 1. DTPS aktif tanpa BKD untuk TA + semester terpilih.
+  const sudah = new Set(bkd.filter(b => b.tahun_akademik === ta && b.semester === sem).map(b => b.nidn));
+  const bkdBelum = dosen.filter(d => d.dtps && d.aktif !== false && d.email && !sudah.has(d.nidn))
+    .map(d => ({ nama: d.nama, email: d.email, rinci: `BKD ${ta} semester ${sem}` }));
+  // 2. Karya ditolak: per penulis dari prodi.
+  const per = new Map();
+  for (const k of ditolak) for (const p of (k.karya_penulis || [])) {
+    const d = p.dosen; if (!d?.email) continue;
+    if (!per.has(d.email)) per.set(d.email, { nama: d.nama, email: d.email, judul: [] });
+    per.get(d.email).judul.push(`- ${k.judul}${k.catatan ? ` (catatan admin: ${k.catatan})` : ''}`);
+  }
+  const tolak = [...per.values()].map(p => ({ ...p, rinci: p.judul.join('\n') }));
+  // 3. Unsur bukti per pihak: email unit diisi admin (disimpan di peramban ini).
+  const tugas = tugasPerPihak(butirBukti), emailPihak = JSON.parse(simpanAman.get('pengingatEmailPihak') || '{}');
+  const pihak = ['U', 'F', 'P', 'S'].filter(k => tugas[k].length && emailPihak[k])
+    .map(k => ({ nama: PIHAK[k], email: emailPihak[k],
+      rinci: tugas[k].map(x => `- Butir ${x.no} unsur ${x.n}: ${x.label}`).join('\n') }));
+  const J = { bkd: bkdBelum, tolak, pihak };
+  $('daftar').innerHTML =
+    htmlJenis('bkd', 'BKD belum diisi', `DTPS aktif yang belum mengisi BKD ${esc(ta)} semester ${esc(sem)}.`, bkdBelum,
+      `Pengingat pengisian BKD ${ta} semester ${sem}`,
+      `Yth. {nama},\n\nMohon mengisi BKD {rinci} di situs kinerja prodi (Input › BKD saya), dengan mengunggah LKD SISTER:\n${situs}input.html\n\nTerima kasih.\n${PRODI}`)
+    + htmlJenis('tolak', 'Karya perlu diperbaiki', 'Penulis dari prodi pada karya berstatus ditolak. Draf dosen tidak terlihat admin, jadi tidak termasuk.', tolak,
+      'Karya Anda perlu diperbaiki',
+      `Yth. {nama},\n\nKarya berikut dikembalikan untuk diperbaiki:\n{rinci}\n\nSilakan perbaiki di situs kinerja prodi:\n${situs}input.html\n\nTerima kasih.\n${PRODI}`)
+    + htmlJenis('pihak', 'Bukti akreditasi per pihak', 'Unsur penilaian yang belum ada buktinya, dikirim ke email tiap pihak (isi di bawah).', pihak,
+      'Permohonan bukti untuk akreditasi program studi',
+      `Yth. {nama},\n\nUntuk akreditasi program studi, kami memerlukan bukti berikut:\n{rinci}\n\nMohon dikirimkan ke program studi. Terima kasih.\n${PRODI}`)
+    + `<section class="jenis"><h2>Email tiap pihak</h2><p class="ket">Dipakai pengingat bukti per pihak; tersimpan di peramban ini saja.</p>
+      ${['U', 'F', 'P', 'S'].map(k => `<label class="baris"><span>${esc(PIHAK[k])}</span>
+        <input type="email" data-pihak="${k}" value="${esc(emailPihak[k] || '')}" placeholder="email unit"></label>`).join('')}
+      <div class="aksi"><button type="button" class="btn ghost" id="simpan-pihak">Simpan email pihak</button></div></section>`;
+  document.querySelectorAll('[data-kirim]').forEach(b => { b.onclick = () => kirim(b.dataset.kirim, J[b.dataset.kirim]); });
+  $('simpan-pihak').onclick = () => {
+    const x = {}; document.querySelectorAll('[data-pihak]').forEach(i => { if (i.value.trim()) x[i.dataset.pihak] = i.value.trim(); });
+    simpanAman.set('pengingatEmailPihak', JSON.stringify(x)); gambar();
+  };
+}
+
+async function mulai(){
+  const saya = await gerbang(sb);
+  if (!saya) return;
+  $('hSub').textContent = `Masuk sebagai ${saya.nama}`;
+  if (saya.peran !== 'admin') { $('isi').innerHTML = '<p class="kosong">Halaman ini khusus admin prodi.</p>'; return; }
+  if (!window.UPLOAD_URL) { $('isi').innerHTML = '<p class="kosong">Apps Script belum disiapkan (UPLOAD_URL di config.js).</p>'; return; }
+  const [ds, bk, kt, bb, dj] = await Promise.all([
+    sb.from('dosen').select('nama,email,nidn,dtps,aktif,peran'),
+    sb.from('lkps_bkd').select('nidn,tahun_akademik,semester'),
+    sb.from('karya').select('judul,catatan,karya_penulis(dosen(nama,email))').eq('status', 'ditolak').limit(500),
+    sb.from('butir_bukti').select('butir,unsur'),
+    fetch('data.json?v=' + Date.now()).then(r => r.ok ? r.json() : {}).catch(() => ({}))]);
+  PRODI = [dj.prodi, dj.institusi].filter(Boolean).join(' ') || 'Program Studi';
+  DATA = { dosen: ds.data || [], bkd: bk.data || [], ditolak: kt.data || [], butirBukti: bb.data || [] };
+  $('isi').innerHTML = `<p class="ket">Periksa penerima dan isi, lalu tekan Kirim. Email keluar dari akun Google prodi
+      (kuota Gmail sekitar 100 per hari); balasan diarahkan ke email Anda.</p>
+    <div class="aksi"><label>Tahun akademik BKD <input id="p_ta" value="${taKini()}" size="10"></label>
+      <label>Semester <select id="p_sem"><option value="ganjil">ganjil</option><option value="genap">genap</option></select></label></div>
+    <div id="daftar"></div>`;
+  $('p_sem').value = semKini();
+  $('p_ta').onchange = $('p_sem').onchange = gambar;
+  gambar();
+}
+mulai().catch(e => { $('isi').innerHTML = `<p class="kosong">Gagal memuat: ${esc(e.message)}</p>`; });
+</script>
+</body>
+</html>
