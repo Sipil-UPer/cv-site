@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-11-327831">
+<link rel="stylesheet" href="tema.css?v=2026-11-11-42413c">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
@@ -174,7 +174,7 @@
     font-size:13px;line-height:1.5}
   @media print{.png-baris, #ami-admin, .kontrol-seksi{display:none}}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-11-327831">
+<link rel="stylesheet" href="kepala.css?v=2026-11-11-42413c">
 </head>
 <body>
 
@@ -493,6 +493,10 @@ ${seksiLipat('cakupan', 'Cakupan', '', `
     <p class="ket">Temuan audit mutu internal beserta rencana, penanggung jawab, tenggat, status, dan bukti tindak lanjutnya.
     Diisi admin di Data prodi › SPMI › Temuan AMI. Urutan: yang lewat tenggat dulu, lalu tenggat terdekat.</p>
     <div class="kartu" id="temuan-isi"><p class="kosong">Memuat…</p></div>
+`, true)}${seksiLipat('cpl', 'Capaian CPL', 'OBE · per kelas, semester, kumulatif', `
+    <p class="ket">Ketercapaian capaian pembelajaran lulusan dari berkas nilai per kelas (Template_Input_Data_CPL), dihitung run_cpl.py
+    di komputer admin. Bukti butir 13 unsur 9, butir 14 unsur 5 (tinjauan rutin pencapaian CPL), butir 15 unsur 5, dan butir 16 unsur 1.</p>
+    <div class="kartu" id="cpl-isi"><p class="kosong">Memuat…</p></div><div id="cpl-admin"></div>
 `, true)}${seksiLipat('matriks', 'Matriks kinerja dosen', '', `
     <p class="ket">Klik judul kolom untuk mengurutkan. Klik nama dosen untuk melihat rinciannya.</p>
     <div class="kartu"><div class="gulir">${tabelMatriks(H)}</div>
@@ -559,6 +563,7 @@ ${seksiLipat('cakupan', 'Cakupan', '', `
   });
   gambarIKU();
   gambarTemuan();
+  gambarCPL();
   window.segarkanAMI?.();
 }
 
@@ -572,6 +577,19 @@ function gambarTemuan(){
     : !M || TEMUAN.baris === null ? '<p class="kosong">Memuat…</p>'
     : M.htmlTemuan(TEMUAN.baris, M.buktiPerBaris(TEMUAN.bukti), { kelasTabel: 'sp' });
 }
+// Capaian CPL (56-patch-cpl-ringkasan.sql): ringkasan terakhir dari tabel atau tautan AMI.
+const CPL = { r: undefined, galat: '' };
+function gambarCPL(){
+  const box = document.getElementById('cpl-isi'), M = window.CAPAIAN_CPL;
+  if (!box) return;
+  const r = CPL.r;
+  box.innerHTML = CPL.galat ? `<p class="kosong">Capaian CPL gagal dimuat: ${esc(CPL.galat)}</p>`
+    : !M || r === undefined ? '<p class="kosong">Memuat…</p>'
+    : !r ? '<p class="kosong">Belum ada ringkasan CPL. Admin mengunggah ringkasan_cpl.json dari run_cpl.py.</p>'
+    : M.htmlCPL(r.data, { meta: `Ringkasan dibuat ${esc(String(r.dibuat || '').slice(0, 10))}${r.catatan ? ` (${esc(r.catatan)})` : ''}. ` });
+  window.adminCPL?.(document.getElementById('cpl-admin'));
+}
+window.setelCPL = (r, galat) => { CPL.r = r; CPL.galat = galat || ''; gambarCPL(); };
 window.setelTemuan = (baris, bukti, galat) => {
   TEMUAN.baris = baris; TEMUAN.bukti = bukti || []; TEMUAN.galat = galat || ''; gambarTemuan();
 };
@@ -1000,7 +1018,7 @@ function kartuRinci(judul, peta){
       <div class="an">${v}</div></div>`).join('')}</div>`;
 }
 </script>
-<script src="config.js?v=2026-11-11-327831"></script>
+<script src="config.js?v=2026-11-11-42413c"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -1019,11 +1037,14 @@ addEventListener('error', function (e) {
 // Ruang kerja, khusus email terdaftar (pemilik 2026-11-04); tanpa login hanya
 // lewat tautan AMI yang masih berlaku (pemilik 2026-11-11, 50-patch-tautan-ami.sql).
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { gerbang } from './menu.js?v=2026-11-11-327831';
-import * as CAPAIAN_IKU from './capaian-iku.js?v=2026-11-11-327831';
-import * as TEMUAN_AMI from './temuan-ami.js?v=2026-11-11-327831';
-import * as TAUTAN_AMI from './ami-tautan.js?v=2026-11-11-327831';
+import { gerbang } from './menu.js?v=2026-11-11-42413c';
+import * as CAPAIAN_IKU from './capaian-iku.js?v=2026-11-11-42413c';
+import * as TEMUAN_AMI from './temuan-ami.js?v=2026-11-11-42413c';
+import * as TAUTAN_AMI from './ami-tautan.js?v=2026-11-11-42413c';
+import * as CAPAIAN_CPL from './capaian-cpl.js?v=2026-11-11-42413c';
 const sb = createClient(window.SB_URL, window.SB_KEY);
+window.CAPAIAN_CPL = CAPAIAN_CPL;
+document.head.insertAdjacentHTML('beforeend', `<style>${CAPAIAN_CPL.CSS_CPL}</style>`);
 window.CAPAIAN_IKU = CAPAIAN_IKU;
 window.TAUTAN_AMI = TAUTAN_AMI;
 window.TEMUAN_AMI = TEMUAN_AMI;
@@ -1039,6 +1060,7 @@ if (tokenAMI) {
     window.mulaiHalaman();
     window.setelIKU(data.iku || [], '');
     window.setelTemuan(data.temuan || [], data.bukti_temuan || [], '');
+    window.setelCPL(data.cpl || null, '');
   }
 } else {
   const saya = await gerbang(sb);
@@ -1054,6 +1076,66 @@ if (tokenAMI) {
     .then(([t, b]) => window.setelTemuan(tabelBelumAda(t.error) ? [] : (t.data || []), b.data || [],
       t.error && !tabelBelumAda(t.error) ? t.error.message : ''),
       e => window.setelTemuan([], [], e.message || String(e)));
+  // Capaian CPL (56-patch-cpl-ringkasan.sql): ringkasan terakhir; admin juga melihat riwayat.
+  let RIWAYAT_CPL = [], KODE_CPL = new Set();
+  const muatCPL = async () => {
+    const r = await sb.from('cpl_ringkasan').select('*').order('diunggah', { ascending: false }).order('id', { ascending: false });
+    if (r.error) { window.setelCPL(null, tabelBelumAda(r.error) ? '' : r.error.message); return; }
+    RIWAYAT_CPL = r.data || [];
+    if (saya?.peran === 'admin') {
+      const t = await sb.from('ami_temuan').select('kode').then(x => x, () => ({ data: [] }));
+      KODE_CPL = new Set((t.data || []).map(x => x.kode).filter(Boolean));
+    }
+    window.setelCPL(RIWAYAT_CPL[0] || null, '');
+  };
+  if (saya?.peran === 'admin') {
+    // Panel admin: unggah ringkasan_cpl.json, riwayat, dan tindak lanjut PPEPP untuk CPL belum tercapai.
+    window.adminCPL = wadah => {
+      if (!wadah) return;
+      const ak = RIWAYAT_CPL[0], tl = ak ? CAPAIAN_CPL.tindakLanjutCPL(ak.data) : [];
+      wadah.innerHTML = `<div class="kartu ami" style="margin-top:12px"><h3>Admin: ringkasan CPL</h3>
+        <p class="ket">Jalankan <code>python run_cpl.py</code> di komputer admin, lalu unggah <b>ringkasan_cpl.json</b> dari folder keluarannya
+          (bukan laporan_cpl.xlsx: laporan itu memuat NIM). Unggahan baru menjadi tampilan; yang lama tersimpan sebagai riwayat.</p>
+        <div class="ami-f"><input type="file" id="cpl_berkas" accept=".json,application/json">
+          <input type="text" id="cpl_catatan" maxlength="200" placeholder="Catatan (mis. akhir Ganjil 2026/2027)">
+          <button type="button" id="cpl_unggah">Unggah</button><span class="msg" id="cpl_msg"></span></div>
+        ${tl.length ? `<p class="ket"><b>Tindak lanjut PPEPP</b> untuk CPL belum tercapai (masuk Data prodi › Temuan AMI, butir 14):</p>
+          <ul>${tl.map((x, i) => `<li>${esc(x.label)} ${KODE_CPL.has(x.kode) ? '<span class="ket">— sudah ada di Temuan AMI</span>'
+            : `<button type="button" data-cpl-tl="${i}">Jadikan tindak lanjut</button>`}</li>`).join('')}</ul>` : ''}
+        ${RIWAYAT_CPL.length ? `<details><summary class="ket">Riwayat unggahan (${RIWAYAT_CPL.length})</summary><ul>${RIWAYAT_CPL.map((r, i) =>
+          `<li>${esc(String(r.diunggah).slice(0, 16).replace('T', ' '))} · dibuat ${esc(String(r.dibuat || '').slice(0, 10))}${r.catatan ? ` · ${esc(r.catatan)}` : ''}
+            ${i === 0 ? '<b>(tampil)</b>' : ''} <button type="button" data-cpl-hapus="${r.id}">Hapus</button></li>`).join('')}</ul></details>` : ''}</div>`;
+      const msg = t => { const m = document.getElementById('cpl_msg'); if (m) m.textContent = t; };
+      document.getElementById('cpl_unggah').onclick = async () => {
+        const f = document.getElementById('cpl_berkas').files[0];
+        if (!f) return msg('Pilih berkas ringkasan_cpl.json.');
+        let teks, data;
+        try { teks = await f.text(); data = JSON.parse(teks); } catch { return msg('Berkas bukan JSON yang sah.'); }
+        const g = CAPAIAN_CPL.cekRingkasan(data, teks);
+        if (g) return msg(g);
+        msg('Mengunggah…');
+        const { error } = await sb.from('cpl_ringkasan').insert({ data, dibuat: data.dibuat || null,
+          catatan: document.getElementById('cpl_catatan').value.trim() || null, oleh: saya.email });
+        if (error) return msg('Gagal: ' + error.message);
+        await muatCPL();
+      };
+      wadah.querySelectorAll('[data-cpl-tl]').forEach(b => b.onclick = async () => {
+        const x = tl[+b.dataset.cplTl];
+        b.disabled = true;
+        const ts = new Date().getMonth() >= 8 ? new Date().getFullYear() + 1 : new Date().getFullYear();
+        const { error } = await sb.from('ami_temuan').insert({ ...CAPAIAN_CPL.temuanDariCPL(x, ak.data, ts), oleh: saya.email });
+        if (error) { b.disabled = false; alert('Gagal: ' + error.message); return; }
+        KODE_CPL.add(x.kode);
+        b.outerHTML = '<span class="ket">— dibuat; lengkapi PJ dan tenggat di <a href="data-prodi.html?tab=temuan">Data prodi › Temuan AMI</a></span>';
+      });
+      wadah.querySelectorAll('[data-cpl-hapus]').forEach(b => b.onclick = async () => {
+        if (!confirm('Hapus ringkasan ini dari riwayat?')) return;
+        const { error } = await sb.from('cpl_ringkasan').delete().eq('id', +b.dataset.cplHapus);
+        if (error) alert('Gagal: ' + error.message); else await muatCPL();
+      });
+    };
+  }
+  muatCPL().catch(e => window.setelCPL(null, e.message || String(e)));
   if (saya?.peran === 'admin') {
     const wadah = document.getElementById('ami-admin');
     wadah.hidden = false;
