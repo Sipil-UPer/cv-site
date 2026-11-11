@@ -1,7 +1,7 @@
 // Definisi formulir karya dosen (FORM) dan isiannya. Dipindah dari input.html
 // supaya verifikasi.html memakai label isian yang sama (pemilik 2026-11-08).
 
-import { htmlContoh, JENIS_BUKTI_KS } from './manfaat-kerjasama.js?v=2026-11-11-9a02b7';
+import { htmlContoh, JENIS_BUKTI_KS } from './manfaat-kerjasama.js?v=2026-11-11-d37711';
 
 const rapi = s => s ? String(s).replace(/_/g,' ') : '';
 
@@ -201,6 +201,21 @@ export const FORM = {
 };
 
 // Label isian untuk tabel perbandingan admin.
+// SDGs (47-patch-sdgs.sql, pemilik 2026-11-11): dosen memilih satu atau lebih
+// Tujuan Pembangunan Berkelanjutan bila karyanya terkait.
+export const SDGS = [
+  [1, 'Tanpa kemiskinan'], [2, 'Tanpa kelaparan'], [3, 'Kehidupan sehat dan sejahtera'],
+  [4, 'Pendidikan berkualitas'], [5, 'Kesetaraan gender'], [6, 'Air bersih dan sanitasi layak'],
+  [7, 'Energi bersih dan terjangkau'], [8, 'Pekerjaan layak dan pertumbuhan ekonomi'],
+  [9, 'Industri, inovasi, dan infrastruktur'], [10, 'Berkurangnya kesenjangan'],
+  [11, 'Kota dan permukiman yang berkelanjutan'], [12, 'Konsumsi dan produksi yang bertanggung jawab'],
+  [13, 'Penanganan perubahan iklim'], [14, 'Ekosistem lautan'], [15, 'Ekosistem daratan'],
+  [16, 'Perdamaian, keadilan, dan kelembagaan yang tangguh'], [17, 'Kemitraan untuk mencapai tujuan']];
+export const F_SDGS = {n:'sdgs', l:'Terkait SDGs', t:'sdgs', full:1,
+  sub:'Centang bila karya ini mendukung Tujuan Pembangunan Berkelanjutan, lalu pilih SDG-nya (boleh lebih dari satu).'};
+for (const k of ['publikasi', 'kegiatan', 'luaran']) if (FORM[k]) FORM[k].f.push(F_SDGS);
+export const teksSDGs = v => (v || []).map(n => `SDG ${n}`).join(', ');
+
 export function labelKolom(c){
   const khusus = { kategori: 'Jenis kegiatan', skema_kode: 'Skema', judul: 'Judul' };
   if(khusus[c]) return khusus[c];

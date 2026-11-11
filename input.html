@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-11-9a02b7">
+<link rel="stylesheet" href="tema.css?v=2026-11-11-d37711">
 <style>
   :root{--bg:#EEF0ED; --ink:#161E26; --muted:#616C76; --line:#D8DDD8; --line-soft:#E8EBE7; --accent:var(--biru); --accent-soft:var(--biru-m7); --pending:#8A5A00; --pending-soft:#FAF0DC; --reject:#8C2F2F; --reject-soft:#F7E7E7;}
   *{box-sizing:border-box}
@@ -70,6 +70,9 @@
   .mhs-baris select{flex:0 0 150px}
   .mhs-baris select#f_bukti_jenis{flex:0 0 260px;max-width:100%}
   .mhs-baris label.cek{flex:0 0 auto;font-size:13px;white-space:nowrap}
+  /* SDGs (pemilik 2026-11-11) */
+  .sdg-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:4px 14px;margin:6px 0}
+  .sdg-grid .cek{font-size:13px}
   .mhs-item .n{flex:1}
   .mhs-item .i{font-family:var(--mono);font-size:12px;color:var(--muted);
                flex:0 0 120px}
@@ -159,7 +162,7 @@
   .sitasi-sel small{color:var(--muted);font-size:10.5px;font-family:var(--sans)}
   @media(max-width:640px){.grid{grid-template-columns:1fr}}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-11-9a02b7">
+<link rel="stylesheet" href="kepala.css?v=2026-11-11-d37711">
 </head>
 <body>
 
@@ -173,7 +176,7 @@
 
 <div class="wrap" id="app"></div>
 
-<script src="config.js?v=2026-11-11-9a02b7"></script>
+<script src="config.js?v=2026-11-11-d37711"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -197,24 +200,24 @@ const SUPABASE_URL = window.SB_URL;
 const SUPABASE_ANON_KEY = window.SB_KEY;
 
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { JENIS_BUKTI_KARYA, namaJenisBukti, JENIS_KARYA_PRIVAT, teksAksesBukti } from './rencana-bukti.js?v=2026-11-11-9a02b7';
-import { tautanBerkas, temuanPakai } from './tautan-privat.js?v=2026-11-11-9a02b7';
-import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-11-9a02b7';
-import { periksaBerkas, kolomSidik, teksTemuan } from './sidik-berkas.js?v=2026-11-11-9a02b7';
-import { pasangContoh, durasiKS } from './manfaat-kerjasama.js?v=2026-11-11-9a02b7';
-import { pasangMenu } from './menu.js?v=2026-11-11-9a02b7';
-import { pasangPrestasi } from './prestasi.js?v=2026-11-11-9a02b7';
-import { htmlSaran } from './saran-bukti.js?v=2026-11-11-9a02b7';
-import { pasangBkd } from './bkd.js?v=2026-11-11-9a02b7';
-import { htmlTautanButir } from './tautan-butir.js?v=2026-11-11-9a02b7';
-import { ISIAN_32, ISIAN_25, TINGKAT, FORM } from './form-karya.js?v=2026-11-11-9a02b7';
+import { JENIS_BUKTI_KARYA, namaJenisBukti, JENIS_KARYA_PRIVAT, teksAksesBukti } from './rencana-bukti.js?v=2026-11-11-d37711';
+import { tautanBerkas, temuanPakai } from './tautan-privat.js?v=2026-11-11-d37711';
+import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-11-d37711';
+import { periksaBerkas, kolomSidik, teksTemuan } from './sidik-berkas.js?v=2026-11-11-d37711';
+import { pasangContoh, durasiKS } from './manfaat-kerjasama.js?v=2026-11-11-d37711';
+import { pasangMenu } from './menu.js?v=2026-11-11-d37711';
+import { pasangPrestasi } from './prestasi.js?v=2026-11-11-d37711';
+import { htmlSaran } from './saran-bukti.js?v=2026-11-11-d37711';
+import { pasangBkd } from './bkd.js?v=2026-11-11-d37711';
+import { htmlTautanButir } from './tautan-butir.js?v=2026-11-11-d37711';
+import { ISIAN_32, ISIAN_25, TINGKAT, FORM, SDGS } from './form-karya.js?v=2026-11-11-d37711';
 import { barisKarya as htmlBarisKarya, muatBuktiKarya, daftarBuktiKarya as daftarBuktiDari,
   htmlDaftarBukti as htmlDaftarBuktiDari, berkasMilikKarya as berkasMilikDari,
-  pasangHapusBuktiAdmin } from './karya-tampil.js?v=2026-11-11-9a02b7';
-import { hitungVerifikasi } from './verifikasi-hitung.js?v=2026-11-11-9a02b7';
+  pasangHapusBuktiAdmin } from './karya-tampil.js?v=2026-11-11-d37711';
+import { hitungVerifikasi } from './verifikasi-hitung.js?v=2026-11-11-d37711';
 import { daftarDoi, ambilDoi, drafDari, rapiDoi, sitasiTahunan, cariJudul, bacaBibtex, judulRapi, pilihCocok,
-  drafDariBib, teksBatas, karyaOrcid } from './impor-karya.js?v=2026-11-11-9a02b7';
-import { SUMBER_SITASI } from './sitasi.js?v=2026-11-11-9a02b7';
+  drafDariBib, teksBatas, karyaOrcid } from './impor-karya.js?v=2026-11-11-d37711';
+import { SUMBER_SITASI } from './sitasi.js?v=2026-11-11-d37711';
 
 const app = document.getElementById('app');
 if (!SUPABASE_URL || !SUPABASE_ANON_KEY
@@ -349,7 +352,33 @@ function bukaTab(t){ tandaiTab(t); buka(t); }
 // ---------------------------------------------------------------------
 //  Form input
 // ---------------------------------------------------------------------
+// SDGs (pemilik 2026-11-11): centang "ada unsur SDGs", lalu pilih SDG-nya.
+function htmlSDGs(f){
+  return `<div class="fld full"><label class="cek"><input type="checkbox" id="f_sdgs_ada"> ${f.l}: ada unsur SDGs</label>
+    <div class="sdg-grid" id="f_sdgs" hidden>${SDGS.map(([n, l]) =>
+      `<label class="cek"><input type="checkbox" class="sdg-cek" value="${n}"> ${n}. ${l}</label>`).join('')}</div>
+    ${f.sub?`<div class="sub">${f.sub}</div>`:''}</div>`;
+}
+// Nomor SDG terpilih; null bila tidak ada unsur SDGs atau belum memilih.
+function bacaSDGs(){
+  if(!document.getElementById('f_sdgs_ada')?.checked) return null;
+  const xs = [...document.querySelectorAll('#f_sdgs .sdg-cek:checked')].map(c => +c.value);
+  return xs.length ? xs : null;
+}
+function isiSDGs(v){
+  const ada = document.getElementById('f_sdgs_ada');
+  if(!ada) return;
+  const pilih = new Set((v || []).map(Number));
+  ada.checked = pilih.size > 0;
+  document.getElementById('f_sdgs').hidden = !ada.checked;
+  document.querySelectorAll('#f_sdgs .sdg-cek').forEach(c => { c.checked = pilih.has(+c.value); });
+}
+document.addEventListener('change', e => {
+  if(e.target.id === 'f_sdgs_ada') document.getElementById('f_sdgs').hidden = !e.target.checked;
+});
+
 function fieldHTML(f){
+  if(f.t === 'sdgs') return htmlSDGs(f);
   if(f.t === 'skema'){
     return `
       <div class="fld">
@@ -1101,6 +1130,13 @@ async function simpan(key){
   const isi = Object.fromEntries(new FormData(frm).entries());
   Object.keys(isi).forEach(k=>{ if(isi[k]==='') isi[k]=null; });
   if(key !== 'kegiatan') isi.kategori = key;
+  if(FORM[key].f.some(f => f.t === 'sdgs')){
+    isi.sdgs = bacaSDGs();
+    if(document.getElementById('f_sdgs_ada')?.checked && !isi.sdgs){
+      fm.className='msg err'; fm.textContent='Pilih SDG yang terkait, atau hapus centang "ada unsur SDGs".';
+      return;
+    }
+  }
 
   // Integrasi memilih kegiatan lewat dropdown; judulnya disalin dari entri
   // aslinya supaya laporan dan data.json tetap terbaca apa adanya tanpa
@@ -1185,10 +1221,16 @@ async function simpan(key){
   // 2. simpan
   fm.textContent = 'Menyimpan…';
   try{
-    const { data:k, error } = await sb.from('karya')
+    let { data:k, error } = await sb.from('karya')
       .insert({ ...isi, bukti_url: buktiUrl || null,
                 status:'diajukan', dilaporkan_oleh: saya.id })
       .select('id').single();
+    // Tanpa 47-patch-sdgs.sql: simpan tanpa SDGs.
+    if(error && /sdgs/.test(error.message || '')){
+      const { sdgs, ...tanpa } = isi;
+      ({ data:k, error } = await sb.from('karya').insert({ ...tanpa, bukti_url: buktiUrl || null,
+        status:'diajukan', dilaporkan_oleh: saya.id }).select('id').single());
+    }
     if(error) throw error;
 
     const baris = [
@@ -1291,6 +1333,7 @@ function isiUbah(key, k){
     el.value = s;
   };
   FORM[key].f.forEach(f => {
+    if(f.t === 'sdgs'){ isiSDGs(k.sdgs); return; }
     if(f.t === 'skema'){
       const s = refSkema.find(x => x.kode === k.skema_kode);
       const kel = document.getElementById('f_kelompok');
@@ -1335,6 +1378,11 @@ async function simpanUbah(key, { k, mode, tetapDraf }){
 
   const isi = Object.fromEntries(new FormData(frm).entries());
   Object.keys(isi).forEach(x => { if(isi[x] === '') isi[x] = null; });
+  if(FORM[key].f.some(f => f.t === 'sdgs')){
+    isi.sdgs = bacaSDGs();
+    if(document.getElementById('f_sdgs_ada')?.checked && !isi.sdgs)
+      return gagal('Pilih SDG yang terkait, atau hapus centang "ada unsur SDGs".');
+  }
   if(key === 'integrasi'){
     if(!isi.induk_id) return gagal('Pilih penelitian atau PkM yang diintegrasikan.');
     isi.judul = JUDUL_INDUK[isi.induk_id] || k.judul;
