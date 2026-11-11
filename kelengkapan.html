@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-11-76634e">
-<link rel="stylesheet" href="kepala.css?v=2026-11-11-76634e">
+<link rel="stylesheet" href="tema.css?v=2026-11-11-7e7727">
+<link rel="stylesheet" href="kepala.css?v=2026-11-11-7e7727">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
@@ -54,7 +54,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-11-76634e"></script>
+<script src="config.js?v=2026-11-11-7e7727"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -71,11 +71,11 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { gerbang, bolehBuka } from './menu.js?v=2026-11-11-76634e';
-import { ambilDaftarLKPS } from './data-lkps.js?v=2026-11-11-76634e';
-import { bagianNarasi, ambilNarasi, ambilPenugasan } from './led-narasi.js?v=2026-11-11-76634e';
-import { TAB_DATA, konteksNarasi, rekapKelengkapan, tugasPerPihak } from './kelengkapan.js?v=2026-11-11-76634e';
-import { PIHAK } from './unsur-butir.js?v=2026-11-11-76634e';
+import { gerbang, bolehBuka } from './menu.js?v=2026-11-11-7e7727';
+import { ambilDaftarLKPS } from './data-lkps.js?v=2026-11-11-7e7727';
+import { bagianNarasi, ambilNarasi, ambilPenugasan } from './led-narasi.js?v=2026-11-11-7e7727';
+import { TAB_DATA, konteksNarasi, rekapKelengkapan, tugasPerPihak } from './kelengkapan.js?v=2026-11-11-7e7727';
+import { PIHAK } from './unsur-butir.js?v=2026-11-11-7e7727';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g,
   c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
