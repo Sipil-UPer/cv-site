@@ -3,9 +3,9 @@
 // (pasangBkd) dan verifikasi.html (pasangVerifikasiBkd). Dosen lain diisi admin
 // di Data prodi. Berkas LKD privat: lihat unggahLKD dan bukaLKD.
 
-import { ubahan } from './prestasi.js?v=2026-11-11-1bc2ef';
-import { htmlSaran } from './saran-bukti.js?v=2026-11-11-1bc2ef';
-import { htmlTautanButir, tsDariTA } from './tautan-butir.js?v=2026-11-11-1bc2ef';
+import { ubahan } from './prestasi.js?v=2026-11-11-9a02b7';
+import { htmlSaran } from './saran-bukti.js?v=2026-11-11-9a02b7';
+import { htmlTautanButir, tsDariTA } from './tautan-butir.js?v=2026-11-11-9a02b7';
 
 // Bagian C LKD. Pendidikan dipecah per PS untuk Tabel 4.c; SISTER tidak
 // punya kolom prodi, jadi dosen memilahnya menurut kode kelas.
@@ -78,6 +78,19 @@ export async function unggahLKD(sb, f, ta, semester, atasNama){
   if (!out.ok) throw new Error(/Jenis unggahan tidak dikenal/.test(out.error || '')
     ? 'LKD belum bisa diunggah: Apps Script belum diperbarui. Minta admin men-deploy ulang Code.gs.' : out.error || 'Unggah gagal.');
   return out.url;
+}
+
+// LKD yang sudah tidak dipakai (diganti, ajuan ditolak/dibatalkan, simpan gagal) dibuang
+// ke Sampah Drive (Code.gs kind 'buang_bkd', pemilik 2026-11-11). Galat diabaikan:
+// berkas yang tertinggal masih bisa dibersihkan lewat alat berkas tak terpakai.
+export async function buangLKD(sb, url){
+  if (!url || !window.UPLOAD_URL) return;
+  try {
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) return;
+    await fetch(window.UPLOAD_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ token: session.access_token, kind: 'buang_bkd', url }) });
+  } catch (e) { /* dibiarkan */ }
 }
 
 // Berkas tidak punya tautan publik. lkd.html membukanya untuk admin dan pemilik yang
@@ -167,9 +180,10 @@ export async function pasangBkd(wadah, { sb, saya }){
     if (diLuarRentang(isi) && !confirm(`Total SKS BKD ${tampilSks(totalBkd(isi))} di luar ${SKS_MIN}–${SKS_MAKS}. `
       + 'Pastikan sama dengan Total Kinerja di LKD. Tetap simpan?')) return;
     $('bk_simpan').disabled = true;
+    let url = null, dipakai = false;
     try {
       if (f) tulis('', 'Mengunggah LKD…');
-      const url = f ? await unggahLKD(sb, f, isi.tahun_akademik, isi.semester) : null;
+      url = f ? await unggahLKD(sb, f, isi.tahun_akademik, isi.semester) : null;
       const sks = Object.fromEntries([...KOLOM_BKD, ...KOLOM_LEBIH].map(([k]) => [k, isi[k]]));
       if (url) sks.bukti_url = url;
       if (!r) {
@@ -179,11 +193,15 @@ export async function pasangBkd(wadah, { sb, saya }){
           pendidikan_tertinggi: ['s2', 's3'].includes(pend) ? pend : null,
           verifikasi: 'diajukan', dilaporkan_oleh: saya.id, oleh: saya.email });
         if (error) throw error;
+        dipakai = true;
         isiForm(null); tulis('ok', 'Tersimpan dan LKD terunggah, menunggu verifikasi admin.');
       } else if (ubahLangsung(r)) {
         const { error } = await sb.from('lkps_bkd').update({ ...sks, verifikasi: 'diajukan', catatan: null, oleh: saya.email,
           diperbarui: new Date().toISOString() }).eq('id', r.id);
         if (error) throw error;
+        dipakai = true;
+        // LKD lama diganti yang baru: berkas lama dibuang.
+        if (url && r.bukti_url && r.bukti_url !== url) await buangLKD(sb, r.bukti_url);
         isiForm(null); tulis('ok', 'Perubahan tersimpan, menunggu verifikasi admin.');
       } else {
         const { data, lama } = ubahan(r, sks);
@@ -192,10 +210,12 @@ export async function pasangBkd(wadah, { sb, saya }){
         if (!alasan?.trim()) return tulis('err', 'Alasan wajib diisi.');
         const { error } = await sb.from('ajuan_bkd').insert({ bkd_id: r.id, data, lama, alasan: alasan.trim() });
         if (error) throw error;
+        dipakai = true;   // LKD lama dibuang saat ajuan disetujui
         isiForm(null); tulis('ok', 'Ajuan terkirim; admin memutuskannya di halaman Verifikasi.');
       }
       await muat();
     } catch (e) {
+      if (url && !dipakai) await buangLKD(sb, url);   // unggahan yang tidak jadi dipakai
       const t = e.message || String(e);
       tulis('err', /ajuan_bkd_menunggu/.test(t) ? 'Masih ada ajuan yang menunggu untuk semester ini.'
         : /duplicate|unique/i.test(t) ? 'Semester ini sudah terisi. Ubah baris yang ada di riwayat.' : 'Gagal: ' + t);
@@ -237,14 +257,18 @@ export async function pasangBkd(wadah, { sb, saya }){
     if (d.lkd) return bukaLKD(sb, d.lkd);
     if (d.ubah) { isiForm(BARIS.find(r => r.id === +d.ubah)); tulis('', ''); return wadah.scrollIntoView({ behavior: 'smooth' }); }
     if (d.batalAjuan) {
+      const a = [...AJUAN.values()].find(x => x.id === +d.batalAjuan);
       const { error } = await sb.from('ajuan_bkd').delete().eq('id', +d.batalAjuan);
       if (error) alert(error.message);
+      else if (a?.data?.bukti_url && a.data.bukti_url !== a.lama?.bukti_url) await buangLKD(sb, a.data.bukti_url);
       return muat();
     }
     if (d.hapus) {
       if (!confirm('Hapus BKD semester ini?')) return;
+      const lama = BARIS.find(r => r.id === +d.hapus);
       const { error } = await sb.from('lkps_bkd').delete().eq('id', +d.hapus);
       if (error) alert(error.message);
+      else if (lama?.bukti_url) await buangLKD(sb, lama.bukti_url);
       return muat();
     }
   });
@@ -309,15 +333,21 @@ export async function pasangVerifikasiBkd(boxIsian, boxAjuan, { sb, dosen }){
       muat();
     }; });
     boxAjuan.querySelectorAll('[data-sa]').forEach(b => { b.onclick = async () => {
+      const a = (aj || []).find(x => x.id === +b.dataset.sa);
       const { error: e } = await sb.rpc('setujui_ajuan_bkd', { a: +b.dataset.sa });
       if (e) alert(e.message);
+      // LKD baru dipakai: yang lama dibuang.
+      else if (a?.data?.bukti_url && a.lama?.bukti_url && a.data.bukti_url !== a.lama.bukti_url) await buangLKD(sb, a.lama.bukti_url);
       muat();
     }; });
     boxAjuan.querySelectorAll('[data-ta]').forEach(b => { b.onclick = async () => {
       const c = prompt('Alasan penolakan (dilihat pengaju):');
       if (!c?.trim()) return;
+      const a = (aj || []).find(x => x.id === +b.dataset.ta);
       const { error: e } = await sb.from('ajuan_bkd').update({ status: 'ditolak', catatan_admin: c.trim() }).eq('id', +b.dataset.ta);
       if (e) alert(e.message);
+      // LKD yang diajukan tidak dipakai: dibuang.
+      else if (a?.data?.bukti_url && a.data.bukti_url !== a.lama?.bukti_url) await buangLKD(sb, a.data.bukti_url);
       muat();
     }; });
   }
