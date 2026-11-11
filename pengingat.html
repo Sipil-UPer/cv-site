@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-11-847016">
-<link rel="stylesheet" href="kepala.css?v=2026-11-11-847016">
+<link rel="stylesheet" href="tema.css?v=2026-11-11-2e6ff9">
+<link rel="stylesheet" href="kepala.css?v=2026-11-11-2e6ff9">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
@@ -56,6 +56,13 @@
   input[type=text].subjek{width:100%;padding:6px;font:inherit}
   .aksi{display:flex;gap:10px;align-items:center;margin-top:10px}
   .ket{color:var(--muted);font-size:13px}
+  /* Masa berlaku (pemilik 2026-11-11) */
+  table.bl{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:8px}
+  table.bl th{text-align:left;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);
+    border-bottom:1px solid var(--line);padding:5px 8px}
+  table.bl td{padding:6px 8px;border-bottom:1px solid var(--line-soft);vertical-align:top}
+  table.bl tr.aman{display:none}
+  .tampil-aman table.bl tr.aman{display:table-row}
 </style>
 </head>
 <body>
@@ -65,7 +72,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-11-847016"></script>
+<script src="config.js?v=2026-11-11-2e6ff9"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -86,10 +93,11 @@ addEventListener('error', function (e) {
 // Script (Code.gs kind 'kirim_pengingat', maks. 30 per kirim). Tidak ada yang
 // terkirim tanpa tombol Kirim.
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { gerbang } from './menu.js?v=2026-11-11-847016';
-import { tugasPerPihak } from './kelengkapan.js?v=2026-11-11-847016';
-import { PIHAK } from './unsur-butir.js?v=2026-11-11-847016';
-import { penerimaTemuan, HARI_DEKAT } from './temuan-ami.js?v=2026-11-11-847016';
+import { gerbang } from './menu.js?v=2026-11-11-2e6ff9';
+import { tugasPerPihak } from './kelengkapan.js?v=2026-11-11-2e6ff9';
+import { PIHAK } from './unsur-butir.js?v=2026-11-11-2e6ff9';
+import { penerimaTemuan, HARI_DEKAT } from './temuan-ami.js?v=2026-11-11-2e6ff9';
+import { daftarBerlaku, penerimaBerlaku, htmlBerlaku, HARI_SEGERA } from './masa-berlaku.js?v=2026-11-11-2e6ff9';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
@@ -155,9 +163,21 @@ function gambar(){
       rinci: tugas[k].map(x => `- Butir ${x.no} unsur ${x.n}: ${x.label}`).join('\n') }));
   // 4. Tindak lanjut AMI lewat atau dekat tenggat (51-patch-temuan-ami.sql).
   const { penerima: ami, tanpaEmail } = penerimaTemuan(DATA.temuan, emailPihak);
-  const J = { bkd: bkdBelum, tolak, pihak, ami };
+  // 5. Masa berlaku MoU/SK/dokumen (53-patch-berlaku-dokumen.sql, masa-berlaku.js).
+  const berlaku = penerimaBerlaku(DATA.berlaku, emailPihak.P, PIHAK.P);
+  const J = { bkd: bkdBelum, tolak, pihak, ami, berlaku };
   $('daftar').innerHTML =
-    htmlJenis('bkd', 'BKD belum diisi', `DTPS aktif yang belum mengisi BKD ${esc(ta)} semester ${esc(sem)}.`, bkdBelum,
+    `<section class="jenis" id="masa-berlaku"><h2>Masa berlaku</h2>
+      <p class="ket">Kerja sama, kerja sama di karya dosen, SK akreditasi prodi, peta jalan, dokumen pustaka yang diberi
+      tanggal "berlaku sampai" (Data prodi › Dokumen › Nomor/tanggal), dan tautan AMI.
+      <label><input type="checkbox" id="tampil-aman"> tampilkan juga yang masih lama</label></p>
+      ${htmlBerlaku(DATA.berlaku)}</section>`
+    + htmlJenis('berlaku', 'Masa berlaku akan habis', `Yang sudah berakhir (setahun terakhir) atau berakhir ≤ ${HARI_SEGERA} hari.
+      Data prodi dikirim ke email pihak Prodi${emailPihak.P ? '' : ' <b>(belum diisi di bawah)</b>'}; kerja sama di karya dikirim
+      ke dosen penulisnya.`, berlaku,
+      'Pengingat masa berlaku kerja sama dan dokumen',
+      `Yth. {nama},\n\nBerikut kerja sama atau dokumen yang sudah atau akan segera berakhir masa berlakunya:\n{rinci}\n\nMohon diperpanjang atau diperbarui, lalu tanggalnya diperbarui di situs kinerja prodi:\n${situs}\n\nTerima kasih.\n${PRODI}`)
+    + htmlJenis('bkd', 'BKD belum diisi', `DTPS aktif yang belum mengisi BKD ${esc(ta)} semester ${esc(sem)}.`, bkdBelum,
       `Pengingat pengisian BKD ${ta} semester ${sem}`,
       `Yth. {nama},\n\nMohon mengisi BKD {rinci} di situs kinerja prodi (Input › BKD saya), dengan mengunggah LKD SISTER:\n${situs}input.html\n\nTerima kasih.\n${PRODI}`)
     + htmlJenis('tolak', 'Karya perlu diperbaiki', 'Penulis dari prodi pada karya berstatus ditolak. Draf dosen tidak terlihat admin, jadi tidak termasuk.', tolak,
@@ -178,6 +198,8 @@ function gambar(){
       <p class="ket">Juga dipakai pengingat tindak lanjut AMI bila email penanggung jawab temuan kosong.</p>
       <div class="aksi"><button type="button" class="btn ghost" id="simpan-pihak">Simpan email pihak</button></div></section>`;
   document.querySelectorAll('[data-kirim]').forEach(b => { b.onclick = () => kirim(b.dataset.kirim, J[b.dataset.kirim]); });
+  const aman = () => $('masa-berlaku').classList.toggle('tampil-aman', $('tampil-aman').checked);
+  $('tampil-aman').onchange = aman;
   $('simpan-pihak').onclick = () => {
     const x = {}; document.querySelectorAll('[data-pihak]').forEach(i => { if (i.value.trim()) x[i.dataset.pihak] = i.value.trim(); });
     simpanAman.set('pengingatEmailPihak', JSON.stringify(x)); gambar();
@@ -190,6 +212,16 @@ async function mulai(){
   $('hSub').textContent = `Masuk sebagai ${saya.nama}`;
   if (saya.peran !== 'admin') { $('isi').innerHTML = '<p class="kosong">Halaman ini khusus admin prodi.</p>'; return; }
   if (!window.UPLOAD_URL) { $('isi').innerHTML = '<p class="kosong">Apps Script belum disiapkan (UPLOAD_URL di config.js).</p>'; return; }
+  const baca = q => q.then(r => r.data || [], () => []);   // tabel yang belum ada = kosong
+  const [ks, kk, pu, pj, dk, ta] = await Promise.all([
+    baca(sb.from('lkps_kerjasama').select('mitra,jenis,tanggal_selesai,tahun_selesai')),
+    baca(sb.from('karya').select('judul,mitra_institusi,selesai_ks,karya_penulis(dosen(nama,email))')
+      .not('selesai_ks', 'is', null).in('status', ['diajukan', 'terverifikasi'])),
+    baca(sb.from('lkps_prodi_upps').select('nama_prodi,nomor_sk,tanggal_kedaluwarsa')),
+    baca(sb.from('lkps_peta_jalan').select('judul,jenis,tahun_selesai')),
+    baca(sb.from('dokumen').select('*')),
+    baca(sb.from('tautan_ami').select('judul,sampai,dicabut'))]);
+  const berlaku = daftarBerlaku({ kerjasama: ks, karyaKS: kk, prodiUpps: pu, petaJalan: pj, dokumen: dk, tautanAmi: ta });
   const [ds, bk, kt, bb, dj, tm] = await Promise.all([
     sb.from('dosen').select('nama,email,nidn,dtps,aktif,peran'),
     sb.from('lkps_bkd').select('nidn,tahun_akademik,semester'),
@@ -199,7 +231,7 @@ async function mulai(){
     sb.from('ami_temuan').select('kode,siklus,uraian,pihak,pj_nama,pj_email,tenggat,status')]);
   PRODI = [dj.prodi, dj.institusi].filter(Boolean).join(' ') || 'Program Studi';
   DATA = { dosen: ds.data || [], bkd: bk.data || [], ditolak: kt.data || [], butirBukti: bb.data || [],
-           temuan: tm.data || [], temuanGalat: tm.error && !/does not exist|schema cache/i.test(tm.error.message) ? tm.error.message : '' };
+           berlaku, temuan: tm.data || [], temuanGalat: tm.error && !/does not exist|schema cache/i.test(tm.error.message) ? tm.error.message : '' };
   $('isi').innerHTML = `<p class="ket">Periksa penerima dan isi, lalu tekan Kirim. Email keluar dari akun Google prodi
       (kuota Gmail sekitar 100 per hari); balasan diarahkan ke email Anda.</p>
     <div class="aksi"><label>Tahun akademik BKD <input id="p_ta" value="${taKini()}" size="10"></label>

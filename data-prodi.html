@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-11-847016">
+<link rel="stylesheet" href="tema.css?v=2026-11-11-2e6ff9">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
@@ -84,7 +84,7 @@
   .masuk{max-width:420px;margin:40px auto;background:#fff;border:1px solid var(--line);padding:20px}
   .masuk input{width:100%;padding:8px 10px;margin:8px 0;font:inherit}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-11-847016">
+<link rel="stylesheet" href="kepala.css?v=2026-11-11-2e6ff9">
 </head>
 <body>
 
@@ -98,7 +98,7 @@
 
 <main class="wrap" id="isi"></main>
 
-<script src="config.js?v=2026-11-11-847016"></script>
+<script src="config.js?v=2026-11-11-2e6ff9"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -115,21 +115,21 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-11-847016';
-import { pasangMenu } from './menu.js?v=2026-11-11-847016';
-import { unggahKePustaka, opsiPustaka, opsiJenis, labelDokumen, cariDokumen } from './pustaka-dokumen.js?v=2026-11-11-847016';
-import { pasangRapikan } from './rapikan-berkas.js?v=2026-11-11-847016';
-import { UNSUR, skorUnsur, pihakUnsur } from './unsur-butir.js?v=2026-11-11-847016';
-import { OPSI_SUMBER } from './iku-otomatis.js?v=2026-11-11-847016';
-import { denganOtomatis as otomatisDari, tsTersedia, htmlCapaianIKU, KET_CAPAIAN } from './capaian-iku.js?v=2026-11-11-847016';
-import { KATEGORI_TEMUAN, STATUS_TEMUAN, PIHAK_TEMUAN, ringkasTemuan, htmlRingkasTemuan } from './temuan-ami.js?v=2026-11-11-847016';
-import { htmlContoh, pasangContoh, JENIS_BUKTI_KS } from './manfaat-kerjasama.js?v=2026-11-11-847016';
-import { infoJenis } from './rencana-bukti.js?v=2026-11-11-847016';
-import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-11-847016';
-import { nomorButir, htmlTautanButir } from './tautan-butir.js?v=2026-11-11-847016';
-import { htmlSaran } from './saran-bukti.js?v=2026-11-11-847016';
-import { tautanBerkas, privatkanLama } from './tautan-privat.js?v=2026-11-11-847016';
-import { unggahLKD, buangLKD, bukaLKD, pendidikanTotal, pendidikanPS } from './bkd.js?v=2026-11-11-847016';
+import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-11-2e6ff9';
+import { pasangMenu } from './menu.js?v=2026-11-11-2e6ff9';
+import { unggahKePustaka, opsiPustaka, opsiJenis, labelDokumen, cariDokumen } from './pustaka-dokumen.js?v=2026-11-11-2e6ff9';
+import { pasangRapikan } from './rapikan-berkas.js?v=2026-11-11-2e6ff9';
+import { UNSUR, skorUnsur, pihakUnsur } from './unsur-butir.js?v=2026-11-11-2e6ff9';
+import { OPSI_SUMBER } from './iku-otomatis.js?v=2026-11-11-2e6ff9';
+import { denganOtomatis as otomatisDari, tsTersedia, htmlCapaianIKU, KET_CAPAIAN } from './capaian-iku.js?v=2026-11-11-2e6ff9';
+import { KATEGORI_TEMUAN, STATUS_TEMUAN, PIHAK_TEMUAN, ringkasTemuan, htmlRingkasTemuan } from './temuan-ami.js?v=2026-11-11-2e6ff9';
+import { htmlContoh, pasangContoh, JENIS_BUKTI_KS } from './manfaat-kerjasama.js?v=2026-11-11-2e6ff9';
+import { infoJenis } from './rencana-bukti.js?v=2026-11-11-2e6ff9';
+import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-11-2e6ff9';
+import { nomorButir, htmlTautanButir } from './tautan-butir.js?v=2026-11-11-2e6ff9';
+import { htmlSaran } from './saran-bukti.js?v=2026-11-11-2e6ff9';
+import { tautanBerkas, privatkanLama } from './tautan-privat.js?v=2026-11-11-2e6ff9';
+import { unggahLKD, buangLKD, bukaLKD, pendidikanTotal, pendidikanPS } from './bkd.js?v=2026-11-11-2e6ff9';
 
 /* =====================================================================
    DATA PRODI — data kuantitatif LKPS diisi admin di situs (keputusan
@@ -1771,7 +1771,8 @@ async function gambarPustaka(){
   box.innerHTML = `<table class="t"><thead><tr><th>Jenis</th><th>Tahun</th><th>Judul</th>${ADA30 ? '<th>Nomor</th><th>Tanggal</th>' : ''}<th>Dipakai di</th>
       <th>Berkas</th><th>Diperbarui</th><th></th></tr></thead><tbody>${DOK.map(d => `<tr>
       <td>${esc(infoJenis(d.jenis).nama)}</td><td>${esc(d.tahun)}</td><td>${esc(d.judul || '—')}</td>
-      ${ADA30 ? `<td>${esc(d.nomor || '—')}</td><td>${esc(d.tanggal ? String(d.tanggal).split('-').reverse().join('/') : '—')}</td>` : ''}
+      ${ADA30 ? `<td>${esc(d.nomor || '—')}</td><td>${esc(d.tanggal ? String(d.tanggal).split('-').reverse().join('/') : '—')}${d.berlaku_sampai
+        ? `<br><small class="ket">berlaku s.d. ${esc(String(d.berlaku_sampai).split('-').reverse().join('/'))}</small>` : ''}</td>` : ''}
       <td>${esc(ringkas(pakai.get(d.id) || []) || '—')}</td>
       <td><a href="${esc(d.url)}" target="_blank" rel="noopener nofollow">buka</a></td>
       <td>${esc(String(d.diperbarui || '').slice(0, 10))}</td>
@@ -1806,10 +1807,17 @@ async function ubahNomorDokumen(id){
   const tgl = prompt('Tanggal dokumen, format YYYY-MM-DD (kosongkan bila tidak ada):', d.tanggal || '');
   if (tgl === null) return;
   if (tgl.trim() && !/^\d{4}-\d{2}-\d{2}$/.test(tgl.trim())) return tulis('buruk', 'Tanggal ditulis YYYY-MM-DD, mis. 2024-03-15.');
-  const { error } = await sb.from('dokumen').update({ nomor: nomor.trim() || null, tanggal: tgl.trim() || null }).eq('id', id);
-  if (error) return tulis('buruk', 'Gagal menyimpan: ' + error.message);
+  // Masa berlaku (53-patch-berlaku-dokumen.sql): ditanyakan bila kolomnya sudah ada.
+  const adaBerlaku = 'berlaku_sampai' in d;
+  const berlaku = adaBerlaku ? prompt('Berlaku sampai, format YYYY-MM-DD (kosongkan bila tidak berbatas waktu):', d.berlaku_sampai || '') : '';
+  if (berlaku === null) return;
+  if (berlaku.trim() && !/^\d{4}-\d{2}-\d{2}$/.test(berlaku.trim())) return tulis('buruk', 'Tanggal berlaku ditulis YYYY-MM-DD, mis. 2027-03-15.');
+  const isi = { nomor: nomor.trim() || null, tanggal: tgl.trim() || null, ...(adaBerlaku ? { berlaku_sampai: berlaku.trim() || null } : {}) };
+  const { error } = await sb.from('dokumen').update(isi).eq('id', id);
+  if (error) return tulis('buruk', 'Gagal menyimpan: ' + (/berlaku_check/.test(error.message)
+    ? 'tanggal berlaku tidak boleh sebelum tanggal dokumen.' : error.message));
   await muatPustaka();
-  tulis('ok', 'Nomor dan tanggal dokumen tersimpan.');
+  tulis('ok', adaBerlaku ? 'Nomor, tanggal, dan masa berlaku dokumen tersimpan.' : 'Nomor dan tanggal dokumen tersimpan.');
   await gambarPustaka();
 }
 
