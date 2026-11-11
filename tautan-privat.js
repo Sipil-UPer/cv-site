@@ -3,7 +3,7 @@
 // LKPS otomatis menuju halaman kata sandi; admin dan pemilik yang login langsung
 // masuk. Apps Script memegang daftar jenis yang sama (JENIS_PRIVAT di Code.gs).
 
-import { JENIS_DOKUMEN, TABEL_PRIVAT, JENIS_KARYA_PRIVAT } from './rencana-bukti.js?v=2026-11-11-42413c';
+import { JENIS_DOKUMEN, TABEL_PRIVAT, JENIS_KARYA_PRIVAT } from './rencana-bukti.js?v=2026-11-11-539976';
 
 export const tautanLkd = id => new URL(`lkd.html?f=${id}`, location.href).href;
 // Tautan hasil unggah: berkas privat tidak memakai tautan Drive.

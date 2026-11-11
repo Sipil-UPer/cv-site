@@ -28,6 +28,8 @@ export const MODUL = [
       ket: 'Mahasiswa, lulusan, tracer, kerja sama, BKD, prestasi mahasiswa.' },
     { href: 'pengingat.html', judul: 'Pengingat', boleh: admin,
       ket: 'Kirim pengingat email: BKD belum diisi, karya perlu diperbaiki, bukti per pihak.' },
+    { href: 'nilai-cpl.html', judul: 'Berkas nilai CPL', boleh: isiKarya,
+      ket: 'Unggah Template_Input_Data_CPL per kelas (diperiksa sebelum dikirim, disimpan privat); admin: daftar kelas dan pengingat.' },
     { href: 'kelola-survei.html', judul: 'Survei kepuasan', boleh: admin,
       ket: 'Survei anonim mahasiswa, dosen, tendik, mitra, pengguna lulusan: buat, bagikan tautan, baca hasil.' },
     { href: 'mutu-data.html', judul: 'Mutu data', boleh: admin,

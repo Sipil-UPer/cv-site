@@ -15,7 +15,7 @@
    Pemakaian: pasangYatim(sb, elemenWadah)
    ===================================================================== */
 
-import { buangBerkas, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-11-42413c';
+import { buangBerkas, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-11-539976';
 
 // Tabel yang bisa memuat tautan Drive. Tambahkan tabel baru yang
 // menyimpan tautan bukti di sini, kalau tidak berkasnya tampak tak terpakai.
@@ -25,7 +25,9 @@ const TABEL_RUJUKAN = ['karya', 'karya_bukti', 'butir_bukti', 'dokumen', 'lkps_b
   // Ajuan yang menunggu dan tabel Data prodi lain yang bisa memuat tautan (pemilik 2026-11-11).
   'ajuan_bkd', 'ajuan_prestasi', 'ajuan_ubah', 'lkps_kepuasan_pengguna', 'ref_mata_kuliah', 'lkps_vmts',
   'lkps_prodi_upps', 'lkps_penggunaan_dana', 'lkps_tendik', 'lkps_prasarana', 'lkps_dokumen_k3l',
-  'lkps_fasilitas_k3l', 'lkps_spmi_ppepp', 'lkps_target_kinerja', 'lkps_peta_jalan'];
+  'lkps_fasilitas_k3l', 'lkps_spmi_ppepp', 'lkps_target_kinerja', 'lkps_peta_jalan',
+  // Berkas nilai CPL (57-patch-cpl-unggah.sql, pemilik 2026-11-11).
+  'cpl_berkas'];
 const BARU_MS = 24 * 3600 * 1000;
 const POLA_ID = /(?:\/d\/|[?&]id=|[?&]f=|\/folders\/)([A-Za-z0-9_-]{20,})/g;
 

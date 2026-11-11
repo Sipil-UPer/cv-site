@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Berkas nilai CPL — Kinerja Program Studi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tema.css?v=2026-11-11-539976">
+<link rel="stylesheet" href="kepala.css?v=2026-11-11-539976">
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
+  .wrap{max-width:1040px;margin:0 auto;padding:18px 20px 80px}
+  .kosong, .ket{color:var(--muted)}
+  .ket{font-size:13px}
+  /* Berkas nilai CPL (pemilik 2026-11-11) */
+  .kartu{background:var(--panel);border:1px solid var(--line);padding:14px 18px;margin-bottom:16px}
+  .kartu h2{font-size:17px;margin:0 0 8px;color:var(--biru)}
+  table.ds{width:100%;border-collapse:collapse;font-size:13.5px}
+  table.ds th{text-align:left;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--line);padding:5px 8px}
+  table.ds td{padding:7px 8px;border-bottom:1px solid var(--line-soft);vertical-align:top}
+  .b{font:12.5px/1.4 var(--sans);padding:4px 10px;border:1px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer}
+  .b:hover{border-color:var(--biru);color:var(--biru)}
+  .b.utama{background:var(--biru);color:#fff;border-color:var(--biru)}
+  .b:disabled{opacity:.6;cursor:default}
+  .msg{font-size:13px;white-space:pre-line} .msg.buruk{color:var(--merah)} .msg.ok{color:var(--hijau)}
+  .sudah{color:var(--hijau);font-weight:600} .belum{color:var(--merah);font-weight:600}
+  .gulir{overflow-x:auto}
+  .periode{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+  .periode select, textarea, input[type=text]{font:inherit;font-size:14px;padding:5px 7px;border:1px solid var(--line);background:var(--panel);color:var(--ink)}
+  textarea{width:100%;min-height:110px;font-family:var(--mono);font-size:12.5px}
+</style>
+</head>
+<body>
+<header class="hero"><div class="hero-in">
+  <div class="hero-inst" data-identitas></div>
+  <h1>Berkas nilai CPL</h1>
+  <div class="sub" id="hSub">Memuat…</div>
+</div></header>
+<main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
+<script src="config.js?v=2026-11-11-539976"></script>
+<script>
+// Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
+addEventListener('error', function (e) {
+  if (document.getElementById('galat-muat')) return;
+  var d = document.createElement('div');
+  d.id = 'galat-muat';
+  d.style.cssText = 'margin:16px;padding:12px 14px;border:1px solid var(--merah);' +
+    'background:var(--merah-m3);color:var(--ink);font:14px/1.5 system-ui,sans-serif';
+  d.textContent = 'Halaman gagal dimuat: ' + (e.message || 'galat skrip') +
+    '. Tekan Ctrl+Shift+R untuk memuat ulang tanpa cache; bila tetap muncul, kirim pesan ini ke admin.';
+  document.body.insertBefore(d, document.body.firstChild);
+});
+</script>
+<script type="module">
+// Berkas nilai CPL (pemilik 2026-11-11, pilihan 2; 57-patch-cpl-unggah.sql).
+// Dosen mengunggah berkas nilai per kelas; diperiksa di peramban lalu disimpan privat
+// di Drive prodi lewat Apps Script. Admin mengimpor daftar kelas, memantau yang belum,
+// dan mengirim pengingat. run_cpl.py mengunduh berkas dengan kunci CPL_KUNCI.
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+import { gerbang } from './menu.js?v=2026-11-11-539976';
+import { tautanBerkas } from './tautan-privat.js?v=2026-11-11-539976';
+import { SHEETJS, bacaLembar, periksaBerkas, bacaCSVKelas, statusKelas, periodeKelas, penerimaBelumUnggah } from './nilai-cpl.js?v=2026-11-11-539976';
+
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const $ = id => document.getElementById(id);
+const sb = createClient(window.SB_URL, window.SB_KEY);
+const tgl = s => String(s || '').slice(0, 16).replace('T', ' ');
+let SAYA = null, ADMIN = false, KELAS = [], BERKAS = [], DOSEN = new Map(), PILIH = '', SIAP = null;
+
+const keB64 = buf => { let s = ''; const b = new Uint8Array(buf); for (let i = 0; i < b.length; i += 0x8000) s += String.fromCharCode(...b.subarray(i, i + 0x8000)); return btoa(s); };
+const sha256 = async buf => [...new Uint8Array(await crypto.subtle.digest('SHA-256', buf))].map(x => x.toString(16).padStart(2, '0')).join('');
+
+async function muat(){
+  const [k, b] = await Promise.all([sb.from('cpl_kelas').select('*').order('kode_mk'), sb.from('cpl_berkas').select('id,kelas_id,url,nama_berkas,diunggah,oleh')]);
+  if (k.error) throw new Error(/does not exist|schema cache/i.test(k.error.message) ? 'Tabel daftar kelas belum ada: jalankan supabase/57-patch-cpl-unggah.sql.' : k.error.message);
+  KELAS = k.data || []; BERKAS = b.data || [];
+  if (ADMIN) { const d = await sb.from('dosen').select('nama,email'); DOSEN = new Map((d.data || []).map(x => [String(x.email).toLowerCase(), x.nama])); }
+  const ps = periodeKelas(KELAS);
+  if (!ps.includes(PILIH)) PILIH = ps[0] || '';
+}
+
+function gambar(){
+  const ps = periodeKelas(KELAS);
+  const [ta, sem] = PILIH.split('|');
+  const st = statusKelas(KELAS.filter(k => k.tahun_akademik === ta && k.semester === sem), BERKAS);
+  const milik = st.filter(k => k.dosen_email.toLowerCase() === String(SAYA.email).toLowerCase());
+  const tampil = ADMIN ? st : milik;
+  const sudah = tampil.filter(k => k.terakhir).length;
+  $('isi').innerHTML = `<p class="ket">Unggah <b>Template_Input_Data_CPL.xlsx</b> yang sudah diisi, satu berkas per kelas per semester. Sebelum dikirim,
+      berkas diperiksa di peramban ini: versi templat, identitas (kode MK, kelas, tahun akademik, semester) harus sama dengan kelasnya,
+      dan semua baris lembar <b>Periksa</b> harus OK (buka di Excel lalu simpan agar lembar Periksa terhitung). Berkas memuat NIM, jadi disimpan
+      privat di Drive prodi dan hanya admin yang bisa membukanya. Unggah ulang menggantikan versi sebelumnya (versi lama tetap tersimpan).</p>
+    ${ps.length ? `<div class="periode"><label class="ket">Periode <select id="periode">${ps.map(p => { const [a, s] = p.split('|');
+      return `<option value="${esc(p)}"${p === PILIH ? ' selected' : ''}>${esc(a)} ${esc(s)}</option>`; }).join('')}</select></label>
+      <span class="ket">${sudah} dari ${tampil.length} kelas sudah mengunggah.</span></div>` : ''}
+    <div class="kartu"><h2>${ADMIN ? 'Semua kelas' : 'Kelas saya'}</h2>
+      ${tampil.length ? `<div class="gulir"><table class="ds"><thead><tr><th>MK</th><th>Kelas</th>${ADMIN ? '<th>Dosen</th>' : ''}<th>Status</th><th>Unggah</th></tr></thead><tbody>
+      ${tampil.map(k => { const boleh = ADMIN || milik.includes(k);
+        return `<tr><td><b>${esc(k.kode_mk)}</b> ${esc(k.nama_mk || '')}</td><td>${esc(k.kelas)}</td>
+          ${ADMIN ? `<td>${esc(DOSEN.get(k.dosen_email.toLowerCase()) || k.dosen_email)}<br><small class="ket">${esc(k.dosen_email)}</small></td>` : ''}
+          <td>${k.terakhir ? `<span class="sudah">sudah</span><br><small class="ket">${esc(tgl(k.terakhir.diunggah))} · versi ${k.versi}${ADMIN && k.terakhir.oleh ? ` · ${esc(k.terakhir.oleh)}` : ''}</small>
+            ${ADMIN ? `<br><a href="${esc(k.terakhir.url)}" target="_blank" rel="noopener">buka berkas</a>` : ''}` : '<span class="belum">belum</span>'}</td>
+          <td>${boleh ? `<input type="file" accept=".xlsx" data-berkas="${k.id}"> <button class="b utama" data-unggah="${k.id}">Unggah</button>
+            <div class="msg" id="m-${k.id}"></div>` : ''}${ADMIN ? ` <button class="b" data-hapus-kelas="${k.id}" title="Hapus kelas dari daftar">Hapus kelas</button>` : ''}</td></tr>`; }).join('')}
+      </tbody></table></div>` : `<p class="kosong">${ADMIN ? 'Belum ada kelas untuk periode ini. Impor daftar kelas di bawah.'
+        : 'Tidak ada kelas Anda di daftar. Bila Anda mengampu kelas ber-CPL semester ini, minta admin menambahkannya dengan email login Anda.'}</p>`}</div>
+    ${ADMIN ? htmlAdmin(st) : ''}`;
+  if ($('periode')) $('periode').onchange = e => { PILIH = e.target.value; gambar(); };
+  document.querySelectorAll('[data-unggah]').forEach(b => b.onclick = () => unggah(+b.dataset.unggah, b));
+  if (ADMIN) pasangAdmin(st);
+}
+
+async function unggah(id, tombol){
+  const k = KELAS.find(x => x.id === id), m = $('m-' + id), f = document.querySelector(`[data-berkas="${id}"]`).files[0];
+  const tulis = (c, t) => { m.className = 'msg ' + c; m.textContent = t; };
+  if (!f) return tulis('buruk', 'Pilih berkas .xlsx dulu.');
+  if (!/\.xlsx$/i.test(f.name)) return tulis('buruk', 'Berkas harus .xlsx (Template_Input_Data_CPL).');
+  if (f.size > (Number(window.UPLOAD_MAX_MB) || 20) * 1024 * 1024) return tulis('buruk', `Berkas lebih dari ${window.UPLOAD_MAX_MB || 20} MB.`);
+  if (!window.UPLOAD_URL) return tulis('buruk', 'Apps Script belum disiapkan (UPLOAD_URL di config.js).');
+  tombol.disabled = true; tulis('', 'Memeriksa berkas…');
+  try {
+    const buf = await f.arrayBuffer();
+    SIAP = SIAP || await import(SHEETJS);
+    const hasil = periksaBerkas(bacaLembar(SIAP.read(buf, { type: 'array' })), k);
+    if (!hasil.ok) { tulis('buruk', 'Berkas belum bisa diterima:\n' + hasil.masalah.map(x => '• ' + x).join('\n')); return; }
+    tulis('', 'Mengunggah ke Drive prodi (privat)…');
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) throw new Error('Sesi login habis. Muat ulang halaman.');
+    const res = await fetch(window.UPLOAD_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ token: session.access_token, kind: 'cpl', kelas_id: id, filename: f.name, data: keB64(buf) }) });
+    const out = await res.json();
+    if (!out.ok) throw new Error(/tidak dikenal/i.test(out.error || '') ? 'Apps Script belum diperbarui: terbitkan ulang Code.gs.' : out.error);
+    const { error } = await sb.from('cpl_berkas').insert({ kelas_id: id, url: tautanBerkas(out), nama_berkas: f.name.slice(0, 200),
+      ukuran: f.size, sha256: await sha256(buf), oleh: SAYA.email });
+    if (error) throw new Error('Berkas tersimpan di Drive, tetapi catatannya gagal: ' + error.message);
+    await muat(); gambar();
+    const m2 = $('m-' + id); if (m2) { m2.className = 'msg ok'; m2.textContent = 'Berkas diterima. Terima kasih.'; }
+  } catch (e) { tulis('buruk', e.message || String(e)); }
+  finally { tombol.disabled = false; }
+}
+
+function htmlAdmin(st){
+  const belum = penerimaBelumUnggah(st, DOSEN);
+  return `<div class="kartu"><h2>Impor daftar kelas (admin)</h2>
+      <p class="ket">Satu baris per kelas yang wajib mengunggah. Kepala kolom: <code>tahun_akademik;semester;kode_mk;nama_mk;kelas;email_dosen</code>
+        (pemisah titik koma atau koma). Contoh: <code>2026/2027;Ganjil;41214;Pemrograman dan Aplikasi Komputer;A;dosen@kampus.ac.id</code>.
+        Email dosen = email login situs dosen pengampu/koordinator. Kelas yang sudah ada (TA, semester, kode MK, kelas sama) diperbarui.</p>
+      <p><input type="file" id="csv_berkas" accept=".csv,text/csv"> atau tempel:</p>
+      <textarea id="csv_teks" placeholder="tahun_akademik;semester;kode_mk;nama_mk;kelas;email_dosen"></textarea>
+      <p><button class="b" id="csv_periksa">Periksa</button> <button class="b utama" id="csv_simpan" disabled>Simpan</button> <span class="msg" id="csv_msg"></span></p></div>
+    <div class="kartu"><h2>Pengingat ke dosen yang belum mengunggah (${belum.length})</h2>
+      ${belum.length ? `<div>${belum.map((p, i) => `<label style="display:block;font-size:13.5px"><input type="checkbox" data-pg="${i}" checked>
+          ${esc(p.nama)} &lt;${esc(p.email)}&gt;<br><span class="ket" style="white-space:pre-line">${esc(p.rinci)}</span></label>`).join('')}</div>
+        <p><label class="ket">Subjek<input type="text" id="pg_subjek" style="width:100%" value="Pengingat unggah berkas nilai CPL"></label></p>
+        <p><label class="ket">Isi (<code>{nama}</code> dan <code>{rinci}</code> diganti per penerima)<textarea id="pg_isi">Yth. {nama},\n\nMohon mengunggah berkas nilai CPL (Template_Input_Data_CPL.xlsx) untuk kelas berikut:\n{rinci}\n\nUnggah di situs kinerja prodi:\n${location.href.split('?')[0]}\n\nTerima kasih.</textarea></label></p>
+        <p><button class="b utama" id="pg_kirim">Kirim ke yang dicentang</button> <span class="msg" id="pg_msg"></span></p>`
+      : '<p class="ket">Semua kelas periode ini sudah mengunggah.</p>'}</div>`;
+}
+
+function pasangAdmin(st){
+  let siap = [];
+  const msg = (id, c, t) => { const m = $(id); m.className = 'msg ' + c; m.textContent = t; };
+  $('csv_berkas').onchange = async e => { const f = e.target.files[0]; if (f) $('csv_teks').value = await f.text(); };
+  $('csv_periksa').onclick = () => {
+    const { rows, galat } = bacaCSVKelas($('csv_teks').value);
+    siap = rows; $('csv_simpan').disabled = !rows.length;
+    msg('csv_msg', galat.length ? 'buruk' : 'ok', `${rows.length} kelas siap disimpan.${galat.length ? '\n' + galat.join('\n') : ''}`);
+  };
+  $('csv_simpan').onclick = async () => {
+    $('csv_simpan').disabled = true;
+    const { error } = await sb.from('cpl_kelas').upsert(siap.map(r => ({ ...r, oleh: SAYA.email })), { onConflict: 'tahun_akademik,semester,kode_mk,kelas' });
+    if (error) { msg('csv_msg', 'buruk', 'Gagal: ' + error.message); $('csv_simpan').disabled = false; return; }
+    const p = `${siap[0].tahun_akademik}|${siap[0].semester}`;
+    await muat(); PILIH = p; gambar();
+    msg('csv_msg', 'ok', `${siap.length} kelas tersimpan.`);
+  };
+  document.querySelectorAll('[data-hapus-kelas]').forEach(b => b.onclick = async () => {
+    const k = KELAS.find(x => x.id === +b.dataset.hapusKelas), n = BERKAS.filter(x => x.kelas_id === k.id).length;
+    if (!confirm(`Hapus kelas ${k.kode_mk} ${k.kelas} dari daftar${n ? ` beserta ${n} catatan unggahannya (berkas di Drive tetap ada)` : ''}?`)) return;
+    const { error } = await sb.from('cpl_kelas').delete().eq('id', k.id);
+    if (error) alert('Gagal: ' + error.message); else { await muat(); gambar(); }
+  });
+  if ($('pg_kirim')) $('pg_kirim').onclick = async () => {
+    const belum = penerimaBelumUnggah(st, DOSEN), pilih = [...document.querySelectorAll('[data-pg]:checked')].map(c => belum[+c.dataset.pg]);
+    if (!pilih.length) return msg('pg_msg', 'buruk', 'Belum ada yang dicentang.');
+    if (pilih.length > 30) return msg('pg_msg', 'buruk', 'Paling banyak 30 sekali kirim.');
+    if (!confirm(`Kirim ${pilih.length} email dari akun Google prodi?`)) return;
+    msg('pg_msg', '', 'Mengirim…');
+    try {
+      const { data: { session } } = await sb.auth.getSession();
+      const prodi = await fetch('data.json?v=' + Date.now()).then(r => r.ok ? r.json() : {}).catch(() => ({}));
+      const pengirim = [prodi.prodi, prodi.institusi].filter(Boolean).join(' ') || 'Program Studi';
+      const pola = $('pg_isi').value + `\n${pengirim}`;
+      const res = await fetch(window.UPLOAD_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ token: session.access_token, kind: 'kirim_pengingat', pengirim,
+          pesan: pilih.map(p => ({ ke: p.email, subjek: $('pg_subjek').value.trim(), isi: pola.replaceAll('{nama}', p.nama).replaceAll('{rinci}', p.rinci) })) }) });
+      const out = await res.json();
+      if (!out.ok) throw new Error(out.error || 'Gagal mengirim.');
+      msg('pg_msg', out.gagal?.length ? 'buruk' : 'ok', `${out.terkirim} terkirim${out.gagal?.length ? `; gagal: ${out.gagal.join('; ')}` : ''}. Sisa kuota hari ini: ${out.sisa}.`);
+    } catch (e) { msg('pg_msg', 'buruk', e.message || String(e)); }
+  };
+}
+
+async function mulai(){
+  SAYA = await gerbang(sb);
+  if (!SAYA) return;
+  ADMIN = SAYA.peran === 'admin';
+  $('hSub').textContent = `Masuk sebagai ${SAYA.nama}`;
+  await muat();
+  gambar();
+}
+mulai().catch(e => { $('isi').innerHTML = `<p class="kosong">Gagal memuat: ${esc(e.message)}</p>`; });
+</script>
+</body>
+</html>
