@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-11-90203f">
-<link rel="stylesheet" href="kepala.css?v=2026-11-11-90203f">
+<link rel="stylesheet" href="tema.css?v=2026-11-11-105192">
+<link rel="stylesheet" href="kepala.css?v=2026-11-11-105192">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
@@ -20,7 +20,15 @@
   .ringkas b{font-size:18px;color:var(--biru)}
   .bar{flex:1;min-width:160px;height:10px;background:var(--line-soft);border-radius:5px;overflow:hidden}
   .bar i{display:block;height:100%;background:var(--aksi)}
-  .ringkas label{font-size:14px;cursor:pointer}
+  .ringkas label{font-size:14px;cursor:pointer}"
+  /* Tugas per pihak (pemilik 2026-11-11) */
+  .pihak-tab{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 12px}
+  .pihak-tab button{font:inherit;font-size:13px;padding:5px 10px;border:1px solid var(--line);background:var(--panel);cursor:pointer}
+  .pihak-tab button[aria-pressed="true"]{background:var(--biru);color:#fff;border-color:var(--biru)}
+  ol.tugas{padding-left:20px;font-size:14px}
+  ol.tugas li{margin:4px 0}
+  @media print{ body.cetak-tugas > *:not(main), body.cetak-tugas #isi > *:not(#tugas),
+    body.cetak-tugas .pihak-tab, body.cetak-tugas #cetak-tugas{display:none !important} }
   section.bag{background:var(--panel);border:1px solid var(--line);margin-bottom:12px;padding:6px 18px 10px}
   section.bag h2{font-size:16px;color:var(--biru);margin:8px 0 6px;display:flex;justify-content:space-between;gap:10px}
   section.bag h2 small{font-weight:400;font-size:13px;color:var(--muted);white-space:nowrap}
@@ -46,7 +54,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-11-90203f"></script>
+<script src="config.js?v=2026-11-11-105192"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -63,10 +71,11 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { gerbang, bolehBuka } from './menu.js?v=2026-11-11-90203f';
-import { ambilDaftarLKPS } from './data-lkps.js?v=2026-11-11-90203f';
-import { bagianNarasi, ambilNarasi, ambilPenugasan } from './led-narasi.js?v=2026-11-11-90203f';
-import { TAB_DATA, konteksNarasi, rekapKelengkapan } from './kelengkapan.js?v=2026-11-11-90203f';
+import { gerbang, bolehBuka } from './menu.js?v=2026-11-11-105192';
+import { ambilDaftarLKPS } from './data-lkps.js?v=2026-11-11-105192';
+import { bagianNarasi, ambilNarasi, ambilPenugasan } from './led-narasi.js?v=2026-11-11-105192';
+import { TAB_DATA, konteksNarasi, rekapKelengkapan, tugasPerPihak } from './kelengkapan.js?v=2026-11-11-105192';
+import { PIHAK } from './unsur-butir.js?v=2026-11-11-105192';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g,
   c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -109,6 +118,29 @@ async function mulai(){
       <small>${g.butir.filter(b => b.status === 'selesai').length} dari ${g.butir.length}</small></h2>
       ${g.butir.map(b => htmlItem(b, saya)).join('')}</section>`).join('')}</div>`;
   $('hanya').onchange = e => $('daftar').classList.toggle('hanya-belum', e.target.checked);
+  // Tugas per pihak: unsur penilaian yang belum berbukti, per penanggung jawab.
+  const tugasPihak = tugasPerPihak(butirBukti);
+  let pihak = Object.keys(PIHAK).find(k => tugasPihak[k].length) || 'P';
+  const gambarTugas = () => {
+    const xs = tugasPihak[pihak];
+    $('tugas-isi').innerHTML = `<p class="kosong">${esc(PIHAK[pihak])}: ${xs.length} unsur belum berbukti
+        (per ${new Date().toLocaleDateString('id-ID')}).</p>
+      ${xs.length ? `<ol class="tugas">${xs.map(x => `<li><b>Butir ${x.no} unsur ${x.n}</b>: ${esc(x.label)}</li>`).join('')}</ol>`
+        : '<p class="kosong">Semua unsur untuk pihak ini sudah berbukti.</p>'}`;
+    document.querySelectorAll('[data-pihak]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.pihak === pihak)));
+  };
+  $('isi').insertAdjacentHTML('beforeend', `<section class="bag" id="tugas"><h2>Tugas per pihak
+      <small>unsur penilaian yang belum ada buktinya</small></h2>
+    <div class="pihak-tab">${Object.entries(PIHAK).map(([k, l]) =>
+      `<button type="button" data-pihak="${k}">${esc(l)} (${tugasPihak[k].length})</button>`).join('')}
+      <button type="button" id="cetak-tugas">Cetak daftar ini</button></div>
+    <div id="tugas-isi"></div>
+    <p class="kosong">Bukti diunggah per unsur di kartu butir (halaman Skor atau Isi butir). Butir 20, 22, 24 diisi di Data prodi;
+      butir 15 unsur 1 dan 4 dihitung dari RPS mata kuliah.</p></section>`);
+  document.querySelectorAll('[data-pihak]').forEach(b => { b.onclick = () => { pihak = b.dataset.pihak; gambarTugas(); }; });
+  $('cetak-tugas').onclick = () => { document.body.classList.add('cetak-tugas'); window.print();
+    document.body.classList.remove('cetak-tugas'); };
+  gambarTugas();
 }
 
 mulai().catch(e => { $('isi').innerHTML = `<p class="kosong">Gagal memuat: ${esc(e.message)}</p>`; });

@@ -2,13 +2,13 @@
 // kelengkapan.html mengambil data, modul ini menghitung. Aturan terisi sama
 // dengan halaman sumbernya: kotak narasi seperti narasi-led.html, bukti butir
 // seperti rekap bukti di skor.html.
-import { BUTIR_MANUAL } from './butir-manual.js?v=2026-11-11-90203f';
-import { UNSUR_BUTIR, pihakUnsur } from './unsur-butir.js?v=2026-11-11-90203f';
-import { BUTIR_DATA } from './butir-data.js?v=2026-11-11-90203f';
-import { faktaNarasi, anggotaTim } from './led-isi.js?v=2026-11-11-90203f';
-import { pisahKalimat } from './led-narasi.js?v=2026-11-11-90203f';
-import { masihKerangka } from './led-saran.js?v=2026-11-11-90203f';
-import { JENIS_DOKUMEN, buktiButir } from './rencana-bukti.js?v=2026-11-11-90203f';
+import { BUTIR_MANUAL } from './butir-manual.js?v=2026-11-11-105192';
+import { UNSUR_BUTIR, pihakUnsur, PIHAK, PJ_UNSUR } from './unsur-butir.js?v=2026-11-11-105192';
+import { BUTIR_DATA } from './butir-data.js?v=2026-11-11-105192';
+import { faktaNarasi, anggotaTim } from './led-isi.js?v=2026-11-11-105192';
+import { pisahKalimat } from './led-narasi.js?v=2026-11-11-105192';
+import { masihKerangka } from './led-saran.js?v=2026-11-11-105192';
+import { JENIS_DOKUMEN, buktiButir } from './rencana-bukti.js?v=2026-11-11-105192';
 
 // Tab Data prodi: [id tab, tabel, judul, butir]; sama dengan TABEL di data-prodi.html.
 export const TAB_DATA = [
@@ -34,6 +34,22 @@ export function konteksNarasi(D, daftar){
     judulButir: Object.fromEntries([...BUTIR_DATA, ...BUTIR_MANUAL].map(b => [String(b.no), b.judul])) };
   C.P = { ps: `Program Studi ${D.prodi || ''}`, pt: D.institusi || '', ...faktaNarasi(C) };
   return C;
+}
+
+// Tugas per pihak (pemilik 2026-11-11): unsur penilaian yang belum berbukti,
+// dikelompokkan per penanggung jawab (PJ_UNSUR). Unsur dengan dua pihak muncul
+// di keduanya. Butir 15 unsur 1 dan 4 dihitung dari RPS mata kuliah, jadi tidak
+// masuk daftar unggah.
+export function tugasPerPihak(butirBukti){
+  const ada = new Set((butirBukti || []).filter(b => b.unsur).map(b => `${b.butir}|${b.unsur}`));
+  const per = Object.fromEntries(Object.keys(PIHAK).map(k => [k, []]));
+  for (const [no, d] of Object.entries(UNSUR_BUTIR))
+    for (const [n, label] of Object.entries(d.unsur)) {
+      if (ada.has(`${no}|${n}`) || (no === '15' && ['1', '4'].includes(n))) continue;
+      for (const k of (PJ_UNSUR[no]?.[+n] || [])) per[k].push({ no: +no, n: +n, label });
+    }
+  Object.values(per).forEach(xs => xs.sort((a, b) => a.no - b.no || a.n - b.n));
+  return per;
 }
 
 export const statusButir = (ada, n) => ada >= n ? 'selesai' : ada > 0 ? 'sebagian' : 'belum';

@@ -1,7 +1,7 @@
 // Menu bersama ruang kerja (pemilik 2026-11-04).
 //
 // Situs dibagi dua:
-// - tampilan umum, tanpa login: index.html (rekap), dosen.html, mitra.html;
+// - tampilan umum, tanpa login: index.html (rekap), dosen.html, mitra.html, sdgs.html;
 // - ruang kerja, khusus email terdaftar di tabel `dosen`: modul di MODUL.
 //
 // Akses (pemilik 2026-11-04): semua email terdaftar membuka Monitoring dan
@@ -36,6 +36,8 @@ export const MODUL = [
       ket: 'Rekap per tahun atau TS, per dosen, dan syarat unggul.' },
     { href: 'grafik.html', judul: 'Grafik',
       ket: 'Grafik siap pakai untuk laporan dan LED.' },
+    { href: 'sdgs.html', judul: 'Rekap SDGs',
+      ket: 'Karya dosen per Tujuan Pembangunan Berkelanjutan (SDGs); halaman publik.' },
   ]},
   { judul: 'Akreditasi', ket: 'Skor LAM, bukti, dan draf LED.', halaman: [
     { href: 'skor.html', judul: 'Skor & LED',

@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rekap SDGs — Kinerja Program Studi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tema.css?v=2026-11-11-105192">
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
+       font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:900px;margin:0 auto;padding:0 20px 90px}
+  a{color:var(--biru-2)}
+
+  .hero{position:relative;background:var(--biru);color:#fff;overflow:hidden;
+        border-bottom:4px solid var(--merah)}
+  .hero::before{content:'';position:absolute;inset:0;opacity:.13;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='70' viewBox='0 0 140 70'%3E%3Cg fill='none' stroke='%23ffffff' stroke-width='1'%3E%3Cpath d='M0 69.5H140M0 .5H140'/%3E%3Cpath d='M0 70L35 0L70 70L105 0L140 70'/%3E%3Cpath d='M35 0V70M105 0V70'/%3E%3C/g%3E%3C/svg%3E");
+    background-size:140px 70px}
+  .hero-in{position:relative;max-width:900px;margin:0 auto;padding:30px 20px 0}
+  .balik{display:inline-flex;gap:7px;align-items:center;text-decoration:none;
+         font-family:var(--mono);font-size:11px;letter-spacing:.1em;
+         text-transform:uppercase;color:var(--biru-m2);margin-bottom:20px}
+  .balik:hover{color:#fff}
+  h1{font-family:var(--serif);font-size:clamp(24px,4.2vw,34px);font-weight:600;
+     letter-spacing:-.018em;margin:0;line-height:1.14;color:#fff}
+  .prodi{color:var(--biru-m4);font-size:14.5px;margin-top:7px}
+  .tautan{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+  .tautan a{font-family:var(--mono);font-size:11px;letter-spacing:.06em;
+    text-transform:uppercase;text-decoration:none;color:#fff;
+    border:1px solid rgba(255,255,255,.35);padding:5px 11px;border-radius:2px}
+  .tautan a:hover{background:rgba(255,255,255,.12)}
+
+  .angka{display:flex;flex-wrap:wrap;margin-top:28px;
+         border-top:1px solid rgba(255,255,255,.18)}
+  .angka div{flex:1 1 130px;padding:16px 18px 18px;
+             border-right:1px solid rgba(255,255,255,.12)}
+  .angka div:last-child{border-right:0}
+  .angka b{display:block;font-family:var(--mono);font-size:28px;font-weight:400;
+           line-height:1;color:#fff}
+  .angka span{font-family:var(--mono);font-size:10px;letter-spacing:.12em;
+              text-transform:uppercase;color:var(--biru-m2);display:block;margin-top:8px}
+
+  h2{font-family:var(--serif);font-size:19px;font-weight:600;margin:36px 0 0;
+     color:var(--biru)}
+  .list{background:var(--panel);border:1px solid var(--line);border-radius:2px;
+        padding:4px 22px;margin-top:12px}
+  .e{display:flex;gap:16px;padding:15px 0;border-top:1px solid var(--line-soft)}
+  .e:first-child{border-top:0}
+  .thn{font-family:var(--mono);font-size:13px;color:var(--muted);flex:none;width:42px;padding-top:1px}
+  .e-b{flex:1;min-width:0}
+  .e-j{font-weight:500;line-height:1.4}
+  .e-m{font-size:13px;color:var(--muted);margin-top:3px}
+  .e-p{font-family:var(--mono);font-size:11.5px;color:var(--muted);margin-top:5px}
+  .e-p a{color:var(--muted)}
+  .pill{font-family:var(--mono);font-size:9.5px;letter-spacing:.09em;text-transform:uppercase;
+        padding:3px 8px;border-radius:2px;background:var(--biru-m8);color:var(--biru);
+        white-space:nowrap;align-self:flex-start;margin-top:2px}
+  .pill.pkm{background:#E6F3EC;color:var(--hijau)}
+  .peran{display:inline-block;font-family:var(--mono);font-size:9.5px;
+    letter-spacing:.08em;text-transform:uppercase;padding:2px 6px;border-radius:2px;
+    background:var(--merah);color:#fff;margin-left:7px;vertical-align:1px}
+  .peran.kor{background:var(--biru-2)}
+  .kosong{color:var(--muted);font-size:13.5px;padding:20px 0}
+
+  table{width:100%;border-collapse:collapse;font-size:13.5px}
+  th{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+     color:var(--muted);text-align:left;font-weight:400;padding:12px 10px 10px 0;
+     border-bottom:1px solid var(--line)}
+  td{padding:10px 10px 10px 0;border-bottom:1px solid var(--line-soft)}
+  td.num,th.num{text-align:right;font-family:var(--mono);padding-right:0}
+
+  footer{margin-top:50px;padding-top:20px;border-top:3px solid var(--biru);
+         font-size:12.5px;color:var(--muted)}
+</style>
+<style>
+  /* Rekap SDGs (pemilik 2026-11-11) */
+  .saring{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:22px 0 10px;font-size:13.5px}
+  .saring select{font:inherit;padding:5px 8px}
+  .sdg-kisi{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin:12px 0 24px}
+  .sdg{background:var(--panel);border:1px solid var(--line);border-left:6px solid var(--w);border-radius:2px;
+    padding:10px 12px;cursor:pointer;text-align:left;font:inherit;color:inherit}
+  .sdg[aria-pressed="true"]{box-shadow:0 0 0 2px var(--w)}
+  .sdg .no{font-family:var(--mono);font-size:11px;color:var(--muted)}
+  .sdg .nm{font-weight:600;font-size:13.5px;line-height:1.3;margin:2px 0 6px}
+  .sdg .n{font-family:var(--mono);font-size:22px}
+  .sdg .rinci{font-size:11.5px;color:var(--muted)}
+  .sdg.nol{opacity:.55}
+  ol.daftar{padding-left:20px;font-size:14px}
+  ol.daftar li{margin:6px 0}
+  .ket{color:var(--muted);font-size:13px}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-in">
+    <a class="balik" href="index.html">&larr; Kembali ke dashboard</a>
+    <h1>Rekap SDGs</h1>
+    <div class="prodi" id="hProdi"></div>
+    <div class="angka" id="angka"></div>
+  </div>
+</header>
+
+<main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
+
+<script>
+// Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
+// halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
+addEventListener('error', function (e) {
+  if (document.getElementById('galat-muat')) return;
+  var d = document.createElement('div');
+  d.id = 'galat-muat';
+  d.style.cssText = 'margin:16px;padding:12px 14px;border:1px solid var(--merah);' +
+    'background:var(--merah-m3);color:var(--ink);font:14px/1.5 system-ui,sans-serif';
+  d.textContent = 'Halaman gagal dimuat: ' + (e.message || 'galat skrip') +
+    '. Tekan Ctrl+Shift+R untuk memuat ulang tanpa cache; bila tetap muncul, kirim pesan ini ke admin.';
+  document.body.insertBefore(d, document.body.firstChild);
+});
+</script>
+<script type="module">
+// Rekap karya per Tujuan Pembangunan Berkelanjutan (SDGs). SDG dipilih dosen
+// pada isian karya (47-patch-sdgs.sql); data dari data.json publik.
+import { SDGS } from './form-karya.js?v=2026-11-11-105192';
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+// Warna resmi SDG 1-17 (panduan visual PBB).
+const WARNA = ['#E5243B','#DDA63A','#4C9F38','#C5192D','#FF3A21','#26BDE2','#FCC30B','#A21942','#FD6925',
+  '#DD1367','#FD9D24','#BF8B2E','#3F7E44','#0A97D9','#56C02B','#00689D','#19486A'];
+const KAT = { publikasi: 'Publikasi', penelitian: 'Penelitian', pkm: 'PkM', luaran: 'Luaran' };
+let D = null, PILIH = null;
+
+function karya(){
+  const xs = [];
+  (D.publikasi || []).forEach(k => xs.push({ kat: 'publikasi', judul: k.judul, tahun: k.tahun, ts: k.tahun_ts,
+    sdgs: k.sdgs || [], siapa: (k.penulis || []).map(a => a.nama).join(', ') }));
+  (D.kegiatan || []).forEach(k => xs.push({ kat: k.kategori, judul: k.judul, tahun: k.tahun, ts: k.tahun_ts,
+    sdgs: k.sdgs || [], siapa: (k.penulis || []).map(a => a.nama).join(', ') }));
+  (D.luaran_dosen || []).forEach(k => xs.push({ kat: 'luaran', judul: k.judul, tahun: k.tahun, ts: k.tahun_ts,
+    sdgs: k.sdgs || [], siapa: (k.dosen || []).join(', ') }));
+  return xs;
+}
+
+function gambar(){
+  const jendela = document.getElementById('jendela')?.value || 'semua';
+  const tsMaks = Math.max(0, ...karya().map(k => +k.ts || 0));
+  const xs = karya().filter(k => jendela === 'semua' || (+k.ts >= tsMaks - 2));
+  const ber = xs.filter(k => k.sdgs.length);
+  document.getElementById('angka').textContent =
+    `${ber.length} dari ${xs.length} karya terkait SDGs · ${new Set(ber.flatMap(k => k.sdgs)).size} dari 17 SDG tersentuh`;
+  const kotak = SDGS.map(([n, nama]) => {
+    const ys = xs.filter(k => k.sdgs.includes(n));
+    const rinci = Object.entries(KAT).map(([k, l]) => [l, ys.filter(y => y.kat === k).length]).filter(([, c]) => c)
+      .map(([l, c]) => `${l} ${c}`).join(' · ');
+    return `<button type="button" class="sdg${ys.length ? '' : ' nol'}" data-sdg="${n}" style="--w:${WARNA[n - 1]}"
+      aria-pressed="${PILIH === n}"><div class="no">SDG ${n}</div><div class="nm">${esc(nama)}</div>
+      <div class="n">${ys.length}</div><div class="rinci">${rinci || 'belum ada karya'}</div></button>`;
+  }).join('');
+  const daftar = PILIH ? (() => {
+    const ys = xs.filter(k => k.sdgs.includes(PILIH)).sort((a, b) => (b.tahun || 0) - (a.tahun || 0));
+    const nama = (SDGS.find(([n]) => n === PILIH) || [, ''])[1];
+    return `<h2>SDG ${PILIH}: ${esc(nama)} (${ys.length})</h2>${ys.length ? `<ol class="daftar">${ys.map(k =>
+      `<li><b>${esc(k.judul)}</b> <span class="ket">· ${KAT[k.kat] || k.kat} ${k.tahun || ''}${k.siapa ? ' · ' + esc(k.siapa) : ''}</span></li>`).join('')}</ol>`
+      : '<p class="kosong">Belum ada karya untuk SDG ini.</p>'}`;
+  })() : '<p class="ket">Klik salah satu SDG untuk melihat daftar karyanya.</p>';
+  document.getElementById('isi').innerHTML = `
+    <div class="saring"><label>Jendela waktu <select id="jendela">
+      <option value="semua"${jendela === 'semua' ? ' selected' : ''}>Semua tahun</option>
+      <option value="3ts"${jendela === '3ts' ? ' selected' : ''}>3 TS terakhir</option></select></label>
+      <span class="ket">SDG dipilih dosen saat mengisi karya; satu karya bisa mendukung beberapa SDG.</span></div>
+    <div class="sdg-kisi">${kotak}</div>${daftar}
+    <footer>Diperbarui ${esc(D.diperbarui || '')} · Data dari karya terverifikasi (publikasi, penelitian, PkM, luaran).</footer>`;
+  document.getElementById('jendela').onchange = gambar;
+  document.querySelectorAll('[data-sdg]').forEach(b => { b.onclick = () => { PILIH = PILIH === +b.dataset.sdg ? null : +b.dataset.sdg; gambar(); }; });
+}
+
+fetch('data.json?v=' + Date.now())
+  .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
+  .then(d => { D = d; document.getElementById('hProdi').textContent = [d.prodi, d.institusi].filter(Boolean).join(' · '); gambar(); })
+  .catch(() => { document.getElementById('isi').innerHTML = '<p class="kosong">Data belum tersedia. Hubungi admin prodi.</p>'; });
+</script>
+</body>
+</html>

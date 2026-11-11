@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-11-90203f">
+<link rel="stylesheet" href="tema.css?v=2026-11-11-105192">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
@@ -84,7 +84,7 @@
   .masuk{max-width:420px;margin:40px auto;background:#fff;border:1px solid var(--line);padding:20px}
   .masuk input{width:100%;padding:8px 10px;margin:8px 0;font:inherit}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-11-90203f">
+<link rel="stylesheet" href="kepala.css?v=2026-11-11-105192">
 </head>
 <body>
 
@@ -98,7 +98,7 @@
 
 <main class="wrap" id="isi"></main>
 
-<script src="config.js?v=2026-11-11-90203f"></script>
+<script src="config.js?v=2026-11-11-105192"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -115,18 +115,18 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-11-90203f';
-import { pasangMenu } from './menu.js?v=2026-11-11-90203f';
-import { unggahKePustaka, opsiPustaka, opsiJenis, labelDokumen, cariDokumen } from './pustaka-dokumen.js?v=2026-11-11-90203f';
-import { pasangRapikan } from './rapikan-berkas.js?v=2026-11-11-90203f';
-import { UNSUR, skorUnsur, pihakUnsur } from './unsur-butir.js?v=2026-11-11-90203f';
-import { htmlContoh, pasangContoh, JENIS_BUKTI_KS } from './manfaat-kerjasama.js?v=2026-11-11-90203f';
-import { infoJenis } from './rencana-bukti.js?v=2026-11-11-90203f';
-import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-11-90203f';
-import { nomorButir, htmlTautanButir } from './tautan-butir.js?v=2026-11-11-90203f';
-import { htmlSaran } from './saran-bukti.js?v=2026-11-11-90203f';
-import { tautanBerkas, privatkanLama } from './tautan-privat.js?v=2026-11-11-90203f';
-import { unggahLKD, buangLKD, bukaLKD, pendidikanTotal, pendidikanPS } from './bkd.js?v=2026-11-11-90203f';
+import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-11-105192';
+import { pasangMenu } from './menu.js?v=2026-11-11-105192';
+import { unggahKePustaka, opsiPustaka, opsiJenis, labelDokumen, cariDokumen } from './pustaka-dokumen.js?v=2026-11-11-105192';
+import { pasangRapikan } from './rapikan-berkas.js?v=2026-11-11-105192';
+import { UNSUR, skorUnsur, pihakUnsur } from './unsur-butir.js?v=2026-11-11-105192';
+import { htmlContoh, pasangContoh, JENIS_BUKTI_KS } from './manfaat-kerjasama.js?v=2026-11-11-105192';
+import { infoJenis } from './rencana-bukti.js?v=2026-11-11-105192';
+import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-11-105192';
+import { nomorButir, htmlTautanButir } from './tautan-butir.js?v=2026-11-11-105192';
+import { htmlSaran } from './saran-bukti.js?v=2026-11-11-105192';
+import { tautanBerkas, privatkanLama } from './tautan-privat.js?v=2026-11-11-105192';
+import { unggahLKD, buangLKD, bukaLKD, pendidikanTotal, pendidikanPS } from './bkd.js?v=2026-11-11-105192';
 
 /* =====================================================================
    DATA PRODI — data kuantitatif LKPS diisi admin di situs (keputusan
@@ -790,6 +790,137 @@ function gambarCapaianIKU(ts){
 }
 
 // ---------------------------------------------------------------------
+//  Impor CSV IKU/IKT (pemilik 2026-11-11). Baris dicocokkan menurut jenis +
+//  nama indikator + tahun TS: yang sudah ada diperbarui hanya pada sel yang
+//  terisi, yang belum ada ditambahkan.
+// ---------------------------------------------------------------------
+const KOLOM_CSV_IKU = [
+  ['jenis', 'iku atau ikt'],
+  ['bidang', 'pendidikan, penelitian, pkm, tata_kelola, atau lainnya'],
+  ['nama', 'nama indikator; tulis persis sama setiap tahun supaya tren antar-TS terbaca'],
+  ['butir', 'nomor butir matriks (1–60) yang diukur indikator ini; boleh kosong'],
+  ['tahun_ts', 'tahun akhir TS, mis. 2026 untuk 2025/2026'],
+  ['satuan', 'mis. %, judul, orang, tahun, kegiatan'],
+  ['arah', 'minimal (capaian harus ≥ target) atau maksimal (capaian harus ≤ target, mis. masa studi)'],
+  ['target', 'angka target; desimal boleh koma'],
+  ['capaian', 'angka capaian; kosongkan bila belum ada'],
+  ['tujuan_strategis', 'khusus IKT: tujuan strategis/renstra yang didukung'],
+  ['dampak', 'khusus IKT: dampak positif dan terukurnya'],
+  ['daya_saing', 'khusus IKT: bukti daya saing internasional'],
+  ['analisis', 'khusus IKT: hasil analisis capaian untuk perbaikan'],
+  ['urutan', 'urutan tampil (angka kecil di atas)']];
+const CONTOH_CSV_IKU = [
+  ['iku', 'pendidikan', 'Lulusan bekerja, studi lanjut, atau berwirausaha dalam 6 bulan', '49', '2026', '%', 'minimal', '70', '75', '', '', '', '', '1'],
+  ['iku', 'penelitian', 'Publikasi bereputasi per DTPS', '33', '2026', 'judul per dosen', 'minimal', '1', '0,5', '', '', '', '', '2'],
+  ['iku', 'pendidikan', 'Rata-rata masa studi lulusan', '44', '2026', 'tahun', 'maksimal', '4,5', '4,8', '', '', '', '', '3'],
+  ['ikt', 'pkm', 'PkM yang mendukung SDGs', '54', '2026', 'kegiatan', 'minimal', '5', '', 'Renstra prodi sasaran 3: PkM berdampak',
+   'Jumlah desa mitra yang memakai hasil PkM', 'Kolaborasi dengan mitra luar negeri', '', '1']];
+const BIDANG_IKU = ['pendidikan', 'penelitian', 'pkm', 'tata_kelola', 'lainnya'];
+const kunciIKU = r => `${r.jenis}|${String(r.nama || '').trim().toLowerCase()}|${r.tahun_ts}`;
+function barisIKU(kepala, sel){
+  const ambil = k => { const i = kepala.indexOf(k); return i < 0 ? '' : String(sel[i] ?? '').trim(); };
+  const isi = {}, galat = [];
+  const jenis = ambil('jenis').toLowerCase();
+  if (jenis === 'iku' || jenis === 'ikt') isi.jenis = jenis; else galat.push('jenis: iku/ikt');
+  const nama = ambil('nama');
+  if (nama) isi.nama = nama; else galat.push('nama kosong');
+  const ts = ambil('tahun_ts');
+  if (/^\d{4}$/.test(ts) && +ts >= 2000 && +ts <= 2100) isi.tahun_ts = +ts; else galat.push('tahun_ts: 4 angka, mis. 2026');
+  const bidang = ambil('bidang').toLowerCase().replace(/\s+/g, '_');
+  if (bidang) { if (BIDANG_IKU.includes(bidang)) isi.bidang = bidang; else galat.push('bidang: ' + BIDANG_IKU.join('/')); }
+  const arah = ambil('arah').toLowerCase();
+  if (arah) { if (/^min/.test(arah)) isi.arah = 'minimal'; else if (/^maks|^max/.test(arah)) isi.arah = 'maksimal'; else galat.push('arah: minimal/maksimal'); }
+  for (const k of ['butir', 'target', 'capaian', 'urutan']) {
+    const v = ambil(k).replace(',', '.');
+    if (v === '') continue;
+    if (!Number.isFinite(+v)) { galat.push(`${k} bukan angka`); continue; }
+    isi[k] = ['butir', 'urutan'].includes(k) ? Math.round(+v) : +v;
+  }
+  if (isi.butir != null && (isi.butir < 1 || isi.butir > 60)) galat.push('butir 1–60');
+  for (const k of ['satuan', 'tujuan_strategis', 'dampak', 'daya_saing', 'analisis']) { const v = ambil(k); if (v) isi[k] = v; }
+  return { isi, galat };
+}
+let IMPOR_IKU = null;
+function gambarImporIKU(){
+  const box = $('impor-iku');
+  if (!box) return;
+  box.innerHTML = `<details class="massal"><summary><b>Impor CSV IKU/IKT</b> (banyak indikator sekaligus)</summary>
+    <p class="ket">Satu baris = satu indikator untuk satu TS. Baris dengan jenis, nama, dan tahun_ts yang sama dengan baris
+      yang sudah ada akan memperbarui baris itu (hanya sel yang terisi); selain itu ditambahkan. Pemisah titik koma atau koma.</p>
+    <div class="gulir"><table class="t"><thead><tr><th>Kolom</th><th>Maksud</th></tr></thead><tbody>${
+      KOLOM_CSV_IKU.map(([k, m]) => `<tr><td><code>${k}</code>${['jenis', 'nama', 'tahun_ts'].includes(k) ? ' *' : ''}</td><td>${esc(m)}</td></tr>`).join('')
+    }</tbody></table></div>
+    <div class="unggah-baris"><button type="button" class="btn ghost kecil" id="iku_templat">Unduh templat CSV (dengan contoh)</button>
+      <input type="file" id="iku_csv" accept=".csv,text/csv"></div>
+    <div id="iku_pratinjau"></div></details>`;
+  $('iku_templat').onclick = () => {
+    const teks = String.fromCharCode(0xFEFF) + [KOLOM_CSV_IKU.map(([k]) => k), ...CONTOH_CSV_IKU]
+      .map(r => r.map(v => /[;"\n]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v).join(';')).join(String.fromCharCode(13, 10)) + String.fromCharCode(13, 10);
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([teks], { type: 'text/csv;charset=utf-8' }));
+    a.download = 'templat-iku-ikt.csv';
+    a.click();
+  };
+  $('iku_csv').onchange = async e => {
+    const f = e.target.files[0];
+    if (f) pratinjauImporIKU(await f.text());
+  };
+}
+function pratinjauImporIKU(teks){
+  const rows = bacaCSV(teks);
+  const kepala = (rows[0] || []).map(s => s.trim().toLowerCase());
+  const pv = $('iku_pratinjau');
+  if (!['jenis', 'nama', 'tahun_ts'].every(k => kepala.includes(k))) {
+    IMPOR_IKU = null;
+    pv.innerHTML = '<p class="msg buruk">Baris pertama harus judul kolom dan memuat <code>jenis</code>, <code>nama</code>, <code>tahun_ts</code>.</p>';
+    return;
+  }
+  const lama = new Map(BARIS.map(r => [kunciIKU(r), r]));
+  const dilihat = new Set();
+  const hasil = rows.slice(1).map((sel, i) => {
+    const r = barisIKU(kepala, sel), k = kunciIKU(r.isi);
+    if (!r.galat.length && dilihat.has(k)) r.galat.push('indikator ganda di CSV');
+    dilihat.add(k);
+    return { ...r, baris: i + 2, id: lama.get(k)?.id || null };
+  });
+  const sah = hasil.filter(r => !r.galat.length), salah = hasil.filter(r => r.galat.length);
+  IMPOR_IKU = sah;
+  pv.innerHTML = `<p class="ket"><b>${sah.filter(r => !r.id).length}</b> indikator baru · <b>${sah.filter(r => r.id).length}</b>
+      diperbarui · <b>${salah.length}</b> baris bermasalah (dilewati)</p>
+    ${salah.length ? `<ul class="bukti-l">${salah.map(r => `<li>Baris ${r.baris}: ${esc(r.galat.join('; '))}</li>`).join('')}</ul>` : ''}
+    <div class="aksi"><button type="button" class="btn" id="iku_simpan"${sah.length ? '' : ' disabled'}>Simpan ${sah.length} indikator</button>
+      <span class="msg" id="iku_msg"></span></div>`;
+  $('iku_simpan').onclick = simpanImporIKU;
+}
+async function simpanImporIKU(){
+  const msg = (cls, s) => { const m = $('iku_msg'); m.className = 'msg' + (cls ? ' ' + cls : ''); m.textContent = s; };
+  if (!IMPOR_IKU?.length) return;
+  $('iku_simpan').disabled = true;
+  const jejak = { oleh: SAYA.email, diperbarui: new Date().toISOString() };
+  let n = 0;
+  for (const r of IMPOR_IKU.filter(x => x.id)) {
+    const { error } = await sb.from('lkps_target_kinerja').update({ ...r.isi, ...jejak }).eq('id', r.id);
+    if (error) { $('iku_simpan').disabled = false; return msg('buruk', `Gagal setelah ${n}: ${error.message}`); }
+    n++;
+  }
+  const kel = new Map();
+  for (const r of IMPOR_IKU.filter(x => !x.id)) {
+    const isi = { arah: 'minimal', urutan: 100, ...r.isi, ...jejak };
+    const kunci = Object.keys(isi).sort().join(',');
+    if (!kel.has(kunci)) kel.set(kunci, []);
+    kel.get(kunci).push(isi);
+  }
+  for (const xs of kel.values()) {
+    const { error } = await sb.from('lkps_target_kinerja').insert(xs, { defaultToNull: false });
+    if (error) { $('iku_simpan').disabled = false; return msg('buruk', `Gagal setelah ${n}: ${error.message}`); }
+    n += xs.length;
+  }
+  IMPOR_IKU = null;
+  await muatBaris();
+  msg('ok', `${n} indikator tersimpan. Ringkasan capaian di atas sudah diperbarui.`);
+}
+
+// ---------------------------------------------------------------------
 //  Impor CSV mata kuliah (pemilik 2026-11-10): MK baru ditambahkan, MK yang
 //  kodenya sudah ada diperbarui hanya pada kolom yang terisi di CSV. RPS,
 //  bukti, dan pengampu diisi sesudahnya lewat formulir.
@@ -1070,7 +1201,7 @@ async function bukaTab(){
   if (T.khusus) return bukaPustaka();
   $('panel').innerHTML = `<p class="ket">${nomorButir(T.butir).length
     ? `<b>${htmlTautanButir(nomorButir(T.butir), null, 'Dipakai di')}.</b>` : `<b>${esc(T.butir)}.</b>`} ${esc(T.ket)}</p>${saranTab(T)}
-    ${T.id === 'kepuasan' ? '<div id="massal"></div>' : ''}${T.id === 'mk' ? '<div id="impor-mk"></div>' : ''}${T.id === 'target' ? '<div id="capaian-iku"></div>' : ''}
+    ${T.id === 'kepuasan' ? '<div id="massal"></div>' : ''}${T.id === 'mk' ? '<div id="impor-mk"></div>' : ''}${T.id === 'target' ? '<div id="capaian-iku"></div><div id="impor-iku"></div>' : ''}
     <form id="form" novalidate><div class="grid">${kolomForm(T).map(isian).join('')}
       ${T.privat ? blokLKD() : blokBukti(T)}</div>
       <div class="aksi"><button type="submit" class="btn" id="simpan">Tambah baris</button>
@@ -1233,6 +1364,7 @@ async function muatBaris(){
   if (T.id === 'kepuasan') gambarMassalKepuasan($('m_ta')?.value.trim());
   if (T.id === 'mk' && $('impor-mk') && !$('impor-mk').innerHTML) gambarImporMK();
   if (T.id === 'target') gambarCapaianIKU($('ci_ts')?.value);
+  if (T.id === 'target' && $('impor-iku') && !$('impor-iku').innerHTML) gambarImporIKU();
   // Pilihan jamak bisa bergantung pada baris tab ini (mis. MK pendukung).
   kolomForm(T).filter(c => c.t === 'jamak').forEach(c => {
     const r = SUNTING ? BARIS.find(x => x.id === SUNTING) : null;

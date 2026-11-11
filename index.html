@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-11-90203f">
+<link rel="stylesheet" href="tema.css?v=2026-11-11-105192">
 <style>
   /* =================================================================
      PALET — sesuaikan dengan pedoman identitas resmi institusi bila ada.
@@ -365,6 +365,9 @@ function render(){
     [D.kegiatan.filter(k=>k.kategori==='pkm').length,        'Pengabdian', 'daftar.html?jenis=pkm'],
     [totalPrestasi,      'Prestasi mahasiswa', 'daftar.html?jenis=prestasi'],
     [jumlahMitra(),      'Mitra kerja sama',   'mitra.html'],
+    // SDGs (pemilik 2026-11-11): karya terkait SDGs -> sdgs.html.
+    [[...D.publikasi, ...D.kegiatan, ...(D.luaran_dosen||[])].filter(k => (k.sdgs||[]).length).length,
+                         'Karya ber-SDGs',     'sdgs.html'],
   ].map(([v,l,href])=>`<a href="${href}"><b>${N(v)}</b><span>${l}</span></a>`).join('');
 
   // Beranda hanya grafik; daftarnya dibuka lewat angka rekap di atas
