@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-11-dd6efa">
-<link rel="stylesheet" href="kepala.css?v=2026-11-11-dd6efa">
+<link rel="stylesheet" href="tema.css?v=2026-11-11-327831">
+<link rel="stylesheet" href="kepala.css?v=2026-11-11-327831">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
@@ -47,7 +47,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-11-dd6efa"></script>
+<script src="config.js?v=2026-11-11-327831"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -67,11 +67,11 @@ addEventListener('error', function (e) {
 // membagikan tautan survei.html?t=<token>, menutup, dan membaca hasil.
 // Pertanyaan dikunci setelah ada responden supaya rekap tetap sah.
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { gerbang } from './menu.js?v=2026-11-11-dd6efa';
+import { gerbang } from './menu.js?v=2026-11-11-327831';
 import { KELOMPOK_SURVEI, labelKelompok, templatSurvei, cekPertanyaan, hitungDariJawaban, rekapSurvei,
   komentarSurvei, keTabel62, csvJawaban, htmlRekap, CSS_SURVEI, JENIS_PERTANYAAN, IDENTITAS, teksOpsi, bacaOpsi,
   teksSyarat, bacaSyarat, ringkasLain, htmlLain, aspekTindakLanjut, temuanDariAspek, kodeTemuanSurvei,
-  masukanKurikulum, csvKurikulum } from './survei-kepuasan.js?v=2026-11-11-dd6efa';
+  masukanKurikulum, csvKurikulum, identitasBawaan, keTabelTracer, undanganPengguna } from './survei-kepuasan.js?v=2026-11-11-327831';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
@@ -172,14 +172,16 @@ function gambarForm(){
       <label>TS (tahun akhir)<input id="s_ts" type="number" min="2000" max="2100" value="${ts}"></label>
       <label>Dibuka<input id="s_mulai" type="date" value="${s?.mulai || iso(awal)}"></label>
       <label>Ditutup<input id="s_selesai" type="date" value="${s?.selesai || iso(akhir)}"></label>
-      <label>Identitas responden<select id="s_identitas">${IDENTITAS.map(([v, l]) => `<option value="${v}"${v === (s?.identitas || 'tidak') ? ' selected' : ''}>${l}</option>`).join('')}</select></label>
+      <label>Identitas responden<select id="s_identitas">${IDENTITAS.map(([v, l]) => `<option value="${v}"${v === (s?.identitas || identitasBawaan(k)) ? ' selected' : ''}>${l}</option>`).join('')}</select></label>
       <label>Ambang % puas (tindak lanjut bila di bawah)<input id="s_puas" type="number" min="0" max="100" step="1" value="${s?.ambang_puas ?? 75}"></label>
       <label>Ambang rerata (1–4)<input id="s_rerata" type="number" min="1" max="4" step="0.05" value="${s?.ambang_rerata ?? 3}"></label>
       <label style="flex-direction:row;align-items:center;gap:6px;margin-top:18px"><input id="s_publik" type="checkbox"${s ? (s.publik ? ' checked' : '') : ' checked'}> Rekap publik</label>
     </div>
     <p><label class="ket">Pengantar (opsional; kosong = pengantar bawaan tentang anonimitas)<textarea id="s_pengantar" maxlength="2000">${esc(s?.pengantar || '')}</textarea></label></p>
     <p class="ket">Pertanyaan ${kunci ? `<b>dikunci: survei ini sudah punya ${n} responden</b>` : `(templat bawaan ${esc(labelKelompok(k).toLowerCase())}, silakan disunting)${
-      k === 'pengguna' ? '. Untuk pengguna lulusan, kode ketujuh aspek jangan diubah agar hasil bisa disalin ke Tabel 6.g.2' : ''}.
+      k === 'pengguna' ? '. Untuk pengguna lulusan, kode ketujuh aspek jangan diubah agar hasil bisa disalin ke Tabel 6.g.2'
+      : k === 'alumni' ? '. Untuk tracer, kode tahun_lulus, status, bulan, kesesuaian, tingkat, izin_atasan, email_atasan dan opsinya jangan diubah '
+        + 'agar rekap bisa disalin ke Tabel tracer dan atasan bisa diundang. Templat ini pendukung; butir 48 unsur 3 meminta seluruh pertanyaan inti tracer DIKTI' : ''}.
       <b>Opsi</b>: untuk pilihan/centang tulis "a; b; c", untuk angka tulis rentang "0-120" (kosong = bebas).
       <b>Syarat</b>: "kode=nilai1|nilai2" (tampil hanya bila pertanyaan pilihan <i>kode</i> dijawab salah satu nilai itu).
       Aspek "kurikulum" dihimpun ke kartu Masukan kurikulum.`}</p>
@@ -214,7 +216,8 @@ function gambarForm(){
     if (confirm('Ganti pertanyaan dengan templat kelompok ini?')) PQ = templatSurvei(KEL);
     const t = +$('s_ts').value;
     simpanSementara();
-    $('s_judul').value = `Survei kepuasan ${labelKelompok(KEL).toLowerCase()} ${t - 1}/${t}`; };
+    $('s_judul').value = KEL === 'alumni' ? `Tracer alumni ${t - 1}/${t}` : `Survei kepuasan ${labelKelompok(KEL).toLowerCase()} ${t - 1}/${t}`;
+    $('s_identitas').value = identitasBawaan(KEL); };
   document.querySelectorAll('[data-hapus-q]').forEach(b => b.onclick = () => { bacaPQ(); PQ.splice(+b.dataset.hapusQ, 1); simpanSementara(); });
   if ($('tambah-q')) $('tambah-q').onclick = () => { bacaPQ(); PQ.push({ id: `q${PQ.length + 1}`, aspek: 'lainnya', teks: '', jenis: 'skala' }); simpanSementara(); };
   if ($('templat-q')) $('templat-q').onclick = () => { if (confirm('Ganti semua pertanyaan dengan templat bawaan?')) { PQ = templatSurvei($('s_kelompok').value); simpanSementara(); } };
@@ -267,6 +270,7 @@ function gambarHasil(s){
     ${kom.map(q => `<p><b>${esc(q.teks)}</b> <span class="ket">(${q.isi.length} isian; hanya terlihat admin)</span></p>
       ${q.isi.length ? `<ol class="komentar">${q.isi.map(t => `<li>${esc(t)}</li>`).join('')}</ol>` : ''}`).join('')}
     <p><button class="b" id="h_csv"${rows.length ? '' : ' disabled'}>Unduh CSV jawaban</button>
+      ${s.kelompok === 'alumni' ? `<button class="b" id="h_tracer"${rows.length ? '' : ' disabled'}>Salin ke Tabel tracer</button>` : ''}
       ${s.kelompok === 'pengguna' ? `<button class="b" id="h_62"${rows.length ? '' : ' disabled'}>Salin ke Tabel 6.g.2 (TA ${s.tahun_ts - 1}/${s.tahun_ts})</button>` : ''}
       <span class="msg" id="h_msg"></span></p>`;
   $('h_csv').onclick = () => {
@@ -282,6 +286,62 @@ function gambarHasil(s){
     KODE_TEMUAN.add(kodeTemuanSurvei(s, a.aspek));
     b.outerHTML = '<span class="ket">— dibuat; lengkapi PJ dan tenggat di <a href="data-prodi.html?tab=temuan">Data prodi › Temuan AMI</a></span>';
   });
+  // Tracer (55-patch-survei-alumni.sql): rekap per tahun lulus ke lkps_tracer_lulusan; jumlah lulusan tidak disentuh.
+  if ($('h_tracer')) $('h_tracer').onclick = async () => {
+    const m = $('h_msg'), { baris, kurang } = keTabelTracer(s.pertanyaan, rows);
+    if (kurang.length) { m.className = 'msg buruk'; m.textContent = `Pertanyaan tracer tidak lengkap (kode ${kurang.join(', ')} tidak ada); pakai templat Alumni.`; return; }
+    if (!baris.length) { m.className = 'msg buruk'; m.textContent = 'Belum ada jawaban dengan tahun lulus.'; return; }
+    const { data: lama } = await sb.from('lkps_tracer_lulusan').select('tahun_lulus,jumlah_lulusan,jumlah_terlacak').in('tahun_lulus', baris.map(b => b.tahun_lulus));
+    const per = new Map((lama || []).map(r => [r.tahun_lulus, r]));
+    const ringkas = baris.map(b => { const l = per.get(b.tahun_lulus);
+      return `Lulusan ${b.tahun_lulus}: terlacak ${b.jumlah_terlacak}${l ? ` (menggantikan ${l.jumlah_terlacak ?? '—'})` : ' (baris baru)'}`
+        + (l?.jumlah_lulusan != null && b.jumlah_terlacak > l.jumlah_lulusan ? ` — PERHATIAN: melebihi jumlah lulusan ${l.jumlah_lulusan}` : '')
+        + (l?.jumlah_lulusan == null ? ' — isi jumlah lulusan di Data prodi › Tracer' : ''); }).join('\n');
+    if (!confirm(`Tulis rekap tracer ke Data prodi › Tracer study? Kolom terlacak, waktu tunggu, kesesuaian, dan tingkat tempat kerja tahun itu akan diganti; jumlah lulusan dan bukti tidak berubah.\n\n${ringkas}`)) return;
+    const { error } = await sb.from('lkps_tracer_lulusan').upsert(baris.map(r => ({ ...r, oleh: SAYA.email })), { onConflict: 'tahun_lulus' });
+    m.className = error ? 'msg buruk' : 'msg ok';
+    m.textContent = error ? 'Gagal: ' + error.message : `${baris.length} tahun lulus tersalin ke Tabel tracer (butir 48–51). Periksa jumlah lulusan dan unggah laporan tracer sebagai bukti.`;
+  };
+  // Rantai alumni -> pengguna lulusan: kirim tautan survei pengguna ke atasan yang diizinkan alumni.
+  const undang = s.kelompok === 'alumni' ? undanganPengguna(rows) : [];
+  if (s.kelompok === 'alumni') {
+    const hariIni = iso(new Date());
+    const terbuka = SURVEI.filter(x => x.kelompok === 'pengguna' && !x.dicabut && x.mulai <= hariIni && x.selesai >= hariIni);
+    box.insertAdjacentHTML('beforeend', `<div class="kartu" style="margin:10px 0"><h2 style="font-size:15px">Undang pengguna lulusan</h2>
+      <p class="ket">Atasan yang diizinkan alumni untuk dihubungi (${undang.length}). Tautan survei pengguna lulusan dikirim lewat akun Google prodi
+        (Apps Script, sama dengan Pengingat; paling banyak 30 sekali kirim). Hasilnya masuk butir 52 lewat "Salin ke Tabel 6.g.2".</p>
+      ${!undang.length ? '<p class="kosong">Belum ada email atasan yang diizinkan.</p>' : !terbuka.length
+        ? '<p class="ket"><b>Belum ada survei pengguna lulusan yang sedang dibuka.</b> Buat dulu survei kelompok Pengguna lulusan.</p>'
+        : `<p><label class="ket">Survei pengguna <select id="u_survei">${terbuka.map(x => `<option value="${x.id}">${esc(x.judul)}</option>`).join('')}</select></label></p>
+          <div>${undang.map((u, i) => `<label style="display:block;font-size:13.5px"><input type="checkbox" data-u="${i}" checked> ${esc(u.email)}${
+            u.instansi ? ` — ${esc(u.instansi)}` : ''}${u.alumni ? ` <span class="ket">(alumni: ${esc(u.alumni)})</span>` : ''}</label>`).join('')}</div>
+          <p><label class="ket">Subjek<input id="u_subjek" style="width:100%" value="Permohonan pengisian survei kepuasan pengguna lulusan"></label></p>
+          <p><label class="ket">Isi (<code>{tautan}</code> diganti tautan survei)<textarea id="u_isi" style="min-height:140px">Yth. Bapak/Ibu,\n\nSalah satu lulusan kami yang bekerja di institusi Bapak/Ibu bersedia kami menghubungi atasannya. Kami mohon kesediaan Bapak/Ibu mengisi survei singkat kepuasan pengguna lulusan (sekitar 5 menit, anonim):\n{tautan}\n\nMasukan Bapak/Ibu kami pakai untuk mengembangkan kurikulum dan layanan program studi.\n\nTerima kasih.</textarea></label></p>
+          <p><button class="b" id="u_kirim">Kirim ke yang dicentang</button> <span class="msg" id="u_msg"></span></p>`}</div>`);
+  }
+  if ($('u_kirim')) $('u_kirim').onclick = async () => {
+    const m = $('u_msg'), tulis = (c, t) => { m.className = 'msg ' + c; m.textContent = t; };
+    const pilih = [...document.querySelectorAll('[data-u]:checked')].map(c => undang[+c.dataset.u]);
+    if (!pilih.length) return tulis('buruk', 'Belum ada yang dicentang.');
+    if (pilih.length > 30) return tulis('buruk', 'Paling banyak 30 sekali kirim.');
+    if (!window.UPLOAD_URL) return tulis('buruk', 'Apps Script belum disiapkan (UPLOAD_URL di config.js).');
+    const sv = SURVEI.find(x => x.id === +$('u_survei').value), tautan = urlSurvei(sv.token);
+    if (!confirm(`Kirim ${pilih.length} email dari akun Google prodi?`)) return;
+    tulis('', 'Mengirim…');
+    try {
+      const { data: { session } } = await sb.auth.getSession();
+      if (!session) throw new Error('Sesi login habis. Muat ulang halaman.');
+      const prodi = await fetch('data.json?v=' + Date.now()).then(r => r.ok ? r.json() : {}).catch(() => ({}));
+      const pengirim = [prodi.prodi, prodi.institusi].filter(Boolean).join(' ') || 'Program Studi';
+      const isi = $('u_isi').value.replaceAll('{tautan}', tautan) + `\n${pengirim}`;
+      const res = await fetch(window.UPLOAD_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ token: session.access_token, kind: 'kirim_pengingat', pengirim,
+          pesan: pilih.map(u => ({ ke: u.email, subjek: $('u_subjek').value.trim(), isi })) }) });
+      const out = await res.json();
+      if (!out.ok) throw new Error(out.error || 'Gagal mengirim.');
+      tulis(out.gagal?.length ? 'buruk' : 'ok', `${out.terkirim} terkirim${out.gagal?.length ? `; gagal: ${out.gagal.join('; ')}` : ''}. Sisa kuota hari ini: ${out.sisa}.`);
+    } catch (e) { tulis('buruk', e.message || String(e)); }
+  };
   if ($('h_62')) $('h_62').onclick = async () => {
     const baris = keTabel62(hitung, s.tahun_ts), m = $('h_msg');
     if (!baris.length) { m.className = 'msg buruk'; m.textContent = 'Tidak ada aspek 6.g.2 dalam survei ini (kode aspek diubah?).'; return; }

@@ -3,13 +3,13 @@
 // lulusan, Tabel 6.g.2). Skala 1–4 sama dengan 6.g.2: 1 kurang, 2 cukup,
 // 3 baik, 4 sangat baik. Templat bawaan adalah draf (2026-11-11) yang bisa
 // disunting admin per survei; pengguna lulusan memakai 7 aspek resmi 6.g.2.
-import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-11-dd6efa';
+import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-11-327831';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
 export const KELOMPOK_SURVEI = [['mahasiswa', 'Mahasiswa'], ['dosen', 'Dosen'], ['tendik', 'Tenaga kependidikan'],
-  ['mitra', 'Mitra kerja sama'], ['pengguna', 'Pengguna lulusan']];
+  ['mitra', 'Mitra kerja sama'], ['pengguna', 'Pengguna lulusan'], ['alumni', 'Alumni (tracer)']];
 export const labelKelompok = k => (KELOMPOK_SURVEI.find(x => x[0] === k) || [, k])[1];
 export const SKALA = [[4, 'Sangat baik'], [3, 'Baik'], [2, 'Cukup'], [1, 'Kurang']];
 // Jenis pertanyaan ala Google Form (pemilik 2026-11-11); aturan sama dengan survei_kirim di SQL.
@@ -32,11 +32,18 @@ export const LABEL_ASPEK = {
   tata_kelola: 'Kepemimpinan dan tata kelola', administrasi: 'Layanan administrasi', pengembangan: 'Pengembangan diri dan karier',
   tridharma: 'Dukungan tridharma', kesejahteraan: 'Kesejahteraan dan suasana kerja', manfaat: 'Manfaat kerja sama',
   komunikasi_mitra: 'Komunikasi dan koordinasi', pelaksanaan: 'Pelaksanaan kegiatan', kompetensi: 'Kompetensi pelaksana',
-  keberlanjutan: 'Keberlanjutan', saran: 'Saran', kurikulum: 'Kurikulum', ...Object.fromEntries(ASPEK_KEPUASAN),
+  keberlanjutan: 'Keberlanjutan', saran: 'Saran', kurikulum: 'Kurikulum', tahun_lulus: 'Tahun lulus', status: 'Status',
+  waktu_tunggu: 'Waktu tunggu', kesesuaian: 'Kesesuaian bidang', tingkat_kerja: 'Tingkat tempat kerja', instansi: 'Instansi',
+  pengguna: 'Pengguna lulusan', ...Object.fromEntries(ASPEK_KEPUASAN),
 };
 export const labelAspek = a => LABEL_ASPEK[a] || String(a || '').replace(/_/g, ' ');
 
 const S = (id, aspek, teks) => ({ id, aspek, teks, jenis: 'skala' });
+// Tracer: nilai opsi status dan tingkat tempat kerja (Tabel 6.g.1: wilayah/lokal,
+// nasional atau wirausaha berizin, multinasional/internasional).
+export const STATUS_ALUMNI = ['bekerja', 'wirausaha', 'studi lanjut', 'belum bekerja'];
+export const BEKERJA = ['bekerja', 'wirausaha'];
+export const TINGKAT_KERJA = { wilayah: 'wilayah/lokal', nasional: 'nasional atau wirausaha berizin', internasional: 'multinasional/internasional' };
 const SARAN = { id: 'saran', aspek: 'saran', teks: 'Saran atau masukan untuk perbaikan (boleh dikosongkan).', jenis: 'teks' };
 // Aspek "kurikulum" (pemilik 2026-11-11: bahan pengembangan kurikulum; butir 12 unsur 2, 3, 5;
 // butir 13 unsur 2; butir 48 unsur 5). Dihimpun lintas survei di kelola-survei.html.
@@ -89,8 +96,28 @@ const TEMPLAT = {
   pengguna: [...ASPEK_KEPUASAN.map(([a, nama]) => S(a, a, `Penilaian Anda atas lulusan kami dalam hal: ${nama.toLowerCase()}.`)),
     K('pk1', 'Kompetensi yang perlu diperkuat agar lulusan kami lebih siap bekerja di institusi Anda (boleh dikosongkan).', 'teks'),
     SARAN],
+  // Tracer pendukung (55-patch-survei-alumni.sql). Kode tahun_lulus, status, bulan, kesesuaian,
+  // tingkat, izin_atasan, email_atasan dipakai keTabelTracer dan undanganPengguna: jangan diubah.
+  alumni: [
+    { id: 'tahun_lulus', aspek: 'tahun_lulus', teks: 'Tahun lulus', jenis: 'angka', min: 1990, max: 2100, wajib: true },
+    { id: 'status', aspek: 'status', teks: 'Status Anda saat ini', jenis: 'pilihan', opsi: STATUS_ALUMNI },
+    { id: 'bulan', aspek: 'waktu_tunggu', teks: 'Berapa bulan setelah lulus Anda mendapat pekerjaan pertama atau memulai usaha?',
+      jenis: 'angka', min: 0, max: 240, wajib: true, syarat: { q: 'status', nilai: BEKERJA } },
+    { id: 'kesesuaian', aspek: 'kesesuaian', teks: 'Seberapa sesuai bidang pekerjaan Anda dengan bidang studi?', jenis: 'pilihan',
+      opsi: ['tinggi', 'sedang', 'rendah'], syarat: { q: 'status', nilai: BEKERJA } },
+    { id: 'tingkat', aspek: 'tingkat_kerja', teks: 'Tingkat tempat kerja Anda', jenis: 'pilihan',
+      opsi: [TINGKAT_KERJA.wilayah, TINGKAT_KERJA.nasional, TINGKAT_KERJA.internasional], syarat: { q: 'status', nilai: BEKERJA } },
+    { id: 'instansi', aspek: 'instansi', teks: 'Nama instansi atau usaha (boleh dikosongkan)', jenis: 'singkat', syarat: { q: 'status', nilai: BEKERJA } },
+    { ...K('ak1', 'Kurikulum yang Anda pelajari relevan dengan pekerjaan Anda saat ini.'), syarat: { q: 'status', nilai: BEKERJA } },
+    K('ak2', 'Kompetensi atau mata kuliah yang perlu ditambah agar lulusan lebih siap bekerja (boleh dikosongkan).', 'teks'),
+    { id: 'izin_atasan', aspek: 'pengguna', teks: 'Bolehkah kami mengirim survei kepuasan pengguna lulusan kepada atasan Anda?',
+      jenis: 'pilihan', opsi: ['ya', 'tidak'], wajib: false, syarat: { q: 'status', nilai: BEKERJA } },
+    { id: 'email_atasan', aspek: 'pengguna', teks: 'Email atasan Anda', jenis: 'singkat', wajib: true, syarat: { q: 'izin_atasan', nilai: ['ya'] } },
+    SARAN],
 };
-export const templatSurvei = k => (TEMPLAT[k] || []).map(q => ({ ...q }));
+export const templatSurvei = k => (TEMPLAT[k] || []).map(q => JSON.parse(JSON.stringify(q)));
+/** Identitas bawaan per kelompok: tracer perlu bisa ditindaklanjuti, survei kepuasan anonim. */
+export const identitasBawaan = k => k === 'alumni' ? 'opsional' : 'tidak';
 
 /** '' bila daftar pertanyaan sah, selain itu pesan galat. */
 export function cekPertanyaan(xs){
@@ -249,6 +276,49 @@ export function htmlRekap(rk, n){
     <div class="gulir"><table class="sv"><thead><tr><th>Pertanyaan</th><th>Sebaran</th><th>n</th><th>Rerata</th><th>% puas</th></tr></thead><tbody>
       ${rk.per.map(q => `<tr><td>${esc(q.teks)}<br><small class="ket">${esc(labelAspek(q.aspek))}</small></td><td>${bilah(q.hitung)}</td>
         <td>${q.n}</td><td>${f2(q.rerata)}</td><td>${f2(q.puas)}</td></tr>`).join('')}</tbody></table></div>`;
+}
+
+/**
+ * Rekap tracer per tahun lulus untuk lkps_tracer_lulusan (Tabel 6.f.1, 6.f.2, 6.g.1).
+ * Terlacak = responden tahun itu. Waktu tunggu, kesesuaian, dan tingkat dihitung dari yang
+ * bekerja/berwirausaha. Pita waktu tunggu Sarjana: < 3, 3–18, > 18 bulan.
+ * jumlah_lulusan dan bukti tidak diisi di sini (data prodi).
+ * Hasil: { baris: [...], kurang: [kode pertanyaan yang tidak ada di survei] }.
+ */
+export function keTabelTracer(pertanyaan, rows){
+  const ada = new Set((pertanyaan || []).map(q => q.id));
+  const kurang = ['tahun_lulus', 'status', 'bulan', 'kesesuaian', 'tingkat'].filter(k => !ada.has(k));
+  const per = new Map();
+  (rows || []).forEach(r => {
+    const t = r.jawaban?.tahun_lulus;
+    if (!Number.isInteger(t)) return;
+    if (!per.has(t)) per.set(t, []);
+    per.get(t).push(r.jawaban);
+  });
+  const baris = [...per.entries()].sort((a, b) => a[0] - b[0]).map(([t, js]) => {
+    const kerja = js.filter(j => BEKERJA.includes(j.status));
+    const bln = kerja.map(j => j.bulan).filter(v => typeof v === 'number');
+    const hit = (xs, f) => xs.filter(f).length;
+    return { tahun_lulus: t, jumlah_terlacak: js.length,
+      rata_rata_waktu_tunggu_bulan: bln.length ? r2(bln.reduce((a, b) => a + b, 0) / bln.length) : null,
+      wt_kurang_3: hit(bln, v => v < 3), wt_3_18: hit(bln, v => v >= 3 && v <= 18), wt_lebih_18: hit(bln, v => v > 18),
+      kesesuaian_rendah: hit(kerja, j => j.kesesuaian === 'rendah'), kesesuaian_sedang: hit(kerja, j => j.kesesuaian === 'sedang'),
+      kesesuaian_tinggi: hit(kerja, j => j.kesesuaian === 'tinggi'),
+      kerja_wilayah: hit(kerja, j => j.tingkat === TINGKAT_KERJA.wilayah), kerja_nasional: hit(kerja, j => j.tingkat === TINGKAT_KERJA.nasional),
+      kerja_internasional: hit(kerja, j => j.tingkat === TINGKAT_KERJA.internasional) };
+  });
+  return { baris, kurang };
+}
+
+/** Atasan yang boleh dihubungi (izin "ya" dan email sah), tanpa duplikat. */
+export function undanganPengguna(rows){
+  const per = new Map();
+  (rows || []).forEach(r => {
+    const e = String(r.jawaban?.email_atasan || '').trim().toLowerCase();
+    if (r.jawaban?.izin_atasan !== 'ya' || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e) || per.has(e)) return;
+    per.set(e, { email: e, alumni: r.nama || '', instansi: String(r.jawaban?.instansi || '').trim() });
+  });
+  return [...per.values()];
 }
 
 // Pemangku internal dan eksternal (butir 12 unsur 2 dan 3).
