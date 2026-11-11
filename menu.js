@@ -28,6 +28,8 @@ export const MODUL = [
       ket: 'Mahasiswa, lulusan, tracer, kerja sama, BKD, prestasi mahasiswa.' },
     { href: 'pengingat.html', judul: 'Pengingat', boleh: admin,
       ket: 'Kirim pengingat email: BKD belum diisi, karya perlu diperbaiki, bukti per pihak.' },
+    { href: 'mutu-data.html', judul: 'Mutu data', boleh: admin,
+      ket: 'Data yang perlu diperbaiki: karya tanpa bukti, DOI ganda, judul mirip, ID dosen, RPS, tracer.' },
     { href: 'profil.html', judul: 'Profil saya',
       ket: 'Nama, SINTA, Scopus, ORCID, pendidikan, jabatan; perubahan disetujui admin.' },
     { href: 'kelola-dosen.html', judul: 'Kelola dosen', boleh: admin,
