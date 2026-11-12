@@ -1,10 +1,9 @@
 // Kotak cari di menu ruang kerja (pemilik 2026-11-12; logika di cari.js). Dimuat menu.js saat
 // kotak pertama kali difokuskan, supaya halaman lain tidak ikut memuat indeks.
-import { cari, kelompokkan, indeksHalaman, indeksButir, indeksPublik, cariSupabase } from './cari.js?v=2026-11-12-b7db2c';
-import { fiturAktif, halamanAktif } from './fitur.js?v=2026-11-12-b7db2c';
+import { cari, kelompokkan, indeksHalaman, indeksButir, indeksPublik, cariSupabase } from './cari.js?v=2026-11-12-e3f9f9';
+import { fiturAktif, halamanAktif } from './fitur.js?v=2026-11-12-e3f9f9';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-const V = '?v=2026-11-12-b7db2c';
 const CSS = `
 .rk-hasil{position:absolute;top:calc(100% + 6px);right:0;z-index:60;width:min(520px,92vw);max-height:70vh;overflow:auto;
   background:#fff;color:var(--ink);border:1px solid var(--line);border-radius:4px;box-shadow:0 8px 24px rgba(0,0,0,.18);padding:6px;text-align:left}
@@ -28,8 +27,8 @@ export function pasangCari(kotak, o){
   const siapIndeks = (async () => {
     const [D, man, dat] = await Promise.all([
       fetch('data.json').then(r => r.ok ? r.json() : {}).catch(() => ({})),
-      import('./butir-manual.js' + V).then(m => m.BUTIR_MANUAL).catch(() => []),
-      import('./butir-data.js' + V).then(m => m.BUTIR_DATA).catch(() => [])]);
+      import('./butir-manual.js?v=2026-11-12-e3f9f9').then(m => m.BUTIR_MANUAL).catch(() => []),
+      import('./butir-data.js?v=2026-11-12-e3f9f9').then(m => m.BUTIR_DATA).catch(() => [])]);
     indeks = [...indeksHalaman(o.modul, o.boleh), ...indeksButir(man, dat), ...indeksPublik(D, fiturAktif)]
       .filter(e => e.jenis !== 'halaman' || halamanAktif(e.href));
   })();

@@ -3,7 +3,7 @@
 // lulusan, Tabel 6.g.2). Skala 1–4 sama dengan 6.g.2: 1 kurang, 2 cukup,
 // 3 baik, 4 sangat baik. Templat bawaan adalah draf (2026-11-11) yang bisa
 // disunting admin per survei; pengguna lulusan memakai 7 aspek resmi 6.g.2.
-import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-12-b7db2c';
+import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-12-e3f9f9';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
