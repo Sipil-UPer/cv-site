@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-11-05b710">
+<link rel="stylesheet" href="tema.css?v=2026-11-11-adf238">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
@@ -48,7 +48,7 @@
   .masuk{max-width:420px;margin:40px auto;background:#fff;border:1px solid var(--line);padding:20px}
   .masuk input{width:100%;padding:8px 10px;margin:8px 0;font:inherit}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-11-05b710">
+<link rel="stylesheet" href="kepala.css?v=2026-11-11-adf238">
 </head>
 <body>
 
@@ -62,7 +62,7 @@
 
 <main class="wrap" id="isi"></main>
 
-<script src="config.js?v=2026-11-11-05b710"></script>
+<script src="config.js?v=2026-11-11-adf238"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -79,10 +79,10 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { pasangMenu } from './menu.js?v=2026-11-11-05b710';
-import { unduhCV, htmlTombolCV } from './cv-dosen.js?v=2026-11-11-05b710';
-import { ISIAN_PROFIL, KOLOM_PROFIL, tampil as tampilIsian, sama, formLKPS, bacaFormLKPS, pasangEditor }
-  from './profil-dosen.js?v=2026-11-11-05b710';
+import { pasangMenu } from './menu.js?v=2026-11-11-adf238';
+import { unduhCV, htmlTombolCV } from './cv-dosen.js?v=2026-11-11-adf238';
+import { ISIAN_PROFIL, KOLOM_PROFIL, tampil as tampilIsian, sama, formLKPS, bacaFormLKPS, pasangEditor, bacaKataKunci }
+  from './profil-dosen.js?v=2026-11-11-adf238';
 
 /* =====================================================================
    PROFIL SAYA — dosen mengajukan perubahan profilnya sendiri (keputusan
@@ -215,6 +215,10 @@ async function gambar(){
         <div class="fld"><label>SINTA ID</label><input id="f_sinta_id" value="${esc(SAYA.sinta_id)}"></div>
         <div class="fld"><label>Scopus ID</label><input id="f_scopus_id" value="${esc(SAYA.scopus_id)}"></div>
         <div class="fld"><label>ORCID</label><input id="f_orcid" value="${esc(SAYA.orcid)}"></div>
+        <div class="fld penuh"><label>Kata kunci keahlian</label><input id="f_kata_kunci" value="${esc((SAYA.kata_kunci || []).join(', '))}"
+          placeholder="Contoh: banjir, hidrologi, prakiraan hujan, GSMaP">
+          <small>3–10 kata kunci, pisahkan dengan koma. Tampil di halaman publik <a href="keahlian.html">Kepakaran dosen</a>
+          dan dipakai untuk usulan tim hibah serta pembimbing TA. Boleh dua bahasa (mis. "banjir, flood").</small></div>
       </div>
       ${ADA_LKPS ? `<h2 style="margin-top:18px">Profil untuk LKPS (Tabel 4.a)</h2>
         <p class="ket">Dipakai untuk mengisi LKPS dan LED. Kategori dosen dan penilaian kesesuaian diisi admin prodi.</p>
@@ -248,8 +252,12 @@ async function kirim(){
     sinta_id: idSaja(v('sinta_id')) || null, scopus_id: idSaja(v('scopus_id')) || null,
     orcid: idSaja(v('orcid')) || null,
     ...(ADA_LKPS ? bacaFormLKPS(SAYA.pendidikan) : {}),
+    ...(ADA_LKPS ? { kata_kunci: bacaKataKunci(v('kata_kunci')) } : {}),
   };
   if (!baru.nama) return tulis('buruk', 'Nama wajib diisi.');
+  const kk = v('kata_kunci').split(/[,;\n]+/).map(x => x.trim()).filter(Boolean);
+  if (kk.some(x => x.length > 60)) return tulis('buruk', 'Tiap kata kunci paling panjang 60 karakter.');
+  if (kk.length > 10 && !confirm('Kata kunci lebih dari 10; hanya 10 pertama yang disimpan. Lanjutkan?')) return;
   const data = {}, lama = {};
   ISIAN.forEach(([k]) => {
     if (k in baru && !sama(baru[k], SAYA[k])) { data[k] = baru[k]; lama[k] = SAYA[k] ?? null; }

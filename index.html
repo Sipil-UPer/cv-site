@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-11-05b710">
+<link rel="stylesheet" href="tema.css?v=2026-11-11-adf238">
 <style>
   /* =================================================================
      PALET — sesuaikan dengan pedoman identitas resmi institusi bila ada.
@@ -368,7 +368,15 @@ function render(){
     // SDGs (pemilik 2026-11-11): karya terkait SDGs -> sdgs.html.
     [[...D.publikasi, ...D.kegiatan, ...(D.luaran_dosen||[])].filter(k => (k.sdgs||[]).length).length,
                          'Karya ber-SDGs',     'sdgs.html'],
+    // Peta keahlian (pemilik 2026-11-11): kata kunci dosen + topik publikasi -> keahlian.html.
+    [new Set([...D.dosen.flatMap(d => d.kata_kunci || []), ...D.publikasi.flatMap(k => (k.topik || []).map(t => t.t))]
+       .map(x => String(x).toLowerCase())).size, 'Topik keahlian', 'keahlian.html?tab=peta'],
   ].map(([v,l,href])=>`<a href="${href}"><b>${N(v)}</b><span>${l}</span></a>`).join('');
+  // Jumlah topik persis sama dengan keahlian.html (petaTopik, termasuk bidang keahlian).
+  import('./keahlian.js?v=2026-11-11-adf238').then(m => {
+    const b = document.querySelector('#angka a[href^="keahlian.html"] b');
+    if (b) b.textContent = N(m.petaTopik(m.profilKeahlian(D)).length);
+  }).catch(() => {});
 
   // Beranda hanya grafik; daftarnya dibuka lewat angka rekap di atas
   // (daftar.html, mitra.html), pemilik 2026-11-04.

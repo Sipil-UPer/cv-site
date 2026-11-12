@@ -30,7 +30,7 @@ export const ISIAN_PROFIL = [
   ['nama', 'Nama lengkap'], ['jabatan', 'Jabatan akademik'],
   ['sinta_id', 'SINTA ID'], ['scopus_id', 'Scopus ID'], ['orcid', 'ORCID'],
   ['riwayat_pendidikan', 'Riwayat pendidikan'], ['pendidikan', 'Pendidikan tertinggi'],
-  ['bidang_keahlian', 'Bidang keahlian'], ['perusahaan', 'Perusahaan / industri'],
+  ['bidang_keahlian', 'Bidang keahlian'], ['kata_kunci', 'Kata kunci keahlian'], ['perusahaan', 'Perusahaan / industri'],
   ['nomor_serdos', 'Nomor sertifikat pendidik'], ['sertifikat', 'Sertifikat kompetensi/profesi/industri'],
   ['skip', 'SKIP'], ['stri', 'Nomor STRI'], ['mk_ps_lain', 'MK diampu di PS lain'],
 ];
@@ -39,7 +39,18 @@ export const ISIAN_ADMIN = [['kategori', 'Kategori dosen'],
   ['sesuai_kompetensi_inti', 'Sesuai kompetensi inti PS'], ['sesuai_keahlian_mk', 'Keahlian sesuai MK diampu']];
 
 export const KOLOM_PROFIL = 'kategori,riwayat_pendidikan,bidang_keahlian,perusahaan,sesuai_kompetensi_inti,' +
-  'nomor_serdos,sertifikat,skip,stri,mk_ps_lain,sesuai_keahlian_mk';
+  'nomor_serdos,sertifikat,skip,stri,mk_ps_lain,sesuai_keahlian_mk,kata_kunci';   // kata_kunci: 60-patch-keahlian.sql
+
+// Kata kunci keahlian dari isian teks (dipisah koma, titik koma, atau baris baru): rapi, tanpa ganda,
+// paling banyak 10, tiap kata <= 60 karakter (sama dengan rapikan_kata_kunci di patch 60). [] -> null.
+export function bacaKataKunci(teks){
+  const out = [];
+  for (const x of String(teks || '').split(/[,;\n]+/)) {
+    const k = x.trim().replace(/\s+/g, ' ');
+    if (k && k.length <= 60 && !out.some(o => o.toLowerCase() === k.toLowerCase())) out.push(k);
+  }
+  return out.length ? out.slice(0, 10) : null;
+}
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g,
   c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -74,6 +85,7 @@ export function tampil(k, v, JABATAN = []){
   if (k === 'kategori') return label(KATEGORI, v);
   if (k === 'riwayat_pendidikan') return (v || []).length ? v.map(ringkasRiwayat).join('; ') : '—';
   if (k === 'sertifikat') return (v || []).length ? v.map(ringkasSertifikat).join('; ') : '—';
+  if (k === 'kata_kunci') return (v || []).length ? v.join(', ') : '—';
   if (k === 'sesuai_kompetensi_inti' || k === 'sesuai_keahlian_mk') return v === true ? 'V' : v === false ? 'tidak' : '—';
   return v || '—';
 }

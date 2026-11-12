@@ -149,10 +149,19 @@ export async function ambilBanyakDoi(dois, ambil = fetch, ukuran = 50) {
   for (let i = 0; i < semua.length; i += ukuran) {
     const kel = semua.slice(i, i + ukuran);
     const filter = 'doi:' + kel.map(d => encodeURIComponent(d.includes(',') ? `"${d}"` : d)).join('|');
-    const r = await ambil(`${OPENALEX}/works?filter=${filter}&per_page=${ukuran}&select=id,doi,publication_year,counts_by_year`);
+    const r = await ambil(`${OPENALEX}/works?filter=${filter}&per_page=${ukuran}&select=id,doi,publication_year,counts_by_year,topics`);
     for (const w of (await periksa(r)).results || []) hasil.set(rapiDoi(w.doi), w);
   }
   return hasil;
+}
+
+// Topik OpenAlex satu work (peta keahlian, pemilik 2026-11-11; 60-patch-keahlian.sql):
+// paling banyak 3, bentuk ringkas {t: topik, s: subbidang, f: bidang, n: skor}.
+// Bentuk OpenAlex diperiksa 2026-11-11: topics[{display_name, score, subfield{display_name}, field{display_name}}].
+export function topikDari(w) {
+  return (w?.topics || []).filter(x => x && x.display_name).slice(0, 3).map(x => ({
+    t: x.display_name, s: x.subfield?.display_name || '', f: x.field?.display_name || '',
+    n: Math.round((+x.score || 0) * 1000) / 1000 }));
 }
 
 // Rencana pembaruan sitasi untuk karya ber-DOI. karya: [{id, doi, karya_sitasi:[{tahun, jumlah, sumber}]}].
