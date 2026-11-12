@@ -144,6 +144,20 @@
          font-size:12.5px;color:var(--muted)}
   footer a{font-weight:500}
   @media(max-width:560px){.angka>*{flex-basis:50%}}
+  /* Cari data publik (pemilik 2026-11-12; cari.js) */
+  .cari-umum{position:relative;margin-top:22px;max-width:620px}
+  .cari-umum input{width:100%;font:inherit;font-size:15px;padding:10px 14px;border-radius:4px;border:1px solid rgba(255,255,255,.35);
+    background:rgba(255,255,255,.1);color:#fff}
+  .cari-umum input::placeholder{color:rgba(255,255,255,.65)}
+  .cari-umum input:focus{outline:none;background:#fff;color:var(--ink)}
+  .hasil-umum{position:absolute;left:0;right:0;top:calc(100% + 6px);z-index:30;max-height:60vh;overflow:auto;background:#fff;
+    color:var(--ink);border:1px solid var(--line);border-radius:4px;box-shadow:0 8px 24px rgba(0,0,0,.2);padding:6px}
+  .hasil-umum h4{margin:8px 8px 2px;font:600 11px/1.4 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+  .hasil-umum a{display:block;padding:6px 8px;border-radius:3px;color:var(--ink);text-decoration:none}
+  .hasil-umum a b{display:block;font-weight:600;color:var(--biru-2)}
+  .hasil-umum a span{display:block;font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .hasil-umum a:hover,.hasil-umum a.aktif{background:var(--line-soft)}
+  .hasil-umum p{margin:8px;color:var(--muted);font-size:13px}
 
   /* ---------- polesan ---------- */
   .kartu{transition:box-shadow .18s, transform .18s}
@@ -175,6 +189,8 @@
       </div>
     </div>
     <div class="angka" id="angka"></div>
+    <div class="cari-umum"><input type="search" id="cariUmum" autocomplete="off" aria-label="Cari data publik"
+      placeholder="Cari dosen, publikasi, penelitian, pengabdian, mitra…"><div class="hasil-umum" id="hasilUmum" hidden></div></div>
   </div>
 </header>
 
@@ -382,6 +398,34 @@ function render(){
     const B = m.daftarBaku(D), P = m.profilKeahlian(D);
     if (b) b.textContent = N(B ? m.petaBaku(P, B).baris.filter(r => !r.kosong).length : m.petaTopik(P).length);
   }).catch(() => {});
+
+  // Cari data publik (pemilik 2026-11-12): dosen, karya, mitra, halaman umum dari data.json.
+  import('./cari.js?v=2026-11-12-b7db2c').then(m => {
+    const idx = m.indeksPublik(D, k => !(window.FITUR_MATI || []).includes(k));
+    const kotak = document.getElementById('cariUmum'), panel = document.getElementById('hasilUmum');
+    const e = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    let aktif = -1;
+    const tampil = () => {
+      const q = kotak.value.trim();
+      if (!q) { panel.hidden = true; return; }
+      const g = m.kelompokkan(m.cari(idx, q));
+      panel.innerHTML = g.length ? g.map(x => `<h4>${e(x.label)}</h4>` + x.entri.map(r =>
+        `<a href="${e(r.href)}"><b>${e(r.judul)}</b>${r.ket ? `<span>${e(r.ket)}</span>` : ''}</a>`).join('')).join('')
+        : `<p>Tidak ada yang cocok dengan "${e(q)}".</p>`;
+      panel.hidden = false; aktif = -1;
+    };
+    const tandai = i => { const xs = [...panel.querySelectorAll('a')]; aktif = Math.max(-1, Math.min(i, xs.length - 1));
+      xs.forEach((a, j) => a.classList.toggle('aktif', j === aktif)); xs[aktif]?.scrollIntoView({ block: 'nearest' }); };
+    kotak.addEventListener('input', tampil);
+    kotak.addEventListener('focus', tampil);
+    kotak.addEventListener('keydown', ev => {
+      if (ev.key === 'ArrowDown') { ev.preventDefault(); tandai(aktif + 1); }
+      else if (ev.key === 'ArrowUp') { ev.preventDefault(); tandai(aktif - 1); }
+      else if (ev.key === 'Enter') { const a = panel.querySelectorAll('a')[Math.max(aktif, 0)]; if (a) location.href = a.getAttribute('href'); }
+      else if (ev.key === 'Escape') { panel.hidden = true; kotak.blur(); }
+    });
+    document.addEventListener('click', ev => { if (!kotak.parentElement.contains(ev.target)) panel.hidden = true; });
+  }).catch(() => { document.querySelector('.cari-umum')?.remove(); });
 
   // Beranda hanya grafik; daftarnya dibuka lewat angka rekap di atas
   // (daftar.html, mitra.html), pemilik 2026-11-04.

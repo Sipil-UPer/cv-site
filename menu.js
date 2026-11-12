@@ -183,6 +183,12 @@ const CSS = `
 .rk-user button:hover{background:rgba(255,255,255,.12)}
 @media(max-width:760px){.rk-in{padding:8px 16px}.rk-user{margin-left:0;width:100%}
   .rk-isi{min-width:210px}}
+.rk-cari{position:relative}
+.rk-cari input{font:inherit;width:230px;padding:3px 9px;border-radius:3px;border:1px solid rgba(255,255,255,.3);
+  background:rgba(255,255,255,.1);color:#fff}
+.rk-cari input::placeholder{color:var(--biru-m3)}
+.rk-cari input:focus{outline:none;background:#fff;color:var(--ink)}
+@media(max-width:760px){.rk-cari{width:100%}.rk-cari input{width:100%}}
 @media print{.rk-menu{display:none}}`;
 
 // Menu atas untuk pengguna terdaftar; tidak tampil bila belum login atau
@@ -215,7 +221,8 @@ export async function pasangMenu(sb){
       <span><b>${esc(prodi || 'Program studi')}</b><small>${esc(institusi)}</small></span></a>
     <a href="ruang-kerja.html"${ini === 'ruang-kerja.html' ? ' aria-current="page"' : ''}>Ruang kerja</a>
     ${grup}
-    <div class="rk-user"><a href="index.html">Beranda umum</a>
+    <div class="rk-user"><div class="rk-cari"><input type="search" placeholder="Cari… (tekan /)" aria-label="Cari di situs"
+        autocomplete="off"></div><a href="index.html">Beranda umum</a>
       <span>${esc(u.saya.nama)}</span><button type="button">Keluar</button></div></div>`;
   nav.querySelector('button').onclick = async () => {
     await sb.auth.signOut();
@@ -230,6 +237,15 @@ export async function pasangMenu(sb){
     if (!nav.contains(e.target)) grupEl.forEach(x => { x.open = false; });
   });
   document.body.prepend(nav);
+  // Pencarian menyeluruh (pemilik 2026-11-12; cari-ui.js, cari.js): dimuat saat pertama dipakai.
+  const kotak = nav.querySelector('.rk-cari input');
+  let siapCari = null;
+  const muatCari = () => siapCari || (siapCari = import('./cari-ui.js?v=2026-11-12-b7db2c').then(m =>
+    m.pasangCari(kotak, { sb, saya: u.saya, modul: halamanBoleh(u.saya), boleh: h => bolehBuka(u.saya, h) !== false })));
+  kotak.addEventListener('focus', muatCari);
+  document.addEventListener('keydown', e => {
+    if (e.key === '/' && !e.target.closest?.('input,textarea,select,[contenteditable]')) { e.preventDefault(); kotak.focus(); }
+  });
   return u.saya;
 }
 

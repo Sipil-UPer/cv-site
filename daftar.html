@@ -135,6 +135,9 @@ function render(){
   $('nav').innerHTML = JENIS.map(([k, l]) => `<a href="${k === 'mitra' ? 'mitra.html' : 'daftar.html?jenis=' + k}"${
     k === pilih ? ' aria-current="page"' : ''}>${l}</a>`).join('');
   ({ dosen, publikasi, penelitian: () => kegiatan('penelitian'), pkm: () => kegiatan('pkm'), prestasi })[pilih]();
+  // ?q= dari pencarian menyeluruh (cari.js): isi kotak cari lalu saring.
+  const q0 = new URLSearchParams(location.search).get('q');
+  if (q0 && $('fCari')) { $('fCari').value = q0; $('fCari').dispatchEvent(new Event('input')); }
   $('isi').insertAdjacentHTML('beforeend', `<footer>Diperbarui ${esc(D.diperbarui)}. Daftar ini
     hanya memuat data yang telah diverifikasi program studi. Berkas bukti, beban kerja dosen,
     nominal pendanaan, dan identitas mahasiswa tidak dipublikasikan.</footer>`);
@@ -189,11 +192,15 @@ function kegiatan(kat){
       <select id="kTahun"><option value="">Semua tahun</option>
         ${tahun.map(t => `<option>${t}</option>`).join('')}</select>
       <select id="kKel"><option value="">Semua sumber dana</option>
-        ${kelompok.map(k => `<option>${esc(k)}</option>`).join('')}</select></div>
+        ${kelompok.map(k => `<option>${esc(k)}</option>`).join('')}</select>
+      <input type="search" id="fCari" placeholder="Cari judul, penulis, atau mitra"></div>
     <div class="list" id="lst"></div>`;
   const isi = () => {
-    const t = $('kTahun').value, kl = $('kKel').value;
-    const d = semua.filter(x => (!t || String(x.tahun) === t) && (!kl || x.kelompok === kl));
+    const t = $('kTahun').value, kl = $('kKel').value, q = $('fCari').value.trim().toLowerCase();
+    // Cari teks (pemilik 2026-11-12): judul, penulis, mitra.
+    const cocok = x => !q || [x.judul, ...(x.penulis || []).map(p => p.nama), ...(x.mitra || []).map(m => m.nama || m)]
+      .some(v => String(v || '').toLowerCase().includes(q));
+    const d = semua.filter(x => (!t || String(x.tahun) === t) && (!kl || x.kelompok === kl) && cocok(x));
     $('jml').textContent = `${d.length} kegiatan`;
     $('lst').innerHTML = d.length ? d.map(x => `<div class="e">
         <div class="thn">${x.tahun}</div>
@@ -207,6 +214,7 @@ function kegiatan(kat){
       : `<p class="kosong">Belum ada kegiatan terverifikasi.</p>`;
   };
   ['kTahun', 'kKel'].forEach(id => $(id).addEventListener('change', isi));
+  $('fCari').addEventListener('input', isi);
   isi();
 }
 
