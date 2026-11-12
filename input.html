@@ -330,7 +330,9 @@ function layarUtama(){
       b.setAttribute('aria-selected','true'); buka(b.dataset.t);
     };
   });
-  buka('publikasi');
+  // Tautan langsung ke tab: input.html#saya, #bkd (dari Tugas saya di Ruang kerja).
+  const awal = location.hash.slice(1), tb = awal && app.querySelector(`nav.tabs button[data-t="${CSS.escape(awal)}"]`);
+  if(tb) tb.click(); else buka('publikasi');
 }
 
 // Semua kunci FORM diarahkan ke tampilForm secara dinamis, sehingga

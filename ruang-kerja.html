@@ -47,6 +47,21 @@
   .btn.ghost{background:none;color:var(--biru);border:1px solid var(--line)}
   .msg{margin-left:10px;font-size:13.5px}
   .msg.err{color:var(--merah)} .msg.ok{color:var(--hijau)}
+  .tugas{background:var(--panel);border:1px solid var(--line);border-top:3px solid var(--merah);
+         border-radius:4px;padding:16px 20px;margin-bottom:22px}
+  .tugas h2{font-family:var(--serif);font-size:19px;margin:0 0 2px;color:var(--biru)}
+  .tugas>p{margin:0 0 8px;color:var(--muted);font-size:13.5px}
+  .tugas ul{list-style:none;margin:0;padding:0}
+  .tugas li{border-top:1px solid var(--line-soft);padding:8px 0;display:flex;gap:10px;align-items:baseline}
+  .tugas li:first-child{border-top:0}
+  .tugas .tk{flex:none;font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;
+             border-radius:3px;padding:1px 6px;background:var(--line-soft);color:var(--muted);min-width:64px;text-align:center}
+  .tugas .lewat .tk{background:var(--merah);color:#fff}
+  .tugas .dekat .tk{background:#8A5A00;color:#fff}
+  .tugas li a,.tugas li b{color:var(--biru-2);font-weight:600;text-decoration:none}
+  .tugas li a:hover{text-decoration:underline}
+  .tugas li span{display:block;color:var(--muted);font-size:13px}
+  .tugas details summary{cursor:pointer;color:var(--biru-2);font-size:13.5px;margin-top:6px}
   @media(max-width:640px){.hero-in,.wrap{padding-left:16px;padding-right:16px}
     .modul{grid-template-columns:1fr}}
 </style>
@@ -87,6 +102,7 @@ addEventListener('error', function (e) {
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 import { pengguna, pasangMenu, halamanBoleh, bolehBuka, identitas, pasangJudul } from './menu.js?v=2026-11-12-b7db2c';
 import { hitungVerifikasi } from './verifikasi-hitung.js?v=2026-11-12-b7db2c';
+import { tugasSaya } from './tugas-saya.js?v=2026-11-12-b7db2c';
 
 const sb = createClient(window.SB_URL, window.SB_KEY);
 const $ = id => document.getElementById(id);
@@ -122,6 +138,11 @@ async function mulai(){
         <h2>${esc(m.judul)}</h2><p>${esc(m.ket)}</p>
         ${m.halaman.map(h => `<a href="${esc(h.href)}"><b>${esc(h.judul)}</b>
           <span>${esc(h.ket)}</span></a>`).join('')}</section>`).join('')}</div>`;
+  if (u.saya.peran !== 'asesor') {
+    $('isi').querySelector('.modul').insertAdjacentHTML('beforebegin', '<div id="tugas"></div>');
+    muatTugas(u.saya).then(xs => { $('tugas').innerHTML = htmlTugas(xs); })
+      .catch(e => { $('tugas').innerHTML = `<p class="hint">Tugas saya gagal dimuat: ${esc(e.message || e)}</p>`; });
+  }
   // Total yang menunggu verifikasi pada kartu Verifikasi (admin; pemilik 2026-11-08).
   const kartu = $('isi').querySelector('a[href="verifikasi.html"] b');
   if (kartu) hitungVerifikasi(sb).then(n => {
@@ -157,6 +178,46 @@ function layarTidakTerdaftar(email){
     Hubungi admin prodi untuk didaftarkan.</p>
     <button class="btn ghost" id="kl">Keluar</button></div>`;
   $('kl').onclick = async () => { await sb.auth.signOut(); location.reload(); };
+}
+
+// "Tugas saya" (pemilik 2026-11-12; tugas-saya.js). Tabel yang belum ada (patch belum
+// dijalankan) dibaca sebagai kosong; RLS membatasi pada data milik sendiri.
+const LABEL_JENIS = { profil: 'Profil', karya: 'Karya', bkd: 'BKD', rapat: 'Rapat', hibah: 'Hibah', ami: 'AMI', cpl: 'CPL' };
+const MAKS_TAMPIL = 8;
+async function muatTugas(saya){
+  const baca = q => q.then(r => r.error ? [] : (r.data || []), () => []);
+  const em = saya.email || '';
+  const [karya, draf, bkd, tindak, hibah, temuan, kelasCpl] = await Promise.all([
+    baca(sb.from('karya').select('id,judul,status,bukti_url,catatan,dilaporkan_oleh,karya_penulis!inner(dosen_id)')
+      .eq('karya_penulis.dosen_id', saya.id).in('status', ['ditolak', 'terverifikasi']).limit(2000)),
+    // Draf hanya terbaca oleh pelapor/penulisnya (41-patch-draf-karya.sql).
+    baca(sb.from('karya').select('id,judul,status,dilaporkan_oleh,karya_penulis(dosen_id)').eq('status', 'draf').limit(500)),
+    baca(sb.from('lkps_bkd').select('tahun_akademik,semester,verifikasi,catatan').eq('verifikasi', 'ditolak')),
+    baca(sb.from('rapat_tindak').select('id,rapat_id,keputusan,tenggat,status,pj_dosen_id,rapat(judul,tanggal)')
+      .eq('pj_dosen_id', saya.id).in('status', ['terbuka', 'proses'])),
+    baca(sb.from('hibah_ajuan').select('judul,status,tenggat_ajuan,tanggal_ajuan,tenggat_kemajuan,kemajuan_selesai,tenggat_akhir,akhir_selesai,hibah_tim!inner(dosen_id,peran)')
+      .eq('hibah_tim.dosen_id', saya.id).in('status', ['rencana', 'didanai'])),
+    em ? baca(sb.from('ami_temuan').select('kode,siklus,uraian,status,tenggat,pj_email').ilike('pj_email', em)) : [],
+    em ? baca(sb.from('cpl_kelas').select('id,tahun_akademik,semester,kode_mk,nama_mk,kelas').ilike('dosen_email', em)) : []]);
+  const ids = karya.filter(k => k.status === 'terverifikasi' && !k.bukti_url).map(k => k.id);
+  const [bukti, berkasCpl] = await Promise.all([
+    ids.length ? baca(sb.from('karya_bukti').select('karya_id').in('karya_id', ids.slice(0, 300))) : [],
+    kelasCpl.length ? baca(sb.from('cpl_berkas').select('kelas_id').in('kelas_id', kelasCpl.map(k => k.id))) : []]);
+  // Lebih dari 300 karya tanpa bukti_url: sisanya dianggap berbukti (tidak dilaporkan keliru).
+  const berBukti = new Set([...bukti.map(b => b.karya_id), ...ids.slice(300)]);
+  return tugasSaya({ saya, karya: [...karya, ...draf], berBukti, bkd, tindak, hibah, temuan, kelasCpl, berkasCpl });
+}
+
+function htmlTugas(xs){
+  const teks = { lewat: 'lewat', dekat: 'segera', biasa: '' };
+  const li = x => `<li class="${x.tingkat}"><span class="tk">${esc(teks[x.tingkat] || LABEL_JENIS[x.jenis] || '')}</span>
+    <div>${x.href ? `<a href="${esc(x.href)}">${esc(x.judul)}</a>` : `<b>${esc(x.judul)}</b>`}<span>${esc(x.rinci)}</span></div></li>`;
+  if (!xs.length) return `<section class="tugas"><h2>Tugas saya</h2><p>Tidak ada yang menunggu tindakan Anda. Terima kasih.</p></section>`;
+  const lewat = xs.filter(x => x.tingkat === 'lewat').length;
+  return `<section class="tugas"><h2>Tugas saya</h2>
+    <p>${xs.length} hal menunggu tindakan Anda${lewat ? `, ${lewat} lewat tenggat` : ''}.</p>
+    <ul>${xs.slice(0, MAKS_TAMPIL).map(li).join('')}</ul>
+    ${xs.length > MAKS_TAMPIL ? `<details><summary>Tampilkan ${xs.length - MAKS_TAMPIL} lainnya</summary><ul>${xs.slice(MAKS_TAMPIL).map(li).join('')}</ul></details>` : ''}</section>`;
 }
 
 sb.auth.onAuthStateChange(ev => {
