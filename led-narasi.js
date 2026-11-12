@@ -9,7 +9,7 @@
      lingkup  umum, C1..C7 (kriteria), b1..b60 (butir)
    Isian tersimpan ditulis dengan token ⟪teks⟫: tampil tanpa sorot di Word.
    ===================================================================== */
-import { dokumenKriteria, labelDokumenLED, tokenTautan } from './led-isi.js?v=2026-11-12-713f9b';
+import { dokumenKriteria, labelDokumenLED, tokenTautan } from './led-isi.js?v=2026-11-12-f0b3a0';
 
 const rentangNo = (a, b) => Array.from({ length: b - a + 1 }, (_, i) => String(a + i));
 export const KRITERIA = {
@@ -72,7 +72,7 @@ export const NARASI = {
     `RPS ditinjau secara berkala [isi: frekuensi dan mekanisme]; tinjauan terakhir pada [isi: semester dan tahun].`]],
   '16': P => [[
     `Proses pembelajaran menggunakan metode [isi: metode, misalnya PBL atau studi kasus], media dan sumber belajar [isi: LMS, laboratorium], interaksi dosen dan mahasiswa [isi: bentuk], serta tugas yang meningkatkan daya analisis kritis [isi: contoh].`], [
-    `Pemantauan proses pembelajaran dilakukan [isi: frekuensi] melalui [isi: instrumen, misalnya monitoring kesesuaian materi dengan RPS dan EDOM], dan temuan ditindaklanjuti dengan [isi: contoh tindakan perbaikan].`]],
+    `Pemantauan proses pembelajaran dilakukan ${P.pantauPembelajaran}, dan temuan ditindaklanjuti dengan [isi: contoh tindakan perbaikan].`]],
   '17': P => [
     `Hasil penelitian dan PkM DTPS diintegrasikan ke dalam pembelajaran pada ${P.jumlahIntegrasi} mata kuliah (Tabel 3.a.3 LKPS), misalnya ${P.contohIntegrasi}.`,
     `Integrasi ini relevan dengan CPL, mendukung keunggulan kompetitif prodi, mengandung kebaruan ilmiah, dan berdampak sosial: [isi: uraian singkat].`],
@@ -111,7 +111,7 @@ export const NARASI = {
   '54': P => [
     `IKT ${P.ps} adalah ${P.daftarIKT}, disusun dari tujuan strategis, berdampak dan terukur, menunjukkan daya saing internasional, dan telah diukur pada ${P.tahunIKT} dengan hasil ${P.capaianIKT}.`],
   '55': P => [
-    `Dokumen IKU dan IKT tersedia dalam ${P.d('dokumen_iku_ikt', 'dokumen')}. Siklus PPEPP terlaksana, misalnya [isi: satu siklus lengkap dari penetapan sampai peningkatan standar]. Bukti efektivitas: [isi: temuan AMI dan tindak lanjutnya].`],
+    `Dokumen IKU dan IKT tersedia dalam ${P.d('dokumen_iku_ikt', 'dokumen')}. Siklus PPEPP terlaksana${P.siklusSPMI}, misalnya [isi: satu siklus lengkap dari penetapan sampai peningkatan standar]. Bukti efektivitas: ${P.efektivitasAMI}.`],
   '56': P => [
     `Capaian kinerja diukur dengan [isi: metode]; indikator yang tidak tercapai dianalisis akar masalahnya [isi: contoh], ditinjau rutin dalam [isi: forum], dan hasilnya disebarluaskan melalui [isi: media].`],
   '57': P => [

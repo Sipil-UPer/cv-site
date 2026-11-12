@@ -49,7 +49,8 @@ export async function ambilDaftarLKPS(sb){
     return error ? ambil(sb.from('lkps_kerjasama').select(KS_DASAR)) : (data || []);
   };
   const [dosen, karya, kerjasama, bkd, prestasi, luaranMhs, mk, tema, mhs, tracer,
-         vmts, prodiUpps, dana, tendik, buktiVmts, prasarana, dokK3l, fasK3l, dokumen, ppepp, buktiBaris, buktiKarya, target, tim] = await Promise.all([
+         vmts, prodiUpps, dana, tendik, buktiVmts, prasarana, dokK3l, fasK3l, dokumen, ppepp, buktiBaris, buktiKarya, target, tim,
+         standar, capaianStandar, revisiStandar, temuan, rekapEval] = await Promise.all([
     ambilDosen(),
     ambilKarya(),
     ambilKS(),
@@ -91,7 +92,15 @@ export async function ambilDaftarLKPS(sb){
     ambil(sb.from('lkps_target_kinerja').select('*')),
     // Susunan tim penyusun LED (37-patch-susunan-tim.sql).
     ambil(sb.from('led_tim').select('*')),
+    // Standar SPMI, capaian per TS, revisi (67-patch), temuan AMI (51-patch), dan rekap evaluasi pembelajaran
+    // tanpa angka per dosen (68-patch): butir 16 dan 55 draf LED (pemilik 2026-11-12).
+    ambil(sb.from('spmi_standar').select('id,kode,lembar,pernyataan,dipantau,aktif')),
+    ambil(sb.from('spmi_capaian').select('standar_id,tahun_ts,status,rencana').limit(20000)),
+    ambil(sb.from('spmi_standar_revisi').select('standar_id,tanggal,perubahan,dasar')),
+    ambil(sb.from('ami_temuan').select('tahun_ts,kategori,status')),
+    ambil(sb.rpc('rekap_evaluasi')),
   ]);
   return { dosen, karya, kerjasama, bkd, prestasi, luaranMhs, mk, tema, mhs, tracer,
-           vmts, prodiUpps, dana, tendik, buktiVmts, prasarana, dokK3l, fasK3l, dokumen, ppepp, buktiBaris, buktiKarya, target, tim };
+           vmts, prodiUpps, dana, tendik, buktiVmts, prasarana, dokK3l, fasK3l, dokumen, ppepp, buktiBaris, buktiKarya, target, tim,
+           standar, capaianStandar, revisiStandar, temuan, rekapEval };
 }

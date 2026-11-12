@@ -2,10 +2,11 @@
 // tindak lanjut RTM sebelumnya, hasil AMI, capaian standar SPMI (Siklus PPEPP), IKU/IKT, evaluasi
 // pembelajaran, tindak lanjut lain yang masih terbuka, revisi standar, dan tabel usulan keputusan.
 // Keputusan RTM dicatat di Rapat dan notulen (jenis RTM); revisi standar di Data prodi › Revisi standar.
-import { run, para, judul, teks, tabel, buatDocx } from './docx-dasar.js?v=2026-11-12-713f9b';
-import { siklusPPEPP, TAHAP, tsDariTanggal, labelTS } from './standar-spmi.js?v=2026-11-12-713f9b';
-import { nilaiCapaian } from './capaian-iku.js?v=2026-11-12-713f9b';
-import { labelKategori, labelStatus, KATEGORI_TEMUAN } from './temuan-ami.js?v=2026-11-12-713f9b';
+import { run, para, judul, teks, tabel, buatDocx } from './docx-dasar.js?v=2026-11-12-f0b3a0';
+import { siklusPPEPP, TAHAP, tsDariTanggal, labelTS } from './standar-spmi.js?v=2026-11-12-f0b3a0';
+import { nilaiCapaian } from './capaian-iku.js?v=2026-11-12-f0b3a0';
+import { labelKategori, labelStatus, KATEGORI_TEMUAN } from './temuan-ami.js?v=2026-11-12-f0b3a0';
+import { rekapSurvei, aspekTindakLanjut, labelKelompok } from './survei-kepuasan.js?v=2026-11-12-f0b3a0';
 
 const tgl = d => d ? String(d).slice(0, 10).split('-').reverse().join('/') : '';
 const pendek = (s, n) => { s = String(s ?? '').replace(/\s+/g, ' ').trim(); return s.length > n ? s.slice(0, n - 1) + '…' : s; };
@@ -16,7 +17,7 @@ const kosong = s => teks(s, { i: true });
 /**
  * Isi <w:body>. X = { prodi, ts, standar, capaian, revisi, target (IKU, capaian efektif; null = tidak terbaca),
  * temuan, rapat, tindakRapat (rapat_tindak dengan rapat_id), tindakEval (evaluasi_tindak dengan evaluasi_mk),
- * rekapEval (rekap_evaluasi()), namaDosen: id -> nama }.
+ * rekapEval (rekap_evaluasi()), survei ([{judul, kelompok, tahun_ts, n, pertanyaan, hitung}] | null), namaDosen: id -> nama }.
  */
 export function isiBahanRTM(X, kini = new Date()){
   const { ts } = X, out = [], nama = X.namaDosen || (() => '');
@@ -91,8 +92,18 @@ export function isiBahanRTM(X, kini = new Date()){
 
   // 6. Umpan balik pemangku kepentingan.
   out.push(judul('6. Umpan balik pemangku kepentingan', 1));
-  out.push(kosong('[Isi: ringkasan survei kepuasan mahasiswa, dosen, tenaga kependidikan, mitra, dan pengguna lulusan (Monitoring › Hasil survei kepuasan), '
-    + 'serta keluhan atau masukan yang diterima.]'));
+  // Survei kepuasan TS ini (54-patch); X.survei = [{ judul, kelompok, tahun_ts, n, pertanyaan, hitung }], null = tidak terbaca.
+  const sv = (X.survei || []).filter(s => +s.tahun_ts === +ts && s.n);
+  if (X.survei == null) out.push(kosong('Hasil survei kepuasan tidak terbaca; unduh bahan ini sebagai admin atau pimpinan.'));
+  else if (!sv.length) out.push(kosong(`Belum ada survei kepuasan berjawaban untuk TS ${labelTS(ts)} (Operasional › Survei kepuasan).`));
+  else {
+    const rk = sv.map(s => ({ s, r: rekapSurvei(s.pertanyaan, s.hitung) }));
+    out.push(tabel([['Kelompok', 'Survei', 'Responden', 'Rerata (1–4)', '% puas', 'Aspek di bawah ambang'], ...rk.map(({ s, r }) => [labelKelompok(s.kelompok),
+      pendek(s.judul, 60), String(s.n), r.rerata == null ? '—' : angka(r.rerata), r.puas == null ? '—' : `${angka(r.puas)}%`,
+      aspekTindakLanjut(r).map(a => `${a.label} (${a.alasan.join('; ')})`).join('; ') || '—'])]));
+    out.push(teks('Ambang: % puas di bawah 75 atau rerata di bawah 3 (sama dengan Hasil survei kepuasan). Rincian per pertanyaan di halaman Survei kepuasan.', { i: true }));
+  }
+  out.push(kosong('[Isi bila ada: keluhan atau masukan pemangku kepentingan di luar survei.]'));
 
   // 7. Tindak lanjut lain.
   out.push(judul('7. Tindak lanjut rapat lain yang masih terbuka', 1));

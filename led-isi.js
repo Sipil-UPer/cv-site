@@ -9,10 +9,10 @@
    Tautan di dalam teks memakai token ⟦url|label⟧; auto() di led.js
    mengubahnya menjadi hyperlink Word.
    ===================================================================== */
-import { versiUntukTS } from './pustaka-dokumen.js?v=2026-11-12-713f9b';
-import { infoJenis, JENIS_DOKUMEN, kelompokDokumen, buktiButir, saranDokumen } from './rencana-bukti.js?v=2026-11-12-713f9b';
-import { teksPendidikan } from './profil-dosen.js?v=2026-11-12-713f9b';
-import { karya4i } from './sitasi.js?v=2026-11-12-713f9b';
+import { versiUntukTS } from './pustaka-dokumen.js?v=2026-11-12-f0b3a0';
+import { infoJenis, JENIS_DOKUMEN, kelompokDokumen, buktiButir, saranDokumen } from './rencana-bukti.js?v=2026-11-12-f0b3a0';
+import { teksPendidikan } from './profil-dosen.js?v=2026-11-12-f0b3a0';
+import { karya4i } from './sitasi.js?v=2026-11-12-f0b3a0';
 
 export const tokenTautan = (url, label) => `⟦${url}|${String(label).replace(/[⟦⟧|]/g, ' ')}⟧`;
 const isi = t => `[isi: ${t}]`;
@@ -70,6 +70,28 @@ export function namaTim(tim, dosen){
   return xs.length ? gabungKata(xs) : isi('nama anggota tim');
 }
 
+// Rekap evaluasi pembelajaran TS-2 s.d. TS (rekap_evaluasi(), tanpa angka per dosen), urut lama ke baru.
+export const rekapEvalTS = (X, ts) => (X.rekapEval || [])
+  .filter(r => { const t = +String(r.tahun_akademik).slice(5); return t >= ts - 2 && t <= ts; })
+  .sort((a, b) => a.tahun_akademik.localeCompare(b.tahun_akademik) || (a.semester === 'Genap') - (b.semester === 'Genap'));
+// Ringkasan siklus SPMI untuk butir 55: butir dipantau, capaian TS ini, revisi dan temuan AMI TS-2 s.d. TS.
+export function siklusSPMITS(X, ts){
+  const pantau = (X.standar || []).filter(s => s.dipantau !== false && s.aktif !== false);
+  const id = new Set(pantau.map(s => +s.id));
+  const cap = (X.capaianStandar || []).filter(c => +c.tahun_ts === +ts && id.has(+c.standar_id));
+  const tsTgl = d => { const [y, m] = String(d || '').split('-').map(Number); return m >= 9 ? y + 1 : y; };
+  const rev = (X.revisiStandar || []).filter(v => { const t = tsTgl(v.tanggal); return t >= ts - 2 && t <= ts; });
+  const tem = (X.temuan || []).filter(t => +t.tahun_ts >= ts - 2 && +t.tahun_ts <= ts);
+  const per = new Map();
+  pantau.forEach(s => { const l = s.lembar || 'Standar prodi'; if (!per.has(l)) per.set(l, { lembar: l, dipantau: 0, tercapai: 0, belum: 0, tidak: 0 }); per.get(l).dipantau++; });
+  cap.forEach(c => { const s = pantau.find(x => +x.id === +c.standar_id), x = per.get(s.lembar || 'Standar prodi');
+    if (c.status === 'tercapai') x.tercapai++; else if (c.status === 'belum') x.belum++; else if (c.status === 'tidak_berlaku') x.tidak++; });
+  return { dipantau: pantau.length, dinilai: cap.filter(c => c.status === 'tercapai' || c.status === 'belum').length,
+    tercapai: cap.filter(c => c.status === 'tercapai').length, belum: cap.filter(c => c.status === 'belum').length,
+    revisi: rev.length, revisiBaris: rev, temuan: tem.length, ditutup: tem.filter(t => t.status === 'ditutup').length, perLembar: [...per.values()],
+    kode: sid => (pantau.find(s => +s.id === +sid) || (X.standar || []).find(s => +s.id === +sid) || {}).kode || '' };
+}
+
 export function faktaNarasi(C){
   const X = C.daftar || {}, ts = C.ts, dok = C.dokumen || X.dokumen || [];
   const mk = (X.mk || []).filter(m => m.aktif !== false);
@@ -94,6 +116,13 @@ export function faktaNarasi(C){
   };
   const ada = (xs, cadangan) => xs.length ? xs : isi(cadangan);
   const target = targetBerlaku(X, ts), ikt = target.filter(r => r.jenis === 'ikt');
+  // Evaluasi pembelajaran (68-patch) dan siklus SPMI (67-patch), TS-2 s.d. TS (pemilik 2026-11-12).
+  // Tanpa data, kalimat kerangka lama dipakai persis (kunci saran led-saran.js tetap cocok).
+  const taL = t => `${t - 1}/${t}`, periode = `${taL(ts - 2)} s.d. ${taL(ts)}`;
+  const ev = rekapEvalTS(X, ts), sp = siklusSPMITS(X, ts);
+  const nEdom = ev.reduce((a, r) => a + (+r.ber_edom || 0), 0);
+  const rerataEdom = nEdom ? ev.reduce((a, r) => a + (+r.rerata_edom || 0) * (+r.ber_edom || 0), 0) / nEdom : null;
+  const jml = k => ev.reduce((a, r) => a + (+r[k] || 0), 0);
   const tahunIKT = [...new Set(ikt.filter(r => r.capaian != null).map(r => r.tahun_ts))].sort();
   return {
     d,
@@ -121,6 +150,18 @@ export function faktaNarasi(C){
     tendik: ada(gabungKata(perJabatan.map(([c, n]) => `${c} ${n}`)), 'jumlah laboran, teknisi, dan administrator'),
     ruang: ada(gabungKata(ruang.slice(0, 8)), 'ruang kelas, laboratorium sesuai panduan asosiasi, perpustakaan, media pembelajaran, perangkat lunak'),
     saranaK3L: ada(gabungKata(sarana.slice(0, 8)), 'APAR, jalur evakuasi, P3K, APD laboratorium'),
+    pantauPembelajaran: ev.length
+      ? `setiap semester melalui evaluasi dosen oleh mahasiswa (EDOM), refleksi dosen pengampu atas kesesuaian pelaksanaan dengan RPS, `
+        + `dan capaian CPL kelas; pada ${periode} tercatat ${jml('jumlah')} evaluasi mata kuliah`
+        + (rerataEdom == null ? '' : ` dengan rerata EDOM ${angkaID(Math.round(rerataEdom * 100) / 100)}`)
+        + `, ${jml('di_bawah_ambang')} di bawah ambang dan ${jml('bawah_bertindak')} di antaranya sudah ditindaklanjuti`
+      : `${isi('frekuensi')} melalui ${isi('instrumen, misalnya monitoring kesesuaian materi dengan RPS dan EDOM')}`,
+    siklusSPMI: !sp.dipantau ? '' : ` pada ${sp.dipantau} butir standar SPMI yang dipantau prodi`
+      + (sp.dinilai ? `; capaian ${sp.dinilai} butir telah dinilai pada ${taL(ts)} (${sp.tercapai} tercapai, ${sp.belum} belum tercapai dan diberi rencana perbaikan)` : '')
+      + (sp.revisi ? `; ${sp.revisi} perubahan standar tercatat pada ${periode}` : ''),
+    efektivitasAMI: sp.temuan
+      ? `${sp.temuan} temuan AMI pada ${periode}, ${sp.ditutup} di antaranya telah ditutup setelah diverifikasi efektif`
+      : isi('temuan AMI dan tindak lanjutnya'),
     responsTracer: lulusan && terlacak ? `${Math.round(terlacak / lulusan * 100)}% (${terlacak} dari ${lulusan} lulusan)` : isi('persentase'),
   };
 }
@@ -270,15 +311,29 @@ export function tabelPenjelas(no, C){
       targetBerlaku(X, ts).filter(r => r.jenis === 'ikt').map(r => [r.nama, r.tujuan_strategis || '—', r.dampak || '—', r.daya_saing || '—',
         `${r.arah === 'maksimal' ? '≤' : '≥'} ${angkaID(r.target)}${r.satuan ? ` ${r.satuan}` : ''}`, r.capaian == null ? '—' : angkaID(r.capaian)]));
     // Analisis dan rencana untuk indikator belum tercapai (67-patch-standar-spmi.sql, pemilik 2026-11-12).
+    // Evaluasi pembelajaran per semester (68-patch; rekap tanpa angka per dosen), pemilik 2026-11-12.
+    case '16': return buat('Evaluasi pembelajaran per semester', ['No', 'Semester', 'MK × dosen', 'Rerata EDOM', 'Di bawah ambang',
+        'Sudah ditindaklanjuti', 'Refleksi RPS terisi', 'Tindak lanjut selesai'],
+      rekapEvalTS(X, ts).map(r => [`${r.tahun_akademik} ${r.semester}`, String(r.jumlah), r.rerata_edom == null ? '—' : angkaID(r.rerata_edom),
+        String(r.di_bawah_ambang), `${r.bawah_bertindak} dari ${r.di_bawah_ambang}`, `${r.rps_terisi} dari ${r.jumlah}`, `${r.tindak_selesai} dari ${r.tindak}`]),
+      'di Operasional › Evaluasi pembelajaran');
     case '56': return buat('Target dan capaian IKU/IKT', ['No', 'Indikator', 'Jenis', 'Target', 'Capaian', 'Status', 'Analisis dan rencana perbaikan'],
       targetBerlaku(X, ts).map(r => [r.nama, r.jenis.toUpperCase(), `${r.arah === 'maksimal' ? '≤' : '≥'} ${angkaID(r.target)}${r.satuan ? ` ${r.satuan}` : ''}`,
         r.capaian == null ? '—' : angkaID(r.capaian), tercapai(r) == null ? 'Belum diukur' : tercapai(r) ? 'Tercapai' : 'Belum tercapai',
         tercapai(r) === false ? [r.analisis, r.rencana_perbaikan && `Rencana: ${r.rencana_perbaikan}`].filter(Boolean).join('. ') || '[isi: analisis akar masalah dan rencana perbaikan]' : '—']));
     case '55': {
       const u = id => (dok.find(d => d.id === id) || {}).url || '';
-      return buat('Pelaksanaan siklus PPEPP', ['No', 'Tahap', 'Dokumen', 'Laporan audit', 'Laporan RTM', 'Peningkatan'],
+      // Standar SPMI per lembar dan revisinya (67-patch), pemilik 2026-11-12.
+      const sp = siklusSPMITS(X, ts), DASAR = { rtm: 'Keputusan RTM', ami: 'Temuan AMI', evaluasi_capaian: 'Evaluasi capaian', kebijakan: 'Kebijakan baru', lainnya: 'Lainnya' };
+      const tambahan = [...buat(`Capaian standar SPMI TS ${ts - 1}/${ts}`, ['No', 'Lembar standar', 'Butir dipantau', 'Tercapai', 'Belum tercapai', 'Tidak berlaku', 'Belum dinilai'],
+          sp.perLembar.map(x => [x.lembar, String(x.dipantau), String(x.tercapai), String(x.belum), String(x.tidak), String(x.dipantau - x.tercapai - x.belum - x.tidak)]),
+          'di Akreditasi › Siklus PPEPP'),
+        ...buat('Perubahan standar SPMI', ['No', 'Tanggal', 'Standar', 'Perubahan', 'Dasar'],
+          sp.revisiBaris.map(v => [String(v.tanggal).split('-').reverse().join('/'), sp.kode(v.standar_id), v.perubahan, DASAR[v.dasar] || v.dasar]),
+          'di Data prodi › Revisi standar')];
+      return [...buat('Pelaksanaan siklus PPEPP', ['No', 'Tahap', 'Dokumen', 'Laporan audit', 'Laporan RTM', 'Peningkatan'],
         Object.keys(TAHAP).map(t => (X.ppepp || []).find(r => r.tahap === t)).filter(Boolean).map(r => [TAHAP[r.tahap],
-          sel(u(r.dokumen_id)), sel(u(r.audit_dokumen_id)), sel(u(r.rtm_dokumen_id)), sel(u(r.peningkatan_dokumen_id))]));
+          sel(u(r.dokumen_id)), sel(u(r.audit_dokumen_id)), sel(u(r.rtm_dokumen_id)), sel(u(r.peningkatan_dokumen_id))])), ...tambahan];
     }
     default: return [];
   }
