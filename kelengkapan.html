@@ -76,6 +76,7 @@ import { ambilDaftarLKPS } from './data-lkps.js?v=2026-11-12-b7db2c';
 import { bagianNarasi, ambilNarasi, ambilPenugasan } from './led-narasi.js?v=2026-11-12-b7db2c';
 import { TAB_DATA, konteksNarasi, rekapKelengkapan, tugasPerPihak } from './kelengkapan.js?v=2026-11-12-b7db2c';
 import { PIHAK } from './unsur-butir.js?v=2026-11-12-b7db2c';
+import { denganOtomatis } from './capaian-iku.js?v=2026-11-12-b7db2c';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g,
   c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -106,9 +107,11 @@ async function mulai(){
     fetch('data.json?v=' + Date.now()), ambilDaftarLKPS(sb), ambilNarasi(sb), ambilPenugasan(sb), baca('dosen'), baca('butir_bukti'),
     baca('pengaturan'), baca('karya_bukti'), (async () => (await sb.from('karya').select('id,status,bukti_url').limit(5000)).data || [])(),
     Promise.all(TAB_DATA.map(async ([, t]) => [t, await jumlahBaris(t)])).then(Object.fromEntries)]);
-  const C = konteksNarasi(await r.json(), daftar);
+  const D = await r.json();
+  const C = konteksNarasi(D, daftar);
   const hasil = rekapKelengkapan({ kelompok: bagianNarasi(C), narasi, tugas, tim: daftar.tim, dosen, jumlah,
-    dokumen: daftar.dokumen, butirBukti, pengaturan, karya, karyaBukti, ts: C.ts });
+    dokumen: daftar.dokumen, butirBukti, pengaturan, karya, karyaBukti, ts: C.ts,
+    targetIKU: (daftar.target || []).map(x => denganOtomatis(x, D)) });
   $('isi').innerHTML = `<div class="ringkas"><b>${hasil.selesai} dari ${hasil.total} selesai</b>
       <div class="bar"><i style="width:${hasil.selesai / hasil.total * 100}%"></i></div>
       <label><input type="checkbox" id="hanya"> Tampilkan yang belum selesai saja</label></div>

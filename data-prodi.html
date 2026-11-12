@@ -123,6 +123,8 @@ import { UNSUR, skorUnsur, pihakUnsur } from './unsur-butir.js?v=2026-11-12-b7db
 import { OPSI_SUMBER } from './iku-otomatis.js?v=2026-11-12-b7db2c';
 import { denganOtomatis as otomatisDari, tsTersedia, htmlCapaianIKU, KET_CAPAIAN } from './capaian-iku.js?v=2026-11-12-b7db2c';
 import { KATEGORI_TEMUAN, STATUS_TEMUAN, PIHAK_TEMUAN, ringkasTemuan, htmlRingkasTemuan } from './temuan-ami.js?v=2026-11-12-b7db2c';
+import { bacaRekapSPM, rencanaImporSPM, tsDariTanggal, labelTS } from './standar-spmi.js?v=2026-11-12-b7db2c';
+import { SHEETJS } from './nilai-cpl.js?v=2026-11-12-b7db2c';
 import { htmlContoh, pasangContoh, JENIS_BUKTI_KS } from './manfaat-kerjasama.js?v=2026-11-12-b7db2c';
 import { infoJenis } from './rencana-bukti.js?v=2026-11-12-b7db2c';
 import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-12-b7db2c';
@@ -175,6 +177,18 @@ const TINGKAT_3 = [['internasional', 'Internasional'], ['nasional', 'Nasional'],
 // Tahap PPEPP, baris lembar 7b (30-patch-spmi.sql).
 const TAHAP_PPEPP = [['penetapan', 'Penetapan'], ['pelaksanaan', 'Pelaksanaan'], ['evaluasi', 'Evaluasi'],
   ['pengendalian', 'Pengendalian'], ['peningkatan', 'Peningkatan']];
+// Standar SPMI dan revisinya (67-patch-standar-spmi.sql). Daftar standar, rapat, dan temuan
+// dimuat di mulai(); pilihan berupa fungsi supaya terbaca setelah dimuat.
+const ASAL_STANDAR = [['institusi', 'Institusi (diadopsi dari universitas)'], ['prodi', 'Prodi (standar turunan prodi)']];
+const DASAR_REVISI = [['rtm', 'Keputusan RTM'], ['ami', 'Temuan AMI'], ['evaluasi_capaian', 'Evaluasi capaian IKU/IKT'],
+  ['kebijakan', 'Kebijakan atau peraturan baru'], ['lainnya', 'Lainnya']];
+let STANDAR = [], RAPAT_SPMI = [], TEMUAN_SPMI = [];
+const OPSI_STANDAR = () => STANDAR.filter(s => s.dipantau !== false)
+  .map(s => [String(s.id), `${s.kode} · ${String(s.pernyataan).slice(0, 70)}${s.aktif === false ? ' (tidak berlaku)' : ''}`]);
+const OPSI_RAPAT = () => [...RAPAT_SPMI].sort((a, b) => (b.jenis === 'rtm') - (a.jenis === 'rtm') || String(b.tanggal).localeCompare(String(a.tanggal)))
+  .map(r => [String(r.id), `${r.jenis === 'rtm' ? 'RTM · ' : ''}${String(r.tanggal).split('-').reverse().join('/')} · ${r.judul}`]);
+const OPSI_TEMUAN = () => TEMUAN_SPMI.map(t => [String(t.id), `${t.tahun_ts} · ${t.kode ? t.kode + ' · ' : ''}${String(t.uraian).slice(0, 70)}`]);
+const opsi = c => typeof c.o === 'function' ? c.o() : c.o;
 // Kondisi sarana/fasilitas (28-patch-sarana-k3l.sql): kolom Terawat / Tidak Terawat lembar 5a, 5c.
 const KONDISI = [['terawat', 'Terawat'], ['tidak_terawat', 'Tidak terawat']];
 // Daftar pilihan templat LKPS (27-patch-institusi-upps.sql): lembar PS B5:B12, baris 2b.
@@ -525,7 +539,9 @@ const TABEL = [
     urut: ['tahun_ts', 'urutan', 'nama'],
     ket: 'Satu baris per indikator per TS. Isi butir bila indikator itu mengukur satu butir: target dan capaiannya otomatis masuk '
        + 'kalimat capaian butir itu di draf LED. Contoh IKU: Waktu tunggu lulusan, butir 49, satuan bulan, arah maksimal, target 6. '
-       + 'Contoh IKT: Sitasi internasional DTPS, satuan sitasi, arah minimal. Untuk IKT, isi juga keempat unsur matriks butir 54.',
+       + 'Contoh IKT: Sitasi internasional DTPS, satuan sitasi, arah minimal. Untuk IKT, isi juga keempat unsur matriks butir 54. '
+       + 'Indikator yang belum tercapai (IKU maupun IKT) diberi analisis akar masalah dan rencana perbaikan (butir 56); '
+       + 'yang belum dianalisis ditandai merah di ringkasan capaian dan di Kelengkapan.',
     label: r => `${String(r.jenis || '').toUpperCase()} ${r.nama || ''}`, tahun: r => r.tahun_ts,
     kolom: [
       { k: 'jenis', l: 'Jenis', t: 'pilihan', wajib: true, o: [['iku', 'IKU'], ['ikt', 'IKT']] },
@@ -542,11 +558,57 @@ const TABEL = [
       { k: 'tujuan_strategis', l: 'IKT: tujuan strategis yang didukung', t: 'teks', lebar: true },
       { k: 'dampak', l: 'IKT: dampak positif dan terukur', t: 'teks', lebar: true },
       { k: 'daya_saing', l: 'IKT: daya saing internasional', t: 'teks', lebar: true },
-      { k: 'analisis', l: 'IKT: hasil analisis untuk perbaikan', t: 'paragraf' },
+      // 67-patch-standar-spmi.sql (pemilik 2026-11-12): analisis untuk semua indikator yang belum tercapai.
+      { k: 'analisis', l: 'Analisis capaian (akar masalah bila belum tercapai; IKT: hasil analisis untuk perbaikan)', t: 'paragraf' },
+      { k: 'rencana_perbaikan', l: 'Rencana perbaikan (bila belum tercapai): tindakan, penanggung jawab, waktu', t: 'paragraf', patch67: true },
+      { k: 'standar_id', l: 'Standar SPMI yang diukur', t: 'pilihan', o: () => OPSI_STANDAR(), patch67: true },
       { k: 'urutan', l: 'Urutan tampil', t: 'int' },
     ],
     olah: r => { if (r.urutan == null) r.urutan = 100; },
     cek: r => r.butir != null && (r.butir < 1 || r.butir > 60) ? 'Butir harus 1 sampai 60.' : '' },
+  // 67-patch-standar-spmi.sql (pemilik 2026-11-12): Penetapan dan Peningkatan dalam PPEPP.
+  { id: 'standar', tabel: 'spmi_standar', judul: 'Standar SPMI', butir: '53, 55', patch: '67-patch-standar-spmi.sql',
+    urut: ['urutan', 'kode'],
+    ket: 'Satu baris per butir standar SPMI. Isi dengan Impor rekap standar SPM (berkas Excel dari SPM) di bawah; impor bisa '
+       + 'diulang untuk versi baru: teks dan target diperbarui, capaian yang sudah diisi prodi tidak berubah. Standar turunan '
+       + 'prodi sendiri ditambahkan lewat form (asal Prodi, kode mis. P.01.01). Hilangkan centang Dipantau prodi untuk butir '
+       + 'yang bukan urusan prodi. Capaian per TS diisi di halaman Siklus PPEPP (menu Akreditasi).',
+    label: r => `${r.kode || ''} ${String(r.pernyataan || '').slice(0, 60)}`.trim(), tahun: () => null,
+    kolom: [
+      { k: 'kode', l: 'Kode butir', t: 'teks', wajib: true },
+      { k: 'induk', l: 'Standar induk (mis. A Pendidikan)', t: 'teks' },
+      { k: 'sub', l: 'Sub-standar', t: 'teks', lebar: true },
+      { k: 'pernyataan', l: 'Pernyataan isi standar', t: 'paragraf', wajib: true },
+      { k: 'luaran', l: 'Jenis luaran', t: 'paragraf' },
+      { k: 'pic', l: 'PIC', t: 'teks' },
+      { k: 'referensi', l: 'Referensi', t: 'teks', lebar: true },
+      { k: 'asal', l: 'Asal', t: 'pilihan', wajib: true, o: ASAL_STANDAR },
+      { k: 'dipantau', l: 'Dipantau prodi', t: 'cek', awal: true },
+      { k: 'aktif', l: 'Masih berlaku', t: 'cek', awal: true },
+      { k: 'dokumen_id', l: 'Dokumen penetapan', t: 'dokumen', saran: ['standar_spmi', 'manual_spmi', 'kebijakan_spmi'] },
+      { k: 'berlaku_sejak', l: 'Berlaku sejak', t: 'tanggal' },
+      { k: 'urutan', l: 'Urutan tampil', t: 'int' },
+    ],
+    olah: r => { if (r.urutan == null) r.urutan = 100; if (r.kode) r.kode = r.kode.trim(); },
+    cek: r => r.kode && r.kode.length > 30 ? 'Kode butir paling panjang 30 karakter.' : '' },
+  { id: 'revisi', tabel: 'spmi_standar_revisi', judul: 'Revisi standar', butir: '55', patch: '67-patch-standar-spmi.sql',
+    urut: ['tanggal'],
+    ket: 'Satu baris per perubahan standar: bukti tahap Peningkatan. Tulis apa yang berubah (mis. "target kelulusan tepat waktu '
+       + 'naik dari 60% ke 70%") dan dasarnya: keputusan RTM, temuan AMI, atau evaluasi capaian. Rapat dipilih dari Rapat dan '
+       + 'notulen (jenis RTM tampil lebih dulu); dokumen standar hasil revisi dipilih dari tab Dokumen.',
+    label: r => `${(STANDAR.find(s => +s.id === +r.standar_id) || {}).kode || 'Standar'} ${r.versi ? 'v' + r.versi : ''} ${r.tanggal || ''}`.trim(),
+    tahun: r => r.tanggal ? tsDariTanggal(r.tanggal) : null,
+    kolom: [
+      { k: 'standar_id', l: 'Standar', t: 'pilihan', wajib: true, o: () => OPSI_STANDAR() },
+      { k: 'tanggal', l: 'Tanggal revisi ditetapkan', t: 'tanggal', wajib: true },
+      { k: 'versi', l: 'Versi baru (mis. 2)', t: 'teks' },
+      { k: 'perubahan', l: 'Perubahan (sebelum → sesudah)', t: 'paragraf', wajib: true },
+      { k: 'dasar', l: 'Dasar revisi', t: 'pilihan', wajib: true, o: DASAR_REVISI },
+      { k: 'rapat_id', l: 'Rapat yang memutuskan', t: 'pilihan', o: () => OPSI_RAPAT() },
+      { k: 'temuan_id', l: 'Temuan AMI yang ditindaklanjuti', t: 'pilihan', o: () => OPSI_TEMUAN() },
+      { k: 'dokumen_id', l: 'Dokumen standar hasil revisi', t: 'dokumen', saran: ['standar_spmi', 'manual_spmi'] },
+    ],
+    cek: r => r.perubahan && r.perubahan.length > 4000 ? 'Perubahan paling panjang 4000 karakter.' : '' },
   { id: 'spmi', tabel: 'lkps_spmi_ppepp', judul: 'SPMI (PPEPP)', butir: '53–57', patch: '30-patch-spmi.sql',
     urut: ['id'],
     ket: 'Tabel 7.b LKPS: satu baris per tahap PPEPP (Penetapan, Pelaksanaan, Evaluasi, Pengendalian, Peningkatan). '
@@ -576,7 +638,8 @@ const TABEL = [
       { k: 'tahun_ts', l: 'Tahun TS (tahun akhir, mis. 2026)', t: 'tahun', wajib: true },
       { k: 'tanggal_audit', l: 'Tanggal audit', t: 'tanggal' },
       { k: 'kode', l: 'Kode temuan (mis. T-03)', t: 'teks' },
-      { k: 'standar', l: 'Standar SPMI', t: 'teks' },
+      { k: 'standar_id', l: 'Standar SPMI (dari tab Standar SPMI)', t: 'pilihan', o: () => OPSI_STANDAR(), patch67: true },
+      { k: 'standar', l: 'Standar SPMI (teks, bila tidak ada di daftar)', t: 'teks' },
       { k: 'butir', l: 'Butir terkait (1–60)', t: 'int' },
       { k: 'kategori', l: 'Kategori', t: 'pilihan', wajib: true, o: KATEGORI_TEMUAN },
       { k: 'uraian', l: 'Uraian temuan', t: 'paragraf', wajib: true },
@@ -748,8 +811,24 @@ const dokPer = id => DOK.find(d => d.id === id) || null;
 let LB = new Map(), LB_GAGAL = '', ANTREAN = [];
 // Kolom tautan lama (bukti_url / tautan_bukti) tidak lagi diisi di form;
 // isinya tetap tampil sebagai "Bukti (lama)".
-const kolomForm = T => T.kolom.filter(c => c.t !== 'url' && !(c.patch45 && !ADA45) && !(c.patch46 && !ADA46) && !(c.patch48 && !ADA48));
+// ADA67 = spmi_standar ada (67-patch-standar-spmi.sql); kolom patch67 disembunyikan bila belum.
+let ADA67 = true;
+const kolomForm = T => T.kolom.filter(c => c.t !== 'url' && !(c.patch45 && !ADA45) && !(c.patch46 && !ADA46) && !(c.patch48 && !ADA48)
+  && !(c.patch67 && !ADA67));
 const kolomLama = T => (T.kolom.find(c => c.t === 'url') || {}).k;
+
+// Pilihan standar, rapat, dan temuan untuk tab SPMI (67-patch-standar-spmi.sql).
+// Dimuat ulang setelah tab Standar atau Temuan disimpan supaya pilihannya mutakhir.
+async function muatDaftarSPMI(){
+  const [st, rp, tm] = await Promise.all([
+    sb.from('spmi_standar').select('id,kode,pernyataan,aktif,dipantau,asal,lembar,induk,sub,luaran,pic,referensi').order('urutan').order('kode'),
+    sb.from('rapat').select('id,judul,jenis,tanggal').order('tanggal', { ascending: false }).limit(300),
+    sb.from('ami_temuan').select('id,kode,uraian,tahun_ts').order('tahun_ts', { ascending: false }).order('kode')]);
+  ADA67 = !st.error;
+  STANDAR = st.data || [];
+  RAPAT_SPMI = rp.error ? [] : rp.data || [];
+  TEMUAN_SPMI = tm.error ? [] : tm.data || [];
+}
 
 async function mulai(){
   const { data: { session } } = await sb.auth.getSession();
@@ -775,6 +854,7 @@ async function mulai(){
   ADA45 = !(await sb.from('ref_mata_kuliah').select('rps_9_komponen').limit(1)).error;
   ADA46 = !(await sb.from('ref_mata_kuliah').select('sifat').limit(1)).error;
   ADA48 = !(await sb.from('lkps_target_kinerja').select('sumber').limit(1)).error;
+  await muatDaftarSPMI();
   // Pilihan bidang untuk tab Topik keahlian (61-patch-keahlian-baku.sql); kosong bila patch belum ada.
   BIDANG_KH = (await sb.from('ref_bidang_keahlian').select('kode,nama').order('urutan')).data || [];
   await muatPustaka();
@@ -859,6 +939,104 @@ function gambarCapaianIKU(ts){
     }
     await muatBaris();
   };
+}
+
+// ---------------------------------------------------------------------
+//  Impor rekap standar SPM (.xlsx; pemilik 2026-11-12, 67-patch-standar-spmi.sql).
+//  Butir dicocokkan menurut kode: teks diperbarui, centang Dipantau/Masih berlaku
+//  tidak diubah; target per TS di-upsert ke spmi_capaian tanpa menyentuh capaian.
+//  Butir lama yang hilang dari berkas tidak dihapus, hanya dilaporkan.
+// ---------------------------------------------------------------------
+let REKAP_SPM = null, XLSX_SPM = null;
+function gambarImporStandar(){
+  const box = $('impor-standar');
+  if (!box) return;
+  box.innerHTML = `<details class="massal" open><summary><b>Impor rekap standar SPM</b> (berkas Excel dari SPM, mis. "Draft Rekap Standar")</summary>
+    <p class="ket">Satu lembar per standar; baris berkode (mis. A.01.02a) menjadi butir, baris tanpa kode di bawahnya menjadi rincian
+      butir itu (mis. target per jenjang). Kolom target 2026/2027 dan seterusnya menjadi target TS. Situs ini untuk LAM Teknik:
+      lembar akreditasi LAM lain tidak ditawarkan.</p>
+    <div class="unggah-baris"><input type="file" id="spm_xlsx" accept=".xlsx"></div>
+    <div id="spm_pratinjau"></div></details>`;
+  $('spm_xlsx').onchange = async e => {
+    const f = e.target.files[0];
+    if (!f) return;
+    const pv = $('spm_pratinjau');
+    pv.innerHTML = '<p class="ket">Membaca berkas…</p>';
+    try {
+      XLSX_SPM = XLSX_SPM || await import(SHEETJS);
+      const wb = XLSX_SPM.read(await f.arrayBuffer(), { type: 'array' });
+      const buku = Object.fromEntries(wb.SheetNames.map(n => [n, XLSX_SPM.utils.sheet_to_json(wb.Sheets[n], { header: 1, raw: false, defval: null })]));
+      REKAP_SPM = bacaRekapSPM(buku);
+      gambarLembarSPM();
+    } catch (err) { REKAP_SPM = null; pv.innerHTML = `<p class="msg buruk">Berkas tidak terbaca: ${esc(err.message)}</p>`; }
+  };
+}
+function gambarLembarSPM(){
+  const pv = $('spm_pratinjau');
+  const tampil = (REKAP_SPM?.lembar || []).filter(l => l.jenis !== 'lain');
+  if (!tampil.length) { pv.innerHTML = '<p class="msg buruk">Tidak ada lembar berisi kolom "Butir Standar".</p>'; return; }
+  const lain = REKAP_SPM.lembar.filter(l => l.jenis === 'lain').map(l => l.nama);
+  pv.innerHTML = `<p class="ket"><b>Pilih lembar yang diimpor:</b></p>
+    <div class="jamak">${tampil.map((l, i) => `<label class="cek"><input type="checkbox" data-lembar="${i}"${l.jenis === 'bawaan' ? ' checked' : ''}>
+      ${esc(l.nama)} (${l.butir.length} butir)</label>`).join('')}</div>
+    ${lain.length ? `<p class="ket">Tidak ditawarkan (akreditasi LAM lain): ${esc(lain.join(', '))}.</p>` : ''}
+    <div id="spm_rencana"></div>`;
+  pv.querySelectorAll('[data-lembar]').forEach(x => { x.onchange = () => rencanaSPM(tampil); });
+  rencanaSPM(tampil);
+}
+let RENCANA_SPM = null;
+function rencanaSPM(tampil){
+  const butir = [...$('spm_pratinjau').querySelectorAll('[data-lembar]:checked')].flatMap(x => tampil[+x.dataset.lembar].butir);
+  const r = RENCANA_SPM = rencanaImporSPM(butir, BARIS);
+  const ts = [...new Set(butir.flatMap(b => Object.keys(b.target)))].sort();
+  $('spm_rencana').innerHTML = `<p class="ket"><b>${r.baru.length}</b> butir baru · <b>${r.ubah.length}</b> berubah · <b>${r.sama.length}</b> sama ·
+      <b>${r.target}</b> target per TS (${ts.map(t => labelTS(+t)).join(', ') || '—'})${r.ganda.length ? ` · <b>${r.ganda.length}</b> kode ganda dilewati: ${esc(r.ganda.join(', '))}` : ''}</p>
+    ${r.hilang.length ? `<p class="ket">${r.hilang.length} butir lama dari lembar ini tidak ada di berkas (tidak dihapus; hilangkan centang Masih berlaku bila memang dicabut):
+      ${esc(r.hilang.map(x => x.kode).join(', '))}</p>` : ''}
+    <div class="aksi"><button type="button" class="btn" id="spm_simpan"${butir.length ? '' : ' disabled'}>Simpan ${r.baru.length + r.ubah.length} butir dan ${r.target} target</button>
+      <span class="msg" id="spm_msg"></span></div>`;
+  $('spm_simpan').onclick = simpanImporSPM;
+}
+async function simpanImporSPM(){
+  const msg = (cls, s) => { const m = $('spm_msg'); m.className = 'msg' + (cls ? ' ' + cls : ''); m.textContent = s; };
+  const r = RENCANA_SPM;
+  if (!r) return;
+  $('spm_simpan').disabled = true;
+  const jejak = { oleh: SAYA.email, diperbarui: new Date().toISOString() };
+  const semua = [...r.baru, ...r.ubah, ...r.sama];
+  const urutan = new Map(semua.map((b, i) => [b.kode, i + 1]));
+  const teks = b => ({ kode: b.kode, induk: b.induk, sub: b.sub, lembar: b.lembar, pernyataan: b.pernyataan, luaran: b.luaran,
+    pic: b.pic, referensi: b.referensi, urutan: urutan.get(b.kode), ...jejak });
+  const potong = (xs, n) => Array.from({ length: Math.ceil(xs.length / n) }, (_, i) => xs.slice(i * n, i * n + n));
+  try {
+    msg('', 'Menyimpan butir…');
+    for (const xs of potong(r.baru.map(b => ({ ...teks(b), asal: 'institusi', dipantau: true, aktif: true })), 100)) {
+      const { error } = await sb.from('spmi_standar').insert(xs);
+      if (error) throw error;
+    }
+    for (const xs of potong([...r.ubah, ...r.sama].map(teks), 100)) {
+      const { error } = await sb.from('spmi_standar').upsert(xs, { onConflict: 'kode' });
+      if (error) throw error;
+    }
+    const ids = new Map();
+    for (const ks of potong(semua.map(b => b.kode), 150)) {
+      const { data, error } = await sb.from('spmi_standar').select('id,kode').in('kode', ks);
+      if (error) throw error;
+      (data || []).forEach(x => ids.set(x.kode, x.id));
+    }
+    msg('', 'Menyimpan target per TS…');
+    const tg = semua.flatMap(b => Object.entries(b.target).filter(() => ids.has(b.kode))
+      .map(([ts, target]) => ({ standar_id: ids.get(b.kode), tahun_ts: +ts, target, ...jejak })));
+    for (const xs of potong(tg, 200)) {
+      const { error } = await sb.from('spmi_capaian').upsert(xs, { onConflict: 'standar_id,tahun_ts' });
+      if (error) throw error;
+    }
+    await muatBaris();
+    msg('ok', `${r.baru.length} butir baru, ${r.ubah.length} diperbarui, ${tg.length} target tersimpan. Capaian diisi di halaman Siklus PPEPP.`);
+  } catch (err) {
+    $('spm_simpan').disabled = false;
+    msg('buruk', 'Gagal: ' + err.message + '. Bagian yang sudah tersimpan tetap ada; simpan lagi untuk melanjutkan.');
+  }
 }
 
 // ---------------------------------------------------------------------
@@ -1248,7 +1426,7 @@ const GRUP_TAB = [
   ['Mahasiswa & lulusan', ['mahasiswa', 'kohort', 'prestasi', 'publikasi', 'luaran', 'tracer', 'kepuasan']],
   ['Institusi & keuangan', ['vmts', 'prodi_upps', 'dana']],
   ['Sarana & K3L', ['prasarana', 'dok_k3l', 'fas_k3l']],
-  ['SPMI', ['spmi', 'target', 'temuan']],
+  ['SPMI', ['standar', 'revisi', 'spmi', 'target', 'temuan']],
 ];
 const grupTab = T => (GRUP_TAB.find(([, ids]) => ids.includes(T.id)) || ['Lainnya'])[0];
 
@@ -1273,7 +1451,7 @@ async function bukaTab(){
   if (T.khusus) return bukaPustaka();
   $('panel').innerHTML = `<p class="ket">${nomorButir(T.butir).length
     ? `<b>${htmlTautanButir(nomorButir(T.butir), null, 'Dipakai di')}.</b>` : `<b>${esc(T.butir)}.</b>`} ${esc(T.ket)}</p>${saranTab(T)}
-    ${T.id === 'kepuasan' ? '<div id="massal"></div>' : ''}${T.id === 'mk' ? '<div id="impor-mk"></div>' : ''}${T.id === 'target' ? '<div id="capaian-iku"></div><div id="impor-iku"></div>' : ''}${T.id === 'temuan' ? '<div id="ringkas-temuan"></div>' : ''}
+    ${T.id === 'kepuasan' ? '<div id="massal"></div>' : ''}${T.id === 'mk' ? '<div id="impor-mk"></div>' : ''}${T.id === 'target' ? '<div id="capaian-iku"></div><div id="impor-iku"></div>' : ''}${T.id === 'temuan' ? '<div id="ringkas-temuan"></div>' : ''}${T.id === 'standar' ? '<div id="impor-standar"></div>' : ''}
     <form id="form" novalidate><div class="grid">${kolomForm(T).map(isian).join('')}
       ${T.tanpaBukti ? '' : T.privat ? blokLKD() : blokBukti(T)}</div>
       <div class="aksi"><button type="submit" class="btn" id="simpan">Tambah baris</button>
@@ -1330,7 +1508,7 @@ function isian(c){
   let el;
   if (c.t === 'pilihan' || c.t === 'bulan' || c.t === 'nidn') {
     const o = c.t === 'bulan' ? BULAN.map((b, i) => [String(i + 1), b])
-            : c.t === 'nidn' ? DOSEN.map(d => [d.nidn, `${d.nama} (${d.nidn})`]) : c.o;
+            : c.t === 'nidn' ? DOSEN.map(d => [d.nidn, `${d.nama} (${d.nidn})`]) : opsi(c);
     el = `<select id="${id}"><option value="">—</option>${o.map(([v, l]) =>
       `<option value="${esc(v)}">${esc(l)}</option>`).join('')}</select>`;
   } else if (c.t === 'url') {
@@ -1438,6 +1616,8 @@ async function muatBaris(){
   if (T.id === 'target') gambarCapaianIKU($('ci_ts')?.value);
   if (T.id === 'target' && $('impor-iku') && !$('impor-iku').innerHTML) gambarImporIKU();
   if (T.id === 'temuan' && $('ringkas-temuan')) $('ringkas-temuan').innerHTML = htmlRingkasTemuan(ringkasTemuan(BARIS));
+  if (T.id === 'standar' || T.id === 'temuan') await muatDaftarSPMI();
+  if (T.id === 'standar' && $('impor-standar') && !$('impor-standar').innerHTML) gambarImporStandar();
   // Pilihan jamak bisa bergantung pada baris tab ini (mis. MK pendukung).
   kolomForm(T).filter(c => c.t === 'jamak').forEach(c => {
     const r = SUNTING ? BARIS.find(x => x.id === SUNTING) : null;
@@ -1460,7 +1640,7 @@ async function muatBaris(){
     : c.t === 'url' ? `<a href="${esc(v)}" target="_blank" rel="noopener nofollow">buka</a>`
     : c.t === 'bulan' ? esc(BULAN[v - 1] || v)
     : c.t === 'nidn' ? esc((DOSEN.find(d => d.nidn === v) || {}).nama || v)
-    : c.t === 'pilihan' ? esc((c.o.find(o => o[0] === String(v)) || [v, v])[1]) : esc(v);
+    : c.t === 'pilihan' ? esc((opsi(c).find(o => o[0] === String(v)) || [v, v])[1]) : esc(v);
   box.innerHTML = `<table class="t"><thead><tr>${kolomForm(T).map(c => `<th>${esc(c.l)}</th>`).join('')}
       <th>Bukti</th><th>Diperbarui</th><th></th></tr></thead><tbody>${BARIS.map(r => `<tr data-id="${r.id}">
       ${kolomForm(T).map(c => `<td>${tampil(c, r[c.k])}</td>`).join('')}

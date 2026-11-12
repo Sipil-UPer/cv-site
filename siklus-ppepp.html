@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Siklus PPEPP — Kinerja Program Studi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tema.css?v=2026-11-12-b7db2c">
+<link rel="stylesheet" href="kepala.css?v=2026-11-12-b7db2c">
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
+  .wrap{max-width:1240px;margin:0 auto;padding:18px 20px 80px}
+  .kosong, .ket{color:var(--muted)}
+  .ket{font-size:13px}
+  .kartu{background:var(--panel);border:1px solid var(--line);padding:14px 18px;margin-bottom:16px}
+  .kartu h2{font-size:17px;margin:0 0 6px;color:var(--biru)}
+  .alat{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+  .b{font:12.5px/1.4 var(--sans);padding:5px 12px;border:1px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer}
+  .b:hover{border-color:var(--biru);color:var(--biru)}
+  .b.utama{background:var(--biru);color:#fff;border-color:var(--biru)}
+  .b:disabled{opacity:.5;cursor:default}
+  select, input, textarea{font:inherit;font-size:14px;padding:4px 6px;border:1px solid var(--line);background:var(--panel);color:var(--ink)}
+  textarea{width:100%;min-height:54px}
+  .gulir{overflow-x:auto}
+  table.ds{width:100%;border-collapse:collapse;font-size:13.5px}
+  table.ds th{text-align:left;font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--line);padding:5px 8px;vertical-align:bottom}
+  table.ds td{padding:6px 8px;border-bottom:1px solid var(--line-soft);vertical-align:top}
+  .kode{font-family:var(--mono);font-size:12.5px;white-space:nowrap}
+  .tahap{display:flex;gap:4px}
+  .tahap i{display:inline-block;width:22px;height:22px;line-height:22px;text-align:center;font:600 11px/22px var(--mono);font-style:normal;border:1px solid var(--line)}
+  .t-ada{background:var(--hijau);color:#fff;border-color:var(--hijau)!important}
+  .t-kurang{background:var(--merah-m3);color:var(--merah);border-color:var(--merah)!important}
+  .t-na{color:var(--muted)}
+  .rekap{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:8px 14px}
+  .rekap div{border-left:3px solid var(--biru);padding:2px 10px}
+  .rekap b{display:block;font-size:13px}
+  .msg{font-size:13px;margin-left:8px} .msg.buruk{color:var(--merah)} .msg.ok{color:var(--hijau)}
+  tr.sunting td{background:var(--line-soft)}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:8px 14px;margin:6px 0}
+  .grid label{display:flex;flex-direction:column;font-size:12.5px;gap:2px}
+  .st-tercapai{color:var(--hijau);font-weight:600} .st-belum{color:var(--merah);font-weight:600} .st-tidak_berlaku{color:var(--muted)}
+  @media(max-width:700px){.wrap{padding-left:16px;padding-right:16px}}
+</style>
+</head>
+<body>
+<header class="hero"><div class="hero-in">
+  <div class="hero-inst" data-identitas></div>
+  <h1>Siklus PPEPP</h1>
+  <div class="sub" id="hSub">Memuat…</div>
+</div></header>
+<main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
+<script src="config.js?v=2026-11-12-b7db2c"></script>
+<script>
+// Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
+addEventListener('error', function (e) {
+  if (document.getElementById('galat-muat')) return;
+  var d = document.createElement('div');
+  d.id = 'galat-muat';
+  d.style.cssText = 'margin:16px;padding:12px 14px;border:1px solid var(--merah);' +
+    'background:var(--merah-m3);color:var(--ink);font:14px/1.5 system-ui,sans-serif';
+  d.textContent = 'Halaman gagal dimuat: ' + (e.message || 'galat skrip') +
+    '. Tekan Ctrl+Shift+R untuk memuat ulang tanpa cache; bila tetap muncul, kirim pesan ini ke admin.';
+  document.body.insertBefore(d, document.body.firstChild);
+});
+</script>
+<script type="module">
+// Siklus PPEPP per butir standar SPMI (pemilik 2026-11-12; 67-patch-standar-spmi.sql, standar-spmi.js).
+// Semua pengguna terdaftar membaca; admin mengisi capaian, status, bukti, analisis, dan rencana per TS.
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+import { gerbang } from './menu.js?v=2026-11-12-b7db2c';
+import { denganOtomatis } from './capaian-iku.js?v=2026-11-12-b7db2c';
+import { siklusPPEPP, tsSiklus, tsDariTanggal, labelTS, TAHAP, STATUS_CAPAIAN } from './standar-spmi.js?v=2026-11-12-b7db2c';
+
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const $ = id => document.getElementById(id);
+const sb = createClient(window.SB_URL, window.SB_KEY);
+const pendek = (s, n) => { s = String(s || '').replace(/\n/g, ' '); return s.length > n ? s.slice(0, n - 1) + '…' : s; };
+const tgl = d => d ? String(d).slice(0, 10).split('-').reverse().join('/') : '';
+const LABEL_ST = Object.fromEntries(STATUS_CAPAIAN);
+const HURUF = { penetapan: 'P', pelaksanaan: 'P', evaluasi: 'E', pengendalian: 'P', peningkatan: 'P' };
+const TEKS_ST = { ada: 'ada', kurang: 'perlu dilengkapi', na: 'tidak perlu' };
+let SAYA = null, ADMIN = false, X = {}, TS = tsDariTanggal(new Date().toISOString().slice(0, 10)), SUNTING = null, ADA = true;
+let F = { lembar: '', saring: 'semua', cari: '' };
+
+function htmlRekap(S){
+  const rtm = S.rtm.length ? S.rtm.map(r => `${tgl(r.tanggal)} ${esc(r.judul)}`).join('; ') : '<span style="color:var(--merah)">belum ada rapat jenis RTM pada TS ini</span>';
+  return `<section class="kartu"><h2>Ringkasan TS ${labelTS(TS)}</h2>
+    <p class="ket"><b>${S.lengkap} dari ${S.baris.length}</b> butir standar yang dipantau prodi lengkap (tidak ada tahap yang perlu dilengkapi).</p>
+    <div class="rekap">${TAHAP.map(([k, l]) => `<div><b>${l}</b>${S.hitung[k].ada} ada · <span style="color:var(--merah)">${S.hitung[k].kurang} perlu dilengkapi</span>
+      ${S.hitung[k].na ? ` · ${S.hitung[k].na} tidak perlu` : ''}</div>`).join('')}</div>
+    <p class="ket" style="margin-top:10px">RTM pada TS ini: ${rtm}.
+      ${S.lepas.iku || S.lepas.temuan ? `Belum ditautkan ke standar: ${S.lepas.iku ? `<a href="data-prodi.html?tab=target">${S.lepas.iku} IKU/IKT</a>` : ''}${S.lepas.iku && S.lepas.temuan ? ', ' : ''}${S.lepas.temuan ? `<a href="data-prodi.html?tab=temuan">${S.lepas.temuan} temuan AMI</a>` : ''}.` : ''}</p>
+    <p class="ket">Tanda <i class="t-ada" style="display:inline-block;width:14px;height:14px;vertical-align:middle"></i> ada,
+      <i class="t-kurang" style="display:inline-block;width:14px;height:14px;vertical-align:middle;border:1px solid"></i> perlu dilengkapi, kosong = tidak perlu.
+      Penetapan: target TS dari SPM. Pelaksanaan: bukti tercatat. Evaluasi: capaian dinilai atau ada temuan AMI. Pengendalian: yang belum tercapai,
+      temuan, dan IKU terkait yang belum tercapai punya rencana. Peningkatan: ada revisi standar pada TS ini (tidak wajib setiap siklus).</p></section>`;
+}
+
+function saring(xs){
+  const q = F.cari.trim().toLowerCase();
+  return xs.filter(b => (!F.lembar || b.standar.lembar === F.lembar)
+    && (F.saring === 'semua' || (F.saring === 'kurang' ? TAHAP.some(([k]) => b.tahap[k].status === 'kurang') : F.saring === 'belum' ? b.capaian?.status === 'belum'
+      : !b.capaian?.status))
+    && (!q || `${b.standar.kode} ${b.standar.pernyataan} ${b.standar.pic || ''}`.toLowerCase().includes(q)));
+}
+
+function htmlSunting(b){
+  const c = b.capaian || {};
+  return `<tr class="sunting"><td colspan="5"><b>${esc(b.standar.kode)} · TS ${labelTS(TS)}</b>
+    <div class="ket">${esc(b.standar.pernyataan)}${b.standar.luaran ? `<br>Jenis luaran: ${esc(b.standar.luaran)}` : ''}</div>
+    <div class="grid">
+      <label>Target TS (dari SPM)<textarea id="sTarget">${esc(c.target || '')}</textarea></label>
+      <label>Capaian prodi<textarea id="sCapaian">${esc(c.capaian || '')}</textarea></label>
+      <label>Status<select id="sStatus"><option value="">— belum dinilai —</option>${STATUS_CAPAIAN.map(([v, l]) => `<option value="${v}"${c.status === v ? ' selected' : ''}>${l}</option>`).join('')}</select></label>
+      <label>Tautan bukti (Drive, situs, dokumen)<input type="url" id="sBukti" placeholder="https://…" value="${esc(c.bukti_url || '')}"></label>
+      <label>Analisis (akar masalah bila belum tercapai)<textarea id="sAnalisis">${esc(c.analisis || '')}</textarea></label>
+      <label>Rencana perbaikan: tindakan, penanggung jawab, waktu<textarea id="sRencana">${esc(c.rencana || '')}</textarea></label>
+    </div>
+    ${b.iku.length ? `<p class="ket">IKU/IKT terkait: ${b.iku.map(r => esc(r.nama)).join('; ')}.</p>` : ''}
+    ${b.temuan.length ? `<p class="ket">Temuan AMI: ${b.temuan.map(t => `${esc(t.kode || '')} ${esc(pendek(t.uraian, 80))} (${esc(t.status)})`).join('; ')}.</p>` : ''}
+    ${b.revisi.length ? `<p class="ket">Revisi: ${b.revisi.map(v => `${tgl(v.tanggal)} ${esc(pendek(v.perubahan, 80))}`).join('; ')}.</p>` : ''}
+    <p><button class="b utama" id="sSimpan">Simpan</button> <button class="b" id="sTutup">Tutup</button><span class="msg" id="sMsg"></span></p></td></tr>`;
+}
+
+function htmlTabel(S){
+  const xs = saring(S.baris);
+  const lembar = [...new Set(S.baris.map(b => b.standar.lembar).filter(Boolean))];
+  return `<section class="kartu"><h2>Butir standar</h2>
+    <div class="alat"><label>Lembar <select id="fLembar"><option value="">semua</option>${lembar.map(l => `<option${l === F.lembar ? ' selected' : ''}>${esc(l)}</option>`).join('')}</select></label>
+      <label>Tampilkan <select id="fSaring">${[['semua', 'semua'], ['kurang', 'ada tahap perlu dilengkapi'], ['belum', 'belum tercapai'], ['kosong', 'belum dinilai']]
+        .map(([v, l]) => `<option value="${v}"${v === F.saring ? ' selected' : ''}>${l}</option>`).join('')}</select></label>
+      <input type="search" id="fCari" placeholder="Cari kode, pernyataan, PIC" value="${esc(F.cari)}" style="min-width:220px">
+      <span class="ket">${xs.length} dari ${S.baris.length} butir</span>
+      <button class="b" id="unduhCSV" style="margin-left:auto">Unduh CSV</button></div>
+    <div class="gulir"><table class="ds"><thead><tr><th>Kode</th><th>Pernyataan standar</th><th>Target</th><th>Capaian</th><th>PPEPP</th></tr></thead><tbody>
+    ${xs.map(b => { const s = b.standar, c = b.capaian; return `<tr>
+      <td class="kode">${esc(s.kode)}${ADMIN ? `<br><button class="b" data-isi="${s.id}" style="margin-top:4px">${SUNTING === +s.id ? 'Tutup' : 'Isi'}</button>` : ''}</td>
+      <td>${esc(pendek(s.pernyataan, 160))}<div class="ket">${esc(s.pic || '')}${s.referensi ? ` · ${esc(pendek(s.referensi, 60))}` : ''}</div></td>
+      <td>${esc(pendek(c?.target, 90)) || '<span class="kosong">—</span>'}</td>
+      <td>${c?.status ? `<span class="st-${c.status}">${esc(LABEL_ST[c.status])}</span>` : '<span class="kosong">belum dinilai</span>'}
+        ${c?.capaian ? `<div class="ket">${esc(pendek(c.capaian, 90))}</div>` : ''}${c?.bukti_url ? `<div><a href="${esc(c.bukti_url)}" target="_blank" rel="noopener nofollow">bukti</a></div>` : ''}</td>
+      <td><span class="tahap">${TAHAP.map(([k, l]) => `<i class="t-${b.tahap[k].status}" title="${esc(`${l}: ${TEKS_ST[b.tahap[k].status]} — ${b.tahap[k].ket}`)}">${HURUF[k]}</i>`).join('')}</span></td></tr>
+      ${SUNTING === +s.id ? htmlSunting(b) : ''}`; }).join('')}
+    </tbody></table></div></section>`;
+}
+
+function gambar(){
+  if (!ADA) { $('isi').innerHTML = '<p class="kosong">Tabel standar SPMI belum ada: jalankan supabase/67-patch-standar-spmi.sql.</p>'; return; }
+  const S = siklusPPEPP(X, TS);
+  const pilihan = tsSiklus(X);
+  if (!pilihan.includes(TS)) pilihan.push(TS);
+  $('isi').innerHTML = `<div class="alat"><label>TS <select id="pTS">${pilihan.sort((a, b) => b - a).map(t => `<option value="${t}"${t === TS ? ' selected' : ''}>${labelTS(t)}</option>`).join('')}</select></label>
+      <span class="ket">Tahun akademik September–Agustus.</span></div>`
+    + (S.baris.length ? htmlRekap(S) + htmlTabel(S)
+      : `<p class="kosong">Belum ada butir standar yang dipantau prodi. ${ADMIN ? 'Impor rekap standar SPM di <a href="data-prodi.html?tab=standar">Data prodi › SPMI › Standar SPMI</a>.' : 'Admin prodi belum mengimpor standar.'}</p>`);
+  $('pTS').onchange = () => { TS = +$('pTS').value; SUNTING = null; gambar(); };
+  if (!S.baris.length) return;
+  $('fLembar').onchange = () => { F.lembar = $('fLembar').value; gambar(); };
+  $('fSaring').onchange = () => { F.saring = $('fSaring').value; gambar(); };
+  $('fCari').oninput = () => { F.cari = $('fCari').value; const p = $('fCari').selectionStart; gambar(); $('fCari').focus(); $('fCari').setSelectionRange(p, p); };
+  $('unduhCSV').onclick = () => unduhCSV(saring(S.baris));
+  document.querySelectorAll('[data-isi]').forEach(x => { x.onclick = () => { SUNTING = SUNTING === +x.dataset.isi ? null : +x.dataset.isi; gambar(); }; });
+  if ($('sSimpan')) { $('sSimpan').onclick = simpan; $('sTutup').onclick = () => { SUNTING = null; gambar(); }; }
+}
+
+async function simpan(){
+  const m = $('sMsg'), v = id => $(id).value.trim() || null;
+  const isi = { standar_id: SUNTING, tahun_ts: TS, target: v('sTarget'), capaian: v('sCapaian'), status: v('sStatus'), bukti_url: v('sBukti'),
+                analisis: v('sAnalisis'), rencana: v('sRencana'), oleh: SAYA.email, diperbarui: new Date().toISOString() };
+  if (isi.bukti_url && !/^https?:\/\/\S+$/i.test(isi.bukti_url)) { m.className = 'msg buruk'; m.textContent = 'Tautan bukti harus diawali https://'; return; }
+  if (isi.status === 'belum' && !isi.rencana) { m.className = 'msg buruk'; m.textContent = 'Isi rencana perbaikan untuk butir yang belum tercapai.'; return; }
+  $('sSimpan').disabled = true; m.className = 'msg'; m.textContent = 'Menyimpan…';
+  const { error } = await sb.from('spmi_capaian').upsert(isi, { onConflict: 'standar_id,tahun_ts' });
+  if (error) { $('sSimpan').disabled = false; m.className = 'msg buruk'; m.textContent = 'Gagal: ' + error.message; return; }
+  X.capaian = [...X.capaian.filter(c => !(+c.standar_id === SUNTING && +c.tahun_ts === TS)), isi];
+  SUNTING = null;
+  gambar();
+}
+
+function unduhCSV(xs){
+  const sel = v => { const s = String(v ?? ''); return /[;"\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
+  const kepala = ['ts', 'kode', 'pernyataan', 'pic', 'target', 'capaian', 'status', 'bukti', 'analisis', 'rencana', ...TAHAP.map(([, l]) => l.toLowerCase())];
+  const rows = xs.map(b => { const c = b.capaian || {}; return [labelTS(TS), b.standar.kode, b.standar.pernyataan, b.standar.pic, c.target, c.capaian,
+    LABEL_ST[c.status] || '', c.bukti_url, c.analisis, c.rencana, ...TAHAP.map(([k]) => TEKS_ST[b.tahap[k].status])]; });
+  const teks = '﻿' + [kepala, ...rows].map(r => r.map(sel).join(';')).join('\r\n') + '\r\n';
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([teks], { type: 'text/csv;charset=utf-8' }));
+  a.download = `siklus-ppepp-${labelTS(TS).replace('/', '-')}.csv`;
+  a.click();
+}
+
+async function muat(){
+  const baca = q => q.then(r => ({ data: r.error ? [] : (r.data || []), error: r.error }), e => ({ data: [], error: e }));
+  const [st, cp, rv, tg, tm, rp, dj] = await Promise.all([
+    baca(sb.from('spmi_standar').select('*').order('urutan').order('kode')),
+    baca(sb.from('spmi_capaian').select('*').limit(20000)),
+    baca(sb.from('spmi_standar_revisi').select('*')),
+    baca(sb.from('lkps_target_kinerja').select('*')),          // admin saja (RLS); lainnya kosong
+    baca(sb.from('ami_temuan').select('id,kode,uraian,status,rencana,tahun_ts,standar_id')),
+    baca(sb.from('rapat').select('id,judul,jenis,tanggal')),
+    fetch('data.json?v=' + Date.now()).then(r => r.json()).catch(() => null)]);
+  ADA = !(st.error && /does not exist|schema cache/i.test(st.error.message || ''));
+  X = { standar: st.data, capaian: cp.data, revisi: rv.data, target: tg.data.map(r => denganOtomatis(r, dj)), temuan: tm.data, rapat: rp.data };
+  gambar();
+}
+
+async function mulai(){
+  SAYA = await gerbang(sb);
+  if (!SAYA) return;
+  ADMIN = SAYA.peran === 'admin';
+  $('hSub').textContent = `Masuk sebagai ${SAYA.nama}${ADMIN ? ' · klik Isi untuk mencatat capaian butir' : ''}`;
+  await muat();
+}
+mulai().catch(e => { $('isi').innerHTML = `<p class="kosong">Gagal memuat: ${esc(e.message || String(e))}</p>`; });
+</script>
+</body>
+</html>

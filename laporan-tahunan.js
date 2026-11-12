@@ -66,7 +66,13 @@ export function isiLaporan(C){
       return [r.nama + (h ? ' (otomatis)' : ''), `${r.arah === 'maksimal' ? '≤' : '≥'} ${angka(r.target)} ${r.satuan || ''}`.trim(),
         cp == null ? '—' : `${angka(cp)} ${r.satuan || ''}`.trim(), p, s];
     })]));
-    xs.filter(r => r.jenis === 'ikt' && r.analisis).forEach(r => out.push(teks(`${r.nama}: ${r.analisis}`)));
+    // Analisis: IKT selalu (butir 54); IKU/IKT yang belum tercapai beserta rencana perbaikannya (butir 56, patch 67).
+    xs.forEach(r => {
+      const h = r.sumber ? hitungSumber(r.sumber, D, ts) : null, cp = h ? h.nilai : (r.capaian == null ? null : +r.capaian);
+      const belum = statusIKU(r.target == null ? null : +r.target, cp, r.arah)[1] !== 'tercapai' && cp != null && r.target != null;
+      const isi = [r.analisis, belum && r.rencana_perbaikan ? `Rencana perbaikan: ${r.rencana_perbaikan}` : ''].filter(Boolean).join(' ');
+      if ((r.jenis === 'ikt' || belum) && isi) out.push(teks(`${r.nama}: ${isi}`));
+    });
   }
 
   // 3. SDGs

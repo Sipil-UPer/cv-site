@@ -67,6 +67,7 @@
       <li class="adm" hidden><a href="#dosen">Admin: kelola dosen</a></li>
       <li class="adm" hidden><a href="#dataprodi">Admin: data prodi</a></li>
       <li class="adm" hidden><a href="#butir">Admin: isian butir dan dokumen</a></li>
+      <li class="adm" hidden><a href="#ppepp">Admin: standar SPMI dan siklus PPEPP</a></li>
       <li class="adm" hidden><a href="#skor">Admin: skor dan draf LED</a></li>
       <li class="adm" hidden><a href="#perbarui">Admin: kapan situs diperbarui</a></li>
     </ol>
@@ -256,8 +257,33 @@
     </ul>
   </section>
 
+  <section id="ppepp" class="admin">
+    <h2>13. Standar SPMI dan siklus PPEPP <span class="peran">admin</span></h2>
+    <ol>
+      <li><b>Impor standar.</b> Buka <b>Data prodi › SPMI › Standar SPMI</b>, pada <b>Impor rekap standar SPM</b> pilih berkas Excel dari SPM
+        (mis. "Draft Rekap Standar"). Lembar Pendidikan, Penelitian, PkM, Akreditasi Unggul LAMTEK, dan IKU PT tercentang; lembar unit lain bisa
+        dicentang bila perlu; lembar akreditasi LAM lain tidak ditawarkan. Periksa pratinjau (baru, berubah, sama), lalu klik <b>Simpan</b>.
+        Untuk versi berikutnya cukup impor lagi: teks dan target diperbarui, capaian yang sudah diisi tidak berubah, butir yang hilang dari berkas
+        hanya dilaporkan.</li>
+      <li><b>Pilih yang dipantau.</b> Butir yang bukan urusan prodi: klik <b>Ubah</b>, hilangkan centang <b>Dipantau prodi</b>. Standar turunan prodi
+        sendiri ditambahkan lewat form (asal Prodi, kode mis. P.01.01).</li>
+      <li><b>Isi capaian per TS.</b> Buka <b>Akreditasi ▾ › Siklus PPEPP</b>, pilih TS, klik <b>Isi</b> pada butir: capaian, status (tercapai, belum
+        tercapai, tidak berlaku bagi prodi), tautan bukti, analisis, dan rencana perbaikan. Butir yang belum tercapai wajib diberi rencana perbaikan.</li>
+      <li><b>Tautkan</b> temuan AMI (tab Temuan AMI) dan IKU/IKT (tab Target IKU/IKT) ke butir standarnya, supaya ikut terhitung pada tahap Evaluasi
+        dan Pengendalian butir itu.</li>
+      <li><b>Catat perubahan standar</b> di tab <b>Revisi standar</b>: tanggal, perubahan (sebelum → sesudah), dasar (keputusan RTM, temuan AMI,
+        evaluasi capaian), dan rapatnya. Ini bukti tahap Peningkatan.</li>
+    </ol>
+    <p>Lima tanda di kolom PPEPP: hijau = ada, merah = perlu dilengkapi, kosong = tidak perlu. Penetapan = target TS dari SPM; Pelaksanaan =
+      bukti tercatat; Evaluasi = capaian dinilai atau ada temuan AMI; Pengendalian = yang belum tercapai punya rencana; Peningkatan = ada revisi
+      pada TS itu (tidak wajib setiap siklus). Arahkan kursor ke tanda untuk keterangannya. <b>Unduh CSV</b> menyimpan tabel yang sedang tampil,
+      mis. untuk bahan RTM. Semua pengguna terdaftar dapat membuka halaman ini; hanya admin yang mengisi.</p>
+    <p>Indikator IKU/IKT yang belum tercapai juga perlu <b>analisis</b> dan <b>rencana perbaikan</b> di tab Target IKU/IKT (butir 56); yang belum
+      ditandai merah di ringkasan capaian dan di Kelengkapan LED.</p>
+  </section>
+
   <section id="skor" class="admin">
-    <h2>13. Skor dan draf LED <span class="peran">admin</span></h2>
+    <h2>14. Skor dan draf LED <span class="peran">admin</span></h2>
     <p><b>Akreditasi ▾ › Kelengkapan LED</b> menghitung sendiri yang sudah dan belum terisi: tim, narasi, Data prodi, dokumen, bukti, dan karya, dengan tautan ke tempat mengisinya. "Selesai" berarti datanya ada, bukan isinya sudah benar.</p>
     <p>Di halaman <b>Narasi LED</b>, tombol di atas daftar menyaring bagian yang tampil, dan kotak cari menemukan satu butir. Tombol <b>Identitas</b> memuat isian Identitas Pengusul, kota pada sampul, folder induk, dan narahubung; <b>A</b> dan <b>B</b> sama dengan bagian A dan B pada Bab II. Daftar program studi dan akreditasi diambil dari <b>Data prodi</b>, tab Prodi di UPPS. Buka <b>Tim penyusun dan pembagian bagian</b>, centang yang masuk tim penyusun (dosen yang dicentang bisa menulis narasi tanpa hak admin lainnya), atur urutan dan deskripsi kerjanya, tambahkan orang di luar sistem bila ada (namanya tertulis di LED tanpa akun), lalu pilih penanggung jawab tiap bagian; tombol <b>Bagian saya</b> lalu menampilkan bagian masing-masing. Admin lain tetap boleh menyunting. Bila dua admin mengubah kotak yang sama, yang menyimpan belakangan diberi peringatan sebelum menimpa.</p>
     <p>Tombol unduh ada di panel <b>Unduh dokumen akreditasi</b>, paling atas halaman Skor; pilih TS lebih dulu. Isi narasi di halaman <b>Akreditasi ▾ › Narasi LED</b>: tiap kotak tersimpan sendiri dan masuk draf LED saat diunduh, jadi tidak perlu mengetik ulang di Word. Yang masih tertinggal di draf bertanda [isi].</p>
@@ -273,7 +299,7 @@
   </section>
 
   <section id="perbarui" class="admin">
-    <h2>14. Kapan situs diperbarui <span class="peran">admin</span></h2>
+    <h2>15. Kapan situs diperbarui <span class="peran">admin</span></h2>
     <p>Situs dibangun ulang otomatis tiap jam pada menit ke-23 (GitHub Actions). Untuk memperbarui saat itu
       juga, pengelola teknis menjalankan <span class="tbl">bangun-dan-push.bat</span> lalu menjawab
       <b>y</b> pada "Bangun dan terbitkan sekarang?".</p>

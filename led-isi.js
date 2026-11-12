@@ -269,9 +269,11 @@ export function tabelPenjelas(no, C){
     case '54': return buat('Indikator Kinerja Tambahan', ['No', 'IKT', 'Tujuan strategis', 'Dampak', 'Daya saing internasional', 'Target', 'Capaian'],
       targetBerlaku(X, ts).filter(r => r.jenis === 'ikt').map(r => [r.nama, r.tujuan_strategis || '—', r.dampak || '—', r.daya_saing || '—',
         `${r.arah === 'maksimal' ? '≤' : '≥'} ${angkaID(r.target)}${r.satuan ? ` ${r.satuan}` : ''}`, r.capaian == null ? '—' : angkaID(r.capaian)]));
-    case '56': return buat('Target dan capaian IKU/IKT', ['No', 'Indikator', 'Jenis', 'Target', 'Capaian', 'Status'],
+    // Analisis dan rencana untuk indikator belum tercapai (67-patch-standar-spmi.sql, pemilik 2026-11-12).
+    case '56': return buat('Target dan capaian IKU/IKT', ['No', 'Indikator', 'Jenis', 'Target', 'Capaian', 'Status', 'Analisis dan rencana perbaikan'],
       targetBerlaku(X, ts).map(r => [r.nama, r.jenis.toUpperCase(), `${r.arah === 'maksimal' ? '≤' : '≥'} ${angkaID(r.target)}${r.satuan ? ` ${r.satuan}` : ''}`,
-        r.capaian == null ? '—' : angkaID(r.capaian), tercapai(r) == null ? 'Belum diukur' : tercapai(r) ? 'Tercapai' : 'Belum tercapai']));
+        r.capaian == null ? '—' : angkaID(r.capaian), tercapai(r) == null ? 'Belum diukur' : tercapai(r) ? 'Tercapai' : 'Belum tercapai',
+        tercapai(r) === false ? [r.analisis, r.rencana_perbaikan && `Rencana: ${r.rencana_perbaikan}`].filter(Boolean).join('. ') || '[isi: analisis akar masalah dan rencana perbaikan]' : '—']));
     case '55': {
       const u = id => (dok.find(d => d.id === id) || {}).url || '';
       return buat('Pelaksanaan siklus PPEPP', ['No', 'Tahap', 'Dokumen', 'Laporan audit', 'Laporan RTM', 'Peningkatan'],

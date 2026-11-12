@@ -80,6 +80,9 @@ export const MODUL = [
       ket: 'Data di balik angka tiap butir kuantitatif.' },
     { href: 'narasi-led.html', judul: 'Narasi LED', boleh: penyusun,
       ket: 'Isian narasi per butir; tersimpan dan masuk draf LED saat diunduh.' },
+    // Siklus PPEPP (67-patch-standar-spmi.sql): semua terdaftar membaca, admin mengisi (pemilik 2026-11-12).
+    { href: 'siklus-ppepp.html', judul: 'Siklus PPEPP',
+      ket: 'Butir standar SPMI per TS: target, capaian, bukti, rencana perbaikan, dan revisi standar.' },
     { href: 'kelengkapan.html', judul: 'Kelengkapan LED', boleh: penyusun,
       ket: 'Daftar periksa otomatis: tim, narasi, data prodi, dokumen, dan bukti.' },
     { href: 'input-butir.html', judul: 'Isian butir & dokumen', boleh: admin,

@@ -58,7 +58,12 @@ export const SARAN_BUKTI = {
   fas_k3l: { tabel: '5.c', isi: [U('Foto dan inventaris fasilitas')] },
   spmi: { tabel: '7.a, 7.b', isi: [P('Nomor dan tanggal dokumen SPMI'), P('Tautan dokumen tiap tahap PPEPP'),
     R('Laporan AMI dan RTM')] },
-  target: { tabel: 'butir 54–56', isi: [U('Dokumen IKU/IKT yang disahkan'), U('Laporan kinerja')] },
+  target: { tabel: 'butir 54–56', isi: [U('Dokumen IKU/IKT yang disahkan'), U('Laporan kinerja'),
+    U('Notulen rapat yang membahas indikator belum tercapai dan rencana perbaikannya')] },
+  // 67-patch-standar-spmi.sql (pemilik 2026-11-12): standar SPMI dan revisinya.
+  standar: { tabel: 'butir 53, 55', isi: [U('Dokumen standar SPMI yang ditetapkan (SK rektor/senat)'),
+    U('Rekap standar dari SPM beserta target per TS')] },
+  revisi: { tabel: 'butir 55', isi: [U('Notulen RTM atau dokumen yang memutuskan revisi'), U('Dokumen standar hasil revisi')] },
   // 51-patch-temuan-ami.sql (pemilik 2026-11-11): bukti tindak lanjut per temuan.
   temuan: { tabel: 'butir 53, 55', isi: [U('Bukti tindakan perbaikan (notulen, SK, dokumen revisi, foto)'),
     U('Hasil verifikasi efektivitas oleh auditor/GPM'), R('Laporan AMI dan formulir temuan')] },

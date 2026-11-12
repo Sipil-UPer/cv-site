@@ -16,6 +16,15 @@ export function nilaiCapaian(r){
   return { status: tercapai ? 'tercapai' : persen >= 80 ? 'hampir' : 'belum', persen };
 }
 
+// Indikator yang belum tercapai (termasuk "hampir") perlu analisis dan rencana perbaikan
+// (butir 56; 67-patch-standar-spmi.sql). r = baris dengan capaian efektif.
+export function perluAnalisis(r){
+  const s = nilaiCapaian(r).status;
+  if (s !== 'belum' && s !== 'hampir') return false;
+  return !String(r.analisis || '').trim() || !String(r.rencana_perbaikan || '').trim();
+}
+const ringkasAnalisis = r => [r.analisis, r.rencana_perbaikan && 'Rencana: ' + r.rencana_perbaikan].filter(Boolean).join(' · ');
+
 // Baris dengan capaian otomatis bila bersumber (capaian tersimpan tidak diubah).
 // D = data.json publik; null bila belum termuat (capaian tersimpan dipakai).
 export function denganOtomatis(r, D){
@@ -29,6 +38,7 @@ export const tsTersedia = baris => [...new Set((baris || []).map(r => +r.tahun_t
 const kunci = r => `${r.jenis}|${String(r.nama).trim().toLowerCase()}`;
 export const WARNA_STATUS = { tercapai: 'var(--hijau)', hampir: '#B8860B', belum: 'var(--merah)', kosong: 'var(--muted)' };
 const TEKS_STATUS = { tercapai: 'tercapai', hampir: 'hampir (≥ 80%)', belum: 'belum', kosong: 'capaian belum diisi' };
+const potong = (s, n) => s.length > n ? s.slice(0, n - 1) + '…' : s;
 const angka = v => v == null ? '—' : (Math.round(+v * 100) / 100).toLocaleString('id-ID');
 
 // Baris TS terpilih (dengan capaian otomatis) dan ringkasan per jenis.
@@ -51,16 +61,20 @@ export function htmlCapaianIKU(baris, D, ts, { kelasTabel = 't' } = {}){
     const xs = kini.filter(r => r.jenis === jenis);
     if (!xs.length) return `<p class="ket">Belum ada ${jenis.toUpperCase()} untuk TS ${ts - 1}/${ts}.</p>`;
     const n = xs.map(nilaiCapaian), ok = n.filter(x => x.status === 'tercapai').length, isi = n.filter(x => x.status !== 'kosong').length;
-    return `<p class="ket"><b>${jenis.toUpperCase()}: ${ok} dari ${xs.length} tercapai</b>${isi < xs.length ? ` (${xs.length - isi} belum diisi capaiannya)` : ''}.</p>
+    const tanpa = xs.filter(perluAnalisis).length;
+    return `<p class="ket"><b>${jenis.toUpperCase()}: ${ok} dari ${xs.length} tercapai</b>${isi < xs.length ? ` (${xs.length - isi} belum diisi capaiannya)` : ''}${
+      tanpa ? `; <b style="color:${WARNA_STATUS.belum}">${tanpa} belum tercapai tanpa analisis dan rencana perbaikan</b>` : ''}.</p>
       <div class="gulir"><table class="${kelasTabel}"><thead><tr><th>Indikator</th><th>Target</th><th>Capaian</th><th>%</th><th>Status</th>
-        <th>TS sebelumnya</th></tr></thead><tbody>${xs.map((r, i) => {
+        <th>TS sebelumnya</th><th>Analisis dan rencana</th></tr></thead><tbody>${xs.map((r, i) => {
         const c = n[i], p = lalu.get(kunci(r)), s = r.satuan ? ' ' + esc(r.satuan) : '';
         return `<tr><td>${esc(r.nama)}${r.butir ? ` <small>(butir ${esc(r.butir)})</small>` : ''}${r._oto
           ? `<br><small class="ket">otomatis: ${esc(r._oto.ket)}</small>` : ''}</td>
           <td>${r.arah === 'maksimal' ? '≤' : '≥'} ${angka(r.target)}${s}</td><td>${angka(r.capaian)}${r.capaian != null ? s : ''}</td>
           <td>${c.persen == null ? '—' : Math.round(c.persen) + '%'}</td>
           <td style="color:${WARNA_STATUS[c.status]};font-weight:600">${TEKS_STATUS[c.status]}</td>
-          <td>${p ? angka(p.capaian) + (p.capaian != null ? s : '') : '—'}</td></tr>`; }).join('')}</tbody></table></div>`;
+          <td>${p ? angka(p.capaian) + (p.capaian != null ? s : '') : '—'}</td>
+          <td>${perluAnalisis(r) ? `<span style="color:${WARNA_STATUS.belum};font-weight:600">belum dianalisis</span>`
+            : c.status === 'belum' || c.status === 'hampir' ? `<small>${esc(potong(ringkasAnalisis(r), 140))}</small>` : '—'}</td></tr>`; }).join('')}</tbody></table></div>`;
   };
   return blok('iku') + blok('ikt');
 }

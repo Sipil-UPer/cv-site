@@ -9,6 +9,7 @@ import { faktaNarasi, anggotaTim } from './led-isi.js?v=2026-11-12-b7db2c';
 import { pisahKalimat } from './led-narasi.js?v=2026-11-12-b7db2c';
 import { masihKerangka } from './led-saran.js?v=2026-11-12-b7db2c';
 import { JENIS_DOKUMEN, buktiButir } from './rencana-bukti.js?v=2026-11-12-b7db2c';
+import { nilaiCapaian, perluAnalisis } from './capaian-iku.js?v=2026-11-12-b7db2c';
 
 // Tab Data prodi: [id tab, tabel, judul, butir]; sama dengan TABEL di data-prodi.html.
 export const TAB_DATA = [
@@ -24,6 +25,7 @@ export const TAB_DATA = [
   ['tracer', 'lkps_tracer_lulusan', 'Tracer study', '48–51'], ['kepuasan', 'lkps_kepuasan_pengguna', 'Kepuasan pengguna', '52'],
   ['spmi', 'lkps_spmi_ppepp', 'SPMI (PPEPP)', '53–57'], ['target', 'lkps_target_kinerja', 'Target IKU/IKT', '54–56'],
   ['temuan', 'ami_temuan', 'Temuan AMI', '53, 55'],
+  ['standar', 'spmi_standar', 'Standar SPMI', '53, 55'], ['revisi', 'spmi_standar_revisi', 'Revisi standar', '55'],
 ];
 
 // Konteks kalimat narasi; dipakai narasi-led.html dan halaman ini supaya kotaknya sama.
@@ -92,6 +94,14 @@ export function rekapKelengkapan(S){
     return baris(judul, j > 0 ? 1 : 0, 1, { href: `data-prodi.html?tab=${id}`,
       ket: j == null ? 'Tidak terbaca' : j ? `${j} baris · butir ${butir}` : `Belum diisi · butir ${butir}` });
   });
+  // Butir 56 (pemilik 2026-11-12): indikator yang belum tercapai perlu analisis dan rencana perbaikan.
+  // TS berjalan dan TS sebelumnya: capaian TS berjalan biasanya baru lengkap setelah TS berakhir.
+  const belumCapai = (S.targetIKU || []).filter(r => [+S.ts, +S.ts - 1].includes(+r.tahun_ts) && ['belum', 'hampir'].includes(nilaiCapaian(r).status));
+  const tanpaAnalisis = belumCapai.filter(perluAnalisis);
+  data.push(baris('Indikator belum tercapai yang dianalisis (TS berjalan dan sebelumnya)',
+    belumCapai.length ? belumCapai.length - tanpaAnalisis.length : 1, belumCapai.length || 1,
+    { href: 'data-prodi.html?tab=target', kurang: tanpaAnalisis.map(r => `${String(r.jenis).toUpperCase()} ${r.nama}`),
+      ket: belumCapai.length ? 'Analisis akar masalah dan rencana perbaikan · butir 56' : 'Tidak ada indikator belum tercapai · butir 56' }));
 
   const dok = S.dokumen || [];
   const belumDok = JENIS_DOKUMEN.filter(j => !dok.some(d => d.jenis === j.id));

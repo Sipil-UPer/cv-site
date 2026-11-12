@@ -6,6 +6,7 @@ export const LABEL_TABEL = {
   pengaturan: 'Isian angka butir', led_narasi: 'Narasi LED', led_penugasan: 'Penugasan LED', led_tim: 'Tim penyusun LED',
   ami_temuan: 'Temuan AMI', cpl_kelas: 'Kelas CPL', cpl_berkas: 'Berkas nilai CPL', cpl_ringkasan: 'Ringkasan CPL',
   lkps_bkd: 'BKD dosen', target_baku: 'Target baku per jabatan', target_dosen: 'Target khusus dosen',
+  spmi_standar: 'Standar SPMI', spmi_capaian: 'Capaian standar SPMI', spmi_standar_revisi: 'Revisi standar SPMI',
 };
 export const AKSI = { tambah: 'Tambah', ubah: 'Ubah', hapus: 'Hapus' };
 
