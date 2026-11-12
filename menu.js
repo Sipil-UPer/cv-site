@@ -52,6 +52,9 @@ export const MODUL = [
       ket: 'Mahasiswa, lulusan, tracer, kerja sama, BKD, prestasi mahasiswa.' },
     { href: 'kelola-dosen.html', judul: 'Kelola dosen', boleh: admin,
       ket: 'Email yang terdaftar dan perannya.' },
+    // Jejak perubahan (65-patch-jejak.sql, pemilik 2026-11-12): khusus admin, termasuk paket akreditasi.
+    { href: 'jejak.html', judul: 'Jejak perubahan', boleh: admin,
+      ket: 'Siapa mengubah apa dan kapan pada data penting (karya, dosen, LKPS, bukti, LED); disimpan 3 tahun.' },
     { href: 'mutu-data.html', judul: 'Mutu data', boleh: admin,
       ket: 'Data yang perlu diperbaiki: karya tanpa bukti, DOI ganda, judul mirip, ID dosen, RPS, tracer.' },
   ]},

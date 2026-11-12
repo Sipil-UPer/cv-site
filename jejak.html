@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Jejak perubahan — Kinerja Program Studi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tema.css?v=2026-11-12-b7db2c">
+<link rel="stylesheet" href="kepala.css?v=2026-11-12-b7db2c">
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
+  .wrap{max-width:1180px;margin:0 auto;padding:18px 20px 80px}
+  .kosong, .ket{color:var(--muted)}
+  .ket{font-size:13px}
+  .kartu{background:var(--panel);border:1px solid var(--line);padding:14px 18px;margin-bottom:16px}
+  .saring{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:8px 12px;align-items:end}
+  .saring label{display:flex;flex-direction:column;font-size:12.5px;color:var(--muted);gap:3px}
+  select, input{font:inherit;font-size:14px;padding:5px 7px;border:1px solid var(--line);background:var(--panel);color:var(--ink);width:100%}
+  .b{font:12.5px/1.4 var(--sans);padding:5px 12px;border:1px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer}
+  .b:hover{border-color:var(--biru);color:var(--biru)}
+  .b.utama{background:var(--biru);color:#fff;border-color:var(--biru)}
+  .b:disabled{opacity:.5;cursor:default}
+  table.ds{width:100%;border-collapse:collapse;font-size:13.5px}
+  table.ds th{text-align:left;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--line);padding:5px 8px}
+  table.ds td{padding:7px 8px;border-bottom:1px solid var(--line-soft);vertical-align:top}
+  .aksi{display:inline-block;font-size:11px;font-weight:600;padding:0 7px;border:1px solid currentColor;border-radius:2px}
+  .a-tambah{color:var(--hijau)} .a-ubah{color:#8A5A00} .a-hapus{color:var(--merah)}
+  .wkt{white-space:nowrap;font-size:12.5px;color:var(--muted)}
+  .oleh{font-size:12.5px;word-break:break-all}
+  .jdl{font-weight:600}
+  .id{font-family:var(--mono);font-size:11.5px;color:var(--muted);word-break:break-all}
+  .id a{color:var(--muted)}
+  ul.beda{list-style:none;margin:4px 0 0;padding:0;font-size:12.5px}
+  ul.beda li{margin:2px 0}
+  ul.beda code{font-family:var(--mono);font-size:11.5px;color:var(--biru-2)}
+  .lama{color:var(--merah);text-decoration:line-through;text-decoration-color:rgba(0,0,0,.25)}
+  .baru{color:var(--hijau)}
+  details pre{white-space:pre-wrap;word-break:break-all;font-size:11.5px;background:var(--bg);padding:8px;margin:4px 0 0;max-height:260px;overflow:auto}
+  .halaman{display:flex;gap:8px;align-items:center;margin-top:10px;font-size:13px}
+  .gulir{overflow-x:auto}
+  @media(max-width:700px){.wrap{padding-left:16px;padding-right:16px} table.ds th:nth-child(4), table.ds td:nth-child(4){display:none}}
+</style>
+</head>
+<body>
+<header class="hero"><div class="hero-in">
+  <div class="hero-inst" data-identitas></div>
+  <h1>Jejak perubahan data</h1>
+  <div class="sub" id="hSub">Memuat…</div>
+</div></header>
+<main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
+<script src="config.js?v=2026-11-12-b7db2c"></script>
+<script>
+// Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
+addEventListener('error', function (e) {
+  if (document.getElementById('galat-muat')) return;
+  var d = document.createElement('div');
+  d.id = 'galat-muat';
+  d.style.cssText = 'margin:16px;padding:12px 14px;border:1px solid var(--merah);' +
+    'background:var(--merah-m3);color:var(--ink);font:14px/1.5 system-ui,sans-serif';
+  d.textContent = 'Halaman gagal dimuat: ' + (e.message || 'galat skrip') +
+    '. Tekan Ctrl+Shift+R untuk memuat ulang tanpa cache; bila tetap muncul, kirim pesan ini ke admin.';
+  document.body.insertBefore(d, document.body.firstChild);
+});
+</script>
+<script type="module">
+// Jejak perubahan data (pemilik 2026-11-12; 65-patch-jejak.sql, jejak.js). Khusus admin.
+// Jejak diisi trigger database dan disimpan 3 tahun; halaman ini hanya membaca.
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+import { gerbang } from './menu.js?v=2026-11-12-b7db2c';
+import { LABEL_TABEL, AKSI, labelTabel, tampilNilai, rincianUbah, judulBaris, idTerkait } from './jejak.js?v=2026-11-12-b7db2c';
+
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const $ = id => document.getElementById(id);
+const sb = createClient(window.SB_URL, window.SB_KEY);
+const PER_HALAMAN = 50, MAKS_KOLOM = 8;
+const hariLalu = n => { const d = new Date(); d.setDate(d.getDate() - n); return d.toISOString().slice(0, 10); };
+const WAKTU = new Intl.DateTimeFormat('id-ID', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'Asia/Jakarta' });
+let HAL = 0;
+
+function saringan(){
+  const q = new URLSearchParams(location.search);
+  return { tabel: q.get('tabel') || '', baris: q.get('baris') || '', aksi: q.get('aksi') || '', oleh: q.get('oleh') || '',
+    dari: q.get('dari') || hariLalu(30), sampai: q.get('sampai') || '' };
+}
+
+function htmlSaring(f){
+  const tabel = [...new Set([...Object.keys(LABEL_TABEL), f.tabel].filter(Boolean))].sort((a, b) => labelTabel(a).localeCompare(labelTabel(b)));
+  return `<section class="kartu"><form id="fSaring" class="saring">
+    <label>Tabel <select name="tabel"><option value="">Semua tabel</option>${tabel.map(t => `<option value="${esc(t)}"${t === f.tabel ? ' selected' : ''}>${esc(labelTabel(t))}</option>`).join('')}
+      <option value="lkps_%"${f.tabel === 'lkps_%' ? ' selected' : ''}>Semua tabel LKPS</option><option value="ref_%"${f.tabel === 'ref_%' ? ' selected' : ''}>Semua referensi</option></select></label>
+    <label>Aksi <select name="aksi"><option value="">Semua</option>${Object.entries(AKSI).map(([k, l]) => `<option value="${k}"${k === f.aksi ? ' selected' : ''}>${l}</option>`).join('')}</select></label>
+    <label>Oleh (email, sebagian) <input name="oleh" value="${esc(f.oleh)}" placeholder="mis. nama@kampus"></label>
+    <label>Dari tanggal <input type="date" name="dari" value="${esc(f.dari)}"></label>
+    <label>Sampai tanggal <input type="date" name="sampai" value="${esc(f.sampai)}"></label>
+    <label>Id baris <input name="baris" value="${esc(f.baris)}" placeholder="kosong = semua"></label>
+    <div><button class="b utama" type="submit">Tampilkan</button> <button class="b" type="button" id="bersih">Atur ulang</button></div>
+  </form>
+  <p class="ket" style="margin:10px 0 0">Setiap tambah, ubah, dan hapus pada data penting tercatat otomatis oleh database, juga yang dilakukan lewat
+    SQL Editor atau proses otomatis (tertulis "sistem"). Perubahan yang hanya menyentuh kolom otomatis (cap waktu, sitasi, topik OpenAlex) tidak dicatat.
+    Jejak disimpan 3 tahun. Untuk memulihkan data, pakai cadangan (docs/bangun-otomatis.md, bagian Pemulihan).</p></section>
+  <section class="kartu"><div id="hasil"><p class="kosong">Memuat…</p></div></section>`;
+}
+
+function htmlBaris(j, nama){
+  const jdl = judulBaris(j, nama);
+  const tautBaris = j.baris ? `<a href="?tabel=${encodeURIComponent(j.tabel)}&baris=${encodeURIComponent(j.baris)}&dari=2000-01-01" title="Riwayat baris ini">${esc(j.baris)}</a>` : '';
+  let rinci = '';
+  if (j.aksi === 'ubah') {
+    const xs = rincianUbah(j.ubah);
+    rinci = `<ul class="beda">${xs.slice(0, MAKS_KOLOM).map(x => `<li><code>${esc(x.kolom)}</code>: <span class="lama">${esc(tampilNilai(x.lama))}</span> → <span class="baru">${esc(tampilNilai(x.baru))}</span></li>`).join('')}
+      ${xs.length > MAKS_KOLOM ? `<li>dan ${xs.length - MAKS_KOLOM} kolom lain</li>` : ''}</ul>`
+      + (xs.some(x => tampilNilai(x.lama) !== tampilNilai(x.lama, 1e6) || tampilNilai(x.baru) !== tampilNilai(x.baru, 1e6)) || xs.length > MAKS_KOLOM
+        ? `<details><summary class="ket">Nilai lengkap</summary><pre>${esc(JSON.stringify(j.ubah, null, 1))}</pre></details>` : '');
+  } else if (j.isi) {
+    rinci = `<details><summary class="ket">${j.aksi === 'hapus' ? 'Isi baris yang dihapus' : 'Isi baris baru'}</summary><pre>${esc(JSON.stringify(j.isi, null, 1))}</pre></details>`;
+  }
+  return `<tr><td class="wkt">${esc(WAKTU.format(new Date(j.waktu)))}</td>
+    <td><span class="aksi a-${esc(j.aksi)}">${esc(AKSI[j.aksi] || j.aksi)}</span></td>
+    <td>${esc(labelTabel(j.tabel))}${jdl ? `<div class="jdl">${esc(jdl)}</div>` : ''}<div class="id">${tautBaris}</div>${rinci}</td>
+    <td class="oleh">${esc(j.oleh)}</td></tr>`;
+}
+
+async function muat(){
+  const f = saringan();
+  const box = $('hasil');
+  box.innerHTML = '<p class="kosong">Memuat…</p>';
+  let q = sb.from('jejak').select('id,waktu,tabel,baris,aksi,oleh,ubah,isi', { count: 'exact' }).order('id', { ascending: false });
+  if (f.tabel) q = f.tabel.endsWith('%') ? q.like('tabel', f.tabel) : q.eq('tabel', f.tabel);
+  if (f.baris) q = q.eq('baris', f.baris);
+  if (f.aksi) q = q.eq('aksi', f.aksi);
+  if (f.oleh) q = q.ilike('oleh', `%${f.oleh}%`);
+  // Tanggal dibaca sebagai WIB (UTC+7).
+  if (f.dari) q = q.gte('waktu', `${f.dari}T00:00:00+07:00`);
+  if (f.sampai) q = q.lte('waktu', `${f.sampai}T23:59:59.999+07:00`);
+  const { data, error, count } = await q.range(HAL * PER_HALAMAN, HAL * PER_HALAMAN + PER_HALAMAN - 1);
+  if (error) {
+    box.innerHTML = `<p class="kosong">${/does not exist|schema cache/i.test(error.message)
+      ? 'Tabel jejak belum ada: jalankan supabase/65-patch-jejak.sql.' : 'Gagal memuat: ' + esc(error.message)}</p>`;
+    return;
+  }
+  const rows = data || [];
+  // Nama karya dan dosen untuk judul baris (draf dosen tidak terbaca admin: tampil id saja).
+  const id = idTerkait(rows);
+  const [kr, ds] = await Promise.all([
+    id.karya.length ? sb.from('karya').select('id,judul').in('id', id.karya) : { data: [] },
+    id.dosen.length ? sb.from('dosen').select('id,nama').in('id', id.dosen) : { data: [] }]);
+  const nama = { karya: new Map((kr.data || []).map(k => [k.id, k.judul])), dosen: new Map((ds.data || []).map(d => [d.id, d.nama])) };
+  const dari = count ? HAL * PER_HALAMAN + 1 : 0, sampai = HAL * PER_HALAMAN + rows.length;
+  box.innerHTML = rows.length ? `<p class="ket" style="margin-top:0">${dari}–${sampai} dari ${count} perubahan, terbaru dulu.</p>
+    <div class="gulir"><table class="ds"><thead><tr><th>Waktu (WIB)</th><th>Aksi</th><th>Data</th><th>Oleh</th></tr></thead>
+    <tbody>${rows.map(j => htmlBaris(j, nama)).join('')}</tbody></table></div>
+    <div class="halaman"><button class="b" id="sebelum"${HAL ? '' : ' disabled'}>‹ Lebih baru</button>
+      <button class="b" id="sesudah"${sampai < count ? '' : ' disabled'}>Lebih lama ›</button></div>`
+    : '<p class="kosong">Tidak ada perubahan yang cocok dengan saringan ini.</p>';
+  if ($('sebelum')) $('sebelum').onclick = () => { HAL -= 1; muat(); };
+  if ($('sesudah')) $('sesudah').onclick = () => { HAL += 1; muat(); };
+}
+
+// Formulir saringan dari URL, lalu hasilnya (dipakai saat mulai dan "Atur ulang").
+function tampil(){
+  $('isi').innerHTML = htmlSaring(saringan());
+  $('fSaring').onsubmit = e => {
+    e.preventDefault();
+    const q = new URLSearchParams([...new FormData(e.target)].filter(([, v]) => String(v).trim()));
+    history.replaceState(null, '', '?' + q);
+    HAL = 0; muat();
+  };
+  $('bersih').onclick = () => { history.replaceState(null, '', location.pathname); tampil(); };
+  HAL = 0;
+  return muat();
+}
+
+async function mulai(){
+  const saya = await gerbang(sb);
+  if (!saya) return;
+  $('hSub').textContent = `Masuk sebagai ${saya.nama}`;
+  await tampil();
+}
+mulai().catch(e => { $('isi').innerHTML = `<p class="kosong">Gagal memuat: ${esc(e.message || String(e))}</p>`; });
+</script>
+</body>
+</html>
