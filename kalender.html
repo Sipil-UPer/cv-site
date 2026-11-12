@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-12-60bf58">
-<link rel="stylesheet" href="kepala.css?v=2026-11-12-60bf58">
+<link rel="stylesheet" href="tema.css?v=2026-11-12-9ba4e4">
+<link rel="stylesheet" href="kepala.css?v=2026-11-12-9ba4e4">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
@@ -63,7 +63,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-12-60bf58"></script>
+<script src="config.js?v=2026-11-12-9ba4e4"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -82,9 +82,9 @@ addEventListener('error', function (e) {
 // Rapat, panggilan hibah, dan kegiatan manual untuk semua pengguna terdaftar; tenggat
 // tindak lanjut, hibah tim, dan temuan AMI untuk yang bersangkutan (admin: semua).
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { gerbang } from './menu.js?v=2026-11-12-60bf58';
-import { tglID } from './masa-berlaku.js?v=2026-11-12-60bf58';
-import { JENIS_ACARA, JENIS_KEGIATAN, kumpulkanAcara, acaraPada, kisiBulan, isoTanggal, keIcs } from './kalender.js?v=2026-11-12-60bf58';
+import { gerbang } from './menu.js?v=2026-11-12-9ba4e4';
+import { tglID } from './masa-berlaku.js?v=2026-11-12-9ba4e4';
+import { JENIS_ACARA, JENIS_KEGIATAN, kumpulkanAcara, acaraPada, kisiBulan, isoTanggal, keIcs } from './kalender.js?v=2026-11-12-9ba4e4';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
@@ -244,16 +244,17 @@ function gambar(){
 async function muat(){
   // Tabel yang belum ada (patch belum dijalankan) dibaca sebagai kosong.
   const baca = q => q.then(r => ({ data: r.error ? [] : (r.data || []), error: r.error }), e => ({ data: [], error: e }));
-  const [kg, rp, pg, hb, td, tm] = await Promise.all([
+  const [kg, rp, pg, hb, td, tm, te] = await Promise.all([
     baca(sb.from('kegiatan').select('*').order('mulai')),
     baca(sb.from('rapat').select('id,judul,tanggal,mulai,selesai,tempat,agenda')),
     baca(sb.from('hibah_panggilan').select('id,judul,penyelenggara,tenggat,tautan')),
     baca(sb.from('hibah_ajuan').select('id,judul,status,tenggat_ajuan,tanggal_ajuan,tenggat_kemajuan,kemajuan_selesai,tenggat_akhir,akhir_selesai,hibah_tim(dosen_id)')),
     baca(sb.from('rapat_tindak').select('id,rapat_id,keputusan,tenggat,status,pj_dosen_id,pj_nama,rapat(judul)').in('status', ['terbuka', 'proses'])),
-    baca(sb.from('ami_temuan').select('id,siklus,kode,uraian,tenggat,status,pj_email').in('status', ['terbuka', 'proses']))]);
+    baca(sb.from('ami_temuan').select('id,siklus,kode,uraian,tenggat,status,pj_email').in('status', ['terbuka', 'proses'])),
+    baca(sb.from('evaluasi_tindak').select('id,rencana,masalah,tenggat,status,pj_id,evaluasi_mk(kode_mk,tahun_akademik,semester)').in('status', ['terbuka', 'proses']))]);
   ADA_TABEL = !(kg.error && /does not exist|schema cache/i.test(kg.error.message || ''));
   KEGIATAN = kg.data;
-  DATA = { kegiatan: kg.data, rapat: rp.data, panggilan: pg.data, hibah: hb.data, tindak: td.data, temuan: tm.data };
+  DATA = { kegiatan: kg.data, rapat: rp.data, panggilan: pg.data, hibah: hb.data, tindak: td.data, temuan: tm.data, tindakEval: te.data };
   ACARA = kumpulkanAcara(DATA, SAYA);
   gambar();
 }

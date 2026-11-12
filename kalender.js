@@ -11,6 +11,7 @@ export const JENIS_ACARA = {
   hibah:     { label: 'Tenggat hibah tim', warna: '#8A5A00' },
   tindak:    { label: 'Tindak lanjut rapat', warna: '#B23B3B' },
   ami:       { label: 'Temuan AMI', warna: '#C2185B' },
+  evaluasi:  { label: 'Tindak lanjut evaluasi pembelajaran', warna: '#00695C' },
 };
 export const JENIS_KEGIATAN = {
   ami: 'AMI', akademik: 'Akademik (UTS/UAS, perkuliahan)', yudisium: 'Yudisium', wisuda: 'Wisuda',
@@ -67,6 +68,15 @@ export function kumpulkanAcara(d, saya){
     if (r.tenggat && AMI_BUKA.has(r.status) && (admin || (em && String(r.pj_email || '').toLowerCase() === em)))
       tambah({ uid: `ami-${r.id}`, sumber: 'ami', judul: `Temuan AMI ${[r.siklus, r.kode].filter(Boolean).join(' ')}`.trim(),
         mulai: iso(r.tenggat), ket: r.uraian || '' });
+
+  // Tindak lanjut evaluasi pembelajaran (68-patch-evaluasi-pembelajaran.sql): admin dan PJ-nya.
+  for (const t of d.tindakEval || [])
+    if (t.tenggat && t.status !== 'selesai' && (admin || t.pj_id === saya?.id)) {
+      const mk = t.evaluasi_mk || {};
+      tambah({ uid: `evaluasi-${t.id}`, sumber: 'evaluasi', judul: `Tindak lanjut ${mk.kode_mk || 'evaluasi'}: ${t.rencana}`, mulai: iso(t.tenggat),
+        ket: [t.masalah, mk.tahun_akademik ? `${mk.tahun_akademik} ${mk.semester}` : ''].filter(Boolean).join('\n'),
+        href: mk.tahun_akademik ? `evaluasi-pembelajaran.html?ta=${encodeURIComponent(mk.tahun_akademik)}&sm=${mk.semester}` : 'evaluasi-pembelajaran.html' });
+    }
 
   return out.sort((a, b) => a.mulai.localeCompare(b.mulai) || String(a.jamMulai || '').localeCompare(String(b.jamMulai || ''))
     || a.judul.localeCompare(b.judul));

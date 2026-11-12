@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-12-60bf58">
+<link rel="stylesheet" href="tema.css?v=2026-11-12-9ba4e4">
 <style>
   /* Panduan pengguna ruang kerja (pemilik 2026-11-04). Bagian admin hanya
      tampil untuk peran admin. Perbarui bila tombol atau halaman berubah. */
@@ -40,7 +40,7 @@
   @media(max-width:640px){nav.isi ol{columns:1}.wrap{padding:18px 16px 60px}}
   @media print{nav.isi{display:none}section{break-inside:avoid}}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-12-60bf58">
+<link rel="stylesheet" href="kepala.css?v=2026-11-12-9ba4e4">
 </head>
 <body>
 
@@ -63,6 +63,7 @@
       <li><a href="#profil">Profil saya</a></li>
       <li><a href="#lihat">Monitoring dan skor</a></li>
       <li><a href="#publik">Apa yang tampil untuk umum</a></li>
+      <li><a href="#evaluasi">Evaluasi pembelajaran</a></li>
       <li class="adm" hidden><a href="#verifikasi">Admin: verifikasi dan ajuan</a></li>
       <li class="adm" hidden><a href="#dosen">Admin: kelola dosen</a></li>
       <li class="adm" hidden><a href="#dataprodi">Admin: data prodi</a></li>
@@ -174,9 +175,29 @@
       nama atau NIM mahasiswa.</p>
   </section>
 
+  <section id="evaluasi">
+    <h2>9. Evaluasi pembelajaran</h2>
+    <p>Buka <b>Operasional ▾ › Evaluasi pembelajaran</b> dan pilih semester. Setiap mata kuliah yang Anda ampu tampil dengan nilai EDOM
+      (evaluasi dosen oleh mahasiswa, skala 0–4, rekap dari kampus), capaian CPL kelasnya, dan refleksi Anda.</p>
+    <ol>
+      <li><b>Isi refleksi</b> di akhir semester: klik <b>Isi</b>, pilih apakah pelaksanaan <b>sesuai RPS</b> (materi, jadwal, penilaian), tulis catatan,
+        dan evaluasi metode pembelajaran beserta peluang perbaikannya, lalu <b>Simpan evaluasi</b>.</li>
+      <li><b>Tindak lanjut</b>: baris ditandai perlu tindak lanjut bila EDOM di bawah ambang (bawaan 3,00), ada CPL kelas yang belum tercapai,
+        atau pelaksanaan tidak sesuai RPS. Klik <b>+ Tambah tindak lanjut</b>: masalah, penyebab, rencana, penanggung jawab, dan tenggat.
+        Tindak lanjut masuk <b>Tugas saya</b> dan <b>Kalender</b> penanggung jawabnya.</li>
+      <li><b>Selesaikan</b>: pada tindak lanjut, pilih <b>Selesai</b>, tulis hasilnya dan tanggal selesai, lalu <b>Perbarui</b>.</li>
+    </ol>
+    <p>Dosen hanya melihat nilai EDOM-nya sendiri; admin dan pimpinan melihat semua; asesor hanya rekap prodi tanpa angka per dosen.</p>
+    <p class="adm-p" hidden><b>Admin:</b> buka <b>Alat admin</b> di halaman itu. (1) <b>Siapkan dari daftar kelas</b> membuat baris dari daftar kelas
+      Berkas nilai CPL semester itu, supaya dosen bisa mengisi refleksi. (2) <b>Tempel rekap EDOM</b>: salin tabel rekap dari kampus di Excel
+      (kode MK, dosen sebagai email/NIDN/nama, nilai, boleh jumlah responden dan nama MK), tempel, <b>Periksa</b>, lalu <b>Simpan</b>; baris yang ada
+      diperbarui angkanya saja. (3) Ubah <b>ambang</b> bila perlu. Tindak lanjut yang ditautkan ke butir standar SPMI ikut terhitung di Siklus PPEPP.
+      <b>Unduh CSV</b> menyimpan tabel semester untuk rapat evaluasi akhir semester (bukti butir 16, tinjauan rutin proses pembelajaran).</p>
+  </section>
+
   <div id="bagian-admin" hidden>
   <section id="verifikasi" class="admin">
-    <h2>9. Verifikasi dan ajuan <span class="peran">admin</span></h2>
+    <h2>10. Verifikasi dan ajuan <span class="peran">admin</span></h2>
     <p>Buka halaman <b>Verifikasi</b> (menu Admin prodi, atau tautan <b>Verifikasi</b> di
       Karya dosen). Tab <b>Karya dosen</b>, <b>Profil dosen</b>, <b>BKD</b>, dan <b>Prestasi mahasiswa</b>
       masing-masing menampilkan jumlah yang menunggu; angka total juga tampil di kartu ruang kerja.
@@ -200,7 +221,7 @@
   </section>
 
   <section id="dosen" class="admin">
-    <h2>10. Kelola dosen <span class="peran">admin</span></h2>
+    <h2>11. Kelola dosen <span class="peran">admin</span></h2>
     <ul>
       <li>Tambah dosen: email (untuk masuk), NIDN, nama, peran, pendidikan, jabatan. Staf tanpa NIDN memakai nomor pegawai.</li>
       <li>Peran: <span class="tbl">dosen</span> mengisi karya; <span class="tbl">admin</span> semua halaman;
@@ -215,7 +236,7 @@
   </section>
 
   <section id="dataprodi" class="admin">
-    <h2>11. Data prodi <span class="peran">admin</span></h2>
+    <h2>12. Data prodi <span class="peran">admin</span></h2>
     <p>Buka <b>Admin prodi ▾ › Data prodi</b>. Tiap tab satu tabel LKPS; <b>Tambah baris</b>, <b>Ubah</b>,
       <b>Hapus</b>, dan bukti per baris. Tab dikelompokkan: baris atas memilih kelompok (Dokumen,
       Dosen &amp; SDM, Kurikulum &amp; penelitian, Mahasiswa &amp; lulusan, Institusi &amp; keuangan,
@@ -249,7 +270,7 @@
   </section>
 
   <section id="butir" class="admin">
-    <h2>12. Isian butir dan dokumen <span class="peran">admin</span></h2>
+    <h2>13. Isian butir dan dokumen <span class="peran">admin</span></h2>
     <ul>
       <li>Butir yang dinilai dengan matriks: isi skor 0–4 dan bukti, lalu <b>Simpan perubahan</b>.</li>
       <li><b>Dokumen</b>: pustaka dokumen (statuta, kurikulum, SK, notulen, …). Unggah ulang dengan tahun sama mengganti versi lama; yang lama diarsipkan.</li>
@@ -258,7 +279,7 @@
   </section>
 
   <section id="ppepp" class="admin">
-    <h2>13. Standar SPMI dan siklus PPEPP <span class="peran">admin</span></h2>
+    <h2>14. Standar SPMI dan siklus PPEPP <span class="peran">admin</span></h2>
     <ol>
       <li><b>Impor standar.</b> Buka <b>Data prodi › SPMI › Standar SPMI</b>, pada <b>Impor rekap standar SPM</b> pilih berkas Excel dari SPM
         (mis. "Draft Rekap Standar"). Lembar Pendidikan, Penelitian, PkM, Akreditasi Unggul LAMTEK, dan IKU PT tercentang; lembar unit lain bisa
@@ -283,7 +304,7 @@
   </section>
 
   <section id="skor" class="admin">
-    <h2>14. Skor dan draf LED <span class="peran">admin</span></h2>
+    <h2>15. Skor dan draf LED <span class="peran">admin</span></h2>
     <p><b>Akreditasi ▾ › Kelengkapan LED</b> menghitung sendiri yang sudah dan belum terisi: tim, narasi, Data prodi, dokumen, bukti, dan karya, dengan tautan ke tempat mengisinya. "Selesai" berarti datanya ada, bukan isinya sudah benar.</p>
     <p>Di halaman <b>Narasi LED</b>, tombol di atas daftar menyaring bagian yang tampil, dan kotak cari menemukan satu butir. Tombol <b>Identitas</b> memuat isian Identitas Pengusul, kota pada sampul, folder induk, dan narahubung; <b>A</b> dan <b>B</b> sama dengan bagian A dan B pada Bab II. Daftar program studi dan akreditasi diambil dari <b>Data prodi</b>, tab Prodi di UPPS. Buka <b>Tim penyusun dan pembagian bagian</b>, centang yang masuk tim penyusun (dosen yang dicentang bisa menulis narasi tanpa hak admin lainnya), atur urutan dan deskripsi kerjanya, tambahkan orang di luar sistem bila ada (namanya tertulis di LED tanpa akun), lalu pilih penanggung jawab tiap bagian; tombol <b>Bagian saya</b> lalu menampilkan bagian masing-masing. Admin lain tetap boleh menyunting. Bila dua admin mengubah kotak yang sama, yang menyimpan belakangan diberi peringatan sebelum menimpa.</p>
     <p>Tombol unduh ada di panel <b>Unduh dokumen akreditasi</b>, paling atas halaman Skor; pilih TS lebih dulu. Isi narasi di halaman <b>Akreditasi ▾ › Narasi LED</b>: tiap kotak tersimpan sendiri dan masuk draf LED saat diunduh, jadi tidak perlu mengetik ulang di Word. Yang masih tertinggal di draf bertanda [isi].</p>
@@ -299,7 +320,7 @@
   </section>
 
   <section id="perbarui" class="admin">
-    <h2>15. Kapan situs diperbarui <span class="peran">admin</span></h2>
+    <h2>16. Kapan situs diperbarui <span class="peran">admin</span></h2>
     <p>Situs dibangun ulang otomatis tiap jam pada menit ke-23 (GitHub Actions). Untuk memperbarui saat itu
       juga, pengelola teknis menjalankan <span class="tbl">bangun-dan-push.bat</span> lalu menjawab
       <b>y</b> pada "Bangun dan terbitkan sekarang?".</p>
@@ -307,7 +328,7 @@
   </div>
 </main>
 
-<script src="config.js?v=2026-11-12-60bf58"></script>
+<script src="config.js?v=2026-11-12-9ba4e4"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -324,14 +345,14 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { gerbang } from './menu.js?v=2026-11-12-60bf58';
+import { gerbang } from './menu.js?v=2026-11-12-9ba4e4';
 
 // Bagian admin hanya untuk peran admin (isinya bukan rahasia; disembunyikan
 // supaya panduan dosen tetap ringkas).
 const saya = await gerbang(createClient(window.SB_URL, window.SB_KEY));
 if (saya && saya.peran === 'admin') {
   document.getElementById('bagian-admin').hidden = false;
-  document.querySelectorAll('nav.isi .adm').forEach(li => { li.hidden = false; });
+  document.querySelectorAll('nav.isi .adm, .adm-p').forEach(el => { el.hidden = false; });
 }
 // Bagian tentang modul yang dimatikan di config.js (FITUR_MATI, fitur.js) disembunyikan.
 document.querySelectorAll('[data-fitur]').forEach(el => { if ((window.FITUR_MATI || []).includes(el.dataset.fitur)) el.hidden = true; });

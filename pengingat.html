@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-12-60bf58">
-<link rel="stylesheet" href="kepala.css?v=2026-11-12-60bf58">
+<link rel="stylesheet" href="tema.css?v=2026-11-12-9ba4e4">
+<link rel="stylesheet" href="kepala.css?v=2026-11-12-9ba4e4">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
@@ -72,7 +72,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-12-60bf58"></script>
+<script src="config.js?v=2026-11-12-9ba4e4"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -93,14 +93,14 @@ addEventListener('error', function (e) {
 // Script (Code.gs kind 'kirim_pengingat', maks. 30 per kirim). Tidak ada yang
 // terkirim tanpa tombol Kirim.
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { gerbang } from './menu.js?v=2026-11-12-60bf58';
-import { tugasPerPihak } from './kelengkapan.js?v=2026-11-12-60bf58';
-import { PIHAK } from './unsur-butir.js?v=2026-11-12-60bf58';
-import { penerimaTemuan, HARI_DEKAT } from './temuan-ami.js?v=2026-11-12-60bf58';
-import { daftarBerlaku, penerimaBerlaku, htmlBerlaku, HARI_SEGERA } from './masa-berlaku.js?v=2026-11-12-60bf58';
-import { penerimaKarya, penerimaProfil, isiPola } from './pengingat-dosen.js?v=2026-11-12-60bf58';
-import { penerimaTindak, HARI_TINDAK } from './rapat.js?v=2026-11-12-60bf58';
-import { penerimaHibah, penerimaPanggilan, HARI_PENGINGAT } from './hibah.js?v=2026-11-12-60bf58';
+import { gerbang } from './menu.js?v=2026-11-12-9ba4e4';
+import { tugasPerPihak } from './kelengkapan.js?v=2026-11-12-9ba4e4';
+import { PIHAK } from './unsur-butir.js?v=2026-11-12-9ba4e4';
+import { penerimaTemuan, HARI_DEKAT } from './temuan-ami.js?v=2026-11-12-9ba4e4';
+import { daftarBerlaku, penerimaBerlaku, htmlBerlaku, HARI_SEGERA } from './masa-berlaku.js?v=2026-11-12-9ba4e4';
+import { penerimaKarya, penerimaProfil, isiPola } from './pengingat-dosen.js?v=2026-11-12-9ba4e4';
+import { penerimaTindak, HARI_TINDAK } from './rapat.js?v=2026-11-12-9ba4e4';
+import { penerimaHibah, penerimaPanggilan, HARI_PENGINGAT } from './hibah.js?v=2026-11-12-9ba4e4';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);

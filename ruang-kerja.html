@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-12-60bf58">
+<link rel="stylesheet" href="tema.css?v=2026-11-12-9ba4e4">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
@@ -84,7 +84,7 @@
 
 <main class="wrap" id="isi"><p class="hint">Memuat&hellip;</p></main>
 
-<script src="config.js?v=2026-11-12-60bf58"></script>
+<script src="config.js?v=2026-11-12-9ba4e4"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache) tampil sebagai pesan.
 addEventListener('error', function (e) {
@@ -100,11 +100,11 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { pengguna, pasangMenu, halamanBoleh, bolehBuka, identitas, pasangJudul } from './menu.js?v=2026-11-12-60bf58';
-import { hitungVerifikasi } from './verifikasi-hitung.js?v=2026-11-12-60bf58';
-import { tugasSaya } from './tugas-saya.js?v=2026-11-12-60bf58';
-import { fiturAktif, halamanAktif } from './fitur.js?v=2026-11-12-60bf58';
-import { barisDosen } from './target-kinerja.js?v=2026-11-12-60bf58';
+import { pengguna, pasangMenu, halamanBoleh, bolehBuka, identitas, pasangJudul } from './menu.js?v=2026-11-12-9ba4e4';
+import { hitungVerifikasi } from './verifikasi-hitung.js?v=2026-11-12-9ba4e4';
+import { tugasSaya } from './tugas-saya.js?v=2026-11-12-9ba4e4';
+import { fiturAktif, halamanAktif } from './fitur.js?v=2026-11-12-9ba4e4';
+import { barisDosen } from './target-kinerja.js?v=2026-11-12-9ba4e4';
 
 const sb = createClient(window.SB_URL, window.SB_KEY);
 const $ = id => document.getElementById(id);
@@ -185,7 +185,7 @@ function layarTidakTerdaftar(email){
 
 // "Tugas saya" (pemilik 2026-11-12; tugas-saya.js). Tabel yang belum ada (patch belum
 // dijalankan) dibaca sebagai kosong; RLS membatasi pada data milik sendiri.
-const LABEL_JENIS = { profil: 'Profil', karya: 'Karya', bkd: 'BKD', rapat: 'Rapat', hibah: 'Hibah', ami: 'AMI', cpl: 'CPL', target: 'Target' };
+const LABEL_JENIS = { profil: 'Profil', karya: 'Karya', bkd: 'BKD', rapat: 'Rapat', hibah: 'Hibah', ami: 'AMI', cpl: 'CPL', target: 'Target', evaluasi: 'Evaluasi' };
 const MAKS_TAMPIL = 8;
 async function muatTugas(saya){
   const baca = q => q.then(r => r.error ? [] : (r.data || []), () => []);
@@ -220,7 +220,12 @@ async function muatTugas(saya){
   const kel = new Map(tSkema.map(s => [s.kode, s.kelompok]));
   const target = (tBaku.length || tKhusus.length) ? barisDosen(saya, th, { baku: tBaku, khusus: tKhusus, karya: tKarya,
     hibah: tHibah.map(a => ({ ...a, skema: { kelompok: kel.get(a.skema_kode) } })) }) : [];
-  return tugasSaya({ saya, karya: [...karya, ...draf], berBukti, bkd, tindak, hibah, temuan, kelasCpl, berkasCpl, target, tahunTarget: th });
+  // Evaluasi pembelajaran (68-patch-evaluasi-pembelajaran.sql); tanpa tabel = tidak tampil.
+  const [evaluasi, tindakEval] = await Promise.all([
+    baca(sb.from('evaluasi_mk').select('id,dosen_id,tahun_akademik,semester,kode_mk,rps_sesuai').eq('dosen_id', saya.id)),
+    baca(sb.from('evaluasi_tindak').select('id,pj_id,status,rencana,masalah,tenggat,evaluasi_mk(kode_mk,tahun_akademik,semester)')
+      .eq('pj_id', saya.id).in('status', ['terbuka', 'proses']))]);
+  return tugasSaya({ saya, karya: [...karya, ...draf], berBukti, bkd, tindak, hibah, temuan, kelasCpl, berkasCpl, target, tahunTarget: th, evaluasi, tindakEval });
 }
 
 function htmlTugas(xs){

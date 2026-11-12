@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Evaluasi pembelajaran — Kinerja Program Studi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tema.css?v=2026-11-12-9ba4e4">
+<link rel="stylesheet" href="kepala.css?v=2026-11-12-9ba4e4">
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
+  .wrap{max-width:1240px;margin:0 auto;padding:18px 20px 80px}
+  .kosong, .ket{color:var(--muted)}
+  .ket{font-size:13px}
+  .kartu{background:var(--panel);border:1px solid var(--line);padding:14px 18px;margin-bottom:16px}
+  .kartu h2{font-size:17px;margin:0 0 6px;color:var(--biru)}
+  .kartu h3{font-size:14.5px;margin:12px 0 4px}
+  .alat{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+  .b{font:12.5px/1.4 var(--sans);padding:5px 12px;border:1px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer}
+  .b:hover{border-color:var(--biru);color:var(--biru)}
+  .b.utama{background:var(--biru);color:#fff;border-color:var(--biru)}
+  .b:disabled{opacity:.5;cursor:default}
+  select, input, textarea{font:inherit;font-size:14px;padding:4px 6px;border:1px solid var(--line);background:var(--panel);color:var(--ink)}
+  textarea{width:100%;min-height:54px}
+  .gulir{overflow-x:auto}
+  table.ds{width:100%;border-collapse:collapse;font-size:13.5px}
+  table.ds th{text-align:left;font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--line);padding:5px 8px;vertical-align:bottom}
+  table.ds td{padding:6px 8px;border-bottom:1px solid var(--line-soft);vertical-align:top}
+  .kode{font-family:var(--mono);font-size:12.5px;white-space:nowrap}
+  .rendah{color:var(--merah);font-weight:600} .baik{color:var(--hijau);font-weight:600}
+  .chip{display:inline-block;font-size:11.5px;padding:1px 7px;border:1px solid var(--line);white-space:nowrap}
+  .tl-belum{color:var(--merah);border-color:var(--merah)} .tl-proses{color:#8A5A00;border-color:#8A5A00}
+  .tl-selesai{color:var(--hijau);border-color:var(--hijau)} .tl-tidak_perlu{color:var(--muted)}
+  .rekap{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:8px 14px}
+  .rekap div{border-left:3px solid var(--biru);padding:2px 10px}
+  .rekap b{display:block;font-size:20px;font-family:var(--serif)}
+  .msg{font-size:13px;margin-left:8px} .msg.buruk{color:var(--merah)} .msg.ok{color:var(--hijau)}
+  tr.sunting td{background:var(--line-soft)}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:8px 14px;margin:6px 0}
+  .grid label{display:flex;flex-direction:column;font-size:12.5px;gap:2px}
+  .tl{border-left:3px solid var(--line);padding:4px 10px;margin:6px 0;font-size:13.5px}
+  details.alat-admin summary{cursor:pointer;font-weight:600}
+  @media(max-width:700px){.wrap{padding-left:16px;padding-right:16px}}
+</style>
+</head>
+<body>
+<header class="hero"><div class="hero-in">
+  <div class="hero-inst" data-identitas></div>
+  <h1>Evaluasi pembelajaran</h1>
+  <div class="sub" id="hSub">Memuat…</div>
+</div></header>
+<main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
+<script src="config.js?v=2026-11-12-9ba4e4"></script>
+<script>
+// Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
+addEventListener('error', function (e) {
+  if (document.getElementById('galat-muat')) return;
+  var d = document.createElement('div');
+  d.id = 'galat-muat';
+  d.style.cssText = 'margin:16px;padding:12px 14px;border:1px solid var(--merah);' +
+    'background:var(--merah-m3);color:var(--ink);font:14px/1.5 system-ui,sans-serif';
+  d.textContent = 'Halaman gagal dimuat: ' + (e.message || 'galat skrip') +
+    '. Tekan Ctrl+Shift+R untuk memuat ulang tanpa cache; bila tetap muncul, kirim pesan ini ke admin.';
+  document.body.insertBefore(d, document.body.firstChild);
+});
+</script>
+<script type="module">
+// Evaluasi pembelajaran per semester (pemilik 2026-11-12; 68-patch-evaluasi-pembelajaran.sql).
+// Admin: rekap EDOM dari kampus, ambang, semua baris. Pimpinan: semua (baca). Dosen: mata kuliahnya
+// sendiri (refleksi RPS dan metode, tindak lanjut). PJ: tindak lanjut yang ditugaskan. Semua: rekap prodi.
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+import { gerbang } from './menu.js?v=2026-11-12-9ba4e4';
+import { SEMESTER, AMBANG_BAWAAN, RPS, STATUS_TINDAK, angka, semesterKini, urutSemester, bacaTempelEDOM, cplPerMK, statusEvaluasi, rekapSemester }
+  from './evaluasi-pembelajaran.js?v=2026-11-12-9ba4e4';
+
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const $ = id => document.getElementById(id);
+const sb = createClient(window.SB_URL, window.SB_KEY);
+const tgl = d => d ? String(d).slice(0, 10).split('-').reverse().join('/') : '';
+const LABEL_RPS = Object.fromEntries(RPS), LABEL_ST = Object.fromEntries(STATUS_TINDAK);
+const LABEL_TL = { tidak_perlu: 'tidak perlu', belum: 'belum ada', proses: 'berjalan', selesai: 'selesai' };
+let SAYA = null, ADMIN = false, SEMUA = false, ADA = true;
+let D = { dosen: [], evaluasi: [], tindak: [], ringkas: null, rekap: [], standar: [] }, AMBANG = AMBANG_BAWAAN;
+const q = new URLSearchParams(location.search);
+let PILIH = { ta: q.get('ta') || '', sm: q.get('sm') || '' }, BUKA = null, F = { tampil: 'semua', cari: '' }, TEMPEL = null, ALAT_BUKA = null;
+
+const namaDosen = id => (D.dosen.find(d => d.id === id) || {}).nama || '—';
+const bolehUbah = e => ADMIN || e.dosen_id === SAYA.id;
+const tindakPer = () => { const m = new Map(); D.tindak.forEach(t => { if (!m.has(t.evaluasi_id)) m.set(t.evaluasi_id, []); m.get(t.evaluasi_id).push(t); }); return m; };
+
+function daftarSemester(){
+  const s = new Map();
+  const tambah = (ta, sm) => { if (ta && SEMESTER.includes(sm)) s.set(`${ta} ${sm}`, { ta, sm }); };
+  const k = semesterKini(); tambah(k.ta, k.sm);
+  D.evaluasi.forEach(e => tambah(e.tahun_akademik, e.semester));
+  D.rekap.forEach(r => tambah(r.tahun_akademik, r.semester));
+  tambah(PILIH.ta, PILIH.sm);
+  return [...s.values()].sort(urutSemester);
+}
+
+function htmlRekapRiwayat(){
+  if (!D.rekap.length) return '';
+  return `<section class="kartu"><h2>Rekap prodi per semester</h2>
+    <div class="gulir"><table class="ds"><thead><tr><th>Semester</th><th>Mata kuliah × dosen</th><th>Rerata EDOM</th><th>Di bawah ${angka(AMBANG)}</th>
+      <th>…sudah ditindaklanjuti</th><th>Refleksi RPS terisi</th><th>Tindak lanjut selesai</th></tr></thead><tbody>
+    ${D.rekap.map(r => `<tr><td>${esc(r.tahun_akademik)} ${esc(r.semester)}</td><td>${r.jumlah}</td><td>${r.rerata_edom == null ? '—' : angka(r.rerata_edom)}</td>
+      <td>${r.di_bawah_ambang}</td><td>${r.bawah_bertindak} dari ${r.di_bawah_ambang}</td><td>${r.rps_terisi} dari ${r.jumlah}</td>
+      <td>${r.tindak_selesai} dari ${r.tindak}</td></tr>`).join('')}</tbody></table></div>
+    <p class="ket">Angka per dosen tidak ditampilkan di rekap ini. Bukti butir 16 komponen II: tinjauan rutin proses pembelajaran.</p></section>`;
+}
+
+function htmlAdmin(){
+  // Terbuka bila semester belum punya baris; setelah itu mengikuti klik admin (tetap terbuka saat halaman digambar ulang).
+  const buka = ALAT_BUKA ?? !D.evaluasi.some(e => e.tahun_akademik === PILIH.ta && e.semester === PILIH.sm);
+  return `<section class="kartu"><details class="alat-admin" id="alatAdmin"${buka ? ' open' : ''}>
+    <summary>Alat admin: siapkan baris, tempel rekap EDOM, ambang</summary>
+    <h3>1. Siapkan baris dari daftar kelas CPL</h3>
+    <p class="ket">Satu baris per mata kuliah dan dosen pengampu dari <b>Berkas nilai CPL › daftar kelas</b> ${esc(PILIH.ta)} ${esc(PILIH.sm)}, supaya dosen bisa
+      mengisi refleksi sebelum rekap EDOM datang. Baris yang sudah ada tidak berubah.</p>
+    <p><button class="b" id="siapkan">Siapkan dari daftar kelas</button><span class="msg" id="mSiapkan"></span></p>
+    <h3>2. Tempel rekap EDOM dari kampus</h3>
+    <p class="ket">Salin tabel dari Excel lalu tempel di sini. Kolom: <b>kode MK</b>, <b>dosen</b> (email, NIDN, atau nama persis seperti di Kelola dosen),
+      <b>nilai EDOM</b> (0–4, koma atau titik), lalu boleh <b>jumlah responden</b> dan <b>nama MK</b>. Baris judul boleh ada (dikenali dari namanya).
+      Baris yang sudah ada diperbarui angka EDOM-nya; refleksi dosen tidak berubah.</p>
+    <textarea id="tempel" rows="5" placeholder="SI2101&#9;ani@kampus.ac.id&#9;3,45&#9;40"></textarea>
+    <p><button class="b" id="periksa">Periksa</button></p><div id="pratinjau"></div>
+    <h3>3. Ambang perlu tindak lanjut</h3>
+    <p>EDOM di bawah <input type="number" id="ambang" min="0" max="4" step="0.05" value="${AMBANG}" style="width:80px">
+      <button class="b" id="simpanAmbang">Simpan ambang</button><span class="msg" id="mAmbang"></span></p>
+    <p class="ket">Selain EDOM, baris juga ditandai bila ada CPL kelas yang belum tercapai (dari ringkasan CPL) atau dosen menilai pelaksanaan tidak sesuai RPS.</p>
+  </details></section>`;
+}
+
+function htmlTindak(t, e){
+  const boleh = ADMIN || t.pj_id === SAYA.id || (e && e.dosen_id === SAYA.id);
+  return `<div class="tl"><b>${esc(t.rencana)}</b> <span class="chip tl-${t.status === 'selesai' ? 'selesai' : t.status === 'proses' ? 'proses' : 'belum'}">${esc(LABEL_ST[t.status])}</span>
+    <div class="ket">Masalah: ${esc(t.masalah)}${t.penyebab ? ` · Penyebab: ${esc(t.penyebab)}` : ''} · PJ: ${esc(namaDosen(t.pj_id))}${t.tenggat ? ` · tenggat ${tgl(t.tenggat)}` : ''}
+      ${t.standar_id ? ` · standar ${esc((D.standar.find(s => +s.id === +t.standar_id) || {}).kode || '')}` : ''}${t.hasil ? `<br>Hasil: ${esc(t.hasil)} (${tgl(t.tanggal_selesai)})` : ''}</div>
+    ${boleh && t.status !== 'selesai' ? `<div class="alat" style="margin:4px 0 0"><select data-tst="${t.id}">${STATUS_TINDAK.map(([v, l]) => `<option value="${v}"${v === t.status ? ' selected' : ''}>${l}</option>`).join('')}</select>
+      <input data-thasil="${t.id}" placeholder="Hasil (wajib bila selesai)" style="flex:1;min-width:200px"><input type="date" data-ttgl="${t.id}">
+      <button class="b" data-tsimpan="${t.id}">Perbarui</button><span class="msg" data-tmsg="${t.id}"></span></div>` : ''}</div>`;
+}
+
+function htmlBuka(e, st, tindak){
+  const ubah = bolehUbah(e);
+  return `<tr class="sunting"><td colspan="7">
+    ${ADMIN ? `<div class="grid"><label>EDOM (0–4)<input type="number" id="eEdom" min="0" max="4" step="0.01" value="${e.edom ?? ''}"></label>
+      <label>Jumlah responden<input type="number" id="eResp" min="0" step="1" value="${e.edom_responden ?? ''}"></label></div>` : ''}
+    <div class="grid">
+      <label>Pelaksanaan dibanding RPS<select id="eRps"${ubah ? '' : ' disabled'}><option value="">— belum diisi —</option>${RPS.map(([v, l]) => `<option value="${v}"${e.rps_sesuai === v ? ' selected' : ''}>${l}</option>`).join('')}</select></label>
+      <label>Catatan kesesuaian RPS (materi, jadwal, penilaian)<textarea id="eRpsCat"${ubah ? '' : ' disabled'}>${esc(e.rps_catatan || '')}</textarea></label>
+      <label>Evaluasi metode pembelajaran dan peluang perbaikan<textarea id="eMetode"${ubah ? '' : ' disabled'}>${esc(e.metode_catatan || '')}</textarea></label>
+    </div>
+    ${ubah || ADMIN ? `<p><button class="b utama" id="eSimpan">Simpan evaluasi</button><span class="msg" id="eMsg"></span></p>` : ''}
+    <h3>Tindak lanjut</h3>
+    ${st.alasan.length ? `<p class="ket">Perlu tindak lanjut karena: ${esc(st.alasan.join('; '))}.</p>` : '<p class="ket">Tidak ada pemicu tindak lanjut; boleh tetap dicatat bila ada perbaikan.</p>'}
+    ${tindak.map(t => htmlTindak(t, e)).join('') || '<p class="kosong">Belum ada tindak lanjut.</p>'}
+    ${ubah ? `<details${st.perlu && !tindak.length ? ' open' : ''}><summary class="b" style="display:inline-block;margin-top:6px">+ Tambah tindak lanjut</summary>
+      <div class="grid">
+        <label>Masalah<textarea id="tMasalah">${esc(st.alasan.join('; '))}</textarea></label>
+        <label>Penyebab (akar masalah)<textarea id="tPenyebab"></textarea></label>
+        <label>Rencana perbaikan<textarea id="tRencana"></textarea></label>
+        <label>Penanggung jawab<select id="tPj">${D.dosen.filter(d => d.aktif !== false && d.peran !== 'asesor').map(d => `<option value="${d.id}"${d.id === e.dosen_id ? ' selected' : ''}>${esc(d.nama)}</option>`).join('')}</select></label>
+        <label>Tenggat<input type="date" id="tTenggat"></label>
+        <label>Standar SPMI terkait (pilihan)<select id="tStandar"><option value="">—</option>${D.standar.map(s => `<option value="${s.id}">${esc(s.kode)} · ${esc(String(s.pernyataan).slice(0, 60))}</option>`).join('')}</select></label>
+      </div><p><button class="b utama" id="tSimpan">Simpan tindak lanjut</button><span class="msg" id="tMsg"></span></p></details>` : ''}
+  </td></tr>`;
+}
+
+function saring(xs, sts){
+  const c = F.cari.trim().toLowerCase();
+  return xs.filter((e, i) => (F.tampil === 'semua' || (F.tampil === 'perlu' ? sts[i].perlu : F.tampil === 'belumtl' ? sts[i].tl === 'belum' : !e.rps_sesuai))
+    && (!c || `${e.kode_mk} ${e.nama_mk || ''} ${namaDosen(e.dosen_id)}`.toLowerCase().includes(c)));
+}
+
+function htmlSemester(){
+  const rows = D.evaluasi.filter(e => e.tahun_akademik === PILIH.ta && e.semester === PILIH.sm)
+    .sort((a, b) => a.kode_mk.localeCompare(b.kode_mk) || namaDosen(a.dosen_id).localeCompare(namaDosen(b.dosen_id)));
+  const cpl = cplPerMK(D.ringkas, PILIH.ta, PILIH.sm), tp = tindakPer();
+  const sts = rows.map(e => statusEvaluasi(e, cpl.get(String(e.kode_mk).toUpperCase()), AMBANG, tp.get(e.id) || []));
+  const R = rekapSemester(rows, cpl, AMBANG, tp);
+  if (!rows.length) return `<section class="kartu"><h2>${esc(PILIH.ta)} ${esc(PILIH.sm)}</h2><p class="kosong">${SEMUA
+    ? 'Belum ada baris evaluasi untuk semester ini.' + (ADMIN ? ' Gunakan alat admin di atas.' : '') : 'Tidak ada mata kuliah Anda yang tercatat untuk semester ini.'}</p></section>`;
+  const tampil = saring(rows, sts);
+  return `<section class="kartu"><h2>${esc(PILIH.ta)} ${esc(PILIH.sm)}${SEMUA ? '' : ' · mata kuliah saya'}</h2>
+    <div class="rekap"><div><b>${R.jumlah}</b>mata kuliah × dosen</div><div><b>${R.rerata == null ? '—' : angka(R.rerata)}</b>rerata EDOM (${R.berEdom} terisi)</div>
+      <div><b>${R.perlu}</b>perlu tindak lanjut</div><div><b class="${R.perluBelumTL ? 'rendah' : ''}">${R.perluBelumTL}</b>belum ada tindak lanjut</div>
+      <div><b>${R.rpsTerisi}</b>refleksi RPS terisi</div><div><b>${R.tlSelesai}</b>tindak lanjut selesai</div></div>
+    <div class="alat" style="margin-top:12px"><label>Tampilkan <select id="fTampil">${[['semua', 'semua'], ['perlu', 'perlu tindak lanjut'], ['belumtl', 'belum ada tindak lanjut'], ['refleksi', 'refleksi belum diisi']]
+      .map(([v, l]) => `<option value="${v}"${v === F.tampil ? ' selected' : ''}>${l}</option>`).join('')}</select></label>
+      <input type="search" id="fCari" placeholder="Cari kode, nama MK, dosen" value="${esc(F.cari)}" style="min-width:220px">
+      <span class="ket">${tampil.length} dari ${rows.length}</span>${SEMUA ? '<button class="b" id="unduh" style="margin-left:auto">Unduh CSV</button>' : ''}</div>
+    <div class="gulir"><table class="ds"><thead><tr><th>Mata kuliah</th><th>Dosen</th><th>EDOM</th><th>CPL kelas</th><th>RPS</th><th>Tindak lanjut</th><th></th></tr></thead><tbody>
+    ${tampil.map(e => { const i = rows.indexOf(e), st = sts[i], c = cpl.get(String(e.kode_mk).toUpperCase()), tl = tp.get(e.id) || [];
+      return `<tr><td><span class="kode">${esc(e.kode_mk)}</span><div class="ket">${esc(e.nama_mk || '')}</div></td><td>${esc(namaDosen(e.dosen_id))}</td>
+        <td>${e.edom == null ? '<span class="kosong">—</span>' : `<span class="${+e.edom < AMBANG ? 'rendah' : 'baik'}">${angka(e.edom)}</span>`}${e.edom_responden != null ? `<div class="ket">${e.edom_responden} responden</div>` : ''}</td>
+        <td>${!c ? '<span class="kosong">—</span>' : c.belum.length ? `<span class="rendah">belum: ${esc(c.belum.join(', '))}</span>` : '<span class="baik">tercapai</span>'}</td>
+        <td>${e.rps_sesuai ? esc(LABEL_RPS[e.rps_sesuai]) : '<span class="kosong">belum diisi</span>'}</td>
+        <td><span class="chip tl-${st.tl}" title="${esc(st.alasan.join('; '))}">${LABEL_TL[st.tl]}</span>${tl.length ? `<div class="ket">${tl.length} tindak lanjut</div>` : ''}</td>
+        <td><button class="b" data-buka="${e.id}">${BUKA === e.id ? 'Tutup' : bolehUbah(e) ? 'Isi' : 'Lihat'}</button></td></tr>
+        ${BUKA === e.id ? htmlBuka(e, st, tl) : ''}`; }).join('')}
+    </tbody></table></div>
+    <p class="ket">EDOM di bawah ${angka(AMBANG)} ditandai merah; CPL kelas diambil dari ringkasan CPL terakhir yang diunggah. Dosen mengisi refleksi untuk mata kuliahnya
+      di akhir semester; tindak lanjut tampil di Tugas saya dan Kalender penanggung jawabnya.</p></section>`;
+}
+
+function htmlTugasPJ(){
+  const xs = D.tindak.filter(t => t.pj_id === SAYA.id && !D.evaluasi.some(e => e.id === t.evaluasi_id));
+  if (!xs.length) return '';
+  return `<section class="kartu"><h2>Tindak lanjut yang ditugaskan kepada saya</h2>
+    ${xs.map(t => `<div class="ket">${esc(t.evaluasi_mk?.kode_mk || '')} ${esc(t.evaluasi_mk?.tahun_akademik || '')} ${esc(t.evaluasi_mk?.semester || '')}</div>${htmlTindak(t, null)}`).join('')}</section>`;
+}
+
+function gambar(){
+  if (!ADA) { $('isi').innerHTML = '<p class="kosong">Tabel evaluasi pembelajaran belum ada: jalankan supabase/68-patch-evaluasi-pembelajaran.sql.</p>'; return; }
+  const sem = daftarSemester();
+  if (!PILIH.ta || !sem.some(s => s.ta === PILIH.ta && s.sm === PILIH.sm)) {
+    const ada = sem.find(s => D.evaluasi.some(e => e.tahun_akademik === s.ta && e.semester === s.sm));
+    PILIH = ada || sem[0];
+  }
+  const asesor = SAYA.peran === 'asesor';
+  $('isi').innerHTML = `<div class="alat"><label>Semester <select id="pSem">${sem.map(s => `<option value="${esc(s.ta)}|${s.sm}"${s.ta === PILIH.ta && s.sm === PILIH.sm ? ' selected' : ''}>${esc(s.ta)} ${s.sm}</option>`).join('')}</select></label>
+      <span class="ket">Ganjil September–Februari, Genap Maret–Agustus. Ambang EDOM: ${angka(AMBANG)}.</span></div>`
+    + (ADMIN ? htmlAdmin() : '') + (asesor ? '' : htmlSemester() + htmlTugasPJ()) + htmlRekapRiwayat();
+  $('pSem').onchange = () => { const [ta, sm] = $('pSem').value.split('|'); PILIH = { ta, sm }; BUKA = null; TEMPEL = null; ALAT_BUKA = null;
+    history.replaceState(null, '', `?ta=${encodeURIComponent(ta)}&sm=${sm}`); gambar(); };
+  if ($('fTampil')) $('fTampil').onchange = () => { F.tampil = $('fTampil').value; gambar(); };
+  if ($('fCari')) $('fCari').oninput = () => { F.cari = $('fCari').value; const p = $('fCari').selectionStart; gambar(); $('fCari').focus(); $('fCari').setSelectionRange(p, p); };
+  if ($('unduh')) $('unduh').onclick = unduhCSV;
+  document.querySelectorAll('[data-buka]').forEach(b => { b.onclick = () => { BUKA = BUKA === +b.dataset.buka ? null : +b.dataset.buka; gambar(); }; });
+  if ($('eSimpan')) $('eSimpan').onclick = simpanEvaluasi;
+  if ($('tSimpan')) $('tSimpan').onclick = simpanTindak;
+  document.querySelectorAll('[data-tsimpan]').forEach(b => { b.onclick = () => perbaruiTindak(+b.dataset.tsimpan); });
+  if (ADMIN) pasangAdmin();
+}
+
+function pasangAdmin(){
+  $('alatAdmin').ontoggle = () => { ALAT_BUKA = $('alatAdmin').open; };
+  $('siapkan').onclick = siapkanBaris;
+  $('periksa').onclick = () => { ALAT_BUKA = true; TEMPEL = bacaTempelEDOM($('tempel').value, D.dosen); gambarPratinjau(); };
+  $('simpanAmbang').onclick = simpanAmbang;
+  if (TEMPEL) gambarPratinjau();
+}
+
+function gambarPratinjau(){
+  const sah = TEMPEL.filter(r => !r.galat.length), salah = TEMPEL.filter(r => r.galat.length);
+  const ada = new Set(D.evaluasi.filter(e => e.tahun_akademik === PILIH.ta && e.semester === PILIH.sm).map(e => `${e.kode_mk}|${e.dosen_id}`));
+  const baru = sah.filter(r => !ada.has(`${r.kode_mk}|${r.dosen_id}`)).length;
+  $('pratinjau').innerHTML = `<p class="ket"><b>${baru}</b> baris baru · <b>${sah.length - baru}</b> diperbarui · <b>${salah.length}</b> bermasalah (dilewati),
+      untuk <b>${esc(PILIH.ta)} ${esc(PILIH.sm)}</b>.</p>
+    ${salah.length ? `<ul class="ket">${salah.map(r => `<li>Baris ${r.baris}: ${esc(r.galat.join('; '))}</li>`).join('')}</ul>` : ''}
+    <p><button class="b utama" id="simpanTempel"${sah.length ? '' : ' disabled'}>Simpan ${sah.length} nilai EDOM</button><span class="msg" id="mTempel"></span></p>`;
+  $('simpanTempel').onclick = simpanTempel;
+}
+
+const jejak = () => ({ oleh: SAYA.email, diperbarui: new Date().toISOString() });
+const tulis = (id, cls, s) => { const m = $(id); if (m) { m.className = 'msg' + (cls ? ' ' + cls : ''); m.textContent = s; } };
+
+async function simpanTempel(){
+  ALAT_BUKA = true;
+  const sah = TEMPEL.filter(r => !r.galat.length);
+  $('simpanTempel').disabled = true; tulis('mTempel', '', 'Menyimpan…');
+  const kunci = { tahun_akademik: PILIH.ta, semester: PILIH.sm };
+  for (const denganNama of [true, false]) {
+    const xs = sah.filter(r => !!r.nama_mk === denganNama).map(r => ({ ...kunci, kode_mk: r.kode_mk, dosen_id: r.dosen_id, edom: r.edom,
+      edom_responden: r.responden, ...(denganNama ? { nama_mk: r.nama_mk } : {}), ...jejak() }));
+    if (!xs.length) continue;
+    const { error } = await sb.from('evaluasi_mk').upsert(xs, { onConflict: 'tahun_akademik,semester,kode_mk,dosen_id' });
+    if (error) { $('simpanTempel').disabled = false; return tulis('mTempel', 'buruk', 'Gagal: ' + error.message); }
+  }
+  TEMPEL = null;
+  await muat();
+  tulis('mSiapkan', 'ok', `${sah.length} nilai EDOM tersimpan.`);
+}
+
+async function siapkanBaris(){
+  ALAT_BUKA = true;
+  tulis('mSiapkan', '', 'Membaca daftar kelas…');
+  const { data, error } = await sb.from('cpl_kelas').select('kode_mk,nama_mk,dosen_email').eq('tahun_akademik', PILIH.ta).eq('semester', PILIH.sm);
+  if (error) return tulis('mSiapkan', 'buruk', 'Daftar kelas tidak terbaca: ' + error.message);
+  const per = new Map(), tak = new Set();
+  for (const k of data || []) {
+    const d = D.dosen.find(x => String(x.email).toLowerCase() === String(k.dosen_email).toLowerCase());
+    if (!d) { tak.add(k.dosen_email); continue; }
+    per.set(`${k.kode_mk}|${d.id}`, { tahun_akademik: PILIH.ta, semester: PILIH.sm, kode_mk: String(k.kode_mk).toUpperCase(), nama_mk: k.nama_mk || null, dosen_id: d.id, ...jejak() });
+  }
+  const ada = new Set(D.evaluasi.filter(e => e.tahun_akademik === PILIH.ta && e.semester === PILIH.sm).map(e => `${e.kode_mk}|${e.dosen_id}`));
+  const baru = [...per.values()].filter(r => !ada.has(`${r.kode_mk}|${r.dosen_id}`));
+  if (!baru.length) return tulis('mSiapkan', '', `Tidak ada baris baru dari ${data?.length || 0} kelas${tak.size ? `; email tak dikenal: ${[...tak].join(', ')}` : ''}.`);
+  const { error: e2 } = await sb.from('evaluasi_mk').insert(baru);
+  if (e2) return tulis('mSiapkan', 'buruk', 'Gagal: ' + e2.message);
+  await muat();
+  tulis('mSiapkan', 'ok', `${baru.length} baris disiapkan${tak.size ? `; email dosen tak dikenal: ${[...tak].join(', ')}` : ''}.`);
+}
+
+async function simpanAmbang(){
+  ALAT_BUKA = true;
+  const v = Number(String($('ambang').value).replace(',', '.'));
+  if (!Number.isFinite(v) || v < 0 || v > 4) return tulis('mAmbang', 'buruk', 'Ambang harus 0–4.');
+  const { error } = await sb.from('pengaturan').upsert({ kunci: 'ambang_edom', nilai: v }, { onConflict: 'kunci' });
+  if (error) return tulis('mAmbang', 'buruk', 'Gagal: ' + error.message);
+  AMBANG = v; gambar(); tulis('mAmbang', 'ok', 'Tersimpan.');
+}
+
+async function simpanEvaluasi(){
+  const e = D.evaluasi.find(x => x.id === BUKA);
+  const isi = { rps_sesuai: $('eRps').value || null, rps_catatan: $('eRpsCat').value.trim() || null, metode_catatan: $('eMetode').value.trim() || null, ...jejak() };
+  if (ADMIN) {
+    const ed = $('eEdom').value.trim().replace(',', '.'), rs = $('eResp').value.trim();
+    if (ed !== '' && !(+ed >= 0 && +ed <= 4)) return tulis('eMsg', 'buruk', 'EDOM harus 0–4.');
+    isi.edom = ed === '' ? null : Math.round(+ed * 100) / 100; isi.edom_responden = rs === '' ? null : Math.round(+rs);
+  }
+  $('eSimpan').disabled = true; tulis('eMsg', '', 'Menyimpan…');
+  const { error } = await sb.from('evaluasi_mk').update(isi).eq('id', e.id);
+  if (error) { $('eSimpan').disabled = false; return tulis('eMsg', 'buruk', 'Gagal: ' + error.message); }
+  Object.assign(e, isi); gambar(); tulis('eMsg', 'ok', 'Tersimpan.');
+}
+
+async function simpanTindak(){
+  const v = id => $(id).value.trim() || null;
+  const isi = { evaluasi_id: BUKA, masalah: v('tMasalah'), penyebab: v('tPenyebab'), rencana: v('tRencana'), pj_id: v('tPj'), tenggat: v('tTenggat'),
+                standar_id: v('tStandar') ? +v('tStandar') : null, status: 'terbuka', ...jejak() };
+  if (!isi.masalah || !isi.rencana) return tulis('tMsg', 'buruk', 'Isi masalah dan rencana perbaikan.');
+  $('tSimpan').disabled = true; tulis('tMsg', '', 'Menyimpan…');
+  const { error } = await sb.from('evaluasi_tindak').insert(isi);
+  if (error) { $('tSimpan').disabled = false; return tulis('tMsg', 'buruk', 'Gagal: ' + error.message); }
+  await muat();
+}
+
+async function perbaruiTindak(id){
+  const st = document.querySelector(`[data-tst="${id}"]`).value, hasil = document.querySelector(`[data-thasil="${id}"]`).value.trim(),
+        tg = document.querySelector(`[data-ttgl="${id}"]`).value;
+  const m = document.querySelector(`[data-tmsg="${id}"]`), salah = s => { m.className = 'msg buruk'; m.textContent = s; };
+  if (st === 'selesai' && (!hasil || !tg)) return salah('Untuk Selesai, isi hasil dan tanggal selesai.');
+  const isi = { status: st, ...(hasil ? { hasil } : {}), ...(tg ? { tanggal_selesai: tg } : {}), ...jejak() };
+  const { error } = await sb.from('evaluasi_tindak').update(isi).eq('id', id);
+  if (error) return salah('Gagal: ' + error.message);
+  await muat();
+}
+
+function unduhCSV(){
+  const sel = v => { const s = String(v ?? ''); return /[;"\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
+  const rows = D.evaluasi.filter(e => e.tahun_akademik === PILIH.ta && e.semester === PILIH.sm);
+  const cpl = cplPerMK(D.ringkas, PILIH.ta, PILIH.sm), tp = tindakPer();
+  const kepala = ['tahun_akademik', 'semester', 'kode_mk', 'nama_mk', 'dosen', 'edom', 'responden', 'cpl_belum', 'rps', 'catatan_rps', 'catatan_metode',
+    'perlu_tindak_lanjut', 'alasan', 'tindak_lanjut', 'status_tindak_lanjut'];
+  const isi = rows.map(e => { const tl = tp.get(e.id) || [], st = statusEvaluasi(e, cpl.get(String(e.kode_mk).toUpperCase()), AMBANG, tl);
+    return [e.tahun_akademik, e.semester, e.kode_mk, e.nama_mk, namaDosen(e.dosen_id), e.edom == null ? '' : angka(e.edom), e.edom_responden,
+      (cpl.get(String(e.kode_mk).toUpperCase())?.belum || []).join(', '), LABEL_RPS[e.rps_sesuai] || '', e.rps_catatan, e.metode_catatan,
+      st.perlu ? 'ya' : 'tidak', st.alasan.join('; '), tl.map(t => `${t.rencana} (PJ ${namaDosen(t.pj_id)}${t.tenggat ? `, ${tgl(t.tenggat)}` : ''})`).join(' | '), LABEL_TL[st.tl]]; });
+  const teks = '﻿' + [kepala, ...isi].map(r => r.map(sel).join(';')).join('\r\n') + '\r\n';
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([teks], { type: 'text/csv;charset=utf-8' }));
+  a.download = `evaluasi-pembelajaran-${PILIH.ta.replace('/', '-')}-${PILIH.sm}.csv`;
+  a.click();
+}
+
+async function muat(){
+  const baca = q => q.then(r => ({ data: r.error ? [] : (r.data || []), error: r.error }), e => ({ data: [], error: e }));
+  const [ds, ev, td, rk, am, rp, st] = await Promise.all([
+    baca(sb.from('dosen').select('id,nama,email,nidn,peran,aktif').order('nama')),
+    baca(sb.from('evaluasi_mk').select('*')),
+    baca(sb.from('evaluasi_tindak').select('*,evaluasi_mk(kode_mk,nama_mk,tahun_akademik,semester)').order('id')),
+    baca(sb.from('cpl_ringkasan').select('data').order('diunggah', { ascending: false }).limit(1)),
+    baca(sb.from('pengaturan').select('nilai').eq('kunci', 'ambang_edom')),
+    baca(sb.rpc('rekap_evaluasi')),
+    baca(sb.from('spmi_standar').select('id,kode,pernyataan').eq('dipantau', true).eq('aktif', true).order('urutan').order('kode'))]);
+  ADA = !(ev.error && /does not exist|schema cache/i.test(ev.error.message || ''));
+  const a = am.data[0]?.nilai;
+  AMBANG = a == null || !Number.isFinite(+a) ? AMBANG_BAWAAN : +a;
+  D = { dosen: ds.data, evaluasi: ev.data, tindak: td.data, ringkas: rk.data[0]?.data || null, rekap: rp.data, standar: st.data };
+  gambar();
+}
+
+async function mulai(){
+  SAYA = await gerbang(sb);
+  if (!SAYA) return;
+  ADMIN = SAYA.peran === 'admin';
+  SEMUA = ADMIN || SAYA.peran === 'pimpinan';
+  $('hSub').textContent = `Masuk sebagai ${SAYA.nama}`;
+  await muat();
+}
+mulai().catch(e => { $('isi').innerHTML = `<p class="kosong">Gagal memuat: ${esc(e.message || String(e))}</p>`; });
+</script>
+</body>
+</html>

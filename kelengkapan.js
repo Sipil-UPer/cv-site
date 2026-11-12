@@ -2,14 +2,14 @@
 // kelengkapan.html mengambil data, modul ini menghitung. Aturan terisi sama
 // dengan halaman sumbernya: kotak narasi seperti narasi-led.html, bukti butir
 // seperti rekap bukti di skor.html.
-import { BUTIR_MANUAL } from './butir-manual.js?v=2026-11-12-60bf58';
-import { UNSUR_BUTIR, pihakUnsur, PIHAK, PJ_UNSUR } from './unsur-butir.js?v=2026-11-12-60bf58';
-import { BUTIR_DATA } from './butir-data.js?v=2026-11-12-60bf58';
-import { faktaNarasi, anggotaTim } from './led-isi.js?v=2026-11-12-60bf58';
-import { pisahKalimat } from './led-narasi.js?v=2026-11-12-60bf58';
-import { masihKerangka } from './led-saran.js?v=2026-11-12-60bf58';
-import { JENIS_DOKUMEN, buktiButir } from './rencana-bukti.js?v=2026-11-12-60bf58';
-import { nilaiCapaian, perluAnalisis } from './capaian-iku.js?v=2026-11-12-60bf58';
+import { BUTIR_MANUAL } from './butir-manual.js?v=2026-11-12-9ba4e4';
+import { UNSUR_BUTIR, pihakUnsur, PIHAK, PJ_UNSUR } from './unsur-butir.js?v=2026-11-12-9ba4e4';
+import { BUTIR_DATA } from './butir-data.js?v=2026-11-12-9ba4e4';
+import { faktaNarasi, anggotaTim } from './led-isi.js?v=2026-11-12-9ba4e4';
+import { pisahKalimat } from './led-narasi.js?v=2026-11-12-9ba4e4';
+import { masihKerangka } from './led-saran.js?v=2026-11-12-9ba4e4';
+import { JENIS_DOKUMEN, buktiButir } from './rencana-bukti.js?v=2026-11-12-9ba4e4';
+import { nilaiCapaian, perluAnalisis } from './capaian-iku.js?v=2026-11-12-9ba4e4';
 
 // Tab Data prodi: [id tab, tabel, judul, butir]; sama dengan TABEL di data-prodi.html.
 export const TAB_DATA = [
@@ -102,6 +102,18 @@ export function rekapKelengkapan(S){
     belumCapai.length ? belumCapai.length - tanpaAnalisis.length : 1, belumCapai.length || 1,
     { href: 'data-prodi.html?tab=target', kurang: tanpaAnalisis.map(r => `${String(r.jenis).toUpperCase()} ${r.nama}`),
       ket: belumCapai.length ? 'Analisis akar masalah dan rencana perbaikan · butir 56' : 'Tidak ada indikator belum tercapai · butir 56' }));
+
+  // Evaluasi pembelajaran semester terakhir (68-patch; rekap_evaluasi(), terbaru dulu). Butir 16 komponen II.
+  const ev = (S.rekapEvaluasi || [])[0];
+  if (ev) {
+    const sem = `${ev.tahun_akademik} ${ev.semester}`;
+    data.push(baris(`Refleksi RPS dosen ${sem}`, ev.rps_terisi, ev.jumlah || 1,
+      { href: 'evaluasi-pembelajaran.html', ket: 'Kesesuaian pelaksanaan dengan RPS per mata kuliah · butir 16' }));
+    data.push(baris(`EDOM di bawah ambang yang ditindaklanjuti ${sem}`, ev.di_bawah_ambang ? ev.bawah_bertindak : 1, ev.di_bawah_ambang || 1,
+      { href: 'evaluasi-pembelajaran.html', ket: ev.di_bawah_ambang ? 'Tindak lanjut per mata kuliah · butir 16' : 'Tidak ada EDOM di bawah ambang · butir 16' }));
+  } else if (S.rekapEvaluasi) {
+    data.push(baris('Evaluasi pembelajaran per semester', 0, 1, { href: 'evaluasi-pembelajaran.html', ket: 'Belum ada data EDOM/evaluasi · butir 16' }));
+  }
 
   const dok = S.dokumen || [];
   const belumDok = JENIS_DOKUMEN.filter(j => !dok.some(d => d.jenis === j.id));

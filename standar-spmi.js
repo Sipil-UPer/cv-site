@@ -2,7 +2,7 @@
 // Sumber standar: rekap standar SPM universitas ("Draft Rekap Standar", .xlsx): satu
 // lembar per standar, satu baris per butir berkode (mis. A.01.02a), target per TS.
 // Dipakai data-prodi.html (impor), siklus-ppepp.html, dan kelengkapan.js.
-import { nilaiCapaian, perluAnalisis } from './capaian-iku.js?v=2026-11-12-60bf58';
+import { nilaiCapaian, perluAnalisis } from './capaian-iku.js?v=2026-11-12-9ba4e4';
 export { perluAnalisis };
 
 // TS = 1 September s.d. 31 Agustus; nilainya tahun akhir (2026 untuk 2025/2026).
@@ -146,12 +146,15 @@ export function tahapButir(s, c, X, ts){
   const tem = (X.temuan || []).filter(t => +t.tahun_ts === +ts && +t.standar_id === +s.id);
   const rev = (X.revisi || []).filter(v => +v.standar_id === +s.id && tsDariTanggal(v.tanggal) === +ts);
   const iku = (X.target || []).filter(r => +r.tahun_ts === +ts && +r.standar_id === +s.id).map(r => ({ ...r, _st: nilaiCapaian(r).status }));
+  // Tindak lanjut evaluasi pembelajaran (68-patch-evaluasi-pembelajaran.sql); TS dari tahun akademik evaluasinya.
+  const tev = (X.tindakEval || []).filter(t => +t.standar_id === +s.id
+    && +String(t.evaluasi_mk?.tahun_akademik || '').slice(5) === +ts);
   if (c?.status === 'tidak_berlaku') {
     const na = { status: 'na', ket: 'tidak berlaku bagi prodi' };
-    return { tahap: Object.fromEntries(TAHAP.map(([k]) => [k, na])), temuan: tem, revisi: rev, iku };
+    return { tahap: Object.fromEntries(TAHAP.map(([k]) => [k, na])), temuan: tem, revisi: rev, iku, tindakEval: tev };
   }
   const ikuBelum = iku.filter(r => r._st === 'belum' || r._st === 'hampir');
-  const perlu = (c?.status === 'belum' ? 1 : 0) + tem.length + ikuBelum.length;
+  const perlu = (c?.status === 'belum' ? 1 : 0) + tem.length + ikuBelum.length + tev.length;
   const kurangRencana = (c?.status === 'belum' && !isi(c.rencana) ? 1 : 0) + tem.filter(t => !isi(t.rencana)).length
     + ikuBelum.filter(r => !isi(r.rencana_perbaikan)).length;
   const tahap = {
@@ -159,13 +162,14 @@ export function tahapButir(s, c, X, ts){
     pelaksanaan: isi(c?.bukti_url) || c?.dokumen_id ? { status: 'ada', ket: 'bukti pelaksanaan tercatat' }
       : { status: 'kurang', ket: 'bukti pelaksanaan belum ada' },
     evaluasi: (c?.status === 'tercapai' || c?.status === 'belum') ? { status: 'ada', ket: c.status === 'tercapai' ? 'tercapai' : 'belum tercapai' }
-      : tem.length ? { status: 'ada', ket: `${tem.length} temuan AMI` } : { status: 'kurang', ket: 'capaian belum dinilai' },
+      : tem.length || tev.length ? { status: 'ada', ket: [tem.length ? `${tem.length} temuan AMI` : '', tev.length ? `${tev.length} tindak lanjut evaluasi pembelajaran` : '']
+        .filter(Boolean).join('; ') } : { status: 'kurang', ket: 'capaian belum dinilai' },
     pengendalian: !perlu ? { status: 'na', ket: 'tidak ada yang perlu dikendalikan' }
       : kurangRencana ? { status: 'kurang', ket: `${kurangRencana} dari ${perlu} belum punya rencana perbaikan/tindak lanjut` }
       : { status: 'ada', ket: `${perlu} punya rencana perbaikan/tindak lanjut` },
     peningkatan: rev.length ? { status: 'ada', ket: `${rev.length} revisi standar` } : { status: 'na', ket: 'tidak ada revisi pada TS ini' },
   };
-  return { tahap, temuan: tem, revisi: rev, iku };
+  return { tahap, temuan: tem, revisi: rev, iku, tindakEval: tev };
 }
 
 export function siklusPPEPP(X, ts){
