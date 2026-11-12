@@ -2,7 +2,7 @@
 // Sumber standar: rekap standar SPM universitas ("Draft Rekap Standar", .xlsx): satu
 // lembar per standar, satu baris per butir berkode (mis. A.01.02a), target per TS.
 // Dipakai data-prodi.html (impor), siklus-ppepp.html, dan kelengkapan.js.
-import { nilaiCapaian, perluAnalisis } from './capaian-iku.js?v=2026-11-12-e3f9f9';
+import { nilaiCapaian, perluAnalisis } from './capaian-iku.js?v=2026-11-12-60bf58';
 export { perluAnalisis };
 
 // TS = 1 September s.d. 31 Agustus; nilainya tahun akhir (2026 untuk 2025/2026).
@@ -120,6 +120,18 @@ export function rencanaImporSPM(butir, lama){
   const hilang = (lama || []).filter(r => r.asal !== 'prodi' && pilihLembar.has(r.lembar) && !ada.has(r.kode));
   const target = [...baru, ...ubah, ...sama].reduce((n, b) => n + Object.keys(b.target).length, 0);
   return { baru, ubah, sama, hilang, target, ganda };
+}
+
+/** Pantauan per lembar (pemilik 2026-11-12): [{ lembar, total, dipantau }] urut nama; standar prodi = "Standar prodi". */
+export function ringkasLembar(rows){
+  const per = new Map();
+  for (const r of rows || []) {
+    const l = r.lembar || (r.asal === 'prodi' ? 'Standar prodi' : '(tanpa lembar)');
+    const x = per.get(l) || { lembar: l, total: 0, dipantau: 0 };
+    x.total++; if (r.dipantau !== false) x.dipantau++;
+    per.set(l, x);
+  }
+  return [...per.values()].sort((a, b) => a.lembar.localeCompare(b.lembar));
 }
 
 // ---- c. Siklus PPEPP per butir standar untuk satu TS.

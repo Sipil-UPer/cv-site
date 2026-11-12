@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-12-e3f9f9">
+<link rel="stylesheet" href="tema.css?v=2026-11-12-60bf58">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
@@ -84,7 +84,7 @@
   .masuk{max-width:420px;margin:40px auto;background:#fff;border:1px solid var(--line);padding:20px}
   .masuk input{width:100%;padding:8px 10px;margin:8px 0;font:inherit}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-12-e3f9f9">
+<link rel="stylesheet" href="kepala.css?v=2026-11-12-60bf58">
 </head>
 <body>
 
@@ -98,7 +98,7 @@
 
 <main class="wrap" id="isi"></main>
 
-<script src="config.js?v=2026-11-12-e3f9f9"></script>
+<script src="config.js?v=2026-11-12-60bf58"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -115,23 +115,23 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-12-e3f9f9';
-import { pasangMenu } from './menu.js?v=2026-11-12-e3f9f9';
-import { unggahKePustaka, opsiPustaka, opsiJenis, labelDokumen, cariDokumen } from './pustaka-dokumen.js?v=2026-11-12-e3f9f9';
-import { pasangRapikan } from './rapikan-berkas.js?v=2026-11-12-e3f9f9';
-import { UNSUR, skorUnsur, pihakUnsur } from './unsur-butir.js?v=2026-11-12-e3f9f9';
-import { OPSI_SUMBER } from './iku-otomatis.js?v=2026-11-12-e3f9f9';
-import { denganOtomatis as otomatisDari, tsTersedia, htmlCapaianIKU, KET_CAPAIAN } from './capaian-iku.js?v=2026-11-12-e3f9f9';
-import { KATEGORI_TEMUAN, STATUS_TEMUAN, PIHAK_TEMUAN, ringkasTemuan, htmlRingkasTemuan } from './temuan-ami.js?v=2026-11-12-e3f9f9';
-import { bacaRekapSPM, rencanaImporSPM, tsDariTanggal, labelTS } from './standar-spmi.js?v=2026-11-12-e3f9f9';
-import { SHEETJS } from './nilai-cpl.js?v=2026-11-12-e3f9f9';
-import { htmlContoh, pasangContoh, JENIS_BUKTI_KS } from './manfaat-kerjasama.js?v=2026-11-12-e3f9f9';
-import { infoJenis } from './rencana-bukti.js?v=2026-11-12-e3f9f9';
-import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-12-e3f9f9';
-import { nomorButir, htmlTautanButir } from './tautan-butir.js?v=2026-11-12-e3f9f9';
-import { htmlSaran } from './saran-bukti.js?v=2026-11-12-e3f9f9';
-import { tautanBerkas, privatkanLama } from './tautan-privat.js?v=2026-11-12-e3f9f9';
-import { unggahLKD, buangLKD, bukaLKD, pendidikanTotal, pendidikanPS } from './bkd.js?v=2026-11-12-e3f9f9';
+import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-12-60bf58';
+import { pasangMenu } from './menu.js?v=2026-11-12-60bf58';
+import { unggahKePustaka, opsiPustaka, opsiJenis, labelDokumen, cariDokumen } from './pustaka-dokumen.js?v=2026-11-12-60bf58';
+import { pasangRapikan } from './rapikan-berkas.js?v=2026-11-12-60bf58';
+import { UNSUR, skorUnsur, pihakUnsur } from './unsur-butir.js?v=2026-11-12-60bf58';
+import { OPSI_SUMBER } from './iku-otomatis.js?v=2026-11-12-60bf58';
+import { denganOtomatis as otomatisDari, tsTersedia, htmlCapaianIKU, KET_CAPAIAN } from './capaian-iku.js?v=2026-11-12-60bf58';
+import { KATEGORI_TEMUAN, STATUS_TEMUAN, PIHAK_TEMUAN, ringkasTemuan, htmlRingkasTemuan } from './temuan-ami.js?v=2026-11-12-60bf58';
+import { bacaRekapSPM, rencanaImporSPM, tsDariTanggal, labelTS, ringkasLembar } from './standar-spmi.js?v=2026-11-12-60bf58';
+import { SHEETJS } from './nilai-cpl.js?v=2026-11-12-60bf58';
+import { htmlContoh, pasangContoh, JENIS_BUKTI_KS } from './manfaat-kerjasama.js?v=2026-11-12-60bf58';
+import { infoJenis } from './rencana-bukti.js?v=2026-11-12-60bf58';
+import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-12-60bf58';
+import { nomorButir, htmlTautanButir } from './tautan-butir.js?v=2026-11-12-60bf58';
+import { htmlSaran } from './saran-bukti.js?v=2026-11-12-60bf58';
+import { tautanBerkas, privatkanLama } from './tautan-privat.js?v=2026-11-12-60bf58';
+import { unggahLKD, buangLKD, bukaLKD, pendidikanTotal, pendidikanPS } from './bkd.js?v=2026-11-12-60bf58';
 
 /* =====================================================================
    DATA PRODI — data kuantitatif LKPS diisi admin di situs (keputusan
@@ -947,6 +947,38 @@ function gambarCapaianIKU(ts){
 //  tidak diubah; target per TS di-upsert ke spmi_capaian tanpa menyentuh capaian.
 //  Butir lama yang hilang dari berkas tidak dihapus, hanya dilaporkan.
 // ---------------------------------------------------------------------
+// Pantauan per lembar (pemilik 2026-11-12): centang Dipantau prodi untuk semua butir satu lembar
+// sekaligus. Butir tidak dihapus; capaian yang sudah diisi tetap ada.
+function gambarPantauLembar(){
+  const box = $('pantau-lembar');
+  if (!box) return;
+  const xs = ringkasLembar(BARIS);
+  if (!xs.length) { box.innerHTML = ''; return; }
+  box.innerHTML = `<details class="massal" open><summary><b>Pantauan per lembar</b> (butir yang ikut di Siklus PPEPP)</summary>
+    <p class="ket">Lembar yang bukan urusan prodi (mis. Perpustakaan, Akreditasi Unggul Institusi): klik <b>Jangan pantau</b>. Butirnya tetap tersimpan
+      dan bisa dipantau lagi; per butir tetap bisa diatur lewat Ubah.</p>
+    <div class="gulir"><table class="t"><thead><tr><th>Lembar</th><th>Dipantau</th><th></th></tr></thead><tbody>${xs.map((x, i) => `<tr>
+      <td>${esc(x.lembar)}</td><td>${x.dipantau} dari ${x.total}</td>
+      <td><button type="button" class="btn ghost kecil" data-pantau="${i}" data-nilai="1"${x.dipantau === x.total ? ' disabled' : ''}>Pantau semua</button>
+        <button type="button" class="btn ghost kecil" data-pantau="${i}" data-nilai="0"${x.dipantau === 0 ? ' disabled' : ''}>Jangan pantau</button></td></tr>`).join('')}
+    </tbody></table></div><span class="msg" id="pantau_msg"></span></details>`;
+  box.querySelectorAll('[data-pantau]').forEach(b => { b.onclick = () => aturPantau(xs[+b.dataset.pantau].lembar, b.dataset.nilai === '1'); });
+}
+async function aturPantau(lembar, nilai){
+  const msg = (cls, s) => { const m = $('pantau_msg'); m.className = 'msg' + (cls ? ' ' + cls : ''); m.textContent = s; };
+  const ids = BARIS.filter(r => ringkasLembar([r])[0].lembar === lembar && (r.dipantau !== false) !== nilai).map(r => r.id);
+  if (!ids.length) return;
+  $('pantau-lembar').querySelectorAll('button').forEach(b => { b.disabled = true; });
+  msg('', `Menyimpan ${ids.length} butir…`);
+  for (let i = 0; i < ids.length; i += 150) {
+    const { error } = await sb.from('spmi_standar').update({ dipantau: nilai, oleh: SAYA.email, diperbarui: new Date().toISOString() })
+      .in('id', ids.slice(i, i + 150));
+    if (error) { msg('buruk', 'Gagal: ' + error.message); gambarPantauLembar(); return; }
+  }
+  await muatBaris();
+  msg('ok', `${lembar}: ${ids.length} butir ${nilai ? 'dipantau' : 'tidak dipantau lagi'}.`);
+}
+
 let REKAP_SPM = null, XLSX_SPM = null;
 function gambarImporStandar(){
   const box = $('impor-standar');
@@ -1451,7 +1483,7 @@ async function bukaTab(){
   if (T.khusus) return bukaPustaka();
   $('panel').innerHTML = `<p class="ket">${nomorButir(T.butir).length
     ? `<b>${htmlTautanButir(nomorButir(T.butir), null, 'Dipakai di')}.</b>` : `<b>${esc(T.butir)}.</b>`} ${esc(T.ket)}</p>${saranTab(T)}
-    ${T.id === 'kepuasan' ? '<div id="massal"></div>' : ''}${T.id === 'mk' ? '<div id="impor-mk"></div>' : ''}${T.id === 'target' ? '<div id="capaian-iku"></div><div id="impor-iku"></div>' : ''}${T.id === 'temuan' ? '<div id="ringkas-temuan"></div>' : ''}${T.id === 'standar' ? '<div id="impor-standar"></div>' : ''}
+    ${T.id === 'kepuasan' ? '<div id="massal"></div>' : ''}${T.id === 'mk' ? '<div id="impor-mk"></div>' : ''}${T.id === 'target' ? '<div id="capaian-iku"></div><div id="impor-iku"></div>' : ''}${T.id === 'temuan' ? '<div id="ringkas-temuan"></div>' : ''}${T.id === 'standar' ? '<div id="pantau-lembar"></div><div id="impor-standar"></div>' : ''}
     <form id="form" novalidate><div class="grid">${kolomForm(T).map(isian).join('')}
       ${T.tanpaBukti ? '' : T.privat ? blokLKD() : blokBukti(T)}</div>
       <div class="aksi"><button type="submit" class="btn" id="simpan">Tambah baris</button>
@@ -1618,6 +1650,7 @@ async function muatBaris(){
   if (T.id === 'temuan' && $('ringkas-temuan')) $('ringkas-temuan').innerHTML = htmlRingkasTemuan(ringkasTemuan(BARIS));
   if (T.id === 'standar' || T.id === 'temuan') await muatDaftarSPMI();
   if (T.id === 'standar' && $('impor-standar') && !$('impor-standar').innerHTML) gambarImporStandar();
+  if (T.id === 'standar') gambarPantauLembar();
   // Pilihan jamak bisa bergantung pada baris tab ini (mis. MK pendukung).
   kolomForm(T).filter(c => c.t === 'jamak').forEach(c => {
     const r = SUNTING ? BARIS.find(x => x.id === SUNTING) : null;
