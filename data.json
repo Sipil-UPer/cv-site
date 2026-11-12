@@ -1,7 +1,7 @@
 {
  "prodi": "Teknik Sipil",
  "institusi": "Universitas Pertamina",
- "diperbarui": "12 November 2026",
+ "diperbarui": "13 November 2026",
  "dosen": [
   {
    "nama": "Adita Utami",
@@ -110,7 +110,20 @@
    ],
    "mahasiswa": 1,
    "sdgs": [],
-   "topik": [],
+   "topik": [
+    {
+     "t": "Traffic control and management",
+     "s": "Control and Systems Engineering"
+    },
+    {
+     "t": "Transportation Planning and Optimization",
+     "s": "Transportation"
+    },
+    {
+     "t": "Road Transport and Highway Systems",
+     "s": "Civil and Structural Engineering"
+    }
+   ],
    "penulis": [
     {
      "nama": "Adita Utami",
@@ -193,7 +206,20 @@
    ],
    "mahasiswa": 0,
    "sdgs": [],
-   "topik": [],
+   "topik": [
+    {
+     "t": "Ultrasonics and Acoustic Wave Propagation",
+     "s": "Mechanics of Materials"
+    },
+    {
+     "t": "Smart Materials for Construction",
+     "s": "Civil and Structural Engineering"
+    },
+    {
+     "t": "Structural Health Monitoring Techniques",
+     "s": "Civil and Structural Engineering"
+    }
+   ],
    "penulis": [
     {
      "nama": "Gati Annisa Hayu",
@@ -223,7 +249,20 @@
    ],
    "mahasiswa": 0,
    "sdgs": [],
-   "topik": [],
+   "topik": [
+    {
+     "t": "Flood Risk Assessment and Management",
+     "s": "Global and Planetary Change"
+    },
+    {
+     "t": "Landslides and related hazards",
+     "s": "Management, Monitoring, Policy and Law"
+    },
+    {
+     "t": "Disaster Management and Resilience",
+     "s": "Sociology and Political Science"
+    }
+   ],
    "penulis": [
     {
      "nama": "Adita Utami",
@@ -247,7 +286,20 @@
    "mitra": [],
    "mahasiswa": 1,
    "sdgs": [],
-   "topik": [],
+   "topik": [
+    {
+     "t": "Air Traffic Management and Optimization",
+     "s": "Aerospace Engineering"
+    },
+    {
+     "t": "Road Transport and Highway Systems",
+     "s": "Civil and Structural Engineering"
+    },
+    {
+     "t": "Traffic and Road Safety",
+     "s": "Safety, Risk, Reliability and Quality"
+    }
+   ],
    "penulis": [
     {
      "nama": "Vani Arliani",
@@ -271,7 +323,20 @@
    "mitra": [],
    "mahasiswa": 0,
    "sdgs": [],
-   "topik": [],
+   "topik": [
+    {
+     "t": "Geophysical and Geoelectrical Methods",
+     "s": "Geophysics"
+    },
+    {
+     "t": "Water Quality and Resources Studies",
+     "s": "Water Science and Technology"
+    },
+    {
+     "t": "Groundwater and Watershed Analysis",
+     "s": "Environmental Engineering"
+    }
+   ],
    "penulis": [
     {
      "nama": "Adita Utami",
@@ -343,7 +408,20 @@
    "mitra": [],
    "mahasiswa": 0,
    "sdgs": [],
-   "topik": [],
+   "topik": [
+    {
+     "t": "Structural Integrity and Reliability Analysis",
+     "s": "Mechanical Engineering"
+    },
+    {
+     "t": "Engineering Applied Research",
+     "s": "Civil and Structural Engineering"
+    },
+    {
+     "t": "Offshore Engineering and Technologies",
+     "s": "Ocean Engineering"
+    }
+   ],
    "penulis": [
     {
      "nama": "Arianta",
@@ -373,7 +451,20 @@
    ],
    "mahasiswa": 0,
    "sdgs": [],
-   "topik": [],
+   "topik": [
+    {
+     "t": "Transportation Planning and Optimization",
+     "s": "Transportation"
+    },
+    {
+     "t": "Transportation and Mobility Innovations",
+     "s": "Transportation"
+    },
+    {
+     "t": "Urban Transport and Accessibility",
+     "s": "Transportation"
+    }
+   ],
    "penulis": [
     {
      "nama": "Adita Utami",
@@ -408,7 +499,20 @@
    ],
    "mahasiswa": 0,
    "sdgs": [],
-   "topik": [],
+   "topik": [
+    {
+     "t": "Smart Materials for Construction",
+     "s": "Civil and Structural Engineering"
+    },
+    {
+     "t": "Ultrasonics and Acoustic Wave Propagation",
+     "s": "Mechanics of Materials"
+    },
+    {
+     "t": "Ferroelectric and Piezoelectric Materials",
+     "s": "Materials Chemistry"
+    }
+   ],
    "penulis": [
     {
      "nama": "Gati Annisa Hayu",
@@ -432,7 +536,20 @@
    "mitra": [],
    "mahasiswa": 1,
    "sdgs": [],
-   "topik": [],
+   "topik": [
+    {
+     "t": "Structural Integrity and Reliability Analysis",
+     "s": "Mechanical Engineering"
+    },
+    {
+     "t": "Seismic Performance and Analysis",
+     "s": "Civil and Structural Engineering"
+    },
+    {
+     "t": "Structural Load-Bearing Analysis",
+     "s": "Civil and Structural Engineering"
+    }
+   ],
    "penulis": [
     {
      "nama": "Arianta",
@@ -467,7 +584,20 @@
    ],
    "mahasiswa": 0,
    "sdgs": [],
-   "topik": [],
+   "topik": [
+    {
+     "t": "Flood Risk Assessment and Management",
+     "s": "Global and Planetary Change"
+    },
+    {
+     "t": "Hydrology and Watershed Management Studies",
+     "s": "Water Science and Technology"
+    },
+    {
+     "t": "Precipitation Measurement and Analysis",
+     "s": "Atmospheric Science"
+    }
+   ],
    "penulis": [
     {
      "nama": "Arlyn Aristo",
@@ -503,7 +633,20 @@
    ],
    "mahasiswa": 0,
    "sdgs": [],
-   "topik": [],
+   "topik": [
+    {
+     "t": "ICT in Developing Communities",
+     "s": "Information Systems"
+    },
+    {
+     "t": "Community and Sustainable Development",
+     "s": "Development"
+    },
+    {
+     "t": "Energy and Environment Impacts",
+     "s": "Pollution"
+    }
+   ],
    "penulis": [
     {
      "nama": "Adita Utami",
@@ -533,7 +676,20 @@
    ],
    "mahasiswa": 1,
    "sdgs": [],
-   "topik": [],
+   "topik": [
+    {
+     "t": "Structural Integrity and Reliability Analysis",
+     "s": "Mechanical Engineering"
+    },
+    {
+     "t": "Fatigue and fracture mechanics",
+     "s": "Mechanics of Materials"
+    },
+    {
+     "t": "Engineering Diagnostics and Reliability",
+     "s": "Mechanics of Materials"
+    }
+   ],
    "penulis": [
     {
      "nama": "Arianta",
@@ -563,7 +719,20 @@
    ],
    "mahasiswa": 0,
    "sdgs": [],
-   "topik": [],
+   "topik": [
+    {
+     "t": "Anomaly Detection Techniques and Applications",
+     "s": "Artificial Intelligence"
+    },
+    {
+     "t": "Traffic Prediction and Management Techniques",
+     "s": "Transportation"
+    },
+    {
+     "t": "Traffic and Road Safety",
+     "s": "Safety, Risk, Reliability and Quality"
+    }
+   ],
    "penulis": [
     {
      "nama": "Adita Utami",
@@ -593,7 +762,20 @@
    ],
    "mahasiswa": 0,
    "sdgs": [],
-   "topik": [],
+   "topik": [
+    {
+     "t": "ICT in Developing Communities",
+     "s": "Information Systems"
+    },
+    {
+     "t": "Arduino and IoT Applications",
+     "s": "Electrical and Electronic Engineering"
+    },
+    {
+     "t": "Energy and Environment Impacts",
+     "s": "Pollution"
+    }
+   ],
    "penulis": [
     {
      "nama": "Adita Utami",
@@ -677,7 +859,20 @@
    ],
    "mahasiswa": 1,
    "sdgs": [],
-   "topik": [],
+   "topik": [
+    {
+     "t": "Wind Energy Research and Development",
+     "s": "Renewable Energy, Sustainability and the Environment"
+    },
+    {
+     "t": "Power Systems and Renewable Energy",
+     "s": "Energy Engineering and Power Technology"
+    },
+    {
+     "t": "Physics and Engineering Research Articles",
+     "s": "General Engineering"
+    }
+   ],
    "penulis": [
     {
      "nama": "Adita Utami",
@@ -701,7 +896,20 @@
    "mitra": [],
    "mahasiswa": 0,
    "sdgs": [],
-   "topik": [],
+   "topik": [
+    {
+     "t": "Hydrogen embrittlement and corrosion behaviors in metals",
+     "s": "Metals and Alloys"
+    },
+    {
+     "t": "Corrosion Behavior and Inhibition",
+     "s": "Materials Chemistry"
+    },
+    {
+     "t": "Aluminum Alloy Microstructure Properties",
+     "s": "Metals and Alloys"
+    }
+   ],
    "penulis": [
     {
      "nama": "Arianta",
@@ -737,7 +945,20 @@
    ],
    "mahasiswa": 0,
    "sdgs": [],
-   "topik": [],
+   "topik": [
+    {
+     "t": "Transportation Planning and Optimization",
+     "s": "Transportation"
+    },
+    {
+     "t": "Transportation and Mobility Innovations",
+     "s": "Transportation"
+    },
+    {
+     "t": "Urban Transport and Accessibility",
+     "s": "Transportation"
+    }
+   ],
    "penulis": [
     {
      "nama": "Adita Utami",
@@ -777,7 +998,20 @@
    ],
    "mahasiswa": 0,
    "sdgs": [],
-   "topik": [],
+   "topik": [
+    {
+     "t": "Flood Risk Assessment and Management",
+     "s": "Global and Planetary Change"
+    },
+    {
+     "t": "Urban Stormwater Management Solutions",
+     "s": "Environmental Engineering"
+    },
+    {
+     "t": "Integrated Water Resources Management",
+     "s": "Water Science and Technology"
+    }
+   ],
    "penulis": [
     {
      "nama": "Nurul Fajar Januriyadi",
@@ -801,7 +1035,20 @@
    "mitra": [],
    "mahasiswa": 1,
    "sdgs": [],
-   "topik": [],
+   "topik": [
+    {
+     "t": "Traffic control and management",
+     "s": "Control and Systems Engineering"
+    },
+    {
+     "t": "Road Transport and Highway Systems",
+     "s": "Civil and Structural Engineering"
+    },
+    {
+     "t": "Transportation Planning and Optimization",
+     "s": "Transportation"
+    }
+   ],
    "penulis": [
     {
      "nama": "Adita Utami",
@@ -831,7 +1078,20 @@
    ],
    "mahasiswa": 0,
    "sdgs": [],
-   "topik": [],
+   "topik": [
+    {
+     "t": "Urban Transport and Accessibility",
+     "s": "Transportation"
+    },
+    {
+     "t": "Urban Planning and Valuation",
+     "s": "Geography, Planning and Development"
+    },
+    {
+     "t": "Transportation Planning and Optimization",
+     "s": "Transportation"
+    }
+   ],
    "penulis": [
     {
      "nama": "Vani Arliani",
@@ -914,7 +1174,20 @@
    ],
    "mahasiswa": 0,
    "sdgs": [],
-   "topik": [],
+   "topik": [
+    {
+     "t": "Concrete and Cement Materials Research",
+     "s": "Civil and Structural Engineering"
+    },
+    {
+     "t": "Materials Engineering and Processing",
+     "s": "Building and Construction"
+    },
+    {
+     "t": "Recycled Aggregate Concrete Performance",
+     "s": "Building and Construction"
+    }
+   ],
    "penulis": [
     {
      "nama": "Gati Annisa Hayu",
@@ -949,7 +1222,20 @@
    ],
    "mahasiswa": 0,
    "sdgs": [],
-   "topik": [],
+   "topik": [
+    {
+     "t": "Ultrasonics and Acoustic Wave Propagation",
+     "s": "Mechanics of Materials"
+    },
+    {
+     "t": "Smart Materials for Construction",
+     "s": "Civil and Structural Engineering"
+    },
+    {
+     "t": "Ferroelectric and Piezoelectric Materials",
+     "s": "Materials Chemistry"
+    }
+   ],
    "penulis": [
     {
      "nama": "Gati Annisa Hayu",
@@ -979,7 +1265,20 @@
    ],
    "mahasiswa": 3,
    "sdgs": [],
-   "topik": [],
+   "topik": [
+    {
+     "t": "Asphalt Pavement Performance Evaluation",
+     "s": "Civil and Structural Engineering"
+    },
+    {
+     "t": "Geotechnical and construction materials studies",
+     "s": "Civil and Structural Engineering"
+    },
+    {
+     "t": "Innovative concrete reinforcement materials",
+     "s": "Civil and Structural Engineering"
+    }
+   ],
    "penulis": [
     {
      "nama": "Adita Utami",
@@ -1014,7 +1313,20 @@
    ],
    "mahasiswa": 0,
    "sdgs": [],
-   "topik": [],
+   "topik": [
+    {
+     "t": "Ferroelectric and Piezoelectric Materials",
+     "s": "Materials Chemistry"
+    },
+    {
+     "t": "Smart Materials for Construction",
+     "s": "Civil and Structural Engineering"
+    },
+    {
+     "t": "Dielectric materials and actuators",
+     "s": "Electronic, Optical and Magnetic Materials"
+    }
+   ],
    "penulis": [
     {
      "nama": "Gati Annisa Hayu",
@@ -1044,7 +1356,20 @@
    ],
    "mahasiswa": 0,
    "sdgs": [],
-   "topik": [],
+   "topik": [
+    {
+     "t": "Urban Transport and Accessibility",
+     "s": "Transportation"
+    },
+    {
+     "t": "Urban Planning and Valuation",
+     "s": "Geography, Planning and Development"
+    },
+    {
+     "t": "Transportation Planning and Optimization",
+     "s": "Transportation"
+    }
+   ],
    "penulis": [
     {
      "nama": "Vani Arliani",
@@ -1068,7 +1393,20 @@
    "mitra": [],
    "mahasiswa": 0,
    "sdgs": [],
-   "topik": [],
+   "topik": [
+    {
+     "t": "Hydrology and Watershed Management Studies",
+     "s": "Water Science and Technology"
+    },
+    {
+     "t": "Urban Stormwater Management Solutions",
+     "s": "Environmental Engineering"
+    },
+    {
+     "t": "Hydrological Forecasting Using AI",
+     "s": "Environmental Engineering"
+    }
+   ],
    "penulis": [
     {
      "nama": "Nurul Fajar Januriyadi",
@@ -1092,7 +1430,20 @@
    "mitra": [],
    "mahasiswa": 1,
    "sdgs": [],
-   "topik": [],
+   "topik": [
+    {
+     "t": "Traffic control and management",
+     "s": "Control and Systems Engineering"
+    },
+    {
+     "t": "Road Transport and Highway Systems",
+     "s": "Civil and Structural Engineering"
+    },
+    {
+     "t": "Transportation Planning and Optimization",
+     "s": "Transportation"
+    }
+   ],
    "penulis": [
     {
      "nama": "Adita Utami",
@@ -1127,7 +1478,20 @@
    ],
    "mahasiswa": 0,
    "sdgs": [],
-   "topik": [],
+   "topik": [
+    {
+     "t": "Concrete and Cement Materials Research",
+     "s": "Civil and Structural Engineering"
+    },
+    {
+     "t": "Materials Engineering and Processing",
+     "s": "Building and Construction"
+    },
+    {
+     "t": "Recycled Aggregate Concrete Performance",
+     "s": "Building and Construction"
+    }
+   ],
    "penulis": [
     {
      "nama": "Gati Annisa Hayu",
@@ -1162,7 +1526,20 @@
    ],
    "mahasiswa": 0,
    "sdgs": [],
-   "topik": [],
+   "topik": [
+    {
+     "t": "Concrete and Cement Materials Research",
+     "s": "Civil and Structural Engineering"
+    },
+    {
+     "t": "Materials Engineering and Processing",
+     "s": "Building and Construction"
+    },
+    {
+     "t": "Recycled Aggregate Concrete Performance",
+     "s": "Building and Construction"
+    }
+   ],
    "penulis": [
     {
      "nama": "Gati Annisa Hayu",
@@ -1192,7 +1569,20 @@
    ],
    "mahasiswa": 0,
    "sdgs": [],
-   "topik": [],
+   "topik": [
+    {
+     "t": "Urban Transport and Accessibility",
+     "s": "Transportation"
+    },
+    {
+     "t": "Transportation Planning and Optimization",
+     "s": "Transportation"
+    },
+    {
+     "t": "Urban Design and Spatial Analysis",
+     "s": "Urban Studies"
+    }
+   ],
    "penulis": [
     {
      "nama": "Vani Arliani",
@@ -1222,7 +1612,20 @@
    ],
    "mahasiswa": 0,
    "sdgs": [],
-   "topik": [],
+   "topik": [
+    {
+     "t": "Structural Integrity and Reliability Analysis",
+     "s": "Mechanical Engineering"
+    },
+    {
+     "t": "Fatigue and fracture mechanics",
+     "s": "Mechanics of Materials"
+    },
+    {
+     "t": "Numerical methods in engineering",
+     "s": "Mechanics of Materials"
+    }
+   ],
    "penulis": [
     {
      "nama": "Arianta",
@@ -1257,7 +1660,20 @@
    ],
    "mahasiswa": 0,
    "sdgs": [],
-   "topik": [],
+   "topik": [
+    {
+     "t": "Concrete and Cement Materials Research",
+     "s": "Civil and Structural Engineering"
+    },
+    {
+     "t": "Recycled Aggregate Concrete Performance",
+     "s": "Building and Construction"
+    },
+    {
+     "t": "Materials Engineering and Processing",
+     "s": "Building and Construction"
+    }
+   ],
    "penulis": [
     {
      "nama": "Gati Annisa Hayu",
@@ -1341,6 +1757,59 @@
      "nama": "Adita Utami",
      "slug": "adita-utami",
      "peran": "anggota",
+     "korespondensi": true
+    }
+   ]
+  },
+  {
+   "judul": "Evaluation of future flood risk in Asian megacities: a case study of Jakarta",
+   "tahun": 2018,
+   "tahun_ts": 2018,
+   "dari_kegiatan": null,
+   "jenis": "jurnal",
+   "terbitan": "Hydrological Research Letters",
+   "tingkat": "internasional",
+   "indeksasi": "scopus_q3",
+   "doi": "10.3178/hrl.12.14",
+   "url": "https://doi.org/10.3178/hrl.12.14",
+   "mitra": [
+    {
+     "nama": "Kementerian Pekerjaan Umum",
+     "tingkat": "nasional",
+     "negara": ""
+    },
+    {
+     "nama": "Tohoku University",
+     "tingkat": "internasional",
+     "negara": "Japan"
+    },
+    {
+     "nama": "Toyama Prefectural University",
+     "tingkat": "internasional",
+     "negara": "Jepang"
+    }
+   ],
+   "mahasiswa": 0,
+   "sdgs": [],
+   "topik": [
+    {
+     "t": "Flood Risk Assessment and Management",
+     "s": "Global and Planetary Change"
+    },
+    {
+     "t": "Urban Stormwater Management Solutions",
+     "s": "Environmental Engineering"
+    },
+    {
+     "t": "Hydrology and Watershed Management Studies",
+     "s": "Water Science and Technology"
+    }
+   ],
+   "penulis": [
+    {
+     "nama": "Nurul Fajar Januriyadi",
+     "slug": "nurul-fajar-januriyadi",
+     "peran": "penulis_pertama",
      "korespondensi": true
     }
    ]
@@ -3506,7 +3975,7 @@
    "guru_besar": 1,
    "tanpa_jabatan": 2
   },
-  "karya_utama_internasional": 4,
+  "karya_utama_internasional": 5,
   "karya_utama_rinci": [
    {
     "slug": "adita-utami",
@@ -3543,6 +4012,10 @@
    {
     "slug": "gati-annisa-hayu",
     "tahun": 2023
+   },
+   {
+    "slug": "nurul-fajar-januriyadi",
+    "tahun": 2018
    }
   ]
  },
@@ -3663,6 +4136,14 @@
     "tahun": 2023,
     "internasional": 2,
     "nasional": 7,
+    "wilayah": 0,
+    "tanpa_tingkat": 0,
+    "pendidikan": 0
+   },
+   {
+    "tahun": 2018,
+    "internasional": 2,
+    "nasional": 1,
     "wilayah": 0,
     "tanpa_tingkat": 0,
     "pendidikan": 0
@@ -3848,6 +4329,16 @@
     "nb1": 0,
     "nb2": 2,
     "nb3": 2
+   },
+   {
+    "tahun": 2018,
+    "na1": 0,
+    "na2": 0,
+    "na3": 0,
+    "na4": 1,
+    "nb1": 0,
+    "nb2": 0,
+    "nb3": 0
    }
   ],
   "publikasi_mhs": [
