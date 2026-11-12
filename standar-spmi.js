@@ -2,7 +2,7 @@
 // Sumber standar: rekap standar SPM universitas ("Draft Rekap Standar", .xlsx): satu
 // lembar per standar, satu baris per butir berkode (mis. A.01.02a), target per TS.
 // Dipakai data-prodi.html (impor), siklus-ppepp.html, dan kelengkapan.js.
-import { nilaiCapaian, perluAnalisis } from './capaian-iku.js?v=2026-11-12-abe677';
+import { nilaiCapaian, perluAnalisis } from './capaian-iku.js?v=2026-11-13-05bc4f';
 export { perluAnalisis };
 
 // TS = 1 September s.d. 31 Agustus; nilainya tahun akhir (2026 untuk 2025/2026).
@@ -123,12 +123,19 @@ export function rencanaImporSPM(butir, lama){
 }
 
 /** Pantauan per lembar (pemilik 2026-11-12): [{ lembar, total, dipantau }] urut nama; standar prodi = "Standar prodi". */
+// Penanggung jawab tingkat prodi di kolom PIC rekap SPM: Dekan (UPPS) atau Kaprodi (pemilik 2026-11-13).
+export const PIC_PRODI = ['dekan', 'kaprodi'];
+export const picProdi = r => String(r?.pic || '').split(/[;,]/).some(p => PIC_PRODI.includes(p.trim().toLowerCase()));
+
+// Hasil per lembar: { lembar, total, dipantau, picProdi (butir ber-PIC prodi), hanyaProdi (yang dipantau = tepat butir ber-PIC prodi) }.
 export function ringkasLembar(rows){
   const per = new Map();
   for (const r of rows || []) {
     const l = r.lembar || (r.asal === 'prodi' ? 'Standar prodi' : '(tanpa lembar)');
-    const x = per.get(l) || { lembar: l, total: 0, dipantau: 0 };
-    x.total++; if (r.dipantau !== false) x.dipantau++;
+    const x = per.get(l) || { lembar: l, total: 0, dipantau: 0, picProdi: 0, hanyaProdi: true };
+    const pantau = r.dipantau !== false, prodi = picProdi(r);
+    x.total++; if (pantau) x.dipantau++; if (prodi) x.picProdi++;
+    if (pantau !== prodi) x.hanyaProdi = false;
     per.set(l, x);
   }
   return [...per.values()].sort((a, b) => a.lembar.localeCompare(b.lembar));

@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-12-abe677">
+<link rel="stylesheet" href="tema.css?v=2026-11-13-05bc4f">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
@@ -84,7 +84,7 @@
   .masuk{max-width:420px;margin:40px auto;background:#fff;border:1px solid var(--line);padding:20px}
   .masuk input{width:100%;padding:8px 10px;margin:8px 0;font:inherit}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-12-abe677">
+<link rel="stylesheet" href="kepala.css?v=2026-11-13-05bc4f">
 </head>
 <body>
 
@@ -98,7 +98,7 @@
 
 <main class="wrap" id="isi"></main>
 
-<script src="config.js?v=2026-11-12-abe677"></script>
+<script src="config.js?v=2026-11-13-05bc4f"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -115,23 +115,23 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-12-abe677';
-import { pasangMenu } from './menu.js?v=2026-11-12-abe677';
-import { unggahKePustaka, opsiPustaka, opsiJenis, labelDokumen, cariDokumen } from './pustaka-dokumen.js?v=2026-11-12-abe677';
-import { pasangRapikan } from './rapikan-berkas.js?v=2026-11-12-abe677';
-import { UNSUR, skorUnsur, pihakUnsur } from './unsur-butir.js?v=2026-11-12-abe677';
-import { OPSI_SUMBER } from './iku-otomatis.js?v=2026-11-12-abe677';
-import { denganOtomatis as otomatisDari, tsTersedia, htmlCapaianIKU, KET_CAPAIAN } from './capaian-iku.js?v=2026-11-12-abe677';
-import { KATEGORI_TEMUAN, STATUS_TEMUAN, PIHAK_TEMUAN, ringkasTemuan, htmlRingkasTemuan } from './temuan-ami.js?v=2026-11-12-abe677';
-import { bacaRekapSPM, rencanaImporSPM, tsDariTanggal, labelTS, ringkasLembar } from './standar-spmi.js?v=2026-11-12-abe677';
-import { SHEETJS } from './nilai-cpl.js?v=2026-11-12-abe677';
-import { htmlContoh, pasangContoh, JENIS_BUKTI_KS } from './manfaat-kerjasama.js?v=2026-11-12-abe677';
-import { infoJenis } from './rencana-bukti.js?v=2026-11-12-abe677';
-import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-12-abe677';
-import { nomorButir, htmlTautanButir } from './tautan-butir.js?v=2026-11-12-abe677';
-import { htmlSaran } from './saran-bukti.js?v=2026-11-12-abe677';
-import { tautanBerkas, privatkanLama } from './tautan-privat.js?v=2026-11-12-abe677';
-import { unggahLKD, buangLKD, bukaLKD, pendidikanTotal, pendidikanPS } from './bkd.js?v=2026-11-12-abe677';
+import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-13-05bc4f';
+import { pasangMenu } from './menu.js?v=2026-11-13-05bc4f';
+import { unggahKePustaka, opsiPustaka, opsiJenis, labelDokumen, cariDokumen } from './pustaka-dokumen.js?v=2026-11-13-05bc4f';
+import { pasangRapikan } from './rapikan-berkas.js?v=2026-11-13-05bc4f';
+import { UNSUR, skorUnsur, pihakUnsur } from './unsur-butir.js?v=2026-11-13-05bc4f';
+import { OPSI_SUMBER } from './iku-otomatis.js?v=2026-11-13-05bc4f';
+import { denganOtomatis as otomatisDari, tsTersedia, htmlCapaianIKU, KET_CAPAIAN } from './capaian-iku.js?v=2026-11-13-05bc4f';
+import { KATEGORI_TEMUAN, STATUS_TEMUAN, PIHAK_TEMUAN, ringkasTemuan, htmlRingkasTemuan } from './temuan-ami.js?v=2026-11-13-05bc4f';
+import { bacaRekapSPM, rencanaImporSPM, tsDariTanggal, labelTS, ringkasLembar, picProdi } from './standar-spmi.js?v=2026-11-13-05bc4f';
+import { SHEETJS } from './nilai-cpl.js?v=2026-11-13-05bc4f';
+import { htmlContoh, pasangContoh, JENIS_BUKTI_KS } from './manfaat-kerjasama.js?v=2026-11-13-05bc4f';
+import { infoJenis } from './rencana-bukti.js?v=2026-11-13-05bc4f';
+import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-13-05bc4f';
+import { nomorButir, htmlTautanButir } from './tautan-butir.js?v=2026-11-13-05bc4f';
+import { htmlSaran } from './saran-bukti.js?v=2026-11-13-05bc4f';
+import { tautanBerkas, privatkanLama } from './tautan-privat.js?v=2026-11-13-05bc4f';
+import { unggahLKD, buangLKD, bukaLKD, pendidikanTotal, pendidikanPS } from './bkd.js?v=2026-11-13-05bc4f';
 
 /* =====================================================================
    DATA PRODI — data kuantitatif LKPS diisi admin di situs (keputusan
@@ -955,28 +955,38 @@ function gambarPantauLembar(){
   const xs = ringkasLembar(BARIS);
   if (!xs.length) { box.innerHTML = ''; return; }
   box.innerHTML = `<details class="massal" open><summary><b>Pantauan per lembar</b> (butir yang ikut di Siklus PPEPP)</summary>
-    <p class="ket">Lembar yang bukan urusan prodi (mis. Perpustakaan, Akreditasi Unggul Institusi): klik <b>Jangan pantau</b>. Butirnya tetap tersimpan
-      dan bisa dipantau lagi; per butir tetap bisa diatur lewat Ubah.</p>
-    <div class="gulir"><table class="t"><thead><tr><th>Lembar</th><th>Dipantau</th><th></th></tr></thead><tbody>${xs.map((x, i) => `<tr>
-      <td>${esc(x.lembar)}</td><td>${x.dipantau} dari ${x.total}</td>
+    <p class="ket">Lembar yang bukan urusan prodi (mis. Perpustakaan, Akreditasi Unggul Institusi): klik <b>Jangan pantau</b>. <b>Hanya PIC prodi</b>
+      memantau butir yang penanggung jawabnya Dekan atau Kaprodi dan melepas butir ber-PIC rektorat (WR, Rektor, unit), mis. untuk IKU PT.
+      Butirnya tetap tersimpan dan bisa dipantau lagi; per butir tetap bisa diatur lewat Ubah.</p>
+    <div class="gulir"><table class="t"><thead><tr><th>Lembar</th><th>Dipantau</th><th>PIC Dekan/Kaprodi</th><th></th></tr></thead><tbody>${xs.map((x, i) => `<tr>
+      <td>${esc(x.lembar)}</td><td>${x.dipantau} dari ${x.total}</td><td>${x.picProdi}</td>
       <td><button type="button" class="btn ghost kecil" data-pantau="${i}" data-nilai="1"${x.dipantau === x.total ? ' disabled' : ''}>Pantau semua</button>
+        <button type="button" class="btn ghost kecil" data-pantau="${i}" data-nilai="prodi"${x.hanyaProdi || !x.picProdi ? ' disabled' : ''}>Hanya PIC prodi</button>
         <button type="button" class="btn ghost kecil" data-pantau="${i}" data-nilai="0"${x.dipantau === 0 ? ' disabled' : ''}>Jangan pantau</button></td></tr>`).join('')}
     </tbody></table></div><span class="msg" id="pantau_msg"></span></details>`;
-  box.querySelectorAll('[data-pantau]').forEach(b => { b.onclick = () => aturPantau(xs[+b.dataset.pantau].lembar, b.dataset.nilai === '1'); });
+  box.querySelectorAll('[data-pantau]').forEach(b => { b.onclick = () => aturPantau(xs[+b.dataset.pantau].lembar,
+    b.dataset.nilai === 'prodi' ? 'prodi' : b.dataset.nilai === '1'); });
 }
+// nilai: true (pantau semua), false (lepas semua), 'prodi' (hanya butir ber-PIC Dekan/Kaprodi; pemilik 2026-11-13).
 async function aturPantau(lembar, nilai){
   const msg = (cls, s) => { const m = $('pantau_msg'); m.className = 'msg' + (cls ? ' ' + cls : ''); m.textContent = s; };
-  const ids = BARIS.filter(r => ringkasLembar([r])[0].lembar === lembar && (r.dipantau !== false) !== nilai).map(r => r.id);
-  if (!ids.length) return;
+  const mau = r => nilai === 'prodi' ? picProdi(r) : nilai;
+  const ubah = BARIS.filter(r => ringkasLembar([r])[0].lembar === lembar && (r.dipantau !== false) !== mau(r));
+  if (!ubah.length) return;
   $('pantau-lembar').querySelectorAll('button').forEach(b => { b.disabled = true; });
-  msg('', `Menyimpan ${ids.length} butir…`);
-  for (let i = 0; i < ids.length; i += 150) {
-    const { error } = await sb.from('spmi_standar').update({ dipantau: nilai, oleh: SAYA.email, diperbarui: new Date().toISOString() })
-      .in('id', ids.slice(i, i + 150));
-    if (error) { msg('buruk', 'Gagal: ' + error.message); gambarPantauLembar(); return; }
+  msg('', `Menyimpan ${ubah.length} butir…`);
+  for (const v of [true, false]) {
+    const ids = ubah.filter(r => mau(r) === v).map(r => r.id);
+    for (let i = 0; i < ids.length; i += 150) {
+      const { error } = await sb.from('spmi_standar').update({ dipantau: v, oleh: SAYA.email, diperbarui: new Date().toISOString() })
+        .in('id', ids.slice(i, i + 150));
+      if (error) { msg('buruk', 'Gagal: ' + error.message); gambarPantauLembar(); return; }
+    }
   }
   await muatBaris();
-  msg('ok', `${lembar}: ${ids.length} butir ${nilai ? 'dipantau' : 'tidak dipantau lagi'}.`);
+  const masih = BARIS.filter(r => ringkasLembar([r])[0].lembar === lembar && r.dipantau !== false).length;
+  msg('ok', nilai === 'prodi' ? `${lembar}: kini ${masih} butir ber-PIC Dekan/Kaprodi yang dipantau (${ubah.length} butir diubah).`
+    : `${lembar}: ${ubah.length} butir ${nilai ? 'dipantau' : 'tidak dipantau lagi'}.`);
 }
 
 let REKAP_SPM = null, XLSX_SPM = null;
