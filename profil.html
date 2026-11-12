@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-12-4a5dc8">
+<link rel="stylesheet" href="tema.css?v=2026-11-12-1c106e">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
@@ -56,7 +56,7 @@
   /* .fld input melebarkan semua input; kotak centang topik tetap kecil dan di kiri teksnya */
   .fld label.pilih-topik input[type=checkbox]{width:auto;padding:0;margin:0;flex:none}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-12-4a5dc8">
+<link rel="stylesheet" href="kepala.css?v=2026-11-12-1c106e">
 </head>
 <body>
 
@@ -70,7 +70,7 @@
 
 <main class="wrap" id="isi"></main>
 
-<script src="config.js?v=2026-11-12-4a5dc8"></script>
+<script src="config.js?v=2026-11-12-1c106e"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -87,11 +87,11 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { pasangMenu } from './menu.js?v=2026-11-12-4a5dc8';
-import { unduhCV, htmlTombolCV } from './cv-dosen.js?v=2026-11-12-4a5dc8';
+import { pasangMenu } from './menu.js?v=2026-11-12-1c106e';
+import { unduhCV, htmlTombolCV } from './cv-dosen.js?v=2026-11-12-1c106e';
 import { ISIAN_PROFIL, KOLOM_PROFIL, tampil as tampilIsian, sama, formLKPS, bacaFormLKPS, pasangEditor, bacaKataKunci,
   setelNamaTopik, htmlPilihTopik, bacaPilihTopik, MAKS_TOPIK }
-  from './profil-dosen.js?v=2026-11-12-4a5dc8';
+  from './profil-dosen.js?v=2026-11-12-1c106e';
 
 /* =====================================================================
    PROFIL SAYA — dosen mengajukan perubahan profilnya sendiri (keputusan

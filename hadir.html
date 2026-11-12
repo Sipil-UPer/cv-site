@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Daftar hadir rapat — Kinerja Program Studi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tema.css?v=2026-11-12-1c106e">
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.55}
+  .wrap{max-width:560px;margin:0 auto;padding:20px 16px 60px}
+  .kepala{background:var(--biru);color:#fff;padding:22px 16px;border-bottom:4px solid var(--merah)}
+  .kepala h1{font-family:var(--serif);font-size:22px;margin:0 0 4px;max-width:560px;margin-left:auto;margin-right:auto}
+  .kepala p{margin:0 auto;max-width:560px;opacity:.85;font-size:14px}
+  .kartu{background:var(--panel);border:1px solid var(--line);padding:16px;margin:14px 0}
+  .kartu h2{font-size:16px;margin:0 0 10px;color:var(--biru)}
+  select, input{width:100%;font:inherit;padding:10px;border:1px solid var(--line);background:var(--panel);color:var(--ink);margin:4px 0 10px}
+  button{width:100%;font:inherit;font-weight:600;padding:12px;border:0;background:var(--biru);color:#fff;cursor:pointer}
+  button:disabled{opacity:.6}
+  .ket{color:var(--muted);font-size:13.5px}
+  .msg{margin-top:10px;font-weight:600} .ok{color:var(--hijau)} .buruk{color:var(--merah)}
+</style>
+</head>
+<body>
+<header class="kepala"><h1 id="judul">Daftar hadir rapat</h1><p id="sub">Memuat…</p></header>
+<main class="wrap" id="isi"></main>
+<script src="config.js?v=2026-11-12-1c106e"></script>
+<script>
+addEventListener('error', function (e) {
+  if (document.getElementById('galat-muat')) return;
+  var d = document.createElement('div');
+  d.id = 'galat-muat';
+  d.style.cssText = 'margin:16px;padding:12px 14px;border:1px solid var(--merah);font:14px/1.5 system-ui,sans-serif';
+  d.textContent = 'Halaman gagal dimuat: ' + (e.message || 'galat skrip') + '. Muat ulang halaman ini.';
+  document.body.insertBefore(d, document.body.firstChild);
+});
+</script>
+<script type="module">
+// Daftar hadir rapat tanpa login (pemilik 2026-11-12; 62-patch-rapat.sql: rapat_buka_hadir, rapat_hadir).
+// Hanya berlaku dengan token rapat yang masih dibuka. Satu perangkat dicatat sekali (klien acak di peramban).
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+import { tanggalPanjang } from './rapat.js?v=2026-11-12-1c106e';
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const $ = id => document.getElementById(id);
+const sb = createClient(window.SB_URL, window.SB_KEY);
+const token = new URLSearchParams(location.search).get('t') || '';
+const simpan = { get(k){ try { return localStorage.getItem(k); } catch (e) { return null; } },
+                 set(k, v){ try { localStorage.setItem(k, v); } catch (e) { /* abaikan */ } } };
+let klien = simpan.get('hadirKlien');
+if (!klien) { klien = crypto.randomUUID(); simpan.set('hadirKlien', klien); }
+
+async function kirim(dosen, nama, instansi){
+  const m = $('pesan'), b = $('kirim');
+  b.disabled = true; m.className = 'msg'; m.textContent = 'Mengirim…';
+  const { data, error } = await sb.rpc('rapat_hadir', { p_token: token, p_dosen: dosen || null, p_nama: nama || null,
+    p_instansi: instansi || null, p_klien: dosen ? null : klien });
+  b.disabled = false;
+  if (error) { m.className = 'msg buruk'; m.textContent = error.message; return; }
+  m.className = 'msg ok';
+  m.textContent = data === 'sudah' ? 'Kehadiran Anda sudah tercatat sebelumnya. Terima kasih.' : 'Kehadiran tercatat. Terima kasih.';
+  simpan.set('hadir:' + token, '1');
+}
+
+async function mulai(){
+  const { data, error } = await sb.rpc('rapat_buka_hadir', { p_token: token });
+  if (error || !data) {
+    $('sub').textContent = '';
+    $('isi').innerHTML = '<div class="kartu"><p>Daftar hadir ini tidak sedang dibuka: waktunya sudah habis atau tautannya tidak lengkap. Hubungi notulis rapat.</p></div>';
+    return;
+  }
+  $('judul').textContent = data.judul;
+  $('sub').textContent = [tanggalPanjang(data.tanggal), data.tempat].filter(Boolean).join(' · ');
+  const sudah = new Set(data.sudah || []);
+  $('isi').innerHTML = `
+    ${simpan.get('hadir:' + token) ? '<p class="msg ok">Kehadiran dari perangkat ini sudah tercatat.</p>' : ''}
+    <div class="kartu"><h2>Dosen dan tendik prodi</h2>
+      <label class="ket" for="dosen">Pilih nama Anda</label>
+      <select id="dosen"><option value="">— pilih nama —</option>${(data.dosen || []).map(d =>
+        `<option value="${esc(d.id)}">${esc(d.nama)}${sudah.has(d.id) ? ' (sudah hadir)' : ''}</option>`).join('')}</select></div>
+    <div class="kartu"><h2>Tamu, mahasiswa, mitra</h2>
+      <label class="ket" for="nama">Nama lengkap</label><input id="nama" autocomplete="name">
+      <label class="ket" for="instansi">Instansi / peran (mis. PT X, mahasiswa angkatan 2023)</label><input id="instansi" autocomplete="organization"></div>
+    <button type="button" id="kirim">Catat kehadiran</button>
+    <p class="msg" id="pesan"></p>
+    <p class="ket">${Number(data.jumlah) || 0} orang sudah tercatat hadir. Daftar hadir dibuka sampai
+      ${esc(new Date(data.sampai).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }))}.</p>`;
+  $('kirim').onclick = () => {
+    const d = $('dosen').value, n = $('nama').value.trim();
+    if (!d && n.length < 2) { $('pesan').className = 'msg buruk'; $('pesan').textContent = 'Pilih nama Anda, atau isi nama lengkap bila tamu.'; return; }
+    kirim(d, d ? null : n, d ? null : $('instansi').value.trim());
+  };
+}
+if (token.length < 32) {
+  $('sub').textContent = '';
+  $('isi').innerHTML = '<div class="kartu"><p>Tautan daftar hadir tidak lengkap. Pindai ulang QR atau minta tautan dari notulis.</p></div>';
+} else mulai().catch(e => { $('isi').innerHTML = `<div class="kartu"><p>Gagal memuat: ${esc(e.message)}</p></div>`; });
+</script>
+</body>
+</html>

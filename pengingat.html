@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-12-4a5dc8">
-<link rel="stylesheet" href="kepala.css?v=2026-11-12-4a5dc8">
+<link rel="stylesheet" href="tema.css?v=2026-11-12-1c106e">
+<link rel="stylesheet" href="kepala.css?v=2026-11-12-1c106e">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
@@ -72,7 +72,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-12-4a5dc8"></script>
+<script src="config.js?v=2026-11-12-1c106e"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -93,12 +93,13 @@ addEventListener('error', function (e) {
 // Script (Code.gs kind 'kirim_pengingat', maks. 30 per kirim). Tidak ada yang
 // terkirim tanpa tombol Kirim.
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { gerbang } from './menu.js?v=2026-11-12-4a5dc8';
-import { tugasPerPihak } from './kelengkapan.js?v=2026-11-12-4a5dc8';
-import { PIHAK } from './unsur-butir.js?v=2026-11-12-4a5dc8';
-import { penerimaTemuan, HARI_DEKAT } from './temuan-ami.js?v=2026-11-12-4a5dc8';
-import { daftarBerlaku, penerimaBerlaku, htmlBerlaku, HARI_SEGERA } from './masa-berlaku.js?v=2026-11-12-4a5dc8';
-import { penerimaHibah, penerimaPanggilan, HARI_PENGINGAT } from './hibah.js?v=2026-11-12-4a5dc8';
+import { gerbang } from './menu.js?v=2026-11-12-1c106e';
+import { tugasPerPihak } from './kelengkapan.js?v=2026-11-12-1c106e';
+import { PIHAK } from './unsur-butir.js?v=2026-11-12-1c106e';
+import { penerimaTemuan, HARI_DEKAT } from './temuan-ami.js?v=2026-11-12-1c106e';
+import { daftarBerlaku, penerimaBerlaku, htmlBerlaku, HARI_SEGERA } from './masa-berlaku.js?v=2026-11-12-1c106e';
+import { penerimaTindak, HARI_TINDAK } from './rapat.js?v=2026-11-12-1c106e';
+import { penerimaHibah, penerimaPanggilan, HARI_PENGINGAT } from './hibah.js?v=2026-11-12-1c106e';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
@@ -172,7 +173,10 @@ function gambar(){
   const hAjuan = penerimaHibah(DATA.hibah, 'pengajuan'), hLapor = penerimaHibah(DATA.hibah, 'laporan');
   const hPanggil = penerimaPanggilan(dosen, DATA.panggilan);
   const tanpa = xs => xs.length ? ` <b>${xs.length} proposal tanpa email ketua/tim</b> (${xs.map(a => esc(String(a.judul).slice(0, 40))).join(', ')}).` : '';
-  const J = { bkd: bkdBelum, tolak, pihak, ami, berlaku, hibah_ajuan: hAjuan.penerima, hibah_laporan: hLapor.penerima, panggilan: hPanggil.penerima };
+  // 7. Tindak lanjut rapat (62-patch-rapat.sql, rapat.js): ke PJ dosen.
+  const tRapat = penerimaTindak(DATA.tindak);
+  const J = { bkd: bkdBelum, tolak, pihak, ami, berlaku, hibah_ajuan: hAjuan.penerima, hibah_laporan: hLapor.penerima, panggilan: hPanggil.penerima,
+    rapat: tRapat.penerima };
   const SETELAH = { panggilan: async () => {
     const ids = hPanggil.panggilan.map(p => p.id);
     if (ids.length) await sb.from('hibah_panggilan').update({ diumumkan: new Date().toISOString() }).in('id', ids);
@@ -217,6 +221,20 @@ function gambar(){
         (${hPanggil.panggilan.length} panggilan). Panggilan dicatat di <a href="hibah.html">Pengajuan hibah</a>; setelah terkirim ditandai "diumumkan".`,
         hPanggil.penerima, 'Info panggilan hibah penelitian dan PkM',
         `Yth. {nama},\n\nBerikut panggilan hibah yang sedang dibuka:\n{rinci}\n\nBila berminat, catat rencana proposal dan tim Anda di situs kinerja prodi agar tenggatnya ikut diingatkan:\n${situs}hibah.html\n\nTerima kasih.\n${PRODI}`))
+    + htmlJenis('rapat', 'Tindak lanjut rapat', `Keputusan rapat berstatus terbuka/proses yang tenggatnya sudah lewat (setahun terakhir) atau
+        tinggal ≤ ${HARI_TINDAK} hari; dikirim ke PJ dosen.${tRapat.tanpaEmail.length ? ` <b>${tRapat.tanpaEmail.length} tindak lanjut tanpa PJ dosen</b>
+        (PJ berupa nama/unit): ingatkan langsung.` : ''}${DATA.tindakGalat ? ` (${esc(DATA.tindakGalat)})` : ''}`, tRapat.penerima,
+        'Pengingat tindak lanjut rapat',
+        `Yth. {nama},
+
+Tindak lanjut keputusan rapat berikut mendekati atau melewati tenggat:
+{rinci}
+
+Mohon ditindaklanjuti dan statusnya diperbarui di situs kinerja prodi (Rapat dan notulen › Tindak lanjut saya):
+${situs}rapat.html
+
+Terima kasih.
+${PRODI}`)
     + `<section class="jenis"><h2>Email tiap pihak</h2><p class="ket">Dipakai pengingat bukti per pihak; tersimpan di peramban ini saja.</p>
       ${['U', 'F', 'P', 'S'].map(k => `<label class="baris"><span>${esc(PIHAK[k])}</span>
         <input type="email" data-pihak="${k}" value="${esc(emailPihak[k] || '')}" placeholder="email unit"></label>`).join('')}
@@ -248,7 +266,7 @@ async function mulai(){
     baca(sb.from('tautan_ami').select('judul,sampai,dicabut'))]);
   const berlaku = daftarBerlaku({ kerjasama: ks, karyaKS: kk, prodiUpps: pu, petaJalan: pj, dokumen: dk, tautanAmi: ta });
   const [ds, bk, kt, bb, dj, tm] = await Promise.all([
-    sb.from('dosen').select('nama,email,nidn,dtps,aktif,peran'),
+    sb.from('dosen').select('id,nama,email,nidn,dtps,aktif,peran'),
     sb.from('lkps_bkd').select('nidn,tahun_akademik,semester'),
     sb.from('karya').select('judul,catatan,karya_penulis(dosen(nama,email))').eq('status', 'ditolak').limit(500),
     sb.from('butir_bukti').select('butir,unsur'),
@@ -260,9 +278,14 @@ async function mulai(){
     sb.from('hibah_ajuan').select('judul,status,tenggat_ajuan,tanggal_ajuan,tenggat_kemajuan,kemajuan_selesai,tenggat_akhir,akhir_selesai,hibah_tim(peran,dosen(nama,email))'),
     sb.from('hibah_panggilan').select('*')]);
   const eH = hb.error || hp.error;
+  // Tindak lanjut rapat (62-patch-rapat.sql); PJ dosen dipadankan ke daftar dosen (nama, email).
+  const tr = await sb.from('rapat_tindak').select('id,keputusan,tenggat,status,pj_dosen_id,pj_nama,rapat(judul,tanggal)');
+  const perId = new Map((ds.data || []).map(d => [d.id, d]));
+  const tindak = (tr.data || []).map(t => ({ ...t, pj: t.pj_dosen_id ? perId.get(t.pj_dosen_id) : { nama: t.pj_nama } }));
   DATA = { dosen: ds.data || [], bkd: bk.data || [], ditolak: kt.data || [], butirBukti: bb.data || [],
            berlaku, temuan: tm.data || [], temuanGalat: tm.error && !/does not exist|schema cache/i.test(tm.error.message) ? tm.error.message : '',
-           hibah: hb.data || [], panggilan: hp.data || [],
+           hibah: hb.data || [], panggilan: hp.data || [], tindak,
+           tindakGalat: tr.error && !/does not exist|schema cache/i.test(tr.error.message) ? tr.error.message : '',
            hibahGalat: eH ? (/does not exist|schema cache/i.test(eH.message) ? 'Tabel hibah belum ada: jalankan supabase/58-patch-hibah.sql.' : eH.message) : '' };
   $('isi').innerHTML = `<p class="ket">Periksa penerima dan isi, lalu tekan Kirim. Email keluar dari akun Google prodi
       (kuota Gmail sekitar 100 per hari); balasan diarahkan ke email Anda.</p>

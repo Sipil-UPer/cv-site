@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Rapat dan notulen — Kinerja Program Studi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tema.css?v=2026-11-12-1c106e">
+<link rel="stylesheet" href="kepala.css?v=2026-11-12-1c106e">
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
+  .wrap{max-width:1100px;margin:0 auto;padding:18px 20px 80px}
+  .kosong, .ket{color:var(--muted)}
+  .ket{font-size:13px}
+  /* Rapat dan notulen (pemilik 2026-11-12) */
+  .kartu{background:var(--panel);border:1px solid var(--line);padding:14px 18px;margin-bottom:16px}
+  .kartu h2{font-size:17px;margin:0 0 8px;color:var(--biru)}
+  .kartu h3{font-size:14px;margin:16px 0 6px}
+  table.ds{width:100%;border-collapse:collapse;font-size:13.5px}
+  table.ds th{text-align:left;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--line);padding:5px 8px}
+  table.ds td{padding:7px 8px;border-bottom:1px solid var(--line-soft);vertical-align:top}
+  .b{font:12.5px/1.4 var(--sans);padding:5px 11px;border:1px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer;margin:0 4px 4px 0}
+  .b:hover{border-color:var(--biru);color:var(--biru)}
+  .b.utama{background:var(--biru);color:#fff;border-color:var(--biru)}
+  .b.bahaya:hover{border-color:var(--merah);color:var(--merah)}
+  .b:disabled{opacity:.6;cursor:default}
+  .msg{font-size:13px;white-space:pre-line} .msg.buruk{color:var(--merah)} .msg.ok{color:var(--hijau)}
+  .gulir{overflow-x:auto}
+  .saring{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
+  select, input[type=text], input[type=date], input[type=time], input[type=email], textarea{font:inherit;font-size:14px;padding:5px 7px;border:1px solid var(--line);background:var(--panel);color:var(--ink);max-width:100%}
+  textarea{width:100%;min-height:90px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px 14px}
+  .grid label{display:flex;flex-direction:column;font-size:13px;color:var(--muted);gap:3px}
+  .grid label.lebar{grid-column:1/-1}
+  .grid label.cek{flex-direction:row;align-items:center;gap:6px;color:var(--ink)}
+  .grid input, .grid select{width:100%}
+  .grid label.cek input{width:auto}
+  .dosen{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:13.5px}
+  .dosen label{display:flex;gap:5px;align-items:center}
+  .chip{display:inline-block;font-size:11.5px;font-weight:600;padding:1px 8px;border:1px solid currentColor}
+  .st-terbuka{color:#B8860B} .st-proses{color:var(--biru)} .st-selesai{color:var(--hijau)} .st-batal{color:var(--muted)}
+  .lewat{color:var(--merah);font-weight:600}
+  .baca p{margin:4px 0;white-space:pre-line}
+  .qr{display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-top:8px}
+  .qr img{width:180px;height:180px;border:1px solid var(--line);background:#fff}
+  .qr code{word-break:break-all;font-size:12px}
+</style>
+</head>
+<body>
+<header class="hero"><div class="hero-in">
+  <div class="hero-inst" data-identitas></div>
+  <h1>Rapat dan notulen</h1>
+  <div class="sub" id="hSub">Memuat…</div>
+</div></header>
+<main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
+<script src="config.js?v=2026-11-12-1c106e"></script>
+<script>
+// Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
+addEventListener('error', function (e) {
+  if (document.getElementById('galat-muat')) return;
+  var d = document.createElement('div');
+  d.id = 'galat-muat';
+  d.style.cssText = 'margin:16px;padding:12px 14px;border:1px solid var(--merah);' +
+    'background:var(--merah-m3);color:var(--ink);font:14px/1.5 system-ui,sans-serif';
+  d.textContent = 'Halaman gagal dimuat: ' + (e.message || 'galat skrip') +
+    '. Tekan Ctrl+Shift+R untuk memuat ulang tanpa cache; bila tetap muncul, kirim pesan ini ke admin.';
+  document.body.insertBefore(d, document.body.firstChild);
+});
+</script>
+<script type="module">
+// Rapat dan notulen (pemilik 2026-11-12; 62-patch-rapat.sql). Admin dan dosen mencatat rapat;
+// semua pengguna terdaftar membaca (rapat terbatas: peserta, admin, pimpinan). Tindak lanjut ber-PJ
+// masuk Pengingat dan Monitoring. Notulen Word disusun di peramban; admin mengunggah notulen
+// bertanda tangan ke pustaka dan menautkannya sebagai bukti butir/unsur.
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+import { gerbang } from './menu.js?v=2026-11-12-1c106e';
+import { JENIS_RAPAT, jenisRapat, STATUS_TINDAK, tanggalPanjang, waktuRapat, tokenBaru, tindakTerbuka, saranBukti, buatNotulen,
+  namaBerkasNotulen, tglID } from './rapat.js?v=2026-11-12-1c106e';
+import { UNSUR_BUTIR } from './unsur-butir.js?v=2026-11-12-1c106e';
+import { unggahKePustaka } from './pustaka-dokumen.js?v=2026-11-12-1c106e';
+
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const $ = id => document.getElementById(id);
+const sb = createClient(window.SB_URL, window.SB_KEY);
+const UNGGAH = (() => {
+  const url = String(window.UPLOAD_URL || '').trim();
+  if (!url) return null;
+  const ext = String(window.UPLOAD_EXT || '').toLowerCase().split(',').map(s => s.trim()).filter(Boolean);
+  return { url, ext, maxMb: Number(window.UPLOAD_MAX_MB) || 0, accept: ext.map(x => '.' + x).join(',') };
+})();
+const tabelBelumAda = e => e && /does not exist|schema cache/i.test(e.message || '');
+let SAYA = null, ADMIN = false, DOSEN = [], RAPAT = [], TINDAK_SAYA = [], PRODI = {};
+let BUKA = null;          // { r, peserta, tindak } rapat yang sedang dibuka; r = {} untuk rapat baru
+let TAMU = [], KEP = [];  // isian formulir: tamu (dicatat) dan keputusan
+
+const bolehUbah = r => ADMIN || (r && r.dibuat_oleh === SAYA.id);
+const nilai = el => { const v = (el?.value || '').trim(); return v === '' ? null : v; };
+const namaDosen = id => DOSEN.find(d => d.id === id)?.nama || '';
+
+async function muat(){
+  const [r, t] = await Promise.all([
+    sb.from('rapat').select('id,judul,jenis,tanggal,tempat,terbatas,status,dibuat_oleh,dokumen_id').order('tanggal', { ascending: false }).order('id', { ascending: false }),
+    sb.from('rapat_tindak').select('id,rapat_id,keputusan,tenggat,status,catatan,rapat(judul,tanggal)').eq('pj_dosen_id', SAYA.id)]);
+  if (tabelBelumAda(r.error)) throw new Error('Tabel rapat belum ada: admin menjalankan supabase/62-patch-rapat.sql.');
+  if (r.error) throw r.error;
+  RAPAT = r.data || []; TINDAK_SAYA = t.data || [];
+}
+
+// ---------------------------------------------------------------------
+function htmlTindakSaya(){
+  const xs = tindakTerbuka(TINDAK_SAYA);
+  if (!xs.length) return '';
+  return `<section class="kartu"><h2>Tindak lanjut saya (${xs.length})</h2>
+    <p class="ket">Keputusan rapat yang penanggung jawabnya Anda. Perbarui statusnya di sini; pencatat rapat dan admin melihatnya.</p>
+    <div class="gulir"><table class="ds"><thead><tr><th>Keputusan</th><th>Rapat</th><th>Tenggat</th><th>Status</th><th></th></tr></thead><tbody>
+    ${xs.map(t => `<tr><td>${esc(t.keputusan)}</td><td>${esc(t.rapat?.judul || '')}<br><small class="ket">${tglID(String(t.rapat?.tanggal || '').slice(0, 10))}</small></td>
+      <td>${t.tenggat ? `${tglID(String(t.tenggat).slice(0, 10))}${t.hari < 0 ? `<br><span class="lewat">lewat ${-t.hari} hari</span>` : ''}` : '—'}</td>
+      <td><select data-ts="${t.id}">${Object.entries(STATUS_TINDAK).map(([k, l]) => `<option value="${k}"${k === t.status ? ' selected' : ''}>${l}</option>`).join('')}</select></td>
+      <td><input type="text" data-tc="${t.id}" placeholder="Catatan (mis. tautan hasil)" value="${esc(t.catatan || '')}">
+        <button type="button" class="b" data-tsimpan="${t.id}">Simpan</button><span class="msg" id="mt-${t.id}"></span></td></tr>`).join('')}
+    </tbody></table></div></section>`;
+}
+
+function htmlDaftar(){
+  const th = $('s_tahun')?.value || '', jn = $('s_jenis')?.value || '';
+  const tahun = [...new Set(RAPAT.map(r => String(r.tanggal).slice(0, 4)))].sort().reverse();
+  const xs = RAPAT.filter(r => (!th || String(r.tanggal).startsWith(th)) && (!jn || r.jenis === jn));
+  return `<section class="kartu"><h2>Daftar rapat</h2>
+    <div class="saring"><label class="ket">Tahun <select id="s_tahun"><option value="">semua</option>${tahun.map(y => `<option${y === th ? ' selected' : ''}>${y}</option>`).join('')}</select></label>
+      <label class="ket">Jenis <select id="s_jenis"><option value="">semua</option>${JENIS_RAPAT.map(j => `<option value="${j.id}"${j.id === jn ? ' selected' : ''}>${esc(j.nama)}</option>`).join('')}</select></label>
+      ${SAYA.peran !== 'asesor' ? '<button type="button" class="b utama" id="baru">+ Catat rapat</button>' : ''}</div>
+    ${xs.length ? `<div class="gulir"><table class="ds"><thead><tr><th>Tanggal</th><th>Rapat</th><th>Jenis</th><th>Status</th><th></th></tr></thead><tbody>
+      ${xs.map(r => `<tr><td>${tglID(String(r.tanggal).slice(0, 10))}</td><td><b>${esc(r.judul)}</b>${r.tempat ? `<br><small class="ket">${esc(r.tempat)}</small>` : ''}
+        ${r.terbatas ? ' <span class="chip st-batal">terbatas</span>' : ''}</td><td>${esc(jenisRapat(r.jenis).nama)}</td>
+        <td>${r.status === 'final' ? '<span class="chip st-selesai">final</span>' : '<span class="chip st-terbuka">draf</span>'}${r.dokumen_id ? ' <span class="chip st-proses">notulen di pustaka</span>' : ''}</td>
+        <td><button type="button" class="b" data-buka="${r.id}">${bolehUbah(r) ? 'Buka / ubah' : 'Baca'}</button></td></tr>`).join('')}
+      </tbody></table></div>` : `<p class="kosong">${RAPAT.length ? 'Tidak ada rapat yang cocok.' : 'Belum ada rapat tercatat.'}</p>`}
+  </section>`;
+}
+
+// ---------------------------------------------------------------------
+async function bukaRapat(id){
+  if (!id) { BUKA = { r: {}, peserta: [], tindak: [] }; TAMU = []; KEP = []; gambar(); $('form').scrollIntoView({ behavior: 'smooth' }); return; }
+  const [r, p, t] = await Promise.all([
+    sb.from('rapat').select('*').eq('id', id).single(),
+    sb.from('rapat_peserta').select('*').eq('rapat_id', id).order('id'),
+    sb.from('rapat_tindak').select('*').eq('rapat_id', id).order('urutan')]);
+  if (r.error) { alert(r.error.message); return; }
+  BUKA = { r: r.data, peserta: p.data || [], tindak: t.data || [] };
+  TAMU = BUKA.peserta.filter(x => !x.dosen_id && x.cara === 'dicatat').map(x => ({ nama: x.nama, instansi: x.instansi || '' }));
+  KEP = BUKA.tindak.map(x => ({ id: x.id, keputusan: x.keputusan, pj_dosen_id: x.pj_dosen_id || '', pj_nama: x.pj_dosen_id ? '' : (x.pj_nama || ''),
+    tenggat: x.tenggat || '', status: x.status }));
+  gambar(); $('form').scrollIntoView({ behavior: 'smooth' });
+}
+
+function htmlBaca(){
+  const { r, peserta, tindak } = BUKA;
+  const hadir = peserta.filter(p => p.hadir !== false);
+  return `<section class="kartu baca" id="form"><h2>${esc(r.judul)}</h2>
+    <p class="ket">${esc(tanggalPanjang(r.tanggal))}${waktuRapat(r) ? ` · ${esc(waktuRapat(r))}` : ''}${r.tempat ? ` · ${esc(r.tempat)}` : ''} · ${esc(jenisRapat(r.jenis).nama)}
+      · ${r.status === 'final' ? 'final' : 'draf'}</p>
+    <p><b>Pimpinan rapat:</b> ${esc(r.pimpinan || '—')} · <b>Notulis:</b> ${esc(r.notulis || '—')}</p>
+    <h3>Peserta (${hadir.length})</h3><p>${esc(hadir.map(p => p.nama + (p.instansi ? ` (${p.instansi})` : '')).join(', ') || '—')}</p>
+    <h3>Agenda</h3><p>${esc(r.agenda || '—')}</p><h3>Pembahasan</h3><p>${esc(r.pembahasan || '—')}</p>
+    <h3>Keputusan dan tindak lanjut</h3>${tindak.length ? `<table class="ds"><thead><tr><th>Keputusan</th><th>PJ</th><th>Tenggat</th><th>Status</th></tr></thead><tbody>
+      ${tindak.map(t => `<tr><td>${esc(t.keputusan)}</td><td>${esc(namaDosen(t.pj_dosen_id) || t.pj_nama || '—')}</td>
+        <td>${t.tenggat ? tglID(String(t.tenggat).slice(0, 10)) : '—'}</td><td><span class="chip st-${esc(t.status)}">${esc(STATUS_TINDAK[t.status])}</span></td></tr>`).join('')}
+      </tbody></table>` : '<p class="ket">Tidak ada keputusan tercatat.</p>'}
+    <p style="margin-top:12px"><button type="button" class="b" id="f_word">Unduh notulen (.docx)</button>
+      <button type="button" class="b" id="f_tutup">Tutup</button></p></section>`;
+}
+
+function htmlForm(){
+  const r = BUKA.r, baru = !r.id;
+  const pesertaDosen = new Set(BUKA.peserta.filter(p => p.dosen_id).map(p => p.dosen_id));
+  const daring = new Set(BUKA.peserta.filter(p => p.dosen_id && p.cara === 'daring').map(p => p.dosen_id));
+  const tamuDaring = BUKA.peserta.filter(p => !p.dosen_id && p.cara === 'daring');
+  const v = k => esc(r[k] ?? '');
+  return `<section class="kartu" id="form"><h2>${baru ? 'Catat rapat' : 'Ubah rapat'}</h2>
+    <div class="grid">
+      <label class="lebar">Judul rapat *<input type="text" id="f_judul" maxlength="300" value="${v('judul')}" placeholder="Mis. Tinjauan CPL semester ganjil 2026/2027"></label>
+      <label>Jenis<select id="f_jenis">${JENIS_RAPAT.map(j => `<option value="${j.id}"${j.id === (r.jenis || 'rapat_prodi') ? ' selected' : ''}>${esc(j.nama)}</option>`).join('')}</select></label>
+      <label>Tanggal *<input type="date" id="f_tanggal" value="${v('tanggal') || new Date().toISOString().slice(0, 10)}"></label>
+      <label>Mulai<input type="time" id="f_mulai" value="${esc(String(r.mulai || '').slice(0, 5))}"></label>
+      <label>Selesai<input type="time" id="f_selesai" value="${esc(String(r.selesai || '').slice(0, 5))}"></label>
+      <label>Tempat<input type="text" id="f_tempat" value="${v('tempat')}" placeholder="Ruang, gedung, atau Zoom"></label>
+      <label>Pimpinan rapat<input type="text" id="f_pimpinan" value="${v('pimpinan')}"></label>
+      <label>Notulis<input type="text" id="f_notulis" value="${v('notulis') || (baru ? esc(SAYA.nama) : '')}"></label>
+      <label>Status<select id="f_status"><option value="draf"${r.status !== 'final' ? ' selected' : ''}>Draf</option><option value="final"${r.status === 'final' ? ' selected' : ''}>Final</option></select></label>
+      <label class="cek"><input type="checkbox" id="f_terbatas"${r.terbatas ? ' checked' : ''}> Terbatas (hanya peserta, admin, pimpinan)</label>
+    </div>
+    <h3>Peserta dosen</h3>
+    <div class="dosen">${DOSEN.map(d => `<label><input type="checkbox" data-pd="${d.id}"${pesertaDosen.has(d.id) ? ' checked' : ''}${daring.has(d.id) ? ' disabled title="hadir lewat daftar hadir daring"' : ''}> ${esc(d.nama)}</label>`).join('')}</div>
+    <h3>Peserta lain (tamu, mahasiswa, mitra)</h3>
+    <div id="f_tamu"></div><button type="button" class="b" id="f_tamu_tambah">+ Tambah peserta lain</button>
+    ${tamuDaring.length ? `<p class="ket">Hadir lewat daftar hadir daring: ${esc(tamuDaring.map(p => p.nama + (p.instansi ? ` (${p.instansi})` : '')).join(', '))}</p>` : ''}
+    <div class="grid" style="margin-top:12px">
+      <label class="lebar">Agenda (satu butir per baris)<textarea id="f_agenda">${v('agenda')}</textarea></label>
+      <label class="lebar">Pembahasan<textarea id="f_pembahasan" style="min-height:140px">${v('pembahasan')}</textarea></label>
+    </div>
+    <h3>Keputusan dan tindak lanjut</h3>
+    <p class="ket">PJ dosen menerima pengingat email dan bisa memperbarui statusnya sendiri; tindak lanjut tampil di Monitoring.</p>
+    <div id="f_kep"></div><button type="button" class="b" id="f_kep_tambah">+ Tambah keputusan</button>
+    <p style="margin-top:12px"><button type="button" class="b utama" id="f_simpan">Simpan</button>
+      ${baru ? '' : '<button type="button" class="b" id="f_word">Unduh notulen (.docx)</button>'}
+      <button type="button" class="b" id="f_tutup">Tutup</button>
+      ${baru ? '' : '<button type="button" class="b bahaya" id="f_hapus">Hapus rapat</button>'}
+      <span class="msg" id="f_msg"></span></p>
+    ${baru ? '' : htmlHadir()}${baru || !ADMIN ? '' : htmlBukti()}
+  </section>`;
+}
+
+function gambarTamu(){
+  $('f_tamu').innerHTML = TAMU.length ? `<table class="ds"><tbody>${TAMU.map((t, i) => `<tr>
+    <td><input type="text" data-tn="${i}" value="${esc(t.nama)}" placeholder="Nama lengkap"></td>
+    <td><input type="text" data-ti="${i}" value="${esc(t.instansi)}" placeholder="Instansi / peran (mis. PT X, mahasiswa)"></td>
+    <td><button type="button" class="b bahaya" data-th="${i}">Hapus</button></td></tr>`).join('')}</tbody></table>` : '';
+  $('f_tamu').querySelectorAll('[data-tn]').forEach(e => e.oninput = () => { TAMU[+e.dataset.tn].nama = e.value; });
+  $('f_tamu').querySelectorAll('[data-ti]').forEach(e => e.oninput = () => { TAMU[+e.dataset.ti].instansi = e.value; });
+  $('f_tamu').querySelectorAll('[data-th]').forEach(b => b.onclick = () => { TAMU.splice(+b.dataset.th, 1); gambarTamu(); });
+}
+function gambarKep(){
+  $('f_kep').innerHTML = KEP.length ? `<table class="ds"><thead><tr><th>Keputusan / tindak lanjut</th><th>PJ</th><th>Tenggat</th><th>Status</th><th></th></tr></thead><tbody>
+    ${KEP.map((k, i) => `<tr><td><input type="text" data-kk="${i}" value="${esc(k.keputusan)}" style="width:100%"></td>
+      <td><select data-kp="${i}"><option value="">— nama lain —</option>${DOSEN.map(d => `<option value="${d.id}"${d.id === k.pj_dosen_id ? ' selected' : ''}>${esc(d.nama)}</option>`).join('')}</select>
+        <input type="text" data-kn="${i}" value="${esc(k.pj_nama)}" placeholder="atau nama/unit" ${k.pj_dosen_id ? 'hidden' : ''}></td>
+      <td><input type="date" data-kt="${i}" value="${esc(k.tenggat)}"></td>
+      <td><select data-ks="${i}">${Object.entries(STATUS_TINDAK).map(([s, l]) => `<option value="${s}"${s === k.status ? ' selected' : ''}>${l}</option>`).join('')}</select></td>
+      <td><button type="button" class="b bahaya" data-kh="${i}">Hapus</button></td></tr>`).join('')}</tbody></table>` : '';
+  const ikat = (attr, f) => $('f_kep').querySelectorAll(`[data-${attr}]`).forEach(e => e.oninput = e.onchange = () => f(KEP[+e.dataset[attr]], e));
+  ikat('kk', (k, e) => { k.keputusan = e.value; });
+  ikat('kp', (k, e) => { k.pj_dosen_id = e.value; e.nextElementSibling.hidden = !!e.value; });
+  ikat('kn', (k, e) => { k.pj_nama = e.value; });
+  ikat('kt', (k, e) => { k.tenggat = e.value; });
+  ikat('ks', (k, e) => { k.status = e.value; });
+  $('f_kep').querySelectorAll('[data-kh]').forEach(b => b.onclick = () => { KEP.splice(+b.dataset.kh, 1); gambarKep(); });
+}
+
+async function simpan(){
+  const m = $('f_msg'), gagal = t => { m.className = 'msg buruk'; m.textContent = t; };
+  const d = { judul: nilai($('f_judul')), jenis: $('f_jenis').value, tanggal: nilai($('f_tanggal')), mulai: nilai($('f_mulai')), selesai: nilai($('f_selesai')),
+    tempat: nilai($('f_tempat')), pimpinan: nilai($('f_pimpinan')), notulis: nilai($('f_notulis')), agenda: nilai($('f_agenda')),
+    pembahasan: nilai($('f_pembahasan')), status: $('f_status').value, terbatas: $('f_terbatas').checked, oleh: SAYA.email };
+  if (!d.judul) return gagal('Judul rapat wajib diisi.');
+  if (!d.tanggal) return gagal('Tanggal rapat wajib diisi.');
+  if (TAMU.some(t => String(t.nama).trim().length < 2)) return gagal('Nama peserta lain minimal 2 huruf (hapus baris yang kosong).');
+  if (KEP.some(k => String(k.keputusan).trim().length < 2)) return gagal('Isi keputusan atau hapus barisnya.');
+  m.className = 'msg'; m.textContent = 'Menyimpan…';
+  try {
+    let id = BUKA.r.id;
+    if (id) { const { error } = await sb.from('rapat').update(d).eq('id', id); if (error) throw error; }
+    else {
+      const { data, error } = await sb.from('rapat').insert({ ...d, dibuat_oleh: SAYA.id }).select('id').single();
+      if (error) throw error; id = data.id;
+    }
+    // Peserta yang dicatat ditulis ulang; yang hadir lewat daftar hadir daring dipertahankan.
+    const dipilih = [...document.querySelectorAll('[data-pd]:checked:not(:disabled)')].map(c => c.dataset.pd);
+    const r1 = await sb.from('rapat_peserta').delete().eq('rapat_id', id).eq('cara', 'dicatat');
+    if (r1.error) throw r1.error;
+    const baris = [...dipilih.map(x => ({ rapat_id: id, dosen_id: x, nama: namaDosen(x), cara: 'dicatat' })),
+      ...TAMU.map(t => ({ rapat_id: id, nama: String(t.nama).trim(), instansi: String(t.instansi || '').trim() || null, cara: 'dicatat' }))];
+    if (baris.length) { const { error } = await sb.from('rapat_peserta').insert(baris); if (error) throw error; }
+    // Keputusan: ubah yang ada, tambah yang baru, hapus yang dibuang.
+    const ada = new Set(KEP.filter(k => k.id).map(k => k.id));
+    const buang = BUKA.tindak.filter(t => !ada.has(t.id)).map(t => t.id);
+    if (buang.length) { const { error } = await sb.from('rapat_tindak').delete().in('id', buang); if (error) throw error; }
+    for (const [i, k] of KEP.entries()) {
+      const isi = { rapat_id: id, urutan: i + 1, keputusan: String(k.keputusan).trim(), pj_dosen_id: k.pj_dosen_id || null,
+        pj_nama: k.pj_dosen_id ? namaDosen(k.pj_dosen_id) : (String(k.pj_nama || '').trim() || null), tenggat: k.tenggat || null, status: k.status,
+        tanggal_selesai: k.status === 'selesai' ? (BUKA.tindak.find(t => t.id === k.id)?.tanggal_selesai || new Date().toISOString().slice(0, 10)) : null,
+        diperbarui: new Date().toISOString() };
+      const { error } = k.id ? await sb.from('rapat_tindak').update(isi).eq('id', k.id) : await sb.from('rapat_tindak').insert(isi);
+      if (error) throw error;
+    }
+    await muat(); await bukaRapat(id);
+    $('f_msg').className = 'msg ok'; $('f_msg').textContent = 'Tersimpan.';
+  } catch (e) { gagal(e.message || String(e)); }
+}
+
+async function unduhWord(){
+  const { r, peserta } = BUKA;
+  const tindak = BUKA.tindak.map(t => ({ ...t, pj_nama: namaDosen(t.pj_dosen_id) || t.pj_nama }));
+  const blob = await buatNotulen(r, peserta, tindak, PRODI);
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = namaBerkasNotulen(r); a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+}
+
+// Daftar hadir daring: token acak + batas waktu; tautan dan QR untuk ditampilkan di rapat.
+function htmlHadir(){
+  const r = BUKA.r, buka = r.token_hadir && r.hadir_sampai && new Date(r.hadir_sampai) > new Date();
+  const url = buka ? `${location.href.replace(/[^/]*$/, '')}hadir.html?t=${r.token_hadir}` : '';
+  return `<h3>Daftar hadir daring</h3>
+    ${buka ? `<p class="ket">Dibuka sampai ${esc(new Date(r.hadir_sampai).toLocaleString('id-ID'))}. Tampilkan QR di layar atau kirim tautannya;
+        peserta memilih namanya (dosen) atau menulis nama dan instansi (tamu), tanpa login.</p>
+      <div class="qr"><img id="f_qr" alt="QR daftar hadir"><div><code id="f_url">${esc(url)}</code><br>
+        <button type="button" class="b" id="f_salin">Salin tautan</button><button type="button" class="b bahaya" id="f_hadir_tutup">Tutup daftar hadir</button></div></div>`
+    : `<p class="ket">Buka daftar hadir agar peserta mengisi sendiri lewat ponsel (tautan/QR). Kehadiran langsung masuk ke peserta rapat.</p>
+      <p><label class="ket">Berlaku <select id="f_hadir_jam"><option value="1">1 jam</option><option value="3" selected>3 jam</option><option value="8">8 jam</option></select></label>
+        <button type="button" class="b" id="f_hadir_buka">Buka daftar hadir</button></p>`}`;
+}
+async function pasangHadir(){
+  const r = BUKA.r;
+  if ($('f_hadir_buka')) $('f_hadir_buka').onclick = async () => {
+    const sampai = new Date(Date.now() + +$('f_hadir_jam').value * 3600e3).toISOString();
+    const { error } = await sb.from('rapat').update({ token_hadir: tokenBaru(), hadir_sampai: sampai }).eq('id', r.id);
+    if (error) return alert(error.message);
+    await bukaRapat(r.id);
+  };
+  if ($('f_hadir_tutup')) $('f_hadir_tutup').onclick = async () => {
+    const { error } = await sb.from('rapat').update({ hadir_sampai: new Date().toISOString() }).eq('id', r.id);
+    if (error) return alert(error.message);
+    await bukaRapat(r.id);
+  };
+  if ($('f_salin')) $('f_salin').onclick = () => navigator.clipboard?.writeText($('f_url').textContent);
+  if ($('f_qr')) {
+    try {
+      const m = await import('https://cdn.jsdelivr.net/npm/qrcode@1.5.4/+esm');
+      $('f_qr').src = await (m.default || m).toDataURL($('f_url').textContent, { width: 360, margin: 1 });
+    } catch (e) { $('f_qr').replaceWith(Object.assign(document.createElement('span'), { className: 'ket', textContent: 'QR tidak bisa dibuat; pakai tautannya.' })); }
+  }
+}
+
+// Bukti butir (admin): notulen bertanda tangan -> pustaka (jenis notulen) -> butir_bukti per unsur.
+function htmlBukti(){
+  const r = BUKA.r, saran = saranBukti(r.jenis, UNSUR_BUTIR);
+  return `<h3>Notulen sebagai bukti butir (admin)</h3>
+    ${r.dokumen_id ? `<p class="ket">Notulen sudah ada di pustaka (dokumen #${esc(r.dokumen_id)}). Pilih unsur yang dibuktikannya, lalu tautkan.</p>`
+      : `<p class="ket">Unggah notulen yang sudah ditandatangani (PDF/scan; boleh beserta daftar hadir dalam satu berkas). Berkas masuk pustaka dokumen jenis "Notulen rapat".</p>
+        ${UNGGAH ? `<p><input type="file" id="f_berkas" accept="${esc(UNGGAH.accept)}"> <button type="button" class="b" id="f_unggah">Unggah ke pustaka</button></p>`
+          : '<p class="ket">Apps Script belum disiapkan (UPLOAD_URL di config.js).</p>'}`}
+    <div id="f_unsur">${saran.map(s => `<label class="ket" style="display:block"><input type="checkbox" data-bu="${s.butir}|${s.unsur}" checked>
+        Butir ${s.butir} unsur ${s.unsur}: ${esc(s.label)}</label>`).join('')}
+      <p class="ket">Unsur lain: <input type="text" id="f_unsur_lain" placeholder="mis. 2-1, 53-4" size="16"></p></div>
+    ${r.dokumen_id ? '<p><button type="button" class="b utama" id="f_tautkan">Tautkan sebagai bukti</button></p>' : ''}
+    <span class="msg" id="f_bmsg"></span>`;
+}
+function pasangBukti(){
+  const r = BUKA.r, m = $('f_bmsg');
+  if ($('f_unggah')) $('f_unggah').onclick = async () => {
+    const f = $('f_berkas').files[0];
+    if (!f) { m.className = 'msg buruk'; m.textContent = 'Pilih berkas notulen dulu.'; return; }
+    try {
+      const dok = await unggahKePustaka(sb, UNGGAH, { jenis: 'notulen', tahun: +String(r.tanggal).slice(0, 4),
+        judul: `${r.judul} (${tglID(String(r.tanggal).slice(0, 10))})`.slice(0, 120), berkas: [f], oleh: SAYA.email,
+        tanggal: String(r.tanggal).slice(0, 10), progres: t => { m.className = 'msg'; m.textContent = t; } });
+      const { error } = await sb.from('rapat').update({ dokumen_id: dok.id }).eq('id', r.id);
+      if (error) throw error;
+      await bukaRapat(r.id);
+      $('f_bmsg').className = 'msg ok'; $('f_bmsg').textContent = 'Notulen tersimpan di pustaka. Pilih unsur lalu tekan Tautkan.';
+    } catch (e) { m.className = 'msg buruk'; m.textContent = e.message || String(e); }
+  };
+  if ($('f_tautkan')) $('f_tautkan').onclick = async () => {
+    const pilih = [...document.querySelectorAll('[data-bu]:checked')].map(c => c.dataset.bu.split('|').map(Number));
+    const lain = String($('f_unsur_lain').value || '').split(/[,;\s]+/).filter(Boolean).map(x => x.split('-').map(Number));
+    const xs = [...pilih, ...lain].filter(([b, u]) => b >= 1 && b <= 60 && u >= 1 && u <= 30);
+    if (!xs.length) { m.className = 'msg buruk'; m.textContent = 'Pilih minimal satu unsur.'; return; }
+    const judul = `Notulen: ${r.judul} (${tglID(String(r.tanggal).slice(0, 10))})`.slice(0, 200);
+    let n = 0, sudah = 0;
+    for (const [butir, unsur] of xs) {
+      const { error } = await sb.from('butir_bukti').insert({ butir, unsur, dokumen_id: r.dokumen_id, judul, oleh: SAYA.email });
+      if (!error) n++; else if (/duplicate|unique/i.test(error.message)) sudah++;
+      else { m.className = 'msg buruk'; m.textContent = `Butir ${butir} unsur ${unsur}: ${error.message}`; return; }
+    }
+    m.className = 'msg ok'; m.textContent = `${n} bukti ditautkan${sudah ? `, ${sudah} sudah tertaut sebelumnya` : ''}. Skor butir terkait ikut naik di halaman Skor.`;
+  };
+}
+
+// ---------------------------------------------------------------------
+function gambar(){
+  const editor = BUKA && (BUKA.r.id ? bolehUbah(BUKA.r) : true);
+  $('isi').innerHTML = `<p class="msg" id="pesan"></p>${htmlTindakSaya()}${BUKA ? (editor ? htmlForm() : htmlBaca()) : ''}${htmlDaftar()}`;
+  $('s_tahun').onchange = $('s_jenis').onchange = gambar;
+  if ($('baru')) $('baru').onclick = () => bukaRapat(null);
+  document.querySelectorAll('[data-buka]').forEach(b => b.onclick = () => bukaRapat(+b.dataset.buka));
+  document.querySelectorAll('[data-tsimpan]').forEach(b => b.onclick = async () => {
+    const id = +b.dataset.tsimpan, mm = $('mt-' + id);
+    const { error } = await sb.rpc('perbarui_tindak_lanjut', { p_id: id,
+      p_status: document.querySelector(`[data-ts="${id}"]`).value, p_catatan: document.querySelector(`[data-tc="${id}"]`).value });
+    mm.className = error ? 'msg buruk' : 'msg ok'; mm.textContent = error ? error.message : 'Tersimpan.';
+    if (!error) { await muat(); setTimeout(gambar, 600); }
+  });
+  if (!BUKA) return;
+  $('f_tutup').onclick = () => { BUKA = null; gambar(); };
+  if ($('f_word')) $('f_word').onclick = unduhWord;
+  if (!editor) return;
+  gambarTamu(); gambarKep();
+  $('f_tamu_tambah').onclick = () => { TAMU.push({ nama: '', instansi: '' }); gambarTamu(); };
+  $('f_kep_tambah').onclick = () => { KEP.push({ keputusan: '', pj_dosen_id: '', pj_nama: '', tenggat: '', status: 'terbuka' }); gambarKep(); };
+  $('f_simpan').onclick = simpan;
+  if ($('f_hapus')) $('f_hapus').onclick = async () => {
+    if (!confirm(`Hapus rapat "${BUKA.r.judul}" beserta peserta dan tindak lanjutnya? Notulen di pustaka tidak ikut terhapus.`)) return;
+    const { error } = await sb.from('rapat').delete().eq('id', BUKA.r.id);
+    if (error) return alert(error.message);
+    BUKA = null; await muat(); gambar();
+  };
+  if (BUKA.r.id) { pasangHadir(); if (ADMIN) pasangBukti(); }
+}
+
+async function mulai(){
+  SAYA = await gerbang(sb);
+  if (!SAYA) return;
+  ADMIN = SAYA.peran === 'admin';
+  $('hSub').textContent = `Masuk sebagai ${SAYA.nama}`;
+  const [ds, dj] = await Promise.all([
+    sb.from('dosen').select('id,nama,peran,aktif').order('nama'),
+    fetch('data.json?v=' + Date.now()).then(r => r.ok ? r.json() : {}).catch(() => ({}))]);
+  DOSEN = (ds.data || []).filter(d => d.aktif !== false && d.peran !== 'asesor');
+  PRODI = { prodi: dj.prodi || '', institusi: dj.institusi || '' };
+  await muat();
+  const awal = +new URLSearchParams(location.search).get('id');
+  if (awal) await bukaRapat(awal); else gambar();
+}
+mulai().catch(e => { $('isi').innerHTML = `<p class="kosong">Gagal memuat: ${esc(e.message || String(e))}</p>`; });
+</script>
+</body>
+</html>

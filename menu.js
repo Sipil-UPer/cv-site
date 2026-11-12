@@ -19,28 +19,36 @@ const penyusun = s => admin(s) || (!!s.tim_penyusun && s.peran !== 'asesor');
 const isiKarya = s => s.peran !== 'asesor' && !(s.peran === 'pimpinan' && !s.aktif);
 
 export const MODUL = [
-  { judul: 'Input data', ket: 'Karya dosen dan data prodi yang dipakai semua modul.', halaman: [
+  // Susunan modul (pemilik 2026-11-12): isian dosen, operasional prodi, dan fungsi admin dipisah.
+  { judul: 'Data saya', ket: 'Profil dan karya dosen, serta berkas yang diisi dosen.', halaman: [
+    { href: 'profil.html', judul: 'Profil saya',
+      ket: 'Nama, SINTA, Scopus, ORCID, pendidikan, jabatan; perubahan disetujui admin.' },
     { href: 'input.html', judul: 'Karya dosen', boleh: isiKarya,
       ket: 'Publikasi, penelitian, PkM, luaran, rekognisi, dan buktinya.' },
+    { href: 'nilai-cpl.html', judul: 'Berkas nilai CPL', boleh: isiKarya,
+      ket: 'Unggah Template_Input_Data_CPL per kelas (diperiksa sebelum dikirim, disimpan privat); admin: daftar kelas dan pengingat.' },
+  ]},
+  { judul: 'Operasional', ket: 'Kegiatan prodi sehari-hari: rapat, hibah, survei, pengingat.', halaman: [
+    // Rapat dan notulen (62-patch-rapat.sql): admin dan dosen mencatat; semua terdaftar membaca.
+    { href: 'rapat.html', judul: 'Rapat dan notulen', boleh: s => s.peran !== 'asesor',
+      ket: 'Agenda, peserta, keputusan, tindak lanjut ber-PJ, notulen Word, daftar hadir daring (QR).' },
     // Sama dengan boleh_hibah() di supabase/58-patch-hibah.sql.
     { href: 'hibah.html', judul: 'Pengajuan hibah', boleh: s => s.peran !== 'asesor',
       ket: 'Panggilan hibah dan proposal tim: tenggat, status, dana; didanai menjadi draf karya.' },
+    { href: 'kelola-survei.html', judul: 'Survei kepuasan', boleh: admin,
+      ket: 'Survei anonim mahasiswa, dosen, tendik, mitra, pengguna lulusan: buat, bagikan tautan, baca hasil.' },
+    { href: 'pengingat.html', judul: 'Pengingat', boleh: admin,
+      ket: 'Kirim pengingat email: BKD belum diisi, karya perlu diperbaiki, bukti per pihak, tenggat hibah.' },
+  ]},
+  { judul: 'Admin prodi', ket: 'Verifikasi, data prodi, dosen, dan mutu data (khusus admin).', halaman: [
     { href: 'verifikasi.html', judul: 'Verifikasi', boleh: admin,
       ket: 'Karya dosen, profil dosen, BKD, dan prestasi mahasiswa yang menunggu keputusan admin.' },
     { href: 'data-prodi.html', judul: 'Data prodi', boleh: admin,
       ket: 'Mahasiswa, lulusan, tracer, kerja sama, BKD, prestasi mahasiswa.' },
-    { href: 'pengingat.html', judul: 'Pengingat', boleh: admin,
-      ket: 'Kirim pengingat email: BKD belum diisi, karya perlu diperbaiki, bukti per pihak, tenggat hibah.' },
-    { href: 'nilai-cpl.html', judul: 'Berkas nilai CPL', boleh: isiKarya,
-      ket: 'Unggah Template_Input_Data_CPL per kelas (diperiksa sebelum dikirim, disimpan privat); admin: daftar kelas dan pengingat.' },
-    { href: 'kelola-survei.html', judul: 'Survei kepuasan', boleh: admin,
-      ket: 'Survei anonim mahasiswa, dosen, tendik, mitra, pengguna lulusan: buat, bagikan tautan, baca hasil.' },
-    { href: 'mutu-data.html', judul: 'Mutu data', boleh: admin,
-      ket: 'Data yang perlu diperbaiki: karya tanpa bukti, DOI ganda, judul mirip, ID dosen, RPS, tracer.' },
-    { href: 'profil.html', judul: 'Profil saya',
-      ket: 'Nama, SINTA, Scopus, ORCID, pendidikan, jabatan; perubahan disetujui admin.' },
     { href: 'kelola-dosen.html', judul: 'Kelola dosen', boleh: admin,
       ket: 'Email yang terdaftar dan perannya.' },
+    { href: 'mutu-data.html', judul: 'Mutu data', boleh: admin,
+      ket: 'Data yang perlu diperbaiki: karya tanpa bukti, DOI ganda, judul mirip, ID dosen, RPS, tracer.' },
   ]},
   { judul: 'Monitoring', ket: 'Kinerja prodi dan dosen dari waktu ke waktu.', halaman: [
     { href: 'monitoring.html', judul: 'Monitoring kinerja',

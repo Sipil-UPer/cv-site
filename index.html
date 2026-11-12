@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-12-4a5dc8">
+<link rel="stylesheet" href="tema.css?v=2026-11-12-1c106e">
 <style>
   /* =================================================================
      PALET — sesuaikan dengan pedoman identitas resmi institusi bila ada.
@@ -373,7 +373,7 @@ function render(){
        .map(x => String(x).toLowerCase())).size, 'Topik keahlian', 'keahlian.html?tab=peta'],
   ].map(([v,l,href])=>`<a href="${href}"><b>${N(v)}</b><span>${l}</span></a>`).join('');
   // Jumlah topik persis sama dengan keahlian.html (petaTopik, termasuk bidang keahlian).
-  import('./keahlian.js?v=2026-11-12-4a5dc8').then(m => {
+  import('./keahlian.js?v=2026-11-12-1c106e').then(m => {
     const b = document.querySelector('#angka a[href^="keahlian.html"] b');
     // Dengan daftar baku (patch 61): topik baku yang sudah punya dosen (memilih atau berkarya).
     const B = m.daftarBaku(D), P = m.profilKeahlian(D);

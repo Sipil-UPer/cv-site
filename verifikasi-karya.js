@@ -2,11 +2,11 @@
 // ajuan perubahan, klaim penulis, dan publikasi/luaran tanpa payung. Dipindah dari tab Verifikasi di
 // input.html saat verifikasi dijadikan halaman tersendiri (pemilik 2026-11-08).
 
-import { buangSemua } from './hapus-berkas.js?v=2026-11-12-4a5dc8';
-import { JENIS_BUKTI_KS } from './manfaat-kerjasama.js?v=2026-11-12-4a5dc8';
-import { labelKolom } from './form-karya.js?v=2026-11-12-4a5dc8';
+import { buangSemua } from './hapus-berkas.js?v=2026-11-12-1c106e';
+import { JENIS_BUKTI_KS } from './manfaat-kerjasama.js?v=2026-11-12-1c106e';
+import { labelKolom } from './form-karya.js?v=2026-11-12-1c106e';
 import { esc, rapi, barisKarya, muatBuktiKarya, daftarBuktiKarya, berkasMilikKarya,
-  htmlDaftarBukti } from './karya-tampil.js?v=2026-11-12-4a5dc8';
+  htmlDaftarBukti } from './karya-tampil.js?v=2026-11-12-1c106e';
 
 const PILIH = '*, karya_penulis(peran, korespondensi, dosen(nama)), karya_mahasiswa(nim), karya_mitra(institusi)';
 
@@ -36,7 +36,7 @@ export async function pasangVerifikasiKarya(wadah, { sb, dosen }){
       payungnya diisi; dengan payung, karya itu menjadi bukti luaran kerja sama
       kegiatannya. Pilih kegiatan payung lalu klik Tautkan. Bila penelitiannya belum
       tercatat, minta dosennya mencatat penelitian itu (misalnya berdasarkan SK
-      penelitian mandiri) di Input data, lalu tautkan di sini. Panel ini tidak
+      penelitian mandiri) di Data saya › Karya dosen, lalu tautkan di sini. Panel ini tidak
       dihitung sebagai "menunggu".</p>
       <div id="tp" class="kosong">Memuat…</div></div>`;
   const kotak = id => wadah.querySelector('#' + id);

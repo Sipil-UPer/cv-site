@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-12-4a5dc8">
+<link rel="stylesheet" href="tema.css?v=2026-11-12-1c106e">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
@@ -174,7 +174,7 @@
     font-size:13px;line-height:1.5}
   @media print{.png-baris, #ami-admin, .kontrol-seksi{display:none}}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-12-4a5dc8">
+<link rel="stylesheet" href="kepala.css?v=2026-11-12-1c106e">
 </head>
 <body>
 
@@ -497,8 +497,12 @@ ${seksiLipat('cakupan', 'Cakupan', '', `
     <p class="ket">Ketercapaian capaian pembelajaran lulusan dari berkas nilai per kelas (Template_Input_Data_CPL), dihitung run_cpl.py
     di komputer admin. Bukti butir 13 unsur 9, butir 14 unsur 5 (tinjauan rutin pencapaian CPL), butir 15 unsur 5, dan butir 16 unsur 1.</p>
     <div class="kartu" id="cpl-isi"><p class="kosong">Memuat…</p></div><div id="cpl-admin"></div>
+`, true)}${seksiLipat('rapat', 'Tindak lanjut rapat', 'keputusan rapat · PJ · tenggat', `
+    <p class="ket">Keputusan rapat yang dicatat di Rapat dan notulen, dengan penanggung jawab dan tenggat (siklus PPEPP).
+    Urutan: yang lewat tenggat dulu, lalu tenggat terdekat. PJ memperbarui statusnya sendiri.</p>
+    <div class="kartu" id="rapat-isi"><p class="kosong">Memuat…</p></div>
 `, true)}${seksiLipat('hibah', 'Pengajuan hibah', 'penelitian dan PkM · tingkat keberhasilan', `
-    <p class="ket">Proposal hibah yang dicatat dosen di Input data › Pengajuan hibah, per tahun usulan dan per skema. Hanya angka;
+    <p class="ket">Proposal hibah yang dicatat dosen di Operasional › Pengajuan hibah, per tahun usulan dan per skema. Hanya angka;
     judul dan tim terlihat oleh tim pengusul, admin, dan pimpinan. Tingkat keberhasilan = didanai dibagi yang sudah diputuskan.</p>
     <div class="kartu" id="hibah-isi"><p class="kosong">Memuat…</p></div>
 `, true)}${seksiLipat('matriks', 'Matriks kinerja dosen', '', `
@@ -569,6 +573,7 @@ ${seksiLipat('cakupan', 'Cakupan', '', `
   gambarTemuan();
   gambarCPL();
   gambarHibah();
+  gambarRapat();
   window.segarkanAMI?.();
 }
 
@@ -606,6 +611,26 @@ function gambarHibah(){
     : M.htmlRekap(HIBAH.rows);
 }
 window.setelHibah = (rows, galat) => { HIBAH.rows = rows; HIBAH.galat = galat || ''; gambarHibah(); };
+// Tindak lanjut rapat (62-patch-rapat.sql): rapat_tindak + rapat; null = lewat tautan AMI.
+const RAPAT = { rows: undefined, galat: '' };
+function gambarRapat(){
+  const box = document.getElementById('rapat-isi'), M = window.RAPAT_M;
+  if (!box) return;
+  if (RAPAT.galat) { box.innerHTML = `<p class="kosong">Tindak lanjut rapat gagal dimuat: ${esc(RAPAT.galat)}</p>`; return; }
+  if (RAPAT.rows === null) { box.innerHTML = '<p class="kosong">Tindak lanjut rapat tidak ditampilkan lewat tautan AMI.</p>'; return; }
+  if (!M || RAPAT.rows === undefined) { box.innerHTML = '<p class="kosong">Memuat…</p>'; return; }
+  if (!RAPAT.rows.length) { box.innerHTML = '<p class="kosong">Belum ada keputusan rapat yang dicatat.</p>'; return; }
+  const r = M.ringkasTindak(RAPAT.rows);
+  box.innerHTML = `<p class="ket"><b>${r.terbuka}</b> terbuka · <b>${r.proses}</b> dalam proses · <b>${r.selesai}</b> selesai
+      · <b style="color:var(--merah)">${r.lewat}</b> lewat tenggat · ${r.batal} batal.</p>
+    ${r.buka.length ? `<div class="gulir"><table class="sp"><thead><tr><th>Keputusan</th><th>Rapat</th><th>PJ</th><th>Tenggat</th><th>Status</th></tr></thead><tbody>
+      ${r.buka.slice(0, 40).map(t => `<tr><td>${esc(t.keputusan)}</td><td>${esc(t.rapat?.judul || '')}<br><span class="ctt">${esc(M.tglID(String(t.rapat?.tanggal || '').slice(0, 10)))}</span></td>
+        <td>${esc(t.pj_nama || '—')}</td><td>${t.tenggat ? esc(M.tglID(String(t.tenggat).slice(0, 10))) : '—'}${t.hari != null && t.hari < 0
+          ? `<br><span style="color:var(--merah);font-weight:600">lewat ${-t.hari} hari</span>` : ''}</td>
+        <td>${esc(M.STATUS_TINDAK[t.status] || t.status)}</td></tr>`).join('')}</tbody></table></div>` : '<p class="ket">Semua tindak lanjut sudah selesai atau dibatalkan.</p>'}
+    <p class="ket"><a href="rapat.html">Rapat dan notulen ›</a></p>`;
+}
+window.setelRapat = (rows, galat) => { RAPAT.rows = rows; RAPAT.galat = galat || ''; gambarRapat(); };
 window.setelTemuan = (baris, bukti, galat) => {
   TEMUAN.baris = baris; TEMUAN.bukti = bukti || []; TEMUAN.galat = galat || ''; gambarTemuan();
 };
@@ -1034,7 +1059,7 @@ function kartuRinci(judul, peta){
       <div class="an">${v}</div></div>`).join('')}</div>`;
 }
 </script>
-<script src="config.js?v=2026-11-12-4a5dc8"></script>
+<script src="config.js?v=2026-11-12-1c106e"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -1053,14 +1078,16 @@ addEventListener('error', function (e) {
 // Ruang kerja, khusus email terdaftar (pemilik 2026-11-04); tanpa login hanya
 // lewat tautan AMI yang masih berlaku (pemilik 2026-11-11, 50-patch-tautan-ami.sql).
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { gerbang } from './menu.js?v=2026-11-12-4a5dc8';
-import * as CAPAIAN_IKU from './capaian-iku.js?v=2026-11-12-4a5dc8';
-import * as TEMUAN_AMI from './temuan-ami.js?v=2026-11-12-4a5dc8';
-import * as TAUTAN_AMI from './ami-tautan.js?v=2026-11-12-4a5dc8';
-import * as CAPAIAN_CPL from './capaian-cpl.js?v=2026-11-12-4a5dc8';
-import * as HIBAH from './hibah.js?v=2026-11-12-4a5dc8';
+import { gerbang } from './menu.js?v=2026-11-12-1c106e';
+import * as CAPAIAN_IKU from './capaian-iku.js?v=2026-11-12-1c106e';
+import * as TEMUAN_AMI from './temuan-ami.js?v=2026-11-12-1c106e';
+import * as TAUTAN_AMI from './ami-tautan.js?v=2026-11-12-1c106e';
+import * as CAPAIAN_CPL from './capaian-cpl.js?v=2026-11-12-1c106e';
+import * as RAPAT_M from './rapat.js?v=2026-11-12-1c106e';
+import * as HIBAH from './hibah.js?v=2026-11-12-1c106e';
 const sb = createClient(window.SB_URL, window.SB_KEY);
 window.HIBAH = HIBAH;
+window.RAPAT_M = RAPAT_M;
 window.CAPAIAN_CPL = CAPAIAN_CPL;
 document.head.insertAdjacentHTML('beforeend', `<style>${CAPAIAN_CPL.CSS_CPL}</style>`);
 window.CAPAIAN_IKU = CAPAIAN_IKU;
@@ -1080,10 +1107,16 @@ if (tokenAMI) {
     window.setelTemuan(data.temuan || [], data.bukti_temuan || [], '');
     window.setelCPL(data.cpl || null, '');
     window.setelHibah(null, '');
+    window.setelRapat(null, '');
   }
 } else {
   const saya = await gerbang(sb);
   window.mulaiHalaman();
+  // Tindak lanjut rapat (62-patch-rapat.sql): terbaca pengguna terdaftar (rapat terbatas tersaring RLS).
+  sb.from('rapat_tindak').select('id,keputusan,pj_nama,tenggat,status,rapat(judul,tanggal)').then(({ data, error }) => {
+    const belumAda = error && /does not exist|schema cache/i.test(error.message);
+    window.setelRapat(belumAda ? [] : (data || []), error && !belumAda ? error.message : '');
+  }, e => window.setelRapat([], e.message || String(e)));
   // Pengajuan hibah (58-patch-hibah.sql): hanya angka, untuk semua pengguna terdaftar.
   sb.rpc('hibah_rekap').then(({ data, error }) => {
     const belumAda = error && /does not exist|schema cache|Could not find the function/i.test(error.message);

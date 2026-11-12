@@ -2,7 +2,7 @@
 // Logika tanpa peramban: tenggat, penerima pengingat, rekap Monitoring, dan
 // isi draf karya dari proposal yang didanai. Dipakai hibah.html, pengingat.html,
 // dan monitoring.html.
-import { selisihHari, tglID } from './masa-berlaku.js?v=2026-11-12-4a5dc8';
+import { selisihHari, tglID } from './masa-berlaku.js?v=2026-11-12-1c106e';
 
 export const STATUS = { rencana: 'Rencana', diajukan: 'Diajukan', didanai: 'Didanai', ditolak: 'Ditolak', batal: 'Batal' };
 export const KATEGORI = { penelitian: 'Penelitian', pkm: 'PkM', keduanya: 'Penelitian & PkM' };
@@ -144,7 +144,7 @@ const diajukanSemua = g => g.diajukan + g.didanai + g.ditolak;
 
 export function htmlRekap(rows){
   const R = rekapHibah(rows);
-  if (!(rows || []).length) return '<p class="kosong">Belum ada proposal hibah yang dicatat. Dosen mencatatnya di Input data › Pengajuan hibah.</p>';
+  if (!(rows || []).length) return '<p class="kosong">Belum ada proposal hibah yang dicatat. Dosen mencatatnya di Operasional › Pengajuan hibah.</p>';
   const T = R.total;
   const kepala = '<th>Diajukan</th><th>Menunggu</th><th>Didanai</th><th>Ditolak</th><th>Keberhasilan</th><th>Dana diusulkan (juta Rp)</th><th>Dana disetujui (juta Rp)</th>';
   const sel = g => `<td>${diajukanSemua(g)}</td><td>${g.diajukan}</td><td>${g.didanai}</td><td>${g.ditolak}</td><td>${persen(rasio(g))}</td>

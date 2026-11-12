@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-12-4a5dc8">
+<link rel="stylesheet" href="tema.css?v=2026-11-12-1c106e">
 <style>
   /* Panduan pengguna ruang kerja (pemilik 2026-11-04). Bagian admin hanya
      tampil untuk peran admin. Perbarui bila tombol atau halaman berubah. */
@@ -40,7 +40,7 @@
   @media(max-width:640px){nav.isi ol{columns:1}.wrap{padding:18px 16px 60px}}
   @media print{nav.isi{display:none}section{break-inside:avoid}}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-12-4a5dc8">
+<link rel="stylesheet" href="kepala.css?v=2026-11-12-1c106e">
 </head>
 <body>
 
@@ -77,7 +77,7 @@
     <ol>
       <li>Buka <a href="ruang-kerja.html">Ruang kerja</a>, isi email kampus yang sudah didaftarkan admin, klik <b>Kirim tautan masuk</b>.</li>
       <li>Buka email, klik tautannya. Tidak ada kata sandi.</li>
-      <li>Menu biru di atas tiap halaman: <b>Input data</b>, <b>Monitoring</b>, <b>Akreditasi</b>, dan <b>Bantuan</b>. Isinya mengikuti peran Anda; halaman khusus admin tidak tampil untuk dosen. Anggota tim penyusun LED juga melihat <b>Akreditasi ▾ › Narasi LED</b>; tombol <b>Bagian saya</b> di sana menampilkan bagian yang ditugaskan kepada Anda.</li>
+      <li>Menu biru di atas tiap halaman: <b>Data saya</b> (profil dan karya), <b>Operasional</b> (rapat, hibah, survei, pengingat), <b>Admin prodi</b> (khusus admin), <b>Monitoring</b>, <b>Akreditasi</b>, dan <b>Bantuan</b>. Isinya mengikuti peran Anda; halaman khusus admin tidak tampil untuk dosen. Anggota tim penyusun LED juga melihat <b>Akreditasi ▾ › Narasi LED</b>; tombol <b>Bagian saya</b> di sana menampilkan bagian yang ditugaskan kepada Anda.</li>
     </ol>
     <p class="cat">Muncul "Email belum terdaftar"? Minta admin prodi menambahkan email Anda di Kelola dosen.
       Halaman tampil kosong atau "gagal dimuat"? Tekan <b>Ctrl+Shift+R</b> (memuat ulang tanpa cache).</p>
@@ -85,7 +85,7 @@
 
   <section id="karya">
     <h2>2. Mengisi karya</h2>
-    <p>Buka <b>Input data ▾ › Karya dosen</b>. Pilih tab sesuai jenis karya:</p>
+    <p>Buka <b>Data saya ▾ › Karya dosen</b>. Pilih tab sesuai jenis karya:</p>
     <p class="cat"><b>Impor publikasi dan draf.</b> Di <b>Karya saya</b>, buka <b>Impor publikasi</b>, tempel satu DOI atau lebih (satu per baris), lalu <b>Cari</b>. Data diambil dari OpenAlex; centang yang benar karya Anda, lalu <b>Jadikan draf</b>. Draf hanya terlihat oleh Anda dan belum dikirim ke admin. Klik <b>Lengkapi &amp; ajukan</b> pada drafnya, isi tingkat, indeksasi, payung penelitian, mitra, mahasiswa, dan bukti, lalu <b>Simpan dan ajukan</b> (atau <b>Simpan draf</b> untuk melanjutkan nanti). Sitasi tercatat <b>per tahun</b> sejak tahun terbit, terisi dari OpenAlex sebagai nilai awal; ganti angka tiap tahun dengan angka Google Scholar bila ada (tombol <b>Tarik dari OpenAlex</b> tidak menimpa angka yang Anda isi). Angka sitasi boleh diperbarui kapan saja, juga setelah karya terverifikasi, tanpa ajuan. LKPS 4.i menjumlahkan sendiri tahun kalender yang beririsan dengan TS-2 s.d. TS. Bila DOI sudah dicatat rekan, pakai tombol <b>Tambahkan saya sebagai penulis</b>.</p>
     <p class="cat"><b>Dari ORCID.</b> Klik <b>Tarik semua dari ORCID saya</b> di Impor publikasi: semua karya yang tercatat di OpenAlex untuk ORCID di <b>Profil saya</b> tampil di tabel. Situs menyebut nama pemilik data itu di OpenAlex; pastikan itu Anda. Hasil paling lengkap bila profil orcid.org Anda terhubung ke Scopus dan Crossref.</p>
     <p class="cat"><b>Dari Google Scholar.</b> Di profil Google Scholar Anda, centang artikel (kotak paling atas memilih semua), klik <b>Export › BibTeX</b>, simpan berkasnya, lalu pilih berkas itu di <b>Impor publikasi</b>. Situs mencari DOI dan sitasi per tahun di OpenAlex menurut judul; yang tidak ditemukan (sering jurnal nasional) dibuat dari data Google Scholar tanpa DOI, dan DOI-nya bisa Anda isi di drafnya. Judul yang sudah ada di situs dan entri ganda tidak dibuat lagi; disertasi dan entri tanpa tahun tidak dicentang. OpenAlex membatasi jumlah pencarian per hari untuk satu jaringan; bila batasnya habis, situs memberi tahu jam pulihnya dan draf tetap dibuat dari data Google Scholar.</p>
@@ -139,7 +139,7 @@
 
   <section id="profil">
     <h2>6. Profil saya</h2>
-    <p>Buka <b>Input data ▾ › Profil saya</b>. Email, NIDN, dan peran hanya ditampilkan (diatur admin).
+    <p>Buka <b>Data saya ▾ › Profil saya</b>. Email, NIDN, dan peran hanya ditampilkan (diatur admin).
       Nama, pendidikan, jabatan, SINTA, Scopus, dan ORCID bisa diubah: isi, lalu klik <b>Kirim ajuan</b>.
       Perubahan berlaku setelah disetujui admin. Tautan profil SINTA/Scopus/ORCID boleh ditempel utuh;
       yang disimpan hanya ID-nya.</p>
@@ -172,7 +172,7 @@
   <div id="bagian-admin" hidden>
   <section id="verifikasi" class="admin">
     <h2>9. Verifikasi dan ajuan <span class="peran">admin</span></h2>
-    <p>Buka halaman <b>Verifikasi</b> (menu Input data, atau tautan <b>Verifikasi</b> di
+    <p>Buka halaman <b>Verifikasi</b> (menu Admin prodi, atau tautan <b>Verifikasi</b> di
       Karya dosen). Tab <b>Karya dosen</b>, <b>Profil dosen</b>, <b>BKD</b>, dan <b>Prestasi mahasiswa</b>
       masing-masing menampilkan jumlah yang menunggu; angka total juga tampil di kartu ruang kerja.
       Tab Karya dosen berisi:</p>
@@ -207,7 +207,7 @@
 
   <section id="dataprodi" class="admin">
     <h2>11. Data prodi <span class="peran">admin</span></h2>
-    <p>Buka <b>Input data ▾ › Data prodi</b>. Tiap tab satu tabel LKPS; <b>Tambah baris</b>, <b>Ubah</b>,
+    <p>Buka <b>Admin prodi ▾ › Data prodi</b>. Tiap tab satu tabel LKPS; <b>Tambah baris</b>, <b>Ubah</b>,
       <b>Hapus</b>, dan bukti per baris. Tab dikelompokkan: baris atas memilih kelompok (Dokumen,
       Dosen &amp; SDM, Kurikulum &amp; penelitian, Mahasiswa &amp; lulusan, Institusi &amp; keuangan,
       Sarana &amp; K3L, SPMI), baris bawah memilih tabel di kelompok itu. Alamat halaman
@@ -273,7 +273,7 @@
   </div>
 </main>
 
-<script src="config.js?v=2026-11-12-4a5dc8"></script>
+<script src="config.js?v=2026-11-12-1c106e"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -290,7 +290,7 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { gerbang } from './menu.js?v=2026-11-12-4a5dc8';
+import { gerbang } from './menu.js?v=2026-11-12-1c106e';
 
 // Bagian admin hanya untuk peran admin (isinya bukan rahasia; disembunyikan
 // supaya panduan dosen tetap ringkas).
