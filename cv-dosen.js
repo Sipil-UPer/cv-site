@@ -2,8 +2,8 @@
 // Karya: hanya yang terverifikasi (data.json publik). Profil (NIDN, jabatan, pendidikan,
 // keahlian, sertifikat, email): tabel dosen di Supabase, dibaca dosen itu sendiri atau admin.
 // Dipakai profil.html (CV sendiri) dan kelola-dosen.html (admin, semua dosen).
-import { run, para, judul, teks, tabel, buatDocx } from './docx-dasar.js?v=2026-11-12-1c106e';
-import { JENJANG, JENIS_SERTIFIKAT, JABATAN, KATEGORI } from './profil-dosen.js?v=2026-11-12-1c106e';
+import { run, para, judul, teks, tabel, buatDocx } from './docx-dasar.js?v=2026-11-12-b7db2c';
+import { JENJANG, JENIS_SERTIFIKAT, JABATAN, KATEGORI } from './profil-dosen.js?v=2026-11-12-b7db2c';
 
 const label = (xs, k) => (xs.find(x => x[0] === k) || [, k || ''])[1];
 const rapi = s => String(s || '').replace(/_/g, ' ').trim();

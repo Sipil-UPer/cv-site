@@ -38,7 +38,7 @@ export const MODUL = [
     { href: 'kelola-survei.html', judul: 'Survei kepuasan', boleh: admin,
       ket: 'Survei anonim mahasiswa, dosen, tendik, mitra, pengguna lulusan: buat, bagikan tautan, baca hasil.' },
     { href: 'pengingat.html', judul: 'Pengingat', boleh: admin,
-      ket: 'Kirim pengingat email: BKD belum diisi, karya perlu diperbaiki, bukti per pihak, tenggat hibah.' },
+      ket: 'Kirim pengingat email (templat bisa disimpan): pembaruan karya dan profil, BKD, karya perlu diperbaiki, bukti, hibah, tindak lanjut.' },
   ]},
   { judul: 'Admin prodi', ket: 'Verifikasi, data prodi, dosen, dan mutu data (khusus admin).', halaman: [
     { href: 'verifikasi.html', judul: 'Verifikasi', boleh: admin,

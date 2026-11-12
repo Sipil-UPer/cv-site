@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-12-1c106e">
-<link rel="stylesheet" href="kepala.css?v=2026-11-12-1c106e">
+<link rel="stylesheet" href="tema.css?v=2026-11-12-b7db2c">
+<link rel="stylesheet" href="kepala.css?v=2026-11-12-b7db2c">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
@@ -72,7 +72,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-12-1c106e"></script>
+<script src="config.js?v=2026-11-12-b7db2c"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -93,13 +93,14 @@ addEventListener('error', function (e) {
 // Script (Code.gs kind 'kirim_pengingat', maks. 30 per kirim). Tidak ada yang
 // terkirim tanpa tombol Kirim.
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { gerbang } from './menu.js?v=2026-11-12-1c106e';
-import { tugasPerPihak } from './kelengkapan.js?v=2026-11-12-1c106e';
-import { PIHAK } from './unsur-butir.js?v=2026-11-12-1c106e';
-import { penerimaTemuan, HARI_DEKAT } from './temuan-ami.js?v=2026-11-12-1c106e';
-import { daftarBerlaku, penerimaBerlaku, htmlBerlaku, HARI_SEGERA } from './masa-berlaku.js?v=2026-11-12-1c106e';
-import { penerimaTindak, HARI_TINDAK } from './rapat.js?v=2026-11-12-1c106e';
-import { penerimaHibah, penerimaPanggilan, HARI_PENGINGAT } from './hibah.js?v=2026-11-12-1c106e';
+import { gerbang } from './menu.js?v=2026-11-12-b7db2c';
+import { tugasPerPihak } from './kelengkapan.js?v=2026-11-12-b7db2c';
+import { PIHAK } from './unsur-butir.js?v=2026-11-12-b7db2c';
+import { penerimaTemuan, HARI_DEKAT } from './temuan-ami.js?v=2026-11-12-b7db2c';
+import { daftarBerlaku, penerimaBerlaku, htmlBerlaku, HARI_SEGERA } from './masa-berlaku.js?v=2026-11-12-b7db2c';
+import { penerimaKarya, penerimaProfil, isiPola } from './pengingat-dosen.js?v=2026-11-12-b7db2c';
+import { penerimaTindak, HARI_TINDAK } from './rapat.js?v=2026-11-12-b7db2c';
+import { penerimaHibah, penerimaPanggilan, HARI_PENGINGAT } from './hibah.js?v=2026-11-12-b7db2c';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
@@ -110,15 +111,24 @@ const semKini = () => { const m = new Date().getMonth(); return m >= 1 && m <= 7
 const simpanAman = { get: k => { try { return localStorage.getItem(k); } catch (e) { return null; } },
   set: (k, v) => { try { localStorage.setItem(k, v); } catch (e) { /* abaikan */ } } };
 let DATA = null, PRODI = '';
+// Templat email (63-patch-templat-email.sql, pemilik 2026-11-12): kunci kelompok -> {subjek, isi}.
+// BAWAAN diisi saat kelompok digambar, untuk "Kembalikan bawaan". ADA_TEMPLAT = tabel bisa dibaca.
+let TEMPLAT = {}, BAWAAN = {}, ADA_TEMPLAT = false;
 
 // Satu kelompok pengingat: daftar penerima (centang) + subjek + isi berpola.
 function htmlJenis(id, judul, ket, penerima, subjek, isi){
+  BAWAAN[id] = { subjek, isi };
+  const t = TEMPLAT[id];
+  if (t) { subjek = t.subjek; isi = t.isi; }
   return `<section class="jenis" id="j-${id}"><h2>${esc(judul)} (${penerima.length})</h2><p class="ket">${ket}</p>
     ${penerima.length ? `<div>${penerima.map((p, i) => `<label class="baris"><input type="checkbox" data-i="${i}" checked>
       <span><b>${esc(p.nama)}</b> &lt;${esc(p.email)}&gt;${p.rinci ? `<br><span class="ket">${esc(p.rinci)}</span>` : ''}</span></label>`).join('')}</div>
       <p><label>Subjek<br><input type="text" class="subjek" value="${esc(subjek)}"></label></p>
-      <p><label>Isi (<code>{nama}</code> dan <code>{rinci}</code> diganti per penerima)<br><textarea>${esc(isi)}</textarea></label></p>
+      <p><label>Isi (<code>{nama}</code>, <code>{rinci}</code>, <code>{situs}</code>, <code>{prodi}</code> diganti otomatis)${t
+        ? ` <span class="ket">· memakai templat tersimpan${t.oleh ? ` (${esc(t.oleh)})` : ''}</span>` : ''}<br><textarea>${esc(isi)}</textarea></label></p>
       <div class="aksi"><button type="button" class="btn" data-kirim="${id}">Kirim ke yang dicentang</button>
+        ${ADA_TEMPLAT ? `<button type="button" class="btn ghost" data-tsimpan="${id}">Simpan sebagai templat</button>
+        ${t ? `<button type="button" class="btn ghost" data-tbawaan="${id}">Kembalikan bawaan</button>` : ''}` : ''}
         <span class="msg" id="m-${id}"></span></div>` : '<p class="kosong">Tidak ada penerima.</p>'}</section>`;
 }
 
@@ -130,7 +140,7 @@ async function kirim(id, penerima, setelah){
   if (!pilih.length) { m.className = 'msg buruk'; m.textContent = 'Belum ada penerima yang dicentang.'; return; }
   if (pilih.length > 30) { m.className = 'msg buruk'; m.textContent = 'Paling banyak 30 sekali kirim.'; return; }
   if (!confirm(`Kirim ${pilih.length} email dari akun Google prodi?`)) return;
-  const pesan = pilih.map(p => ({ ke: p.email, subjek, isi: pola.replaceAll('{nama}', p.nama).replaceAll('{rinci}', p.rinci || '') }));
+  const pesan = pilih.map(p => ({ ke: p.email, subjek: isiPola(subjek, p, { situs, prodi: PRODI }), isi: isiPola(pola, p, { situs, prodi: PRODI }) }));
   m.className = 'msg'; m.textContent = 'Mengirim…';
   try {
     const { data: { session } } = await sb.auth.getSession();
@@ -175,7 +185,9 @@ function gambar(){
   const tanpa = xs => xs.length ? ` <b>${xs.length} proposal tanpa email ketua/tim</b> (${xs.map(a => esc(String(a.judul).slice(0, 40))).join(', ')}).` : '';
   // 7. Tindak lanjut rapat (62-patch-rapat.sql, rapat.js): ke PJ dosen.
   const tRapat = penerimaTindak(DATA.tindak);
-  const J = { bkd: bkdBelum, tolak, pihak, ami, berlaku, hibah_ajuan: hAjuan.penerima, hibah_laporan: hLapor.penerima, panggilan: hPanggil.penerima,
+  // 8. Pembaruan karya dan profil (pengingat-dosen.js, pemilik 2026-11-12): manual.
+  const pKarya = penerimaKarya(dosen, DATA.karya, DATA.berBukti), pProfil = penerimaProfil(dosen);
+  const J = { karya: pKarya, profil: pProfil, bkd: bkdBelum, tolak, pihak, ami, berlaku, hibah_ajuan: hAjuan.penerima, hibah_laporan: hLapor.penerima, panggilan: hPanggil.penerima,
     rapat: tRapat.penerima };
   const SETELAH = { panggilan: async () => {
     const ids = hPanggil.panggilan.map(p => p.id);
@@ -192,6 +204,15 @@ function gambar(){
       ke dosen penulisnya.`, berlaku,
       'Pengingat masa berlaku kerja sama dan dokumen',
       `Yth. {nama},\n\nBerikut kerja sama atau dokumen yang sudah atau akan segera berakhir masa berlakunya:\n{rinci}\n\nMohon diperpanjang atau diperbarui, lalu tanggalnya diperbarui di situs kinerja prodi:\n${situs}\n\nTerima kasih.\n${PRODI}`)
+    + htmlJenis('karya', 'Mohon perbarui karya', `Semua dosen aktif (bukan asesor). Rincian per dosen: karya tercatat tahun ini dan
+        tahun lalu, yang menunggu verifikasi, yang terverifikasi tetapi belum ada buktinya, dan yang dikembalikan. Draf dosen tidak
+        terlihat admin, jadi tidak ikut dihitung.`, pKarya,
+        'Mohon perbarui karya di situs kinerja prodi',
+        `Yth. {nama},\n\nMohon memperbarui karya Anda (publikasi, penelitian, PkM, luaran, rekognisi) beserta buktinya di situs kinerja prodi. Ringkasan karya Anda saat ini:\n{rinci}\n\nKarya baru diisi di Data saya › Karya dosen; bukti diunggah pada tiap karya:\n{situs}input.html\n\nTerima kasih.\n{prodi}`)
+    + htmlJenis('profil', 'Mohon lengkapi profil', `Dosen aktif yang profilnya belum lengkap (SINTA ID, ORCID, Scopus ID bila ada, jabatan,
+        riwayat pendidikan, topik keahlian). Dosen yang profilnya lengkap tidak masuk daftar.`, pProfil,
+        'Mohon lengkapi profil di situs kinerja prodi',
+        `Yth. {nama},\n\nProfil Anda di situs kinerja prodi belum lengkap. Isian yang masih kosong:\n{rinci}\n\nMohon dilengkapi di Data saya › Profil saya (perubahan berlaku setelah disetujui admin):\n{situs}profil.html\n\nTerima kasih.\n{prodi}`)
     + htmlJenis('bkd', 'BKD belum diisi', `DTPS aktif yang belum mengisi BKD ${esc(ta)} semester ${esc(sem)}.`, bkdBelum,
       `Pengingat pengisian BKD ${ta} semester ${sem}`,
       `Yth. {nama},\n\nMohon mengisi BKD {rinci} di situs kinerja prodi (Input › BKD saya), dengan mengunggah LKD SISTER:\n${situs}input.html\n\nTerima kasih.\n${PRODI}`)
@@ -241,6 +262,22 @@ ${PRODI}`)
       <p class="ket">Juga dipakai pengingat tindak lanjut AMI bila email penanggung jawab temuan kosong.</p>
       <div class="aksi"><button type="button" class="btn ghost" id="simpan-pihak">Simpan email pihak</button></div></section>`;
   document.querySelectorAll('[data-kirim]').forEach(b => { b.onclick = () => kirim(b.dataset.kirim, J[b.dataset.kirim], SETELAH[b.dataset.kirim]); });
+  // Templat: simpan subjek/isi yang sedang tampil, atau hapus untuk kembali ke teks bawaan.
+  document.querySelectorAll('[data-tsimpan]').forEach(b => { b.onclick = async () => {
+    const id = b.dataset.tsimpan, box = $('j-' + id), m = $('m-' + id);
+    const isi = { kunci: id, subjek: box.querySelector('.subjek').value.trim(), isi: box.querySelector('textarea').value, oleh: DATA.saya, diperbarui: new Date().toISOString() };
+    if (!isi.subjek || !isi.isi.trim()) { m.className = 'msg buruk'; m.textContent = 'Subjek dan isi tidak boleh kosong.'; return; }
+    const { error } = await sb.from('templat_email').upsert(isi, { onConflict: 'kunci' });
+    if (error) { m.className = 'msg buruk'; m.textContent = error.message; return; }
+    TEMPLAT[id] = isi; gambar(); $('m-' + id).className = 'msg ok'; $('m-' + id).textContent = 'Templat tersimpan untuk semua admin.';
+  }; });
+  document.querySelectorAll('[data-tbawaan]').forEach(b => { b.onclick = async () => {
+    const id = b.dataset.tbawaan;
+    if (!confirm('Hapus templat tersimpan dan kembali ke teks bawaan?')) return;
+    const { error } = await sb.from('templat_email').delete().eq('kunci', id);
+    if (error) { $('m-' + id).className = 'msg buruk'; $('m-' + id).textContent = error.message; return; }
+    delete TEMPLAT[id]; gambar(); $('m-' + id).className = 'msg ok'; $('m-' + id).textContent = 'Kembali ke teks bawaan.';
+  }; });
   const aman = () => $('masa-berlaku').classList.toggle('tampil-aman', $('tampil-aman').checked);
   $('tampil-aman').onchange = aman;
   $('simpan-pihak').onclick = () => {
@@ -266,7 +303,9 @@ async function mulai(){
     baca(sb.from('tautan_ami').select('judul,sampai,dicabut'))]);
   const berlaku = daftarBerlaku({ kerjasama: ks, karyaKS: kk, prodiUpps: pu, petaJalan: pj, dokumen: dk, tautanAmi: ta });
   const [ds, bk, kt, bb, dj, tm] = await Promise.all([
-    sb.from('dosen').select('id,nama,email,nidn,dtps,aktif,peran'),
+    // Kolom profil untuk "Mohon lengkapi profil"; tanpa patch 22/61 jatuh ke kolom dasar.
+    sb.from('dosen').select('id,nama,email,nidn,dtps,aktif,peran,sinta_id,scopus_id,orcid,jabatan,riwayat_pendidikan,topik_keahlian')
+      .then(r => r.error ? sb.from('dosen').select('id,nama,email,nidn,dtps,aktif,peran,sinta_id,scopus_id,orcid,jabatan') : r),
     sb.from('lkps_bkd').select('nidn,tahun_akademik,semester'),
     sb.from('karya').select('judul,catatan,karya_penulis(dosen(nama,email))').eq('status', 'ditolak').limit(500),
     sb.from('butir_bukti').select('butir,unsur'),
@@ -279,12 +318,20 @@ async function mulai(){
     sb.from('hibah_panggilan').select('*')]);
   const eH = hb.error || hp.error;
   // Tindak lanjut rapat (62-patch-rapat.sql); PJ dosen dipadankan ke daftar dosen (nama, email).
+  // Pembaruan karya (pemilik 2026-11-12): karya non-draf dan karya yang punya bukti terpisah.
+  const [kr, kb, te] = await Promise.all([
+    sb.from('karya').select('id,judul,tahun,kategori,status,bukti_url,catatan,karya_penulis(dosen_id)').neq('status', 'draf').limit(5000),
+    sb.from('karya_bukti').select('karya_id').limit(20000),
+    sb.from('templat_email').select('*')]);
+  ADA_TEMPLAT = !te.error;
+  TEMPLAT = Object.fromEntries((te.data || []).map(t => [t.kunci, t]));
   const tr = await sb.from('rapat_tindak').select('id,keputusan,tenggat,status,pj_dosen_id,pj_nama,rapat(judul,tanggal)');
   const perId = new Map((ds.data || []).map(d => [d.id, d]));
   const tindak = (tr.data || []).map(t => ({ ...t, pj: t.pj_dosen_id ? perId.get(t.pj_dosen_id) : { nama: t.pj_nama } }));
   DATA = { dosen: ds.data || [], bkd: bk.data || [], ditolak: kt.data || [], butirBukti: bb.data || [],
            berlaku, temuan: tm.data || [], temuanGalat: tm.error && !/does not exist|schema cache/i.test(tm.error.message) ? tm.error.message : '',
-           hibah: hb.data || [], panggilan: hp.data || [], tindak,
+           hibah: hb.data || [], panggilan: hp.data || [], tindak, saya: saya.email,
+           karya: kr.data || [], berBukti: new Set((kb.data || []).map(x => x.karya_id)),
            tindakGalat: tr.error && !/does not exist|schema cache/i.test(tr.error.message) ? tr.error.message : '',
            hibahGalat: eH ? (/does not exist|schema cache/i.test(eH.message) ? 'Tabel hibah belum ada: jalankan supabase/58-patch-hibah.sql.' : eH.message) : '' };
   $('isi').innerHTML = `<p class="ket">Periksa penerima dan isi, lalu tekan Kirim. Email keluar dari akun Google prodi
