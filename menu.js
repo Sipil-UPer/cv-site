@@ -28,7 +28,10 @@ export const MODUL = [
     { href: 'nilai-cpl.html', judul: 'Berkas nilai CPL', boleh: isiKarya,
       ket: 'Unggah Template_Input_Data_CPL per kelas (diperiksa sebelum dikirim, disimpan privat); admin: daftar kelas dan pengingat.' },
   ]},
-  { judul: 'Operasional', ket: 'Kegiatan prodi sehari-hari: rapat, hibah, survei, pengingat.', halaman: [
+  { judul: 'Operasional', ket: 'Kegiatan prodi sehari-hari: kalender, rapat, hibah, survei, pengingat.', halaman: [
+    // Kalender (64-patch-kegiatan.sql): semua pengguna terdaftar; kegiatan manual diisi admin (pemilik 2026-11-12).
+    { href: 'kalender.html', judul: 'Kalender kegiatan',
+      ket: 'Rapat, kegiatan prodi, tenggat hibah, tindak lanjut, dan temuan AMI dalam satu kalender; unduh .ics.' },
     // Rapat dan notulen (62-patch-rapat.sql): admin dan dosen mencatat; semua terdaftar membaca.
     { href: 'rapat.html', judul: 'Rapat dan notulen', boleh: s => s.peran !== 'asesor',
       ket: 'Agenda, peserta, keputusan, tindak lanjut ber-PJ, notulen Word, daftar hadir daring (QR).' },

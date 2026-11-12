@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Kalender kegiatan — Kinerja Program Studi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tema.css?v=2026-11-12-b7db2c">
+<link rel="stylesheet" href="kepala.css?v=2026-11-12-b7db2c">
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
+  .wrap{max-width:1100px;margin:0 auto;padding:18px 20px 80px}
+  .kosong, .ket{color:var(--muted)}
+  .ket{font-size:13px}
+  .kartu{background:var(--panel);border:1px solid var(--line);padding:14px 18px;margin-bottom:16px}
+  .kartu h2{font-size:17px;margin:0 0 8px;color:var(--biru)}
+  .b{font:12.5px/1.4 var(--sans);padding:4px 10px;border:1px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer;margin:0 4px 4px 0}
+  .b:hover{border-color:var(--biru);color:var(--biru)}
+  .b.utama{background:var(--biru);color:#fff;border-color:var(--biru)}
+  .b.bahaya:hover{border-color:var(--merah);color:var(--merah)}
+  .b[aria-pressed=true]{background:var(--biru);color:#fff;border-color:var(--biru)}
+  .msg{font-size:13px} .msg.buruk{color:var(--merah)} .msg.ok{color:var(--hijau)}
+  .alat{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
+  .alat h2{margin:0 10px 0 0;min-width:170px}
+  .saring{display:flex;gap:6px 14px;flex-wrap:wrap;font-size:13px;margin-bottom:12px}
+  .saring label{display:flex;gap:5px;align-items:center}
+  .titik{display:inline-block;width:10px;height:10px;border-radius:2px;flex:none}
+  table.kal{width:100%;border-collapse:collapse;table-layout:fixed}
+  table.kal th{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding:4px;text-align:left;border-bottom:1px solid var(--line)}
+  table.kal td{border:1px solid var(--line-soft);vertical-align:top;height:92px;padding:3px 4px;cursor:pointer;overflow:hidden}
+  table.kal td:hover{background:var(--line-soft)}
+  table.kal td.luar{color:var(--muted);background:var(--bg)}
+  table.kal td.kini .tg{background:var(--merah);color:#fff;border-radius:9px;padding:0 6px}
+  table.kal td.pilih{outline:2px solid var(--biru);outline-offset:-2px}
+  .tg{font-size:12px;font-weight:600}
+  .ev{font-size:11.5px;line-height:1.3;color:#fff;border-radius:2px;padding:1px 4px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .lagi{font-size:11px;color:var(--muted)}
+  ul.agenda{list-style:none;margin:0;padding:0}
+  ul.agenda li{display:flex;gap:10px;padding:8px 0;border-top:1px solid var(--line-soft);align-items:baseline}
+  ul.agenda li:first-child{border-top:0}
+  .wkt{flex:none;width:150px;font-size:13px;color:var(--muted)}
+  .agenda b a{color:var(--biru-2);text-decoration:none} .agenda b a:hover{text-decoration:underline}
+  .agenda .rinci{display:block;font-size:13px;color:var(--muted);white-space:pre-line}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px 14px}
+  .grid label{display:flex;flex-direction:column;font-size:13px;color:var(--muted);gap:3px}
+  .grid label.lebar{grid-column:1/-1}
+  select, input[type=text], input[type=date], input[type=time], input[type=url], textarea{font:inherit;font-size:14px;padding:5px 7px;border:1px solid var(--line);background:var(--panel);color:var(--ink);width:100%}
+  textarea{min-height:56px}
+  table.ds{width:100%;border-collapse:collapse;font-size:13.5px}
+  table.ds th{text-align:left;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--line);padding:5px 8px}
+  table.ds td{padding:6px 8px;border-bottom:1px solid var(--line-soft);vertical-align:top}
+  @media(max-width:700px){table.kal td{height:58px} .ev{font-size:0;height:6px;padding:0} .wkt{width:96px} .wrap{padding-left:16px;padding-right:16px}}
+</style>
+</head>
+<body>
+<header class="hero"><div class="hero-in">
+  <div class="hero-inst" data-identitas></div>
+  <h1>Kalender kegiatan</h1>
+  <div class="sub" id="hSub">Memuat…</div>
+</div></header>
+<main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
+<script src="config.js?v=2026-11-12-b7db2c"></script>
+<script>
+// Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
+addEventListener('error', function (e) {
+  if (document.getElementById('galat-muat')) return;
+  var d = document.createElement('div');
+  d.id = 'galat-muat';
+  d.style.cssText = 'margin:16px;padding:12px 14px;border:1px solid var(--merah);' +
+    'background:var(--merah-m3);color:var(--ink);font:14px/1.5 system-ui,sans-serif';
+  d.textContent = 'Halaman gagal dimuat: ' + (e.message || 'galat skrip') +
+    '. Tekan Ctrl+Shift+R untuk memuat ulang tanpa cache; bila tetap muncul, kirim pesan ini ke admin.';
+  document.body.insertBefore(d, document.body.firstChild);
+});
+</script>
+<script type="module">
+// Kalender kegiatan prodi (pemilik 2026-11-12; 64-patch-kegiatan.sql, kalender.js).
+// Rapat, panggilan hibah, dan kegiatan manual untuk semua pengguna terdaftar; tenggat
+// tindak lanjut, hibah tim, dan temuan AMI untuk yang bersangkutan (admin: semua).
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+import { gerbang } from './menu.js?v=2026-11-12-b7db2c';
+import { tglID } from './masa-berlaku.js?v=2026-11-12-b7db2c';
+import { JENIS_ACARA, JENIS_KEGIATAN, kumpulkanAcara, acaraPada, kisiBulan, isoTanggal, keIcs } from './kalender.js?v=2026-11-12-b7db2c';
+
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const $ = id => document.getElementById(id);
+const sb = createClient(window.SB_URL, window.SB_KEY);
+const BULAN = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+const HARI = ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'];
+const HARI_DAFTAR = 90;
+const kini = new Date();
+const HARI_INI = isoTanggal(kini.getFullYear(), kini.getMonth() + 1, kini.getDate());
+const geserHari = (t, n) => new Date(Date.UTC(+t.slice(0, 4), +t.slice(5, 7) - 1, +t.slice(8, 10) + n)).toISOString().slice(0, 10);
+
+let SAYA = null, ADMIN = false, DATA = {}, ACARA = [], KEGIATAN = [], ADA_TABEL = true, PRODI = '';
+let Y = kini.getFullYear(), M = kini.getMonth() + 1, PILIH = HARI_INI, MODE = 'bulan', UBAH = null;
+const TAMPIL = new Set(Object.keys(JENIS_ACARA));
+
+const waktu = a => {
+  const t = a.selesai !== a.mulai ? `${tglID(a.mulai)}–${tglID(a.selesai)}` : tglID(a.mulai);
+  return a.jamMulai ? `${t}, ${a.jamMulai}${a.jamSelesai ? '–' + a.jamSelesai : ''} WIB` : t;
+};
+const tersaring = () => ACARA.filter(a => TAMPIL.has(a.sumber));
+
+function liAcara(a, denganTanggal = true){
+  const w = JENIS_ACARA[a.sumber];
+  const jdl = a.href ? `<a href="${esc(a.href)}"${/^https?:/i.test(a.href) ? ' target="_blank" rel="noopener"' : ''}>${esc(a.judul)}</a>` : esc(a.judul);
+  return `<li><span class="wkt">${esc(denganTanggal ? waktu(a) : (a.jamMulai ? `${a.jamMulai}${a.jamSelesai ? '–' + a.jamSelesai : ''} WIB` : 'Sepanjang hari'))}</span>
+    <span class="titik" style="background:${w.warna}" title="${esc(w.label)}"></span>
+    <div><b>${jdl}</b><span class="rinci">${esc([w.label, a.tempat, a.ket].filter(Boolean).join(' · '))}</span></div></li>`;
+}
+
+function gambarKalender(){
+  const xs = tersaring();
+  let isi;
+  if (MODE === 'bulan') {
+    const kisi = kisiBulan(Y, M);
+    isi = `<table class="kal"><thead><tr>${HARI.map(h => `<th>${h}</th>`).join('')}</tr></thead><tbody>${kisi.map(w => `<tr>${w.map(c => {
+      const ev = acaraPada(xs, c.iso);
+      return `<td data-t="${c.iso}" class="${[c.bulanIni ? '' : 'luar', c.iso === HARI_INI ? 'kini' : '', c.iso === PILIH ? 'pilih' : ''].join(' ')}">
+        <span class="tg">${+c.iso.slice(8)}</span>${ev.slice(0, 3).map(a => `<div class="ev" style="background:${JENIS_ACARA[a.sumber].warna}" title="${esc(a.judul)}">${esc(a.jamMulai ? a.jamMulai + ' ' : '')}${esc(a.judul)}</div>`).join('')}
+        ${ev.length > 3 ? `<div class="lagi">+${ev.length - 3} lagi</div>` : ''}</td>`; }).join('')}</tr>`).join('')}</tbody></table>`;
+    const hari = acaraPada(xs, PILIH);
+    isi += `<h3 style="font-size:15px;margin:14px 0 4px">${esc(tglID(PILIH))}</h3>`
+      + (hari.length ? `<ul class="agenda">${hari.map(a => liAcara(a, a.selesai !== a.mulai)).join('')}</ul>` : '<p class="kosong">Tidak ada acara pada tanggal ini.</p>');
+  } else {
+    const sampai = geserHari(HARI_INI, HARI_DAFTAR);
+    const d = xs.filter(a => a.selesai >= HARI_INI && a.mulai <= sampai);
+    isi = d.length ? `<ul class="agenda">${d.map(a => liAcara(a)).join('')}</ul>` : `<p class="kosong">Tidak ada acara dalam ${HARI_DAFTAR} hari ke depan.</p>`;
+  }
+  $('kal').innerHTML = isi;
+  $('judulBulan').textContent = MODE === 'bulan' ? `${BULAN[M - 1]} ${Y}` : `${HARI_DAFTAR} hari ke depan`;
+  $('kal').querySelectorAll('td[data-t]').forEach(td => td.onclick = () => {
+    PILIH = td.dataset.t;
+    if (PILIH.slice(0, 7) !== isoTanggal(Y, M, 1).slice(0, 7)) { Y = +PILIH.slice(0, 4); M = +PILIH.slice(5, 7); }
+    gambarKalender();
+  });
+}
+
+function htmlAdmin(){
+  if (!ADMIN) return '';
+  if (!ADA_TABEL) return `<section class="kartu"><h2>Kegiatan prodi</h2><p class="kosong">Tabel kegiatan belum ada: jalankan supabase/64-patch-kegiatan.sql.</p></section>`;
+  const k = UBAH || {};
+  const daftar = [...KEGIATAN].sort((a, b) => String(b.mulai).localeCompare(String(a.mulai)));
+  return `<section class="kartu" id="kAdmin"><h2>${UBAH ? 'Ubah kegiatan' : 'Tambah kegiatan prodi'}</h2>
+    <p class="ket">Kegiatan yang tidak tercatat di halaman lain: jadwal AMI, UTS/UAS, yudisium, wisuda, seminar. Rapat prodi dicatat di
+      <a href="rapat.html">Rapat dan notulen</a>; panggilan hibah di <a href="hibah.html">Pengajuan hibah</a>. Semua pengguna terdaftar melihatnya.</p>
+    <div class="grid">
+      <label class="lebar">Judul <input type="text" id="f_judul" maxlength="300" value="${esc(k.judul || '')}"></label>
+      <label>Jenis <select id="f_jenis">${Object.entries(JENIS_KEGIATAN).map(([v, l]) => `<option value="${v}"${(k.jenis || 'lain') === v ? ' selected' : ''}>${esc(l)}</option>`).join('')}</select></label>
+      <label>Tanggal mulai <input type="date" id="f_mulai" value="${esc(String(k.mulai || '').slice(0, 10))}"></label>
+      <label>Tanggal selesai (kosong = sehari) <input type="date" id="f_selesai" value="${esc(String(k.selesai || '').slice(0, 10))}"></label>
+      <label>Jam mulai (WIB, kosong = sepanjang hari) <input type="time" id="f_jm" value="${esc(String(k.jam_mulai || '').slice(0, 5))}"></label>
+      <label>Jam selesai <input type="time" id="f_js" value="${esc(String(k.jam_selesai || '').slice(0, 5))}"></label>
+      <label>Tempat <input type="text" id="f_tempat" maxlength="200" value="${esc(k.tempat || '')}"></label>
+      <label class="lebar">Tautan (opsional) <input type="url" id="f_tautan" placeholder="https://" value="${esc(k.tautan || '')}"></label>
+      <label class="lebar">Keterangan <textarea id="f_ket" maxlength="2000">${esc(k.keterangan || '')}</textarea></label>
+    </div>
+    <p><button class="b utama" id="f_simpan">${UBAH ? 'Simpan perubahan' : 'Tambah'}</button>
+      ${UBAH ? '<button class="b" id="f_batal">Batal</button>' : ''}<span class="msg" id="f_msg"></span></p>
+    <h2 style="margin-top:16px">Daftar kegiatan (${daftar.length})</h2>
+    ${daftar.length ? `<div style="overflow-x:auto"><table class="ds"><thead><tr><th>Tanggal</th><th>Kegiatan</th><th>Jenis</th><th></th></tr></thead><tbody>
+      ${daftar.map(x => `<tr><td>${esc(tglID(String(x.mulai).slice(0, 10)))}${x.selesai ? '–' + esc(tglID(String(x.selesai).slice(0, 10))) : ''}</td>
+        <td>${esc(x.judul)}${x.tempat ? `<div class="ket">${esc(x.tempat)}</div>` : ''}</td><td>${esc(JENIS_KEGIATAN[x.jenis] || x.jenis)}</td>
+        <td style="white-space:nowrap"><button class="b" data-ubah="${x.id}">Ubah</button><button class="b bahaya" data-hapus="${x.id}">Hapus</button></td></tr>`).join('')}
+      </tbody></table></div>` : '<p class="kosong">Belum ada kegiatan manual.</p>'}</section>`;
+}
+
+function pasangAdmin(){
+  if (!ADMIN || !ADA_TABEL) return;
+  $('f_simpan').onclick = async () => {
+    const m = $('f_msg'), v = id => $(id).value.trim();
+    const isi = { judul: v('f_judul'), jenis: v('f_jenis'), mulai: v('f_mulai'), selesai: v('f_selesai') || null,
+      jam_mulai: v('f_jm') || null, jam_selesai: v('f_js') || null, tempat: v('f_tempat') || null,
+      tautan: v('f_tautan') || null, keterangan: v('f_ket') || null, oleh: SAYA.email };
+    const galat = isi.judul.length < 2 ? 'Judul wajib diisi.' : !isi.mulai ? 'Tanggal mulai wajib diisi.'
+      : isi.selesai && isi.selesai < isi.mulai ? 'Tanggal selesai sebelum tanggal mulai.'
+      : isi.jam_selesai && !isi.jam_mulai ? 'Isi jam mulai bila jam selesai diisi.'
+      : isi.tautan && !/^https?:\/\/\S+$/i.test(isi.tautan) ? 'Tautan harus diawali http:// atau https://.' : '';
+    if (galat) { m.className = 'msg buruk'; m.textContent = galat; return; }
+    $('f_simpan').disabled = true; m.className = 'msg'; m.textContent = 'Menyimpan…';
+    const { error } = UBAH ? await sb.from('kegiatan').update(isi).eq('id', UBAH.id) : await sb.from('kegiatan').insert(isi);
+    $('f_simpan').disabled = false;
+    if (error) { m.className = 'msg buruk'; m.textContent = error.message; return; }
+    UBAH = null; await muat(); $('f_msg').className = 'msg ok'; $('f_msg').textContent = 'Tersimpan.';
+  };
+  if ($('f_batal')) $('f_batal').onclick = () => { UBAH = null; gambar(); };
+  document.querySelectorAll('[data-ubah]').forEach(b => b.onclick = () => {
+    UBAH = KEGIATAN.find(x => String(x.id) === b.dataset.ubah); gambar(); $('kAdmin').scrollIntoView({ behavior: 'smooth' });
+  });
+  document.querySelectorAll('[data-hapus]').forEach(b => b.onclick = async () => {
+    const x = KEGIATAN.find(k => String(k.id) === b.dataset.hapus);
+    if (!x || !confirm(`Hapus kegiatan "${x.judul}"?`)) return;
+    const { error } = await sb.from('kegiatan').delete().eq('id', x.id);
+    if (error) { alert(error.message); return; }
+    await muat();
+  });
+}
+
+function unduhIcs(){
+  // Sebulan ke belakang sampai setahun ke depan, sesuai saringan yang aktif.
+  const dari = geserHari(HARI_INI, -31), sampai = geserHari(HARI_INI, 366);
+  const xs = tersaring().filter(a => a.selesai >= dari && a.mulai <= sampai);
+  if (!xs.length) { $('m_ics').className = 'msg buruk'; $('m_ics').textContent = 'Tidak ada acara untuk diunduh.'; return; }
+  const situs = new URL('.', location.href).href;
+  const teks = keIcs(xs, { nama: `Kegiatan ${PRODI || 'prodi'}`, domain: location.hostname || 'cv-prodi', situs });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([teks], { type: 'text/calendar;charset=utf-8' }));
+  a.download = `kalender-${HARI_INI}.ics`;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  $('m_ics').className = 'msg ok'; $('m_ics').textContent = `${xs.length} acara diunduh.`;
+}
+
+function gambar(){
+  $('isi').innerHTML = `<section class="kartu">
+    <div class="alat"><h2 id="judulBulan"></h2>
+      <button class="b" id="mundur" aria-label="Bulan sebelumnya">‹</button><button class="b" id="maju" aria-label="Bulan berikutnya">›</button>
+      <button class="b" id="kini">Hari ini</button>
+      <button class="b" id="mBulan" aria-pressed="${MODE === 'bulan'}">Bulan</button><button class="b" id="mDaftar" aria-pressed="${MODE === 'daftar'}">Daftar</button>
+      <span style="flex:1"></span><button class="b utama" id="ics">Unduh .ics</button><span class="msg" id="m_ics"></span></div>
+    <div class="saring">${Object.entries(JENIS_ACARA).map(([k, w]) => `<label><input type="checkbox" data-s="${k}"${TAMPIL.has(k) ? ' checked' : ''}>
+      <span class="titik" style="background:${w.warna}"></span>${esc(w.label)}</label>`).join('')}</div>
+    <div id="kal"></div>
+    <p class="ket">Tenggat tindak lanjut rapat, hibah tim, dan temuan AMI tampil untuk penanggung jawabnya${ADMIN ? '; admin melihat semuanya' : ''}.
+      Berkas .ics berisi acara sebulan lalu sampai setahun ke depan sesuai centang di atas; impor di Google Calendar lewat
+      Setelan › Impor &amp; ekspor. Berkas ini tidak tersinkron otomatis: unduh dan impor lagi bila ada perubahan.</p></section>
+    ${htmlAdmin()}`;
+  $('mundur').onclick = () => { if (MODE !== 'bulan') return; M -= 1; if (M < 1) { M = 12; Y -= 1; } gambarKalender(); };
+  $('maju').onclick = () => { if (MODE !== 'bulan') return; M += 1; if (M > 12) { M = 1; Y += 1; } gambarKalender(); };
+  $('kini').onclick = () => { Y = kini.getFullYear(); M = kini.getMonth() + 1; PILIH = HARI_INI; gambarKalender(); };
+  $('mBulan').onclick = () => { MODE = 'bulan'; gambar(); };
+  $('mDaftar').onclick = () => { MODE = 'daftar'; gambar(); };
+  $('ics').onclick = unduhIcs;
+  document.querySelectorAll('[data-s]').forEach(c => c.onchange = () => { c.checked ? TAMPIL.add(c.dataset.s) : TAMPIL.delete(c.dataset.s); gambarKalender(); });
+  gambarKalender();
+  pasangAdmin();
+}
+
+async function muat(){
+  // Tabel yang belum ada (patch belum dijalankan) dibaca sebagai kosong.
+  const baca = q => q.then(r => ({ data: r.error ? [] : (r.data || []), error: r.error }), e => ({ data: [], error: e }));
+  const [kg, rp, pg, hb, td, tm] = await Promise.all([
+    baca(sb.from('kegiatan').select('*').order('mulai')),
+    baca(sb.from('rapat').select('id,judul,tanggal,mulai,selesai,tempat,agenda')),
+    baca(sb.from('hibah_panggilan').select('id,judul,penyelenggara,tenggat,tautan')),
+    baca(sb.from('hibah_ajuan').select('id,judul,status,tenggat_ajuan,tanggal_ajuan,tenggat_kemajuan,kemajuan_selesai,tenggat_akhir,akhir_selesai,hibah_tim(dosen_id)')),
+    baca(sb.from('rapat_tindak').select('id,rapat_id,keputusan,tenggat,status,pj_dosen_id,pj_nama,rapat(judul)').in('status', ['terbuka', 'proses'])),
+    baca(sb.from('ami_temuan').select('id,siklus,kode,uraian,tenggat,status,pj_email').in('status', ['terbuka', 'proses']))]);
+  ADA_TABEL = !(kg.error && /does not exist|schema cache/i.test(kg.error.message || ''));
+  KEGIATAN = kg.data;
+  DATA = { kegiatan: kg.data, rapat: rp.data, panggilan: pg.data, hibah: hb.data, tindak: td.data, temuan: tm.data };
+  ACARA = kumpulkanAcara(DATA, SAYA);
+  gambar();
+}
+
+async function mulai(){
+  SAYA = await gerbang(sb);
+  if (!SAYA) return;
+  ADMIN = SAYA.peran === 'admin';
+  $('hSub').textContent = `Masuk sebagai ${SAYA.nama}`;
+  fetch('data.json?v=' + Date.now()).then(r => r.ok ? r.json() : {}).then(d => { PRODI = [d.prodi, d.institusi].filter(Boolean).join(' '); }).catch(() => {});
+  await muat();
+}
+mulai().catch(e => { $('isi').innerHTML = `<p class="kosong">Gagal memuat: ${esc(e.message || String(e))}</p>`; });
+</script>
+</body>
+</html>
