@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-11-adf238">
+<link rel="stylesheet" href="tema.css?v=2026-11-12-4a5dc8">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
@@ -47,8 +47,16 @@
   .kosong{color:var(--muted);font-size:13.5px;padding:12px 0}
   .masuk{max-width:420px;margin:40px auto;background:#fff;border:1px solid var(--line);padding:20px}
   .masuk input{width:100%;padding:8px 10px;margin:8px 0;font:inherit}
+  /* Topik keahlian baku (pemilik 2026-11-12) */
+  .pilih-topik-kotak{border:1px solid var(--line);padding:6px 12px;background:var(--panel)}
+  details.pilih-bidang{border-bottom:1px solid var(--line-soft);padding:5px 0}
+  details.pilih-bidang:last-child{border-bottom:0}
+  details.pilih-bidang summary{cursor:pointer;font-size:14px}
+  label.pilih-topik{display:flex;align-items:baseline;gap:7px;font-size:13.5px;margin:3px 0 3px 18px;cursor:pointer}
+  /* .fld input melebarkan semua input; kotak centang topik tetap kecil dan di kiri teksnya */
+  .fld label.pilih-topik input[type=checkbox]{width:auto;padding:0;margin:0;flex:none}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-11-adf238">
+<link rel="stylesheet" href="kepala.css?v=2026-11-12-4a5dc8">
 </head>
 <body>
 
@@ -62,7 +70,7 @@
 
 <main class="wrap" id="isi"></main>
 
-<script src="config.js?v=2026-11-11-adf238"></script>
+<script src="config.js?v=2026-11-12-4a5dc8"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -79,10 +87,11 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { pasangMenu } from './menu.js?v=2026-11-11-adf238';
-import { unduhCV, htmlTombolCV } from './cv-dosen.js?v=2026-11-11-adf238';
-import { ISIAN_PROFIL, KOLOM_PROFIL, tampil as tampilIsian, sama, formLKPS, bacaFormLKPS, pasangEditor, bacaKataKunci }
-  from './profil-dosen.js?v=2026-11-11-adf238';
+import { pasangMenu } from './menu.js?v=2026-11-12-4a5dc8';
+import { unduhCV, htmlTombolCV } from './cv-dosen.js?v=2026-11-12-4a5dc8';
+import { ISIAN_PROFIL, KOLOM_PROFIL, tampil as tampilIsian, sama, formLKPS, bacaFormLKPS, pasangEditor, bacaKataKunci,
+  setelNamaTopik, htmlPilihTopik, bacaPilihTopik, MAKS_TOPIK }
+  from './profil-dosen.js?v=2026-11-12-4a5dc8';
 
 /* =====================================================================
    PROFIL SAYA — dosen mengajukan perubahan profilnya sendiri (keputusan
@@ -121,6 +130,7 @@ const POLA = {
 const ISIAN = ISIAN_PROFIL;
 
 let SAYA = null, ADA_LKPS = true;
+let BAKU = null;   // daftar keahlian baku aktif (61-patch-keahlian-baku.sql); null bila belum ada
 // CV dosen otomatis (pemilik 2026-11-11): tombol di kartu "CV saya".
 document.addEventListener('click', async e => {
   const b = e.target.closest('[data-cv="saya"]');
@@ -170,6 +180,14 @@ async function mulai(){
   }
   if (!saya) { $('hSub').textContent = 'Tidak terdaftar'; $('isi').innerHTML = '<p class="kosong">Email belum terdaftar. Hubungi admin prodi.</p>'; return; }
   SAYA = saya;
+  // Daftar keahlian baku (patch 61): dibaca pengguna terdaftar; gagal = belum ada patch, pemilih tidak tampil.
+  const [rb, rt] = await Promise.all([
+    sb.from('ref_bidang_keahlian').select('kode,nama,nama_en,urutan,aktif').order('urutan'),
+    sb.from('ref_topik_keahlian').select('kode,bidang,nama,nama_en,urutan,aktif').order('bidang').order('urutan')]);
+  if (!rb.error && !rt.error && (rt.data || []).length) {
+    BAKU = { bidang: rb.data.filter(b => b.aktif), topik: rt.data.filter(t => t.aktif) };
+    setelNamaTopik(rt.data);
+  }
   pasangMenu(sb);
   $('hSub').textContent = `Masuk sebagai ${saya.nama}`;
   await gambar();
@@ -215,10 +233,15 @@ async function gambar(){
         <div class="fld"><label>SINTA ID</label><input id="f_sinta_id" value="${esc(SAYA.sinta_id)}"></div>
         <div class="fld"><label>Scopus ID</label><input id="f_scopus_id" value="${esc(SAYA.scopus_id)}"></div>
         <div class="fld"><label>ORCID</label><input id="f_orcid" value="${esc(SAYA.orcid)}"></div>
-        <div class="fld penuh"><label>Kata kunci keahlian</label><input id="f_kata_kunci" value="${esc((SAYA.kata_kunci || []).join(', '))}"
-          placeholder="Contoh: banjir, hidrologi, prakiraan hujan, GSMaP">
-          <small>3–10 kata kunci, pisahkan dengan koma. Tampil di halaman publik <a href="keahlian.html">Kepakaran dosen</a>
-          dan dipakai untuk usulan tim hibah serta pembimbing TA. Boleh dua bahasa (mis. "banjir, flood").</small></div>
+        ${BAKU ? `<div class="fld penuh"><label>Topik keahlian <span class="ket" id="hitungTopik"></span></label>
+          <div class="pilih-topik-kotak" id="pilihTopik">${htmlPilihTopik(BAKU.bidang, BAKU.topik, SAYA.topik_keahlian)}</div>
+          <small>Pilih topik dari daftar keahlian prodi (paling banyak ${MAKS_TOPIK}); boleh dari beberapa bidang. Nama Indonesia dan
+          Inggris sudah ada, tidak perlu ditulis dua kali. Tampil di <a href="keahlian.html">Kepakaran dosen</a> dan dipakai untuk
+          usulan tim hibah serta pembimbing TA.</small></div>` : ''}
+        <div class="fld penuh"><label>Kata kunci tambahan${BAKU ? ' (opsional)' : ''}</label><input id="f_kata_kunci" value="${esc((SAYA.kata_kunci || []).join(', '))}"
+          placeholder="${BAKU ? 'Istilah yang belum ada di daftar, mis. GSMaP, FEWS' : 'Contoh: banjir, hidrologi, prakiraan hujan, GSMaP'}">
+          <small>${BAKU ? 'Untuk istilah khusus yang tidak ada di daftar topik; admin bisa menjadikannya topik baru. '
+            : '3–10 kata kunci, pisahkan dengan koma. '}Pisahkan dengan koma, paling banyak 10.</small></div>
       </div>
       ${ADA_LKPS ? `<h2 style="margin-top:18px">Profil untuk LKPS (Tabel 4.a)</h2>
         <p class="ket">Dipakai untuk mengisi LKPS dan LED. Kategori dosen dan penilaian kesesuaian diisi admin prodi.</p>
@@ -233,6 +256,24 @@ async function gambar(){
         <span class="msg" id="pesan">${tunggu ? 'Masih ada ajuan yang menunggu.' : ''}</span></div></div>`;
 
   if (ADA_LKPS) pasangEditor($('isi'));
+  if (BAKU && $('pilihTopik')) {
+    // Penghitung per bidang dan batas MAKS_TOPIK (sama dengan rapikan_topik_keahlian di patch 61).
+    const hitung = () => {
+      const xs = [...$('pilihTopik').querySelectorAll('[data-topik]:checked')];
+      $('hitungTopik').textContent = `· ${xs.length} dari ${MAKS_TOPIK} dipilih`;
+      $('pilihTopik').querySelectorAll('[data-hitung-bidang]').forEach(el => {
+        const n = xs.filter(c => c.dataset.bidang === el.dataset.hitungBidang).length;
+        el.textContent = n ? `· ${n} dipilih` : '';
+      });
+    };
+    $('pilihTopik').addEventListener('change', e => {
+      if (e.target.checked && $('pilihTopik').querySelectorAll('[data-topik]:checked').length > MAKS_TOPIK) {
+        e.target.checked = false; alert(`Paling banyak ${MAKS_TOPIK} topik.`);
+      }
+      hitung();
+    });
+    hitung();
+  }
   if (tolak) $('tutup').onclick = () => hapusAjuan(tolak.id, null);
   if (tunggu) $('batalAjuan').onclick = () => hapusAjuan(tunggu.id, 'Batalkan ajuan perubahan profil?');
   if (!tunggu && !error) $('kirim').onclick = kirim;
@@ -253,6 +294,7 @@ async function kirim(){
     orcid: idSaja(v('orcid')) || null,
     ...(ADA_LKPS ? bacaFormLKPS(SAYA.pendidikan) : {}),
     ...(ADA_LKPS ? { kata_kunci: bacaKataKunci(v('kata_kunci')) } : {}),
+    ...(BAKU && $('pilihTopik') ? { topik_keahlian: bacaPilihTopik($('pilihTopik')) } : {}),
   };
   if (!baru.nama) return tulis('buruk', 'Nama wajib diisi.');
   const kk = v('kata_kunci').split(/[,;\n]+/).map(x => x.trim()).filter(Boolean);

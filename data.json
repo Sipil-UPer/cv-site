@@ -2036,6 +2036,1300 @@
    "sdgs": []
   }
  ],
+ "keahlian_baku": {
+  "bidang": [
+   {
+    "kode": "STR",
+    "nama": "Rekayasa Struktur",
+    "nama_en": "Structural Engineering",
+    "cakupan": "Gedung, jembatan, beban dinamik dan gempa, pemantauan struktur"
+   },
+   {
+    "kode": "MAT",
+    "nama": "Rekayasa Material",
+    "nama_en": "Construction Materials",
+    "cakupan": "Beton, semen, mortar, komposit, material cerdas, material limbah"
+   },
+   {
+    "kode": "GEO",
+    "nama": "Rekayasa Geoteknik",
+    "nama_en": "Geotechnical Engineering",
+    "cakupan": "Tanah, fondasi, lereng, perbaikan tanah"
+   },
+   {
+    "kode": "AIR",
+    "nama": "Rekayasa Sumber Daya Air",
+    "nama_en": "Water Resources Engineering",
+    "cakupan": "Hidrologi, hidraulika, banjir, irigasi, pantai, air bersih"
+   },
+   {
+    "kode": "BCN",
+    "nama": "Kebencanaan dan Pengurangan Risiko Bencana",
+    "nama_en": "Disaster Risk Reduction",
+    "cakupan": "Kajian risiko, peringatan dini, bencana hidrometeorologi dan geologi, mitigasi, ketangguhan, pemulihan (ditambahkan pemilik 2026-11-12)"
+   },
+   {
+    "kode": "TRN",
+    "nama": "Rekayasa Transportasi",
+    "nama_en": "Transportation Engineering",
+    "cakupan": "Lalu lintas, perkerasan, perencanaan dan keselamatan transportasi"
+   },
+   {
+    "kode": "MRK",
+    "nama": "Manajemen dan Rekayasa Konstruksi",
+    "nama_en": "Construction Engineering and Management",
+    "cakupan": "Biaya, waktu, risiko, K3, BIM, kontrak"
+   },
+   {
+    "kode": "LNG",
+    "nama": "Infrastruktur Lingkungan dan Berkelanjutan",
+    "nama_en": "Environmental and Sustainable Infrastructure",
+    "cakupan": "Air limbah, persampahan, energi terbarukan untuk infrastruktur, perubahan iklim"
+   },
+   {
+    "kode": "ENR",
+    "nama": "Infrastruktur Energi dan Lepas Pantai",
+    "nama_en": "Energy and Offshore Infrastructure",
+    "cakupan": "Bangunan lepas pantai, pipa, korosi, inspeksi aset migas dan energi (kekhasan Universitas Pertamina)"
+   },
+   {
+    "kode": "GMD",
+    "nama": "Geomatika, Data, dan Komputasi",
+    "nama_en": "Geomatics, Data and Computation",
+    "cakupan": "Penginderaan jauh, SIG, pemodelan numerik, kecerdasan buatan untuk rekayasa sipil"
+   }
+  ],
+  "topik": [
+   {
+    "kode": "AIR01",
+    "bidang": "AIR",
+    "nama": "Hidrologi",
+    "nama_en": "Hydrology",
+    "sinonim": [
+     "curah hujan",
+     "rainfall",
+     "debit"
+    ],
+    "padanan": [
+     "hydrology",
+     "hidrologi",
+     "rainfall",
+     "curah hujan",
+     "hujan",
+     "runoff",
+     "limpasan",
+     "debit",
+     "discharge"
+    ]
+   },
+   {
+    "kode": "AIR02",
+    "bidang": "AIR",
+    "nama": "Banjir dan pengendaliannya",
+    "nama_en": "Floods and flood control",
+    "sinonim": [
+     "banjir",
+     "genangan",
+     "flood",
+     "inundation"
+    ],
+    "padanan": [
+     "flood",
+     "floods",
+     "banjir",
+     "genangan",
+     "inundation",
+     "drainase",
+     "drainage"
+    ]
+   },
+   {
+    "kode": "AIR03",
+    "bidang": "AIR",
+    "nama": "Hidraulika dan sungai",
+    "nama_en": "Hydraulics and river engineering",
+    "sinonim": [
+     "sungai",
+     "river"
+    ],
+    "padanan": [
+     "hydraulic",
+     "hidraulika",
+     "hidrolika",
+     "river",
+     "sungai",
+     "sediment",
+     "sedimen"
+    ]
+   },
+   {
+    "kode": "AIR04",
+    "bidang": "AIR",
+    "nama": "Irigasi dan rawa",
+    "nama_en": "Irrigation and wetlands",
+    "sinonim": [
+     "irigasi",
+     "irrigation"
+    ],
+    "padanan": [
+     "irrigation",
+     "irigasi",
+     "rawa",
+     "wetland"
+    ]
+   },
+   {
+    "kode": "AIR05",
+    "bidang": "AIR",
+    "nama": "Air bersih dan sanitasi",
+    "nama_en": "Water supply and sanitation",
+    "sinonim": [
+     "air minum",
+     "water supply"
+    ],
+    "padanan": [
+     "water supply",
+     "air bersih",
+     "air minum",
+     "clean water",
+     "drinking water",
+     "sanitasi",
+     "sanitation"
+    ]
+   },
+   {
+    "kode": "AIR06",
+    "bidang": "AIR",
+    "nama": "Teknik pantai",
+    "nama_en": "Coastal engineering",
+    "sinonim": [
+     "pantai",
+     "coastal",
+     "rob"
+    ],
+    "padanan": [
+     "coastal",
+     "pantai",
+     "pesisir",
+     "rob",
+     "wave",
+     "gelombang",
+     "abrasi"
+    ]
+   },
+   {
+    "kode": "AIR07",
+    "bidang": "AIR",
+    "nama": "Prakiraan hidrometeorologi dan satelit hujan",
+    "nama_en": "Hydrometeorological forecasting and satellite rainfall",
+    "sinonim": [
+     "GSMaP",
+     "prakiraan",
+     "forecast"
+    ],
+    "padanan": [
+     "forecast",
+     "prakiraan",
+     "satellite rainfall",
+     "gsmap",
+     "early warning",
+     "peringatan dini"
+    ]
+   },
+   {
+    "kode": "AIR08",
+    "bidang": "AIR",
+    "nama": "Neraca dan konservasi air",
+    "nama_en": "Water balance and conservation",
+    "sinonim": [
+     "neraca air",
+     "water balance"
+    ],
+    "padanan": [
+     "water balance",
+     "neraca air",
+     "konservasi",
+     "groundwater",
+     "air tanah"
+    ]
+   },
+   {
+    "kode": "BCN01",
+    "bidang": "BCN",
+    "nama": "Kajian risiko bencana",
+    "nama_en": "Disaster risk assessment",
+    "sinonim": [
+     "risiko bencana",
+     "bahaya",
+     "kerentanan",
+     "hazard",
+     "vulnerability"
+    ],
+    "padanan": [
+     "disaster risk",
+     "risiko bencana",
+     "hazard",
+     "bahaya",
+     "kerentanan",
+     "vulnerability",
+     "peta rawan",
+     "hazard map"
+    ]
+   },
+   {
+    "kode": "BCN02",
+    "bidang": "BCN",
+    "nama": "Sistem peringatan dini",
+    "nama_en": "Early warning systems",
+    "sinonim": [
+     "EWS",
+     "FEWS",
+     "peringatan dini banjir"
+    ],
+    "padanan": [
+     "early warning",
+     "peringatan dini",
+     "ews",
+     "fews",
+     "warning system"
+    ]
+   },
+   {
+    "kode": "BCN03",
+    "bidang": "BCN",
+    "nama": "Bencana hidrometeorologi",
+    "nama_en": "Hydrometeorological hazards",
+    "sinonim": [
+     "banjir",
+     "kekeringan",
+     "cuaca ekstrem",
+     "drought",
+     "extreme rainfall"
+    ],
+    "padanan": [
+     "hydrometeorological",
+     "hidrometeorologi",
+     "banjir",
+     "flood",
+     "floods",
+     "genangan",
+     "inundation",
+     "kekeringan",
+     "drought",
+     "cuaca ekstrem",
+     "extreme weather",
+     "hujan ekstrem",
+     "extreme rainfall"
+    ]
+   },
+   {
+    "kode": "BCN04",
+    "bidang": "BCN",
+    "nama": "Mitigasi dan pengurangan risiko bencana",
+    "nama_en": "Disaster mitigation and risk reduction",
+    "sinonim": [
+     "PRB",
+     "DRR",
+     "mitigasi"
+    ],
+    "padanan": [
+     "mitigasi bencana",
+     "disaster mitigation",
+     "disaster risk reduction",
+     "pengurangan risiko bencana",
+     "drr",
+     "prb"
+    ]
+   },
+   {
+    "kode": "BCN05",
+    "bidang": "BCN",
+    "nama": "Ketangguhan masyarakat terhadap bencana",
+    "nama_en": "Community disaster resilience",
+    "sinonim": [
+     "desa tangguh bencana",
+     "kesiapsiagaan",
+     "preparedness"
+    ],
+    "padanan": [
+     "tangguh bencana",
+     "desa tangguh",
+     "destana",
+     "community resilience",
+     "kesiapsiagaan",
+     "preparedness",
+     "edukasi bencana",
+     "disaster education"
+    ]
+   },
+   {
+    "kode": "BCN06",
+    "bidang": "BCN",
+    "nama": "Tsunami dan bencana geologi",
+    "nama_en": "Tsunami and geological hazards",
+    "sinonim": [
+     "tsunami",
+     "gunung api",
+     "geohazard"
+    ],
+    "padanan": [
+     "tsunami",
+     "gunung api",
+     "volcanic",
+     "erupsi",
+     "eruption",
+     "geohazard",
+     "bencana geologi",
+     "gempa",
+     "earthquake",
+     "seismic hazard",
+     "longsor",
+     "landslide",
+     "landslides",
+     "likuifaksi",
+     "liquefaction"
+    ]
+   },
+   {
+    "kode": "BCN07",
+    "bidang": "BCN",
+    "nama": "Pemulihan dan rekonstruksi pascabencana",
+    "nama_en": "Post-disaster recovery and reconstruction",
+    "sinonim": [
+     "rehabilitasi dan rekonstruksi",
+     "recovery"
+    ],
+    "padanan": [
+     "pascabencana",
+     "post-disaster",
+     "rekonstruksi",
+     "reconstruction",
+     "recovery"
+    ]
+   },
+   {
+    "kode": "ENR01",
+    "bidang": "ENR",
+    "nama": "Bangunan lepas pantai",
+    "nama_en": "Offshore structures",
+    "sinonim": [
+     "offshore",
+     "anjungan",
+     "platform"
+    ],
+    "padanan": [
+     "offshore",
+     "lepas pantai",
+     "platform",
+     "anjungan",
+     "jacket"
+    ]
+   },
+   {
+    "kode": "ENR02",
+    "bidang": "ENR",
+    "nama": "Sistem perpipaan",
+    "nama_en": "Pipeline engineering",
+    "sinonim": [
+     "pipa",
+     "pipeline"
+    ],
+    "padanan": [
+     "pipeline",
+     "pipa",
+     "perpipaan",
+     "piping"
+    ]
+   },
+   {
+    "kode": "ENR03",
+    "bidang": "ENR",
+    "nama": "Korosi dan proteksi",
+    "nama_en": "Corrosion and protection",
+    "sinonim": [
+     "korosi",
+     "corrosion",
+     "proteksi katodik"
+    ],
+    "padanan": [
+     "corrosion",
+     "korosi",
+     "cathodic",
+     "katodik",
+     "coating"
+    ]
+   },
+   {
+    "kode": "ENR04",
+    "bidang": "ENR",
+    "nama": "Inspeksi dan integritas aset energi",
+    "nama_en": "Inspection and integrity of energy assets",
+    "sinonim": [
+     "inspeksi",
+     "integritas",
+     "RBI"
+    ],
+    "padanan": [
+     "inspection",
+     "inspeksi",
+     "integrity",
+     "integritas",
+     "rbi",
+     "risk-based inspection"
+    ]
+   },
+   {
+    "kode": "ENR05",
+    "bidang": "ENR",
+    "nama": "Infrastruktur energi dan ketenagalistrikan",
+    "nama_en": "Energy and power infrastructure",
+    "sinonim": [
+     "energi",
+     "kilang",
+     "transmisi"
+    ],
+    "padanan": [
+     "energy",
+     "energi",
+     "power",
+     "kilang",
+     "refinery",
+     "transmission",
+     "transmisi"
+    ]
+   },
+   {
+    "kode": "GEO01",
+    "bidang": "GEO",
+    "nama": "Mekanika tanah",
+    "nama_en": "Soil mechanics",
+    "sinonim": [
+     "tanah",
+     "soil"
+    ],
+    "padanan": [
+     "soil",
+     "tanah",
+     "lempung",
+     "clay",
+     "consolidation",
+     "konsolidasi"
+    ]
+   },
+   {
+    "kode": "GEO02",
+    "bidang": "GEO",
+    "nama": "Fondasi",
+    "nama_en": "Foundation engineering",
+    "sinonim": [
+     "pondasi",
+     "tiang",
+     "pile"
+    ],
+    "padanan": [
+     "foundation",
+     "fondasi",
+     "pondasi",
+     "pile",
+     "tiang"
+    ]
+   },
+   {
+    "kode": "GEO03",
+    "bidang": "GEO",
+    "nama": "Stabilitas lereng dan longsor",
+    "nama_en": "Slope stability and landslides",
+    "sinonim": [
+     "longsor",
+     "landslide"
+    ],
+    "padanan": [
+     "slope",
+     "lereng",
+     "landslide",
+     "longsor",
+     "kelongsoran"
+    ]
+   },
+   {
+    "kode": "GEO04",
+    "bidang": "GEO",
+    "nama": "Perbaikan tanah",
+    "nama_en": "Ground improvement",
+    "sinonim": [
+     "stabilisasi tanah",
+     "soil stabilization"
+    ],
+    "padanan": [
+     "ground improvement",
+     "stabilization",
+     "stabilisasi",
+     "perbaikan tanah"
+    ]
+   },
+   {
+    "kode": "GEO05",
+    "bidang": "GEO",
+    "nama": "Geoteknik kegempaan dan likuifaksi",
+    "nama_en": "Geotechnical earthquake engineering and liquefaction",
+    "sinonim": [
+     "likuifaksi",
+     "liquefaction"
+    ],
+    "padanan": [
+     "liquefaction",
+     "likuifaksi"
+    ]
+   },
+   {
+    "kode": "GMD01",
+    "bidang": "GMD",
+    "nama": "Penginderaan jauh dan SIG",
+    "nama_en": "Remote sensing and GIS",
+    "sinonim": [
+     "remote sensing",
+     "SIG",
+     "GIS",
+     "citra satelit"
+    ],
+    "padanan": [
+     "remote sensing",
+     "penginderaan jauh",
+     "gis",
+     "sig",
+     "satellite",
+     "satelit",
+     "citra",
+     "land cover",
+     "tutupan lahan"
+    ]
+   },
+   {
+    "kode": "GMD02",
+    "bidang": "GMD",
+    "nama": "Survei dan pemetaan",
+    "nama_en": "Surveying and mapping",
+    "sinonim": [
+     "survei",
+     "pemetaan",
+     "geodesi"
+    ],
+    "padanan": [
+     "survey",
+     "survei",
+     "mapping",
+     "pemetaan",
+     "lidar",
+     "drone",
+     "uav"
+    ]
+   },
+   {
+    "kode": "GMD03",
+    "bidang": "GMD",
+    "nama": "Pemodelan numerik dan komputasi",
+    "nama_en": "Numerical modelling and computation",
+    "sinonim": [
+     "simulasi",
+     "numerical"
+    ],
+    "padanan": [
+     "numerical",
+     "numerik",
+     "simulation",
+     "simulasi",
+     "cfd",
+     "pemodelan"
+    ]
+   },
+   {
+    "kode": "GMD04",
+    "bidang": "GMD",
+    "nama": "Kecerdasan buatan dan data untuk rekayasa sipil",
+    "nama_en": "AI and data for civil engineering",
+    "sinonim": [
+     "machine learning",
+     "AI",
+     "data"
+    ],
+    "padanan": [
+     "machine learning",
+     "deep learning",
+     "artificial intelligence",
+     "kecerdasan buatan",
+     "neural",
+     "data-driven"
+    ]
+   },
+   {
+    "kode": "GMD05",
+    "bidang": "GMD",
+    "nama": "Sensor dan Internet of Things untuk infrastruktur",
+    "nama_en": "Sensors and IoT for infrastructure",
+    "sinonim": [
+     "IoT",
+     "sensor"
+    ],
+    "padanan": [
+     "iot",
+     "internet of things",
+     "sensor",
+     "telemetri",
+     "telemetry"
+    ]
+   },
+   {
+    "kode": "LNG01",
+    "bidang": "LNG",
+    "nama": "Pengelolaan persampahan dan limbah konstruksi",
+    "nama_en": "Solid and construction waste management",
+    "sinonim": [
+     "sampah",
+     "limbah konstruksi"
+    ],
+    "padanan": [
+     "solid waste",
+     "sampah",
+     "persampahan",
+     "construction waste",
+     "limbah konstruksi"
+    ]
+   },
+   {
+    "kode": "LNG02",
+    "bidang": "LNG",
+    "nama": "Air limbah",
+    "nama_en": "Wastewater engineering",
+    "sinonim": [
+     "IPAL",
+     "wastewater"
+    ],
+    "padanan": [
+     "wastewater",
+     "air limbah",
+     "ipal"
+    ]
+   },
+   {
+    "kode": "LNG03",
+    "bidang": "LNG",
+    "nama": "Energi terbarukan untuk infrastruktur",
+    "nama_en": "Renewable energy for infrastructure",
+    "sinonim": [
+     "tenaga surya",
+     "PLTS",
+     "solar"
+    ],
+    "padanan": [
+     "solar",
+     "surya",
+     "pv",
+     "photovoltaic",
+     "renewable",
+     "terbarukan",
+     "penerangan"
+    ]
+   },
+   {
+    "kode": "LNG04",
+    "bidang": "LNG",
+    "nama": "Infrastruktur berkelanjutan dan bangunan hijau",
+    "nama_en": "Sustainable infrastructure and green building",
+    "sinonim": [
+     "berkelanjutan",
+     "sustainable",
+     "green building"
+    ],
+    "padanan": [
+     "sustainable",
+     "berkelanjutan",
+     "green building",
+     "bangunan hijau",
+     "carbon",
+     "karbon",
+     "life cycle"
+    ]
+   },
+   {
+    "kode": "LNG05",
+    "bidang": "LNG",
+    "nama": "Perubahan iklim dan ketahanan infrastruktur",
+    "nama_en": "Climate change and infrastructure resilience",
+    "sinonim": [
+     "iklim",
+     "resilience"
+    ],
+    "padanan": [
+     "climate",
+     "iklim",
+     "resilience",
+     "ketahanan",
+     "adaptasi",
+     "kerentanan",
+     "vulnerability",
+     "mitigasi",
+     "mitigation"
+    ]
+   },
+   {
+    "kode": "LNG06",
+    "bidang": "LNG",
+    "nama": "Infrastruktur perdesaan dan pemberdayaan masyarakat",
+    "nama_en": "Rural infrastructure and community development",
+    "sinonim": [
+     "desa",
+     "pemberdayaan",
+     "community"
+    ],
+    "padanan": [
+     "desa",
+     "village",
+     "rural",
+     "perdesaan",
+     "pemberdayaan",
+     "community",
+     "masyarakat"
+    ]
+   },
+   {
+    "kode": "MAT01",
+    "bidang": "MAT",
+    "nama": "Teknologi beton",
+    "nama_en": "Concrete technology",
+    "sinonim": [
+     "campuran beton",
+     "mix design"
+    ],
+    "padanan": [
+     "concrete",
+     "beton",
+     "mix design",
+     "kuat tekan",
+     "compressive strength"
+    ]
+   },
+   {
+    "kode": "MAT02",
+    "bidang": "MAT",
+    "nama": "Semen dan mortar",
+    "nama_en": "Cement and mortar",
+    "sinonim": [
+     "cementitious",
+     "geopolimer"
+    ],
+    "padanan": [
+     "cement",
+     "semen",
+     "mortar",
+     "cementitious",
+     "geopolymer",
+     "geopolimer"
+    ]
+   },
+   {
+    "kode": "MAT03",
+    "bidang": "MAT",
+    "nama": "Material komposit",
+    "nama_en": "Composite materials",
+    "sinonim": [
+     "komposit",
+     "composite",
+     "serat",
+     "fiber"
+    ],
+    "padanan": [
+     "composite",
+     "komposit",
+     "fiber",
+     "fibre",
+     "serat"
+    ]
+   },
+   {
+    "kode": "MAT04",
+    "bidang": "MAT",
+    "nama": "Material cerdas dan sensor tertanam",
+    "nama_en": "Smart materials and self-sensing",
+    "sinonim": [
+     "piezoelektrik",
+     "self-sensing",
+     "smart material"
+    ],
+    "padanan": [
+     "smart",
+     "self-sensing",
+     "piezoelectric",
+     "piezoelektrik",
+     "sensing",
+     "sensor",
+     "polarization",
+     "polarisasi",
+     "electric"
+    ]
+   },
+   {
+    "kode": "MAT05",
+    "bidang": "MAT",
+    "nama": "Material dari limbah dan daur ulang",
+    "nama_en": "Waste-based and recycled materials",
+    "sinonim": [
+     "limbah",
+     "fly ash",
+     "slag",
+     "daur ulang"
+    ],
+    "padanan": [
+     "waste",
+     "limbah",
+     "recycled",
+     "daur ulang",
+     "fly ash",
+     "abu terbang",
+     "slag",
+     "ash"
+    ]
+   },
+   {
+    "kode": "MAT06",
+    "bidang": "MAT",
+    "nama": "Keramik dan material maju",
+    "nama_en": "Ceramics and advanced materials",
+    "sinonim": [
+     "keramik",
+     "ceramic"
+    ],
+    "padanan": [
+     "ceramic",
+     "keramik",
+     "nano",
+     "advanced material"
+    ]
+   },
+   {
+    "kode": "MAT07",
+    "bidang": "MAT",
+    "nama": "Durabilitas material",
+    "nama_en": "Material durability",
+    "sinonim": [
+     "keawetan",
+     "durability"
+    ],
+    "padanan": [
+     "durability",
+     "durabilitas",
+     "keawetan",
+     "deterioration"
+    ]
+   },
+   {
+    "kode": "MRK08",
+    "bidang": "MRK",
+    "nama": "Industri dan profesi jasa konstruksi",
+    "nama_en": "Construction industry and professional practice",
+    "sinonim": [
+     "konsultan",
+     "kontraktor",
+     "consultant"
+    ],
+    "padanan": [
+     "consultant",
+     "konsultan",
+     "contractor",
+     "kontraktor",
+     "construction industry",
+     "jasa konstruksi",
+     "profesi"
+    ]
+   },
+   {
+    "kode": "MRK01",
+    "bidang": "MRK",
+    "nama": "Manajemen biaya dan rekayasa nilai",
+    "nama_en": "Cost management and value engineering",
+    "sinonim": [
+     "biaya",
+     "value engineering"
+    ],
+    "padanan": [
+     "cost",
+     "biaya",
+     "value engineering",
+     "rekayasa nilai",
+     "anggaran",
+     "estimasi"
+    ]
+   },
+   {
+    "kode": "MRK02",
+    "bidang": "MRK",
+    "nama": "Penjadwalan dan pengendalian proyek",
+    "nama_en": "Scheduling and project control",
+    "sinonim": [
+     "jadwal",
+     "keterlambatan"
+    ],
+    "padanan": [
+     "schedule",
+     "jadwal",
+     "keterlambatan",
+     "delay",
+     "project control",
+     "pengendalian proyek"
+    ]
+   },
+   {
+    "kode": "MRK03",
+    "bidang": "MRK",
+    "nama": "Manajemen risiko konstruksi",
+    "nama_en": "Construction risk management",
+    "sinonim": [
+     "risiko",
+     "risk"
+    ],
+    "padanan": [
+     "risk",
+     "risiko"
+    ]
+   },
+   {
+    "kode": "MRK04",
+    "bidang": "MRK",
+    "nama": "Keselamatan dan kesehatan kerja konstruksi",
+    "nama_en": "Construction safety and health",
+    "sinonim": [
+     "K3",
+     "HSE"
+    ],
+    "padanan": [
+     "k3",
+     "keselamatan kerja",
+     "occupational safety",
+     "hse"
+    ]
+   },
+   {
+    "kode": "MRK05",
+    "bidang": "MRK",
+    "nama": "Building Information Modelling dan digitalisasi konstruksi",
+    "nama_en": "BIM and digital construction",
+    "sinonim": [
+     "BIM"
+    ],
+    "padanan": [
+     "bim",
+     "building information",
+     "digital construction",
+     "digitalisasi"
+    ]
+   },
+   {
+    "kode": "MRK06",
+    "bidang": "MRK",
+    "nama": "Kontrak dan pengadaan konstruksi",
+    "nama_en": "Construction contracts and procurement",
+    "sinonim": [
+     "kontrak",
+     "pengadaan"
+    ],
+    "padanan": [
+     "contract",
+     "kontrak",
+     "procurement",
+     "pengadaan",
+     "tender"
+    ]
+   },
+   {
+    "kode": "MRK07",
+    "bidang": "MRK",
+    "nama": "Pengelolaan aset infrastruktur",
+    "nama_en": "Infrastructure asset management",
+    "sinonim": [
+     "asset management",
+     "pemeliharaan"
+    ],
+    "padanan": [
+     "asset management",
+     "pengelolaan aset",
+     "maintenance",
+     "pemeliharaan"
+    ]
+   },
+   {
+    "kode": "STR01",
+    "bidang": "STR",
+    "nama": "Struktur beton",
+    "nama_en": "Concrete structures",
+    "sinonim": [
+     "beton bertulang",
+     "reinforced concrete",
+     "prestressed"
+    ],
+    "padanan": [
+     "concrete structure",
+     "reinforced concrete",
+     "beton bertulang",
+     "prategang",
+     "prestressed",
+     "balok",
+     "kolom",
+     "beam",
+     "column"
+    ]
+   },
+   {
+    "kode": "STR02",
+    "bidang": "STR",
+    "nama": "Struktur baja",
+    "nama_en": "Steel structures",
+    "sinonim": [
+     "baja",
+     "steel"
+    ],
+    "padanan": [
+     "steel structure",
+     "struktur baja",
+     "baja ringan",
+     "cold-formed"
+    ]
+   },
+   {
+    "kode": "STR03",
+    "bidang": "STR",
+    "nama": "Rekayasa kegempaan",
+    "nama_en": "Earthquake engineering",
+    "sinonim": [
+     "gempa",
+     "seismik",
+     "seismic"
+    ],
+    "padanan": [
+     "earthquake",
+     "seismic",
+     "gempa",
+     "seismik"
+    ]
+   },
+   {
+    "kode": "STR04",
+    "bidang": "STR",
+    "nama": "Jembatan",
+    "nama_en": "Bridge engineering",
+    "sinonim": [
+     "bridge"
+    ],
+    "padanan": [
+     "bridge",
+     "jembatan"
+    ]
+   },
+   {
+    "kode": "STR05",
+    "bidang": "STR",
+    "nama": "Dinamika struktur dan getaran",
+    "nama_en": "Structural dynamics and vibration",
+    "sinonim": [
+     "getaran",
+     "vibration"
+    ],
+    "padanan": [
+     "dynamic",
+     "vibration",
+     "getaran",
+     "dinamik"
+    ]
+   },
+   {
+    "kode": "STR06",
+    "bidang": "STR",
+    "nama": "Pemantauan kesehatan struktur",
+    "nama_en": "Structural health monitoring",
+    "sinonim": [
+     "SHM",
+     "inspeksi struktur"
+    ],
+    "padanan": [
+     "structural health",
+     "monitoring",
+     "damage detection",
+     "deteksi kerusakan",
+     "inspection"
+    ]
+   },
+   {
+    "kode": "STR07",
+    "bidang": "STR",
+    "nama": "Analisis struktur dan metode elemen hingga",
+    "nama_en": "Structural analysis and finite element method",
+    "sinonim": [
+     "FEM",
+     "elemen hingga"
+    ],
+    "padanan": [
+     "finite element",
+     "elemen hingga",
+     "fem",
+     "numerical",
+     "numerik"
+    ]
+   },
+   {
+    "kode": "STR08",
+    "bidang": "STR",
+    "nama": "Perkuatan dan rehabilitasi struktur",
+    "nama_en": "Strengthening and retrofitting",
+    "sinonim": [
+     "retrofit",
+     "perkuatan"
+    ],
+    "padanan": [
+     "strengthening",
+     "retrofit",
+     "perkuatan",
+     "rehabilitasi",
+     "frp"
+    ]
+   },
+   {
+    "kode": "TRN01",
+    "bidang": "TRN",
+    "nama": "Rekayasa lalu lintas",
+    "nama_en": "Traffic engineering",
+    "sinonim": [
+     "simpang",
+     "PKJI",
+     "kapasitas jalan"
+    ],
+    "padanan": [
+     "traffic",
+     "lalu lintas",
+     "simpang",
+     "intersection",
+     "signalized",
+     "bersinyal",
+     "pkji",
+     "kinerja jalan",
+     "ruas",
+     "kemacetan",
+     "congestion"
+    ]
+   },
+   {
+    "kode": "TRN02",
+    "bidang": "TRN",
+    "nama": "Perencanaan transportasi",
+    "nama_en": "Transport planning",
+    "sinonim": [
+     "aksesibilitas",
+     "accessibility",
+     "tata guna lahan"
+    ],
+    "padanan": [
+     "transport planning",
+     "perencanaan transportasi",
+     "accessibility",
+     "aksesibilitas",
+     "land use",
+     "tata guna lahan"
+    ]
+   },
+   {
+    "kode": "TRN03",
+    "bidang": "TRN",
+    "nama": "Angkutan umum",
+    "nama_en": "Public transport",
+    "sinonim": [
+     "transit",
+     "bus",
+     "kereta"
+    ],
+    "padanan": [
+     "public transport",
+     "angkutan umum",
+     "transit",
+     "bus",
+     "brt",
+     "kereta"
+    ]
+   },
+   {
+    "kode": "TRN04",
+    "bidang": "TRN",
+    "nama": "Perkerasan jalan",
+    "nama_en": "Pavement engineering",
+    "sinonim": [
+     "aspal",
+     "perkerasan"
+    ],
+    "padanan": [
+     "pavement",
+     "perkerasan",
+     "asphalt",
+     "aspal",
+     "jalan raya",
+     "kerusakan jalan",
+     "road damage",
+     "umur sisa",
+     "remaining life",
+     "beban kendaraan",
+     "axle load"
+    ]
+   },
+   {
+    "kode": "TRN05",
+    "bidang": "TRN",
+    "nama": "Keselamatan jalan",
+    "nama_en": "Road safety",
+    "sinonim": [
+     "kecelakaan",
+     "safety"
+    ],
+    "padanan": [
+     "road safety",
+     "keselamatan",
+     "kecelakaan",
+     "accident"
+    ]
+   },
+   {
+    "kode": "TRN06",
+    "bidang": "TRN",
+    "nama": "Transportasi cerdas",
+    "nama_en": "Intelligent transport systems",
+    "sinonim": [
+     "ITS",
+     "smart mobility"
+    ],
+    "padanan": [
+     "intelligent transport",
+     "its",
+     "smart mobility",
+     "kendaraan listrik",
+     "electric vehicle"
+    ]
+   },
+   {
+    "kode": "TRN07",
+    "bidang": "TRN",
+    "nama": "Bandar udara",
+    "nama_en": "Airport engineering",
+    "sinonim": [
+     "bandara",
+     "airport",
+     "landasan pacu"
+    ],
+    "padanan": [
+     "airport",
+     "bandara",
+     "bandar udara",
+     "runway",
+     "landasan",
+     "taxiway",
+     "apron"
+    ]
+   }
+  ]
+ },
  "prestasi_agregat": [
   {
    "tahun": 2026,

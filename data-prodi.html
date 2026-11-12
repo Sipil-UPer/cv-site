@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-11-adf238">
+<link rel="stylesheet" href="tema.css?v=2026-11-12-4a5dc8">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
@@ -84,7 +84,7 @@
   .masuk{max-width:420px;margin:40px auto;background:#fff;border:1px solid var(--line);padding:20px}
   .masuk input{width:100%;padding:8px 10px;margin:8px 0;font:inherit}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-11-adf238">
+<link rel="stylesheet" href="kepala.css?v=2026-11-12-4a5dc8">
 </head>
 <body>
 
@@ -98,7 +98,7 @@
 
 <main class="wrap" id="isi"></main>
 
-<script src="config.js?v=2026-11-11-adf238"></script>
+<script src="config.js?v=2026-11-12-4a5dc8"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -115,21 +115,21 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-11-adf238';
-import { pasangMenu } from './menu.js?v=2026-11-11-adf238';
-import { unggahKePustaka, opsiPustaka, opsiJenis, labelDokumen, cariDokumen } from './pustaka-dokumen.js?v=2026-11-11-adf238';
-import { pasangRapikan } from './rapikan-berkas.js?v=2026-11-11-adf238';
-import { UNSUR, skorUnsur, pihakUnsur } from './unsur-butir.js?v=2026-11-11-adf238';
-import { OPSI_SUMBER } from './iku-otomatis.js?v=2026-11-11-adf238';
-import { denganOtomatis as otomatisDari, tsTersedia, htmlCapaianIKU, KET_CAPAIAN } from './capaian-iku.js?v=2026-11-11-adf238';
-import { KATEGORI_TEMUAN, STATUS_TEMUAN, PIHAK_TEMUAN, ringkasTemuan, htmlRingkasTemuan } from './temuan-ami.js?v=2026-11-11-adf238';
-import { htmlContoh, pasangContoh, JENIS_BUKTI_KS } from './manfaat-kerjasama.js?v=2026-11-11-adf238';
-import { infoJenis } from './rencana-bukti.js?v=2026-11-11-adf238';
-import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-11-adf238';
-import { nomorButir, htmlTautanButir } from './tautan-butir.js?v=2026-11-11-adf238';
-import { htmlSaran } from './saran-bukti.js?v=2026-11-11-adf238';
-import { tautanBerkas, privatkanLama } from './tautan-privat.js?v=2026-11-11-adf238';
-import { unggahLKD, buangLKD, bukaLKD, pendidikanTotal, pendidikanPS } from './bkd.js?v=2026-11-11-adf238';
+import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-12-4a5dc8';
+import { pasangMenu } from './menu.js?v=2026-11-12-4a5dc8';
+import { unggahKePustaka, opsiPustaka, opsiJenis, labelDokumen, cariDokumen } from './pustaka-dokumen.js?v=2026-11-12-4a5dc8';
+import { pasangRapikan } from './rapikan-berkas.js?v=2026-11-12-4a5dc8';
+import { UNSUR, skorUnsur, pihakUnsur } from './unsur-butir.js?v=2026-11-12-4a5dc8';
+import { OPSI_SUMBER } from './iku-otomatis.js?v=2026-11-12-4a5dc8';
+import { denganOtomatis as otomatisDari, tsTersedia, htmlCapaianIKU, KET_CAPAIAN } from './capaian-iku.js?v=2026-11-12-4a5dc8';
+import { KATEGORI_TEMUAN, STATUS_TEMUAN, PIHAK_TEMUAN, ringkasTemuan, htmlRingkasTemuan } from './temuan-ami.js?v=2026-11-12-4a5dc8';
+import { htmlContoh, pasangContoh, JENIS_BUKTI_KS } from './manfaat-kerjasama.js?v=2026-11-12-4a5dc8';
+import { infoJenis } from './rencana-bukti.js?v=2026-11-12-4a5dc8';
+import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-12-4a5dc8';
+import { nomorButir, htmlTautanButir } from './tautan-butir.js?v=2026-11-12-4a5dc8';
+import { htmlSaran } from './saran-bukti.js?v=2026-11-12-4a5dc8';
+import { tautanBerkas, privatkanLama } from './tautan-privat.js?v=2026-11-12-4a5dc8';
+import { unggahLKD, buangLKD, bukaLKD, pendidikanTotal, pendidikanPS } from './bkd.js?v=2026-11-12-4a5dc8';
 
 /* =====================================================================
    DATA PRODI — data kuantitatif LKPS diisi admin di situs (keputusan
@@ -188,6 +188,7 @@ const JENIS_DANA = [['biaya_dosen', 'a. Biaya dosen (gaji, honor)'], ['biaya_ten
   ['investasi', 'f. Investasi (SDM, sarana, prasarana)'], ['kemahasiswaan', 'Operasional kemahasiswaan'],
   ['penelitian', 'Biaya penelitian'], ['pkm', 'Biaya PkM']];
 // Bukti kerja sama: daftar pilihan lembar 2a1 L4:L7 (24-patch-kerjasama-induk.sql).
+let BIDANG_KH = [];   // ref_bidang_keahlian untuk tab Topik keahlian
 const TABEL = [
   { id: 'tracer', tabel: 'lkps_tracer_lulusan', judul: 'Tracer study', butir: '48–51',
     ket: 'Satu baris per TAHUN LULUS, angka gabungan tanpa nama (Tabel 6.f.1, 6.f.2, 6.g.1). '
@@ -356,6 +357,39 @@ const TABEL = [
       { k: 'urutan', l: 'Urutan tampil', t: 'int' },
     ],
     olah: r => { if (r.urutan == null) r.urutan = 100; } },
+  // Daftar keahlian baku (61-patch-keahlian-baku.sql, pemilik 2026-11-12): dosen memilih topik di Profil saya;
+  // halaman publik Kepakaran dosen memetakan bidang/topik × dosen. Tanpa bukti baris.
+  { id: 'bidang_keahlian', tabel: 'ref_bidang_keahlian', judul: 'Bidang keahlian', butir: 'Peta keahlian dosen',
+    patch: '61-patch-keahlian-baku.sql', urut: ['urutan', 'kode'], tanpaBukti: true,
+    ket: 'Bidang pada daftar keahlian baku prodi. Kode 3 huruf jangan diubah setelah dipakai; nonaktifkan bidang '
+       + 'alih-alih menghapusnya (bidang yang masih punya topik tidak bisa dihapus).',
+    label: r => `${r.kode || ''} ${r.nama || 'Bidang'}`, tahun: () => null,
+    kolom: [
+      { k: 'kode', l: 'Kode (3 huruf, mis. AIR)', t: 'teks', wajib: true },
+      { k: 'nama', l: 'Nama bidang (Indonesia)', t: 'teks', wajib: true, lebar: true },
+      { k: 'nama_en', l: 'Field name (English)', t: 'teks', wajib: true, lebar: true },
+      { k: 'cakupan', l: 'Cakupan', t: 'teks', lebar: true },
+      { k: 'aktif', l: 'Aktif', t: 'cek', awal: true },
+      { k: 'urutan', l: 'Urutan tampil', t: 'int' },
+    ],
+    olah: r => { r.kode = String(r.kode || '').trim().toUpperCase(); if (r.urutan == null) r.urutan = 100; } },
+  { id: 'topik_keahlian', tabel: 'ref_topik_keahlian', judul: 'Topik keahlian', butir: 'Peta keahlian dosen',
+    patch: '61-patch-keahlian-baku.sql', urut: ['bidang', 'urutan'], tanpaBukti: true,
+    ket: 'Topik pada daftar keahlian baku. Nama Indonesia dan Inggris ditulis sekali. Sinonim = istilah lain yang dicari orang; '
+       + 'padanan = kata untuk memadankan judul karya dan topik OpenAlex secara otomatis (keduanya dipisah titik koma). '
+       + 'Kode = kode bidang + 2 angka (mis. AIR09). Nonaktifkan topik alih-alih menghapusnya.',
+    label: r => `${r.kode || ''} ${r.nama || 'Topik'}`, tahun: () => null,
+    kolom: [
+      { k: 'kode', l: 'Kode (mis. AIR09)', t: 'teks', wajib: true },
+      { k: 'bidang', l: 'Bidang', t: 'pilihan', wajib: true, get o(){ return BIDANG_KH.map(b => [b.kode, `${b.kode} — ${b.nama}`]); } },
+      { k: 'nama', l: 'Nama topik (Indonesia)', t: 'teks', wajib: true, lebar: true },
+      { k: 'nama_en', l: 'Topic name (English)', t: 'teks', wajib: true, lebar: true },
+      { k: 'sinonim', l: 'Sinonim (dipisah ;)', t: 'teks', lebar: true },
+      { k: 'padanan', l: 'Padanan otomatis (dipisah ;)', t: 'teks', lebar: true },
+      { k: 'aktif', l: 'Aktif', t: 'cek', awal: true },
+      { k: 'urutan', l: 'Urutan dalam bidang', t: 'int' },
+    ],
+    olah: r => { r.kode = String(r.kode || '').trim().toUpperCase(); if (r.urutan == null) r.urutan = 100; } },
   // Butir 22, 24: dokumen peta jalan dengan bukti per unsur (pemilik 2026-11-10).
   { id: 'peta_dok', tabel: 'lkps_peta_jalan', judul: 'Dokumen peta jalan', butir: '22, 24',
     patch: '43-patch-unsur-bukti.sql', urut: ['jenis', 'urutan'],
@@ -741,6 +775,8 @@ async function mulai(){
   ADA45 = !(await sb.from('ref_mata_kuliah').select('rps_9_komponen').limit(1)).error;
   ADA46 = !(await sb.from('ref_mata_kuliah').select('sifat').limit(1)).error;
   ADA48 = !(await sb.from('lkps_target_kinerja').select('sumber').limit(1)).error;
+  // Pilihan bidang untuk tab Topik keahlian (61-patch-keahlian-baku.sql); kosong bila patch belum ada.
+  BIDANG_KH = (await sb.from('ref_bidang_keahlian').select('kode,nama').order('urutan')).data || [];
   await muatPustaka();
   const awal = new URLSearchParams(location.search).get('tab');
   AKTIF = TABEL.find(t => t.id === awal) || TABEL[0];
@@ -1208,7 +1244,7 @@ function ketUnggah(){
 const GRUP_TAB = [
   ['Dokumen', ['dokumen']],
   ['Dosen & SDM', ['bkd', 'tendik']],
-  ['Kurikulum & penelitian', ['mk', 'tema', 'peta_dok', 'kerjasama']],
+  ['Kurikulum & penelitian', ['mk', 'tema', 'peta_dok', 'kerjasama', 'bidang_keahlian', 'topik_keahlian']],
   ['Mahasiswa & lulusan', ['mahasiswa', 'kohort', 'prestasi', 'publikasi', 'luaran', 'tracer', 'kepuasan']],
   ['Institusi & keuangan', ['vmts', 'prodi_upps', 'dana']],
   ['Sarana & K3L', ['prasarana', 'dok_k3l', 'fas_k3l']],
@@ -1239,7 +1275,7 @@ async function bukaTab(){
     ? `<b>${htmlTautanButir(nomorButir(T.butir), null, 'Dipakai di')}.</b>` : `<b>${esc(T.butir)}.</b>`} ${esc(T.ket)}</p>${saranTab(T)}
     ${T.id === 'kepuasan' ? '<div id="massal"></div>' : ''}${T.id === 'mk' ? '<div id="impor-mk"></div>' : ''}${T.id === 'target' ? '<div id="capaian-iku"></div><div id="impor-iku"></div>' : ''}${T.id === 'temuan' ? '<div id="ringkas-temuan"></div>' : ''}
     <form id="form" novalidate><div class="grid">${kolomForm(T).map(isian).join('')}
-      ${T.privat ? blokLKD() : blokBukti(T)}</div>
+      ${T.tanpaBukti ? '' : T.privat ? blokLKD() : blokBukti(T)}</div>
       <div class="aksi"><button type="submit" class="btn" id="simpan">Tambah baris</button>
         <button type="button" class="btn ghost" id="batal" hidden>Batal ubah</button>
         <span class="msg" id="msg"></span></div></form>

@@ -4,7 +4,7 @@
 // dosen; Tolak -> alasan dilihat dosen di profil.html. Dipindah dari
 // kelola-dosen.html (pemilik 2026-11-08).
 
-import { ISIAN_PROFIL, KOLOM_PROFIL, JABATAN, tampil as tampilIsian } from './profil-dosen.js?v=2026-11-11-adf238';
+import { ISIAN_PROFIL, KOLOM_PROFIL, JABATAN, tampil as tampilIsian, setelNamaTopik } from './profil-dosen.js?v=2026-11-12-4a5dc8';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g,
   c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -24,6 +24,9 @@ export async function pasangVerifikasiProfil(box, { sb }){
     let { data: ds, error: eD } = await sb.from('dosen').select(KOLOM + ',' + KOLOM_PROFIL).in('id', ids);
     if (eD) ({ data: ds } = await sb.from('dosen').select(KOLOM).in('id', ids));
     const DOSEN = ds || [];
+    // Nama topik keahlian baku (patch 61) supaya ajuan tampil sebagai nama, bukan kode.
+    const rt = await sb.from('ref_topik_keahlian').select('kode,nama');
+    if (!rt.error) setelNamaTopik(rt.data);
     const tampil = (k, v) => tampilIsian(k, v, JABATAN);
     box.innerHTML = aj.map(a => {
       const d = DOSEN.find(x => x.id === a.dosen_id) || {};

@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-11-adf238">
+<link rel="stylesheet" href="tema.css?v=2026-11-12-4a5dc8">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
@@ -164,6 +164,9 @@ function render(D){
     dosen.scopus_id && `<a href="${SCOPUS}${esc(dosen.scopus_id)}" rel="noopener">Scopus</a>`,
     dosen.orcid     && `<a href="${ORCID}${esc(dosen.orcid)}" rel="noopener">ORCID</a>`,
     // Kata kunci keahlian (pemilik 2026-11-11) -> Cari pakar di keahlian.html.
+    // Topik keahlian baku (patch 61): nama dari data.json.keahlian_baku.
+    ...(dosen.topik_keahlian || []).map(k => ((D.keahlian_baku || {}).topik || []).find(t => t.kode === k)).filter(Boolean)
+      .map(t => `<a href="keahlian.html?tab=cari&amp;q=${encodeURIComponent(t.nama)}">${esc(t.nama)}</a>`),
     ...(dosen.kata_kunci || []).map(k => `<a href="keahlian.html?tab=cari&amp;q=${encodeURIComponent(k)}">${esc(k)}</a>`),
   ].filter(Boolean).join('');
 

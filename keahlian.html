@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-11-adf238">
+<link rel="stylesheet" href="tema.css?v=2026-11-12-4a5dc8">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
@@ -82,10 +82,18 @@ addEventListener('error', function (e) {
 // Peta keahlian dosen (pemilik 2026-11-11; 60-patch-keahlian.sql). Publik, hanya data.json:
 // kata kunci dan bidang keahlian dari profil dosen (disetujui admin), topik OpenAlex
 // publikasi, dan judul karya terverifikasi.
-import { profilKeahlian, cariPakar, petaTopik, usulanTA, normal } from './keahlian.js?v=2026-11-11-adf238';
+import { profilKeahlian, cariPakar, petaTopik, usulanTA, normal, daftarBaku, petaBaku, matriksBaku } from './keahlian.js?v=2026-11-12-4a5dc8';
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
-let D = null, P = [], TAB = new URLSearchParams(location.search).get('tab') || 'cari';
+// B = daftar keahlian baku (61-patch-keahlian-baku.sql); null sebelum patch dijalankan.
+let D = null, P = [], B = null, TAB = new URLSearchParams(location.search).get('tab') || 'cari';
+const namaTopik = k => B?.perKode.get(k)?.nama || k;
+const unduhCSVBaris = (baris, nama) => {
+  const sel = s => `"${String(s ?? '').replace(/"/g, '""')}"`;
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([String.fromCharCode(0xFEFF) + baris.map(r => r.map(sel).join(',')).join('\r\n')], { type: 'text/csv;charset=utf-8' }));
+  a.download = nama; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+};
 const TABS = { cari: 'Cari pakar', dosen: 'Keahlian per dosen', peta: 'Peta topik', ta: 'Usulan pembimbing TA' };
 
 const chips = (xs, kls = '', cocok = []) => xs.map(x => `<span class="chip ${kls}${cocok.includes(x) ? ' cocok' : ''}">${esc(x)}</span>`).join('');
@@ -93,8 +101,9 @@ const topTopik = p => [...p.topik.entries()].sort((a, b) => b[1] - a[1] || a[0].
 
 function htmlCari(){
   const q = new URLSearchParams(location.search).get('q') || '';
-  return `<p class="ket">Ketik topik atau judul (mis. <i>banjir</i>, <i>beton pracetak</i>, <i>manajemen konstruksi</i>).
-      Urutan: kata kunci dari dosen, bidang keahlian, topik publikasi (OpenAlex, berbahasa Inggris), lalu judul karya.</p>
+  return `<p class="ket">Ketik topik atau judul, dalam bahasa Indonesia atau Inggris (mis. <i>banjir</i>, <i>flood</i>,
+      <i>beton pracetak</i>, <i>manajemen konstruksi</i>). Urutan: topik keahlian yang dipilih dosen, karya dosen pada topik itu,
+      kata kunci tambahan, lalu judul karya.</p>
     <form class="cari" id="fCari"><input id="q" value="${esc(q)}" placeholder="Topik atau judul" autocomplete="off">
       <button type="submit">Cari</button></form><div id="hasilCari"></div>`;
 }
@@ -102,25 +111,63 @@ function gambarCari(){
   const q = $('q').value.trim(), out = $('hasilCari');
   history.replaceState(null, '', `?tab=cari${q ? '&q=' + encodeURIComponent(q) : ''}`);
   if (!q) { out.innerHTML = ''; return; }
-  const r = cariPakar(P, q);
+  const r = cariPakar(P, q, { B });
   out.innerHTML = r.length ? r.map(x => {
     const p = P.find(y => y.slug === x.slug);
     return `<div class="kartu"><span class="skor">skor ${x.skor}</span><h3>${esc(x.nama)}</h3>
-      <div>${chips(p.kata, '', x.alasan.kata)}${chips(p.bidang, '', x.alasan.bidang)}${chips(x.alasan.topik, 'oa')}</div>
+      <div>${chips(p.pilihan.map(namaTopik), '', x.alasan.baku || [])}${chips((x.alasan.baku || []).filter(n => !p.pilihan.map(namaTopik).includes(n)), 'oa')}
+        ${chips(p.kata, '', x.alasan.kata)}${chips(p.bidang, '', x.alasan.bidang)}${chips(x.alasan.topik, 'oa')}</div>
       ${x.karya.length ? `<ul class="karya">${x.karya.map(j => `<li>${esc(j)}</li>`).join('')}</ul>` : ''}</div>`;
   }).join('') : '<p class="kosong">Belum ada dosen yang cocok. Coba kata lain atau bahasa Inggris (topik publikasi berbahasa Inggris).</p>';
 }
 
 function htmlDosen(){
-  return `<p class="ket">Kata kunci diisi dosen di profilnya; topik publikasi diambil otomatis dari OpenAlex untuk publikasi ber-DOI.</p>
+  const dariKarya = p => [...p.dariKarya.entries()].filter(([k]) => !p.pilihan.includes(k))
+    .sort((a, b) => b[1] - a[1]).slice(0, 6).map(([k, n]) => `${namaTopik(k)} (${n})`);
+  return `<p class="ket">${B ? '<b>Topik pilihan</b> dipilih dosen dari daftar keahlian prodi; <b>dari karya</b> = topik yang dipadankan otomatis dari judul dan topik OpenAlex karyanya (angka = jumlah karya). ' : ''}
+      Kata kunci tambahan diisi dosen di profilnya.</p>
     ${P.map(p => `<div class="kartu"><h3>${esc(p.nama)}</h3>
-      ${p.kata.length || p.bidang.length ? `<div>${chips(p.kata)}${chips(p.bidang.filter(b => !p.kata.some(k => normal(k) === normal(b))))}</div>`
-        : '<div class="ket">Kata kunci belum diisi.</div>'}
-      ${p.topik.size ? `<div style="margin-top:4px">${chips(topTopik(p), 'oa')}</div>` : ''}
+      ${B ? `<div>${p.pilihan.length ? chips(p.pilihan.map(namaTopik)) : '<span class="ket">Topik pilihan belum diisi.</span>'}</div>
+        ${p.dariKarya.size ? `<div style="margin-top:4px"><span class="ket">Dari karya: </span>${chips(dariKarya(p), 'oa')}</div>` : ''}` : ''}
+      ${p.kata.length || p.bidang.length ? `<div style="margin-top:4px">${chips(p.kata)}${chips(p.bidang.filter(b => !p.kata.some(k => normal(k) === normal(b))))}</div>`
+        : B ? '' : '<div class="ket">Kata kunci belum diisi.</div>'}
+      ${!B && p.topik.size ? `<div style="margin-top:4px">${chips(topTopik(p), 'oa')}</div>` : ''}
       <div class="ket" style="margin-top:4px">${p.karya.length} karya terverifikasi</div></div>`).join('')}`;
 }
 
+// Peta dengan daftar baku (patch 61): per bidang, tiap topik dengan dosen yang memilih (★) dan berkarya.
+function htmlPetaBaku(){
+  const m = petaBaku(P, B);
+  return `<p class="ket">Setiap topik keahlian prodi dengan dosen yang <b>memilihnya</b> (★) dan dosen yang <b>berkarya</b> di topik itu
+      (angka = jumlah karya). Topik dengan <span class="tunggal">1 dosen</span> rawan hilang bila dosen itu pindah atau studi lanjut;
+      topik tanpa dosen adalah celah keahlian prodi.</p>
+    <div class="gulir"><table><thead><tr><th>Bidang</th><th class="num">Topik</th><th class="num">Dosen</th><th class="num">Karya</th>
+      <th class="num">Topik 1 dosen</th><th class="num">Topik tanpa dosen</th></tr></thead><tbody>${m.bidang.map(b => `<tr>
+      <td>${esc(b.nama)}<br><span class="ket">${esc(b.nama_en)}</span></td><td class="num">${b.topik}</td><td class="num">${b.dosen}</td>
+      <td class="num">${b.nKarya}</td><td class="num${b.tunggal ? ' tunggal' : ''}">${b.tunggal}</td><td class="num">${b.kosong}</td></tr>`).join('')}
+    </tbody></table></div>
+    <div class="saring"><label>Bidang <select id="pBidang"><option value="">semua</option>${B.bidang.map(b =>
+        `<option value="${esc(b.kode)}">${esc(b.nama)}</option>`).join('')}</select></label>
+      <label><input type="checkbox" id="pTunggal"> hanya 1 dosen</label>
+      <label><input type="checkbox" id="pKosong"> hanya tanpa dosen</label>
+      <button type="button" class="b ghost" id="pCsv">Unduh matriks (CSV)</button></div>
+    <div class="gulir" id="tPeta"></div>`;
+}
+function gambarPetaBaku(){
+  const m = petaBaku(P, B), bd = $('pBidang').value;
+  const xs = m.baris.filter(r => (!bd || r.bidang === bd) && (!$('pTunggal').checked || r.tunggal) && (!$('pKosong').checked || r.kosong));
+  const sel = r => r.dosen.map(n => `${esc(n)}${r.pilih.includes(n) ? ' ★' : ''}${r.karya.get(n) ? ` <span class="ket">(${r.karya.get(n)})</span>` : ''}`).join(', ') || '<span class="ket">belum ada</span>';
+  let bidangLalu = '';
+  $('tPeta').innerHTML = xs.length ? `<table><thead><tr><th>Topik</th><th class="num">Dosen</th><th>Dosen (★ memilih; angka = karya)</th>
+      <th class="num">Karya</th></tr></thead><tbody>${xs.map(r => {
+        const b = r.bidang !== bidangLalu ? (bidangLalu = r.bidang, `<tr><td colspan="4"><b>${esc(B.bidang.find(x => x.kode === r.bidang)?.nama || r.bidang)}</b></td></tr>`) : '';
+        return `${b}<tr><td>${esc(r.nama)}<br><span class="ket">${esc(r.nama_en)}</span></td>
+          <td class="num${r.tunggal ? ' tunggal' : ''}">${r.dosen.length}</td><td>${sel(r)}</td><td class="num">${r.nKarya}</td></tr>`;
+      }).join('')}</tbody></table>` : '<p class="kosong">Tidak ada topik yang cocok dengan saringan.</p>';
+}
+
 function htmlPeta(){
+  if (B) return htmlPetaBaku();
   return `<p class="ket">Setiap kata kunci dosen dan topik publikasi beserta dosen yang memegangnya. Topik yang hanya dipegang
       <span class="tunggal">1 dosen</span> rawan hilang bila dosen itu pindah atau studi lanjut.</p>
     <div class="saring"><label><input type="checkbox" id="pTunggal"> hanya yang dipegang 1 dosen</label>
@@ -151,7 +198,7 @@ function htmlTA(){
 let TA = null;
 function gambarTA(){
   const judul = $('taJudul').value.split('\n');
-  TA = usulanTA(P, judul, { pembimbing: +$('taPb').value, penguji: +$('taPg').value });
+  TA = usulanTA(P, judul, { pembimbing: +$('taPb').value, penguji: +$('taPg').value, B });
   const nm = xs => xs.map(c => `${esc(c.nama)}${c.alasan.length ? ` <span class="ket">(${esc(c.alasan.join(', '))})</span>` : ''}`).join('<br>') || '—';
   $('taHasil').innerHTML = TA.hasil.length ? `<div class="gulir"><table><thead><tr><th>Judul</th><th>Usulan pembimbing</th><th>Usulan penguji</th></tr></thead>
       <tbody>${TA.hasil.map(h => `<tr><td>${esc(h.judul)}</td><td>${h.tanpa ? '<span class="ket">tidak ada yang cocok; isi manual</span>' : nm(h.pembimbing)}</td>
@@ -161,35 +208,43 @@ function gambarTA(){
   $('taCsv').hidden = !TA.hasil.length;
 }
 function unduhCSV(){
-  const sel = s => `"${String(s ?? '').replace(/"/g, '""')}"`;
-  const baris = [['judul', 'pembimbing', 'penguji'], ...TA.hasil.map(h => [h.judul, h.pembimbing.map(c => c.nama).join('; '), h.penguji.map(c => c.nama).join('; ')])];
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob([String.fromCharCode(0xFEFF) + baris.map(r => r.map(sel).join(',')).join('\r\n')], { type: 'text/csv;charset=utf-8' }));
-  a.download = 'usulan-pembimbing-ta.csv'; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  unduhCSVBaris([['judul', 'pembimbing', 'penguji'], ...TA.hasil.map(h => [h.judul, h.pembimbing.map(c => c.nama).join('; '),
+    h.penguji.map(c => c.nama).join('; ')])], 'usulan-pembimbing-ta.csv');
 }
 
 function gambar(){
   const isi = { cari: htmlCari, dosen: htmlDosen, peta: htmlPeta, ta: htmlTA }[TAB] || htmlCari;
   $('isi').innerHTML = `<div class="tab">${Object.entries(TABS).map(([k, l]) => `<button type="button" data-tab="${k}" aria-pressed="${k === TAB}">${l}</button>`).join('')}</div>
     <h2>${TABS[TAB]}</h2>${isi()}
-    <footer>Diperbarui ${esc(D.diperbarui || '')} · Kata kunci dan bidang keahlian diisi dosen dan disetujui admin prodi;
+    <footer>Diperbarui ${esc(D.diperbarui || '')} · ${B ? `Daftar keahlian prodi: ${B.bidang.length} bidang, ${B.topik.length} topik. ` : ''}Topik dan kata kunci dipilih dosen dan disetujui admin prodi;
       topik publikasi dari <a href="https://openalex.org" target="_blank" rel="noopener">OpenAlex</a>; hanya karya terverifikasi.</footer>`;
   document.querySelectorAll('[data-tab]').forEach(b => b.onclick = () => { TAB = b.dataset.tab; history.replaceState(null, '', `?tab=${TAB}`); gambar(); });
   if (TAB === 'cari') { $('fCari').onsubmit = e => { e.preventDefault(); gambarCari(); }; gambarCari(); }
-  if (TAB === 'peta') { ['pTunggal', 'pKata', 'pTopik'].forEach(id => $(id).onchange = gambarPeta); gambarPeta(); }
+  if (TAB === 'peta' && B) {
+    ['pBidang', 'pTunggal', 'pKosong'].forEach(id => $(id).onchange = gambarPetaBaku); gambarPetaBaku();
+    $('pCsv').onclick = () => unduhCSVBaris(matriksBaku(P, B), 'peta-keahlian-dosen.csv');
+  } else if (TAB === 'peta') { ['pTunggal', 'pKata', 'pTopik'].forEach(id => $(id).onchange = gambarPeta); gambarPeta(); }
   if (TAB === 'ta') { $('taUsul').onclick = gambarTA; $('taCsv').onclick = unduhCSV; }
 }
 
 fetch('data.json?v=' + Date.now())
   .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
   .then(d => {
-    D = d; P = profilKeahlian(d);
+    D = d; P = profilKeahlian(d); B = daftarBaku(d);
     $('hProdi').textContent = [d.prodi, d.institusi].filter(Boolean).join(' · ');
-    const peta = petaTopik(P);
-    $('angka').innerHTML = `<div><b>${P.length}</b><span>Dosen</span></div>
-      <div><b>${P.filter(p => p.kata.length).length}</b><span>Mengisi kata kunci</span></div>
-      <div><b>${peta.length}</b><span>Topik</span></div>
-      <div><b>${peta.filter(r => r.tunggal).length}</b><span>Topik 1 dosen</span></div>`;
+    if (B) {
+      const m = petaBaku(P, B);
+      $('angka').innerHTML = `<div><b>${P.length}</b><span>Dosen</span></div>
+        <div><b>${P.filter(p => p.pilihan.length).length}</b><span>Memilih topik</span></div>
+        <div><b>${m.baris.filter(r => !r.kosong).length} / ${m.baris.length}</b><span>Topik berpakar</span></div>
+        <div><b>${m.baris.filter(r => r.tunggal).length}</b><span>Topik 1 dosen</span></div>`;
+    } else {
+      const peta = petaTopik(P);
+      $('angka').innerHTML = `<div><b>${P.length}</b><span>Dosen</span></div>
+        <div><b>${P.filter(p => p.kata.length).length}</b><span>Mengisi kata kunci</span></div>
+        <div><b>${peta.length}</b><span>Topik</span></div>
+        <div><b>${peta.filter(r => r.tunggal).length}</b><span>Topik 1 dosen</span></div>`;
+    }
     gambar();
   })
   .catch(() => { $('isi').innerHTML = '<p class="kosong">Data belum tersedia. Hubungi admin prodi.</p>'; });

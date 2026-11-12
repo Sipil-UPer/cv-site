@@ -30,7 +30,7 @@ export const ISIAN_PROFIL = [
   ['nama', 'Nama lengkap'], ['jabatan', 'Jabatan akademik'],
   ['sinta_id', 'SINTA ID'], ['scopus_id', 'Scopus ID'], ['orcid', 'ORCID'],
   ['riwayat_pendidikan', 'Riwayat pendidikan'], ['pendidikan', 'Pendidikan tertinggi'],
-  ['bidang_keahlian', 'Bidang keahlian'], ['kata_kunci', 'Kata kunci keahlian'], ['perusahaan', 'Perusahaan / industri'],
+  ['bidang_keahlian', 'Bidang keahlian'], ['topik_keahlian', 'Topik keahlian'], ['kata_kunci', 'Kata kunci tambahan'], ['perusahaan', 'Perusahaan / industri'],
   ['nomor_serdos', 'Nomor sertifikat pendidik'], ['sertifikat', 'Sertifikat kompetensi/profesi/industri'],
   ['skip', 'SKIP'], ['stri', 'Nomor STRI'], ['mk_ps_lain', 'MK diampu di PS lain'],
 ];
@@ -39,7 +39,7 @@ export const ISIAN_ADMIN = [['kategori', 'Kategori dosen'],
   ['sesuai_kompetensi_inti', 'Sesuai kompetensi inti PS'], ['sesuai_keahlian_mk', 'Keahlian sesuai MK diampu']];
 
 export const KOLOM_PROFIL = 'kategori,riwayat_pendidikan,bidang_keahlian,perusahaan,sesuai_kompetensi_inti,' +
-  'nomor_serdos,sertifikat,skip,stri,mk_ps_lain,sesuai_keahlian_mk,kata_kunci';   // kata_kunci: 60-patch-keahlian.sql
+  'nomor_serdos,sertifikat,skip,stri,mk_ps_lain,sesuai_keahlian_mk,kata_kunci,topik_keahlian';   // kata_kunci: patch 60; topik_keahlian: patch 61
 
 // Kata kunci keahlian dari isian teks (dipisah koma, titik koma, atau baris baru): rapi, tanpa ganda,
 // paling banyak 10, tiap kata <= 60 karakter (sama dengan rapikan_kata_kunci di patch 60). [] -> null.
@@ -86,6 +86,7 @@ export function tampil(k, v, JABATAN = []){
   if (k === 'riwayat_pendidikan') return (v || []).length ? v.map(ringkasRiwayat).join('; ') : '—';
   if (k === 'sertifikat') return (v || []).length ? v.map(ringkasSertifikat).join('; ') : '—';
   if (k === 'kata_kunci') return (v || []).length ? v.join(', ') : '—';
+  if (k === 'topik_keahlian') return (v || []).length ? v.map(x => NAMA_TOPIK.get(x) || x).join('; ') : '—';
   if (k === 'sesuai_kompetensi_inti' || k === 'sesuai_keahlian_mk') return v === true ? 'V' : v === false ? 'tidak' : '—';
   return v || '—';
 }
@@ -192,4 +193,32 @@ export function bacaFormLKPS(pendidikanLama = null){
     nomor_serdos: v('nomor_serdos') || null, sertifikat: bacaEditor('ed_sertifikat'),
     skip: v('skip') || null, stri: v('stri') || null, mk_ps_lain: v('mk_ps_lain') || null,
   };
+}
+
+// ---------------------------------------------------------------------------
+// Topik keahlian baku (61-patch-keahlian-baku.sql, pemilik 2026-11-12).
+const NAMA_TOPIK = new Map();
+/** Nama topik untuk tampil(): panggil dengan baris ref_topik_keahlian setelah dimuat. */
+export function setelNamaTopik(topik){ NAMA_TOPIK.clear(); (topik || []).forEach(t => NAMA_TOPIK.set(t.kode, t.nama)); }
+export const MAKS_TOPIK = 15;
+const escT = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+/** Pemilih topik per bidang (kotak lipat, centang). bidang/topik = baris ref_*_keahlian aktif; terpilih = kode. */
+export function htmlPilihTopik(bidang, topik, terpilih = []){
+  const pilih = new Set(terpilih || []);
+  return bidang.map(b => {
+    const ts = topik.filter(t => t.bidang === b.kode);
+    if (!ts.length) return '';
+    const n = ts.filter(t => pilih.has(t.kode)).length;
+    return `<details class="pilih-bidang"${n ? ' open' : ''}><summary><b>${escT(b.nama)}</b> <span class="ket">${escT(b.nama_en)}</span>
+        <span class="ket" data-hitung-bidang="${escT(b.kode)}">${n ? `· ${n} dipilih` : ''}</span></summary>
+      ${ts.map(t => `<label class="pilih-topik"><input type="checkbox" data-topik="${escT(t.kode)}" data-bidang="${escT(b.kode)}"${pilih.has(t.kode) ? ' checked' : ''}>
+        ${escT(t.nama)} <span class="ket">${escT(t.nama_en)}</span></label>`).join('')}</details>`;
+  }).join('');
+}
+
+/** Kode topik yang dicentang di dalam `akar`, urut tampilan; [] -> null (sama dengan rapikan_topik_keahlian). */
+export function bacaPilihTopik(akar){
+  const xs = [...akar.querySelectorAll('[data-topik]:checked')].map(c => c.dataset.topik);
+  return xs.length ? xs.slice(0, MAKS_TOPIK) : null;
 }
