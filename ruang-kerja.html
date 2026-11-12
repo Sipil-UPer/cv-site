@@ -149,7 +149,7 @@ async function mulai(){
   const kartu = $('isi').querySelector('a[href="verifikasi.html"] b');
   if (kartu) hitungVerifikasi(sb).then(n => {
     if (n.total) kartu.insertAdjacentHTML('beforeend',
-      ` <span style="background:#8A5A00;color:#fff;border-radius:9px;padding:0 7px;font-size:12px">${n.total} menunggu</span>`);
+      ` <span style="display:inline-block;background:#8A5A00;color:#fff;border-radius:9px;padding:0 7px;font-size:12px">${n.total} menunggu</span>`);
   });
 }
 
