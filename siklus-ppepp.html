@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-12-9ba4e4">
-<link rel="stylesheet" href="kepala.css?v=2026-11-12-9ba4e4">
+<link rel="stylesheet" href="tema.css?v=2026-11-12-713f9b">
+<link rel="stylesheet" href="kepala.css?v=2026-11-12-713f9b">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
@@ -53,7 +53,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-12-9ba4e4"></script>
+<script src="config.js?v=2026-11-12-713f9b"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -71,9 +71,9 @@ addEventListener('error', function (e) {
 // Siklus PPEPP per butir standar SPMI (pemilik 2026-11-12; 67-patch-standar-spmi.sql, standar-spmi.js).
 // Semua pengguna terdaftar membaca; admin mengisi capaian, status, bukti, analisis, dan rencana per TS.
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { gerbang } from './menu.js?v=2026-11-12-9ba4e4';
-import { denganOtomatis } from './capaian-iku.js?v=2026-11-12-9ba4e4';
-import { siklusPPEPP, tsSiklus, tsDariTanggal, labelTS, TAHAP, STATUS_CAPAIAN } from './standar-spmi.js?v=2026-11-12-9ba4e4';
+import { gerbang } from './menu.js?v=2026-11-12-713f9b';
+import { denganOtomatis } from './capaian-iku.js?v=2026-11-12-713f9b';
+import { siklusPPEPP, tsSiklus, tsDariTanggal, labelTS, TAHAP, STATUS_CAPAIAN } from './standar-spmi.js?v=2026-11-12-713f9b';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
@@ -83,7 +83,7 @@ const tgl = d => d ? String(d).slice(0, 10).split('-').reverse().join('/') : '';
 const LABEL_ST = Object.fromEntries(STATUS_CAPAIAN);
 const HURUF = { penetapan: 'P', pelaksanaan: 'P', evaluasi: 'E', pengendalian: 'P', peningkatan: 'P' };
 const TEKS_ST = { ada: 'ada', kurang: 'perlu dilengkapi', na: 'tidak perlu' };
-let SAYA = null, ADMIN = false, X = {}, TS = tsDariTanggal(new Date().toISOString().slice(0, 10)), SUNTING = null, ADA = true;
+let SAYA = null, ADMIN = false, PIMPINAN = false, X = {}, TS = tsDariTanggal(new Date().toISOString().slice(0, 10)), SUNTING = null, ADA = true;
 let F = { lembar: '', saring: 'semua', cari: '' };
 
 function htmlRekap(S){
@@ -149,16 +149,42 @@ function htmlTabel(S){
     </tbody></table></div></section>`;
 }
 
+// Bahan RTM (bahan-rtm.js, pemilik 2026-11-12): data tambahan dimuat saat tombol diklik.
+async function unduhRTM(){
+  const b = $('unduhRTM'), m = $('mRTM');
+  b.disabled = true; m.className = 'msg'; m.textContent = 'Menyusun…';
+  try {
+    const baca = q => q.then(r => r.error ? [] : (r.data || []), () => []);
+    const [tr, te, rk, ds, dj, mod] = await Promise.all([
+      baca(sb.from('rapat_tindak').select('id,rapat_id,keputusan,status,tenggat,pj_dosen_id,pj_nama')),
+      baca(sb.from('evaluasi_tindak').select('id,masalah,rencana,status,tenggat,pj_id,evaluasi_mk(kode_mk,tahun_akademik,semester)')),
+      sb.rpc('rekap_evaluasi').then(r => r.error ? [] : (r.data || []), () => []),
+      baca(sb.from('dosen').select('id,nama')),
+      fetch('data.json?v=' + Date.now()).then(r => r.json()).catch(() => ({})),
+      import('./bahan-rtm.js?v=2026-11-12-713f9b')]);
+    const nama = new Map(ds.map(d => [d.id, d.nama]));
+    const blob = await mod.buatBahanRTM({ ...X, ts: TS, prodi: ['Program Studi', dj.prodi, dj.institusi].filter(Boolean).join(' '),
+      target: ADMIN ? X.target : null, tindakRapat: tr, tindakEval: te, rekapEval: rk, namaDosen: id => nama.get(id) || '' });
+    const u = URL.createObjectURL(blob), a = document.createElement('a');
+    a.href = u; a.download = `bahan-rtm-${labelTS(TS).replace('/', '-')}.docx`; a.click();
+    setTimeout(() => URL.revokeObjectURL(u), 5000);
+    m.className = 'msg ok'; m.textContent = 'Terunduh.';
+  } catch (e) { m.className = 'msg buruk'; m.textContent = 'Gagal: ' + (e.message || e); }
+  b.disabled = false;
+}
+
 function gambar(){
   if (!ADA) { $('isi').innerHTML = '<p class="kosong">Tabel standar SPMI belum ada: jalankan supabase/67-patch-standar-spmi.sql.</p>'; return; }
   const S = siklusPPEPP(X, TS);
   const pilihan = tsSiklus(X);
   if (!pilihan.includes(TS)) pilihan.push(TS);
   $('isi').innerHTML = `<div class="alat"><label>TS <select id="pTS">${pilihan.sort((a, b) => b - a).map(t => `<option value="${t}"${t === TS ? ' selected' : ''}>${labelTS(t)}</option>`).join('')}</select></label>
-      <span class="ket">Tahun akademik September–Agustus.</span></div>`
+      <span class="ket">Tahun akademik September–Agustus.</span>
+      ${ADMIN || PIMPINAN ? `<button class="b" id="unduhRTM" style="margin-left:auto">Unduh bahan RTM (.docx)</button><span class="msg" id="mRTM"></span>` : ''}</div>`
     + (S.baris.length ? htmlRekap(S) + htmlTabel(S)
       : `<p class="kosong">Belum ada butir standar yang dipantau prodi. ${ADMIN ? 'Impor rekap standar SPM di <a href="data-prodi.html?tab=standar">Data prodi › SPMI › Standar SPMI</a>.' : 'Admin prodi belum mengimpor standar.'}</p>`);
-  $('pTS').onchange = () => { TS = +$('pTS').value; SUNTING = null; gambar(); };
+  $('pTS').onchange = () => { TS = +$('pTS').value || TS; SUNTING = null; gambar(); };
+  if ($('unduhRTM')) $('unduhRTM').onclick = unduhRTM;
   if (!S.baris.length) return;
   $('fLembar').onchange = () => { F.lembar = $('fLembar').value; gambar(); };
   $('fSaring').onchange = () => { F.saring = $('fSaring').value; gambar(); };
@@ -201,7 +227,7 @@ async function muat(){
     baca(sb.from('spmi_capaian').select('*').limit(20000)),
     baca(sb.from('spmi_standar_revisi').select('*')),
     baca(sb.from('lkps_target_kinerja').select('*')),          // admin saja (RLS); lainnya kosong
-    baca(sb.from('ami_temuan').select('id,kode,uraian,status,rencana,tahun_ts,standar_id')),
+    baca(sb.from('ami_temuan').select('id,kode,uraian,kategori,status,rencana,tenggat,tahun_ts,standar_id')),
     baca(sb.from('rapat').select('id,judul,jenis,tanggal')),
     fetch('data.json?v=' + Date.now()).then(r => r.json()).catch(() => null),
     // Tindak lanjut evaluasi pembelajaran bertaut standar (68-patch); RLS: admin/pimpinan semua, lainnya miliknya.
@@ -216,6 +242,7 @@ async function mulai(){
   SAYA = await gerbang(sb);
   if (!SAYA) return;
   ADMIN = SAYA.peran === 'admin';
+  PIMPINAN = SAYA.peran === 'pimpinan';
   $('hSub').textContent = `Masuk sebagai ${SAYA.nama}${ADMIN ? ' · klik Isi untuk mencatat capaian butir' : ''}`;
   await muat();
 }

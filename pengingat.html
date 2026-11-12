@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-12-9ba4e4">
-<link rel="stylesheet" href="kepala.css?v=2026-11-12-9ba4e4">
+<link rel="stylesheet" href="tema.css?v=2026-11-12-713f9b">
+<link rel="stylesheet" href="kepala.css?v=2026-11-12-713f9b">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
@@ -72,7 +72,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-12-9ba4e4"></script>
+<script src="config.js?v=2026-11-12-713f9b"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -93,14 +93,16 @@ addEventListener('error', function (e) {
 // Script (Code.gs kind 'kirim_pengingat', maks. 30 per kirim). Tidak ada yang
 // terkirim tanpa tombol Kirim.
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { gerbang } from './menu.js?v=2026-11-12-9ba4e4';
-import { tugasPerPihak } from './kelengkapan.js?v=2026-11-12-9ba4e4';
-import { PIHAK } from './unsur-butir.js?v=2026-11-12-9ba4e4';
-import { penerimaTemuan, HARI_DEKAT } from './temuan-ami.js?v=2026-11-12-9ba4e4';
-import { daftarBerlaku, penerimaBerlaku, htmlBerlaku, HARI_SEGERA } from './masa-berlaku.js?v=2026-11-12-9ba4e4';
-import { penerimaKarya, penerimaProfil, isiPola } from './pengingat-dosen.js?v=2026-11-12-9ba4e4';
-import { penerimaTindak, HARI_TINDAK } from './rapat.js?v=2026-11-12-9ba4e4';
-import { penerimaHibah, penerimaPanggilan, HARI_PENGINGAT } from './hibah.js?v=2026-11-12-9ba4e4';
+import { gerbang } from './menu.js?v=2026-11-12-713f9b';
+import { tugasPerPihak } from './kelengkapan.js?v=2026-11-12-713f9b';
+import { PIHAK } from './unsur-butir.js?v=2026-11-12-713f9b';
+import { penerimaTemuan, HARI_DEKAT } from './temuan-ami.js?v=2026-11-12-713f9b';
+import { daftarBerlaku, penerimaBerlaku, htmlBerlaku, HARI_SEGERA } from './masa-berlaku.js?v=2026-11-12-713f9b';
+import { penerimaKarya, penerimaProfil, isiPola } from './pengingat-dosen.js?v=2026-11-12-713f9b';
+import { penerimaTindak, HARI_TINDAK } from './rapat.js?v=2026-11-12-713f9b';
+import { penerimaHibah, penerimaPanggilan, HARI_PENGINGAT } from './hibah.js?v=2026-11-12-713f9b';
+import { penerimaRefleksi, penerimaTindakEval, HARI_TINDAK_EVAL } from './evaluasi-pembelajaran.js?v=2026-11-12-713f9b';
+import { penerimaTarget } from './target-kinerja.js?v=2026-11-12-713f9b';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
@@ -187,8 +189,11 @@ function gambar(){
   const tRapat = penerimaTindak(DATA.tindak);
   // 8. Pembaruan karya dan profil (pengingat-dosen.js, pemilik 2026-11-12): manual.
   const pKarya = penerimaKarya(dosen, DATA.karya, DATA.berBukti), pProfil = penerimaProfil(dosen);
+  // 9. Evaluasi pembelajaran (68-patch) dan target kinerja (66-patch), pemilik 2026-11-12.
+  const eRef = penerimaRefleksi(dosen, DATA.evaluasi), eTindak = penerimaTindakEval(dosen, DATA.tindakEval);
+  const pTarget = penerimaTarget(dosen, DATA.tahunTarget, DATA.target);
   const J = { karya: pKarya, profil: pProfil, bkd: bkdBelum, tolak, pihak, ami, berlaku, hibah_ajuan: hAjuan.penerima, hibah_laporan: hLapor.penerima, panggilan: hPanggil.penerima,
-    rapat: tRapat.penerima };
+    rapat: tRapat.penerima, eval_refleksi: eRef.penerima, eval_tindak: eTindak.penerima, target: pTarget };
   const SETELAH = { panggilan: async () => {
     const ids = hPanggil.panggilan.map(p => p.id);
     if (ids.length) await sb.from('hibah_panggilan').update({ diumumkan: new Date().toISOString() }).in('id', ids);
@@ -256,6 +261,23 @@ ${situs}rapat.html
 
 Terima kasih.
 ${PRODI}`)
+    + (DATA.evaluasiAda ? htmlJenis('eval_refleksi', 'Refleksi evaluasi pembelajaran', eRef.semester
+        ? `Dosen yang belum mengisi kesesuaian pelaksanaan dengan RPS dan catatan metode untuk mata kuliahnya, semester
+          <b>${esc(eRef.semester.ta)} ${esc(eRef.semester.sm)}</b> (semester terbaru di Evaluasi pembelajaran).`
+        : 'Belum ada baris di Evaluasi pembelajaran.', eRef.penerima,
+        eRef.semester ? `Mohon isi evaluasi pembelajaran ${eRef.semester.ta} ${eRef.semester.sm}` : 'Mohon isi evaluasi pembelajaran',
+        `Yth. {nama},\n\nMohon mengisi evaluasi pembelajaran (kesesuaian pelaksanaan dengan RPS dan catatan metode) untuk mata kuliah berikut:\n{rinci}\n\nIsian ada di Operasional › Evaluasi pembelajaran:\n{situs}evaluasi-pembelajaran.html${eRef.semester ? `?ta=${encodeURIComponent(eRef.semester.ta)}&sm=${eRef.semester.sm}` : ''}\n\nTerima kasih.\n{prodi}`)
+      + htmlJenis('eval_tindak', 'Tindak lanjut evaluasi pembelajaran', `Tindak lanjut yang belum selesai dan tenggatnya sudah lewat (setahun terakhir)
+        atau tinggal ≤ ${HARI_TINDAK_EVAL} hari; dikirim ke penanggung jawabnya.${eTindak.tanpaPJ.length ? ` <b>${eTindak.tanpaPJ.length} tindak lanjut tanpa PJ
+        dosen aktif ber-email</b>: ingatkan langsung atau ganti PJ-nya.` : ''}`, eTindak.penerima,
+        'Pengingat tindak lanjut evaluasi pembelajaran',
+        `Yth. {nama},\n\nTindak lanjut evaluasi pembelajaran berikut mendekati atau melewati tenggat:\n{rinci}\n\nMohon ditindaklanjuti; setelah selesai, isi hasilnya di Operasional › Evaluasi pembelajaran:\n{situs}evaluasi-pembelajaran.html\n\nTerima kasih.\n{prodi}`)
+      : `<section class="jenis"><h2>Evaluasi pembelajaran</h2><p class="kosong">Tabel belum ada: jalankan supabase/68-patch-evaluasi-pembelajaran.sql.</p></section>`)
+    + htmlJenis('target', `Target kinerja ${DATA.tahunTarget} belum tercapai`, `DTPS aktif yang punya indikator target ${DATA.tahunTarget} belum tercapai
+        (Monitoring › Target kinerja dosen). Karya yang belum diverifikasi ditulis sebagai menunggu.${DATA.target.baku.length || DATA.target.khusus.length ? ''
+        : ` <b>Target ${DATA.tahunTarget} belum diisi.</b>`}`, pTarget,
+        `Capaian target kinerja ${DATA.tahunTarget}`,
+        `Yth. {nama},\n\nBerikut indikator target kinerja ${DATA.tahunTarget} Anda yang belum tercapai:\n{rinci}\n\nBila sudah ada karya yang belum dicatat, mohon diisi di Data saya › Karya dosen. Rincian target ada di:\n{situs}target.html\n\nTerima kasih.\n{prodi}`)
     + `<section class="jenis"><h2>Email tiap pihak</h2><p class="ket">Dipakai pengingat bukti per pihak; tersimpan di peramban ini saja.</p>
       ${['U', 'F', 'P', 'S'].map(k => `<label class="baris"><span>${esc(PIHAK[k])}</span>
         <input type="email" data-pihak="${k}" value="${esc(emailPihak[k] || '')}" placeholder="email unit"></label>`).join('')}
@@ -326,6 +348,17 @@ async function mulai(){
   ADA_TEMPLAT = !te.error;
   TEMPLAT = Object.fromEntries((te.data || []).map(t => [t.kunci, t]));
   const tr = await sb.from('rapat_tindak').select('id,keputusan,tenggat,status,pj_dosen_id,pj_nama,rapat(judul,tanggal)');
+  // Evaluasi pembelajaran (68-patch) dan target kinerja tahun berjalan (66-patch); tabel belum ada = kosong.
+  const th = new Date().getFullYear();
+  const [ev, et, tb, tk, tkar, thb, tsk] = await Promise.all([
+    sb.from('evaluasi_mk').select('id,dosen_id,tahun_akademik,semester,kode_mk,nama_mk,rps_sesuai'),
+    sb.from('evaluasi_tindak').select('id,rencana,tenggat,status,pj_id,evaluasi_mk(kode_mk,tahun_akademik,semester)').in('status', ['terbuka', 'proses']),
+    baca(sb.from('target_baku').select('*').eq('tahun', th)),
+    baca(sb.from('target_dosen').select('*').eq('tahun', th)),
+    baca(sb.from('karya').select('id,kategori,indeksasi,tahun,status,karya_penulis(dosen_id)').eq('tahun', th).in('status', ['terverifikasi', 'diajukan']).limit(5000)),
+    baca(sb.from('hibah_ajuan').select('status,tanggal_ajuan,tahun_usulan,skema_kode,hibah_tim(dosen_id)')),
+    baca(sb.from('ref_skema_dana').select('kode,kelompok'))]);
+  const kelSkema = new Map(tsk.map(s => [s.kode, s.kelompok]));
   const perId = new Map((ds.data || []).map(d => [d.id, d]));
   const tindak = (tr.data || []).map(t => ({ ...t, pj: t.pj_dosen_id ? perId.get(t.pj_dosen_id) : { nama: t.pj_nama } }));
   DATA = { dosen: ds.data || [], bkd: bk.data || [], ditolak: kt.data || [], butirBukti: bb.data || [],
@@ -333,6 +366,8 @@ async function mulai(){
            hibah: hb.data || [], panggilan: hp.data || [], tindak, saya: saya.email,
            karya: kr.data || [], berBukti: new Set((kb.data || []).map(x => x.karya_id)),
            tindakGalat: tr.error && !/does not exist|schema cache/i.test(tr.error.message) ? tr.error.message : '',
+           evaluasiAda: !ev.error, evaluasi: ev.data || [], tindakEval: et.data || [], tahunTarget: th,
+           target: { baku: tb, khusus: tk, karya: tkar, hibah: thb.map(a => ({ ...a, skema: { kelompok: kelSkema.get(a.skema_kode) } })) },
            hibahGalat: eH ? (/does not exist|schema cache/i.test(eH.message) ? 'Tabel hibah belum ada: jalankan supabase/58-patch-hibah.sql.' : eH.message) : '' };
   $('isi').innerHTML = `<p class="ket">Periksa penerima dan isi, lalu tekan Kirim. Email keluar dari akun Google prodi
       (kuota Gmail sekitar 100 per hari); balasan diarahkan ke email Anda.</p>

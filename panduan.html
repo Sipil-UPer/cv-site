@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-12-9ba4e4">
+<link rel="stylesheet" href="tema.css?v=2026-11-12-713f9b">
 <style>
   /* Panduan pengguna ruang kerja (pemilik 2026-11-04). Bagian admin hanya
      tampil untuk peran admin. Perbarui bila tombol atau halaman berubah. */
@@ -40,7 +40,7 @@
   @media(max-width:640px){nav.isi ol{columns:1}.wrap{padding:18px 16px 60px}}
   @media print{nav.isi{display:none}section{break-inside:avoid}}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-12-9ba4e4">
+<link rel="stylesheet" href="kepala.css?v=2026-11-12-713f9b">
 </head>
 <body>
 
@@ -298,7 +298,13 @@
     <p>Lima tanda di kolom PPEPP: hijau = ada, merah = perlu dilengkapi, kosong = tidak perlu. Penetapan = target TS dari SPM; Pelaksanaan =
       bukti tercatat; Evaluasi = capaian dinilai atau ada temuan AMI; Pengendalian = yang belum tercapai punya rencana; Peningkatan = ada revisi
       pada TS itu (tidak wajib setiap siklus). Arahkan kursor ke tanda untuk keterangannya. <b>Unduh CSV</b> menyimpan tabel yang sedang tampil,
-      mis. untuk bahan RTM. Semua pengguna terdaftar dapat membuka halaman ini; hanya admin yang mengisi.</p>
+      mis. untuk lampiran rapat. Semua pengguna terdaftar dapat membuka halaman ini; hanya admin yang mengisi.</p>
+    <p><b>Rapat tinjauan manajemen (RTM).</b> Pilih TS, lalu klik <b>Unduh bahan RTM (.docx)</b> (admin dan pimpinan). Isinya: tindak lanjut RTM
+      sebelumnya, hasil AMI, capaian standar SPMI, IKU/IKT, evaluasi pembelajaran, tindak lanjut rapat lain yang masih terbuka, revisi standar,
+      dan tabel usulan keputusan; bagian umpan balik pemangku kepentingan diisi sendiri dari hasil survei. Catat RTM-nya di
+      <b>Rapat dan notulen</b> dengan jenis RTM supaya keputusannya menjadi tindak lanjut ber-PJ dan muncul di bahan RTM berikutnya; keputusan yang
+      mengubah standar dicatat juga di <b>Revisi standar</b>. Pengingat email untuk refleksi dan tindak lanjut evaluasi pembelajaran serta target
+      kinerja dosen ada di <b>Operasional › Pengingat</b> (admin).</p>
     <p>Indikator IKU/IKT yang belum tercapai juga perlu <b>analisis</b> dan <b>rencana perbaikan</b> di tab Target IKU/IKT (butir 56); yang belum
       ditandai merah di ringkasan capaian dan di Kelengkapan LED.</p>
   </section>
@@ -328,7 +334,7 @@
   </div>
 </main>
 
-<script src="config.js?v=2026-11-12-9ba4e4"></script>
+<script src="config.js?v=2026-11-12-713f9b"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -345,7 +351,7 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { gerbang } from './menu.js?v=2026-11-12-9ba4e4';
+import { gerbang } from './menu.js?v=2026-11-12-713f9b';
 
 // Bagian admin hanya untuk peran admin (isinya bukan rahasia; disembunyikan
 // supaya panduan dosen tetap ringkas).

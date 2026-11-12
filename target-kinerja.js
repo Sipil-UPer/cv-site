@@ -82,3 +82,14 @@ export const belumTercapai = baris => (baris || []).filter(b => b.status !== 'te
 
 /** Angka target untuk tampilan: tanpa ,00. */
 export const angka = v => (v == null || v === '' ? '' : String(+(+v).toFixed(2)).replace('.', ','));
+
+/**
+ * Pengingat email (pengingat.html; pemilik 2026-11-12): dosen aktif yang punya indikator belum tercapai tahun itu.
+ * D = { baku, khusus, karya, hibah } seperti barisDosen. Hasil [{ nama, email, rinci }].
+ */
+export function penerimaTarget(dosen, tahun, D){
+  return (dosen || []).filter(d => d.email && d.aktif !== false && d.peran !== 'asesor' && d.dtps !== false)
+    .map(d => ({ d, xs: belumTercapai(barisDosen(d, tahun, D)) })).filter(x => x.xs.length)
+    .map(({ d, xs }) => ({ nama: d.nama, email: d.email, rinci: xs.map(b => `- ${b.label}: ${b.sah} dari target ${angka(b.target)} ${b.satuan}`
+      + (b.menunggu ? ` (+${b.menunggu} menunggu verifikasi)` : '')).join('\n') }));
+}

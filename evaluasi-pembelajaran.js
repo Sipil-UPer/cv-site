@@ -138,3 +138,38 @@ export function tugasEvaluasi(d, kini = new Date()){
   }
   return out;
 }
+
+// ---- Pengingat email (pengingat.html; pemilik 2026-11-12). Aturan tenggat sama dengan tindak lanjut rapat:
+// mulai 14 hari sebelum tenggat, berhenti setahun setelah lewat (rapat.js HARI_TINDAK, HARI_LEWAT).
+export const HARI_TINDAK_EVAL = 14, HARI_LEWAT_EVAL = 365;
+const dituju = d => d && d.email && d.aktif !== false && d.peran !== 'asesor';
+const tglID = iso => String(iso || '').slice(0, 10).split('-').reverse().join('/');
+const hariKe = (iso, kini) => { const [y, m, h] = String(iso || '').split('-').map(Number);
+  return y ? Math.round((Date.UTC(y, m - 1, h) - Date.UTC(kini.getFullYear(), kini.getMonth(), kini.getDate())) / 864e5) : null; };
+
+/** Refleksi belum diisi pada semester terbaru yang punya baris. Hasil { semester: {ta, sm} | null, penerima: [{nama, email, rinci}] }. */
+export function penerimaRefleksi(dosen, evaluasi){
+  const sem = (evaluasi || []).map(e => ({ ta: e.tahun_akademik, sm: e.semester })).sort(urutSemester)[0] || null;
+  if (!sem) return { semester: null, penerima: [] };
+  const kosong = (evaluasi || []).filter(e => e.tahun_akademik === sem.ta && e.semester === sem.sm && !e.rps_sesuai);
+  const penerima = (dosen || []).filter(dituju).map(d => ({ d, xs: kosong.filter(e => e.dosen_id === d.id) })).filter(x => x.xs.length)
+    .map(({ d, xs }) => ({ nama: d.nama, email: d.email, rinci: xs.map(e => `- ${e.kode_mk}${e.nama_mk ? ` ${e.nama_mk}` : ''}`).join('\n') }));
+  return { semester: sem, penerima };
+}
+
+/** Tindak lanjut evaluasi yang dekat atau lewat tenggat, ke PJ. Hasil { penerima, tanpaPJ: [tindak] }. */
+export function penerimaTindakEval(dosen, tindak, kini = new Date()){
+  const perId = new Map((dosen || []).map(d => [d.id, d])), per = new Map(), tanpaPJ = [];
+  for (const t of tindak || []) {
+    if (t.status === 'selesai' || !t.tenggat) continue;
+    const h = hariKe(t.tenggat, kini);
+    if (h > HARI_TINDAK_EVAL || h < -HARI_LEWAT_EVAL) continue;
+    const d = perId.get(t.pj_id);
+    if (!dituju(d)) { tanpaPJ.push(t); continue; }
+    const mk = t.evaluasi_mk || {};
+    if (!per.has(d.email)) per.set(d.email, { nama: d.nama, email: d.email, b: [] });
+    per.get(d.email).b.push(`- ${t.rencana}${mk.kode_mk ? ` (${mk.kode_mk} ${mk.tahun_akademik} ${mk.semester})` : ''}; tenggat ${tglID(t.tenggat)}, `
+      + (h < 0 ? `lewat ${-h} hari` : h === 0 ? 'hari ini' : `${h} hari lagi`));
+  }
+  return { penerima: [...per.values()].map(({ b, ...p }) => ({ ...p, rinci: b.join('\n') })), tanpaPJ };
+}
