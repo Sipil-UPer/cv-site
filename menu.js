@@ -18,6 +18,8 @@ const penyusun = s => admin(s) || (!!s.tim_penyusun && s.peran !== 'asesor');
 // Asesor, dan pimpinan yang bukan DTPS prodi ini (aktif=false), tidak mengisi karya.
 const isiKarya = s => s.peran !== 'asesor' && !(s.peran === 'pimpinan' && !s.aktif);
 
+import { halamanAktif } from './fitur.js?v=2026-11-12-b7db2c';
+
 export const MODUL = [
   // Susunan modul (pemilik 2026-11-12): isian dosen, operasional prodi, dan fungsi admin dipisah.
   { judul: 'Data saya', ket: 'Profil dan karya dosen, serta berkas yang diisi dosen.', halaman: [
@@ -28,7 +30,7 @@ export const MODUL = [
     { href: 'nilai-cpl.html', judul: 'Berkas nilai CPL', boleh: isiKarya,
       ket: 'Unggah Template_Input_Data_CPL per kelas (diperiksa sebelum dikirim, disimpan privat); admin: daftar kelas dan pengingat.' },
   ]},
-  { judul: 'Operasional', ket: 'Kegiatan prodi sehari-hari: kalender, rapat, hibah, survei, pengingat.', halaman: [
+  { judul: 'Operasional', ket: 'Kegiatan prodi sehari-hari.', halaman: [
     // Kalender (64-patch-kegiatan.sql): semua pengguna terdaftar; kegiatan manual diisi admin (pemilik 2026-11-12).
     { href: 'kalender.html', judul: 'Kalender kegiatan',
       ket: 'Rapat, kegiatan prodi, tenggat hibah, tindak lanjut, dan temuan AMI dalam satu kalender; unduh .ics.' },
@@ -90,7 +92,8 @@ const esc = s => String(s ?? '').replace(/[&<>"']/g, c =>
 
 // Halaman ruang kerja yang boleh dibuka `saya` (baris tabel dosen).
 export function halamanBoleh(saya){
-  return MODUL.map(m => ({ ...m, halaman: m.halaman.filter(h => !h.boleh || h.boleh(saya)) }))
+  // Modul yang dimatikan di config.js (FITUR_MATI, fitur.js) tidak tampil.
+  return MODUL.map(m => ({ ...m, halaman: m.halaman.filter(h => halamanAktif(h.href) && (!h.boleh || h.boleh(saya))) }))
     .filter(m => m.halaman.length);
 }
 
@@ -100,7 +103,7 @@ export function bolehBuka(saya, href){
   const b = berkas(href);
   const h = MODUL.flatMap(m => m.halaman).find(x => berkas(x.href) === b);
   if (!h) return null;
-  return !h.boleh || h.boleh(saya);
+  return halamanAktif(h.href) && (!h.boleh || h.boleh(saya));
 }
 
 // { email, saya }: saya = baris dosen atau null (belum terdaftar);

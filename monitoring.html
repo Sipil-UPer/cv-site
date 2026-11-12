@@ -212,6 +212,8 @@ const simpanAman = {
 };
 const SEKSI_BUKA = new Set(JSON.parse(simpanAman.get('seksiBuka') || '["_awal"]'));
 function seksiLipat(id, judul, ket, isi, bawaan){
+  // Seksi modul yang dimatikan di config.js (FITUR_MATI, site/fitur.js) tidak ditampilkan.
+  if ({ rapat: 1, hibah: 1 }[id] && (window.FITUR_MATI || []).includes(id)) return '';
   const buka = SEKSI_BUKA.has('_awal') ? !!bawaan : SEKSI_BUKA.has(id);
   return `<details class="seksi" data-seksi="${id}" ${buka ? 'open' : ''}>
     <summary><span class="panah">&#9660;</span><h2>${judul}</h2>

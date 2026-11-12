@@ -44,6 +44,8 @@ addEventListener('error', function (e) {
 // Hanya berlaku dengan token rapat yang masih dibuka. Satu perangkat dicatat sekali (klien acak di peramban).
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 import { tanggalPanjang } from './rapat.js?v=2026-11-12-b7db2c';
+import { jagaHalaman } from './fitur.js?v=2026-11-12-b7db2c';
+if (!jagaHalaman()) await new Promise(() => {});   // modul dimatikan (config.js FITUR_MATI)
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
 const sb = createClient(window.SB_URL, window.SB_KEY);

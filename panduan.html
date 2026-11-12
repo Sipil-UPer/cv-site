@@ -78,8 +78,8 @@
       <li>Buka <a href="ruang-kerja.html">Ruang kerja</a>, isi email kampus yang sudah didaftarkan admin, klik <b>Kirim tautan masuk</b>.</li>
       <li>Buka email, klik tautannya. Tidak ada kata sandi.</li>
       <li>Di atas Ruang kerja tampil <b>Tugas saya</b>: hal yang menunggu tindakan Anda, yang lewat tenggat paling atas. Isinya: isian profil yang kosong, draf karya yang belum diajukan, karya atau BKD yang dikembalikan admin, karya terverifikasi tanpa bukti, tindak lanjut rapat dengan Anda sebagai PJ, tenggat hibah tim Anda, temuan AMI dengan Anda sebagai PJ, dan kelas yang berkas nilai CPL-nya belum diunggah. Klik judulnya untuk langsung ke halaman yang tepat. Tugas hilang sendiri setelah dikerjakan.</li>
-      <li><b>Operasional ▾ › Kalender kegiatan</b> menampilkan rapat, kegiatan prodi (diisi admin), tenggat panggilan hibah, dan tenggat milik Anda (tindak lanjut rapat, hibah tim, temuan AMI) per bulan atau sebagai daftar 90 hari. <b>Unduh .ics</b> lalu impor ke Google Calendar (Setelan › Impor &amp; ekspor); berkas ini tidak tersinkron otomatis, jadi unduh dan impor lagi bila ada perubahan.</li>
-      <li>Menu biru di atas tiap halaman: <b>Data saya</b> (profil dan karya), <b>Operasional</b> (kalender, rapat, hibah, survei, pengingat), <b>Admin prodi</b> (khusus admin), <b>Monitoring</b>, <b>Akreditasi</b>, dan <b>Bantuan</b>. Isinya mengikuti peran Anda; halaman khusus admin tidak tampil untuk dosen. Anggota tim penyusun LED juga melihat <b>Akreditasi ▾ › Narasi LED</b>; tombol <b>Bagian saya</b> di sana menampilkan bagian yang ditugaskan kepada Anda.</li>
+      <li data-fitur="kalender"><b>Operasional ▾ › Kalender kegiatan</b> menampilkan rapat, kegiatan prodi (diisi admin), tenggat panggilan hibah, dan tenggat milik Anda (tindak lanjut rapat, hibah tim, temuan AMI) per bulan atau sebagai daftar 90 hari. <b>Unduh .ics</b> lalu impor ke Google Calendar (Setelan › Impor &amp; ekspor); berkas ini tidak tersinkron otomatis, jadi unduh dan impor lagi bila ada perubahan.</li>
+      <li>Menu biru di atas tiap halaman: <b>Data saya</b> (profil dan karya), <b>Operasional</b> (survei, dan bila diaktifkan: kalender, rapat, hibah, pengingat), <b>Admin prodi</b> (khusus admin), <b>Monitoring</b>, <b>Akreditasi</b>, dan <b>Bantuan</b>. Isinya mengikuti peran Anda; halaman khusus admin tidak tampil untuk dosen. Anggota tim penyusun LED juga melihat <b>Akreditasi ▾ › Narasi LED</b>; tombol <b>Bagian saya</b> di sana menampilkan bagian yang ditugaskan kepada Anda.</li>
     </ol>
     <p class="cat">Muncul "Email belum terdaftar"? Minta admin prodi menambahkan email Anda di Kelola dosen.
       Halaman tampil kosong atau "gagal dimuat"? Tekan <b>Ctrl+Shift+R</b> (memuat ulang tanpa cache).</p>
@@ -301,6 +301,8 @@ if (saya && saya.peran === 'admin') {
   document.getElementById('bagian-admin').hidden = false;
   document.querySelectorAll('nav.isi .adm').forEach(li => { li.hidden = false; });
 }
+// Bagian tentang modul yang dimatikan di config.js (FITUR_MATI, fitur.js) disembunyikan.
+document.querySelectorAll('[data-fitur]').forEach(el => { if ((window.FITUR_MATI || []).includes(el.dataset.fitur)) el.hidden = true; });
 </script>
 </body>
 </html>

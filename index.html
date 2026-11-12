@@ -180,6 +180,7 @@
 
 <main class="wrap" id="isi"></main>
 
+<script src="config.js?v=2026-11-12-b7db2c"></script>
 <script>
 const N = n => new Intl.NumberFormat('id-ID').format(n);
 const esc = s => String(s ?? '').replace(/[&<>"']/g,c=>
@@ -365,13 +366,15 @@ function render(){
     [D.kegiatan.filter(k=>k.kategori==='pkm').length,        'Pengabdian', 'daftar.html?jenis=pkm'],
     [totalPrestasi,      'Prestasi mahasiswa', 'daftar.html?jenis=prestasi'],
     [jumlahMitra(),      'Mitra kerja sama',   'mitra.html'],
-    // SDGs (pemilik 2026-11-11): karya terkait SDGs -> sdgs.html.
+    // SDGs (pemilik 2026-11-11): karya terkait SDGs -> sdgs.html. Kartu ini dan Topik keahlian
+    // tidak tampil bila modulnya dimatikan (config.js FITUR_MATI, site/fitur.js).
     [[...D.publikasi, ...D.kegiatan, ...(D.luaran_dosen||[])].filter(k => (k.sdgs||[]).length).length,
                          'Karya ber-SDGs',     'sdgs.html'],
     // Peta keahlian (pemilik 2026-11-11): kata kunci dosen + topik publikasi -> keahlian.html.
     [new Set([...D.dosen.flatMap(d => d.kata_kunci || []), ...D.publikasi.flatMap(k => (k.topik || []).map(t => t.t))]
        .map(x => String(x).toLowerCase())).size, 'Topik keahlian', 'keahlian.html?tab=peta'],
-  ].map(([v,l,href])=>`<a href="${href}"><b>${N(v)}</b><span>${l}</span></a>`).join('');
+  ].filter(([, , href]) => !(window.FITUR_MATI || []).includes({ 'sdgs.html': 'sdgs', 'keahlian.html?tab=peta': 'kepakaran' }[href]))
+   .map(([v,l,href])=>`<a href="${href}"><b>${N(v)}</b><span>${l}</span></a>`).join('');
   // Jumlah topik persis sama dengan keahlian.html (petaTopik, termasuk bidang keahlian).
   import('./keahlian.js?v=2026-11-12-b7db2c').then(m => {
     const b = document.querySelector('#angka a[href^="keahlian.html"] b');

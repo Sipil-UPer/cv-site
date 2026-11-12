@@ -107,6 +107,7 @@
 
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
 
+<script src="config.js?v=2026-11-12-b7db2c"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -124,6 +125,8 @@ addEventListener('error', function (e) {
 <script type="module">
 // Rekap karya per Tujuan Pembangunan Berkelanjutan (SDGs). SDG dipilih dosen
 // pada isian karya (47-patch-sdgs.sql); data dari data.json publik.
+import { jagaHalaman } from './fitur.js?v=2026-11-12-b7db2c';
+if (!jagaHalaman()) await new Promise(() => {});   // modul dimatikan (config.js FITUR_MATI)
 import { SDGS } from './form-karya.js?v=2026-11-12-b7db2c';
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 // Warna resmi SDG 1-17 (panduan visual PBB).

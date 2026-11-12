@@ -103,6 +103,7 @@ import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 import { pengguna, pasangMenu, halamanBoleh, bolehBuka, identitas, pasangJudul } from './menu.js?v=2026-11-12-b7db2c';
 import { hitungVerifikasi } from './verifikasi-hitung.js?v=2026-11-12-b7db2c';
 import { tugasSaya } from './tugas-saya.js?v=2026-11-12-b7db2c';
+import { fiturAktif, halamanAktif } from './fitur.js?v=2026-11-12-b7db2c';
 
 const sb = createClient(window.SB_URL, window.SB_KEY);
 const $ = id => document.getElementById(id);
@@ -133,7 +134,8 @@ async function mulai(){
   $('hSub').textContent = `Masuk sebagai ${u.saya.nama} (${u.saya.peran}).`;
   const tolak = TOLAK || (KE && bolehBuka(u.saya, KE) === false ? KE : '');
   $('isi').innerHTML = (tolak ? `<div class="info">Halaman <code>${esc(tolak.split('?')[0])}</code>
-      tidak tersedia untuk peran ${esc(u.saya.peran)}. Hubungi admin prodi bila perlu akses.</div>` : '')
+      ${halamanAktif(tolak) ? `tidak tersedia untuk peran ${esc(u.saya.peran)}. Hubungi admin prodi bila perlu akses.`
+        : 'termasuk modul yang tidak diaktifkan di situs ini.'}</div>` : '')
     + `<div class="modul">${halamanBoleh(u.saya).map(m => `<section class="m">
         <h2>${esc(m.judul)}</h2><p>${esc(m.ket)}</p>
         ${m.halaman.map(h => `<a href="${esc(h.href)}"><b>${esc(h.judul)}</b>
@@ -193,9 +195,9 @@ async function muatTugas(saya){
     // Draf hanya terbaca oleh pelapor/penulisnya (41-patch-draf-karya.sql).
     baca(sb.from('karya').select('id,judul,status,dilaporkan_oleh,karya_penulis(dosen_id)').eq('status', 'draf').limit(500)),
     baca(sb.from('lkps_bkd').select('tahun_akademik,semester,verifikasi,catatan').eq('verifikasi', 'ditolak')),
-    baca(sb.from('rapat_tindak').select('id,rapat_id,keputusan,tenggat,status,pj_dosen_id,rapat(judul,tanggal)')
+    !fiturAktif('rapat') ? [] : baca(sb.from('rapat_tindak').select('id,rapat_id,keputusan,tenggat,status,pj_dosen_id,rapat(judul,tanggal)')
       .eq('pj_dosen_id', saya.id).in('status', ['terbuka', 'proses'])),
-    baca(sb.from('hibah_ajuan').select('judul,status,tenggat_ajuan,tanggal_ajuan,tenggat_kemajuan,kemajuan_selesai,tenggat_akhir,akhir_selesai,hibah_tim!inner(dosen_id,peran)')
+    !fiturAktif('hibah') ? [] : baca(sb.from('hibah_ajuan').select('judul,status,tenggat_ajuan,tanggal_ajuan,tenggat_kemajuan,kemajuan_selesai,tenggat_akhir,akhir_selesai,hibah_tim!inner(dosen_id,peran)')
       .eq('hibah_tim.dosen_id', saya.id).in('status', ['rencana', 'didanai'])),
     em ? baca(sb.from('ami_temuan').select('kode,siklus,uraian,status,tenggat,pj_email').ilike('pj_email', em)) : [],
     em ? baca(sb.from('cpl_kelas').select('id,tahun_akademik,semester,kode_mk,nama_mk,kelas').ilike('dosen_email', em)) : []]);

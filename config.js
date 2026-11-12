@@ -58,3 +58,16 @@ window.PROFIL_ORCID  = 'https://orcid.org/';
 window.UPLOAD_URL    = 'https://script.google.com/macros/s/AKfycbyjS_eMYhFXDWNUeFW7zTHpN-NdVJBqVmtyK6zlmfm8XjqfsZjwwzkIQ9BUYXm6cVtLBA/exec';
 window.UPLOAD_MAX_MB = 20;
 window.UPLOAD_EXT    = 'pdf,jpg,jpeg,png,docx,xlsx';
+
+/* =====================================================================
+   4. MODUL YANG DIMATIKAN
+   -------------------------------------------------------------------
+   Daftar modul opsional yang tidak dipakai situs ini (site/fitur.js).
+   Ditulis install.py dari pilihan paket (pemilik 2026-11-12):
+     lengkap     []  (semua modul menyala)
+     akreditasi  ['rapat', 'hibah', 'kalender', 'pengingat', 'kepakaran', 'sdgs']
+   Nilai sah: rapat, hibah, kalender, pengingat, kepakaran, sdgs.
+   Modul yang mati hilang dari menu, Monitoring, dan Panduan; datanya
+   (bila ada) tidak dihapus dan tampil lagi bila modulnya dinyalakan.
+   ===================================================================== */
+window.FITUR_MATI = [];

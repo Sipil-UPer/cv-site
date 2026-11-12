@@ -29,7 +29,7 @@
      letter-spacing:-.018em;margin:0;line-height:1.14;color:#fff}
   .prodi{color:var(--biru-m4);font-size:14.5px;margin-top:7px}
   .tautan{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
-  .tautan a{font-family:var(--mono);font-size:11px;letter-spacing:.06em;
+  .tautan a,.tautan span{font-family:var(--mono);font-size:11px;letter-spacing:.06em;
     text-transform:uppercase;text-decoration:none;color:#fff;
     border:1px solid rgba(255,255,255,.35);padding:5px 11px;border-radius:2px}
   .tautan a:hover{background:rgba(255,255,255,.12)}
@@ -95,6 +95,7 @@
 
 <main class="wrap" id="isi"></main>
 
+<script src="config.js?v=2026-11-12-b7db2c"></script>
 <script>
 // Alamat dasar profil luar; dapat diubah lewat config.js tanpa
 // menyentuh berkas ini. Nilai cadangan dipakai bila config.js lama.
@@ -108,8 +109,13 @@ const pilih = new URLSearchParams(location.search).get('d') || '';
 // SDGs per karya (47-patch-sdgs.sql, pemilik 2026-11-11): warna resmi PBB, tautan ke Rekap SDGs.
 const WARNA_SDG = ['#E5243B','#DDA63A','#4C9F38','#C5192D','#FF3A21','#26BDE2','#FCC30B','#A21942','#FD6925',
   '#DD1367','#FD9D24','#BF8B2E','#3F7E44','#0A97D9','#56C02B','#00689D','#19486A'];
-const tandaSDG = xs => (xs||[]).map(n => `<a class="sdg-t" href="sdgs.html" style="background:${WARNA_SDG[n-1]}"
-  title="SDG ${n}">SDG ${n}</a>`).join('');
+// Modul Rekap SDGs / Kepakaran dimatikan (config.js FITUR_MATI): label tetap, tanpa tautan.
+const NYALA = k => !(window.FITUR_MATI || []).includes(k);
+const tandaSDG = xs => (xs||[]).map(n => NYALA('sdgs')
+  ? `<a class="sdg-t" href="sdgs.html" style="background:${WARNA_SDG[n-1]}" title="SDG ${n}">SDG ${n}</a>`
+  : `<span class="sdg-t" style="background:${WARNA_SDG[n-1]}" title="SDG ${n}">SDG ${n}</span>`).join('');
+const tautanPakar = t => NYALA('kepakaran')
+  ? `<a href="keahlian.html?tab=cari&amp;q=${encodeURIComponent(t)}">${esc(t)}</a>` : `<span>${esc(t)}</span>`;
 
 fetch('data.json?v=' + Date.now())
   .then(r => { if(!r.ok) throw new Error(r.status); return r.json(); })
@@ -166,8 +172,8 @@ function render(D){
     // Kata kunci keahlian (pemilik 2026-11-11) -> Cari pakar di keahlian.html.
     // Topik keahlian baku (patch 61): nama dari data.json.keahlian_baku.
     ...(dosen.topik_keahlian || []).map(k => ((D.keahlian_baku || {}).topik || []).find(t => t.kode === k)).filter(Boolean)
-      .map(t => `<a href="keahlian.html?tab=cari&amp;q=${encodeURIComponent(t.nama)}">${esc(t.nama)}</a>`),
-    ...(dosen.kata_kunci || []).map(k => `<a href="keahlian.html?tab=cari&amp;q=${encodeURIComponent(k)}">${esc(k)}</a>`),
+      .map(t => tautanPakar(t.nama)),
+    ...(dosen.kata_kunci || []).map(k => tautanPakar(k)),
   ].filter(Boolean).join('');
 
   const utama = pub.filter(p => {
@@ -225,7 +231,7 @@ function render(D){
   const sdgDosen = [...new Set([...pub, ...keg].flatMap(x => x.sdgs || []))].sort((a, b) => a - b);
   document.getElementById('isi').innerHTML = `
     ${sdgDosen.length ? `<p class="sdg-ring"><b>SDGs yang didukung:</b> ${tandaSDG(sdgDosen)}
-      <a href="sdgs.html">rekap prodi</a></p>` : ''}
+      ${NYALA('sdgs') ? '<a href="sdgs.html">rekap prodi</a>' : ''}</p>` : ''}
     <h2>Publikasi</h2><div class="list">${daftarPub}</div>
     <h2>Penelitian &amp; pengabdian</h2><div class="list">${daftarKeg}</div>
     <h2>Prestasi mahasiswa bimbingan</h2><div class="list">${daftarPres}</div>
