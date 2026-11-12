@@ -5,7 +5,7 @@ export const LABEL_TABEL = {
   karya_mahasiswa: 'Mahasiswa pada karya', dosen: 'Dosen', butir_bukti: 'Bukti butir', dokumen: 'Pustaka dokumen',
   pengaturan: 'Isian angka butir', led_narasi: 'Narasi LED', led_penugasan: 'Penugasan LED', led_tim: 'Tim penyusun LED',
   ami_temuan: 'Temuan AMI', cpl_kelas: 'Kelas CPL', cpl_berkas: 'Berkas nilai CPL', cpl_ringkasan: 'Ringkasan CPL',
-  lkps_bkd: 'BKD dosen',
+  lkps_bkd: 'BKD dosen', target_baku: 'Target baku per jabatan', target_dosen: 'Target khusus dosen',
 };
 export const AKSI = { tambah: 'Tambah', ubah: 'Ubah', hapus: 'Hapus' };
 

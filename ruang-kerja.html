@@ -104,6 +104,7 @@ import { pengguna, pasangMenu, halamanBoleh, bolehBuka, identitas, pasangJudul }
 import { hitungVerifikasi } from './verifikasi-hitung.js?v=2026-11-12-b7db2c';
 import { tugasSaya } from './tugas-saya.js?v=2026-11-12-b7db2c';
 import { fiturAktif, halamanAktif } from './fitur.js?v=2026-11-12-b7db2c';
+import { barisDosen } from './target-kinerja.js?v=2026-11-12-b7db2c';
 
 const sb = createClient(window.SB_URL, window.SB_KEY);
 const $ = id => document.getElementById(id);
@@ -184,7 +185,7 @@ function layarTidakTerdaftar(email){
 
 // "Tugas saya" (pemilik 2026-11-12; tugas-saya.js). Tabel yang belum ada (patch belum
 // dijalankan) dibaca sebagai kosong; RLS membatasi pada data milik sendiri.
-const LABEL_JENIS = { profil: 'Profil', karya: 'Karya', bkd: 'BKD', rapat: 'Rapat', hibah: 'Hibah', ami: 'AMI', cpl: 'CPL' };
+const LABEL_JENIS = { profil: 'Profil', karya: 'Karya', bkd: 'BKD', rapat: 'Rapat', hibah: 'Hibah', ami: 'AMI', cpl: 'CPL', target: 'Target' };
 const MAKS_TAMPIL = 8;
 async function muatTugas(saya){
   const baca = q => q.then(r => r.error ? [] : (r.data || []), () => []);
@@ -207,7 +208,19 @@ async function muatTugas(saya){
     kelasCpl.length ? baca(sb.from('cpl_berkas').select('kelas_id').in('kelas_id', kelasCpl.map(k => k.id))) : []]);
   // Lebih dari 300 karya tanpa bukti_url: sisanya dianggap berbukti (tidak dilaporkan keliru).
   const berBukti = new Set([...bukti.map(b => b.karya_id), ...ids.slice(300)]);
-  return tugasSaya({ saya, karya: [...karya, ...draf], berBukti, bkd, tindak, hibah, temuan, kelasCpl, berkasCpl });
+  // Target kinerja tahun berjalan (66-patch-target-dosen.sql); tanpa tabel atau tanpa target = tidak tampil.
+  const th = new Date().getFullYear();
+  const [tBaku, tKhusus, tKarya, tHibah, tSkema] = await Promise.all([
+    baca(sb.from('target_baku').select('*').eq('tahun', th).eq('jabatan', saya.jabatan || '-')),
+    baca(sb.from('target_dosen').select('*').eq('tahun', th).eq('dosen_id', saya.id)),
+    baca(sb.from('karya').select('id,kategori,indeksasi,tahun,status,karya_penulis!inner(dosen_id)').eq('karya_penulis.dosen_id', saya.id)
+      .eq('tahun', th).in('status', ['terverifikasi', 'diajukan'])),
+    !fiturAktif('hibah') ? [] : baca(sb.from('hibah_ajuan').select('status,tanggal_ajuan,tahun_usulan,skema_kode,hibah_tim!inner(dosen_id)').eq('hibah_tim.dosen_id', saya.id)),
+    baca(sb.from('ref_skema_dana').select('kode,kelompok'))]);
+  const kel = new Map(tSkema.map(s => [s.kode, s.kelompok]));
+  const target = (tBaku.length || tKhusus.length) ? barisDosen(saya, th, { baku: tBaku, khusus: tKhusus, karya: tKarya,
+    hibah: tHibah.map(a => ({ ...a, skema: { kelompok: kel.get(a.skema_kode) } })) }) : [];
+  return tugasSaya({ saya, karya: [...karya, ...draf], berBukti, bkd, tindak, hibah, temuan, kelasCpl, berkasCpl, target, tahunTarget: th });
 }
 
 function htmlTugas(xs){

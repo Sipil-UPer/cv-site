@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Target kinerja dosen — Kinerja Program Studi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tema.css?v=2026-11-12-b7db2c">
+<link rel="stylesheet" href="kepala.css?v=2026-11-12-b7db2c">
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
+  .wrap{max-width:1180px;margin:0 auto;padding:18px 20px 80px}
+  .kosong, .ket{color:var(--muted)}
+  .ket{font-size:13px}
+  .kartu{background:var(--panel);border:1px solid var(--line);padding:14px 18px;margin-bottom:16px}
+  .kartu h2{font-size:17px;margin:0 0 6px;color:var(--biru)}
+  .alat{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+  .b{font:12.5px/1.4 var(--sans);padding:5px 12px;border:1px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer}
+  .b:hover{border-color:var(--biru);color:var(--biru)}
+  .b.utama{background:var(--biru);color:#fff;border-color:var(--biru)}
+  .b:disabled{opacity:.5;cursor:default}
+  select, input{font:inherit;font-size:14px;padding:4px 6px;border:1px solid var(--line);background:var(--panel);color:var(--ink)}
+  input[type=number]{width:72px;text-align:right}
+  .gulir{overflow-x:auto}
+  table.ds{width:100%;border-collapse:collapse;font-size:13.5px}
+  table.ds th{text-align:left;font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--line);padding:5px 8px;vertical-align:bottom}
+  table.ds td{padding:6px 8px;border-bottom:1px solid var(--line-soft);vertical-align:top}
+  table.ds td.n{text-align:right;white-space:nowrap}
+  .st{font-weight:600;white-space:nowrap}
+  .st-tercapai{color:var(--hijau)} .st-hampir{color:#8A5A00} .st-belum{color:var(--merah)}
+  .tunggu{display:block;font-size:11.5px;color:var(--muted);font-weight:400}
+  .khusus{font-size:11px;color:var(--biru-2)}
+  .msg{font-size:13px;margin-left:8px} .msg.buruk{color:var(--merah)} .msg.ok{color:var(--hijau)}
+  tr.sunting td{background:var(--line-soft)}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:8px 14px;margin:6px 0}
+  .grid label{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:13px}
+  @media(max-width:700px){.wrap{padding-left:16px;padding-right:16px}}
+</style>
+</head>
+<body>
+<header class="hero"><div class="hero-in">
+  <div class="hero-inst" data-identitas></div>
+  <h1>Target kinerja dosen</h1>
+  <div class="sub" id="hSub">Memuat…</div>
+</div></header>
+<main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
+<script src="config.js?v=2026-11-12-b7db2c"></script>
+<script>
+// Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
+addEventListener('error', function (e) {
+  if (document.getElementById('galat-muat')) return;
+  var d = document.createElement('div');
+  d.id = 'galat-muat';
+  d.style.cssText = 'margin:16px;padding:12px 14px;border:1px solid var(--merah);' +
+    'background:var(--merah-m3);color:var(--ink);font:14px/1.5 system-ui,sans-serif';
+  d.textContent = 'Halaman gagal dimuat: ' + (e.message || 'galat skrip') +
+    '. Tekan Ctrl+Shift+R untuk memuat ulang tanpa cache; bila tetap muncul, kirim pesan ini ke admin.';
+  document.body.insertBefore(d, document.body.firstChild);
+});
+</script>
+<script type="module">
+// Target kinerja per dosen (pemilik 2026-11-12; 66-patch-target-dosen.sql, target-kinerja.js).
+// Admin: target baku per jabatan + target khusus per dosen. Pimpinan: semua dosen (baca).
+// Dosen: miliknya sendiri. Capaian dihitung dari karya dan proposal hibah tim.
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+import { gerbang } from './menu.js?v=2026-11-12-b7db2c';
+import { fiturAktif } from './fitur.js?v=2026-11-12-b7db2c';
+import { JABATAN, INDIKATOR, barisDosen, targetEfektif, angka } from './target-kinerja.js?v=2026-11-12-b7db2c';
+
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const $ = id => document.getElementById(id);
+const sb = createClient(window.SB_URL, window.SB_KEY);
+const KINI = new Date().getFullYear();
+const LABEL_STATUS = { tercapai: 'Tercapai', hampir: 'Hampir', belum: 'Belum' };
+// Indikator hibah tidak dipakai bila modul hibah dimatikan (config.js FITUR_MATI).
+const IND = INDIKATOR.filter(i => i.kode !== 'hibah_eksternal' || fiturAktif('hibah'));
+let SAYA = null, ADMIN = false, SEMUA = false, TAHUN = KINI, D = {}, SUNTING = null, ADA_TABEL = true;
+
+function selCapaian(b){
+  if (!b) return '<td class="n kosong">—</td>';
+  return `<td class="n"><span class="st st-${b.status}" title="${esc(LABEL_STATUS[b.status])}">${b.sah} / ${angka(b.target)}</span>
+    ${b.sumber === 'dosen' ? '<span class="khusus" title="target khusus dosen ini">khusus</span>' : ''}
+    ${b.menunggu ? `<span class="tunggu">+${b.menunggu} menunggu</span>` : ''}</td>`;
+}
+
+function htmlSaya(){
+  const xs = barisDosen(SAYA, TAHUN, D).filter(b => IND.some(i => i.kode === b.kode));
+  return `<section class="kartu"><h2>Target saya ${TAHUN}</h2>
+    ${xs.length ? `<div class="gulir"><table class="ds"><thead><tr><th>Indikator</th><th>Target</th><th>Tercapai</th><th>Menunggu verifikasi</th><th>Status</th></tr></thead><tbody>
+      ${xs.map(b => `<tr><td>${esc(b.label)}${b.catatan ? `<div class="ket">${esc(b.catatan)}</div>` : ''}</td><td class="n">${angka(b.target)} ${esc(b.satuan)}</td>
+        <td class="n">${b.sah}</td><td class="n">${b.menunggu || '—'}</td><td class="st st-${b.status}">${LABEL_STATUS[b.status]}</td></tr>`).join('')}
+    </tbody></table></div>` : `<p class="kosong">Belum ada target untuk ${TAHUN}${SAYA.jabatan ? '' : ' (jabatan akademik Anda belum diisi di profil)'}.</p>`}
+    <p class="ket">Dihitung dari karya tahun ${TAHUN} yang mencantumkan Anda sebagai penulis atau anggota: yang terverifikasi masuk "Tercapai",
+      yang masih diajukan masuk "Menunggu verifikasi". Proposal hibah eksternal dihitung dari Pengajuan hibah (tim Anda, sudah diajukan).
+      Target ditetapkan admin prodi per jabatan akademik.</p></section>`;
+}
+
+function htmlBaku(){
+  const nilai = (j, k) => D.baku.find(b => +b.tahun === TAHUN && b.jabatan === j && b.indikator === k)?.target;
+  return `<section class="kartu"><h2>Target baku per jabatan ${TAHUN}</h2>
+    <p class="ket">Berlaku untuk semua dosen dengan jabatan akademik itu, kecuali yang diberi target khusus di bawah. Kosong = tanpa target.</p>
+    <div class="gulir"><table class="ds" id="tBaku"><thead><tr><th>Indikator</th>${JABATAN.map(([, l]) => `<th>${esc(l)}</th>`).join('')}</tr></thead><tbody>
+      ${IND.map(i => `<tr><td>${esc(i.label)}<div class="ket">${esc(i.satuan)} per tahun</div></td>
+        ${JABATAN.map(([j]) => `<td><input type="number" min="0" step="0.5" data-j="${j}" data-k="${i.kode}" value="${esc(angka(nilai(j, i.kode)).replace(',', '.'))}"></td>`).join('')}</tr>`).join('')}
+    </tbody></table></div>
+    <p><button class="b utama" id="simpanBaku">Simpan target baku</button>
+      <button class="b" id="salinBaku">Salin dari ${TAHUN - 1}</button><span class="msg" id="mBaku"></span></p></section>`;
+}
+
+function htmlSemua(){
+  const ds = D.dosen;
+  const tercapaiSemua = ds.filter(d => { const xs = barisDosen(d, TAHUN, D); return xs.length && xs.every(b => b.status === 'tercapai'); }).length;
+  return `<section class="kartu"><h2>Per dosen ${TAHUN}</h2>
+    <p class="ket">Tercapai / target. Hijau tercapai, cokelat ≥ 80%, merah belum; "khusus" = target khusus dosen itu; "+n menunggu" = karya yang belum diverifikasi.
+      ${tercapaiSemua} dari ${ds.length} dosen sudah mencapai semua targetnya.${ADMIN ? ' Klik <b>Ubah</b> untuk memberi target khusus.' : ''}</p>
+    <div class="gulir"><table class="ds"><thead><tr><th>Dosen</th><th>Jabatan</th>${IND.map(i => `<th>${esc(i.label)}</th>`).join('')}${ADMIN ? '<th></th>' : ''}</tr></thead><tbody>
+      ${ds.map(d => {
+        const xs = barisDosen(d, TAHUN, D), per = Object.fromEntries(xs.map(b => [b.kode, b]));
+        const baris = `<tr${SUNTING === d.id ? ' class="sunting"' : ''}><td>${esc(d.nama)}</td><td>${esc((JABATAN.find(([j]) => j === d.jabatan) || [, '—'])[1])}</td>
+          ${IND.map(i => selCapaian(per[i.kode])).join('')}${ADMIN ? `<td><button class="b" data-ubah="${esc(d.id)}">Ubah</button></td>` : ''}</tr>`;
+        return baris + (ADMIN && SUNTING === d.id ? htmlSunting(d) : '');
+      }).join('')}
+    </tbody></table></div></section>`;
+}
+
+function htmlSunting(d){
+  const t = targetEfektif(d, TAHUN, D.baku, []);        // baku jabatannya, sebagai petunjuk
+  const k = Object.fromEntries(D.khusus.filter(x => x.dosen_id === d.id && +x.tahun === TAHUN).map(x => [x.indikator, x]));
+  const catatan = Object.values(k).find(x => x.catatan)?.catatan || '';
+  return `<tr class="sunting"><td colspan="${IND.length + 3}">
+    <b>Target khusus ${esc(d.nama)} ${TAHUN}</b> <span class="ket">(kosong = ikut target baku jabatannya, tertera abu-abu)</span>
+    <div class="grid">${IND.map(i => `<label>${esc(i.label)} <input type="number" min="0" step="0.5" data-sk="${i.kode}"
+      placeholder="${esc(angka(t[i.kode]?.target))}" value="${esc(angka(k[i.kode]?.target).replace(',', '.'))}"></label>`).join('')}</div>
+    <label class="ket">Catatan (mis. tugas tambahan, cuti studi) <input type="text" id="sCatatan" maxlength="500" style="width:100%" value="${esc(catatan)}"></label>
+    <p><button class="b utama" id="simpanKhusus">Simpan</button> <button class="b" id="batalKhusus">Tutup</button><span class="msg" id="mKhusus"></span></p></td></tr>`;
+}
+
+function gambar(){
+  const pilihTahun = `<div class="alat"><label>Tahun <select id="pTahun">${[KINI + 1, KINI, KINI - 1, KINI - 2].map(y => `<option${y === TAHUN ? ' selected' : ''}>${y}</option>`).join('')}</select></label>
+    <span class="ket">Tahun kalender (Januari–Desember).</span></div>`;
+  if (!ADA_TABEL) { $('isi').innerHTML = `<p class="kosong">Tabel target belum ada: jalankan supabase/66-patch-target-dosen.sql.</p>`; return; }
+  $('isi').innerHTML = pilihTahun + (SEMUA ? '' : htmlSaya()) + (ADMIN ? htmlBaku() : '') + (SEMUA ? htmlSemua() : '');
+  $('pTahun').onchange = () => { TAHUN = +$('pTahun').value; SUNTING = null; muat(); };
+  if (!ADMIN) return;
+  $('simpanBaku').onclick = simpanBaku;
+  $('salinBaku').onclick = () => {
+    for (const b of D.baku.filter(b => +b.tahun === TAHUN - 1)) {
+      const el = document.querySelector(`#tBaku input[data-j="${b.jabatan}"][data-k="${b.indikator}"]`);
+      if (el && el.value === '') el.value = String(+b.target);
+    }
+    $('mBaku').className = 'msg'; $('mBaku').textContent = 'Disalin ke isian yang kosong; tekan Simpan target baku.';
+  };
+  document.querySelectorAll('[data-ubah]').forEach(b => { b.onclick = () => { SUNTING = SUNTING === b.dataset.ubah ? null : b.dataset.ubah; gambar(); }; });
+  if ($('simpanKhusus')) { $('simpanKhusus').onclick = simpanKhusus; $('batalKhusus').onclick = () => { SUNTING = null; gambar(); }; }
+}
+
+const sah = v => v === '' || (Number.isFinite(+v) && +v >= 0 && +v <= 9999);
+async function simpanBaku(){
+  const m = $('mBaku'), isi = [], hapus = [];
+  for (const el of document.querySelectorAll('#tBaku input')) {
+    const v = el.value.trim();
+    if (!sah(v)) { m.className = 'msg buruk'; m.textContent = 'Target harus angka 0 atau lebih.'; el.focus(); return; }
+    if (v === '') hapus.push([el.dataset.j, el.dataset.k]);
+    else isi.push({ tahun: TAHUN, jabatan: el.dataset.j, indikator: el.dataset.k, target: +v, oleh: SAYA.email, diperbarui: new Date().toISOString() });
+  }
+  $('simpanBaku').disabled = true; m.className = 'msg'; m.textContent = 'Menyimpan…';
+  let galat = null;
+  if (isi.length) ({ error: galat } = await sb.from('target_baku').upsert(isi, { onConflict: 'tahun,jabatan,indikator' }));
+  for (const [j, k] of hapus) {
+    if (galat) break;
+    if (D.baku.some(b => +b.tahun === TAHUN && b.jabatan === j && b.indikator === k))
+      ({ error: galat } = await sb.from('target_baku').delete().eq('tahun', TAHUN).eq('jabatan', j).eq('indikator', k));
+  }
+  $('simpanBaku').disabled = false;
+  if (galat) { m.className = 'msg buruk'; m.textContent = galat.message; return; }
+  await muat(); $('mBaku').className = 'msg ok'; $('mBaku').textContent = 'Tersimpan.';
+}
+
+async function simpanKhusus(){
+  const m = $('mKhusus'), id = SUNTING, catatan = $('sCatatan').value.trim() || null, isi = [], hapus = [];
+  for (const el of document.querySelectorAll('[data-sk]')) {
+    const v = el.value.trim();
+    if (!sah(v)) { m.className = 'msg buruk'; m.textContent = 'Target harus angka 0 atau lebih.'; el.focus(); return; }
+    if (v === '') hapus.push(el.dataset.sk);
+    else isi.push({ tahun: TAHUN, dosen_id: id, indikator: el.dataset.sk, target: +v, catatan, oleh: SAYA.email, diperbarui: new Date().toISOString() });
+  }
+  m.className = 'msg'; m.textContent = 'Menyimpan…';
+  let galat = null;
+  if (isi.length) ({ error: galat } = await sb.from('target_dosen').upsert(isi, { onConflict: 'tahun,dosen_id,indikator' }));
+  if (!galat && hapus.length && D.khusus.some(x => x.dosen_id === id && +x.tahun === TAHUN && hapus.includes(x.indikator)))
+    ({ error: galat } = await sb.from('target_dosen').delete().eq('tahun', TAHUN).eq('dosen_id', id).in('indikator', hapus));
+  if (galat) { m.className = 'msg buruk'; m.textContent = galat.message; return; }
+  await muat(); $('mKhusus').className = 'msg ok'; $('mKhusus').textContent = 'Tersimpan.';
+}
+
+async function muat(){
+  const baca = q => q.then(r => ({ data: r.error ? [] : (r.data || []), error: r.error }), e => ({ data: [], error: e }));
+  const [bk, kh, ky, hb, sk, ds] = await Promise.all([
+    baca(sb.from('target_baku').select('*')),
+    baca(sb.from('target_dosen').select('*')),
+    baca(sb.from('karya').select('id,kategori,indeksasi,tahun,status,karya_penulis(dosen_id)').eq('tahun', TAHUN).in('status', ['terverifikasi', 'diajukan']).limit(5000)),
+    fiturAktif('hibah') ? baca(sb.from('hibah_ajuan').select('status,tanggal_ajuan,tahun_usulan,skema_kode,hibah_tim(dosen_id)')) : { data: [] },
+    baca(sb.from('ref_skema_dana').select('kode,kelompok')),
+    SEMUA ? baca(sb.from('dosen').select('id,nama,jabatan,peran,aktif,dtps').order('nama')) : { data: [] }]);
+  ADA_TABEL = !(bk.error && /does not exist|schema cache/i.test(bk.error.message || ''));
+  const kelompok = new Map(sk.data.map(s => [s.kode, s.kelompok]));
+  D = { baku: bk.data, khusus: kh.data, karya: ky.data,
+        hibah: hb.data.map(a => ({ ...a, skema: { kelompok: kelompok.get(a.skema_kode) } })),
+        // Dosen yang diberi target: aktif, bukan asesor, bukan staf non-DTPS.
+        dosen: ds.data.filter(d => d.aktif !== false && d.peran !== 'asesor' && d.dtps !== false) };
+  gambar();
+}
+
+async function mulai(){
+  SAYA = await gerbang(sb);
+  if (!SAYA) return;
+  ADMIN = SAYA.peran === 'admin';
+  SEMUA = ADMIN || SAYA.peran === 'pimpinan';
+  $('hSub').textContent = `Masuk sebagai ${SAYA.nama}`;
+  await muat();
+}
+mulai().catch(e => { $('isi').innerHTML = `<p class="kosong">Gagal memuat: ${esc(e.message || String(e))}</p>`; });
+</script>
+</body>
+</html>

@@ -18,7 +18,8 @@ const tgl10 = s => String(s || '').slice(0, 10);
  *   berBukti: Set id karya yang punya karya_bukti,
  *   bkd: baris lkps_bkd milik sendiri, tindak: rapat_tindak dengan rapat {judul, tanggal},
  *   hibah: hibah_ajuan dengan hibah_tim [{dosen_id, peran}], temuan: ami_temuan,
- *   kelasCpl: cpl_kelas milik sendiri, berkasCpl: cpl_berkas [{kelas_id}] }
+ *   kelasCpl: cpl_kelas milik sendiri, berkasCpl: cpl_berkas [{kelas_id}],
+ *   target: baris target-kinerja.js barisDosen tahun berjalan, tahunTarget }
  * Hasil [{ jenis, judul, rinci, href, hari, tingkat }], lewat tenggat dulu.
  * Asesor tidak punya tugas.
  */
@@ -76,6 +77,12 @@ export function tugasSaya(d, kini = new Date()){
     .sort((a, b) => `${b.tahun_akademik}${b.semester}`.localeCompare(`${a.tahun_akademik}${a.semester}`));
   for (const k of belum)
     tambah('cpl', `Unggah berkas nilai CPL ${k.kode_mk} kelas ${k.kelas}`, `${k.nama_mk || k.kode_mk}, ${k.tahun_akademik} ${k.semester}`, 'nilai-cpl.html');
+
+  // Target kinerja tahun berjalan (66-patch-target-dosen.sql): satu butir ringkas bila ada yang belum tercapai.
+  const kurang = (d.target || []).filter(b => b.status !== 'tercapai');
+  if (kurang.length) tambah('target', `Target kinerja ${d.tahunTarget || kini.getFullYear()}: ${kurang.length} indikator belum tercapai`,
+    kurang.map(b => `${b.label} ${b.sah} dari ${String(+b.target).replace('.', ',')}${b.menunggu ? ` (+${b.menunggu} menunggu verifikasi)` : ''}`).join('; '),
+    'target.html');
 
   return out.map((x, i) => [x, i]).sort(([a, i], [b, j]) => URUT[a.tingkat] - URUT[b.tingkat]
     || (a.hari ?? 1e9) - (b.hari ?? 1e9) || i - j).map(([x]) => x);

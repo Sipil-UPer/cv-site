@@ -61,6 +61,9 @@ export const MODUL = [
   { judul: 'Monitoring', ket: 'Kinerja prodi dan dosen dari waktu ke waktu.', halaman: [
     { href: 'monitoring.html', judul: 'Monitoring kinerja',
       ket: 'Rekap per tahun atau TS, per dosen, dan syarat unggul.' },
+    // Target kinerja per dosen (66-patch-target-dosen.sql, pemilik 2026-11-12): dosen melihat miliknya.
+    { href: 'target.html', judul: 'Target kinerja dosen', boleh: s => s.peran !== 'asesor',
+      ket: 'Target tahunan per dosen (publikasi, penelitian, PkM, luaran, rekognisi, hibah) dibandingkan capaiannya.' },
     { href: 'grafik.html', judul: 'Grafik',
       ket: 'Grafik siap pakai untuk laporan dan LED.' },
     { href: 'sdgs.html', judul: 'Rekap SDGs',
