@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-13-08f7cd">
+<link rel="stylesheet" href="tema.css?v=2026-11-13-0ac654">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
@@ -56,7 +56,7 @@
   /* .fld input melebarkan semua input; kotak centang topik tetap kecil dan di kiri teksnya */
   .fld label.pilih-topik input[type=checkbox]{width:auto;padding:0;margin:0;flex:none}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-13-08f7cd">
+<link rel="stylesheet" href="kepala.css?v=2026-11-13-0ac654">
 </head>
 <body>
 
@@ -70,7 +70,7 @@
 
 <main class="wrap" id="isi"></main>
 
-<script src="config.js?v=2026-11-13-08f7cd"></script>
+<script src="config.js?v=2026-11-13-0ac654"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -87,15 +87,16 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { pasangMenu } from './menu.js?v=2026-11-13-08f7cd';
-import { dosenLogin } from './dosen-login.js?v=2026-11-13-08f7cd';
-import { unduhCV, htmlTombolCV, mkDiampu } from './cv-dosen.js?v=2026-11-13-08f7cd';
-import { keBase64 } from './pustaka-dokumen.js?v=2026-11-13-08f7cd';
-import { tautanBerkas, temuanPakai } from './tautan-privat.js?v=2026-11-13-08f7cd';
-import { periksaBerkas, sidikBerkas } from './sidik-berkas.js?v=2026-11-13-08f7cd';
+import { pasangMenu } from './menu.js?v=2026-11-13-0ac654';
+import { dosenLogin } from './dosen-login.js?v=2026-11-13-0ac654';
+import { unduhCV, htmlTombolCV, mkDiampu } from './cv-dosen.js?v=2026-11-13-0ac654';
+import { keBase64 } from './pustaka-dokumen.js?v=2026-11-13-0ac654';
+import { tautanBerkas, temuanPakai } from './tautan-privat.js?v=2026-11-13-0ac654';
+import { periksaBerkas, sidikBerkas } from './sidik-berkas.js?v=2026-11-13-0ac654';
+import { buangBuktiLepas } from './hapus-berkas.js?v=2026-11-13-0ac654';
 import { ISIAN_PROFIL, KOLOM_PROFIL, tampil as tampilIsian, sama, formLKPS, bacaFormLKPS, pasangEditor, bacaKataKunci,
-  setelNamaTopik, htmlPilihTopik, bacaPilihTopik, MAKS_TOPIK }
-  from './profil-dosen.js?v=2026-11-13-08f7cd';
+  setelNamaTopik, htmlPilihTopik, bacaPilihTopik, MAKS_TOPIK, urlBukti, berkasLepas }
+  from './profil-dosen.js?v=2026-11-13-0ac654';
 
 /* =====================================================================
    PROFIL SAYA — dosen mengajukan perubahan profilnya sendiri (keputusan
@@ -320,15 +321,18 @@ async function gambar(){
     });
     hitung();
   }
-  if (tolak) $('tutup').onclick = () => hapusAjuan(tolak.id, null);
-  if (tunggu) $('batalAjuan').onclick = () => hapusAjuan(tunggu.id, 'Batalkan ajuan perubahan profil?');
+  if (tolak) $('tutup').onclick = () => hapusAjuan(tolak, null);
+  if (tunggu) $('batalAjuan').onclick = () => hapusAjuan(tunggu, 'Batalkan ajuan perubahan profil?');
   if (!tunggu && !error) $('kirim').onclick = kirim;
 }
 
-async function hapusAjuan(id, tanya){
+async function hapusAjuan(aj, tanya){
   if (tanya && !confirm(tanya)) return;
-  const { error } = await sb.from('ajuan_ubah').delete().eq('id', id);
+  // Bukti baru di ajuan yang dibatalkan/ditutup tidak jadi dipakai (pemilik 2026-11-13): dibuang.
+  const lepas = berkasLepas(aj.data, SAYA, Object.keys(aj.data || {}));
+  const { error } = await sb.from('ajuan_ubah').delete().eq('id', aj.id);
   if (error) alert('Gagal: ' + error.message);
+  else if (lepas.length) await buangBuktiLepas(sb, lepas, { milik: true });
   await gambar();
 }
 
@@ -366,6 +370,11 @@ async function kirim(){
     $('kirim').disabled = false;
     return tulis('buruk', error.code === '23505' ? 'Masih ada ajuan yang menunggu.' : 'Gagal mengirim: ' + error.message);
   }
+  // Unggahan di halaman ini yang akhirnya tidak dipakai (diganti lagi sebelum dikirim): dibuang.
+  const dipakai = urlBukti({ ...SAYA, ...data });
+  const sesi = (await Promise.allSettled([...UNGGAH_SESI.values()])).filter(x => x.status === 'fulfilled').map(x => x.value);
+  const lepas = sesi.filter(u => !dipakai.has(u));
+  if (lepas.length) await buangBuktiLepas(sb, lepas, { milik: true });
   await gambar();
   tulis('ok', 'Ajuan terkirim. Admin prodi akan meninjaunya.');
 }

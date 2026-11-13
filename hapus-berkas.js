@@ -16,7 +16,7 @@
    ditautkan, tidak diunggah ulang) TIDAK dibuang selama tautannya masih
    dirujuk lebih dari satu catatan: hanya catatan pemanggil yang dihapus.
    ===================================================================== */
-import { jumlahRujukan } from './sidik-berkas.js?v=2026-11-13-08f7cd';
+import { jumlahRujukan } from './sidik-berkas.js?v=2026-11-13-0ac654';
 
 export async function buangBerkas(sb, url){
   const U = String(window.UPLOAD_URL || '').trim();
@@ -45,6 +45,30 @@ export async function buangSemua(sb, urls){
   for (const u of urls.filter(Boolean)) {
     const out = await buangBerkas(sb, u);
     if (out.dibuang) n++;
+  }
+  return n;
+}
+
+// Bukti profil yang lepas (pemilik 2026-11-13: berkas yang diganti ikut dibuang). Hanya berkas yang
+// tidak dirujuk catatan lain (jumlah_rujukan 0; tidak diketahui = tidak dibuang), karena bukti profil
+// bisa memakai ulang berkas bukti karya. Admin: kind 'hapus'; pemilik: 'buang_milik'. Kegagalan
+// diabaikan: berkas yang tertinggal tetap terlihat di Rapikan berkas.
+export async function buangBuktiLepas(sb, urls, { milik = false } = {}){
+  const U = String(window.UPLOAD_URL || '').trim();
+  const xs = [...new Set((urls || []).map(u => String(u || '').trim()).filter(Boolean))];
+  if (!U || !xs.length) return 0;
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) return 0;
+  let n = 0;
+  for (const url of xs) {
+    const r = await jumlahRujukan(sb, url);
+    if (r === null || r > 0) continue;
+    try {
+      const res = await fetch(U, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ token: session.access_token, kind: milik ? 'buang_milik' : 'hapus', url }) });
+      const out = await res.json();
+      if (out.ok && out.dibuang) n++;
+    } catch (e) { /* dibiarkan: Rapikan berkas menemukannya nanti */ }
   }
   return n;
 }

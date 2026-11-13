@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-13-08f7cd">
+<link rel="stylesheet" href="tema.css?v=2026-11-13-0ac654">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
@@ -174,7 +174,7 @@
     font-size:13px;line-height:1.5}
   @media print{.png-baris, #ami-admin, .kontrol-seksi{display:none}}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-13-08f7cd">
+<link rel="stylesheet" href="kepala.css?v=2026-11-13-0ac654">
 </head>
 <body>
 
@@ -1075,7 +1075,7 @@ function kartuRinci(judul, peta){
       <div class="an">${v}</div></div>`).join('')}</div>`;
 }
 </script>
-<script src="config.js?v=2026-11-13-08f7cd"></script>
+<script src="config.js?v=2026-11-13-0ac654"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -1094,13 +1094,13 @@ addEventListener('error', function (e) {
 // Ruang kerja, khusus email terdaftar (pemilik 2026-11-04); tanpa login hanya
 // lewat tautan AMI yang masih berlaku (pemilik 2026-11-11, 50-patch-tautan-ami.sql).
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { gerbang } from './menu.js?v=2026-11-13-08f7cd';
-import * as CAPAIAN_IKU from './capaian-iku.js?v=2026-11-13-08f7cd';
-import * as TEMUAN_AMI from './temuan-ami.js?v=2026-11-13-08f7cd';
-import * as TAUTAN_AMI from './ami-tautan.js?v=2026-11-13-08f7cd';
-import * as CAPAIAN_CPL from './capaian-cpl.js?v=2026-11-13-08f7cd';
-import * as RAPAT_M from './rapat.js?v=2026-11-13-08f7cd';
-import * as HIBAH from './hibah.js?v=2026-11-13-08f7cd';
+import { gerbang } from './menu.js?v=2026-11-13-0ac654';
+import * as CAPAIAN_IKU from './capaian-iku.js?v=2026-11-13-0ac654';
+import * as TEMUAN_AMI from './temuan-ami.js?v=2026-11-13-0ac654';
+import * as TAUTAN_AMI from './ami-tautan.js?v=2026-11-13-0ac654';
+import * as CAPAIAN_CPL from './capaian-cpl.js?v=2026-11-13-0ac654';
+import * as RAPAT_M from './rapat.js?v=2026-11-13-0ac654';
+import * as HIBAH from './hibah.js?v=2026-11-13-0ac654';
 const sb = createClient(window.SB_URL, window.SB_KEY);
 window.HIBAH = HIBAH;
 window.RAPAT_M = RAPAT_M;

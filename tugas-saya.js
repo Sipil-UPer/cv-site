@@ -1,11 +1,11 @@
 // "Tugas saya" di Ruang kerja (pemilik 2026-11-12): hal yang menunggu tindakan dosen yang
 // sedang masuk, dari data yang sudah boleh ia baca (RLS). Aturan tenggat sama dengan halaman
 // Pengingat: rapat.js, hibah.js, temuan-ami.js, pengingat-dosen.js.
-import { kurangProfil } from './pengingat-dosen.js?v=2026-11-13-08f7cd';
-import { tindakTerbuka, tglID } from './rapat.js?v=2026-11-13-08f7cd';
-import { tenggatBerikut, teksHari, HARI_LEWAT } from './hibah.js?v=2026-11-13-08f7cd';
-import { hariKeTenggat, labelStatus, HARI_DEKAT } from './temuan-ami.js?v=2026-11-13-08f7cd';
-import { tugasEvaluasi } from './evaluasi-pembelajaran.js?v=2026-11-13-08f7cd';
+import { kurangProfil } from './pengingat-dosen.js?v=2026-11-13-0ac654';
+import { tindakTerbuka, tglID } from './rapat.js?v=2026-11-13-0ac654';
+import { tenggatBerikut, teksHari, HARI_LEWAT } from './hibah.js?v=2026-11-13-0ac654';
+import { hariKeTenggat, labelStatus, HARI_DEKAT } from './temuan-ami.js?v=2026-11-13-0ac654';
+import { tugasEvaluasi } from './evaluasi-pembelajaran.js?v=2026-11-13-0ac654';
 
 const SELESAI_AMI = new Set(['selesai', 'ditutup']);
 const tingkat = h => h == null ? 'biasa' : h < 0 ? 'lewat' : h <= HARI_DEKAT ? 'dekat' : 'biasa';

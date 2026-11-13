@@ -59,6 +59,22 @@ const label = (daftar, v) => (daftar.find(x => x[0] === (v || '')) || [, v || 'â
 const opsi = (daftar, v) => daftar.map(([k, l]) =>
   `<option value="${esc(k)}"${k === (v || '') ? ' selected' : ''}>${esc(l)}</option>`).join('');
 
+// Tautan bukti (kolom url) di riwayat pendidikan dan sertifikat.
+const KOLOM_BUKTI = ['riwayat_pendidikan', 'sertifikat'];
+export function urlBukti(rec){
+  const s = new Set();
+  for (const k of KOLOM_BUKTI) for (const r of (rec?.[k] || [])) { const u = String(r?.url ?? '').trim(); if (u) s.add(u); }
+  return s;
+}
+/** Tautan bukti di `dari` yang tidak ada lagi di `ke`, hanya untuk isian `kunci` (bawaan: riwayat dan sertifikat).
+ *  Setuju: berkasLepas(sekarang, diajukan); tolak/batal: berkasLepas(diajukan, sekarang). (pemilik 2026-11-13) */
+export function berkasLepas(dari, ke, kunci = KOLOM_BUKTI){
+  const k = KOLOM_BUKTI.filter(x => kunci.includes(x));
+  const pilih = o => Object.fromEntries(k.map(x => [x, o?.[x]]));
+  const tetap = urlBukti(pilih(ke));
+  return [...urlBukti(pilih(dari))].filter(u => !tetap.has(u));
+}
+
 // Pendidikan tertinggi (kolom dosen.pendidikan: S2/S3) dari riwayat.
 export function pendidikanTertinggi(riwayat){
   const j = (riwayat || []).map(r => r.jenjang || '');

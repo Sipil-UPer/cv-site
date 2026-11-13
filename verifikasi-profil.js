@@ -4,7 +4,8 @@
 // dosen; Tolak -> alasan dilihat dosen di profil.html. Dipindah dari
 // kelola-dosen.html (pemilik 2026-11-08).
 
-import { ISIAN_PROFIL, KOLOM_PROFIL, JABATAN, tampil as tampilIsian, setelNamaTopik } from './profil-dosen.js?v=2026-11-13-08f7cd';
+import { buangBuktiLepas } from './hapus-berkas.js?v=2026-11-13-0ac654';
+import { ISIAN_PROFIL, KOLOM_PROFIL, JABATAN, tampil as tampilIsian, setelNamaTopik, berkasLepas } from './profil-dosen.js?v=2026-11-13-0ac654';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g,
   c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -45,8 +46,12 @@ export async function pasangVerifikasiProfil(box, { sb }){
       b.onclick = async () => {
         if (!confirm('Terapkan perubahan profil ini?')) return;
         b.disabled = true;
+        // Bukti lama yang diganti (pemilik 2026-11-13): dibuang setelah perubahan diterapkan.
+        const a = aj.find(x => x.id === +b.dataset.su), d = DOSEN.find(x => x.id === a?.dosen_id);
+        const lepas = a && d ? berkasLepas(d, a.data, Object.keys(a.data || {})) : [];
         const { error: e } = await sb.rpc('setujui_ajuan_ubah', { a: +b.dataset.su });
         if (e) alert('Gagal menerapkan: ' + e.message);
+        else if (lepas.length) await buangBuktiLepas(sb, lepas);
         await muat();
       };
     });
@@ -54,9 +59,13 @@ export async function pasangVerifikasiProfil(box, { sb }){
       b.onclick = async () => {
         const c = prompt('Alasan penolakan (akan dilihat dosen):');
         if (c === null) return;
+        // Bukti baru yang tidak jadi dipakai (pemilik 2026-11-13): dibuang setelah ajuan ditolak.
+        const a = aj.find(x => x.id === +b.dataset.tu), d = DOSEN.find(x => x.id === a?.dosen_id);
+        const lepas = a && d ? berkasLepas(a.data, d, Object.keys(a.data || {})) : [];
         const { error: e } = await sb.from('ajuan_ubah')
           .update({ status: 'ditolak', catatan_admin: c.trim() || '-' }).eq('id', +b.dataset.tu);
         if (e) alert('Gagal: ' + e.message);
+        else if (lepas.length) await buangBuktiLepas(sb, lepas);
         await muat();
       };
     });
