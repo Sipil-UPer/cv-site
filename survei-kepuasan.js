@@ -5,7 +5,7 @@
 // disunting admin per survei; pengguna lulusan memakai 7 aspek resmi 6.g.2.
 // 2026-11-13 (pemilik): templat per kelompok menjawab butir LAM (bagian + butir per pertanyaan),
 // tracer memuat pertanyaan inti DIKTI, dan semua teks bisa dwibahasa (72-patch-survei-dwibahasa.sql).
-import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-13-40e042';
+import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-13-ad6db0';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -107,9 +107,9 @@ const KERJA_BARU = STATUS_ALUMNI.slice(0, 2);
 export const BEKERJA = [...KERJA_BARU, 'bekerja', 'wirausaha'];
 export const TINGKAT_KERJA = { wilayah: 'wilayah/lokal', nasional: 'nasional atau wirausaha berizin', internasional: 'multinasional/internasional' };
 const TINGKAT_EN = ['Local/regional', 'National, or licensed own business', 'Multinational/international'];
-// f14 DIKTI (5 tingkat) -> kategori Tabel 6.f.2 (rendah/sedang/tinggi). USULAN Claude 2026-11-13,
-// menunggu persetujuan pemilik: sangat erat dan erat = tinggi, cukup erat = sedang, kurang erat dan
-// tidak sama sekali = rendah. Nilai lama (tinggi/sedang/rendah) dibaca apa adanya.
+// f14 DIKTI (5 tingkat) -> kategori Tabel 6.f.2 (rendah/sedang/tinggi), disetujui pemilik 2026-11-13:
+// sangat erat dan erat = tinggi, cukup erat = sedang, kurang erat dan tidak sama sekali = rendah.
+// Nilai lama (tinggi/sedang/rendah) dibaca apa adanya.
 export const KESESUAIAN = ['Sangat erat', 'Erat', 'Cukup erat', 'Kurang erat', 'Tidak sama sekali'];
 const KESESUAIAN_EN = ['Very closely', 'Closely', 'Fairly closely', 'Loosely', 'Not at all'];
 export const KESESUAIAN_LKPS = { 'Sangat erat': 'tinggi', 'Erat': 'tinggi', 'Cukup erat': 'sedang', 'Kurang erat': 'rendah',

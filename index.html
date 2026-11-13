@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-13-40e042">
+<link rel="stylesheet" href="tema.css?v=2026-11-13-ad6db0">
 <style>
   /* =================================================================
      PALET — sesuaikan dengan pedoman identitas resmi institusi bila ada.
@@ -196,7 +196,7 @@
 
 <main class="wrap" id="isi"></main>
 
-<script src="config.js?v=2026-11-13-40e042"></script>
+<script src="config.js?v=2026-11-13-ad6db0"></script>
 <script>
 const N = n => new Intl.NumberFormat('id-ID').format(n);
 const esc = s => String(s ?? '').replace(/[&<>"']/g,c=>
@@ -392,7 +392,7 @@ function render(){
   ].filter(([, , href]) => !(window.FITUR_MATI || []).includes({ 'sdgs.html': 'sdgs', 'keahlian.html?tab=peta': 'kepakaran' }[href]))
    .map(([v,l,href])=>`<a href="${href}"><b>${N(v)}</b><span>${l}</span></a>`).join('');
   // Jumlah topik persis sama dengan keahlian.html (petaTopik, termasuk bidang keahlian).
-  import('./keahlian.js?v=2026-11-13-40e042').then(m => {
+  import('./keahlian.js?v=2026-11-13-ad6db0').then(m => {
     const b = document.querySelector('#angka a[href^="keahlian.html"] b');
     // Dengan daftar baku (patch 61): topik baku yang sudah punya dosen (memilih atau berkarya).
     const B = m.daftarBaku(D), P = m.profilKeahlian(D);
@@ -400,7 +400,7 @@ function render(){
   }).catch(() => {});
 
   // Cari data publik (pemilik 2026-11-12): dosen, karya, mitra, halaman umum dari data.json.
-  import('./cari.js?v=2026-11-13-40e042').then(m => {
+  import('./cari.js?v=2026-11-13-ad6db0').then(m => {
     const idx = m.indeksPublik(D, k => !(window.FITUR_MATI || []).includes(k));
     const kotak = document.getElementById('cariUmum'), panel = document.getElementById('hasilUmum');
     const e = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));

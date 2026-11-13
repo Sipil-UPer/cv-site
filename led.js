@@ -26,12 +26,12 @@
    Peta subbagian LED ke butir: docs/led-peta-butir.md.
    ===================================================================== */
 
-import { RENCANA_BUKTI, LKPS_TABEL, kelompokDokumen, buktiButir, saranDokumen } from './rencana-bukti.js?v=2026-11-13-40e042';
-import { grafikButir, tabelGrafik, tabelPendukung } from './led-data.js?v=2026-11-13-40e042';
-import { gambarGrafik } from './led-grafik.js?v=2026-11-13-40e042';
-import { faktaNarasi, anggotaTim, kalimatTren, buktiOtomatis, dokumenBelumAda, periksaTersisa, buktiLembar, tabelPenjelas } from './led-isi.js?v=2026-11-13-40e042';
-import { ISIAN_IDENTITAS, KOTA_PT, FOLDER_INDUK, NARAHUBUNG, nilaiIdentitas, KRITERIA, terapkanIsian, kunciTambahan, kalimatButir, kalimatCapaian, kalimatKriteria, kalimatUmum } from './led-narasi.js?v=2026-11-13-40e042';
-import { daftarProdi, STATUS_PS, tglTeks } from './pustaka-dokumen.js?v=2026-11-13-40e042';
+import { RENCANA_BUKTI, LKPS_TABEL, kelompokDokumen, buktiButir, saranDokumen } from './rencana-bukti.js?v=2026-11-13-ad6db0';
+import { grafikButir, tabelGrafik, tabelPendukung } from './led-data.js?v=2026-11-13-ad6db0';
+import { gambarGrafik } from './led-grafik.js?v=2026-11-13-ad6db0';
+import { faktaNarasi, anggotaTim, kalimatTren, buktiOtomatis, dokumenBelumAda, periksaTersisa, buktiLembar, tabelPenjelas } from './led-isi.js?v=2026-11-13-ad6db0';
+import { ISIAN_IDENTITAS, KOTA_PT, FOLDER_INDUK, NARAHUBUNG, nilaiIdentitas, KRITERIA, terapkanIsian, kunciTambahan, kalimatButir, kalimatCapaian, kalimatKriteria, kalimatUmum } from './led-narasi.js?v=2026-11-13-ad6db0';
+import { daftarProdi, STATUS_PS, tglTeks } from './pustaka-dokumen.js?v=2026-11-13-ad6db0';
 
 const NS = {
   w:  'http://schemas.openxmlformats.org/wordprocessingml/2006/main',
