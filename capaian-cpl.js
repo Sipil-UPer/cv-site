@@ -5,7 +5,7 @@
 // Bukti: butir 13 unsur 9, butir 14 unsur 5 (tinjauan rutin pencapaian CPL),
 // butir 15 unsur 5 (tinjauan RPS: analisis CPL), butir 16 unsur 1.
 
-import { htmlTrenLintas } from './kurikulum-cpl.js?v=2026-11-13-e738fd';
+import { htmlTrenLintas, normKur, normCpl } from './kurikulum-cpl.js?v=2026-11-13-715ba1';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -55,8 +55,12 @@ const status = st => `<b style="color:${WARNA[st] || 'inherit'}">${st === 'TERCA
 
 /** Tampilan lengkap ringkasan (dipakai Monitoring dan tautan AMI). */
 // korelasi: ref_cpl_korelasi (71-patch) untuk tren lintas kurikulum; kosong = tabel itu tidak tampil.
-export function htmlCPL(s, { kelasTabel = 'sp', meta = '', korelasi = [] } = {}){
-  const teks = new Map((s.cpl || []).map(c => [`${c.curriculum}|${c.cpl}`, c.text]));
+// cplRef: ref_cpl (kurikulum, kode, rumusan); rumusan cadangan bila ringkasan tidak membawa teks CPL (estimasi nilai akhir).
+export function htmlCPL(s, { kelasTabel = 'sp', meta = '', korelasi = [], cplRef = [] } = {}){
+  const ref = new Map((cplRef || []).map(c => [`${normKur(c.kurikulum)}|${normCpl(c.kode).toLowerCase()}`, c.rumusan]));
+  const teks = new Map((s.kumulatif || []).map(r => [`${r.curriculum}|${r.cpl}`,
+    ref.get(`${normKur(r.curriculum)}|${normCpl(r.cpl).toLowerCase()}`)]));
+  (s.cpl || []).forEach(c => { if (c.text) teks.set(`${c.curriculum}|${c.cpl}`, c.text); });
   const terms = [...new Map((s.progres || []).map(r => [r.term_order, r.term])).entries()].sort((a, b) => a[0] - b[0]);
   const cpls = [...new Set((s.progres || []).map(r => `${r.curriculum}|${r.cpl}`))];
   const prog = new Map((s.progres || []).map(r => [`${r.curriculum}|${r.cpl}|${r.term_order}`, r]));
