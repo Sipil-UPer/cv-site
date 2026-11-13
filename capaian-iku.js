@@ -2,8 +2,8 @@
 // Target IKU/IKT dan Monitoring agar angkanya sama di kedua halaman.
 // Arah minimal: % = capaian / target; maksimal: % = target / capaian.
 // Status: tercapai, hampir (>= 80%), belum, atau capaian belum diisi.
-import { hitungSumber } from './iku-otomatis.js?v=2026-11-13-fc5c64';
-export { muatTambahan, denganTambahan } from './iku-otomatis.js?v=2026-11-13-fc5c64';
+import { hitungSumber, petunjukSumber } from './iku-otomatis.js?v=2026-11-13-c52571';
+export { muatTambahan, denganTambahan } from './iku-otomatis.js?v=2026-11-13-c52571';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -80,7 +80,8 @@ export function htmlCapaianIKU(baris, D, ts, { kelasTabel = 't' } = {}){
         <th>TS sebelumnya</th><th>Analisis dan rencana</th></tr></thead><tbody>${xs.map((r, i) => {
         const c = n[i], p = lalu.get(kunci(r)), s = r.satuan ? ' ' + esc(r.satuan) : '';
         return `<tr><td>${esc(r.nama)}${r.butir ? ` <small>(butir ${esc(r.butir)})</small>` : ''}${r._oto
-          ? `<br><small class="ket">otomatis: ${esc(r._oto.ket)}</small>` : ''}</td>
+          ? `<br><small class="ket">otomatis: ${esc(r._oto.ket)}</small>`
+          : r.sumber ? `<br><small class="ket">otomatis — ${esc(petunjukSumber(r.sumber))}${r.capaian != null ? '; memakai capaian tersimpan' : ''}</small>` : ''}</td>
           <td>${r.arah === 'maksimal' ? '≤' : '≥'} ${angka(r.target)}${s}</td><td>${angka(r.capaian)}${r.capaian != null ? s : ''}</td>
           <td>${c.persen == null ? '—' : Math.round(c.persen) + '%'}</td>
           <td style="color:${WARNA_STATUS[c.status]};font-weight:600">${TEKS_STATUS[c.status]}</td>
@@ -92,4 +93,5 @@ export function htmlCapaianIKU(baris, D, ts, { kelasTabel = 't' } = {}){
 }
 
 export const KET_CAPAIAN = `% = capaian ÷ target (arah minimal) atau target ÷ capaian (arah maksimal). Hampir = setidaknya 80% dari target.
-  Indikator bersumber otomatis dihitung dari data situs (data.json, diperbarui tiap jam); lainnya dari kolom capaian.`;
+  Indikator bersumber otomatis dihitung dari data situs (data.json, diperbarui tiap jam), kurikulum, dan rekap EDOM;
+  bila datanya belum ada, keterangan di bawah nama indikator menyebut yang perlu diisi. Lainnya dari kolom capaian.`;

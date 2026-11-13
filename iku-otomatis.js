@@ -121,6 +121,21 @@ export const denganTambahan = (D, T) => T ? { ...(D || {}), _mk: T.mk, _edom: T.
 
 export const OPSI_SUMBER = SUMBER_IKU.map(([id, label, satuan]) => [id, `${label} (${satuan})`]);
 
+// Petunjuk bila sumber terpasang tetapi datanya belum ada (2026-11-13), supaya "capaian belum
+// diisi" tidak disangka sumbernya tidak terpasang.
+const PETUNJUK = [
+  [/^tracer_/, 'isi tracer study lulusan TS-1 di Data prodi › Mahasiswa & lulusan'],
+  [/^sks_basic_science$/, 'centang basic science pada MK di Data prodi › Kurikulum'],
+  [/^edom_rata$/, 'impor rekap EDOM tahun akademik TS di Evaluasi pembelajaran'],
+  [/^dtps_/, 'data DTPS belum terbaca'],
+];
+export function petunjukSumber(id){
+  const s = SUMBER_IKU.find(x => x[0] === id);
+  if (!s) return '';
+  const p = PETUNJUK.find(([re]) => re.test(id));
+  return p ? `data belum ada: ${p[1]}` : 'data belum ada untuk TS ini';
+}
+
 // Capaian otomatis satu indikator; null bila tanpa sumber atau datanya belum ada.
 export function hitungSumber(id, D, ts){
   const s = SUMBER_IKU.find(x => x[0] === id);
