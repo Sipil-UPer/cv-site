@@ -87,7 +87,37 @@ export const SUMBER_IKU = [
     const n = new Set(d.karya_utama_rinci.filter(k => +k.tahun >= ts - 2 && +k.tahun <= ts).map(k => k.slug)).size;
     return { nilai: persen(n, +d.jumlah), ket: `${n} dari ${d.jumlah} DTPS, karya TS ${ts - 3}/${ts - 2}–${ts - 1}/${ts}` };
   }],
+  // 2026-11-13 (standar SPM O.02.10): MK aktif bertanda basic science di Data prodi › Kurikulum.
+  // Dari D._mk (muatTambahan), bukan data.json.
+  ['sks_basic_science', 'SKS MK basic science dan matematika (kurikulum terkini)', 'SKS', D => {
+    if (!Array.isArray(D._mk)) return null;
+    const xs = D._mk.filter(m => m.aktif !== false && m.basic_science);
+    if (!xs.length) return null;   // belum ada MK yang ditandai: capaian kosong, bukan 0
+    const n = xs.reduce((a, m) => a + (+m.sks || 0), 0);
+    return { nilai: n, ket: `${xs.length} MK bertanda basic science (kurikulum terkini, bukan per TS)` };
+  }],
+  // 2026-11-13: rerata EDOM tahun akademik TS (ganjil + genap), dibobot jumlah baris ber-EDOM.
+  // Dari D._edom = rekap_evaluasi() (68-patch), bukan data.json.
+  ['edom_rata', 'Rerata EDOM mata kuliah prodi (tahun akademik TS)', 'skor 0-4', (D, ts) => {
+    if (!Array.isArray(D._edom)) return null;
+    const xs = D._edom.filter(r => r.tahun_akademik === `${ts - 1}/${ts}` && +r.ber_edom > 0 && r.rerata_edom != null);
+    const n = xs.reduce((a, r) => a + +r.ber_edom, 0);
+    if (!n) return null;
+    return { nilai: xs.reduce((a, r) => a + +r.rerata_edom * +r.ber_edom, 0) / n,
+             ket: `${n} MK-dosen, semester ${xs.map(r => r.semester).join(' + ')} ${ts - 1}/${ts}` };
+  }],
 ];
+
+// Data di luar data.json untuk sumber sks_basic_science dan edom_rata (2026-11-13), dibaca
+// dengan hak pengguna login. Bagian yang gagal dibaca (patch belum ada, bukan pengguna
+// terdaftar) = null, sumbernya lalu kosong.
+export async function muatTambahan(sb){
+  const [mk, ed] = await Promise.all([
+    sb.from('ref_mata_kuliah').select('kode,sks,basic_science,aktif').then(x => x, () => ({ error: true })),
+    sb.rpc('rekap_evaluasi').then(x => x, () => ({ error: true }))]);
+  return { mk: mk.error ? null : (mk.data || []), edom: ed.error ? null : (ed.data || []) };
+}
+export const denganTambahan = (D, T) => T ? { ...(D || {}), _mk: T.mk, _edom: T.edom } : D;
 
 export const OPSI_SUMBER = SUMBER_IKU.map(([id, label, satuan]) => [id, `${label} (${satuan})`]);
 

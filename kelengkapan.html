@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-13-c32d43">
-<link rel="stylesheet" href="kepala.css?v=2026-11-13-c32d43">
+<link rel="stylesheet" href="tema.css?v=2026-11-13-fc5c64">
+<link rel="stylesheet" href="kepala.css?v=2026-11-13-fc5c64">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
@@ -54,7 +54,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-13-c32d43"></script>
+<script src="config.js?v=2026-11-13-fc5c64"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -71,12 +71,12 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { gerbang, bolehBuka } from './menu.js?v=2026-11-13-c32d43';
-import { ambilDaftarLKPS } from './data-lkps.js?v=2026-11-13-c32d43';
-import { bagianNarasi, ambilNarasi, ambilPenugasan } from './led-narasi.js?v=2026-11-13-c32d43';
-import { TAB_DATA, konteksNarasi, rekapKelengkapan, tugasPerPihak } from './kelengkapan.js?v=2026-11-13-c32d43';
-import { PIHAK } from './unsur-butir.js?v=2026-11-13-c32d43';
-import { denganOtomatis } from './capaian-iku.js?v=2026-11-13-c32d43';
+import { gerbang, bolehBuka } from './menu.js?v=2026-11-13-fc5c64';
+import { ambilDaftarLKPS } from './data-lkps.js?v=2026-11-13-fc5c64';
+import { bagianNarasi, ambilNarasi, ambilPenugasan } from './led-narasi.js?v=2026-11-13-fc5c64';
+import { TAB_DATA, konteksNarasi, rekapKelengkapan, tugasPerPihak } from './kelengkapan.js?v=2026-11-13-fc5c64';
+import { PIHAK } from './unsur-butir.js?v=2026-11-13-fc5c64';
+import { denganOtomatis, muatTambahan, denganTambahan } from './capaian-iku.js?v=2026-11-13-fc5c64';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g,
   c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -108,10 +108,11 @@ async function mulai(){
     baca('pengaturan'), baca('karya_bukti'), (async () => (await sb.from('karya').select('id,status,bukti_url').limit(5000)).data || [])(),
     Promise.all(TAB_DATA.map(async ([, t]) => [t, await jumlahBaris(t)])).then(Object.fromEntries)]);
   const D = await r.json();
+  const DT = denganTambahan(D, await muatTambahan(sb));   // kurikulum + rekap EDOM (sumber otomatis)
   const C = konteksNarasi(D, daftar);
   const hasil = rekapKelengkapan({ kelompok: bagianNarasi(C), narasi, tugas, tim: daftar.tim, dosen, jumlah,
     dokumen: daftar.dokumen, butirBukti, pengaturan, karya, karyaBukti, ts: C.ts,
-    targetIKU: (daftar.target || []).map(x => denganOtomatis(x, D)),
+    targetIKU: (daftar.target || []).map(x => denganOtomatis(x, DT)),
     // null = fungsi belum ada (patch 68 belum dijalankan): baris evaluasi tidak tampil.
     rekapEvaluasi: await sb.rpc('rekap_evaluasi').then(x => x.error ? null : (x.data || []), () => null) });
   $('isi').innerHTML = `<div class="ringkas"><b>${hasil.selesai} dari ${hasil.total} selesai</b>
