@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-13-5ae96e">
+<link rel="stylesheet" href="tema.css?v=2026-11-13-e2f2f8">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
@@ -174,7 +174,7 @@
     font-size:13px;line-height:1.5}
   @media print{.png-baris, #ami-admin, .kontrol-seksi{display:none}}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-13-5ae96e">
+<link rel="stylesheet" href="kepala.css?v=2026-11-13-e2f2f8">
 </head>
 <body>
 
@@ -641,7 +641,7 @@ window.setelTemuan = (baris, bukti, galat) => {
 window.keadaanMonitoring = () => {
   const tsIku = IKU.baris && window.CAPAIAN_IKU ? window.CAPAIAN_IKU.tsTersedia(IKU.baris) : [];
   return { mode: MODE, periode, akhir: periode === 'ts3' ? (D ? tahunTersedia()[0] : null) : null,
-           ts_iku: tsIku.includes(+IKU.ts) ? +IKU.ts : (tsIku[0] || null) };
+           ts_iku: tsIku.includes(+IKU.ts) ? +IKU.ts : window.CAPAIAN_IKU?.tsAwal(tsIku) ?? null };
 };
 
 // ---------------------------------------------------------------------
@@ -659,7 +659,7 @@ function isiIKU(){
   if (!tsAda.length) return `<p class="kosong">Belum ada target IKU/IKT yang bisa ditampilkan.
     Admin mengisinya di Data prodi › Target IKU/IKT.</p>`;
   const kunci = window.AMI ? +window.AMI.ts_iku : 0;   // tautan AMI: TS dikunci
-  const pilih = kunci || (tsAda.includes(+IKU.ts) ? +IKU.ts : tsAda[0]);
+  const pilih = kunci || (tsAda.includes(+IKU.ts) ? +IKU.ts : M.tsAwal(tsAda));
   return `<p class="ket">TS ${kunci ? `<b>${pilih - 1}/${pilih}</b>` : `<select id="iku_ts">${tsAda.map(t =>
       `<option value="${t}"${t === pilih ? ' selected' : ''}>${t - 1}/${t}</option>`).join('')}</select>`}</p>
     ${M.htmlCapaianIKU(IKU.baris, D, pilih, { kelasTabel: 'sp' })}
@@ -1061,7 +1061,7 @@ function kartuRinci(judul, peta){
       <div class="an">${v}</div></div>`).join('')}</div>`;
 }
 </script>
-<script src="config.js?v=2026-11-13-5ae96e"></script>
+<script src="config.js?v=2026-11-13-e2f2f8"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -1080,13 +1080,13 @@ addEventListener('error', function (e) {
 // Ruang kerja, khusus email terdaftar (pemilik 2026-11-04); tanpa login hanya
 // lewat tautan AMI yang masih berlaku (pemilik 2026-11-11, 50-patch-tautan-ami.sql).
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { gerbang } from './menu.js?v=2026-11-13-5ae96e';
-import * as CAPAIAN_IKU from './capaian-iku.js?v=2026-11-13-5ae96e';
-import * as TEMUAN_AMI from './temuan-ami.js?v=2026-11-13-5ae96e';
-import * as TAUTAN_AMI from './ami-tautan.js?v=2026-11-13-5ae96e';
-import * as CAPAIAN_CPL from './capaian-cpl.js?v=2026-11-13-5ae96e';
-import * as RAPAT_M from './rapat.js?v=2026-11-13-5ae96e';
-import * as HIBAH from './hibah.js?v=2026-11-13-5ae96e';
+import { gerbang } from './menu.js?v=2026-11-13-e2f2f8';
+import * as CAPAIAN_IKU from './capaian-iku.js?v=2026-11-13-e2f2f8';
+import * as TEMUAN_AMI from './temuan-ami.js?v=2026-11-13-e2f2f8';
+import * as TAUTAN_AMI from './ami-tautan.js?v=2026-11-13-e2f2f8';
+import * as CAPAIAN_CPL from './capaian-cpl.js?v=2026-11-13-e2f2f8';
+import * as RAPAT_M from './rapat.js?v=2026-11-13-e2f2f8';
+import * as HIBAH from './hibah.js?v=2026-11-13-e2f2f8';
 const sb = createClient(window.SB_URL, window.SB_KEY);
 window.HIBAH = HIBAH;
 window.RAPAT_M = RAPAT_M;

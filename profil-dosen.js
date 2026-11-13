@@ -21,7 +21,7 @@ export const JABATAN = [['', 'Belum punya jabatan'], ['tenaga_pengajar', 'Tenaga
 
 // Kolom riwayat dan sertifikat; [kunci, label, lebar input]
 const KOLOM_RIWAYAT = [['perguruan_tinggi', 'Perguruan tinggi'], ['program_studi', 'Program studi'],
-  ['bidang_ilmu', 'Bidang ilmu'], ['negara', 'Negara'], ['tahun_lulus', 'Tahun lulus']];
+  ['bidang_ilmu', 'Bidang ilmu'], ['negara', 'Negara'], ['tahun_lulus', 'Tahun lulus'], ['url', 'Tautan ijazah']];
 const KOLOM_SERTIFIKAT = [['bidang', 'Bidang sertifikasi'], ['lembaga', 'Lembaga penerbit'],
   ['nomor', 'Nomor'], ['tahun', 'Tahun'], ['url', 'Tautan bukti']];
 
@@ -29,6 +29,7 @@ const KOLOM_SERTIFIKAT = [['bidang', 'Bidang sertifikasi'], ['lembaga', 'Lembaga
 export const ISIAN_PROFIL = [
   ['nama', 'Nama lengkap'], ['jabatan', 'Jabatan akademik'],
   ['sinta_id', 'SINTA ID'], ['scopus_id', 'Scopus ID'], ['orcid', 'ORCID'],
+  ['email_alternatif', 'Email alternatif untuk login'],   // patch 69
   ['riwayat_pendidikan', 'Riwayat pendidikan'], ['pendidikan', 'Pendidikan tertinggi'],
   ['bidang_keahlian', 'Bidang keahlian'], ['topik_keahlian', 'Topik keahlian'], ['kata_kunci', 'Kata kunci tambahan'], ['perusahaan', 'Perusahaan / industri'],
   ['nomor_serdos', 'Nomor sertifikat pendidik'], ['sertifikat', 'Sertifikat kompetensi/profesi/industri'],
@@ -75,9 +76,9 @@ export function teksPendidikan(riwayat, kelompok){
 }
 
 const ringkasRiwayat = r => `${label(JENJANG, r.jenjang)}: ${[r.program_studi, r.perguruan_tinggi].filter(Boolean).join(', ')}` +
-  (r.bidang_ilmu ? ` (${r.bidang_ilmu})` : '') + (r.tahun_lulus ? `, ${r.tahun_lulus}` : '');
+  (r.bidang_ilmu ? ` (${r.bidang_ilmu})` : '') + (r.tahun_lulus ? `, ${r.tahun_lulus}` : '') + (r.url ? ' · ada ijazah' : '');
 const ringkasSertifikat = s => `${label(JENIS_SERTIFIKAT, s.jenis)}: ${s.bidang || '—'}` +
-  (s.lembaga ? `, ${s.lembaga}` : '') + (s.nomor ? `, no. ${s.nomor}` : '');
+  (s.lembaga ? `, ${s.lembaga}` : '') + (s.nomor ? `, no. ${s.nomor}` : '') + (s.url ? ' · ada bukti' : '');
 
 // Teks tampilan satu isian (tabel ajuan, daftar admin).
 export function tampil(k, v, JABATAN = []){
@@ -99,14 +100,20 @@ export const sama = (a, b) => JSON.stringify(a ?? null) === JSON.stringify(b ?? 
 const bersihBaris = (r, kolom) => Object.fromEntries(
   Object.entries(r).map(([k, v]) => [k, String(v ?? '').trim()]).filter(([k, v]) => v && (k === 'jenjang' || k === 'jenis' || kolom.some(c => c[0] === k))));
 
+// Sel tautan bukti: kotak tautan + tombol Unggah (2026-11-13, pemilik: bukti sertifikat diunggah
+// dari profil). Tombol hanya tampil bila pasangEditor diberi fungsi unggah (Profil saya).
+const selIsian = (k, v, angka) => k === 'url'
+  ? `<td class="ed-url"><input data-k="url" value="${esc(v)}" placeholder="https://… atau unggah">` +
+    `<label class="btn ghost kecil ed-unggah">Unggah<input type="file" data-unggah hidden></label><small class="ed-status"></small></td>`
+  : `<td><input data-k="${k}" value="${esc(v)}"${angka ? ' inputmode="numeric" size="5"' : ''}></td>`;
 function barisRiwayat(r, i){
   return `<tr data-i="${i}"><td><select data-k="jenjang">${opsi(JENJANG, r.jenjang || 'sarjana')}</select></td>${
-    KOLOM_RIWAYAT.map(([k]) => `<td><input data-k="${k}" value="${esc(r[k])}"${k === 'tahun_lulus' ? ' inputmode="numeric" size="5"' : ''}></td>`).join('')
+    KOLOM_RIWAYAT.map(([k]) => selIsian(k, r[k], k === 'tahun_lulus')).join('')
   }<td><button type="button" class="btn ghost kecil" data-hapus>Hapus</button></td></tr>`;
 }
 function barisSertifikat(s, i){
   return `<tr data-i="${i}"><td><select data-k="jenis">${opsi(JENIS_SERTIFIKAT, s.jenis || 'kompetensi')}</select></td>${
-    KOLOM_SERTIFIKAT.map(([k]) => `<td><input data-k="${k}" value="${esc(s[k])}"${k === 'tahun' ? ' inputmode="numeric" size="5"' : ''}></td>`).join('')
+    KOLOM_SERTIFIKAT.map(([k]) => selIsian(k, s[k], k === 'tahun')).join('')
   }<td><button type="button" class="btn ghost kecil" data-hapus>Hapus</button></td></tr>`;
 }
 
@@ -125,6 +132,10 @@ const CSS = `<style id="gaya-profil-dosen">
   .ed-gulir{overflow-x:auto}
   .ed-gulir table{min-width:720px}
   h3.ed-judul{font-size:14px;margin:16px 0 2px;color:var(--biru)}
+  table.ed td.ed-url{min-width:190px}
+  .ed-unggah{display:none;margin-top:3px;cursor:pointer}
+  .ed-bisa-unggah .ed-unggah{display:inline-block}
+  .ed-status{display:block;font-size:11.5px;color:var(--muted)}
 </style>`;
 
 // Editor daftar: kotak tabel + tombol tambah. Mengembalikan HTML.
@@ -138,8 +149,26 @@ export function editorDaftar(id, jenis, daftar){
     <button type="button" class="btn ghost kecil" data-tambah="${id}">+ Tambah baris</button>`;
 }
 
-// Pasang tombol tambah/hapus untuk editor di dalam `akar`.
-export function pasangEditor(akar){
+// Pasang tombol tambah/hapus untuk editor di dalam `akar`. `unggah(berkas, {jenis, tahun})`
+// mengembalikan tautan bukti; tanpa fungsi itu tombol Unggah tidak tampil (mis. Kelola dosen,
+// supaya berkas tidak masuk folder admin).
+export function pasangEditor(akar, { unggah } = {}){
+  if (unggah) {
+    akar.classList.add('ed-bisa-unggah');
+    akar.addEventListener('change', async e => {
+      if (!e.target.matches('table.ed [data-unggah]') || !e.target.files.length) return;
+      const td = e.target.closest('td'), tr = td.closest('tr'), status = td.querySelector('.ed-status');
+      const ambil = k => (tr.querySelector(`[data-k="${k}"]`) || {}).value || '';
+      const tahun = (ambil('tahun') || ambil('tahun_lulus')).trim();
+      status.textContent = 'Mengunggah…';
+      try {
+        td.querySelector('[data-k="url"]').value = await unggah(e.target.files[0],
+          { jenis: tr.closest('table').dataset.jenis, tahun: /^\d{4}$/.test(tahun) ? +tahun : new Date().getFullYear() });
+        status.textContent = 'Terunggah; klik Kirim ajuan untuk menyimpan.';
+      } catch (err) { status.textContent = 'Gagal: ' + (err.message || err); }
+      e.target.value = '';
+    });
+  }
   akar.querySelectorAll('[data-tambah]').forEach(b => {
     b.onclick = () => {
       const t = document.getElementById(b.dataset.tambah);

@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-13-5ae96e">
+<link rel="stylesheet" href="tema.css?v=2026-11-13-e2f2f8">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
@@ -54,7 +54,7 @@
   .masuk{max-width:420px;margin:40px auto;background:#fff;border:1px solid var(--line);padding:20px}
   .masuk input{width:100%;padding:8px 10px;margin:8px 0;font:inherit}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-13-5ae96e">
+<link rel="stylesheet" href="kepala.css?v=2026-11-13-e2f2f8">
 </head>
 <body>
 
@@ -68,7 +68,7 @@
 
 <main class="wrap" id="isi"></main>
 
-<script src="config.js?v=2026-11-13-5ae96e"></script>
+<script src="config.js?v=2026-11-13-e2f2f8"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -85,12 +85,13 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { pasangMenu } from './menu.js?v=2026-11-13-5ae96e';
-import { htmlSaran } from './saran-bukti.js?v=2026-11-13-5ae96e';
-import { unduhCV } from './cv-dosen.js?v=2026-11-13-5ae96e';
+import { pasangMenu } from './menu.js?v=2026-11-13-e2f2f8';
+import { dosenLogin } from './dosen-login.js?v=2026-11-13-e2f2f8';
+import { htmlSaran } from './saran-bukti.js?v=2026-11-13-e2f2f8';
+import { unduhCV } from './cv-dosen.js?v=2026-11-13-e2f2f8';
 import { KOLOM_PROFIL, KATEGORI, JABATAN,
-  formLKPS, bacaFormLKPS, pasangEditor } from './profil-dosen.js?v=2026-11-13-5ae96e';
-import { hitungVerifikasi } from './verifikasi-hitung.js?v=2026-11-13-5ae96e';
+  formLKPS, bacaFormLKPS, pasangEditor } from './profil-dosen.js?v=2026-11-13-e2f2f8';
+import { hitungVerifikasi } from './verifikasi-hitung.js?v=2026-11-13-e2f2f8';
 
 /* =====================================================================
    KELOLA DOSEN — daftar dosen prodi diisi admin di situs (keputusan
@@ -142,7 +143,7 @@ const POLA = {
 const KOLOM = 'id,nidn,nama,email,peran,pendidikan,jabatan,sinta_id,scopus_id,orcid,aktif,dtps';
 
 // ADA_LKPS: kolom profil LKPS 4.a ada (supabase/22-patch-profil-dosen.sql).
-let SAYA = null, DOSEN = [], SUNTING = null, ADA_LKPS = true;
+let SAYA = null, DOSEN = [], SUNTING = null, ADA_LKPS = true, ADA_ALT = false;
 
 const nama = (daftar, v) => (daftar.find(x => x[0] === (v || '')) || [, v || '—'])[1];
 const opsi = (daftar, v) => daftar.map(([k, l]) =>
@@ -166,8 +167,7 @@ function idSaja(v){
 async function mulai(){
   const { data: { session } } = await sb.auth.getSession();
   if (!session) return layarMasuk();
-  const { data: saya } = await sb.from('dosen').select('id,nama,email,peran')
-    .ilike('email', session.user.email).maybeSingle();
+  const { data: saya } = await dosenLogin(sb, session, 'id,nama,email,peran');
   if (!saya) { $('hSub').textContent = 'Tidak terdaftar'; $('isi').innerHTML = '<p class="kosong">Email belum terdaftar.</p>'; return; }
   SAYA = saya;
   pasangMenu(sb);
@@ -209,6 +209,10 @@ async function muat(){
     return;
   }
   DOSEN = data || [];
+  // Email alternatif untuk login (patch 69); kueri terpisah supaya daftar tetap tampil sebelum patch.
+  const alt = await sb.from('dosen').select('id,email_alternatif');
+  ADA_ALT = !alt.error;
+  if (ADA_ALT) { const m = new Map((alt.data || []).map(x => [x.id, x.email_alternatif])); DOSEN.forEach(d => { d.email_alternatif = m.get(d.id) ?? null; }); }
   gambarDaftar();
   isiForm(SUNTING ? DOSEN.find(d => d.id === SUNTING) : null);
 }
@@ -258,6 +262,9 @@ function isiForm(d){
         <small>Admin staf tanpa NIDN: NIP/NUP, atau kode STAF-001.</small></div>
       <div class="fld"><label>Email kampus <span class="wj">*</span></label><input id="f_email" type="email" value="${esc(r.email)}">
         <small>Dipakai untuk masuk situs.</small></div>
+      ${ADA_ALT ? `<div class="fld"><label>Email alternatif untuk login</label><input id="f_email_alternatif" type="email"
+        value="${esc(r.email_alternatif)}" placeholder="mis. nama@gmail.com">
+        <small>Bila tautan masuk tidak sampai ke email kampus. Data tetap atas email kampus.</small></div>` : ''}
       <div class="fld"><label>Peran</label><select id="f_peran"${diriSendiri ? ' disabled' : ''}>${opsi(PERAN, r.peran)}</select>
         <small>Admin: verifikasi dan data prodi. Pimpinan: skor + rincian per dosen. Asesor: lihat skor.</small></div>
       <div class="fld"><label>Pendidikan tertinggi</label><select id="f_pendidikan">${opsi(PENDIDIKAN, r.pendidikan)}</select></div>
@@ -333,6 +340,16 @@ async function simpan(){
     return tulis('buruk', `NIDN/kode ${isi.nidn} sudah dipakai.`);
   if (lain.some(d => String(d.email).toLowerCase() === isi.email))
     return tulis('buruk', `Email ${isi.email} sudah terdaftar.`);
+  if (ADA_ALT) {
+    isi.email_alternatif = v('email_alternatif').toLowerCase() || null;
+    const alt = isi.email_alternatif;
+    if (alt && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(alt)) return tulis('buruk', 'Email alternatif tidak sah.');
+    if (alt && alt === isi.email) return tulis('buruk', 'Email alternatif sama dengan email kampus.');
+    if (alt && lain.some(d => [d.email, d.email_alternatif].map(x => String(x || '').toLowerCase()).includes(alt)))
+      return tulis('buruk', `Email ${alt} sudah dipakai dosen lain.`);
+    if (lain.some(d => String(d.email_alternatif || '').toLowerCase() === isi.email))
+      return tulis('buruk', `Email ${isi.email} sudah menjadi email alternatif dosen lain.`);
+  }
   if (SUNTING === SAYA.id) { isi.peran = 'admin'; isi.aktif = true; }
   const adminTersisa = lain.some(d => d.peran === 'admin' && d.aktif) || (isi.peran === 'admin' && isi.aktif);
   if (!adminTersisa) return tulis('buruk', 'Harus tersisa minimal satu admin aktif.');

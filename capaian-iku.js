@@ -2,7 +2,7 @@
 // Target IKU/IKT dan Monitoring agar angkanya sama di kedua halaman.
 // Arah minimal: % = capaian / target; maksimal: % = target / capaian.
 // Status: tercapai, hampir (>= 80%), belum, atau capaian belum diisi.
-import { hitungSumber } from './iku-otomatis.js?v=2026-11-13-5ae96e';
+import { hitungSumber } from './iku-otomatis.js?v=2026-11-13-e2f2f8';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -34,6 +34,17 @@ export function denganOtomatis(r, D){
 
 // Tahun akhir TS yang punya baris, terbaru dulu.
 export const tsTersedia = baris => [...new Set((baris || []).map(r => +r.tahun_ts).filter(Boolean))].sort((a, b) => b - a);
+
+// TS yang dibuka pertama kali (2026-11-13: target sudah diisi sampai TS mendatang, mis. 2030/2031).
+// TS berjalan berganti bulan September (sama dengan tsBerjalan di mutu-data.js); bila TS berjalan
+// tidak punya baris: TS terbaru yang sudah lewat, lalu TS mendatang terdekat.
+export function tsAwal(tsAda, kini = new Date()){
+  const xs = (tsAda || []).map(Number).filter(Boolean);
+  if (!xs.length) return null;
+  const berjalan = kini.getMonth() >= 8 ? kini.getFullYear() + 1 : kini.getFullYear();
+  const lewat = xs.filter(t => t <= berjalan);
+  return lewat.length ? Math.max(...lewat) : Math.min(...xs);
+}
 
 const kunci = r => `${r.jenis}|${String(r.nama).trim().toLowerCase()}`;
 export const WARNA_STATUS = { tercapai: 'var(--hijau)', hampir: '#B8860B', belum: 'var(--merah)', kosong: 'var(--muted)' };

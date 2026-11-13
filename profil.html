@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-13-5ae96e">
+<link rel="stylesheet" href="tema.css?v=2026-11-13-e2f2f8">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
@@ -56,7 +56,7 @@
   /* .fld input melebarkan semua input; kotak centang topik tetap kecil dan di kiri teksnya */
   .fld label.pilih-topik input[type=checkbox]{width:auto;padding:0;margin:0;flex:none}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-13-5ae96e">
+<link rel="stylesheet" href="kepala.css?v=2026-11-13-e2f2f8">
 </head>
 <body>
 
@@ -70,7 +70,7 @@
 
 <main class="wrap" id="isi"></main>
 
-<script src="config.js?v=2026-11-13-5ae96e"></script>
+<script src="config.js?v=2026-11-13-e2f2f8"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -87,11 +87,14 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { pasangMenu } from './menu.js?v=2026-11-13-5ae96e';
-import { unduhCV, htmlTombolCV } from './cv-dosen.js?v=2026-11-13-5ae96e';
+import { pasangMenu } from './menu.js?v=2026-11-13-e2f2f8';
+import { dosenLogin } from './dosen-login.js?v=2026-11-13-e2f2f8';
+import { unduhCV, htmlTombolCV } from './cv-dosen.js?v=2026-11-13-e2f2f8';
+import { keBase64 } from './pustaka-dokumen.js?v=2026-11-13-e2f2f8';
+import { tautanBerkas } from './tautan-privat.js?v=2026-11-13-e2f2f8';
 import { ISIAN_PROFIL, KOLOM_PROFIL, tampil as tampilIsian, sama, formLKPS, bacaFormLKPS, pasangEditor, bacaKataKunci,
   setelNamaTopik, htmlPilihTopik, bacaPilihTopik, MAKS_TOPIK }
-  from './profil-dosen.js?v=2026-11-13-5ae96e';
+  from './profil-dosen.js?v=2026-11-13-e2f2f8';
 
 /* =====================================================================
    PROFIL SAYA — dosen mengajukan perubahan profilnya sendiri (keputusan
@@ -129,7 +132,7 @@ const POLA = {
 // Kolom yang boleh diajukan, berurutan seperti form; label untuk tabel.
 const ISIAN = ISIAN_PROFIL;
 
-let SAYA = null, ADA_LKPS = true;
+let SAYA = null, ADA_LKPS = true, ADA_ALT = false;
 let BAKU = null;   // daftar keahlian baku aktif (61-patch-keahlian-baku.sql); null bila belum ada
 // CV dosen otomatis (pemilik 2026-11-11): tombol di kartu "CV saya".
 document.addEventListener('click', async e => {
@@ -145,6 +148,24 @@ document.addEventListener('click', async e => {
 const opsi = (daftar, v) => daftar.map(([k, l]) =>
   `<option value="${esc(k)}"${k === (v || '') ? ' selected' : ''}>${esc(l)}</option>`).join('');
 const tampil = (k, v) => tampilIsian(k, v, JABATAN);
+
+// Bukti ijazah/sertifikat (pemilik 2026-11-13): berkas privat lewat Apps Script (kind karya,
+// folder karya/<tahun>/<nama dosen>); tautannya lkd.html?f=<id>, dibuka admin, pemilik, dan asesor.
+async function unggahBuktiProfil(f, { jenis, tahun }){
+  const ext = String(window.UPLOAD_EXT || '').toLowerCase().split(',').map(s => s.trim()).filter(Boolean);
+  const maxMb = Number(window.UPLOAD_MAX_MB) || 0, e = ((f.name.match(/\.([^.]+)$/) || [])[1] || '').toLowerCase();
+  if (ext.length && !ext.includes(e)) throw new Error(`jenis berkas tidak diterima (${ext.join(', ')})`);
+  if (maxMb && f.size > maxMb * 1024 * 1024) throw new Error(`lebih dari ${maxMb} MB`);
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) throw new Error('sesi login habis; muat ulang halaman');
+  const awalan = jenis === 'riwayat' ? 'Ijazah' : 'Sertifikat';
+  const res = await fetch(window.UPLOAD_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify({ token: session.access_token, kind: 'karya', year: tahun, privat: true,
+                           filename: `${awalan} - ${f.name}`, data: await keBase64(f) }) });
+  const out = await res.json();
+  if (!out.ok) throw new Error(out.error || 'unggah gagal');
+  return tautanBerkas(out);
+}
 
 function tulis(jenis, teks){ const m = $('pesan'); m.className = 'msg ' + jenis; m.textContent = teks; }
 
@@ -172,14 +193,17 @@ async function mulai(){
   const { data: { session } } = await sb.auth.getSession();
   if (!session) return layarMasuk();
   const DASAR = 'id,nidn,nama,email,peran,pendidikan,jabatan,sinta_id,scopus_id,orcid';
-  let { data: saya, error: eS } = await sb.from('dosen').select(DASAR + ',' + KOLOM_PROFIL)
-    .ilike('email', session.user.email).maybeSingle();
+  let { data: saya, error: eS } = await dosenLogin(sb, session, DASAR + ',' + KOLOM_PROFIL);
   if (eS) {   // 22-patch-profil-dosen.sql belum dijalankan
     ADA_LKPS = false;
-    ({ data: saya } = await sb.from('dosen').select(DASAR).ilike('email', session.user.email).maybeSingle());
+    ({ data: saya } = await dosenLogin(sb, session, DASAR));
   }
   if (!saya) { $('hSub').textContent = 'Tidak terdaftar'; $('isi').innerHTML = '<p class="kosong">Email belum terdaftar. Hubungi admin prodi.</p>'; return; }
   SAYA = saya;
+  // Email alternatif untuk login (patch 69); kueri terpisah supaya isian lain tetap tampil sebelum patch.
+  const { data: alt, error: eAlt } = await sb.from('dosen').select('email_alternatif').eq('id', saya.id).maybeSingle();
+  ADA_ALT = !eAlt;
+  if (ADA_ALT) SAYA.email_alternatif = alt?.email_alternatif ?? null;
   // Daftar keahlian baku (patch 61): dibaca pengguna terdaftar; gagal = belum ada patch, pemilih tidak tampil.
   const [rb, rt] = await Promise.all([
     sb.from('ref_bidang_keahlian').select('kode,nama,nama_en,urutan,aktif').order('urutan'),
@@ -233,6 +257,10 @@ async function gambar(){
         <div class="fld"><label>SINTA ID</label><input id="f_sinta_id" value="${esc(SAYA.sinta_id)}"></div>
         <div class="fld"><label>Scopus ID</label><input id="f_scopus_id" value="${esc(SAYA.scopus_id)}"></div>
         <div class="fld"><label>ORCID</label><input id="f_orcid" value="${esc(SAYA.orcid)}"></div>
+        ${ADA_ALT ? `<div class="fld penuh"><label>Email alternatif untuk login</label><input id="f_email_alternatif" type="email"
+          value="${esc(SAYA.email_alternatif)}" placeholder="mis. nama@gmail.com" autocomplete="email">
+          <small>Dipakai bila tautan masuk tidak sampai ke email kampus: masukkan email ini di halaman masuk.
+          Hanya untuk login; data Anda tetap atas email kampus. Kosongkan untuk menghapus.</small></div>` : ''}
         ${BAKU ? `<div class="fld penuh"><label>Topik keahlian <span class="ket" id="hitungTopik"></span></label>
           <div class="pilih-topik-kotak" id="pilihTopik">${htmlPilihTopik(BAKU.bidang, BAKU.topik, SAYA.topik_keahlian)}</div>
           <small>Pilih topik dari daftar keahlian prodi (paling banyak ${MAKS_TOPIK}); boleh dari beberapa bidang. Nama Indonesia dan
@@ -255,7 +283,7 @@ async function gambar(){
       <div class="aksi"><button class="btn" id="kirim"${tunggu || error ? ' disabled' : ''}>Kirim ajuan</button>
         <span class="msg" id="pesan">${tunggu ? 'Masih ada ajuan yang menunggu.' : ''}</span></div></div>`;
 
-  if (ADA_LKPS) pasangEditor($('isi'));
+  if (ADA_LKPS) pasangEditor($('isi'), String(window.UPLOAD_URL || '').trim() ? { unggah: unggahBuktiProfil } : {});
   if (BAKU && $('pilihTopik')) {
     // Penghitung per bidang dan batas MAKS_TOPIK (sama dengan rapikan_topik_keahlian di patch 61).
     const hitung = () => {
@@ -294,9 +322,12 @@ async function kirim(){
     orcid: idSaja(v('orcid')) || null,
     ...(ADA_LKPS ? bacaFormLKPS(SAYA.pendidikan) : {}),
     ...(ADA_LKPS ? { kata_kunci: bacaKataKunci(v('kata_kunci')) } : {}),
+    ...(ADA_ALT ? { email_alternatif: v('email_alternatif').toLowerCase() || null } : {}),
     ...(BAKU && $('pilihTopik') ? { topik_keahlian: bacaPilihTopik($('pilihTopik')) } : {}),
   };
   if (!baru.nama) return tulis('buruk', 'Nama wajib diisi.');
+  if (baru.email_alternatif && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(baru.email_alternatif)) return tulis('buruk', 'Email alternatif tidak sah.');
+  if (baru.email_alternatif && baru.email_alternatif === String(SAYA.email).toLowerCase()) return tulis('buruk', 'Email alternatif sama dengan email kampus.');
   const kk = v('kata_kunci').split(/[,;\n]+/).map(x => x.trim()).filter(Boolean);
   if (kk.some(x => x.length > 60)) return tulis('buruk', 'Tiap kata kunci paling panjang 60 karakter.');
   if (kk.length > 10 && !confirm('Kata kunci lebih dari 10; hanya 10 pertama yang disimpan. Lanjutkan?')) return;
