@@ -10,7 +10,7 @@
    2026-11-03).
    ===================================================================== */
 
-import { pihakBukti, UNSUR_BUTIR } from './unsur-butir.js?v=2026-11-13-d30f48';
+import { pihakBukti, UNSUR_BUTIR } from './unsur-butir.js?v=2026-11-13-08f7cd';
 
 export const RENCANA_BUKTI = {
  "1": {

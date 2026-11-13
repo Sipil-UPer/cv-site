@@ -15,11 +15,11 @@
    Pemakaian: pasangYatim(sb, elemenWadah)
    ===================================================================== */
 
-import { buangBerkas, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-13-d30f48';
+import { buangBerkas, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-13-08f7cd';
 
 // Tabel yang bisa memuat tautan Drive. Tambahkan tabel baru yang
 // menyimpan tautan bukti di sini, kalau tidak berkasnya tampak tak terpakai.
-const TABEL_RUJUKAN = ['karya', 'karya_bukti', 'butir_bukti', 'dokumen', 'lkps_bukti', 'pengaturan',
+export const TABEL_RUJUKAN = ['karya', 'karya_bukti', 'butir_bukti', 'dokumen', 'lkps_bukti', 'pengaturan',
   'lkps_mahasiswa_ta', 'lkps_kohort_lulusan', 'lkps_tracer_lulusan', 'lkps_kerjasama', 'lkps_bkd',
   'lkps_prestasi_mahasiswa', 'lkps_publikasi_mahasiswa', 'lkps_luaran_mahasiswa',
   // Ajuan yang menunggu dan tabel Data prodi lain yang bisa memuat tautan (pemilik 2026-11-11).
@@ -27,7 +27,13 @@ const TABEL_RUJUKAN = ['karya', 'karya_bukti', 'butir_bukti', 'dokumen', 'lkps_b
   'lkps_prodi_upps', 'lkps_penggunaan_dana', 'lkps_tendik', 'lkps_prasarana', 'lkps_dokumen_k3l',
   'lkps_fasilitas_k3l', 'lkps_spmi_ppepp', 'lkps_target_kinerja', 'lkps_peta_jalan',
   // Berkas nilai CPL (57-patch-cpl-unggah.sql, pemilik 2026-11-11).
-  'cpl_berkas'];
+  'cpl_berkas',
+  // Bukti sertifikat/ijazah di profil dosen (riwayat dalam kolom dosen), tautan panggilan hibah,
+  // kegiatan kalender, dan bukti capaian standar SPMI (2026-11-13: tadinya tidak terdaftar,
+  // sehingga berkasnya tampak tak terpakai).
+  'dosen', 'hibah_panggilan', 'kegiatan', 'spmi_capaian'];
+// Kolom urut tiap tabel (sama dengan supabase.tables di config.yaml); bawaan 'id'.
+const URUT = { pengaturan: ['kunci'], spmi_capaian: ['standar_id', 'tahun_ts'] };
 const BARU_MS = 24 * 3600 * 1000;
 const POLA_ID = /(?:\/d\/|[?&]id=|[?&]f=|\/folders\/)([A-Za-z0-9_-]{20,})/g;
 
@@ -39,8 +45,9 @@ async function semuaBaris(sb, tabel){
   for (let awal = 0; ; awal += 1000) {
     // Urutan tetap supaya halaman 1000 baris tidak melompati/menggandakan
     // baris (kolom kunci sama dengan supabase.tables di config.yaml).
-    const { data, error } = await sb.from(tabel).select('*')
-      .order(tabel === 'pengaturan' ? 'kunci' : 'id').range(awal, awal + 999);
+    let q = sb.from(tabel).select('*');
+    for (const k of URUT[tabel] || ['id']) q = q.order(k);
+    const { data, error } = await q.range(awal, awal + 999);
     if (error) throw new Error(`${tabel}: ${error.message}`);
     out.push(...(data || []));
     if (!data || data.length < 1000) return out;
