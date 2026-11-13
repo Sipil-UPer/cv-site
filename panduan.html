@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-13-0ac654">
+<link rel="stylesheet" href="tema.css?v=2026-11-13-40e042">
 <style>
   /* Panduan pengguna ruang kerja (pemilik 2026-11-04). Bagian admin hanya
      tampil untuk peran admin. Perbarui bila tombol atau halaman berubah. */
@@ -40,7 +40,7 @@
   @media(max-width:640px){nav.isi ol{columns:1}.wrap{padding:18px 16px 60px}}
   @media print{nav.isi{display:none}section{break-inside:avoid}}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-13-0ac654">
+<link rel="stylesheet" href="kepala.css?v=2026-11-13-40e042">
 </head>
 <body>
 
@@ -177,7 +177,7 @@
 
   <section id="evaluasi">
     <h2>9. Evaluasi pembelajaran</h2>
-    <p>Buka <b>Operasional ▾ › Evaluasi pembelajaran</b> dan pilih semester. Setiap mata kuliah yang Anda ampu tampil dengan nilai EDOM
+    <p>Buka <b>Kurikulum &amp; CPL ▾ › Evaluasi pembelajaran</b> dan pilih semester. Setiap mata kuliah yang Anda ampu tampil dengan nilai EDOM
       (evaluasi dosen oleh mahasiswa, skala 0–4, rekap dari kampus), capaian CPL kelasnya, dan refleksi Anda.</p>
     <ol>
       <li><b>Isi refleksi</b> di akhir semester: klik <b>Isi</b>, pilih apakah pelaksanaan <b>sesuai RPS</b> (materi, jadwal, penilaian), tulis catatan,
@@ -239,9 +239,12 @@
     <h2>12. Data prodi <span class="peran">admin</span></h2>
     <p>Buka <b>Admin prodi ▾ › Data prodi</b>. Tiap tab satu tabel LKPS; <b>Tambah baris</b>, <b>Ubah</b>,
       <b>Hapus</b>, dan bukti per baris. Tab dikelompokkan: baris atas memilih kelompok (Dokumen,
-      Dosen &amp; SDM, Kurikulum &amp; penelitian, Mahasiswa &amp; lulusan, Institusi &amp; keuangan,
-      Sarana &amp; K3L, SPMI), baris bawah memilih tabel di kelompok itu. Alamat halaman
+      Dosen &amp; SDM, Kurikulum &amp; CPL, Penelitian &amp; kerja sama, Mahasiswa &amp; lulusan,
+      Institusi &amp; keuangan, Sarana &amp; K3L, SPMI), baris bawah memilih tabel di kelompok itu. Alamat halaman
       (<code>?tab=…</code>) menyimpan tab yang terbuka.</p>
+    <p>Tabel langsung terlihat; formulir ada di kotak <b>＋ Tambah baris</b> di atasnya dan terbuka sendiri saat
+      menekan <b>Ubah</b>. Tabel yang lebar hanya menampilkan kolom terpenting: <b>klik baris</b> untuk melihat
+      semua isinya, atau tekan <b>Semua kolom</b> untuk menampilkan semua kolom tab itu.</p>
     <p><b>Tab Dokumen</b> (tab pertama) adalah pustaka dokumen prodi: setiap dokumen tersimpan <b>satu kali</b> menurut jenis + tahun + judul, lalu bisa dipakai sebagai bukti di banyak tab dan butir. Di bukti baris: <b>Tautkan dari pustaka</b> untuk dokumen yang sudah ada; <b>Unggah dokumen baru</b> menyimpan berkas ke pustaka lalu menautkannya (bila jenis, tahun, dan judulnya sudah ada, berkas itu <b>diganti</b>, tidak disalin); <b>Tambah tautan luar</b> untuk DOI atau halaman mitra. Melepas bukti dari baris tidak menghapus dokumennya; dokumen dihapus hanya dari tab Dokumen, yang menampilkan di mana saja dokumen itu dipakai.</p>
     <p><b>Berkas yang sama tidak tersimpan dua kali.</b> Sebelum mengunggah (pustaka, bukti butir, bukti baris, bukti karya), situs memeriksa isi berkas, bukan namanya. Bila berkas yang sama persis sudah tersimpan, tautannya dipakai ulang dan tidak ada unggahan baru; pesan di bawah tombol menyebut di mana berkas itu sudah ada. Menghapus bukti tidak membuang berkas yang masih dipakai di tempat lain. Untuk berkas lama, buka <b>tab Dokumen › Rapikan berkas lama › Periksa berkas lama</b>: berkas yang tersimpan lebih dari sekali bisa <b>disatukan</b> (salinannya ke Sampah Drive), dan unggahan bukti baris lama bisa <b>dimasukkan ke pustaka</b> dengan jenis, tahun, dan judul yang Anda pilih.</p>
     <table>
@@ -334,7 +337,7 @@
   </div>
 </main>
 
-<script src="config.js?v=2026-11-13-0ac654"></script>
+<script src="config.js?v=2026-11-13-40e042"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -351,7 +354,7 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { gerbang } from './menu.js?v=2026-11-13-0ac654';
+import { gerbang } from './menu.js?v=2026-11-13-40e042';
 
 // Bagian admin hanya untuk peran admin (isinya bukan rahasia; disembunyikan
 // supaya panduan dosen tetap ringkas).

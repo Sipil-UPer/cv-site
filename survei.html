@@ -8,50 +8,85 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-13-0ac654">
+<link rel="stylesheet" href="tema.css?v=2026-11-13-40e042">
 <style>
+  /* Formulir survei bertahap (pemilik 2026-11-13: lebih rapi dan menarik, dwibahasa). Warna dari tema.css. */
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15.5px;line-height:1.55;-webkit-font-smoothing:antialiased}
   .wrap{max-width:760px;margin:0 auto;padding:0 16px 90px}
   .hero{background:var(--biru);color:#fff;border-bottom:4px solid var(--merah)}
-  .hero-in{max-width:760px;margin:0 auto;padding:28px 16px 22px}
-  h1{font-family:var(--serif);font-size:clamp(22px,4.2vw,30px);font-weight:600;margin:0;line-height:1.2;color:#fff}
+  .hero-in{max-width:760px;margin:0 auto;padding:22px 16px 20px;display:flex;gap:14px;align-items:flex-start}
+  .hero-in>div:first-child{flex:1;min-width:0}
+  h1{font-family:var(--serif);font-size:clamp(21px,4.2vw,29px);font-weight:600;margin:0;line-height:1.2;color:#fff}
   .prodi{color:var(--biru-m4);font-size:14px;margin-top:6px}
+  .bahasa{display:inline-flex;border:1px solid rgba(255,255,255,.55);border-radius:999px;overflow:hidden;flex:none}
+  .bahasa button{background:transparent;color:#fff;border:0;padding:5px 12px;font:inherit;font-size:13px;font-weight:600;cursor:pointer}
+  .bahasa button[aria-pressed="true"]{background:#fff;color:var(--biru)}
   .kosong, .ket{color:var(--muted)}
   .ket{font-size:13.5px}
-  .pengantar{background:var(--panel);border:1px solid var(--line);padding:14px 18px;margin:20px 0;white-space:pre-line}
-  fieldset{border:1px solid var(--line);background:var(--panel);margin:0 0 12px;padding:12px 16px 14px}
-  legend{font-weight:600;padding:0 4px;font-size:15px}
-  .no{font-family:var(--mono);color:var(--muted);font-size:12px;margin-right:6px}
-  .pilih{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:8px}
-  .pilih label{display:flex;flex-direction:column;align-items:center;gap:4px;border:1px solid var(--line);padding:8px 4px;
-    cursor:pointer;font-size:13px;text-align:center;border-radius:3px}
-  .pilih input{margin:0}
-  .pilih label:has(input:checked){border-color:var(--biru);background:rgba(var(--biru-rgb),.08);font-weight:600}
-  @media (max-width:480px){.pilih{grid-template-columns:repeat(2,1fr)}}
-  textarea{width:100%;min-height:90px;font:inherit;padding:8px;border:1px solid var(--line);margin-top:6px}
-  .aksi{display:flex;gap:12px;align-items:center;margin-top:16px;flex-wrap:wrap}
-  button{font:inherit;font-weight:600;padding:10px 22px;border:0;background:var(--biru);color:#fff;cursor:pointer;border-radius:3px}
+  .kartu{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px 18px;margin:16px 0}
+  .pengantar{white-space:pre-line}
+  .info{display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:10px;font-size:13px;color:var(--muted)}
+  .info span::before{content:'•';margin-right:6px;color:var(--biru)}
+  /* Progres menempel di atas saat digulir. */
+  .progres{position:sticky;top:0;z-index:5;background:var(--bg);padding:10px 0 8px;margin-top:6px}
+  .progres-teks{display:flex;justify-content:space-between;gap:10px;font-size:13px;color:var(--muted);margin-bottom:6px}
+  .progres-teks b{color:var(--ink);font-weight:600}
+  .bilah{height:8px;background:var(--line-soft);border-radius:99px;overflow:hidden}
+  .bilah i{display:block;height:100%;width:0;background:var(--biru);border-radius:99px;transition:width .25s}
+  .langkah{display:flex;gap:4px;margin-top:8px}
+  .langkah i{flex:1;height:4px;border-radius:2px;background:var(--line)}
+  .langkah i.lewat{background:var(--biru)} .langkah i.kini{background:var(--merah)}
+  h2.bagian{font-family:var(--serif);font-size:20px;font-weight:600;margin:18px 0 10px}
+  .tanya{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 16px 16px;margin:0 0 12px;transition:border-color .15s}
+  .tanya.belum{border-color:var(--merah);box-shadow:0 0 0 1px var(--merah)}
+  .tanya .judul{font-weight:600;font-size:15px;display:flex;gap:8px}
+  .tanya .no{font-family:var(--mono);color:var(--muted);font-size:12px;font-weight:400;padding-top:2px;flex:none;min-width:22px}
+  .tanya .petunjuk{font-size:13px;color:var(--muted);margin:2px 0 0 30px}
+  .tanya .isi{margin:10px 0 0 30px}
+  @media (max-width:480px){.tanya .isi,.tanya .petunjuk{margin-left:0}}
+  .wajib{color:var(--merah)}
+  /* Pilihan sebagai tombol (radio/kotak centang tetap ada untuk papan ketik dan pembaca layar). */
+  .chip{display:flex;flex-wrap:wrap;gap:8px}
+  .chip label{display:flex;gap:8px;align-items:center;border:1px solid var(--line);border-radius:8px;padding:8px 12px;cursor:pointer;
+    font-size:14px;background:var(--bg);transition:border-color .12s,background .12s}
+  .chip.daftar{flex-direction:column;align-items:stretch}
+  .chip label:hover{border-color:var(--biru)}
+  .chip input{margin:0;accent-color:var(--biru)}
+  .chip label:has(input:checked){border-color:var(--biru);background:rgba(var(--biru-rgb),.09);font-weight:600}
+  .chip label:has(input:focus-visible){outline:2px solid var(--biru);outline-offset:2px}
+  .skala{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+  .skala label{justify-content:center;text-align:center;flex-direction:column;gap:4px;padding:10px 6px}
+  .skala .v{font-family:var(--mono);font-size:12px;color:var(--muted)}
+  @media (max-width:480px){.skala{grid-template-columns:repeat(2,1fr)}}
+  .lima{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;max-width:420px}
+  .lima label{justify-content:center;padding:9px 0;font-family:var(--mono);font-size:15px}
+  .ujung{display:flex;justify-content:space-between;max-width:420px;font-size:12px;color:var(--muted);margin-top:4px}
+  .tanya input[type=number], .tanya input[type=text], .idn input{font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:6px;
+    width:100%;max-width:440px;background:var(--bg);color:var(--ink)}
+  textarea{width:100%;min-height:96px;font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink)}
+  .idn{display:grid;gap:10px}
+  .idn label{display:flex;flex-direction:column;gap:4px;font-size:13.5px;color:var(--muted)}
+  .nav{display:flex;gap:10px;align-items:center;margin-top:16px;flex-wrap:wrap}
+  .nav .isi-sisa{flex:1}
+  button.utama, button.kedua{font:inherit;font-weight:600;padding:10px 22px;border-radius:8px;cursor:pointer}
+  button.utama{border:0;background:var(--biru);color:#fff}
+  button.kedua{border:1px solid var(--line);background:var(--panel);color:var(--ink)}
   button:disabled{opacity:.6;cursor:default}
   .msg{font-size:14px}
   .msg.buruk{color:var(--merah)}
-  .selesai{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--hijau);padding:18px;margin-top:24px}
-  .belum{outline:2px solid var(--merah)}
-  .wajib{color:var(--merah)}
-  .opsi{display:flex;flex-direction:column;gap:6px;margin-top:8px;font-size:14.5px}
-  .opsi label{display:flex;gap:8px;align-items:center;cursor:pointer}
-  fieldset input[type=number], fieldset input[type=text], .idn input{font:inherit;padding:7px 9px;border:1px solid var(--line);margin-top:6px;width:100%;max-width:420px}
-  .idn{display:grid;gap:6px}
-  .idn label{display:flex;flex-direction:column;font-size:13.5px;color:var(--muted)}
+  .selesai{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--hijau);border-radius:10px;padding:18px;margin-top:24px}
 </style>
 </head>
 <body>
 <header class="hero"><div class="hero-in">
-  <h1 id="judul">Survei kepuasan</h1>
-  <div class="prodi" id="hProdi"></div>
+  <div><h1 id="judul">Survei kepuasan</h1><div class="prodi" id="hProdi"></div></div>
+  <div class="bahasa" id="bahasa" hidden role="group" aria-label="Bahasa / Language">
+    <button type="button" data-lang="id" aria-pressed="true">ID</button><button type="button" data-lang="en" aria-pressed="false">EN</button>
+  </div>
 </div></header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-13-0ac654"></script>
+<script src="config.js?v=2026-11-13-40e042"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -66,107 +101,264 @@ addEventListener('error', function (e) {
 });
 </script>
 <script type="module">
-// Formulir survei kepuasan untuk responden tanpa login (pemilik 2026-11-11;
-// 54-patch-survei-kepuasan.sql). Isian anonim; satu kali per peramban
-// (id acak di localStorage, dijaga juga oleh indeks unik di basis data).
+// Formulir survei untuk responden tanpa login (pemilik 2026-11-11; 54-patch-survei-kepuasan.sql).
+// 2026-11-13 (pemilik): bertahap per bagian dengan progres, pilihan berbentuk tombol, dan dwibahasa
+// (Indonesia/Inggris; 72-patch-survei-dwibahasa.sql). Jawaban yang dikirim selalu nilai opsi bahasa
+// Indonesia. Satu kali per peramban (id acak di localStorage, dijaga juga indeks unik di basis data);
+// draf jawaban disimpan di perangkat ini sampai terkirim.
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { SKALA, labelKelompok, aktifQ, wajibQ, cekJawaban } from './survei-kepuasan.js?v=2026-11-13-0ac654';
+import { SKALA, SKALA_EN, labelKelompok, aktifQ, wajibQ, cekJawaban, teksQ, ketQ, opsiQ, ujungQ, labelBagian }
+  from './survei-kepuasan.js?v=2026-11-13-40e042';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
 const sb = createClient(window.SB_URL, window.SB_KEY);
-const token = new URLSearchParams(location.search).get('t') || '';
+const par = new URLSearchParams(location.search);
+const token = par.get('t') || '';
 const simpan = { get: k => { try { return localStorage.getItem(k); } catch { return null; } },
-                 set: (k, v) => { try { localStorage.setItem(k, v); } catch { /* mode privat */ } } };
+                 set: (k, v) => { try { localStorage.setItem(k, v); } catch { /* mode privat */ } },
+                 hapus: k => { try { localStorage.removeItem(k); } catch { /* mode privat */ } } };
 const tgl = s => String(s || '').split('-').reverse().join('/');
 function klien(){
   let k = simpan.get('surveiKlien');
   if (!/^[0-9a-f-]{36}$/.test(k || '')) { k = crypto.randomUUID(); simpan.set('surveiKlien', k); }
   return k;
 }
-const selesai = (judul, teks) => { $('isi').innerHTML = `<div class="selesai"><b>${esc(judul)}</b><p>${esc(teks)}</p></div>`; };
+
+const KELOMPOK_EN = { mahasiswa: 'Student', dosen: 'Lecturer', tendik: 'Staff', mitra: 'Partner', pengguna: 'Employer', alumni: 'Alumni tracer' };
+const L = {
+  id: { survei: 'Survei kepuasan', tautan: ['Tautan tidak lengkap', 'Buka survei dari tautan yang dibagikan program studi.'],
+    hilang: ['Survei tidak ditemukan', 'Tautan survei tidak berlaku atau sudah ditutup oleh program studi.'],
+    tutup: (a, b) => ['Survei tidak sedang dibuka', `Survei ini dibuka ${a} sampai ${b}. Terima kasih atas perhatian Anda.`],
+    sudah: ['Terima kasih', 'Anda sudah mengisi survei ini dari perangkat ini.'],
+    tersimpan: ['Terima kasih', 'Jawaban Anda sudah tersimpan. Rekap hasil survei dapat dilihat di halaman Hasil survei kepuasan program studi.'],
+    bawaan: (k, ts) => `Survei ${k.toLowerCase()}, TS ${ts - 1}/${ts}. `,
+    anonim: 'Isian bersifat anonim: nama dan email Anda tidak diminta dan tidak tercatat.',
+    rahasia: 'Identitas Anda hanya dibaca admin program studi dan tidak pernah ditampilkan dalam rekap.',
+    sampai: d => `Dibuka sampai ${d}`, menit: n => `± ${n} menit`, bertanda: '* = wajib dijawab', draf: 'Jawaban tersimpan sementara di perangkat ini',
+    identitas: 'Identitas', opsional: '(opsional)', nama: 'Nama', nim: 'NIM', email: 'Email', isiNama: 'Isi nama serta NIM atau email.',
+    lainnya: 'Pertanyaan', kembali: '← Kembali', lanjut: 'Lanjut →', kirim: 'Kirim jawaban', mengirim: 'Mengirim…', gagal: 'Gagal mengirim.',
+    kurang: n => `${n} pertanyaan wajib belum dijawab.`, bagian: (i, n) => `Bagian ${i} dari ${n}`, terjawab: p => `${p}% terjawab`,
+    galat: 'Gagal memuat', dobel: 'Anda sudah mengisi survei ini.' },
+  en: { survei: 'Survey', tautan: ['Incomplete link', 'Please open the survey from the link shared by the study programme.'],
+    hilang: ['Survey not found', 'This survey link is not valid or the survey has been closed.'],
+    tutup: (a, b) => ['Survey not open', `This survey is open from ${a} to ${b}. Thank you for your interest.`],
+    sudah: ['Thank you', 'You have already completed this survey on this device.'],
+    tersimpan: ['Thank you', 'Your answers have been saved. A summary of the results is published on the programme\'s survey results page.'],
+    bawaan: (k, ts) => `${KELOMPOK_EN[k] || k} survey, assessment year ${ts - 1}/${ts}. `,
+    anonim: 'Your answers are anonymous: your name and email are not requested or recorded.',
+    rahasia: 'Your details are only seen by the programme administrators and never appear in any summary.',
+    sampai: d => `Open until ${d}`, menit: n => `about ${n} min`, bertanda: '* = required', draf: 'Your answers are saved on this device until you submit',
+    identitas: 'Your details', opsional: '(optional)', nama: 'Name', nim: 'Student ID number', email: 'Email',
+    isiNama: 'Please enter your name and either your student ID or email.',
+    lainnya: 'Questions', kembali: '← Back', lanjut: 'Next →', kirim: 'Submit', mengirim: 'Submitting…', gagal: 'Could not submit.',
+    kurang: n => `${n} required question${n > 1 ? 's' : ''} not answered.`, bagian: (i, n) => `Section ${i} of ${n}`, terjawab: p => `${p}% answered`,
+    galat: 'Could not load', dobel: 'You have already completed this survey.' },
+};
+let bahasa = ['id', 'en'].includes(par.get('lang')) ? par.get('lang') : (simpan.get('surveiBahasa') === 'en' ? 'en' : 'id');
+const t = () => L[bahasa];
+const en = () => bahasa === 'en';
+const selesai = ([judul, teks]) => { $('isi').innerHTML = `<div class="selesai"><b>${esc(judul)}</b><p>${esc(teks)}</p></div>`; };
 
 fetch('data.json?v=' + Date.now()).then(r => r.ok ? r.json() : {}).catch(() => ({}))
   .then(d => { $('hProdi').textContent = [d.prodi, d.institusi].filter(Boolean).join(' · '); });
 
 async function mulai(){
-  if (!token) return selesai('Tautan tidak lengkap', 'Buka survei dari tautan yang dibagikan program studi.');
+  if (!token) return selesai(t().tautan);
   const { data: s, error } = await sb.rpc('survei_buka', { p_token: token });
-  if (error || !s) return selesai('Survei tidak ditemukan', 'Tautan survei tidak berlaku atau sudah ditutup oleh program studi.');
-  $('judul').textContent = s.judul;
-  document.title = `${s.judul} — Survei kepuasan`;
-  if (!s.buka) return selesai('Survei tidak sedang dibuka',
-    `Survei ini dibuka ${tgl(s.mulai)} sampai ${tgl(s.selesai)}. Terima kasih atas perhatian Anda.`);
-  if (simpan.get('surveiSelesai:' + token)) return selesai('Terima kasih', 'Anda sudah mengisi survei ini dari perangkat ini.');
+  if (error || !s) return selesai(t().hilang);
   const xs = s.pertanyaan || [];
   const idn = s.identitas || 'tidak';
-  const nama = q => esc(q.id), tanda = q => wajibQ(q) ? ' <span class="wajib" title="wajib">*</span>' : '';
-  const masukan = q => {
-    if (q.jenis === 'skala') return `<div class="pilih">${SKALA.slice().reverse().map(([v, l]) =>
-      `<label><input type="radio" name="${nama(q)}" value="${v}">${esc(l)}</label>`).join('')}</div>`;
-    if (q.jenis === 'pilihan' || q.jenis === 'centang') return `<div class="opsi">${(q.opsi || []).map(o =>
-      `<label><input type="${q.jenis === 'pilihan' ? 'radio' : 'checkbox'}" name="${nama(q)}" value="${esc(o)}"> ${esc(o)}</label>`).join('')}</div>`;
-    if (q.jenis === 'angka') return `<input type="number" name="${nama(q)}" step="any"${q.min != null ? ` min="${esc(q.min)}"` : ''}${q.max != null ? ` max="${esc(q.max)}"` : ''}>`;
-    if (q.jenis === 'singkat') return `<input type="text" name="${nama(q)}" maxlength="200">`;
-    return `<textarea name="${nama(q)}" maxlength="2000"></textarea>`;
+  // Tombol bahasa hanya tampil bila survei punya teks bahasa Inggris.
+  const dwibahasa = !!(s.judul_en || xs.some(q => q.teks_en));
+  if (!dwibahasa) bahasa = 'id';
+  const judul = () => (en() && s.judul_en) || s.judul;
+  const pasangJudul = () => {
+    document.documentElement.lang = bahasa;
+    $('judul').textContent = judul();
+    document.title = `${judul()} — ${t().survei}`;
+    document.querySelectorAll('#bahasa button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.lang === bahasa)));
   };
-  $('isi').innerHTML = `<div class="pengantar">${esc(s.pengantar || `Survei ${labelKelompok(s.kelompok).toLowerCase()}, TS ${s.tahun_ts - 1}/${s.tahun_ts}. `
-      + (idn === 'tidak' ? 'Isian bersifat anonim: nama dan email Anda tidak diminta dan tidak tercatat.'
-        : 'Identitas Anda hanya dibaca admin program studi dan tidak pernah ditampilkan dalam rekap.'))}
-      <br><span class="ket">Dibuka sampai ${tgl(s.selesai)}. Tanda * = wajib.</span></div>
-    <form id="f">${idn !== 'tidak' ? `<fieldset><legend>Identitas${idn === 'wajib' ? ' <span class="wajib">*</span>' : ' (opsional)'}</legend>
-        <div class="idn"><label>Nama<input id="i_nama" maxlength="120" autocomplete="name"></label>
-          <label>NIM<input id="i_nim" maxlength="30"></label><label>Email<input id="i_email" type="email" maxlength="120" autocomplete="email"></label></div>
-        ${idn === 'wajib' ? '<p class="ket">Isi nama serta NIM atau email.</p>' : ''}</fieldset>` : ''}
-      ${xs.map(q => `<fieldset data-q="${nama(q)}"><legend>${esc(q.teks)}${tanda(q)}</legend>${masukan(q)}</fieldset>`).join('')}
-      <div class="aksi"><button type="submit" id="kirim">Kirim jawaban</button><span class="msg" id="msg"></span></div></form>`;
+  pasangJudul();
+  if (!s.buka) return selesai(t().tutup(tgl(s.mulai), tgl(s.selesai)));
+  if (simpan.get('surveiSelesai:' + token)) return selesai(t().sudah);
+
+  // Langkah: identitas (bila diminta), lalu tiap deret pertanyaan dengan bagian yang sama.
+  // Survei lama tanpa bagian menjadi satu langkah.
+  const LANGKAH = [];
+  if (idn !== 'tidak') LANGKAH.push({ identitas: true, xs: [] });
+  xs.forEach(q => {
+    const b = q.bagian || '', akhir = LANGKAH[LANGKAH.length - 1];
+    if (akhir && !akhir.identitas && akhir.bagian === b) akhir.xs.push(q); else LANGKAH.push({ bagian: b, xs: [q] });
+  });
+  const nomor = new Map(xs.map((q, i) => [q.id, i + 1]));
+  const KUNCI_DRAF = 'surveiDraf:' + token;
+  let J = {}, ID = { nama: '', nim: '', email: '' }, kini = 0;
+  try { const d = JSON.parse(simpan.get(KUNCI_DRAF) || 'null'); if (d) { J = d.j || {}; ID = { ...ID, ...(d.id || {}) }; kini = +d.kini || 0; } } catch { /* draf rusak */ }
+  const aktifLangkah = x => x.identitas || x.xs.some(q => aktifQ(q, J));
   const sel = q => `[name="${CSS.escape(q.id)}"]`;
+
+  const masukan = q => {
+    const n = esc(q.id);
+    if (q.jenis === 'skala') return `<div class="chip skala">${(en() ? SKALA_EN : SKALA).slice().reverse().map(([v, l]) =>
+      `<label><input type="radio" name="${n}" value="${v}"><span>${esc(l)}</span><span class="v">${v}</span></label>`).join('')}</div>`;
+    if (q.jenis === 'pilihan' || q.jenis === 'centang') {
+      const op = opsiQ(q, en()), uj = ujungQ(q, en());
+      const tipe = q.jenis === 'pilihan' ? 'radio' : 'checkbox';
+      if (uj && op.length <= 7 && op.every(([v]) => /^\d$/.test(v)))
+        return `<div class="chip lima">${op.map(([v, l]) => `<label><input type="${tipe}" name="${n}" value="${esc(v)}">${esc(l)}</label>`).join('')}</div>
+          <div class="ujung"><span>${esc(uj[0])}</span><span>${esc(uj[1])}</span></div>`;
+      const panjang = op.some(([, l]) => String(l).length > 28) || op.length > 6;
+      return `<div class="chip${panjang ? ' daftar' : ''}">${op.map(([v, l]) =>
+        `<label><input type="${tipe}" name="${n}" value="${esc(v)}"><span>${esc(l)}</span></label>`).join('')}</div>`;
+    }
+    if (q.jenis === 'angka') return `<input type="number" name="${n}" step="any" inputmode="decimal"${q.min != null ? ` min="${esc(q.min)}"` : ''}${q.max != null ? ` max="${esc(q.max)}"` : ''}>`;
+    if (q.jenis === 'singkat') return `<input type="text" name="${n}" maxlength="200">`;
+    return `<textarea name="${n}" maxlength="2000"></textarea>`;
+  };
+  const kartuQ = q => `<div class="tanya" data-q="${esc(q.id)}" role="group" aria-labelledby="j_${esc(q.id)}">
+      <div class="judul" id="j_${esc(q.id)}"><span class="no">${nomor.get(q.id)}</span><span>${esc(teksQ(q, en()))}${wajibQ(q) ? ' <span class="wajib" title="wajib">*</span>' : ''}</span></div>
+      ${ketQ(q, en()) ? `<div class="petunjuk">${esc(ketQ(q, en()))}</div>` : ''}
+      <div class="isi">${masukan(q)}</div></div>`;
+
   const baca = () => {
     const j = {};
     xs.forEach(q => {
       if (q.jenis === 'skala' || q.jenis === 'pilihan') { const v = document.querySelector(`${sel(q)}:checked`); if (v) j[q.id] = q.jenis === 'skala' ? +v.value : v.value; }
       else if (q.jenis === 'centang') { const v = [...document.querySelectorAll(`${sel(q)}:checked`)].map(x => x.value); if (v.length) j[q.id] = v; }
-      else { const t = document.querySelector(sel(q)).value.trim(); if (t !== '') j[q.id] = q.jenis === 'angka' ? Number(t) : t; }
+      else { const el = document.querySelector(sel(q)), s2 = el ? el.value.trim() : ''; if (s2 !== '') j[q.id] = q.jenis === 'angka' ? Number(s2) : s2; }
     });
     return j;
   };
+  const pulihkan = () => {
+    xs.forEach(q => {
+      const v = J[q.id];
+      if (v === undefined) return;
+      if (['skala', 'pilihan', 'centang'].includes(q.jenis)) {
+        const nilai = (Array.isArray(v) ? v : [v]).map(String);
+        document.querySelectorAll(sel(q)).forEach(el => { el.checked = nilai.includes(el.value); });
+      } else { const el = document.querySelector(sel(q)); if (el) el.value = v; }
+    });
+    if (idn !== 'tidak') ['nama', 'nim', 'email'].forEach(k => { $('i_' + k).value = ID[k] || ''; });
+  };
+  const simpanDraf = () => simpan.set(KUNCI_DRAF, JSON.stringify({ j: J, id: ID, kini }));
   // Pertanyaan bersyarat: tampil hanya bila jawaban acuannya cocok; isian yang disembunyikan dikosongkan.
   const atur = () => {
-    const j = baca();
+    J = baca();
     xs.forEach(q => {
-      const fs = document.querySelector(`fieldset[data-q="${CSS.escape(q.id)}"]`), aktif = aktifQ(q, j);
-      fs.hidden = !aktif;
-      if (!aktif) fs.querySelectorAll('input, textarea').forEach(el => { if (el.type === 'radio' || el.type === 'checkbox') el.checked = false; else el.value = ''; });
+      const el = document.querySelector(`.tanya[data-q="${CSS.escape(q.id)}"]`), aktif = aktifQ(q, J);
+      if (!el) return;
+      el.hidden = !aktif;
+      if (!aktif) el.querySelectorAll('input, textarea').forEach(x => { if (x.type === 'radio' || x.type === 'checkbox') x.checked = false; else x.value = ''; });
     });
+    J = baca();
+    if (idn !== 'tidak') ['nama', 'nim', 'email'].forEach(k => { ID[k] = $('i_' + k).value.trim(); });
+    const akt = xs.filter(q => aktifQ(q, J)), dijawab = akt.filter(q => J[q.id] !== undefined).length;
+    const tampak = LANGKAH.map((x, i) => [x, i]).filter(([x]) => aktifLangkah(x));
+    const ke = tampak.findIndex(([, i]) => i === kini) + 1;
+    $('pTeks').innerHTML = `<b>${esc(t().bagian(ke, tampak.length))}</b><span>${esc(t().terjawab(akt.length ? Math.round(dijawab / akt.length * 100) : 0))}</span>`;
+    $('pBilah').style.width = `${akt.length ? dijawab / akt.length * 100 : 0}%`;
+    $('pLangkah').innerHTML = tampak.map(([, i]) => `<i class="${i < kini ? 'lewat' : i === kini ? 'kini' : ''}"></i>`).join('');
+    simpanDraf();
   };
-  $('f').addEventListener('change', atur);
-  atur();
-  $('f').onsubmit = async e => {
+  // Langkah berikut/sebelumnya yang masih punya pertanyaan berlaku (langkah studi lanjut terlewati bila bekerja, dst.).
+  const langkahLain = arah => { let i = kini + arah; while (i >= 0 && i < LANGKAH.length && !aktifLangkah(LANGKAH[i])) i += arah; return i; };
+
+  function gambar(){
+    if (kini >= LANGKAH.length || kini < 0 || !aktifLangkah(LANGKAH[kini])) kini = 0;
+    const akt = xs.filter(q => aktifQ(q, J)).length;
+    const awal = `<div class="kartu"><div class="pengantar">${esc((en() ? s.pengantar_en : s.pengantar)
+        || t().bawaan(en() ? s.kelompok : labelKelompok(s.kelompok), s.tahun_ts) + (idn === 'tidak' ? t().anonim : t().rahasia))}</div>
+      <div class="info"><span>${esc(t().sampai(tgl(s.selesai)))}</span><span>${esc(t().menit(Math.max(2, Math.round(akt * 12 / 60))))}</span>
+        <span>${esc(t().bertanda)}</span><span>${esc(t().draf)}</span></div></div>`;
+    $('isi').innerHTML = `${awal}
+      <div class="progres"><div class="progres-teks" id="pTeks"></div><div class="bilah"><i id="pBilah"></i></div><div class="langkah" id="pLangkah"></div></div>
+      <form id="f" novalidate>${LANGKAH.map((x, i) => `<section data-langkah="${i}"${i === kini ? '' : ' hidden'}>
+        ${x.identitas ? `<h2 class="bagian">${esc(t().identitas)} ${idn === 'wajib' ? '<span class="wajib">*</span>' : `<span class="ket">${esc(t().opsional)}</span>`}</h2>
+          <div class="tanya"><div class="idn"><label>${esc(t().nama)}<input id="i_nama" maxlength="120" autocomplete="name"></label>
+            <label>${esc(t().nim)}<input id="i_nim" maxlength="30"></label><label>${esc(t().email)}<input id="i_email" type="email" maxlength="120" autocomplete="email"></label></div>
+            ${idn === 'wajib' ? `<p class="ket">${esc(t().isiNama)}</p>` : ''}</div>`
+        : `<h2 class="bagian">${esc(x.bagian ? labelBagian(x.bagian, en()) : t().lainnya)}</h2>${x.xs.map(kartuQ).join('')}`}</section>`).join('')}
+        <div class="nav"><button type="button" class="kedua" id="kembali">${esc(t().kembali)}</button><span class="isi-sisa"></span>
+          <span class="msg" id="msg"></span><button type="submit" class="utama" id="lanjut"></button></div></form>`;
+    pulihkan();
+    atur();
+    tombol();
+    $('f').addEventListener('change', () => { atur(); tombol(); });
+    $('f').addEventListener('input', e => { if (e.target.matches('input[type=text], input[type=number], input[type=email], textarea')) atur(); });
+    $('kembali').onclick = () => pindah(langkahLain(-1));
+    $('f').onsubmit = kirim;
+  }
+  function tombol(){
+    $('lanjut').textContent = langkahLain(1) >= LANGKAH.length ? t().kirim : t().lanjut;
+    $('kembali').hidden = langkahLain(-1) < 0;
+  }
+  function pindah(i){
+    if (i < 0 || i >= LANGKAH.length) return;
+    kini = i;
+    document.querySelectorAll('#f section').forEach(x => { x.hidden = +x.dataset.langkah !== kini; });
+    $('msg').textContent = '';
+    atur(); tombol();
+    document.querySelector('.progres').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+  // Pertanyaan wajib yang belum dijawab di langkah ini (atau di semua langkah).
+  const belum = semua => xs.filter(q => (semua || LANGKAH[kini].xs.includes(q)) && aktifQ(q, J) && wajibQ(q) && J[q.id] === undefined);
+  const tandai = qs => {
+    document.querySelectorAll('.tanya.belum').forEach(f => f.classList.remove('belum'));
+    qs.forEach(q => document.querySelector(`.tanya[data-q="${CSS.escape(q.id)}"]`)?.classList.add('belum'));
+  };
+  async function kirim(e){
     e.preventDefault();
     atur();
-    const jawaban = baca(), m = $('msg');
-    document.querySelectorAll('fieldset.belum').forEach(f => f.classList.remove('belum'));
-    const kurang = xs.filter(q => aktifQ(q, jawaban) && wajibQ(q) && jawaban[q.id] === undefined)
-      .map(q => document.querySelector(`fieldset[data-q="${CSS.escape(q.id)}"]`));
-    kurang.forEach(f => f.classList.add('belum'));
-    if (kurang.length) { m.className = 'msg buruk'; m.textContent = `${kurang.length} pertanyaan wajib belum dijawab.`; kurang[0].scrollIntoView({ behavior: 'smooth', block: 'center' }); return; }
-    const g = cekJawaban(xs, jawaban);
-    if (g) { m.className = 'msg buruk'; m.textContent = g; return; }
-    const identitas = idn === 'tidak' ? null : { nama: $('i_nama').value.trim(), nim: $('i_nim').value.trim(), email: $('i_email').value.trim() };
-    if (idn === 'wajib' && (!identitas.nama || (!identitas.nim && !identitas.email))) { m.className = 'msg buruk'; m.textContent = 'Isi nama serta NIM atau email.'; return; }
-    $('kirim').disabled = true; m.className = 'msg'; m.textContent = 'Mengirim…';
-    const { error: e2 } = await sb.rpc('survei_kirim', { p_token: token, p_klien: klien(), p_jawaban: jawaban, p_identitas: identitas });
+    const m = $('msg'), buruk = x => { m.className = 'msg buruk'; m.textContent = x; };
+    if (LANGKAH[kini].identitas && idn === 'wajib' && (!ID.nama || (!ID.nim && !ID.email))) return buruk(t().isiNama);
+    const kurangSini = belum(false);
+    tandai(kurangSini);
+    if (kurangSini.length) {
+      buruk(t().kurang(kurangSini.length));
+      return document.querySelector(`.tanya[data-q="${CSS.escape(kurangSini[0].id)}"]`).scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+    const lanjut = langkahLain(1);
+    if (lanjut < LANGKAH.length) return pindah(lanjut);
+    // Langkah terakhir: periksa semuanya sekali lagi, lalu kirim.
+    const kurang = belum(true);
+    if (kurang.length) {
+      const i = LANGKAH.findIndex(x => x.xs.includes(kurang[0]));
+      pindah(i); tandai(kurang.filter(q => LANGKAH[i].xs.includes(q))); return buruk(t().kurang(kurang.length));
+    }
+    if (idn === 'wajib' && (!ID.nama || (!ID.nim && !ID.email))) { pindah(0); return buruk(t().isiNama); }
+    const g = cekJawaban(xs, J, en());
+    if (g) return buruk(g);
+    const identitas = idn === 'tidak' ? null : { ...ID };
+    $('lanjut').disabled = true; m.className = 'msg'; m.textContent = t().mengirim;
+    const { error: e2 } = await sb.rpc('survei_kirim', { p_token: token, p_klien: klien(), p_jawaban: J, p_identitas: identitas });
     if (e2) {
-      $('kirim').disabled = false; m.className = 'msg buruk';
-      m.textContent = e2.message || 'Gagal mengirim.';
-      if (/sudah Anda isi/.test(e2.message || '')) simpan.set('surveiSelesai:' + token, '1');
-      return;
+      $('lanjut').disabled = false;
+      const dobel = /sudah Anda isi/.test(e2.message || '');
+      if (dobel) simpan.set('surveiSelesai:' + token, '1');
+      return buruk(dobel && en() ? t().dobel : e2.message || t().gagal);
     }
     simpan.set('surveiSelesai:' + token, '1');
-    selesai('Terima kasih', 'Jawaban Anda sudah tersimpan. Rekap hasil survei dapat dilihat di halaman Hasil survei kepuasan program studi.');
-  };
+    simpan.hapus(KUNCI_DRAF);
+    selesai(t().tersimpan);
+    scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  if (dwibahasa) {
+    $('bahasa').hidden = false;
+    $('bahasa').onclick = e => {
+      const b = e.target.closest('button[data-lang]');
+      if (!b || b.dataset.lang === bahasa) return;
+      if ($('f')) atur();
+      bahasa = b.dataset.lang;
+      simpan.set('surveiBahasa', bahasa);
+      pasangJudul();
+      gambar();
+    };
+  }
+  gambar();
 }
-mulai().catch(e => selesai('Gagal memuat', e.message || String(e)));
+mulai().catch(e => selesai([t().galat, e.message || String(e)]));
 </script>
 </body>
 </html>

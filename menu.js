@@ -1,4 +1,4 @@
-import { dosenLogin } from './dosen-login.js?v=2026-11-13-0ac654';
+import { dosenLogin } from './dosen-login.js?v=2026-11-13-40e042';
 // Menu bersama ruang kerja (pemilik 2026-11-04).
 //
 // Situs dibagi dua:
@@ -19,7 +19,7 @@ const penyusun = s => admin(s) || (!!s.tim_penyusun && s.peran !== 'asesor');
 // Asesor, dan pimpinan yang bukan DTPS prodi ini (aktif=false), tidak mengisi karya.
 const isiKarya = s => s.peran !== 'asesor' && !(s.peran === 'pimpinan' && !s.aktif);
 
-import { halamanAktif } from './fitur.js?v=2026-11-13-0ac654';
+import { halamanAktif } from './fitur.js?v=2026-11-13-40e042';
 
 export const MODUL = [
   // Susunan modul (pemilik 2026-11-12): isian dosen, operasional prodi, dan fungsi admin dipisah.
@@ -28,8 +28,18 @@ export const MODUL = [
       ket: 'Nama, SINTA, Scopus, ORCID, pendidikan, jabatan; perubahan disetujui admin.' },
     { href: 'input.html', judul: 'Karya dosen', boleh: isiKarya,
       ket: 'Publikasi, penelitian, PkM, luaran, rekognisi, dan buktinya.' },
+  ]},
+  // Urusan kurikulum dan CPL (OBE) di satu menu (pemilik 2026-11-13).
+  { judul: 'Kurikulum & CPL', ket: 'Berkas nilai CPL, capaian CPL, evaluasi pembelajaran, dan data kurikulum.', halaman: [
     { href: 'nilai-cpl.html', judul: 'Berkas nilai CPL', boleh: isiKarya,
       ket: 'Unggah Template_Input_Data_CPL per kelas (diperiksa sebelum dikirim, disimpan privat); admin: daftar kelas dan pengingat.' },
+    { href: 'monitoring.html#cpl', judul: 'Capaian CPL',
+      ket: 'Ketercapaian CPL: grafik per angkatan, progres per semester, peta MK × CPL, kelas yang belum tercapai.' },
+    // Evaluasi pembelajaran (68-patch-evaluasi-pembelajaran.sql): dosen miliknya, admin/pimpinan semua, asesor rekap prodi.
+    { href: 'evaluasi-pembelajaran.html', judul: 'Evaluasi pembelajaran',
+      ket: 'EDOM, capaian CPL kelas, refleksi RPS per mata kuliah tiap semester, dan tindak lanjutnya.' },
+    { href: 'data-prodi.html?tab=mk', judul: 'Mata kuliah & CPL', boleh: admin,
+      ket: 'Data prodi › Kurikulum & CPL: mata kuliah, CPL per kurikulum, peta MK–CPL, korelasi CPL antar kurikulum.' },
   ]},
   { judul: 'Operasional', ket: 'Kegiatan prodi sehari-hari.', halaman: [
     // Kalender (64-patch-kegiatan.sql): semua pengguna terdaftar; kegiatan manual diisi admin (pemilik 2026-11-12).
@@ -38,9 +48,6 @@ export const MODUL = [
     // Rapat dan notulen (62-patch-rapat.sql): admin dan dosen mencatat; semua terdaftar membaca.
     { href: 'rapat.html', judul: 'Rapat dan notulen', boleh: s => s.peran !== 'asesor',
       ket: 'Agenda, peserta, keputusan, tindak lanjut ber-PJ, notulen Word, daftar hadir daring (QR).' },
-    // Evaluasi pembelajaran (68-patch-evaluasi-pembelajaran.sql): dosen miliknya, admin/pimpinan semua, asesor rekap prodi.
-    { href: 'evaluasi-pembelajaran.html', judul: 'Evaluasi pembelajaran',
-      ket: 'EDOM, capaian CPL kelas, refleksi RPS per mata kuliah tiap semester, dan tindak lanjutnya.' },
     // Sama dengan boleh_hibah() di supabase/58-patch-hibah.sql.
     { href: 'hibah.html', judul: 'Pengajuan hibah', boleh: s => s.peran !== 'asesor',
       ket: 'Panggilan hibah dan proposal tim: tenggat, status, dana; didanai menjadi draf karya.' },
@@ -68,9 +75,6 @@ export const MODUL = [
     // Target kinerja per dosen (66-patch-target-dosen.sql, pemilik 2026-11-12): dosen melihat miliknya.
     { href: 'target.html', judul: 'Target kinerja dosen', boleh: s => s.peran !== 'asesor',
       ket: 'Target tahunan per dosen (publikasi, penelitian, PkM, luaran, rekognisi, hibah) dibandingkan capaiannya.' },
-    // Langsung ke seksi Capaian CPL di Monitoring (pemilik 2026-11-13).
-    { href: 'monitoring.html#cpl', judul: 'Capaian CPL',
-      ket: 'Ketercapaian CPL: grafik per angkatan, progres per semester, peta MK × CPL, kelas yang belum tercapai.' },
     { href: 'grafik.html', judul: 'Grafik',
       ket: 'Grafik siap pakai untuk laporan dan LED.' },
     { href: 'sdgs.html', judul: 'Rekap SDGs',
@@ -252,7 +256,7 @@ export async function pasangMenu(sb){
   // Pencarian menyeluruh (pemilik 2026-11-12; cari-ui.js, cari.js): dimuat saat pertama dipakai.
   const kotak = nav.querySelector('.rk-cari input');
   let siapCari = null;
-  const muatCari = () => siapCari || (siapCari = import('./cari-ui.js?v=2026-11-13-0ac654').then(m =>
+  const muatCari = () => siapCari || (siapCari = import('./cari-ui.js?v=2026-11-13-40e042').then(m =>
     m.pasangCari(kotak, { sb, saya: u.saya, modul: halamanBoleh(u.saya), boleh: h => bolehBuka(u.saya, h) !== false })));
   kotak.addEventListener('focus', muatCari);
   document.addEventListener('keydown', e => {

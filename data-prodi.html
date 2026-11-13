@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-13-0ac654">
+<link rel="stylesheet" href="tema.css?v=2026-11-13-40e042">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
@@ -57,6 +57,19 @@
     max-height:170px;overflow:auto;border:1px solid var(--line);padding:6px 8px;background:#fff}
   .unggah-baris{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:5px;font-size:12.5px}
   .unggah-baris input[type=text],.unggah-baris input[type=url]{flex:1 1 200px;width:auto}
+  /* Formulir dan kotak impor dilipat (pemilik 2026-11-13): tabel langsung terlihat. */
+  details.formulir,details.massal{border:1px solid var(--line);border-radius:8px;background:var(--panel);margin:10px 0}
+  details.formulir>summary,details.massal>summary{cursor:pointer;padding:9px 12px;list-style:none;font-size:13.5px}
+  details.formulir>summary::-webkit-details-marker,details.massal>summary::-webkit-details-marker{display:none}
+  details.formulir>summary{font-weight:600;color:var(--aksi)}
+  details.formulir[open]>summary,details.massal[open]>summary{border-bottom:1px solid var(--line-soft)}
+  details.formulir>form,details.massal>:not(summary){padding:0 12px}
+  details.formulir>form{padding:12px}
+  .tabel-opsi{display:flex;gap:10px;align-items:center;margin:2px 0 6px;font-size:12.5px;color:var(--muted)}
+  table.t tbody tr[data-id]{cursor:pointer}
+  table.t tr.rinci td{white-space:normal;background:var(--biru-m12);padding:8px 12px}
+  table.t tr.rinci dl{display:grid;grid-template-columns:minmax(160px,max-content) 1fr;gap:3px 14px;margin:0;font-size:12.5px}
+  table.t tr.rinci dt{color:var(--muted)}table.t tr.rinci dd{margin:0}
   .saring{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;margin:4px 0 8px;font-size:12.5px}
   .saring input[type=search]{flex:1 1 220px;max-width:340px;padding:5px 8px}
   .saring label{display:flex;gap:4px;align-items:center;white-space:nowrap}
@@ -88,7 +101,7 @@
   .masuk{max-width:420px;margin:40px auto;background:#fff;border:1px solid var(--line);padding:20px}
   .masuk input{width:100%;padding:8px 10px;margin:8px 0;font:inherit}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-13-0ac654">
+<link rel="stylesheet" href="kepala.css?v=2026-11-13-40e042">
 </head>
 <body>
 
@@ -102,7 +115,7 @@
 
 <main class="wrap" id="isi"></main>
 
-<script src="config.js?v=2026-11-13-0ac654"></script>
+<script src="config.js?v=2026-11-13-40e042"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -119,25 +132,25 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-13-0ac654';
-import { pasangMenu } from './menu.js?v=2026-11-13-0ac654';
-import { dosenLogin } from './dosen-login.js?v=2026-11-13-0ac654';
-import { unggahKePustaka, opsiPustaka, opsiJenis, labelDokumen, cariDokumen } from './pustaka-dokumen.js?v=2026-11-13-0ac654';
-import { pasangRapikan } from './rapikan-berkas.js?v=2026-11-13-0ac654';
-import { UNSUR, skorUnsur, pihakUnsur } from './unsur-butir.js?v=2026-11-13-0ac654';
-import { OPSI_SUMBER } from './iku-otomatis.js?v=2026-11-13-0ac654';
-import { denganOtomatis as otomatisDari, tsTersedia, tsAwal, htmlCapaianIKU, KET_CAPAIAN, muatTambahan, denganTambahan } from './capaian-iku.js?v=2026-11-13-0ac654';
-import { KATEGORI_TEMUAN, STATUS_TEMUAN, PIHAK_TEMUAN, ringkasTemuan, htmlRingkasTemuan } from './temuan-ami.js?v=2026-11-13-0ac654';
-import { bacaRekapSPM, rencanaImporSPM, tsDariTanggal, labelTS, ringkasLembar, picProdi } from './standar-spmi.js?v=2026-11-13-0ac654';
-import { SHEETJS } from './nilai-cpl.js?v=2026-11-13-0ac654';
-import { bacaCSV, normKur, normCpl, KOLOM_IMPOR, CONTOH_IMPOR, rencanaImpor, sebaranCPL, htmlSebaran } from './kurikulum-cpl.js?v=2026-11-13-0ac654';
-import { htmlContoh, pasangContoh, JENIS_BUKTI_KS } from './manfaat-kerjasama.js?v=2026-11-13-0ac654';
-import { infoJenis } from './rencana-bukti.js?v=2026-11-13-0ac654';
-import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-13-0ac654';
-import { nomorButir, htmlTautanButir } from './tautan-butir.js?v=2026-11-13-0ac654';
-import { htmlSaran } from './saran-bukti.js?v=2026-11-13-0ac654';
-import { tautanBerkas, privatkanLama } from './tautan-privat.js?v=2026-11-13-0ac654';
-import { unggahLKD, buangLKD, bukaLKD, pendidikanTotal, pendidikanPS } from './bkd.js?v=2026-11-13-0ac654';
+import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-13-40e042';
+import { pasangMenu } from './menu.js?v=2026-11-13-40e042';
+import { dosenLogin } from './dosen-login.js?v=2026-11-13-40e042';
+import { unggahKePustaka, opsiPustaka, opsiJenis, labelDokumen, cariDokumen } from './pustaka-dokumen.js?v=2026-11-13-40e042';
+import { pasangRapikan } from './rapikan-berkas.js?v=2026-11-13-40e042';
+import { UNSUR, skorUnsur, pihakUnsur } from './unsur-butir.js?v=2026-11-13-40e042';
+import { OPSI_SUMBER } from './iku-otomatis.js?v=2026-11-13-40e042';
+import { denganOtomatis as otomatisDari, tsTersedia, tsAwal, htmlCapaianIKU, KET_CAPAIAN, muatTambahan, denganTambahan } from './capaian-iku.js?v=2026-11-13-40e042';
+import { KATEGORI_TEMUAN, STATUS_TEMUAN, PIHAK_TEMUAN, ringkasTemuan, htmlRingkasTemuan } from './temuan-ami.js?v=2026-11-13-40e042';
+import { bacaRekapSPM, rencanaImporSPM, tsDariTanggal, labelTS, ringkasLembar, picProdi } from './standar-spmi.js?v=2026-11-13-40e042';
+import { SHEETJS } from './nilai-cpl.js?v=2026-11-13-40e042';
+import { bacaCSV, normKur, normCpl, KOLOM_IMPOR, CONTOH_IMPOR, rencanaImpor, sebaranCPL, htmlSebaran } from './kurikulum-cpl.js?v=2026-11-13-40e042';
+import { htmlContoh, pasangContoh, JENIS_BUKTI_KS } from './manfaat-kerjasama.js?v=2026-11-13-40e042';
+import { infoJenis } from './rencana-bukti.js?v=2026-11-13-40e042';
+import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-13-40e042';
+import { nomorButir, htmlTautanButir } from './tautan-butir.js?v=2026-11-13-40e042';
+import { htmlSaran } from './saran-bukti.js?v=2026-11-13-40e042';
+import { tautanBerkas, privatkanLama } from './tautan-privat.js?v=2026-11-13-40e042';
+import { unggahLKD, buangLKD, bukaLKD, pendidikanTotal, pendidikanPS } from './bkd.js?v=2026-11-13-40e042';
 
 /* =====================================================================
    DATA PRODI — data kuantitatif LKPS diisi admin di situs (keputusan
@@ -1638,8 +1651,10 @@ function ketUnggah(){
 // kelompok terpilih. Urutan kelompok = urutan tampil.
 const GRUP_TAB = [
   ['Dokumen', ['dokumen']],
-  ['Dosen & SDM', ['bkd', 'tendik']],
-  ['Kurikulum & penelitian', ['mk', 'cpl', 'mk_cpl', 'korelasi_cpl', 'tema', 'peta_dok', 'kerjasama', 'bidang_keahlian', 'topik_keahlian']],
+  // Susunan 2026-11-13 (pemilik): kurikulum/CPL terpisah dari penelitian; keahlian ke Dosen & SDM.
+  ['Dosen & SDM', ['bkd', 'tendik', 'bidang_keahlian', 'topik_keahlian']],
+  ['Kurikulum & CPL', ['mk', 'cpl', 'mk_cpl', 'korelasi_cpl']],
+  ['Penelitian & kerja sama', ['tema', 'peta_dok', 'kerjasama']],
   ['Mahasiswa & lulusan', ['mahasiswa', 'kohort', 'prestasi', 'publikasi', 'luaran', 'tracer', 'kepuasan']],
   ['Institusi & keuangan', ['vmts', 'prodi_upps', 'dana']],
   ['Sarana & K3L', ['prasarana', 'dok_k3l', 'fas_k3l']],
@@ -1669,14 +1684,15 @@ async function bukaTab(){
   $('panel').innerHTML = `<p class="ket">${nomorButir(T.butir).length
     ? `<b>${htmlTautanButir(nomorButir(T.butir), null, 'Dipakai di')}.</b>` : `<b>${esc(T.butir)}.</b>`} ${esc(T.ket)}</p>${saranTab(T)}
     ${T.id === 'kepuasan' ? '<div id="massal"></div>' : ''}${T.id === 'mk' ? '<div id="impor-mk"></div>' : ''}${JENIS_CPL[T.id] ? `${T.id === 'mk_cpl' ? '<div id="sebaran-cpl"></div>' : ''}<div id="impor-cpl"></div>` : ''}${T.id === 'target' ? '<div id="capaian-iku"></div><div id="impor-iku"></div>' : ''}${T.id === 'temuan' ? '<div id="ringkas-temuan"></div>' : ''}${T.id === 'standar' ? '<div id="pantau-lembar"></div><div id="impor-standar"></div>' : ''}
+    <details class="formulir" id="formLipat"><summary id="formJudul">＋ Tambah baris</summary>
     <form id="form" novalidate><div class="grid">${kolomForm(T).map(isian).join('')}
       ${T.tanpaBukti ? '' : T.privat ? blokLKD() : blokBukti(T)}</div>
       <div class="aksi"><button type="submit" class="btn" id="simpan">Tambah baris</button>
-        <button type="button" class="btn ghost" id="batal" hidden>Batal ubah</button>
-        <span class="msg" id="msg"></span></div></form>
+        <button type="button" class="btn ghost" id="batal">Tutup</button>
+        <span class="msg" id="msg"></span></div></form></details>
     <div class="gulir" id="daftar"><p class="kosong">Memuat…</p></div>`;
   $('form').onsubmit = e => { e.preventDefault(); simpan(); };
-  $('batal').onclick = () => isiForm(null);
+  $('batal').onclick = () => { isiForm(null); $('formLipat').open = false; };
   // Centang capstone / jenis peta jalan mengubah slot unsur.
   $('form').addEventListener('change', e => { if (['f_capstone', 'f_jenis'].includes(e.target.id)) gambarBukti(); });
   if ($('bk_jenis')) ['bk_jenis', 'bk_tahun', 'bk_dj'].forEach(i => { $(i).oninput = ketUnggah; });
@@ -1803,12 +1819,14 @@ function isiForm(r){
     el.classList.remove('salah');
   });
   $('simpan').textContent = r ? 'Simpan perubahan' : 'Tambah baris';
-  $('batal').hidden = !r;
+  $('batal').textContent = r ? 'Batal ubah' : 'Tutup';
+  $('formJudul').textContent = r ? `Ubah: ${AKTIF.label ? AKTIF.label(r) : 'baris terpilih'}` : '＋ Tambah baris';
+  if (r) $('formLipat').open = true;
   tulis('', r ? 'Mengubah baris terpilih.' : '');
   setelUnggah(r);
   document.querySelectorAll('#daftar tr').forEach(tr => tr.classList.toggle('sunting', !!r && tr.dataset.id === String(r.id)));
   gambarBukti();
-  if (r) $('form').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  if (r) $('formLipat').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 const tulis = (cls, t) => { const m = $('msg'); m.className = 'msg' + (cls ? ' ' + cls : ''); m.textContent = t; };
@@ -1848,7 +1866,11 @@ async function muatBaris(){
   LB_GAGAL = lb.error ? lb.error.message : '';
   LB = new Map();
   (lb.data || []).forEach(x => { if (!LB.has(x.baris_id)) LB.set(x.baris_id, []); LB.get(x.baris_id).push(x); });
-  if (!BARIS.length) { box.innerHTML = '<p class="kosong">Belum ada baris.</p>'; return; }
+  if (!BARIS.length) {
+    box.innerHTML = '<p class="kosong">Belum ada baris. Isi formulir di atas untuk menambah.</p>';
+    if ($('formLipat')) $('formLipat').open = true;
+    return;
+  }
   const tampil = (c, v) => c.t === 'cek' ? (v === true ? 'V' : '—')
     : c.t === 'dokumen' ? (dokPer(v) ? `<a href="${esc(dokPer(v).url)}" target="_blank" rel="noopener nofollow">${esc(labelDokumen(dokPer(v)))}</a>` : '—')
     : c.t === 'mhs' ? (v ? esc(pecahMhs(v).filter(Boolean).join('; ')) : '—')
@@ -1860,9 +1882,13 @@ async function muatBaris(){
     : c.t === 'bulan' ? esc(BULAN[v - 1] || v)
     : c.t === 'nidn' ? esc((DOSEN.find(d => d.nidn === v) || {}).nama || v)
     : c.t === 'pilihan' ? esc((opsi(c).find(o => o[0] === String(v)) || [v, v])[1]) : esc(v);
-  box.innerHTML = `<table class="t"><thead><tr>${kolomForm(T).map(c => `<th>${esc(c.l)}</th>`).join('')}
+  const semua = kolomForm(T), cols = kolomTampil(T), sisa = semua.length - cols.length;
+  const st = SARING[T.id] ||= { q: '', k: {} };
+  box.innerHTML = `${sisa > 0 || st.semua ? `<div class="tabel-opsi"><button type="button" class="btn ghost kecil" data-semua>${
+      st.semua ? 'Kolom ringkas' : `Semua kolom (+${sisa})`}</button><span>Klik baris untuk melihat semua isinya.</span></div>` : ''}
+    <table class="t"><thead><tr>${cols.map(c => `<th>${esc(c.l)}</th>`).join('')}
       <th>Bukti</th><th>Diperbarui</th><th></th></tr></thead><tbody>${BARIS.map(r => `<tr data-id="${r.id}">
-      ${kolomForm(T).map(c => `<td>${tampil(c, r[c.k])}</td>`).join('')}
+      ${cols.map(c => `<td>${tampil(c, r[c.k])}</td>`).join('')}
       <td>${T.privat ? (r.bukti_url ? `<button type="button" class="btn ghost kecil" data-lkd="${esc(r.bukti_url)}">Buka LKD</button>` : '—')
         : buktiBaris(r).map(x => `<a href="${esc(x.url)}" target="_blank" rel="noopener nofollow"
         title="${esc(x.judul)}">${esc(x.judul.length > 24 ? x.judul.slice(0, 22) + '…' : x.judul)}</a>`).join('<br>') || '—'}</td>
@@ -1870,7 +1896,50 @@ async function muatBaris(){
       <td><button type="button" class="btn ghost kecil" data-ubah="${r.id}">Ubah</button>
           <button type="button" class="btn bahaya kecil" data-hapus="${r.id}">Hapus</button></td></tr>`).join('')}
     </tbody></table>`;
-  pasangSaring(T, box);
+  // Rincian baris (semua kolom) saat baris diklik; tombol dan tautan tetap bekerja seperti biasa.
+  box.querySelector('[data-semua]')?.addEventListener('click', () => { st.semua = !st.semua; muatBaris(); });
+  box.querySelector('tbody').addEventListener('click', e => {
+    if (e.target.closest('button, a, input, select, label')) return;
+    const tr = e.target.closest('tr[data-id]');
+    if (!tr) return;
+    if (tr.nextElementSibling?.classList.contains('rinci')) { tr.nextElementSibling.remove(); return; }
+    const r = BARIS.find(x => String(x.id) === tr.dataset.id);
+    const d = document.createElement('tr');
+    d.className = 'rinci';
+    d.innerHTML = `<td colspan="${cols.length + 3}"><dl>${semua.map(c => `<dt>${esc(c.l)}</dt><dd>${tampil(c, r[c.k])}</dd>`).join('')}</dl></td>`;
+    tr.after(d);
+  });
+  pasangSaring(T, box, cols);
+}
+
+// Kolom yang tampil di tabel (pemilik 2026-11-13: tabel ringkas, tanpa gulir ke samping). Tab yang tidak
+// disebut menampilkan semua kolomnya; "Semua kolom" menampilkan semuanya untuk tab itu.
+const RINGKAS = {
+  tracer: ['tahun_lulus', 'jumlah_lulusan', 'jumlah_terlacak', 'rata_rata_waktu_tunggu_bulan', 'bekerja_sesuai_bidang', 'pengguna_tanggapan'],
+  kepuasan: ['tahun_akademik', 'aspek', 'sangat_baik', 'baik', 'cukup', 'kurang'],
+  kerjasama: ['mitra', 'jenis', 'tingkat', 'kegiatan', 'tahun_mulai', 'tahun_selesai'],
+  mk: ['kurikulum', 'kode', 'nama', 'semester', 'sifat', 'pengampu', 'aktif'],
+  cpl: ['kurikulum', 'kode', 'ranah', 'rumusan'],
+  korelasi_cpl: ['kurikulum_asal', 'cpl_asal', 'kurikulum_tujuan', 'cpl_tujuan', 'tingkat', 'status'],
+  topik_keahlian: ['kode', 'bidang', 'nama', 'aktif'],
+  vmts: ['jenis', 'nomor_sk', 'visi'],
+  prodi_upps: ['jenis_program', 'nama_prodi', 'status_akreditasi', 'tanggal_kedaluwarsa', 'mahasiswa_ts'],
+  prasarana: ['prasarana', 'alat', 'jumlah_dimiliki', 'kepemilikan', 'kondisi'],
+  target: ['jenis', 'nama', 'tahun_ts', 'target', 'capaian', 'satuan'],
+  standar: ['kode', 'pernyataan', 'pic', 'dipantau', 'aktif'],
+  revisi: ['standar_id', 'tanggal', 'versi', 'perubahan', 'dasar'],
+  temuan: ['tahun_ts', 'kode', 'kategori', 'uraian', 'pj_nama', 'tenggat', 'status'],
+  mahasiswa: ['tahun_akademik', 'jumlah_mahasiswa_aktif', 'jumlah_lulusan', 'rerata_ipk_lulusan', 'rerata_masa_studi_tahun', 'persen_lulus_tepat_waktu'],
+  bkd: ['nidn', 'tahun_akademik', 'semester', 'jabatan_akademik', 'pendidikan_total', 'sks_penelitian', 'sks_pkm'],
+  prestasi: ['nama_kegiatan', 'nama_mahasiswa', 'bidang', 'tingkat', 'capaian', 'tahun'],
+  publikasi: ['judul', 'nama_mahasiswa', 'jenis', 'tingkat', 'tahun'],
+  luaran: ['judul', 'jenis', 'nama_mahasiswa', 'status_hki', 'tahun'],
+};
+function kolomTampil(T){
+  const semua = kolomForm(T), pilih = RINGKAS[T.id];
+  if (!pilih || SARING[T.id]?.semua) return semua;
+  const xs = semua.filter(c => pilih.includes(c.k));
+  return xs.length ? xs : semua;
 }
 
 // Penyaring tabel (pemilik 2026-11-13): kotak cari + saringan per kolom yang pilihannya sedikit
@@ -1879,13 +1948,13 @@ async function muatBaris(){
 const SARING = {};
 const KOLOM_SARING = c => ['pilihan', 'cek'].includes(c.t)
   || ['kurikulum', 'semester', 'tahun_ts', 'tahun_akademik', 'tahun', 'jenis', 'bidang', 'status', 'sifat'].includes(c.k);
-function pasangSaring(T, box){
+function pasangSaring(T, box, cols = kolomForm(T)){
   const tb = box.querySelector('tbody');
   if (!tb || tb.rows.length < 2) return;
   const st = SARING[T.id] ||= { q: '', k: {} };
   const teks = (tr, i) => (tr.cells[i]?.textContent || '').trim();
-  const pilihan = kolomForm(T).map((c, i) => ({ c, i })).filter(({ c }) => KOLOM_SARING(c))
-    .map(({ c, i }) => ({ c, i, v: [...new Set([...tb.rows].map(tr => teks(tr, i)))]
+  const pilihan = cols.map((c, i) => ({ c, i })).filter(({ c }) => KOLOM_SARING(c))
+    .map(({ c, i }) => ({ c, i, v: [...new Set([...tb.querySelectorAll('tr[data-id]')].map(tr => teks(tr, i)))]
       .sort((a, b) => a.localeCompare(b, 'id', { numeric: true })) }))
     .filter(x => x.v.length > 1 && x.v.length <= 30);
   const bar = document.createElement('div');
@@ -1897,12 +1966,13 @@ function pasangSaring(T, box){
   box.prepend(bar);
   const terap = () => {
     const q = st.q.trim().toLowerCase(); let n = 0;
-    for (const tr of tb.rows) {
+    tb.querySelectorAll('tr.rinci').forEach(x => x.remove());
+    for (const tr of tb.querySelectorAll('tr[data-id]')) {
       const ok = (!q || tr.textContent.toLowerCase().includes(q))
         && Object.entries(st.k).every(([i, v]) => !v || teks(tr, +i) === v);
       tr.hidden = !ok; if (ok) n++;
     }
-    bar.querySelector('[data-n]').textContent = `${n} dari ${tb.rows.length} baris`;
+    bar.querySelector('[data-n]').textContent = `${n} dari ${tb.querySelectorAll('tr[data-id]').length} baris`;
   };
   bar.oninput = e => {
     if (e.target.matches('[data-q]')) st.q = e.target.value;

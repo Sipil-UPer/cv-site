@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-13-0ac654">
-<link rel="stylesheet" href="kepala.css?v=2026-11-13-0ac654">
+<link rel="stylesheet" href="tema.css?v=2026-11-13-40e042">
+<link rel="stylesheet" href="kepala.css?v=2026-11-13-40e042">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
@@ -34,6 +34,9 @@
   table.pq td{padding:3px 4px;vertical-align:top}
   table.pq input.teks{width:100%}
   table.pq input.kode{width:90px} table.pq input.aspek{width:140px}
+  table.pq tr.baris-en td{padding-top:0;padding-bottom:8px}
+  table.pq tr.baris-en input{font-size:13px;border-style:dashed}
+  table.pq tr.awal-bagian td{border-top:2px solid var(--line)}
   .msg{font-size:13.5px} .msg.buruk{color:var(--merah)} .msg.ok{color:var(--hijau)}
   .st{font-size:12px;font-weight:600}
   .rinci{background:var(--bg);border:1px solid var(--line-soft);padding:8px 14px;margin:6px 0}
@@ -47,7 +50,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-13-0ac654"></script>
+<script src="config.js?v=2026-11-13-40e042"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -67,11 +70,11 @@ addEventListener('error', function (e) {
 // membagikan tautan survei.html?t=<token>, menutup, dan membaca hasil.
 // Pertanyaan dikunci setelah ada responden supaya rekap tetap sah.
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { gerbang } from './menu.js?v=2026-11-13-0ac654';
+import { gerbang } from './menu.js?v=2026-11-13-40e042';
 import { KELOMPOK_SURVEI, labelKelompok, templatSurvei, cekPertanyaan, hitungDariJawaban, rekapSurvei,
   komentarSurvei, keTabel62, csvJawaban, htmlRekap, CSS_SURVEI, JENIS_PERTANYAAN, IDENTITAS, teksOpsi, bacaOpsi,
   teksSyarat, bacaSyarat, ringkasLain, htmlLain, aspekTindakLanjut, temuanDariAspek, kodeTemuanSurvei,
-  masukanKurikulum, csvKurikulum, identitasBawaan, keTabelTracer, undanganPengguna } from './survei-kepuasan.js?v=2026-11-13-0ac654';
+  masukanKurikulum, csvKurikulum, identitasBawaan, keTabelTracer, undanganPengguna, butirSurvei, BAGIAN, labelBagian } from './survei-kepuasan.js?v=2026-11-13-40e042';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
@@ -80,7 +83,11 @@ document.head.insertAdjacentHTML('beforeend', `<style>${CSS_SURVEI}</style>`);
 const iso = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 const tgl = s => String(s || '').slice(0, 10).split('-').reverse().join('/');
 const tsKini = () => { const d = new Date(); return d.getMonth() >= 8 ? d.getFullYear() + 1 : d.getFullYear(); };
-const urlSurvei = t => new URL('survei.html?t=' + t, location.href).href;
+const urlSurvei = (t, en = false) => new URL('survei.html?t=' + t + (en ? '&lang=en' : ''), location.href).href;
+// Survei punya teks bahasa Inggris (72-patch-survei-dwibahasa.sql): tautan EN membuka formulir langsung dalam bahasa Inggris.
+const adaEn = s => !!(s.judul_en || (s.pertanyaan || []).some(q => q.teks_en));
+const teksButir = xs => (xs || []).join(', ');
+const bacaButir = v => [...new Set(String(v || '').split(/[,;\s]+/).map(x => x.trim()).filter(x => /^\d{1,2}$/.test(x)))];
 let SAYA = null, SURVEI = [], JAWAB = new Map(), UBAH = null, PQ = [], BUKA = null, KEL = 'mahasiswa';
 // Kode temuan yang sudah dibuat dari survei (51-patch-temuan-ami.sql), supaya tombol tidak dobel.
 let KODE_TEMUAN = new Set(), TEMUAN_ADA = true;
@@ -111,8 +118,10 @@ async function muat(){
 }
 
 function gambar(){
-  $('isi').innerHTML = `<p class="ket">Survei kepuasan anonim untuk butir 57 (seluruh pemangku), butir 7 unsur 3 (mitra), dan butir 52
-      (pengguna lulusan, Tabel 6.g.2). Buat survei, bagikan tautannya, lalu baca hasilnya di sini. Rekap angka tampil publik di
+  $('isi').innerHTML = `<p class="ket">Kuesioner per kelompok pemangku. Templat bawaan (2026-11-13) menjawab butir 2–3 (VMTS), 5
+      (kepemimpinan), 7 (mitra), 12–13 (kurikulum dan kebutuhan pengguna), 16 (pembelajaran), 21 (suasana akademik), 38–39
+      (sarana, K3L), 48–51 (tracer, pertanyaan inti DIKTI), 52 (pengguna lulusan, Tabel 6.g.2), dan 57 (kepuasan seluruh
+      pemangku). Semua teks bisa dwibahasa untuk responden asing. Buat survei, bagikan tautannya, lalu baca hasilnya di sini. Rekap angka tampil publik di
       <a href="hasil-survei.html">Hasil survei kepuasan</a> (bila "publik" dicentang); isian saran hanya terlihat admin.</p>
     <div class="kartu" id="form-survei"></div>
     <div class="kartu"><h2>Daftar survei</h2>${SURVEI.length ? `<div class="gulir"><table class="ds"><thead><tr><th>Survei</th><th>Kelompok</th>
@@ -121,7 +130,7 @@ function gambar(){
         return `<tr><td><b>${esc(s.judul)}</b><br><small class="ket">TS ${s.tahun_ts - 1}/${s.tahun_ts}${s.publik ? ' · publik' : ' · tidak publik'}</small></td>
           <td>${esc(labelKelompok(s.kelompok))}</td><td>${tgl(s.mulai)} – ${tgl(s.selesai)}</td>
           <td><span class="st" style="color:${w}">${st}</span></td><td>${n}</td>
-          <td><button class="b" data-salin="${s.id}">Salin tautan</button><a class="b" href="${esc(urlSurvei(s.token))}" target="_blank" rel="noopener">Buka</a>
+          <td><button class="b" data-salin="${s.id}">Salin tautan</button>${adaEn(s) ? `<button class="b" data-salin-en="${s.id}" title="Formulir langsung dalam bahasa Inggris">Salin tautan EN</button>` : ''}<a class="b" href="${esc(urlSurvei(s.token))}" target="_blank" rel="noopener">Buka</a>
             <button class="b" data-hasil="${s.id}">${BUKA === s.id ? 'Tutup hasil' : 'Hasil'}</button><button class="b" data-ubah="${s.id}">Ubah</button>
             <button class="b" data-cabut="${s.id}">${s.dicabut ? 'Buka kembali' : 'Cabut'}</button>
             <button class="b bahaya" data-hapus="${s.id}">Hapus</button></td></tr>
@@ -178,16 +187,27 @@ function gambarForm(){
       <label style="flex-direction:row;align-items:center;gap:6px;margin-top:18px"><input id="s_publik" type="checkbox"${s ? (s.publik ? ' checked' : '') : ' checked'}> Rekap publik</label>
     </div>
     <p><label class="ket">Pengantar (opsional; kosong = pengantar bawaan tentang anonimitas)<textarea id="s_pengantar" maxlength="2000">${esc(s?.pengantar || '')}</textarea></label></p>
+    <details class="rinci"${s?.judul_en || s?.pengantar_en ? ' open' : ''}><summary class="ket">Bahasa Inggris (untuk responden asing; kosong = memakai teks Indonesia)</summary>
+      <div class="grid" style="margin-top:6px"><label>Title (EN)<input id="s_judul_en" maxlength="150" value="${esc(s?.judul_en || '')}"
+        placeholder="${esc(k === 'alumni' ? `Alumni tracer study ${ts - 1}/${ts}` : `${labelKelompok(k)} satisfaction survey ${ts - 1}/${ts}`)}"></label></div>
+      <p><label class="ket">Introduction (EN)<textarea id="s_pengantar_en" maxlength="2000">${esc(s?.pengantar_en || '')}</textarea></label></p>
+      <p class="ket">Teks pertanyaan dan opsi bahasa Inggris diisi di baris "EN" di bawah tiap pertanyaan. Jawaban tetap tersimpan sebagai opsi bahasa Indonesia.</p></details>
+    <p class="ket"><b>Butir LAM yang tercakup:</b> ${butirSurvei(PQ).join(', ') || '—'}
+      <span class="ket">(dari kolom Butir; bagian: ${[...new Set(PQ.map(q => q.bagian).filter(Boolean))].map(b => esc(labelBagian(b))).join(' · ') || '—'})</span></p>
     <p class="ket">Pertanyaan ${kunci ? `<b>dikunci: survei ini sudah punya ${n} responden</b>` : `(templat bawaan ${esc(labelKelompok(k).toLowerCase())}, silakan disunting)${
       k === 'pengguna' ? '. Untuk pengguna lulusan, kode ketujuh aspek jangan diubah agar hasil bisa disalin ke Tabel 6.g.2'
       : k === 'alumni' ? '. Untuk tracer, kode tahun_lulus, status, bulan, kesesuaian, tingkat, izin_atasan, email_atasan dan opsinya jangan diubah '
-        + 'agar rekap bisa disalin ke Tabel tracer dan atasan bisa diundang. Templat ini pendukung; butir 48 unsur 3 meminta seluruh pertanyaan inti tracer DIKTI' : ''}.
+        + 'agar rekap bisa disalin ke Tabel tracer dan atasan bisa diundang. Templat memuat pertanyaan inti tracer DIKTI 2021 (butir 48 aspek 3)' : ''}.
       <b>Opsi</b>: untuk pilihan/centang tulis "a; b; c", untuk angka tulis rentang "0-120" (kosong = bebas).
       <b>Syarat</b>: "kode=nilai1|nilai2" (tampil hanya bila pertanyaan pilihan <i>kode</i> dijawab salah satu nilai itu).
-      Aspek "kurikulum" dihimpun ke kartu Masukan kurikulum.`}</p>
-    <div class="gulir"><table class="pq"><thead><tr class="ket"><td></td><td>Kode</td><td>Aspek</td><td>Pertanyaan</td><td>Jenis</td>
-      <td>Opsi / rentang</td><td>Wajib</td><td>Syarat</td><td></td></tr></thead><tbody>${PQ.map((q, i) => `<tr data-i="${i}"><td class="ket">${i + 1}</td>
+      Aspek "kurikulum" dihimpun ke kartu Masukan kurikulum. <b>Bagian</b>: pertanyaan berurutan dengan bagian sama tampil sebagai satu
+      langkah di formulir. <b>Butir</b>: butir LAM yang dijawab, mis. "16, 57" (dipakai untuk tindak lanjut temuan).`}</p>
+    <datalist id="daftar-bagian">${Object.entries(BAGIAN).map(([v, [l]]) => `<option value="${esc(v)}">${esc(l)}</option>`).join('')}</datalist>
+    <div class="gulir"><table class="pq"><thead><tr class="ket"><td></td><td>Kode</td><td>Bagian</td><td>Aspek</td><td>Pertanyaan</td><td>Jenis</td>
+      <td>Opsi / rentang</td><td>Wajib</td><td>Syarat</td><td>Butir</td><td></td></tr></thead><tbody>${PQ.map((q, i) => `<tr data-i="${i}"${
+        PQ[i - 1] && PQ[i - 1].bagian !== q.bagian ? ' class="awal-bagian"' : ''}><td class="ket">${i + 1}</td>
       <td><input class="kode" data-k="id" value="${esc(q.id)}" title="Kode" ${kunci ? 'disabled' : ''}></td>
+      <td><input class="aspek" data-k="bagian" list="daftar-bagian" value="${esc(q.bagian || '')}" title="Bagian (langkah formulir)" ${kunci ? 'disabled' : ''}></td>
       <td><input class="aspek" data-k="aspek" value="${esc(q.aspek)}" title="Aspek" ${kunci ? 'disabled' : ''}></td>
       <td style="min-width:260px"><input class="teks" data-k="teks" value="${esc(q.teks)}" title="Pertanyaan" ${kunci ? 'disabled' : ''}></td>
       <td><select data-k="jenis" ${kunci ? 'disabled' : ''}>${JENIS_PERTANYAAN.map(([v, l]) => `<option value="${v}"${q.jenis === v ? ' selected' : ''}>${l}</option>`).join('')}</select></td>
@@ -195,14 +215,26 @@ function gambarForm(){
         title="Opsi atau rentang" ${kunci ? 'disabled' : ''}></td>
       <td style="text-align:center"><input type="checkbox" data-k="wajib" ${q.wajib ?? ['skala', 'pilihan'].includes(q.jenis) ? 'checked' : ''} ${kunci ? 'disabled' : ''}></td>
       <td><input data-k="syarat" style="width:150px" value="${esc(teksSyarat(q.syarat))}" title="Syarat tampil" ${kunci ? 'disabled' : ''}></td>
-      <td>${kunci ? '' : `<button class="b bahaya" data-hapus-q="${i}" title="Hapus pertanyaan">×</button>`}</td></tr>`).join('')}</tbody></table></div>
+      <td><input data-k="butir" style="width:70px" value="${esc(teksButir(q.butir))}" title="Butir LAM, mis. 16, 57" ${kunci ? 'disabled' : ''}></td>
+      <td>${kunci ? '' : `<button class="b bahaya" data-hapus-q="${i}" title="Hapus pertanyaan">×</button>`}</td></tr>
+      <tr data-en="${i}" class="baris-en"><td></td><td colspan="3" class="ket" style="text-align:right">EN</td>
+        <td><input class="teks" data-k="teks_en" value="${esc(q.teks_en || '')}" placeholder="Question in English (optional)" title="Pertanyaan bahasa Inggris" ${kunci ? 'disabled' : ''}></td><td></td>
+        <td><input data-k="opsi_en" style="width:170px" value="${esc(teksOpsi(q.opsi_en))}" placeholder="${['pilihan', 'centang'].includes(q.jenis) ? 'a; b; c (sama urutan)' : ''}"
+          title="Opsi bahasa Inggris, urutan sama dengan opsi" ${kunci || !['pilihan', 'centang'].includes(q.jenis) ? 'disabled' : ''}></td><td colspan="4"></td></tr>`).join('')}</tbody></table></div>
     ${kunci ? '' : `<p><button class="b" id="tambah-q">Tambah pertanyaan</button><button class="b" id="templat-q">Muat ulang templat</button></p>`}
     <p><button class="b utama" id="s_simpan">${s ? 'Simpan perubahan' : 'Buat survei'}</button>
       ${s ? '<button class="b" id="s_batal">Batal</button>' : ''} <span class="msg" id="s_msg"></span></p>`;
   // Baca penyunting ke bentuk tersimpan: opsi -> larik, rentang -> min/max, syarat -> objek.
-  const bacaPQ = () => document.querySelectorAll('table.pq tbody tr').forEach(tr => {
+  const bacaPQ = () => document.querySelectorAll('table.pq tbody tr[data-i]').forEach(tr => {
     const q = PQ[+tr.dataset.i], v = k => tr.querySelector(`[data-k="${k}"]`);
+    const en = document.querySelector(`table.pq tr[data-en="${tr.dataset.i}"]`), ve = k => en?.querySelector(`[data-k="${k}"]`);
     ['id', 'aspek', 'teks', 'jenis'].forEach(k => { q[k] = v(k).value.trim(); });
+    // Kunci tambahan (2026-11-13): kosong = dihapus dari JSON. ket/ujung dari templat tetap terbawa.
+    const isi = (k, x) => { if (x === '' || (Array.isArray(x) && !x.length)) delete q[k]; else q[k] = x; };
+    isi('bagian', v('bagian').value.trim().toLowerCase().replace(/\s+/g, '_'));
+    isi('butir', bacaButir(v('butir').value));
+    isi('teks_en', ve('teks_en')?.value.trim() ?? '');
+    isi('opsi_en', ['pilihan', 'centang'].includes(q.jenis) ? bacaOpsi(ve('opsi_en')?.value) : []);
     const opsi = v('opsi').value.trim();
     delete q.opsi; delete q.min; delete q.max;
     if (q.jenis === 'pilihan' || q.jenis === 'centang') q.opsi = bacaOpsi(opsi);
@@ -227,9 +259,10 @@ function gambarForm(){
     if (!kunci) bacaPQ();
     const isi = { kelompok: $('s_kelompok').value, judul: $('s_judul').value.trim(), tahun_ts: +$('s_ts').value,
       mulai: $('s_mulai').value, selesai: $('s_selesai').value, pengantar: $('s_pengantar').value.trim() || null,
+      judul_en: $('s_judul_en').value.trim() || null, pengantar_en: $('s_pengantar_en').value.trim() || null,
       publik: $('s_publik').checked, identitas: $('s_identitas').value, ambang_puas: +$('s_puas').value,
       ambang_rerata: +$('s_rerata').value, ...(kunci ? {} : { pertanyaan: PQ }) };
-    const g = isi.judul.length < 3 ? 'Judul minimal 3 karakter.' : !isi.mulai || !isi.selesai ? 'Isi tanggal dibuka dan ditutup.'
+    const g = isi.judul.length < 3 ? 'Judul minimal 3 karakter.' : isi.judul_en && isi.judul_en.length < 3 ? 'Title (EN) minimal 3 karakter.' : !isi.mulai || !isi.selesai ? 'Isi tanggal dibuka dan ditutup.'
       : !(isi.ambang_puas >= 0 && isi.ambang_puas <= 100) || !(isi.ambang_rerata >= 1 && isi.ambang_rerata <= 4) ? 'Ambang % puas 0–100 dan rerata 1–4.'
       : !kunci && document.querySelector('table.pq [data-k="syarat"]') && [...document.querySelectorAll('table.pq [data-k="syarat"]')]
           .some(el => el.value.trim() && !bacaSyarat(el.value)) ? 'Syarat ditulis kode=nilai1|nilai2.'
@@ -239,13 +272,13 @@ function gambarForm(){
     const { error } = s ? await sb.from('survei').update(isi).eq('id', s.id)
       : await sb.from('survei').insert({ ...isi, oleh: SAYA.email });
     $('s_simpan').disabled = false;
-    if (error) return tulis('buruk', 'Gagal: ' + error.message);
+    if (error) return tulis('buruk', 'Gagal: ' + error.message + (/judul_en|pengantar_en/.test(error.message) ? ' (jalankan supabase/72-patch-survei-dwibahasa.sql)' : ''));
     UBAH = null; PQ = []; KEL = 'mahasiswa';
     await muat(); gambar();
     $('s_msg').className = 'msg ok'; $('s_msg').textContent = s ? 'Perubahan tersimpan.' : 'Survei dibuat. Salin tautannya di daftar di bawah.';
   };
   function simpanSementara(){
-    const ids = ['s_kelompok', 's_judul', 's_ts', 's_mulai', 's_selesai', 's_pengantar', 's_identitas', 's_puas', 's_rerata'];
+    const ids = ['s_kelompok', 's_judul', 's_ts', 's_mulai', 's_selesai', 's_pengantar', 's_judul_en', 's_pengantar_en', 's_identitas', 's_puas', 's_rerata'];
     const nilai = ids.map(id => $(id).value), pub = $('s_publik').checked;
     gambarForm(); ids.forEach((id, i) => { $(id).value = nilai[i]; }); $('s_publik').checked = pub; }
 }
@@ -353,6 +386,10 @@ function gambarHasil(s){
 }
 
 function pasang(){
+  document.querySelectorAll('[data-salin-en]').forEach(b => b.onclick = async () => {
+    const s = SURVEI.find(x => x.id === +b.dataset.salinEn), u = urlSurvei(s.token, true);
+    try { await navigator.clipboard.writeText(u); b.textContent = 'Tersalin'; } catch { prompt('Copy this link:', u); }
+  });
   document.querySelectorAll('[data-salin]').forEach(b => b.onclick = async () => {
     const s = SURVEI.find(x => x.id === +b.dataset.salin), u = urlSurvei(s.token);
     try { await navigator.clipboard.writeText(u); b.textContent = 'Tersalin'; } catch { prompt('Salin tautan ini:', u); }
