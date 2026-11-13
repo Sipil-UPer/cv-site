@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-13-46a3fc">
+<link rel="stylesheet" href="tema.css?v=2026-11-13-d30f48">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
@@ -174,7 +174,7 @@
     font-size:13px;line-height:1.5}
   @media print{.png-baris, #ami-admin, .kontrol-seksi{display:none}}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-13-46a3fc">
+<link rel="stylesheet" href="kepala.css?v=2026-11-13-d30f48">
 </head>
 <body>
 
@@ -260,6 +260,11 @@ document.addEventListener('click', async e => {
     b.disabled = false; b.textContent = teks;
   }
 });
+// Menu ke seksi saat sudah di Monitoring (hanya jangkar berubah, halaman tidak dimuat ulang).
+window.addEventListener('hashchange', () => {
+  const d = [...document.querySelectorAll('details.seksi')].find(x => x.dataset.seksi === decodeURIComponent(location.hash.slice(1)));
+  if (d) { d.open = true; d.scrollIntoView({ block: 'start' }); }
+});
 function pasangSeksi(){
   SEKSI_BUKA.delete('_awal');
   document.querySelectorAll('details.seksi').forEach(d => {
@@ -269,6 +274,10 @@ function pasangSeksi(){
       simpanAman.set('seksiBuka', JSON.stringify([...SEKSI_BUKA]));
     });
   });
+  // Tautan berjangkar (mis. menu Monitoring › Capaian CPL = monitoring.html#cpl): buka seksinya lalu gulir ke sana.
+  const tuju = decodeURIComponent(location.hash.slice(1));
+  const sk = tuju && [...document.querySelectorAll('details.seksi')].find(d => d.dataset.seksi === tuju);
+  if (sk) { sk.open = true; setTimeout(() => sk.scrollIntoView({ block: 'start' }), 0); }
   const k = document.getElementById('seksi-semua');
   if (k) k.innerHTML = `<a id="bukaSemua">Buka semua</a><a id="tutupSemua">Tutup semua</a>`;
   const semua = v => document.querySelectorAll('details.seksi').forEach(d => d.open = v);
@@ -1066,7 +1075,7 @@ function kartuRinci(judul, peta){
       <div class="an">${v}</div></div>`).join('')}</div>`;
 }
 </script>
-<script src="config.js?v=2026-11-13-46a3fc"></script>
+<script src="config.js?v=2026-11-13-d30f48"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -1085,13 +1094,13 @@ addEventListener('error', function (e) {
 // Ruang kerja, khusus email terdaftar (pemilik 2026-11-04); tanpa login hanya
 // lewat tautan AMI yang masih berlaku (pemilik 2026-11-11, 50-patch-tautan-ami.sql).
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { gerbang } from './menu.js?v=2026-11-13-46a3fc';
-import * as CAPAIAN_IKU from './capaian-iku.js?v=2026-11-13-46a3fc';
-import * as TEMUAN_AMI from './temuan-ami.js?v=2026-11-13-46a3fc';
-import * as TAUTAN_AMI from './ami-tautan.js?v=2026-11-13-46a3fc';
-import * as CAPAIAN_CPL from './capaian-cpl.js?v=2026-11-13-46a3fc';
-import * as RAPAT_M from './rapat.js?v=2026-11-13-46a3fc';
-import * as HIBAH from './hibah.js?v=2026-11-13-46a3fc';
+import { gerbang } from './menu.js?v=2026-11-13-d30f48';
+import * as CAPAIAN_IKU from './capaian-iku.js?v=2026-11-13-d30f48';
+import * as TEMUAN_AMI from './temuan-ami.js?v=2026-11-13-d30f48';
+import * as TAUTAN_AMI from './ami-tautan.js?v=2026-11-13-d30f48';
+import * as CAPAIAN_CPL from './capaian-cpl.js?v=2026-11-13-d30f48';
+import * as RAPAT_M from './rapat.js?v=2026-11-13-d30f48';
+import * as HIBAH from './hibah.js?v=2026-11-13-d30f48';
 const sb = createClient(window.SB_URL, window.SB_KEY);
 window.HIBAH = HIBAH;
 window.RAPAT_M = RAPAT_M;
