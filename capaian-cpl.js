@@ -5,7 +5,8 @@
 // Bukti: butir 13 unsur 9, butir 14 unsur 5 (tinjauan rutin pencapaian CPL),
 // butir 15 unsur 5 (tinjauan RPS: analisis CPL), butir 16 unsur 1.
 
-import { htmlTrenLintas, normKur, normCpl } from './kurikulum-cpl.js?v=2026-11-13-715ba1';
+import { htmlRadarAngkatan, htmlProgresKecil, htmlPetaPanas, CSS_GRAFIK } from './grafik-cpl.js?v=2026-11-13-46a3fc';
+import { htmlTrenLintas, normKur, normCpl } from './kurikulum-cpl.js?v=2026-11-13-46a3fc';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -74,6 +75,7 @@ export function htmlCPL(s, { kelasTabel = 'sp', meta = '', korelasi = [], cplRef
       mahasiswa mencapainya. Dari ${dipakai.length} berkas kelas${ditolak ? ` (${ditolak} ditolak pemeriksaan, tidak dihitung)` : ''};
       mengulang MK memakai percobaan terbaik. Angka agregat, tanpa data per mahasiswa.${adaEst ? `<br><b>Estimasi</b>: ${nEst} kelas
       dihitung dari nilai akhir MK (semester sebelum templat CPL rinci), dibagi ke CPL menurut peta MK–CPL; ${esc(s.aturan?.estimasi || '')}.` : ''}</p>
+    ${htmlRadarAngkatan(s) || htmlProgresKecil(s) ? `<h3 class="cpl-h">Grafik</h3>${htmlRadarAngkatan(s)}${htmlProgresKecil(s)}` : ''}
     <h3 class="cpl-h">Kumulatif per CPL</h3>
     ${(s.kumulatif || []).length ? `<div class="gulir"><table class="${kelasTabel}"><thead><tr><th>CPL</th><th>Rumusan</th><th>Mahasiswa</th>
       <th>Rerata skor</th><th>% ≥ ${s.ambang.individu}</th><th>Status</th></tr></thead><tbody>${s.kumulatif.map(r => `<tr><td style="white-space:nowrap"><b>${esc(r.cpl)}</b><br><small class="ket">${esc(r.curriculum)}</small>${est(r)}</td>
@@ -86,6 +88,7 @@ export function htmlCPL(s, { kelasTabel = 'sp', meta = '', korelasi = [], cplRef
           ? ` <small class="ket">${r.change_share > 0 ? '▲' : r.change_share < 0 ? '▼' : '='}${Math.abs(Math.round(r.change_share * 100))}</small>` : ''}` : '—'}</td>`; }).join('')}</tr>`).join('')}
       </tbody></table></div>` : ''}
     ${htmlTrenLintas(s, korelasi, { kelasTabel, individu: s.ambang.individu })}
+    ${htmlPetaPanas(s)}
     <h3 class="cpl-h">Kelas dengan CPL belum tercapai (${belumKelas.length})</h3>
     ${belumKelas.length ? `<div class="gulir"><table class="${kelasTabel}"><thead><tr><th>Semester</th><th>MK</th><th>Kelas</th><th>CPL</th>
       <th>Dihitung</th><th>% ≥ ${s.ambang.individu}</th></tr></thead><tbody>${belumKelas.map(r => `<tr><td>${esc(r.term)}</td>
@@ -94,4 +97,4 @@ export function htmlCPL(s, { kelasTabel = 'sp', meta = '', korelasi = [], cplRef
       : '<p class="ket">Semua CPL di semua kelas tercapai.</p>'}`;
 }
 
-export const CSS_CPL = `.cpl-h{font-size:14.5px;margin:16px 0 4px;color:var(--biru)}`;
+export const CSS_CPL = `.cpl-h{font-size:14.5px;margin:16px 0 4px;color:var(--biru)}${CSS_GRAFIK}`;
