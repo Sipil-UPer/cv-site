@@ -104,7 +104,7 @@ const bersihBaris = (r, kolom) => Object.fromEntries(
 // dari profil). Tombol hanya tampil bila pasangEditor diberi fungsi unggah (Profil saya).
 const selIsian = (k, v, angka) => k === 'url'
   ? `<td class="ed-url"><input data-k="url" value="${esc(v)}" placeholder="https://… atau unggah">` +
-    `<label class="btn ghost kecil ed-unggah">Unggah<input type="file" data-unggah hidden></label><small class="ed-status"></small></td>`
+    `<label class="btn ghost kecil ed-unggah">${String(v ?? '').trim() ? 'Ganti berkas' : 'Unggah'}<input type="file" data-unggah hidden></label><small class="ed-status"></small></td>`
   : `<td><input data-k="${k}" value="${esc(v)}"${angka ? ' inputmode="numeric" size="5"' : ''}></td>`;
 function barisRiwayat(r, i){
   return `<tr data-i="${i}"><td><select data-k="jenjang">${opsi(JENJANG, r.jenjang || 'sarjana')}</select></td>${
@@ -175,16 +175,28 @@ export function pasangEditor(akar, { unggah } = {}){
       const unggah = akar._unggahBukti;
       if (!unggah || !e.target.matches('table.ed [data-unggah]') || !e.target.files.length) return;
       const td = e.target.closest('td'), tr = td.closest('tr'), status = td.querySelector('.ed-status');
+      const kotak = td.querySelector('[data-k="url"]'), input = e.target;
+      // Satu baris = satu berkas (pemilik 2026-11-13, mis. ijazah): selama mengunggah sel dikunci;
+      // baris yang sudah bertautan hanya diganti setelah dikonfirmasi.
+      if (td.dataset.sibuk) { input.value = ''; return; }
+      if (kotak.value.trim() && !confirm('Baris ini sudah punya berkas bukti. Ganti dengan berkas baru?')) { input.value = ''; return; }
       const ambil = k => (tr.querySelector(`[data-k="${k}"]`) || {}).value || '';
       const tahun = (ambil('tahun') || ambil('tahun_lulus')).trim();
+      td.dataset.sibuk = '1'; input.disabled = true;
       status.textContent = 'Mengunggah…';
       try {
-        td.querySelector('[data-k="url"]').value = await unggah(e.target.files[0],
+        kotak.value = await unggah(input.files[0],
           { jenis: tr.closest('table').dataset.jenis, tahun: /^\d{4}$/.test(tahun) ? +tahun : new Date().getFullYear() });
         status.textContent = 'Terunggah; klik Kirim ajuan untuk menyimpan.';
       } catch (err) { status.textContent = 'Gagal: ' + (err.message || err); }
-      e.target.value = '';
+      finally { delete td.dataset.sibuk; input.disabled = false; input.value = ''; aturLabelUnggah(td); }
   });
+  akar.addEventListener('input', e => { if (e.target.matches('table.ed [data-k="url"]')) aturLabelUnggah(e.target.closest('td')); });
+}
+// Tombol "Unggah" atau "Ganti berkas" menurut isi kotak tautan.
+function aturLabelUnggah(td){
+  const l = td && td.querySelector('.ed-unggah');
+  if (l && l.firstChild) l.firstChild.nodeValue = td.querySelector('[data-k="url"]').value.trim() ? 'Ganti berkas' : 'Unggah';
 }
 
 // Baca isi editor menjadi daftar objek; baris tanpa isian dibuang.
