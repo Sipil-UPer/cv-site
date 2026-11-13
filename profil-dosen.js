@@ -136,6 +136,7 @@ const CSS = `<style id="gaya-profil-dosen">
   .ed-unggah{display:none;margin-top:3px;cursor:pointer}
   .ed-bisa-unggah .ed-unggah{display:inline-block}
   .ed-status{display:block;font-size:11.5px;color:var(--muted)}
+  ul.mk-prodi{margin:2px 0 0;padding-left:18px;font-size:13.5px;line-height:1.6}
 </style>`;
 
 // Editor daftar: kotak tabel + tombol tambah. Mengembalikan HTML.
@@ -191,7 +192,18 @@ export function bacaEditor(id){
 }
 
 // Bagian formulir LKPS 4.a yang diisi dosen (profil.html dan kelola-dosen.html).
-export function formLKPS(r){
+// MK yang diampu di prodi ini (pemilik 2026-11-13): dari ref_mata_kuliah.pengampu (Data prodi ›
+// Kurikulum), hanya tampil; null = tidak ditampilkan (mis. Kelola dosen).
+export function htmlMkProdi(mkProdi){
+  if (!Array.isArray(mkProdi)) return '';
+  const isi = mkProdi.length
+    ? `<ul class="mk-prodi">${mkProdi.map(m => `<li><code>${esc(m.kode)}</code> ${esc(m.nama)}${m.sks ? ` · ${esc(m.sks)} sks` : ''}</li>`).join('')}</ul>`
+    : '<p class="ket" style="margin:2px 0">Belum ada. Admin menugaskan pengampu di Data prodi › Kurikulum (kolom Dosen pengampu).</p>';
+  return `<div class="fld penuh"><label>Mata kuliah yang diampu di prodi ini (${mkProdi.length})</label>${isi}
+    <small>Otomatis dari penugasan di Data prodi; dipakai di LKPS Tabel 4.a dan CV. Bila salah, hubungi admin.</small></div>`;
+}
+
+export function formLKPS(r, { mkProdi = null } = {}){
   return `
     <h3 class="ed-judul">Riwayat pendidikan</h3>
     <p class="ket" style="margin:0 0 4px">Sarjana, magister, dan doktor (LKPS Tabel 4.a kolom 5). Pendidikan tertinggi dihitung dari daftar ini.</p>
@@ -204,6 +216,7 @@ export function formLKPS(r){
       <div class="fld"><label>Nomor sertifikat pendidik (serdos)</label><input id="f_nomor_serdos" value="${esc(r.nomor_serdos)}"></div>
       <div class="fld"><label>SKIP (sertifikat insinyur profesional)</label><select id="f_skip">${opsi(SKIP, r.skip)}</select></div>
       <div class="fld"><label>Nomor STRI</label><input id="f_stri" value="${esc(r.stri)}"></div>
+      ${htmlMkProdi(mkProdi)}
       <div class="fld penuh"><label>Mata kuliah yang diampu di program studi lain</label><input id="f_mk_ps_lain" value="${esc(r.mk_ps_lain)}">
         <small>Pisahkan dengan titik koma. MK di prodi ini diambil dari data kurikulum.</small></div>
     </div>

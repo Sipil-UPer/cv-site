@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-13-2f8b74">
+<link rel="stylesheet" href="tema.css?v=2026-11-13-c32d43">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
@@ -56,7 +56,7 @@
   /* .fld input melebarkan semua input; kotak centang topik tetap kecil dan di kiri teksnya */
   .fld label.pilih-topik input[type=checkbox]{width:auto;padding:0;margin:0;flex:none}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-13-2f8b74">
+<link rel="stylesheet" href="kepala.css?v=2026-11-13-c32d43">
 </head>
 <body>
 
@@ -70,7 +70,7 @@
 
 <main class="wrap" id="isi"></main>
 
-<script src="config.js?v=2026-11-13-2f8b74"></script>
+<script src="config.js?v=2026-11-13-c32d43"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -87,14 +87,14 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { pasangMenu } from './menu.js?v=2026-11-13-2f8b74';
-import { dosenLogin } from './dosen-login.js?v=2026-11-13-2f8b74';
-import { unduhCV, htmlTombolCV } from './cv-dosen.js?v=2026-11-13-2f8b74';
-import { keBase64 } from './pustaka-dokumen.js?v=2026-11-13-2f8b74';
-import { tautanBerkas } from './tautan-privat.js?v=2026-11-13-2f8b74';
+import { pasangMenu } from './menu.js?v=2026-11-13-c32d43';
+import { dosenLogin } from './dosen-login.js?v=2026-11-13-c32d43';
+import { unduhCV, htmlTombolCV, mkDiampu } from './cv-dosen.js?v=2026-11-13-c32d43';
+import { keBase64 } from './pustaka-dokumen.js?v=2026-11-13-c32d43';
+import { tautanBerkas } from './tautan-privat.js?v=2026-11-13-c32d43';
 import { ISIAN_PROFIL, KOLOM_PROFIL, tampil as tampilIsian, sama, formLKPS, bacaFormLKPS, pasangEditor, bacaKataKunci,
   setelNamaTopik, htmlPilihTopik, bacaPilihTopik, MAKS_TOPIK }
-  from './profil-dosen.js?v=2026-11-13-2f8b74';
+  from './profil-dosen.js?v=2026-11-13-c32d43';
 
 /* =====================================================================
    PROFIL SAYA — dosen mengajukan perubahan profilnya sendiri (keputusan
@@ -132,7 +132,7 @@ const POLA = {
 // Kolom yang boleh diajukan, berurutan seperti form; label untuk tabel.
 const ISIAN = ISIAN_PROFIL;
 
-let SAYA = null, ADA_LKPS = true, ADA_ALT = false;
+let SAYA = null, ADA_LKPS = true, ADA_ALT = false, MK_PRODI = null;
 let BAKU = null;   // daftar keahlian baku aktif (61-patch-keahlian-baku.sql); null bila belum ada
 // CV dosen otomatis (pemilik 2026-11-11): tombol di kartu "CV saya".
 document.addEventListener('click', async e => {
@@ -212,6 +212,9 @@ async function mulai(){
     BAKU = { bidang: rb.data.filter(b => b.aktif), topik: rt.data.filter(t => t.aktif) };
     setelNamaTopik(rt.data);
   }
+  // MK yang ditugaskan admin di Data prodi › Kurikulum (pengampu = NIDN); gagal baca = blok tidak tampil.
+  const rMk = await sb.from('ref_mata_kuliah').select('kode,nama,sks,pengampu,aktif');
+  MK_PRODI = rMk.error ? null : mkDiampu(saya, rMk.data);
   pasangMenu(sb);
   $('hSub').textContent = `Masuk sebagai ${saya.nama}`;
   await gambar();
@@ -273,7 +276,7 @@ async function gambar(){
       </div>
       ${ADA_LKPS ? `<h2 style="margin-top:18px">Profil untuk LKPS (Tabel 4.a)</h2>
         <p class="ket">Dipakai untuk mengisi LKPS dan LED. Kategori dosen dan penilaian kesesuaian diisi admin prodi.</p>
-        ${formLKPS(SAYA)}` : `<div class="info">Isian profil LKPS (riwayat pendidikan, keahlian, sertifikat)
+        ${formLKPS(SAYA, { mkProdi: MK_PRODI })}` : `<div class="info">Isian profil LKPS (riwayat pendidikan, keahlian, sertifikat)
         belum tersedia: admin perlu menjalankan supabase/22-patch-profil-dosen.sql.</div>`}
       <div class="grid" style="margin-top:14px">
         <div class="fld penuh"><label>Keterangan untuk admin</label><input id="f_alasan"

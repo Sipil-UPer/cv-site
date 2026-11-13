@@ -20,9 +20,9 @@
      tabel  = TABEL Data prodi (id, tabel, judul) untuk nama tab dan saran jenis
      saran  = SARAN_DOK (id tab -> jenis dokumen yang disarankan)
    ===================================================================== */
-import { opsiJenis, kunciDokumen, labelDokumen } from './pustaka-dokumen.js?v=2026-11-13-2f8b74';
-import { infoJenis } from './rencana-bukti.js?v=2026-11-13-2f8b74';
-import { buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-13-2f8b74';
+import { opsiJenis, kunciDokumen, labelDokumen } from './pustaka-dokumen.js?v=2026-11-13-c32d43';
+import { infoJenis } from './rencana-bukti.js?v=2026-11-13-c32d43';
+import { buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-13-c32d43';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g,
   c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));

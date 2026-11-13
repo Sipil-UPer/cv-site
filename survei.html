@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-13-2f8b74">
+<link rel="stylesheet" href="tema.css?v=2026-11-13-c32d43">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15.5px;line-height:1.55;-webkit-font-smoothing:antialiased}
@@ -51,7 +51,7 @@
   <div class="prodi" id="hProdi"></div>
 </div></header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-13-2f8b74"></script>
+<script src="config.js?v=2026-11-13-c32d43"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -70,7 +70,7 @@ addEventListener('error', function (e) {
 // 54-patch-survei-kepuasan.sql). Isian anonim; satu kali per peramban
 // (id acak di localStorage, dijaga juga oleh indeks unik di basis data).
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { SKALA, labelKelompok, aktifQ, wajibQ, cekJawaban } from './survei-kepuasan.js?v=2026-11-13-2f8b74';
+import { SKALA, labelKelompok, aktifQ, wajibQ, cekJawaban } from './survei-kepuasan.js?v=2026-11-13-c32d43';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
