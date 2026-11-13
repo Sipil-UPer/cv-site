@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-13-0fce0b">
+<link rel="stylesheet" href="tema.css?v=2026-11-13-d803c7">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
@@ -84,7 +84,7 @@
   .masuk{max-width:420px;margin:40px auto;background:#fff;border:1px solid var(--line);padding:20px}
   .masuk input{width:100%;padding:8px 10px;margin:8px 0;font:inherit}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-13-0fce0b">
+<link rel="stylesheet" href="kepala.css?v=2026-11-13-d803c7">
 </head>
 <body>
 
@@ -98,7 +98,7 @@
 
 <main class="wrap" id="isi"></main>
 
-<script src="config.js?v=2026-11-13-0fce0b"></script>
+<script src="config.js?v=2026-11-13-d803c7"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -115,24 +115,24 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-13-0fce0b';
-import { pasangMenu } from './menu.js?v=2026-11-13-0fce0b';
-import { dosenLogin } from './dosen-login.js?v=2026-11-13-0fce0b';
-import { unggahKePustaka, opsiPustaka, opsiJenis, labelDokumen, cariDokumen } from './pustaka-dokumen.js?v=2026-11-13-0fce0b';
-import { pasangRapikan } from './rapikan-berkas.js?v=2026-11-13-0fce0b';
-import { UNSUR, skorUnsur, pihakUnsur } from './unsur-butir.js?v=2026-11-13-0fce0b';
-import { OPSI_SUMBER } from './iku-otomatis.js?v=2026-11-13-0fce0b';
-import { denganOtomatis as otomatisDari, tsTersedia, tsAwal, htmlCapaianIKU, KET_CAPAIAN, muatTambahan, denganTambahan } from './capaian-iku.js?v=2026-11-13-0fce0b';
-import { KATEGORI_TEMUAN, STATUS_TEMUAN, PIHAK_TEMUAN, ringkasTemuan, htmlRingkasTemuan } from './temuan-ami.js?v=2026-11-13-0fce0b';
-import { bacaRekapSPM, rencanaImporSPM, tsDariTanggal, labelTS, ringkasLembar, picProdi } from './standar-spmi.js?v=2026-11-13-0fce0b';
-import { SHEETJS } from './nilai-cpl.js?v=2026-11-13-0fce0b';
-import { htmlContoh, pasangContoh, JENIS_BUKTI_KS } from './manfaat-kerjasama.js?v=2026-11-13-0fce0b';
-import { infoJenis } from './rencana-bukti.js?v=2026-11-13-0fce0b';
-import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-13-0fce0b';
-import { nomorButir, htmlTautanButir } from './tautan-butir.js?v=2026-11-13-0fce0b';
-import { htmlSaran } from './saran-bukti.js?v=2026-11-13-0fce0b';
-import { tautanBerkas, privatkanLama } from './tautan-privat.js?v=2026-11-13-0fce0b';
-import { unggahLKD, buangLKD, bukaLKD, pendidikanTotal, pendidikanPS } from './bkd.js?v=2026-11-13-0fce0b';
+import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-13-d803c7';
+import { pasangMenu } from './menu.js?v=2026-11-13-d803c7';
+import { dosenLogin } from './dosen-login.js?v=2026-11-13-d803c7';
+import { unggahKePustaka, opsiPustaka, opsiJenis, labelDokumen, cariDokumen } from './pustaka-dokumen.js?v=2026-11-13-d803c7';
+import { pasangRapikan } from './rapikan-berkas.js?v=2026-11-13-d803c7';
+import { UNSUR, skorUnsur, pihakUnsur } from './unsur-butir.js?v=2026-11-13-d803c7';
+import { OPSI_SUMBER } from './iku-otomatis.js?v=2026-11-13-d803c7';
+import { denganOtomatis as otomatisDari, tsTersedia, tsAwal, htmlCapaianIKU, KET_CAPAIAN, muatTambahan, denganTambahan } from './capaian-iku.js?v=2026-11-13-d803c7';
+import { KATEGORI_TEMUAN, STATUS_TEMUAN, PIHAK_TEMUAN, ringkasTemuan, htmlRingkasTemuan } from './temuan-ami.js?v=2026-11-13-d803c7';
+import { bacaRekapSPM, rencanaImporSPM, tsDariTanggal, labelTS, ringkasLembar, picProdi } from './standar-spmi.js?v=2026-11-13-d803c7';
+import { SHEETJS } from './nilai-cpl.js?v=2026-11-13-d803c7';
+import { htmlContoh, pasangContoh, JENIS_BUKTI_KS } from './manfaat-kerjasama.js?v=2026-11-13-d803c7';
+import { infoJenis } from './rencana-bukti.js?v=2026-11-13-d803c7';
+import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-13-d803c7';
+import { nomorButir, htmlTautanButir } from './tautan-butir.js?v=2026-11-13-d803c7';
+import { htmlSaran } from './saran-bukti.js?v=2026-11-13-d803c7';
+import { tautanBerkas, privatkanLama } from './tautan-privat.js?v=2026-11-13-d803c7';
+import { unggahLKD, buangLKD, bukaLKD, pendidikanTotal, pendidikanPS } from './bkd.js?v=2026-11-13-d803c7';
 
 /* =====================================================================
    DATA PRODI — data kuantitatif LKPS diisi admin di situs (keputusan
@@ -318,12 +318,14 @@ const TABEL = [
        + 'dan capstone design untuk Tabel 3.a.5 (pilih MK pendukungnya). Dosen pengampu mengisi kolom "MK yang '
        + 'diampu" Tabel 4.a. Unggah dokumen RPS sebagai bukti baris. Daftar ini juga menjadi pilihan MK pada '
        + 'isian karya integrasi penelitian/PkM.',
-    label: r => `${r.kode || ''} ${r.nama || 'Mata kuliah'}`.trim(), tahun: () => null,
+    label: r => `${r.kurikulum ? r.kurikulum + ' · ' : ''}${r.kode || ''} ${r.nama || 'Mata kuliah'}`.trim(), tahun: () => null,
     // Butir 20: bukti per unsur hanya untuk MK capstone (pemilik 2026-11-10).
     unsur: { butir: '20', daftar: UNSUR.capstone, aktif: () => !!$('f_capstone')?.checked,
       mati: 'Centang "MK capstone design" untuk mengisi bukti per unsur butir 20.' },
     kolom: [
       { k: 'kode', l: 'Kode MK', t: 'teks', wajib: true },
+      // 70-patch-kurikulum-mk.sql (pemilik 2026-11-13): kode unik per kurikulum; MK kurikulum lama dinonaktifkan.
+      { k: 'kurikulum', l: 'Kurikulum (mis. K26)', t: 'teks', wajib: true, patch70: true },
       { k: 'nama', l: 'Nama mata kuliah', t: 'teks', wajib: true, lebar: true },
       { k: 'semester', l: 'Semester', t: 'int' },
       // 46-patch-sifat-mk.sql (pemilik 2026-11-10).
@@ -341,7 +343,10 @@ const TABEL = [
       { k: 'capstone', l: 'MK capstone design (3.a.5)', t: 'cek' },
       { k: 'capstone_pendukung', l: 'MK pendukung capstone (bila MK ini capstone)', t: 'jamak',
         kosong: 'Simpan MK lain dulu, lalu pilih di sini.',
-        o: () => BARIS.filter(m => m.id !== SUNTING).map(m => [m.kode, `${m.kode} — ${m.nama}`]) },
+        // Hanya MK kurikulum yang sama dengan MK yang sedang disunting (kode bisa sama di K21 dan K26).
+        o: () => { const ini = BARIS.find(m => m.id === SUNTING);
+          return BARIS.filter(m => m.id !== SUNTING && (!ini?.kurikulum || m.kurikulum === ini.kurikulum))
+            .map(m => [m.kode, `${m.kurikulum ? m.kurikulum + ' · ' : ''}${m.kode} — ${m.nama}`]); } },
       { k: 'capstone_cakupan', l: 'Cakupan bahasan capstone', t: 'teks', lebar: true },
       { k: 'pengampu', l: 'Dosen pengampu', t: 'jamak', kosong: 'Daftar dosen kosong.',
         o: () => DOSEN.map(d => [d.nidn, d.nama]) },
@@ -355,8 +360,10 @@ const TABEL = [
       if (bag.some(k => r[k] != null)) r.sks = bag.reduce((a, k) => a + (r[k] || 0), 0);
       if (!r.capstone) { r.capstone_pendukung = []; r.capstone_cakupan = null; }
       if (r.urutan == null) r.urutan = 100;
+      if (r.kurikulum != null) r.kurikulum = String(r.kurikulum).trim().toUpperCase();
     },
-    cek: r => r.semester != null && (r.semester < 1 || r.semester > 14) ? 'Semester 1–14.' : '' },
+    cek: r => r.semester != null && (r.semester < 1 || r.semester > 14) ? 'Semester 1–14.'
+      : r.kurikulum != null && !/^K\d{2}$/.test(r.kurikulum) ? 'Kurikulum: huruf K dan dua angka tahun, mis. K26.' : '' },
   { id: 'tema', tabel: 'ref_tema_peta_jalan', judul: 'Peta jalan', butir: '22–25',
     patch: '25-patch-isian-karya.sql', urut: ['urutan', 'nama'],
     ket: 'Tema peta jalan penelitian dan PkM prodi. Dosen memilih temanya di isian karya penelitian/PkM; '
@@ -803,6 +810,8 @@ let ADA43 = true;
 let ADA45 = true;
 // ADA46 = ref_mata_kuliah.sifat ada (46-patch-sifat-mk.sql).
 let ADA46 = true;
+// ADA70 = ref_mata_kuliah.kurikulum ada (70-patch-kurikulum-mk.sql): MK K21 dan K26 berdampingan.
+let ADA70 = true;
 // ADA48 = lkps_target_kinerja.sumber ada (48-patch-sumber-iku.sql).
 let ADA48 = true;
 pasangContoh();
@@ -815,7 +824,7 @@ let LB = new Map(), LB_GAGAL = '', ANTREAN = [];
 // ADA67 = spmi_standar ada (67-patch-standar-spmi.sql); kolom patch67 disembunyikan bila belum.
 let ADA67 = true;
 const kolomForm = T => T.kolom.filter(c => c.t !== 'url' && !(c.patch45 && !ADA45) && !(c.patch46 && !ADA46) && !(c.patch48 && !ADA48)
-  && !(c.patch67 && !ADA67));
+  && !(c.patch67 && !ADA67) && !(c.patch70 && !ADA70));
 const kolomLama = T => (T.kolom.find(c => c.t === 'url') || {}).k;
 
 // Pilihan standar, rapat, dan temuan untuk tab SPMI (67-patch-standar-spmi.sql).
@@ -853,6 +862,7 @@ async function mulai(){
   ADA43 = !(await sb.from('lkps_bukti').select('unsur').limit(1)).error;
   ADA45 = !(await sb.from('ref_mata_kuliah').select('rps_9_komponen').limit(1)).error;
   ADA46 = !(await sb.from('ref_mata_kuliah').select('sifat').limit(1)).error;
+  ADA70 = !(await sb.from('ref_mata_kuliah').select('kurikulum').limit(1)).error;
   ADA48 = !(await sb.from('lkps_target_kinerja').select('sumber').limit(1)).error;
   await muatDaftarSPMI();
   // Pilihan bidang untuk tab Topik keahlian (61-patch-keahlian-baku.sql); kosong bila patch belum ada.
@@ -1232,12 +1242,12 @@ async function simpanImporIKU(){
 //  kodenya sudah ada diperbarui hanya pada kolom yang terisi di CSV. RPS,
 //  bukti, dan pengampu diisi sesudahnya lewat formulir.
 // ---------------------------------------------------------------------
-const KOLOM_CSV_MK = ['kode', 'nama', 'semester', 'sks_kuliah', 'sks_seminar', 'sks_praktikum', 'sifat',
+const KOLOM_CSV_MK = ['kurikulum', 'kode', 'nama', 'semester', 'sks_kuliah', 'sks_seminar', 'sks_praktikum', 'sifat',
   'unit_penyelenggara', 'inti', 'basic_science', 'capstone', 'aktif'];
 const CONTOH_CSV_MK = [
-  ['SI1101', 'Kalkulus I', '1', '3', '0', '0', 'wajib', 'universitas', 'tidak', 'ya', 'tidak', 'ya'],
-  ['SI4201', 'Perancangan Terintegrasi', '7', '2', '0', '2', 'wajib', 'prodi', 'ya', 'tidak', 'ya', 'ya'],
-  ['SI4305', 'Rekayasa Pantai', '7', '2', '0', '0', 'pilihan', 'prodi', 'tidak', 'tidak', 'tidak', 'ya']];
+  ['K26', 'SI1101', 'Kalkulus I', '1', '3', '0', '0', 'wajib', 'universitas', 'tidak', 'ya', 'tidak', 'ya'],
+  ['K26', 'SI4201', 'Perancangan Terintegrasi', '7', '2', '0', '2', 'wajib', 'prodi', 'ya', 'tidak', 'ya', 'ya'],
+  ['K26', 'SI4305', 'Rekayasa Pantai', '7', '2', '0', '0', 'pilihan', 'prodi', 'tidak', 'tidak', 'tidak', 'ya']];
 // CSV dengan pemisah ';' atau ',' (dipilih dari baris judul) dan tanda kutip.
 function bacaCSV(teks){
   teks = String(teks || '').replace(/^\uFEFF/, '');
@@ -1262,6 +1272,13 @@ function barisMK(kepala, sel, lama){
   const kode = ambil('kode');
   if (!kode) return { kode, isi, galat: ['kode kosong'] };
   isi.kode = kode;
+  // Kurikulum (70-patch): wajib; MK dicocokkan per kurikulum + kode.
+  if (ADA70) {
+    const kur = ambil('kurikulum').toUpperCase();
+    if (!kur) galat.push('kurikulum kosong (mis. K26)');
+    else if (!/^K\d{2}$/.test(kur)) galat.push('kurikulum: huruf K dan dua angka, mis. K26');
+    else isi.kurikulum = kur;
+  }
   const nama = ambil('nama');
   if (nama) isi.nama = nama; else if (!lama) galat.push('nama kosong (MK baru)');
   for (const k of ['semester', 'sks_kuliah', 'sks_seminar', 'sks_praktikum']) {
@@ -1292,8 +1309,8 @@ function gambarImporMK(){
   if (!box) return;
   box.innerHTML = `<details class="massal"><summary><b>Impor CSV mata kuliah</b> (daftar MK sekaligus; data dan bukti
       dilengkapi sesudahnya)</summary>
-    <p class="ket">Kolom: ${KOLOM_CSV_MK.map(k => `<code>${k}</code>`).join(', ')}. Hanya <code>kode</code> dan (untuk MK baru)
-      <code>nama</code> yang wajib. Sel kosong tidak mengubah data yang sudah ada. Pemisah titik koma atau koma; desimal boleh koma.
+    <p class="ket">Kolom: ${KOLOM_CSV_MK.map(k => `<code>${k}</code>`).join(', ')}. Hanya ${ADA70 ? '<code>kurikulum</code> (mis. K26), ' : ''}<code>kode</code> dan (untuk MK baru)
+      <code>nama</code> yang wajib; MK dicocokkan per ${ADA70 ? 'kurikulum + kode' : 'kode'}. Sel kosong tidak mengubah data yang sudah ada. Pemisah titik koma atau koma; desimal boleh koma.
       Nilai ya/tidak untuk inti, basic_science, capstone, aktif; sifat wajib/pilihan${ADA46 ? '' : ' (perlu supabase/46-patch-sifat-mk.sql)'}.</p>
     <div class="unggah-baris"><button type="button" class="btn ghost kecil" id="mk_templat">Unduh templat CSV</button>
       <input type="file" id="mk_csv" accept=".csv,text/csv"></div>
@@ -1317,14 +1334,17 @@ function pratinjauImporMK(teks){
   const pv = $('mk_pratinjau');
   if (!kepala.includes('kode')) { IMPOR_MK = null; pv.innerHTML = '<p class="msg buruk">Baris pertama harus judul kolom dan memuat <code>kode</code>.</p>'; return; }
   const asing = kepala.filter(k => k && !KOLOM_CSV_MK.includes(k));
-  const lama = new Map(BARIS.map(r => [String(r.kode).toLowerCase(), r]));
+  // Kunci = kurikulum + kode (70-patch); sebelum patch 70 kode saja.
+  const kunciMK = (kur, kode) => `${ADA70 ? String(kur || '').trim().toUpperCase() : ''}|${String(kode || '').trim().toLowerCase()}`;
+  const lama = new Map(BARIS.map(r => [kunciMK(r.kurikulum, r.kode), r]));
   const dilihat = new Set();
   const hasil = rows.slice(1).map((sel, i) => {
-    const r = barisMK(kepala, sel, lama.get(String(sel[kepala.indexOf('kode')] || '').trim().toLowerCase()));
-    if (r.kode && dilihat.has(r.kode.toLowerCase())) r.galat.push('kode ganda di CSV');
-    dilihat.add(r.kode.toLowerCase());
+    const k = kunciMK(sel[kepala.indexOf('kurikulum')], sel[kepala.indexOf('kode')]);
+    const r = barisMK(kepala, sel, lama.get(k));
+    if (r.kode && dilihat.has(k)) r.galat.push(ADA70 ? 'kurikulum + kode ganda di CSV' : 'kode ganda di CSV');
+    dilihat.add(k);
     if (!ADA46) delete r.isi.sifat;
-    return { ...r, baris: i + 2, baru: !lama.has(r.kode.toLowerCase()) };
+    return { ...r, baris: i + 2, baru: !lama.has(k) };
   });
   const sah = hasil.filter(r => !r.galat.length), salah = hasil.filter(r => r.galat.length);
   IMPOR_MK = sah;
@@ -1349,7 +1369,7 @@ async function simpanImporMK(){
   }
   let n = 0;
   for (const xs of kel.values()) {
-    const { error } = await sb.from('ref_mata_kuliah').upsert(xs, { onConflict: 'kode', defaultToNull: false });
+    const { error } = await sb.from('ref_mata_kuliah').upsert(xs, { onConflict: ADA70 ? 'kurikulum,kode' : 'kode', defaultToNull: false });
     if (error) { $('mk_simpan').disabled = false; return msg('buruk', `Gagal setelah ${n} MK: ${error.message}`); }
     n += xs.length;
   }

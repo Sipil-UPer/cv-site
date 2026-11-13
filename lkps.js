@@ -15,10 +15,10 @@
    angka yang sama dengan halaman skor. Lembar lain dibiarkan untuk diisi
    prodi; kolom yang tidak disimpan situs (mis. pita waktu tunggu) kosong.
    ===================================================================== */
-import { versiUntukTS, daftarProdi, STATUS_PS, tglTeks } from './pustaka-dokumen.js?v=2026-11-13-0fce0b';
-import { teksPendidikan } from './profil-dosen.js?v=2026-11-13-0fce0b';
-import { barisKerjaSama } from './kerjasama-karya.js?v=2026-11-13-0fce0b';
-import { karya4i } from './sitasi.js?v=2026-11-13-0fce0b';
+import { versiUntukTS, daftarProdi, STATUS_PS, tglTeks } from './pustaka-dokumen.js?v=2026-11-13-d803c7';
+import { teksPendidikan } from './profil-dosen.js?v=2026-11-13-d803c7';
+import { barisKerjaSama } from './kerjasama-karya.js?v=2026-11-13-d803c7';
+import { karya4i } from './sitasi.js?v=2026-11-13-d803c7';
 
 const TEMPLATE = 'lkps-template.xlsx';
 export const JSZIP = 'https://cdn.jsdelivr.net/npm/jszip@3.10.1/+esm';
@@ -232,7 +232,8 @@ export function petaDaftar(C){
   mk.filter(m => m.basic_science).forEach((m, i) => {
     set('3a4', `B${10 + i}`, m.nama); set('3a4', `C${10 + i}`, m.semester); set('3a4', `D${10 + i}`, m.sks);
   });
-  const perKode = new Map((X.mk || []).map(m => [m.kode, m]));
+  // Kode bisa sama di K21 dan K26 (70-patch): MK aktif didahulukan (dimasukkan terakhir).
+  const perKode = new Map([...(X.mk || [])].sort((a, b) => (a.aktif !== false) - (b.aktif !== false)).map(m => [m.kode, m]));
   let r35 = 10;
   mk.filter(m => m.capstone).forEach(c => {
     const pendukung = (c.capstone_pendukung || []).map(k => perKode.get(k) || { nama: k });
