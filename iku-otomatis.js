@@ -73,6 +73,20 @@ export const SUMBER_IKU = [
     const d = D.dtps || {};
     return d.jumlah ? { nilai: persen(+d.doktor || 0, +d.jumlah), ket: `${d.doktor} dari ${d.jumlah} DTPS (data terkini, bukan per TS)` } : null;
   }],
+  // 2026-11-13 (standar SPM O.02.12): Guru Besar, Lektor Kepala, atau Lektor.
+  ['dtps_lektor_persen', 'DTPS berjabatan Lektor ke atas (saat ini)', '%', D => {
+    const d = D.dtps || {}, j = d.jabatan || {};
+    const n = (+j.guru_besar || 0) + (+j.lektor_kepala || 0) + (+j.lektor || 0);
+    return d.jumlah && d.jabatan ? { nilai: persen(n, +d.jumlah), ket: `${n} dari ${d.jumlah} DTPS (data terkini, bukan per TS)` } : null;
+  }],
+  // 2026-11-13 (standar SPM O.02.13): DTPS dengan karya utama (penulis pertama/korespondensi, jurnal
+  // internasional bereputasi, prosiding Scopus/IEEE/SPIE, atau paten) dalam tiga TS terakhir.
+  ['dtps_karya_int_persen', 'DTPS dengan karya utama internasional (3 TS terakhir)', '%', (D, ts) => {
+    const d = D.dtps || {};
+    if (!d.jumlah || !Array.isArray(d.karya_utama_rinci)) return null;
+    const n = new Set(d.karya_utama_rinci.filter(k => +k.tahun >= ts - 2 && +k.tahun <= ts).map(k => k.slug)).size;
+    return { nilai: persen(n, +d.jumlah), ket: `${n} dari ${d.jumlah} DTPS, karya TS ${ts - 3}/${ts - 2}–${ts - 1}/${ts}` };
+  }],
 ];
 
 export const OPSI_SUMBER = SUMBER_IKU.map(([id, label, satuan]) => [id, `${label} (${satuan})`]);
