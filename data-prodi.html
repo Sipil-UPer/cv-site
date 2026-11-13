@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-13-39b9d6">
+<link rel="stylesheet" href="tema.css?v=2026-11-13-a41e8b">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
@@ -88,7 +88,7 @@
   .masuk{max-width:420px;margin:40px auto;background:#fff;border:1px solid var(--line);padding:20px}
   .masuk input{width:100%;padding:8px 10px;margin:8px 0;font:inherit}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-13-39b9d6">
+<link rel="stylesheet" href="kepala.css?v=2026-11-13-a41e8b">
 </head>
 <body>
 
@@ -102,7 +102,7 @@
 
 <main class="wrap" id="isi"></main>
 
-<script src="config.js?v=2026-11-13-39b9d6"></script>
+<script src="config.js?v=2026-11-13-a41e8b"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -119,24 +119,25 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-13-39b9d6';
-import { pasangMenu } from './menu.js?v=2026-11-13-39b9d6';
-import { dosenLogin } from './dosen-login.js?v=2026-11-13-39b9d6';
-import { unggahKePustaka, opsiPustaka, opsiJenis, labelDokumen, cariDokumen } from './pustaka-dokumen.js?v=2026-11-13-39b9d6';
-import { pasangRapikan } from './rapikan-berkas.js?v=2026-11-13-39b9d6';
-import { UNSUR, skorUnsur, pihakUnsur } from './unsur-butir.js?v=2026-11-13-39b9d6';
-import { OPSI_SUMBER } from './iku-otomatis.js?v=2026-11-13-39b9d6';
-import { denganOtomatis as otomatisDari, tsTersedia, tsAwal, htmlCapaianIKU, KET_CAPAIAN, muatTambahan, denganTambahan } from './capaian-iku.js?v=2026-11-13-39b9d6';
-import { KATEGORI_TEMUAN, STATUS_TEMUAN, PIHAK_TEMUAN, ringkasTemuan, htmlRingkasTemuan } from './temuan-ami.js?v=2026-11-13-39b9d6';
-import { bacaRekapSPM, rencanaImporSPM, tsDariTanggal, labelTS, ringkasLembar, picProdi } from './standar-spmi.js?v=2026-11-13-39b9d6';
-import { SHEETJS } from './nilai-cpl.js?v=2026-11-13-39b9d6';
-import { htmlContoh, pasangContoh, JENIS_BUKTI_KS } from './manfaat-kerjasama.js?v=2026-11-13-39b9d6';
-import { infoJenis } from './rencana-bukti.js?v=2026-11-13-39b9d6';
-import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-13-39b9d6';
-import { nomorButir, htmlTautanButir } from './tautan-butir.js?v=2026-11-13-39b9d6';
-import { htmlSaran } from './saran-bukti.js?v=2026-11-13-39b9d6';
-import { tautanBerkas, privatkanLama } from './tautan-privat.js?v=2026-11-13-39b9d6';
-import { unggahLKD, buangLKD, bukaLKD, pendidikanTotal, pendidikanPS } from './bkd.js?v=2026-11-13-39b9d6';
+import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-13-a41e8b';
+import { pasangMenu } from './menu.js?v=2026-11-13-a41e8b';
+import { dosenLogin } from './dosen-login.js?v=2026-11-13-a41e8b';
+import { unggahKePustaka, opsiPustaka, opsiJenis, labelDokumen, cariDokumen } from './pustaka-dokumen.js?v=2026-11-13-a41e8b';
+import { pasangRapikan } from './rapikan-berkas.js?v=2026-11-13-a41e8b';
+import { UNSUR, skorUnsur, pihakUnsur } from './unsur-butir.js?v=2026-11-13-a41e8b';
+import { OPSI_SUMBER } from './iku-otomatis.js?v=2026-11-13-a41e8b';
+import { denganOtomatis as otomatisDari, tsTersedia, tsAwal, htmlCapaianIKU, KET_CAPAIAN, muatTambahan, denganTambahan } from './capaian-iku.js?v=2026-11-13-a41e8b';
+import { KATEGORI_TEMUAN, STATUS_TEMUAN, PIHAK_TEMUAN, ringkasTemuan, htmlRingkasTemuan } from './temuan-ami.js?v=2026-11-13-a41e8b';
+import { bacaRekapSPM, rencanaImporSPM, tsDariTanggal, labelTS, ringkasLembar, picProdi } from './standar-spmi.js?v=2026-11-13-a41e8b';
+import { SHEETJS } from './nilai-cpl.js?v=2026-11-13-a41e8b';
+import { bacaCSV, normKur, normCpl, KOLOM_IMPOR, CONTOH_IMPOR, rencanaImpor, sebaranCPL, htmlSebaran } from './kurikulum-cpl.js?v=2026-11-13-a41e8b';
+import { htmlContoh, pasangContoh, JENIS_BUKTI_KS } from './manfaat-kerjasama.js?v=2026-11-13-a41e8b';
+import { infoJenis } from './rencana-bukti.js?v=2026-11-13-a41e8b';
+import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-13-a41e8b';
+import { nomorButir, htmlTautanButir } from './tautan-butir.js?v=2026-11-13-a41e8b';
+import { htmlSaran } from './saran-bukti.js?v=2026-11-13-a41e8b';
+import { tautanBerkas, privatkanLama } from './tautan-privat.js?v=2026-11-13-a41e8b';
+import { unggahLKD, buangLKD, bukaLKD, pendidikanTotal, pendidikanPS } from './bkd.js?v=2026-11-13-a41e8b';
 
 /* =====================================================================
    DATA PRODI — data kuantitatif LKPS diisi admin di situs (keputusan
@@ -368,6 +369,63 @@ const TABEL = [
     },
     cek: r => r.semester != null && (r.semester < 1 || r.semester > 14) ? 'Semester 1–14.'
       : r.kurikulum != null && !/^K\d{2}$/.test(r.kurikulum) ? 'Kurikulum: huruf K dan dua angka tahun, mis. K26.' : '' },
+  // CPL per kurikulum, peta MK-CPL, korelasi CPL (71-patch-cpl-kurikulum.sql, pemilik 2026-11-13). Rujukan kurikulum,
+  // bukan baris LKPS: tanpa bukti baris, tidak masuk Kelengkapan. MK/CPL diperiksa terhadap REF_CPL (dimuat saat tab dibuka).
+  { id: 'cpl', tabel: 'ref_cpl', judul: 'CPL', butir: '13, 14',
+    patch: '71-patch-cpl-kurikulum.sql', urut: ['kurikulum', 'urutan', 'kode'], tanpaBukti: true,
+    ket: 'Capaian pembelajaran lulusan per kurikulum (mis. K21 a–l, K26 A–I), berdampingan seperti mata kuliah. '
+       + 'Kode CPL harus sama dengan kode CPL di templat nilai CPL supaya capaian dan tren lintas kurikulum tersambung. '
+       + 'Impor CPL dulu, lalu Peta MK–CPL dan Korelasi CPL.',
+    label: r => `${r.kurikulum || ''} CPL ${r.kode || ''}`.trim(), tahun: () => null,
+    kolom: [
+      { k: 'kurikulum', l: 'Kurikulum (mis. K26)', t: 'teks', wajib: true },
+      { k: 'kode', l: 'Kode CPL (mis. A)', t: 'teks', wajib: true },
+      { k: 'ranah', l: 'Ranah', t: 'teks' },
+      { k: 'rumusan', l: 'Rumusan CPL', t: 'paragraf', wajib: true },
+      { k: 'rumusan_en', l: 'Rumusan (English)', t: 'paragraf' },
+      { k: 'indikator', l: 'Indikator / sub-indikator', t: 'paragraf' },
+      { k: 'urutan', l: 'Urutan tampil', t: 'int' },
+    ],
+    olah: r => { r.kurikulum = normKur(r.kurikulum); r.kode = normCpl(r.kode); if (r.urutan == null) r.urutan = 100; },
+    cek: r => !/^K\d{2}$/.test(r.kurikulum || '') ? 'Kurikulum: huruf K dan dua angka tahun, mis. K26.'
+      : !/^[A-Za-z0-9.-]{1,10}$/.test(r.kode || '') ? 'Kode CPL: 1–10 huruf/angka, mis. A.' : '' },
+  { id: 'mk_cpl', tabel: 'ref_mk_cpl', judul: 'Peta MK–CPL', butir: '13, 14',
+    patch: '71-patch-cpl-kurikulum.sql', urut: ['kurikulum', 'kode_mk', 'cpl'], tanpaBukti: true,
+    ket: 'Satu baris per pasangan mata kuliah dan CPL dalam satu kurikulum (matriks MK–CPL dokumen kurikulum). '
+       + 'Sebaran CPL dalam satu MK dibagi rata (pemilik 2026-11-13); isi bobot bila kelak tim menetapkan bobot berbeda '
+       + '(porsi = bobot / jumlah bobot CPL MK itu). MK dan CPL harus sudah ada di kurikulum yang sama.',
+    label: r => `${r.kurikulum || ''} ${r.kode_mk || ''} → CPL ${r.cpl || ''}`.trim(), tahun: () => null,
+    kolom: [
+      { k: 'kurikulum', l: 'Kurikulum (mis. K26)', t: 'teks', wajib: true },
+      { k: 'kode_mk', l: 'Kode MK', t: 'teks', wajib: true },
+      { k: 'cpl', l: 'Kode CPL', t: 'teks', wajib: true },
+      { k: 'indikator', l: 'Sub-indikator (mis. j-1, j-3)', t: 'teks', lebar: true },
+      { k: 'bobot', l: 'Bobot (kosong = dibagi rata)', t: 'num' },
+    ],
+    olah: r => { r.kurikulum = normKur(r.kurikulum); r.cpl = normCpl(r.cpl); r.kode_mk = String(r.kode_mk || '').trim(); },
+    cek: r => !/^K\d{2}$/.test(r.kurikulum || '') ? 'Kurikulum: huruf K dan dua angka tahun, mis. K26.'
+      : r.bobot != null && !(r.bobot > 0 && r.bobot <= 100) ? 'Bobot: lebih dari 0 sampai 100, atau kosong.'
+      : REF_CPL.mk && !REF_CPL.mk.some(m => m.kurikulum === r.kurikulum && m.kode === r.kode_mk) ? `MK ${r.kode_mk} tidak ada di ${r.kurikulum}.`
+      : REF_CPL.cpl && !REF_CPL.cpl.some(c => c.kurikulum === r.kurikulum && c.kode === r.cpl) ? `CPL ${r.cpl} tidak ada di ${r.kurikulum}.` : '' },
+  { id: 'korelasi_cpl', tabel: 'ref_cpl_korelasi', judul: 'Korelasi CPL', butir: '13, 14',
+    patch: '71-patch-cpl-kurikulum.sql', urut: ['kurikulum_tujuan', 'cpl_tujuan', 'cpl_asal'], tanpaBukti: true,
+    ket: 'Pasangan CPL kurikulum lama → kurikulum baru (banyak-ke-banyak). Setara = isi CPL sama: tren capaian di Monitoring '
+       + 'disambung. Sebagian = hanya sebagian isi beririsan: ditampilkan berdampingan sebagai pembanding. Status "usulan" '
+       + 'ditandai * di Monitoring sampai tim kurikulum menyetujuinya.',
+    label: r => `${r.kurikulum_asal || ''} ${r.cpl_asal || ''} → ${r.kurikulum_tujuan || ''} ${r.cpl_tujuan || ''}`.trim(), tahun: () => null,
+    kolom: [
+      { k: 'kurikulum_asal', l: 'Kurikulum asal (mis. K21)', t: 'teks', wajib: true },
+      { k: 'cpl_asal', l: 'CPL asal', t: 'teks', wajib: true },
+      { k: 'kurikulum_tujuan', l: 'Kurikulum tujuan (mis. K26)', t: 'teks', wajib: true },
+      { k: 'cpl_tujuan', l: 'CPL tujuan', t: 'teks', wajib: true },
+      { k: 'tingkat', l: 'Tingkat', t: 'pilihan', wajib: true, o: [['setara', 'Setara (tren disambung)'], ['sebagian', 'Sebagian (berdampingan)']] },
+      { k: 'status', l: 'Status', t: 'pilihan', wajib: true, o: [['usulan', 'Usulan'], ['disetujui', 'Disetujui tim']] },
+      { k: 'alasan', l: 'Alasan', t: 'paragraf' },
+    ],
+    olah: r => { for (const k of ['kurikulum_asal', 'kurikulum_tujuan']) r[k] = normKur(r[k]); for (const k of ['cpl_asal', 'cpl_tujuan']) r[k] = normCpl(r[k]); },
+    cek: r => r.kurikulum_asal === r.kurikulum_tujuan ? 'Kurikulum asal dan tujuan harus berbeda.'
+      : REF_CPL.cpl && !REF_CPL.cpl.some(c => c.kurikulum === r.kurikulum_asal && c.kode === r.cpl_asal) ? `CPL ${r.cpl_asal} tidak ada di ${r.kurikulum_asal}.`
+      : REF_CPL.cpl && !REF_CPL.cpl.some(c => c.kurikulum === r.kurikulum_tujuan && c.kode === r.cpl_tujuan) ? `CPL ${r.cpl_tujuan} tidak ada di ${r.kurikulum_tujuan}.` : '' },
   { id: 'tema', tabel: 'ref_tema_peta_jalan', judul: 'Peta jalan', butir: '22–25',
     patch: '25-patch-isian-karya.sql', urut: ['urutan', 'nama'],
     ket: 'Tema peta jalan penelitian dan PkM prodi. Dosen memilih temanya di isian karya penelitian/PkM; '
@@ -1252,23 +1310,7 @@ const CONTOH_CSV_MK = [
   ['K26', 'SI1101', 'Kalkulus I', '1', '3', '0', '0', 'wajib', 'universitas', 'tidak', 'ya', 'tidak', 'ya'],
   ['K26', 'SI4201', 'Perancangan Terintegrasi', '7', '2', '0', '2', 'wajib', 'prodi', 'ya', 'tidak', 'ya', 'ya'],
   ['K26', 'SI4305', 'Rekayasa Pantai', '7', '2', '0', '0', 'pilihan', 'prodi', 'tidak', 'tidak', 'tidak', 'ya']];
-// CSV dengan pemisah ';' atau ',' (dipilih dari baris judul) dan tanda kutip.
-function bacaCSV(teks){
-  teks = String(teks || '').replace(/^\uFEFF/, '');
-  const judul = teks.split(/\r?\n/)[0] || '';
-  const pisah = (judul.match(/;/g) || []).length > (judul.match(/,/g) || []).length ? ';' : ',';
-  const baris = []; let r = [], v = '', q = false;
-  for (let i = 0; i < teks.length; i++) {
-    const c = teks[i];
-    if (q) { if (c === '"') { if (teks[i + 1] === '"') { v += '"'; i++; } else q = false; } else v += c; continue; }
-    if (c === '"') q = true;
-    else if (c === pisah) { r.push(v); v = ''; }
-    else if (c === '\n') { r.push(v); baris.push(r); r = []; v = ''; }
-    else if (c !== '\r') v += c;
-  }
-  if (v !== '' || r.length) { r.push(v); baris.push(r); }
-  return baris.filter(x => x.some(s => s.trim() !== ''));
-}
+// bacaCSV: kurikulum-cpl.js (CSV ';' atau ',' dengan tanda kutip).
 // Baris CSV -> {kode, isi, galat}; sel kosong tidak menimpa (kolomnya dilewati).
 function barisMK(kepala, sel, lama){
   const ambil = k => { const i = kepala.indexOf(k); return i < 0 ? '' : String(sel[i] ?? '').trim(); };
@@ -1380,6 +1422,100 @@ async function simpanImporMK(){
   IMPOR_MK = null;
   await muatBaris();
   msg('ok', `${n} MK tersimpan. Lengkapi RPS, bukti, dan pengampu lewat tombol Ubah pada tiap baris.`);
+}
+
+// ---------------------------------------------------------------------
+//  CPL per kurikulum, peta MK-CPL, korelasi (pemilik 2026-11-13; 71-patch-cpl-kurikulum.sql).
+//  Impor CSV per tab; aturan baris di kurikulum-cpl.js (rencanaImpor). Peta: tiap MK di CSV
+//  dianggap lengkap, pasangan lama MK itu yang tidak ada di CSV dihapus (setelah konfirmasi).
+// ---------------------------------------------------------------------
+const JENIS_CPL = { cpl: 'cpl', mk_cpl: 'peta', korelasi_cpl: 'korelasi' };
+const KONFLIK_CPL = { cpl: 'kurikulum,kode', peta: 'kurikulum,kode_mk,cpl',
+  korelasi: 'kurikulum_asal,cpl_asal,kurikulum_tujuan,cpl_tujuan' };
+const NAMA_CPL = { cpl: 'CPL', peta: 'pasangan MK–CPL', korelasi: 'korelasi' };
+let REF_CPL = {}, IMPOR_CPL = null;
+async function muatRefCPL(){
+  const [mk, cpl, peta, kor] = await Promise.all([
+    sb.from('ref_mata_kuliah').select('id,kurikulum,kode,nama,sks,sifat,aktif'),
+    sb.from('ref_cpl').select('id,kurikulum,kode,rumusan,urutan'),
+    sb.from('ref_mk_cpl').select('id,kurikulum,kode_mk,cpl,indikator,bobot'),
+    sb.from('ref_cpl_korelasi').select('id,kurikulum_asal,cpl_asal,kurikulum_tujuan,cpl_tujuan,tingkat,status')]);
+  REF_CPL = { mk: mk.error ? null : mk.data || [], cpl: cpl.error ? null : cpl.data || [],
+    peta: peta.error ? [] : peta.data || [], korelasi: kor.error ? [] : kor.data || [] };
+}
+function gambarKurikulumCPL(T){
+  const jenis = JENIS_CPL[T.id];
+  if (jenis === 'peta' && $('sebaran-cpl')) {
+    $('sebaran-cpl').innerHTML = `<details class="massal" open><summary><b>Sebaran CPL dalam MK</b> (banyak MK dan SKS setara per CPL)</summary>
+      ${htmlSebaran(sebaranCPL(REF_CPL.mk || [], REF_CPL.cpl || [], REF_CPL.peta))}</details>`;
+  }
+  const box = $('impor-cpl');
+  if (!box || box.innerHTML) return;
+  const kolom = KOLOM_IMPOR[jenis];
+  box.innerHTML = `<details class="massal"><summary><b>Impor CSV ${NAMA_CPL[jenis]}</b> (banyak baris sekaligus)</summary>
+    <p class="ket">Kolom: ${kolom.map(k => `<code>${k}</code>`).join(', ')}. ${jenis === 'cpl'
+      ? 'Wajib <code>kurikulum</code>, <code>kode</code>, dan (untuk CPL baru) <code>rumusan</code>. Sel kosong tidak mengubah data yang ada.'
+      : jenis === 'peta' ? `Wajib <code>kurikulum</code>, <code>kode_mk</code>, <code>cpl</code>; bentuk matriks juga diterima
+        (kolom <code>kurikulum</code>, <code>kode</code>, lalu <code>CPL A</code>, <code>CPL B</code>, …; sel berisi v atau sub-indikator).
+        Tiap MK di CSV dianggap lengkap: pasangan lama MK itu yang tidak ada di CSV dihapus. <code>bobot</code> kosong = dibagi rata.`
+      : 'Wajib kelima kolom pertama; <code>tingkat</code> setara/sebagian, <code>status</code> usulan/disetujui (kosong = usulan untuk baris baru).'}
+      Pemisah titik koma atau koma. Kode MK berawalan 0: simpan dari Excel sebagai CSV UTF-8 dengan kolom kode berformat teks.</p>
+    <div class="unggah-baris"><button type="button" class="btn ghost kecil" id="cpl_templat">Unduh templat CSV</button>
+      <input type="file" id="cpl_csv" accept=".csv,text/csv"></div>
+    <div id="cpl_pratinjau"></div></details>`;
+  $('cpl_templat').onclick = () => {
+    const sel = v => /[;"\n]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v;
+    const teks = '﻿' + [kolom, ...CONTOH_IMPOR[jenis]].map(r => r.map(sel).join(';')).join('\r\n') + '\r\n';
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([teks], { type: 'text/csv;charset=utf-8' }));
+    a.download = `templat-${T.id.replace(/_/g, '-')}.csv`;
+    a.click();
+  };
+  $('cpl_csv').onchange = async e => { const f = e.target.files[0]; if (f) pratinjauImporCPL(jenis, await f.text()); e.target.value = ''; };
+}
+function pratinjauImporCPL(jenis, teks){
+  const pv = $('cpl_pratinjau');
+  if (!REF_CPL.mk || !REF_CPL.cpl) { pv.innerHTML = '<p class="msg buruk">Daftar MK/CPL belum terbaca. Jalankan supabase/71-patch-cpl-kurikulum.sql.</p>'; return; }
+  const r = rencanaImpor(jenis, bacaCSV(teks), REF_CPL);
+  if (r.galat) { IMPOR_CPL = null; pv.innerHTML = `<p class="msg buruk">${esc(r.galat)}</p>`; return; }
+  IMPOR_CPL = { jenis, ...r };
+  pv.innerHTML = `<p class="ket"><b>${r.sah.filter(x => x.baru).length}</b> baru · <b>${r.sah.filter(x => !x.baru).length}</b> diperbarui${
+      jenis === 'peta' ? ` · <b>${r.hapus.length}</b> pasangan lama dihapus` : ''} · <b>${r.salah.length}</b> baris bermasalah (dilewati)${
+      r.asing.length ? ` · kolom tak dikenal diabaikan: ${esc(r.asing.join(', '))}` : ''}</p>
+    ${r.salah.length ? `<ul class="bukti-l">${r.salah.slice(0, 60).map(x => `<li>Baris ${x.baris} (${esc(x.label)}): ${esc(x.galat.join('; '))}</li>`).join('')}${
+      r.salah.length > 60 ? `<li>… dan ${r.salah.length - 60} lagi</li>` : ''}</ul>` : ''}
+    <div class="aksi"><button type="button" class="btn" id="cpl_simpan"${r.sah.length || r.hapus.length ? '' : ' disabled'}>Simpan ${r.sah.length} baris</button>
+      <span class="msg" id="cpl_msg"></span></div>`;
+  $('cpl_simpan').onclick = simpanImporCPL;
+}
+async function simpanImporCPL(){
+  const msg = (cls, s) => { const m = $('cpl_msg'); m.className = 'msg' + (cls ? ' ' + cls : ''); m.textContent = s; };
+  const I = IMPOR_CPL;
+  if (!I) return;
+  if (I.hapus.length && !confirm(`${I.hapus.length} pasangan MK–CPL lama tidak ada di CSV dan akan dihapus. Lanjutkan?`)) return;
+  $('cpl_simpan').disabled = true;
+  const tabel = { cpl: 'ref_cpl', peta: 'ref_mk_cpl', korelasi: 'ref_cpl_korelasi' }[I.jenis];
+  // Satu kelompok per susunan kolom, supaya kolom yang tidak diisi tidak tertimpa.
+  const kel = new Map();
+  for (const x of I.sah) {
+    const isi = { ...x.isi, oleh: SAYA.email, diperbarui: new Date().toISOString() };
+    const k = Object.keys(isi).sort().join(',');
+    if (!kel.has(k)) kel.set(k, []);
+    kel.get(k).push(isi);
+  }
+  let n = 0;
+  for (const xs of kel.values()) {
+    const { error } = await sb.from(tabel).upsert(xs, { onConflict: KONFLIK_CPL[I.jenis], defaultToNull: false });
+    if (error) { $('cpl_simpan').disabled = false; return msg('buruk', `Gagal setelah ${n} baris: ${error.message}`); }
+    n += xs.length;
+  }
+  if (I.hapus.length) {
+    const { error } = await sb.from(tabel).delete().in('id', I.hapus);
+    if (error) return msg('buruk', `${n} baris tersimpan, tetapi penghapusan pasangan lama gagal: ${error.message}`);
+  }
+  IMPOR_CPL = null;
+  await muatBaris();
+  msg('ok', `${n} baris tersimpan${I.hapus.length ? `, ${I.hapus.length} pasangan lama dihapus` : ''}.`);
 }
 
 // ---------------------------------------------------------------------
@@ -1503,7 +1639,7 @@ function ketUnggah(){
 const GRUP_TAB = [
   ['Dokumen', ['dokumen']],
   ['Dosen & SDM', ['bkd', 'tendik']],
-  ['Kurikulum & penelitian', ['mk', 'tema', 'peta_dok', 'kerjasama', 'bidang_keahlian', 'topik_keahlian']],
+  ['Kurikulum & penelitian', ['mk', 'cpl', 'mk_cpl', 'korelasi_cpl', 'tema', 'peta_dok', 'kerjasama', 'bidang_keahlian', 'topik_keahlian']],
   ['Mahasiswa & lulusan', ['mahasiswa', 'kohort', 'prestasi', 'publikasi', 'luaran', 'tracer', 'kepuasan']],
   ['Institusi & keuangan', ['vmts', 'prodi_upps', 'dana']],
   ['Sarana & K3L', ['prasarana', 'dok_k3l', 'fas_k3l']],
@@ -1532,7 +1668,7 @@ async function bukaTab(){
   if (T.khusus) return bukaPustaka();
   $('panel').innerHTML = `<p class="ket">${nomorButir(T.butir).length
     ? `<b>${htmlTautanButir(nomorButir(T.butir), null, 'Dipakai di')}.</b>` : `<b>${esc(T.butir)}.</b>`} ${esc(T.ket)}</p>${saranTab(T)}
-    ${T.id === 'kepuasan' ? '<div id="massal"></div>' : ''}${T.id === 'mk' ? '<div id="impor-mk"></div>' : ''}${T.id === 'target' ? '<div id="capaian-iku"></div><div id="impor-iku"></div>' : ''}${T.id === 'temuan' ? '<div id="ringkas-temuan"></div>' : ''}${T.id === 'standar' ? '<div id="pantau-lembar"></div><div id="impor-standar"></div>' : ''}
+    ${T.id === 'kepuasan' ? '<div id="massal"></div>' : ''}${T.id === 'mk' ? '<div id="impor-mk"></div>' : ''}${JENIS_CPL[T.id] ? `${T.id === 'mk_cpl' ? '<div id="sebaran-cpl"></div>' : ''}<div id="impor-cpl"></div>` : ''}${T.id === 'target' ? '<div id="capaian-iku"></div><div id="impor-iku"></div>' : ''}${T.id === 'temuan' ? '<div id="ringkas-temuan"></div>' : ''}${T.id === 'standar' ? '<div id="pantau-lembar"></div><div id="impor-standar"></div>' : ''}
     <form id="form" novalidate><div class="grid">${kolomForm(T).map(isian).join('')}
       ${T.tanpaBukti ? '' : T.privat ? blokLKD() : blokBukti(T)}</div>
       <div class="aksi"><button type="submit" class="btn" id="simpan">Tambah baris</button>
@@ -1694,6 +1830,7 @@ async function muatBaris(){
   if (T.siapkan) BARIS.forEach(T.siapkan);
   if (T.id === 'kepuasan') gambarMassalKepuasan($('m_ta')?.value.trim());
   if (T.id === 'mk' && $('impor-mk') && !$('impor-mk').innerHTML) gambarImporMK();
+  if (JENIS_CPL[T.id]) { await muatRefCPL(); if (T !== AKTIF) return; gambarKurikulumCPL(T); }
   if (T.id === 'target') gambarCapaianIKU($('ci_ts')?.value);
   if (T.id === 'target' && $('impor-iku') && !$('impor-iku').innerHTML) gambarImporIKU();
   if (T.id === 'temuan' && $('ringkas-temuan')) $('ringkas-temuan').innerHTML = htmlRingkasTemuan(ringkasTemuan(BARIS));

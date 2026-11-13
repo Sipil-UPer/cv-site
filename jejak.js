@@ -8,6 +8,7 @@ export const LABEL_TABEL = {
   lkps_bkd: 'BKD dosen', target_baku: 'Target baku per jabatan', target_dosen: 'Target khusus dosen',
   spmi_standar: 'Standar SPMI', spmi_capaian: 'Capaian standar SPMI', spmi_standar_revisi: 'Revisi standar SPMI',
   evaluasi_mk: 'Evaluasi pembelajaran (EDOM, refleksi RPS)', evaluasi_tindak: 'Tindak lanjut evaluasi pembelajaran',
+  ref_cpl: 'CPL per kurikulum', ref_mk_cpl: 'Peta MK–CPL', ref_cpl_korelasi: 'Korelasi CPL antar kurikulum',
 };
 export const AKSI = { tambah: 'Tambah', ubah: 'Ubah', hapus: 'Hapus' };
 

@@ -12,7 +12,7 @@
    merusak hitungan LKPS. Sel kosong di dalam blok aman bila ditempel dengan
    Skip Blanks.
    ===================================================================== */
-import { petaLKPS, indeksKolom, JSZIP } from './lkps.js?v=2026-11-13-39b9d6';
+import { petaLKPS, indeksKolom, JSZIP } from './lkps.js?v=2026-11-13-a41e8b';
 
 const OUTLINE = 'lkps-outline.json';
 const XLSX_MIME = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';

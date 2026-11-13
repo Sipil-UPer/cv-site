@@ -5,6 +5,8 @@
 // Bukti: butir 13 unsur 9, butir 14 unsur 5 (tinjauan rutin pencapaian CPL),
 // butir 15 unsur 5 (tinjauan RPS: analisis CPL), butir 16 unsur 1.
 
+import { htmlTrenLintas } from './kurikulum-cpl.js?v=2026-11-13-a41e8b';
+
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const pct = x => x == null ? '—' : `${(x * 100).toFixed(0)}%`;
@@ -52,7 +54,8 @@ const WARNA = { TERCAPAI: 'var(--hijau)', BELUM: 'var(--merah)' };
 const status = st => `<b style="color:${WARNA[st] || 'inherit'}">${st === 'TERCAPAI' ? 'tercapai' : st === 'BELUM' ? 'belum' : esc(st || '—')}</b>`;
 
 /** Tampilan lengkap ringkasan (dipakai Monitoring dan tautan AMI). */
-export function htmlCPL(s, { kelasTabel = 'sp', meta = '' } = {}){
+// korelasi: ref_cpl_korelasi (71-patch) untuk tren lintas kurikulum; kosong = tabel itu tidak tampil.
+export function htmlCPL(s, { kelasTabel = 'sp', meta = '', korelasi = [] } = {}){
   const teks = new Map((s.cpl || []).map(c => [`${c.curriculum}|${c.cpl}`, c.text]));
   const terms = [...new Map((s.progres || []).map(r => [r.term_order, r.term])).entries()].sort((a, b) => a[0] - b[0]);
   const cpls = [...new Set((s.progres || []).map(r => `${r.curriculum}|${r.cpl}`))];
@@ -73,6 +76,7 @@ export function htmlCPL(s, { kelasTabel = 'sp', meta = '' } = {}){
         return `<td>${r ? `<span style="color:${WARNA[r.status]}">${pct(r.share_achieved)}</span>${r.change_share != null
           ? ` <small class="ket">${r.change_share > 0 ? '▲' : r.change_share < 0 ? '▼' : '='}${Math.abs(Math.round(r.change_share * 100))}</small>` : ''}` : '—'}</td>`; }).join('')}</tr>`).join('')}
       </tbody></table></div>` : ''}
+    ${htmlTrenLintas(s, korelasi, { kelasTabel, individu: s.ambang.individu })}
     <h3 class="cpl-h">Kelas dengan CPL belum tercapai (${belumKelas.length})</h3>
     ${belumKelas.length ? `<div class="gulir"><table class="${kelasTabel}"><thead><tr><th>Semester</th><th>MK</th><th>Kelas</th><th>CPL</th>
       <th>Dihitung</th><th>% ≥ ${s.ambang.individu}</th></tr></thead><tbody>${belumKelas.map(r => `<tr><td>${esc(r.term)}</td>
