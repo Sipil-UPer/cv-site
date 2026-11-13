@@ -153,11 +153,27 @@ export function editorDaftar(id, jenis, daftar){
 // Pasang tombol tambah/hapus untuk editor di dalam `akar`. `unggah(berkas, {jenis, tahun})`
 // mengembalikan tautan bukti; tanpa fungsi itu tombol Unggah tidak tampil (mis. Kelola dosen,
 // supaya berkas tidak masuk folder admin).
+// Pendengar dipasang SEKALI per wadah (2026-11-13): halaman menggambar ulang isi wadah yang
+// sama berkali-kali; pendengar ganda membuat satu pilihan berkas terunggah dua kali.
+const SUDAH_DIPASANG = new WeakSet();
 export function pasangEditor(akar, { unggah } = {}){
-  if (unggah) {
-    akar.classList.add('ed-bisa-unggah');
-    akar.addEventListener('change', async e => {
-      if (!e.target.matches('table.ed [data-unggah]') || !e.target.files.length) return;
+  akar._unggahBukti = unggah || null;
+  akar.classList.toggle('ed-bisa-unggah', !!unggah);
+  akar.querySelectorAll('[data-tambah]').forEach(b => {
+    b.onclick = () => {
+      const t = document.getElementById(b.dataset.tambah);
+      const fn = t.dataset.jenis === 'riwayat' ? barisRiwayat : barisSertifikat;
+      t.tBodies[0].insertAdjacentHTML('beforeend', fn({}, t.tBodies[0].rows.length));
+    };
+  });
+  if (SUDAH_DIPASANG.has(akar)) return;
+  SUDAH_DIPASANG.add(akar);
+  akar.addEventListener('click', e => {
+    if (e.target.matches('table.ed [data-hapus]')) e.target.closest('tr').remove();
+  });
+  akar.addEventListener('change', async e => {
+      const unggah = akar._unggahBukti;
+      if (!unggah || !e.target.matches('table.ed [data-unggah]') || !e.target.files.length) return;
       const td = e.target.closest('td'), tr = td.closest('tr'), status = td.querySelector('.ed-status');
       const ambil = k => (tr.querySelector(`[data-k="${k}"]`) || {}).value || '';
       const tahun = (ambil('tahun') || ambil('tahun_lulus')).trim();
@@ -168,17 +184,6 @@ export function pasangEditor(akar, { unggah } = {}){
         status.textContent = 'Terunggah; klik Kirim ajuan untuk menyimpan.';
       } catch (err) { status.textContent = 'Gagal: ' + (err.message || err); }
       e.target.value = '';
-    });
-  }
-  akar.querySelectorAll('[data-tambah]').forEach(b => {
-    b.onclick = () => {
-      const t = document.getElementById(b.dataset.tambah);
-      const fn = t.dataset.jenis === 'riwayat' ? barisRiwayat : barisSertifikat;
-      t.tBodies[0].insertAdjacentHTML('beforeend', fn({}, t.tBodies[0].rows.length));
-    };
-  });
-  akar.addEventListener('click', e => {
-    if (e.target.matches('table.ed [data-hapus]')) e.target.closest('tr').remove();
   });
 }
 
