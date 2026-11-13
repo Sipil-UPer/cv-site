@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-13-a41e8b">
-<link rel="stylesheet" href="kepala.css?v=2026-11-13-a41e8b">
+<link rel="stylesheet" href="tema.css?v=2026-11-13-e738fd">
+<link rel="stylesheet" href="kepala.css?v=2026-11-13-e738fd">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
@@ -51,7 +51,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-13-a41e8b"></script>
+<script src="config.js?v=2026-11-13-e738fd"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -70,10 +70,10 @@ addEventListener('error', function (e) {
 // timnya; admin dan pimpinan melihat semua. Didanai -> "Jadikan karya" membuat
 // karya berstatus draf dengan tim sebagai penulis (41-patch-draf-karya.sql).
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { gerbang } from './menu.js?v=2026-11-13-a41e8b';
-import { profilKeahlian, cariPakar, normal, daftarBaku } from './keahlian.js?v=2026-11-13-a41e8b';
-import { selisihHari } from './masa-berlaku.js?v=2026-11-13-a41e8b';
-import { STATUS, KATEGORI, juta, tglID, teksHari, tenggatBerikut, timUrut, panggilanTerbuka, karyaDariHibah, judulNorm, HARI_PENGINGAT } from './hibah.js?v=2026-11-13-a41e8b';
+import { gerbang } from './menu.js?v=2026-11-13-e738fd';
+import { profilKeahlian, cariPakar, normal, daftarBaku } from './keahlian.js?v=2026-11-13-e738fd';
+import { selisihHari } from './masa-berlaku.js?v=2026-11-13-e738fd';
+import { STATUS, KATEGORI, juta, tglID, teksHari, tenggatBerikut, timUrut, panggilanTerbuka, karyaDariHibah, judulNorm, HARI_PENGINGAT } from './hibah.js?v=2026-11-13-e738fd';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
