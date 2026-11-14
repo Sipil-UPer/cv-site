@@ -67,12 +67,39 @@ export function peranDari(w, orcid) {
 // ID OpenAlex ('W' + angka) dari URL work; null bila tidak ada (44-patch-openalex-id.sql).
 export const idOA = s => (String(s || '').match(/W\d+$/) || [null])[0];
 
-// Volume dan nomor (74-patch-volume-nomor.sql); kunci hanya ada bila terisi,
-// supaya impor tetap jalan sebelum patch itu dijalankan.
-export const volNo = (volume, nomor) => {
-  const v = String(volume ?? '').trim(), n = String(nomor ?? '').trim();
-  return { ...(v ? { volume: v.slice(0, 40) } : {}), ...(n ? { nomor: n.slice(0, 40) } : {}) };
-};
+// Volume, nomor, halaman (74-patch-volume-nomor.sql); kunci hanya ada bila
+// terisi, supaya impor tetap jalan sebelum patch itu dijalankan.
+export const KOLOM_TERBITAN = ['volume', 'nomor', 'halaman'];
+export const isianTerbitan = (volume, nomor, halaman) => Object.fromEntries(
+  [['volume', volume], ['nomor', nomor], ['halaman', halaman]]
+    .map(([k, v]) => [k, String(v ?? '').trim().slice(0, 40)]).filter(([, v]) => v));
+
+// Halaman: tanda hubung di antara dua angka/kode menjadi en dash ('401--415' dan '401-415' -> '401–415').
+export const rapiHalaman = s => String(s ?? '').trim().replace(/\s*(?:-{1,2}|–|—)\s*/g, '–');
+// Dari biblio OpenAlex: first_page dan last_page; sama atau hanya satu -> satu nilai.
+export function halamanDari(b) {
+  const a = String(b?.first_page ?? '').trim(), z = String(b?.last_page ?? '').trim();
+  return a && z && a !== z ? `${a}–${z}` : a || z;
+}
+
+// Rencana tombol admin "Perbarui volume, nomor, halaman dari OpenAlex" (pemilik 2026-11-15).
+// karya: [{id, doi, volume, nomor, halaman}]; works: Map DOI rapi -> work (ambilBanyakDoi).
+// Hanya kolom yang KOSONG yang diisi; isian dosen tidak ditimpa (catat_terbitan).
+// Hasil: {baris: [{id, volume?, nomor?, halaman?}], tidakDitemukan, lengkap, tanpaData}.
+export function rencanaTerbitan(karya, works) {
+  const baris = [], tidakDitemukan = [];
+  let lengkap = 0, tanpaData = 0;
+  for (const k of karya) {
+    const kosong = KOLOM_TERBITAN.filter(c => !String(k[c] ?? '').trim());
+    if (!kosong.length) { lengkap++; continue; }
+    const w = works.get(rapiDoi(k.doi));
+    if (!w) { tidakDitemukan.push(k); continue; }
+    const oa = isianTerbitan(w.biblio?.volume, w.biblio?.issue, halamanDari(w.biblio));
+    const isi = Object.fromEntries(kosong.filter(c => oa[c]).map(c => [c, oa[c]]));
+    if (Object.keys(isi).length) baris.push({ id: k.id, ...isi }); else tanpaData++;
+  }
+  return { baris, tidakDitemukan, lengkap, tanpaData };
+}
 
 // Draf karya dari satu work OpenAlex. hariIni: 'YYYY-MM-DD'.
 export function drafDari(w, { orcid = '', hariIni }) {
@@ -87,7 +114,7 @@ export function drafDari(w, { orcid = '', hariIni }) {
       doi: doi || null, url: w.primary_location?.landing_page_url || (doi ? `https://doi.org/${doi}` : null),
       // Tautan "karya yang mengutip" untuk asesor (pemilik 2026-11-10).
       ...(idOA(w.id) ? { openalex_id: idOA(w.id) } : {}),
-      ...volNo(w.biblio?.volume, w.biblio?.issue),
+      ...isianTerbitan(w.biblio?.volume, w.biblio?.issue, halamanDari(w.biblio)),
     },
     // Baris karya_sitasi (sumber OpenAlex) dan jumlah untuk TS berjalan (pratinjau).
     sitasi: sitasiTahunan(w, +hariIni.slice(0, 4)).map(r => ({ ...r, sumber: 'openalex', diambil: hariIni })),
@@ -157,7 +184,7 @@ export async function ambilBanyakDoi(dois, ambil = fetch, ukuran = 50) {
   for (let i = 0; i < semua.length; i += ukuran) {
     const kel = semua.slice(i, i + ukuran);
     const filter = 'doi:' + kel.map(d => encodeURIComponent(d.includes(',') ? `"${d}"` : d)).join('|');
-    const r = await ambil(`${OPENALEX}/works?filter=${filter}&per_page=${ukuran}&select=id,doi,publication_year,counts_by_year,topics`);
+    const r = await ambil(`${OPENALEX}/works?filter=${filter}&per_page=${ukuran}&select=id,doi,publication_year,counts_by_year,topics,biblio`);
     for (const w of (await periksa(r)).results || []) hasil.set(rapiDoi(w.doi), w);
   }
   return hasil;
@@ -293,7 +320,7 @@ export function drafDariBib(e, { namaSaya = '' } = {}) {
   return {
     karya: { kategori: 'publikasi', status: 'draf', judul: e.title || '', jenis: JENIS_BIB[e.jenis] || 'lainnya',
       tahun, bulan: null, nama_terbitan: e.journal || e.booktitle || e.publisher || e.school || null, doi: null, url: null,
-      ...volNo(e.volume, e.number) },
+      ...isianTerbitan(e.volume, e.number, rapiHalaman(e.pages)) },
     penulis: { peran: pertamaDariBib(e.author, namaSaya) ? 'penulis_pertama' : 'anggota', korespondensi: false, dikenali: false },
     centang: !!tahun && e.jenis in JENIS_BIB,
     tipe: e.jenis,

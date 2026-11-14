@@ -1,7 +1,7 @@
 // Definisi formulir karya dosen (FORM) dan isiannya. Dipindah dari input.html
 // supaya verifikasi.html memakai label isian yang sama (pemilik 2026-11-08).
 
-import { htmlContoh, JENIS_BUKTI_KS } from './manfaat-kerjasama.js?v=2026-11-14-350ed7';
+import { htmlContoh, JENIS_BUKTI_KS } from './manfaat-kerjasama.js?v=2026-11-15-3072cf';
 
 const rapi = s => s ? String(s).replace(/_/g,' ') : '';
 
@@ -45,9 +45,9 @@ export const F_BUKTI_KS = {n:'jenis_bukti_ks', l:'Bukti kerja sama', t:'select',
 // Isian LKPS tambahan (supabase/25-patch-isian-karya.sql). Nilai sah sama
 // dengan daftar pilihan templat LKPS. Dibuang dari form bila kolomnya
 // belum ada (siapkanIsian25), supaya simpan tidak gagal.
-// Volume dan nomor terbitan (supabase/74-patch-volume-nomor.sql, pemilik 2026-11-14).
+// Volume, nomor, halaman terbitan (supabase/74-patch-volume-nomor.sql, pemilik 2026-11-14/15).
 // Dibuang dari form bila kolomnya belum ada (siapkanIsian74).
-export const ISIAN_74 = ['volume', 'nomor'];
+export const ISIAN_74 = ['volume', 'nomor', 'halaman'];
 export const ISIAN_25 = ['jumlah_sitasi', 'tema_id', 'keterlibatan_mhs', 'tkt', 'nomor_tkt', 'bukti_integrasi', 'sesuai_rps'];
 // Sejak 42-patch-sitasi-tahunan.sql (pemilik 2026-11-10) formulir memakai sitasi
 // per tahun; isian total ini tidak lagi ditampilkan, angkanya jadi cadangan.
@@ -103,6 +103,7 @@ export const FORM = {
       {n:'nama_terbitan', l:'Nama jurnal / penerbit', t:'text'},
       {n:'volume', l:'Volume', t:'text', ph:'12', sub:'Jurnal dan prosiding. Kosongkan bila tidak ada.'},
       {n:'nomor', l:'Nomor (issue)', t:'text', ph:'3', sub:'Biodata hibah mencantumkan Volume/Nomor/Tahun.'},
+      {n:'halaman', l:'Halaman', t:'text', ph:'401–415', sub:'Rentang halaman atau nomor artikel (mis. e0123).'},
       {n:'tingkat', l:'Tingkat', t:'select', w:1, o:TINGKAT},
       {n:'indeksasi', l:'Indeksasi', t:'select', o:[['scopus_q1','Scopus Q1'],
         ['scopus_q2','Scopus Q2'],['scopus_q3','Scopus Q3'],['scopus_q4','Scopus Q4'],

@@ -2,8 +2,8 @@
 // Karya: hanya yang terverifikasi (data.json publik). Profil (NIDN, jabatan, pendidikan,
 // keahlian, sertifikat, email): tabel dosen di Supabase, dibaca dosen itu sendiri atau admin.
 // Dipakai profil.html (CV sendiri) dan kelola-dosen.html (admin, semua dosen).
-import { run, para, judul, teks, tabel, buatDocx } from './docx-dasar.js?v=2026-11-14-350ed7';
-import { JENJANG, JENIS_SERTIFIKAT, JABATAN, KATEGORI } from './profil-dosen.js?v=2026-11-14-350ed7';
+import { run, para, judul, teks, tabel, buatDocx } from './docx-dasar.js?v=2026-11-15-3072cf';
+import { JENJANG, JENIS_SERTIFIKAT, JABATAN, KATEGORI } from './profil-dosen.js?v=2026-11-15-3072cf';
 
 const label = (xs, k) => (xs.find(x => x[0] === k) || [, k || ''])[1];
 const rapi = s => String(s || '').replace(/_/g, ' ').trim();
@@ -79,7 +79,7 @@ export function isiCV(P, D, o = {}){
       .filter(Boolean).join(', ');
     out.push(para(run(`${i + 1}. `) + runPenulis(p.penulis, P) + run(` (${p.tahun}). ${p.judul}. `)
       + run(p.terbitan || '', { i: true }) + run(p.terbitan && p.volume ? `, ${p.volume}` : '', { i: true })
-      + run(p.terbitan && p.nomor ? `(${p.nomor})` : '') + run(`${p.terbitan ? '. ' : ''}${p.doi ? `https://doi.org/${String(p.doi).replace(/^https?:\/\/(dx\.)?doi\.org\//, '')}. ` : p.url ? `${p.url}. ` : ''}`)
+      + run(p.terbitan && p.nomor ? `(${p.nomor})` : '') + run(p.terbitan && p.halaman ? `, ${p.halaman}` : '') + run(`${p.terbitan ? '. ' : ''}${p.doi ? `https://doi.org/${String(p.doi).replace(/^https?:\/\/(dx\.)?doi\.org\//, '')}. ` : p.url ? `${p.url}. ` : ''}`)
       + run(ket ? `[${ket}]` : '', { sz: 18, warna: '555555' }), { jc: 'left', after: 80 }));
   });
 
