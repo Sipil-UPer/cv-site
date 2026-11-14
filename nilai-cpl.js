@@ -5,7 +5,8 @@
 
 // Sama dengan config.yaml template_versions dan semester_order (dijaga test).
 export const VERSI_TEMPLAT = ['CPL-2026.10.09'];
-export const SEMESTER = ['Ganjil', 'Genap'];
+// Pendek = semester pendek sesudah Genap (pemilik 2026-11-14; patch 73). Urutan = config.yaml semester_order.
+export const SEMESTER = ['Ganjil', 'Genap', 'Pendek'];
 export const SHEETJS = 'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/+esm';
 // Tata letak templat CPL-2026.10.09 (cpl/template.py, cpl/checks.py): Info A4:B13, Periksa A8:C20.
 const INFO_BARIS = [4, 13], PERIKSA_BARIS = [8, 20];

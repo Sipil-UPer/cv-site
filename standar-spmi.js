@@ -2,7 +2,7 @@
 // Sumber standar: rekap standar SPM universitas ("Draft Rekap Standar", .xlsx): satu
 // lembar per standar, satu baris per butir berkode (mis. A.01.02a), target per TS.
 // Dipakai data-prodi.html (impor), siklus-ppepp.html, dan kelengkapan.js.
-import { nilaiCapaian, perluAnalisis } from './capaian-iku.js?v=2026-11-14-cf0155';
+import { nilaiCapaian, perluAnalisis } from './capaian-iku.js?v=2026-11-14-64b5ca';
 export { perluAnalisis };
 
 // TS = 1 September s.d. 31 Agustus; nilainya tahun akhir (2026 untuk 2025/2026).
