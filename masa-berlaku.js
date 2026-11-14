@@ -2,7 +2,7 @@
 // Mengumpulkan tanggal berakhir yang sudah ada di data dan menandai yang sudah
 // lewat (paling lama setahun ke belakang) atau akan berakhir <= 90 hari.
 // Dipakai Pengingat (tabel + email). Hanya membaca.
-import { labelDokumen } from './pustaka-dokumen.js?v=2026-11-14-64b5ca';
+import { labelDokumen } from './pustaka-dokumen.js?v=2026-11-14-350ed7';
 
 export const HARI_SEGERA = 90;     // "3 bulan" (usulan 2026-11-11)
 export const HARI_LEWAT = 365;     // yang sudah lewat lebih lama dari ini tidak ditampilkan

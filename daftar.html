@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-14-64b5ca">
+<link rel="stylesheet" href="tema.css?v=2026-11-14-350ed7">
 <style>
   /* Daftar publik (pemilik 2026-11-04): beranda hanya grafik; tiap angka
      rekap membuka daftarnya di sini. Masyarakat umum melihat daftar saja —
@@ -173,7 +173,7 @@ function publikasi(){
     $('lst').innerHTML = d.length ? d.map(p => `<div class="e">
         <div class="thn">${p.tahun}</div>
         <div class="e-b"><div class="e-j">${esc(p.judul)}</div>
-          <div class="e-m">${[rapi(p.jenis), p.terbitan, p.doi && ('DOI ' + p.doi)]
+          <div class="e-m">${[rapi(p.jenis), p.terbitan, [p.volume && 'Vol. ' + p.volume, p.nomor && 'No. ' + p.nomor].filter(Boolean).join(' '), p.doi && ('DOI ' + p.doi)]
             .filter(Boolean).map(esc).join(' · ')}</div>
           ${p.penulis.length ? `<div class="e-p">${tautanPenulis(p.penulis)}</div>` : ''}</div>
         <span class="pill">${esc(rapi(p.indeksasi || p.tingkat))}</span></div>`).join('')

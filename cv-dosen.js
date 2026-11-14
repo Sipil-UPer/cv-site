@@ -2,8 +2,8 @@
 // Karya: hanya yang terverifikasi (data.json publik). Profil (NIDN, jabatan, pendidikan,
 // keahlian, sertifikat, email): tabel dosen di Supabase, dibaca dosen itu sendiri atau admin.
 // Dipakai profil.html (CV sendiri) dan kelola-dosen.html (admin, semua dosen).
-import { run, para, judul, teks, tabel, buatDocx } from './docx-dasar.js?v=2026-11-14-64b5ca';
-import { JENJANG, JENIS_SERTIFIKAT, JABATAN, KATEGORI } from './profil-dosen.js?v=2026-11-14-64b5ca';
+import { run, para, judul, teks, tabel, buatDocx } from './docx-dasar.js?v=2026-11-14-350ed7';
+import { JENJANG, JENIS_SERTIFIKAT, JABATAN, KATEGORI } from './profil-dosen.js?v=2026-11-14-350ed7';
 
 const label = (xs, k) => (xs.find(x => x[0] === k) || [, k || ''])[1];
 const rapi = s => String(s || '').replace(/_/g, ' ').trim();
@@ -78,7 +78,8 @@ export function isiCV(P, D, o = {}){
     const ket = [rapi(p.jenis), INDEKS[p.indeksasi] || '', p.peran === 'penulis_pertama' ? 'penulis pertama' : '', p.korespondensi ? 'korespondensi' : '']
       .filter(Boolean).join(', ');
     out.push(para(run(`${i + 1}. `) + runPenulis(p.penulis, P) + run(` (${p.tahun}). ${p.judul}. `)
-      + run(p.terbitan || '', { i: true }) + run(`${p.terbitan ? '. ' : ''}${p.doi ? `https://doi.org/${String(p.doi).replace(/^https?:\/\/(dx\.)?doi\.org\//, '')}. ` : p.url ? `${p.url}. ` : ''}`)
+      + run(p.terbitan || '', { i: true }) + run(p.terbitan && p.volume ? `, ${p.volume}` : '', { i: true })
+      + run(p.terbitan && p.nomor ? `(${p.nomor})` : '') + run(`${p.terbitan ? '. ' : ''}${p.doi ? `https://doi.org/${String(p.doi).replace(/^https?:\/\/(dx\.)?doi\.org\//, '')}. ` : p.url ? `${p.url}. ` : ''}`)
       + run(ket ? `[${ket}]` : '', { sz: 18, warna: '555555' }), { jc: 'left', after: 80 }));
   });
 
@@ -174,7 +175,7 @@ export function isiBiodataHibah(P, D, o = {}){
     ['No', 'Tahun', 'Judul pengabdian kepada masyarakat', 'Sumber pendanaan', 'Jumlah (juta Rp)'], keg(K.pkm, 'pkm')));
   out.push(bagian('E. Publikasi Artikel Ilmiah dalam Jurnal dalam 5 Tahun Terakhir',
     ['No', 'Judul artikel ilmiah', 'Nama jurnal', 'Volume/Nomor/Tahun'],
-    K.publikasi.filter(p => p.jenis === 'jurnal').map(p => [p.judul, p.terbitan || ISI, `${ISI}/${ISI}/${p.tahun}`])));
+    K.publikasi.filter(p => p.jenis === 'jurnal').map(p => [p.judul, p.terbitan || ISI, `${p.volume || ISI}/${p.nomor || ISI}/${p.tahun}`])));
   out.push(bagian('F. Pemakalah Seminar Ilmiah (Oral Presentation) dalam 5 Tahun Terakhir',
     ['No', 'Nama pertemuan ilmiah/seminar', 'Judul artikel ilmiah', 'Waktu dan tempat'],
     K.publikasi.filter(p => p.jenis === 'prosiding').map(p => [p.terbitan || ISI, p.judul, `${p.tahun}, ${ISI}`])));

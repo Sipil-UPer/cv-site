@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-14-64b5ca">
+<link rel="stylesheet" href="tema.css?v=2026-11-14-350ed7">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
@@ -95,7 +95,7 @@
 
 <main class="wrap" id="isi"></main>
 
-<script src="config.js?v=2026-11-14-64b5ca"></script>
+<script src="config.js?v=2026-11-14-350ed7"></script>
 <script>
 // Alamat dasar profil luar; dapat diubah lewat config.js tanpa
 // menyentuh berkas ini. Nilai cadangan dipakai bila config.js lama.
@@ -196,7 +196,7 @@ function render(D){
       <div class="e-b">
         <div class="e-j">${esc(p.judul)}
           ${tandaPeran(saya)}</div>
-        <div class="e-m">${[rapi(p.jenis), p.terbitan, p.doi && ('DOI '+p.doi)]
+        <div class="e-m">${[rapi(p.jenis), p.terbitan, [p.volume && 'Vol. ' + p.volume, p.nomor && 'No. ' + p.nomor].filter(Boolean).join(' '), p.doi && ('DOI '+p.doi)]
           .filter(Boolean).map(esc).join(' · ')}</div>
         <div class="e-p">${barisPenulis(p.penulis, pilih)}</div>
         ${tandaSDG(p.sdgs)}

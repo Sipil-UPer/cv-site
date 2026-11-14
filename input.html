@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-14-64b5ca">
+<link rel="stylesheet" href="tema.css?v=2026-11-14-350ed7">
 <style>
   :root{--bg:#EEF0ED; --ink:#161E26; --muted:#616C76; --line:#D8DDD8; --line-soft:#E8EBE7; --accent:var(--biru); --accent-soft:var(--biru-m7); --pending:#8A5A00; --pending-soft:#FAF0DC; --reject:#8C2F2F; --reject-soft:#F7E7E7;}
   *{box-sizing:border-box}
@@ -162,7 +162,7 @@
   .sitasi-sel small{color:var(--muted);font-size:10.5px;font-family:var(--sans)}
   @media(max-width:640px){.grid{grid-template-columns:1fr}}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-14-64b5ca">
+<link rel="stylesheet" href="kepala.css?v=2026-11-14-350ed7">
 </head>
 <body>
 
@@ -176,7 +176,7 @@
 
 <div class="wrap" id="app"></div>
 
-<script src="config.js?v=2026-11-14-64b5ca"></script>
+<script src="config.js?v=2026-11-14-350ed7"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -200,25 +200,25 @@ const SUPABASE_URL = window.SB_URL;
 const SUPABASE_ANON_KEY = window.SB_KEY;
 
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { JENIS_BUKTI_KARYA, namaJenisBukti, JENIS_KARYA_PRIVAT, teksAksesBukti } from './rencana-bukti.js?v=2026-11-14-64b5ca';
-import { tautanBerkas, temuanPakai } from './tautan-privat.js?v=2026-11-14-64b5ca';
-import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-14-64b5ca';
-import { periksaBerkas, kolomSidik, teksTemuan } from './sidik-berkas.js?v=2026-11-14-64b5ca';
-import { pasangContoh, durasiKS } from './manfaat-kerjasama.js?v=2026-11-14-64b5ca';
-import { pasangMenu } from './menu.js?v=2026-11-14-64b5ca';
-import { dosenLogin } from './dosen-login.js?v=2026-11-14-64b5ca';
-import { pasangPrestasi } from './prestasi.js?v=2026-11-14-64b5ca';
-import { htmlSaran } from './saran-bukti.js?v=2026-11-14-64b5ca';
-import { pasangBkd } from './bkd.js?v=2026-11-14-64b5ca';
-import { htmlTautanButir } from './tautan-butir.js?v=2026-11-14-64b5ca';
-import { ISIAN_32, ISIAN_25, TINGKAT, FORM, SDGS } from './form-karya.js?v=2026-11-14-64b5ca';
+import { JENIS_BUKTI_KARYA, namaJenisBukti, JENIS_KARYA_PRIVAT, teksAksesBukti } from './rencana-bukti.js?v=2026-11-14-350ed7';
+import { tautanBerkas, temuanPakai } from './tautan-privat.js?v=2026-11-14-350ed7';
+import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-14-350ed7';
+import { periksaBerkas, kolomSidik, teksTemuan } from './sidik-berkas.js?v=2026-11-14-350ed7';
+import { pasangContoh, durasiKS } from './manfaat-kerjasama.js?v=2026-11-14-350ed7';
+import { pasangMenu } from './menu.js?v=2026-11-14-350ed7';
+import { dosenLogin } from './dosen-login.js?v=2026-11-14-350ed7';
+import { pasangPrestasi } from './prestasi.js?v=2026-11-14-350ed7';
+import { htmlSaran } from './saran-bukti.js?v=2026-11-14-350ed7';
+import { pasangBkd } from './bkd.js?v=2026-11-14-350ed7';
+import { htmlTautanButir } from './tautan-butir.js?v=2026-11-14-350ed7';
+import { ISIAN_32, ISIAN_25, ISIAN_74, TINGKAT, FORM, SDGS } from './form-karya.js?v=2026-11-14-350ed7';
 import { barisKarya as htmlBarisKarya, muatBuktiKarya, daftarBuktiKarya as daftarBuktiDari,
   htmlDaftarBukti as htmlDaftarBuktiDari, berkasMilikKarya as berkasMilikDari,
-  pasangHapusBuktiAdmin } from './karya-tampil.js?v=2026-11-14-64b5ca';
-import { hitungVerifikasi } from './verifikasi-hitung.js?v=2026-11-14-64b5ca';
+  pasangHapusBuktiAdmin } from './karya-tampil.js?v=2026-11-14-350ed7';
+import { hitungVerifikasi } from './verifikasi-hitung.js?v=2026-11-14-350ed7';
 import { daftarDoi, ambilDoi, drafDari, rapiDoi, sitasiTahunan, cariJudul, bacaBibtex, judulRapi, pilihCocok,
-  drafDariBib, teksBatas, karyaOrcid } from './impor-karya.js?v=2026-11-14-64b5ca';
-import { SUMBER_SITASI } from './sitasi.js?v=2026-11-14-64b5ca';
+  drafDariBib, teksBatas, karyaOrcid } from './impor-karya.js?v=2026-11-14-350ed7';
+import { SUMBER_SITASI } from './sitasi.js?v=2026-11-14-350ed7';
 
 const app = document.getElementById('app');
 if (!SUPABASE_URL || !SUPABASE_ANON_KEY
@@ -563,7 +563,7 @@ function tampilForm(key, ubah = null){
   pasangMahasiswa(ubah ? (ubah.k.karya_mahasiswa || []) : []);
   pasangMitra(ubah ? (ubah.k.karya_mitra || []) : []);
   pasangRekan();
-  const muat = [isiInduk(), isiDaftarIntegrasi(), isiMataKuliah(), isiKerjasama(), siapkanIsian25(), siapkanIsian32()];
+  const muat = [isiInduk(), isiDaftarIntegrasi(), isiMataKuliah(), isiKerjasama(), siapkanIsian25(), siapkanIsian32(), siapkanIsian74()];
   pasangDurasiKS();
   if(ubah){
     pasangBuktiUbah(ubah.k);
@@ -768,6 +768,14 @@ async function siapkanIsian32(){
   const ada = ISIAN_32.filter(n => document.getElementById('f_' + n));
   if(!ada.length) return;
   const { error } = await sb.from('karya').select(ISIAN_32.join(',')).limit(1);
+  if(error) ada.forEach(n => { const el = document.getElementById('f_' + n); (el.closest('.fld') || el.parentElement).remove(); });
+}
+
+// Kolom patch 74 (volume, nomor) belum ada: isiannya dibuang supaya simpan tidak gagal.
+async function siapkanIsian74(){
+  const ada = ISIAN_74.filter(n => document.getElementById('f_' + n));
+  if(!ada.length) return;
+  const { error } = await sb.from('karya').select(ISIAN_74.join(',')).limit(1);
   if(error) ada.forEach(n => { const el = document.getElementById('f_' + n); (el.closest('.fld') || el.parentElement).remove(); });
 }
 
@@ -2012,10 +2020,12 @@ function pasangImpor(){
     for(const c of pilih){
       let { data: k, error } = await sb.from('karya').insert({ ...c.d.karya, dilaporkan_oleh: saya.id })
         .select('id').single();
-      // Tanpa 44-patch-openalex-id.sql: simpan tanpa ID OpenAlex.
-      if(error && /openalex_id/.test(error.message || '')){
-        const { openalex_id, ...tanpa } = c.d.karya;
-        ({ data: k, error } = await sb.from('karya').insert({ ...tanpa, dilaporkan_oleh: saya.id }).select('id').single());
+      // Tanpa 44-patch-openalex-id.sql atau 74-patch-volume-nomor.sql: simpan tanpa kolom itu.
+      let isian = { ...c.d.karya };
+      // Galat menyebut satu kolom tiap kali; ulangi sampai tidak ada kolom opsional yang disebut.
+      for(let kol; error && (kol = ['openalex_id', 'volume', 'nomor'].find(x => x in isian && new RegExp(`\\b${x}\\b`).test(error.message || ''))); ){
+        delete isian[kol];
+        ({ data: k, error } = await sb.from('karya').insert({ ...isian, dilaporkan_oleh: saya.id }).select('id').single());
       }
       if(error){ galat.push(`${c.doi}: ${error.code === '23505'
         ? 'DOI ini sudah dicatat dosen lain (mungkin masih draf). Minta rekan menambahkan Anda sebagai penulis.'

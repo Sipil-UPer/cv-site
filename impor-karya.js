@@ -5,7 +5,7 @@
 // Fungsi murni di sini diuji tests/js/impor_karya.test.mjs.
 
 export const OPENALEX = 'https://api.openalex.org';
-const PILIH = 'id,doi,title,publication_year,publication_date,type,primary_location,counts_by_year,authorships';
+const PILIH = 'id,doi,title,publication_year,publication_date,type,primary_location,biblio,counts_by_year,authorships';
 
 // Jenis karya OpenAlex yang bukan publikasi untuk LKPS: tidak dicentang bawaan.
 const BUKAN_PUBLIKASI = ['dataset', 'dissertation', 'software', 'other', 'paratext', 'erratum',
@@ -67,6 +67,13 @@ export function peranDari(w, orcid) {
 // ID OpenAlex ('W' + angka) dari URL work; null bila tidak ada (44-patch-openalex-id.sql).
 export const idOA = s => (String(s || '').match(/W\d+$/) || [null])[0];
 
+// Volume dan nomor (74-patch-volume-nomor.sql); kunci hanya ada bila terisi,
+// supaya impor tetap jalan sebelum patch itu dijalankan.
+export const volNo = (volume, nomor) => {
+  const v = String(volume ?? '').trim(), n = String(nomor ?? '').trim();
+  return { ...(v ? { volume: v.slice(0, 40) } : {}), ...(n ? { nomor: n.slice(0, 40) } : {}) };
+};
+
 // Draf karya dari satu work OpenAlex. hariIni: 'YYYY-MM-DD'.
 export function drafDari(w, { orcid = '', hariIni }) {
   const ts = tsDari(hariIni);
@@ -80,6 +87,7 @@ export function drafDari(w, { orcid = '', hariIni }) {
       doi: doi || null, url: w.primary_location?.landing_page_url || (doi ? `https://doi.org/${doi}` : null),
       // Tautan "karya yang mengutip" untuk asesor (pemilik 2026-11-10).
       ...(idOA(w.id) ? { openalex_id: idOA(w.id) } : {}),
+      ...volNo(w.biblio?.volume, w.biblio?.issue),
     },
     // Baris karya_sitasi (sumber OpenAlex) dan jumlah untuk TS berjalan (pratinjau).
     sitasi: sitasiTahunan(w, +hariIni.slice(0, 4)).map(r => ({ ...r, sumber: 'openalex', diambil: hariIni })),
@@ -284,7 +292,8 @@ export function drafDariBib(e, { namaSaya = '' } = {}) {
   const tahun = /^\d{4}$/.test(e.year || '') ? +e.year : null;
   return {
     karya: { kategori: 'publikasi', status: 'draf', judul: e.title || '', jenis: JENIS_BIB[e.jenis] || 'lainnya',
-      tahun, bulan: null, nama_terbitan: e.journal || e.booktitle || e.publisher || e.school || null, doi: null, url: null },
+      tahun, bulan: null, nama_terbitan: e.journal || e.booktitle || e.publisher || e.school || null, doi: null, url: null,
+      ...volNo(e.volume, e.number) },
     penulis: { peran: pertamaDariBib(e.author, namaSaya) ? 'penulis_pertama' : 'anggota', korespondensi: false, dikenali: false },
     centang: !!tahun && e.jenis in JENIS_BIB,
     tipe: e.jenis,
