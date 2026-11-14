@@ -5,7 +5,7 @@
 // disunting admin per survei; pengguna lulusan memakai 7 aspek resmi 6.g.2.
 // 2026-11-13 (pemilik): templat per kelompok menjawab butir LAM (bagian + butir per pertanyaan),
 // tracer memuat pertanyaan inti DIKTI, dan semua teks bisa dwibahasa (72-patch-survei-dwibahasa.sql).
-import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-13-ad6db0';
+import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-14-cf0155';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -258,8 +258,15 @@ const TEMPLAT = {
     { ...SARAN, butir: ['2', '57'] }],
   // Tabel 6.g.2: id = kunci aspek di lkps_kepuasan_pengguna, supaya hasil bisa disalin.
   pengguna: [
+    // Nama institusi dan lulusan yang dinilai (pemilik 2026-11-14): bukti bahwa responden benar
+    // pengguna lulusan kita dan untuk mencocokkan dengan undangan dari tracer. Isian singkat hanya
+    // dibaca admin; rekap publik (survei_rekap) tidak memuatnya.
     ...bag('instansi', ['52'], [
+      I('nama_instansi', 'instansi', 'Nama institusi atau perusahaan Anda', 'Name of your organisation', { wajib: true }),
       P('jenis_instansi', 'instansi', 'Jenis instansi Anda', 'Type of your organisation', JENIS_INSTANSI, JENIS_INSTANSI_EN),
+      I('nama_lulusan', 'instansi', 'Nama lulusan kami yang Anda nilai', 'Name of our graduate you are assessing',
+        { wajib: true, ket: 'Bila lebih dari satu, tulis semuanya dipisah koma; penilaian di bawah berlaku untuk mereka secara umum.',
+          ket_en: 'If more than one, separate the names with commas; the ratings below apply to them in general.' }),
       I('jabatan', 'instansi', 'Jabatan Anda (boleh dikosongkan)', 'Your position (optional)')]),
     ...bag('kinerja_lulusan', ['52'], ASPEK_KEPUASAN.map(([a, nama]) => Q(a, a, `Penilaian Anda atas lulusan kami dalam hal: ${nama.toLowerCase()}`,
       `Your rating of our graduates in: ${ASPEK_EN[a] || nama}`))),
@@ -289,7 +296,8 @@ const TEMPLAT = {
         'How many months after graduating did you get your first job or start your business?',
         { min: 0, max: 240, wajib: true, ket: 'Tulis 0 bila sudah bekerja sebelum lulus.', ket_en: 'Enter 0 if you were working before graduating.', ...KERJA, butir: ['48', '49'] }),
       A('pendapatan', 'pendapatan', 'Rata-rata pendapatan per bulan (take home pay), dalam rupiah', 'Average monthly take-home pay, in rupiah',
-        { min: 0, max: 1000000000, wajib: false, ket: 'Boleh dikosongkan.', ket_en: 'Optional.', ...KERJA }),
+        { min: 0, max: 1000000000, wajib: true, ket: 'Angka saja, tanpa titik (mis. 7500000). Bila tidak tetap, tulis perkiraan rata-ratanya.',
+          ket_en: 'Numbers only, no separators (e.g. 7500000). If it varies, enter your estimated average.', ...KERJA }),
       I('provinsi', 'lokasi', 'Provinsi tempat Anda bekerja', 'Province (or country, if abroad) where you work', { wajib: true, ...KERJA }),
       I('kabkota', 'lokasi', 'Kabupaten/kota tempat Anda bekerja', 'Regency/city where you work', { wajib: true, ...KERJA }),
       P('jenis_instansi', 'instansi', 'Jenis perusahaan/instansi tempat Anda bekerja', 'Type of organisation you work for', JENIS_INSTANSI, JENIS_INSTANSI_EN, KERJA),
@@ -329,7 +337,8 @@ const TEMPLAT = {
 };
 export const templatSurvei = k => (TEMPLAT[k] || []).map(q => JSON.parse(JSON.stringify(q)));
 /** Identitas bawaan per kelompok: tracer perlu bisa ditindaklanjuti, survei kepuasan anonim. */
-export const identitasBawaan = k => k === 'alumni' ? 'opsional' : 'tidak';
+// Alumni wajib (nama + NIM, survei.html) agar tracer bisa dicocokkan dengan daftar lulusan (pemilik 2026-11-14).
+export const identitasBawaan = k => k === 'alumni' ? 'wajib' : 'tidak';
 
 /** '' bila daftar pertanyaan sah, selain itu pesan galat. */
 export function cekPertanyaan(xs){

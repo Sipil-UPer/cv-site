@@ -3,7 +3,7 @@
 // butir) ke potret_skor: otomatis sekali sebulan saat admin membuka Skor,
 // atau manual dengan catatan. Riwayatnya ditampilkan sebagai tren dan
 // perubahan butir terhadap potret sebelumnya.
-import { SASARAN, gabungSyarat } from './syarat-unggul.js?v=2026-11-13-ad6db0';
+import { SASARAN, gabungSyarat } from './syarat-unggul.js?v=2026-11-14-cf0155';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));

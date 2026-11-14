@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-13-ad6db0">
+<link rel="stylesheet" href="tema.css?v=2026-11-14-cf0155">
 <style>
   /* Formulir survei bertahap (pemilik 2026-11-13: lebih rapi dan menarik, dwibahasa). Warna dari tema.css. */
   *{box-sizing:border-box}
@@ -86,7 +86,7 @@
   </div>
 </div></header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-13-ad6db0"></script>
+<script src="config.js?v=2026-11-14-cf0155"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -108,7 +108,7 @@ addEventListener('error', function (e) {
 // draf jawaban disimpan di perangkat ini sampai terkirim.
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 import { SKALA, SKALA_EN, labelKelompok, aktifQ, wajibQ, cekJawaban, teksQ, ketQ, opsiQ, ujungQ, labelBagian }
-  from './survei-kepuasan.js?v=2026-11-13-ad6db0';
+  from './survei-kepuasan.js?v=2026-11-14-cf0155';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
@@ -137,6 +137,7 @@ const L = {
     rahasia: 'Identitas Anda hanya dibaca admin program studi dan tidak pernah ditampilkan dalam rekap.',
     sampai: d => `Dibuka sampai ${d}`, menit: n => `± ${n} menit`, bertanda: '* = wajib dijawab', draf: 'Jawaban tersimpan sementara di perangkat ini',
     identitas: 'Identitas', opsional: '(opsional)', nama: 'Nama', nim: 'NIM', email: 'Email', isiNama: 'Isi nama serta NIM atau email.',
+    isiNim: 'Isi nama dan NIM (untuk dicocokkan dengan daftar lulusan).',
     lainnya: 'Pertanyaan', kembali: '← Kembali', lanjut: 'Lanjut →', kirim: 'Kirim jawaban', mengirim: 'Mengirim…', gagal: 'Gagal mengirim.',
     kurang: n => `${n} pertanyaan wajib belum dijawab.`, bagian: (i, n) => `Bagian ${i} dari ${n}`, terjawab: p => `${p}% terjawab`,
     galat: 'Gagal memuat', dobel: 'Anda sudah mengisi survei ini.' },
@@ -151,6 +152,7 @@ const L = {
     sampai: d => `Open until ${d}`, menit: n => `about ${n} min`, bertanda: '* = required', draf: 'Your answers are saved on this device until you submit',
     identitas: 'Your details', opsional: '(optional)', nama: 'Name', nim: 'Student ID number', email: 'Email',
     isiNama: 'Please enter your name and either your student ID or email.',
+    isiNim: 'Please enter your name and student ID number (to match the graduate list).',
     lainnya: 'Questions', kembali: '← Back', lanjut: 'Next →', kirim: 'Submit', mengirim: 'Submitting…', gagal: 'Could not submit.',
     kurang: n => `${n} required question${n > 1 ? 's' : ''} not answered.`, bagian: (i, n) => `Section ${i} of ${n}`, terjawab: p => `${p}% answered`,
     galat: 'Could not load', dobel: 'You have already completed this survey.' },
@@ -194,6 +196,11 @@ async function mulai(){
   const nomor = new Map(xs.map((q, i) => [q.id, i + 1]));
   const KUNCI_DRAF = 'surveiDraf:' + token;
   let J = {}, ID = { nama: '', nim: '', email: '' }, kini = 0;
+  // Tracer alumni: NIM wajib agar jawaban bisa dicocokkan dengan daftar lulusan TS-2..TS-1
+  // (butir 48 unsur 4; pemilik 2026-11-14). Kelompok lain cukup NIM atau email.
+  const perluNim = s.kelompok === 'alumni';
+  const idnKurang = () => idn === 'wajib' && (!ID.nama || (perluNim ? !ID.nim : !ID.nim && !ID.email));
+  const pesanIdn = () => perluNim ? t().isiNim : t().isiNama;
   try { const d = JSON.parse(simpan.get(KUNCI_DRAF) || 'null'); if (d) { J = d.j || {}; ID = { ...ID, ...(d.id || {}) }; kini = +d.kini || 0; } } catch { /* draf rusak */ }
   const aktifLangkah = x => x.identitas || x.xs.some(q => aktifQ(q, J));
   const sel = q => `[name="${CSS.escape(q.id)}"]`;
@@ -277,7 +284,7 @@ async function mulai(){
         ${x.identitas ? `<h2 class="bagian">${esc(t().identitas)} ${idn === 'wajib' ? '<span class="wajib">*</span>' : `<span class="ket">${esc(t().opsional)}</span>`}</h2>
           <div class="tanya"><div class="idn"><label>${esc(t().nama)}<input id="i_nama" maxlength="120" autocomplete="name"></label>
             <label>${esc(t().nim)}<input id="i_nim" maxlength="30"></label><label>${esc(t().email)}<input id="i_email" type="email" maxlength="120" autocomplete="email"></label></div>
-            ${idn === 'wajib' ? `<p class="ket">${esc(t().isiNama)}</p>` : ''}</div>`
+            ${idn === 'wajib' ? `<p class="ket">${esc(pesanIdn())}</p>` : ''}</div>`
         : `<h2 class="bagian">${esc(x.bagian ? labelBagian(x.bagian, en()) : t().lainnya)}</h2>${x.xs.map(kartuQ).join('')}`}</section>`).join('')}
         <div class="nav"><button type="button" class="kedua" id="kembali">${esc(t().kembali)}</button><span class="isi-sisa"></span>
           <span class="msg" id="msg"></span><button type="submit" class="utama" id="lanjut"></button></div></form>`;
@@ -311,7 +318,7 @@ async function mulai(){
     e.preventDefault();
     atur();
     const m = $('msg'), buruk = x => { m.className = 'msg buruk'; m.textContent = x; };
-    if (LANGKAH[kini].identitas && idn === 'wajib' && (!ID.nama || (!ID.nim && !ID.email))) return buruk(t().isiNama);
+    if (LANGKAH[kini].identitas && idnKurang()) return buruk(pesanIdn());
     const kurangSini = belum(false);
     tandai(kurangSini);
     if (kurangSini.length) {
@@ -326,7 +333,7 @@ async function mulai(){
       const i = LANGKAH.findIndex(x => x.xs.includes(kurang[0]));
       pindah(i); tandai(kurang.filter(q => LANGKAH[i].xs.includes(q))); return buruk(t().kurang(kurang.length));
     }
-    if (idn === 'wajib' && (!ID.nama || (!ID.nim && !ID.email))) { pindah(0); return buruk(t().isiNama); }
+    if (idnKurang()) { pindah(0); return buruk(pesanIdn()); }
     const g = cekJawaban(xs, J, en());
     if (g) return buruk(g);
     const identitas = idn === 'tidak' ? null : { ...ID };
