@@ -6,7 +6,9 @@
 
    Apps Script (Code.gs, kind 'hapus') memeriksa peran admin dan hanya
    membuang berkas di dalam folder bukti prodi; tautan lain (DOI, halaman
-   jurnal, folder) dilewati tanpa galat. Berkas di Sampah masih bisa
+   jurnal, folder) dilewati tanpa galat. Berkas Drive di luar folder prodi
+   ditolak Apps Script; di sini penolakan itu diperlakukan sebagai "tidak
+   dibuang", jadi catatannya tetap terhapus (pemilik 2026-11-15). Berkas di Sampah masih bisa
    dipulihkan 30 hari dari Google Drive akun prodi.
 
    Urutan pemakaian: buang berkas DULU, baru hapus catatannya; bila
@@ -16,7 +18,7 @@
    ditautkan, tidak diunggah ulang) TIDAK dibuang selama tautannya masih
    dirujuk lebih dari satu catatan: hanya catatan pemanggil yang dihapus.
    ===================================================================== */
-import { jumlahRujukan } from './sidik-berkas.js?v=2026-11-15-cc8b33';
+import { jumlahRujukan } from './sidik-berkas.js?v=2026-11-15-bd528e';
 
 export async function buangBerkas(sb, url){
   const U = String(window.UPLOAD_URL || '').trim();
@@ -30,6 +32,10 @@ export async function buangBerkas(sb, url){
   const res = await fetch(U, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
     body: JSON.stringify({ token: session.access_token, kind: 'hapus', url }) });
   const out = await res.json();
+  // Berkas Drive di luar folder bukti prodi (mis. Drive pribadi dosen): Apps Script sengaja tidak
+  // menyentuhnya. Bukan galat bagi pemanggil: berkas dibiarkan, catatannya tetap boleh dihapus.
+  if (!out.ok && /di luar folder bukti/i.test(out.error || ''))
+    return { ok: true, dibuang: false, alasan: 'di luar folder bukti prodi' };
   if (!out.ok) {
     if (/tidak dikenal|Pilih tahun/.test(out.error || ''))
       throw new Error('Apps Script di akun prodi belum diperbarui untuk menghapus berkas. ' +
