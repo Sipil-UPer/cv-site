@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-15-3072cf">
+<link rel="stylesheet" href="tema.css?v=2026-11-15-d40445">
 <style>
   :root{--bg:#EEF0ED; --ink:#161E26; --muted:#616C76; --line:#D8DDD8; --line-soft:#E8EBE7; --accent:var(--biru); --accent-soft:var(--biru-m7); --pending:#8A5A00; --pending-soft:#FAF0DC; --reject:#8C2F2F; --reject-soft:#F7E7E7;}
   *{box-sizing:border-box}
@@ -164,7 +164,7 @@
   .sitasi-sel small{color:var(--muted);font-size:10.5px;font-family:var(--sans)}
   @media(max-width:640px){.grid{grid-template-columns:1fr}}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-15-3072cf">
+<link rel="stylesheet" href="kepala.css?v=2026-11-15-d40445">
 </head>
 <body>
 
@@ -178,7 +178,7 @@
 
 <div class="wrap" id="app"></div>
 
-<script src="config.js?v=2026-11-15-3072cf"></script>
+<script src="config.js?v=2026-11-15-d40445"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -202,25 +202,25 @@ const SUPABASE_URL = window.SB_URL;
 const SUPABASE_ANON_KEY = window.SB_KEY;
 
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { JENIS_BUKTI_KARYA, namaJenisBukti, JENIS_KARYA_PRIVAT, teksAksesBukti } from './rencana-bukti.js?v=2026-11-15-3072cf';
-import { tautanBerkas, temuanPakai } from './tautan-privat.js?v=2026-11-15-3072cf';
-import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-15-3072cf';
-import { periksaBerkas, kolomSidik, teksTemuan } from './sidik-berkas.js?v=2026-11-15-3072cf';
-import { pasangContoh, durasiKS } from './manfaat-kerjasama.js?v=2026-11-15-3072cf';
-import { pasangMenu } from './menu.js?v=2026-11-15-3072cf';
-import { dosenLogin } from './dosen-login.js?v=2026-11-15-3072cf';
-import { pasangPrestasi } from './prestasi.js?v=2026-11-15-3072cf';
-import { htmlSaran } from './saran-bukti.js?v=2026-11-15-3072cf';
-import { pasangBkd } from './bkd.js?v=2026-11-15-3072cf';
-import { htmlTautanButir } from './tautan-butir.js?v=2026-11-15-3072cf';
-import { ISIAN_32, ISIAN_25, ISIAN_74, TINGKAT, FORM, SDGS } from './form-karya.js?v=2026-11-15-3072cf';
+import { JENIS_BUKTI_KARYA, namaJenisBukti, JENIS_KARYA_PRIVAT, teksAksesBukti } from './rencana-bukti.js?v=2026-11-15-d40445';
+import { tautanBerkas, temuanPakai } from './tautan-privat.js?v=2026-11-15-d40445';
+import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-15-d40445';
+import { periksaBerkas, kolomSidik, teksTemuan } from './sidik-berkas.js?v=2026-11-15-d40445';
+import { pasangContoh, durasiKS } from './manfaat-kerjasama.js?v=2026-11-15-d40445';
+import { pasangMenu } from './menu.js?v=2026-11-15-d40445';
+import { dosenLogin } from './dosen-login.js?v=2026-11-15-d40445';
+import { pasangPrestasi } from './prestasi.js?v=2026-11-15-d40445';
+import { htmlSaran } from './saran-bukti.js?v=2026-11-15-d40445';
+import { pasangBkd } from './bkd.js?v=2026-11-15-d40445';
+import { htmlTautanButir } from './tautan-butir.js?v=2026-11-15-d40445';
+import { ISIAN_32, ISIAN_25, ISIAN_74, TINGKAT, FORM, SDGS } from './form-karya.js?v=2026-11-15-d40445';
 import { barisKarya as htmlBarisKarya, muatBuktiKarya, daftarBuktiKarya as daftarBuktiDari,
   htmlDaftarBukti as htmlDaftarBuktiDari, berkasMilikKarya as berkasMilikDari,
-  pasangHapusBuktiAdmin } from './karya-tampil.js?v=2026-11-15-3072cf';
-import { hitungVerifikasi } from './verifikasi-hitung.js?v=2026-11-15-3072cf';
+  pasangHapusBuktiAdmin } from './karya-tampil.js?v=2026-11-15-d40445';
+import { hitungVerifikasi } from './verifikasi-hitung.js?v=2026-11-15-d40445';
 import { daftarDoi, ambilDoi, drafDari, rapiDoi, sitasiTahunan, cariJudul, bacaBibtex, judulRapi, pilihCocok,
-  drafDariBib, teksBatas, karyaOrcid } from './impor-karya.js?v=2026-11-15-3072cf';
-import { SUMBER_SITASI } from './sitasi.js?v=2026-11-15-3072cf';
+  drafDariBib, teksBatas, karyaOrcid } from './impor-karya.js?v=2026-11-15-d40445';
+import { SUMBER_SITASI } from './sitasi.js?v=2026-11-15-d40445';
 
 const app = document.getElementById('app');
 if (!SUPABASE_URL || !SUPABASE_ANON_KEY
@@ -1576,7 +1576,7 @@ function panelBuktiKarya(k){
     ${xs.length ? `<ul>${xs.map(x => `<li><a href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.label)}</a>
         ${baru.has(x.url) ? `<b class="kb-baru">baru</b> <input type="text" class="kb-tautan" readonly value="${esc(x.url)}" onfocus="this.select()" title="Tautan berkas">` : ''}
         <button type="button" class="btn ghost sm" data-salin="${esc(x.url)}">Salin</button>
-        ${x.milik ? `<button type="button" class="btn ghost sm" data-kb-hapus="${esc(x.id)}" data-url="${esc(x.url)}">Hapus</button>` : ''}</li>`).join('')}</ul>`
+        ${x.id || x.lama ? `<button type="button" class="btn ghost sm" ${x.lama ? `data-kb-awal="${esc(x.lama)}"` : `data-kb-hapus="${esc(x.id)}"`} data-url="${esc(x.url)}">Hapus</button>` : ''}</li>`).join('')}</ul>`
       : '<p class="kb-kos">Belum ada bukti.</p>'}
     ${KB_GAGAL ? `<p class="kb-kos">Tambah bukti belum tersedia (${esc(KB_GAGAL)}).</p>` : `<div class="kb-f">
       <select id="kbj-${esc(k.id)}">${JENIS_BUKTI_KARYA.map(([v, l]) => `<option value="${v}">${esc(l)}</option>`).join('')}</select>
@@ -1589,12 +1589,12 @@ function panelBuktiKarya(k){
   </details>`;
 }
 
-async function tambahBuktiKarya(k, muatUlang){
-  const id = k.id, m = document.getElementById('kbm-' + id);
-  const jenis = document.getElementById('kbj-' + id).value;
-  const judul = document.getElementById('kbt-' + id).value.trim();
-  const url = document.getElementById('kbu-' + id).value.trim();
-  const fEl = document.getElementById('kbf-' + id);
+async function tambahBuktiKarya(k, muatUlang, root = document){
+  const id = k.id, el = n => root.querySelector(`[id="${n}${id}"]`), m = el('kbm-');
+  const jenis = el('kbj-').value;
+  const judul = el('kbt-').value.trim();
+  const url = el('kbu-').value.trim();
+  const fEl = el('kbf-');
   const berkas = fEl ? [...fEl.files] : [];
   const tulis = t => { m.textContent = t; };
   if(!berkas.length && !url) return tulis('Pilih berkas atau tempel tautan.');
@@ -1642,16 +1642,27 @@ function pasangAksiBukti(box, data, muatUlang){
   });
   box.querySelectorAll('[data-kb-tambah]').forEach(b => {
     b.onclick = () => { b.disabled = true;
-      tambahBuktiKarya(data.find(k => k.id === b.dataset.kbTambah), muatUlang).finally(() => b.disabled = false); };
+      tambahBuktiKarya(data.find(k => k.id === b.dataset.kbTambah), muatUlang, box).finally(() => b.disabled = false); };
   });
-  box.querySelectorAll('[data-kb-hapus]').forEach(b => {
+  // Penulis karya dan admin boleh menghapus bukti mana pun milik karya itu,
+  // termasuk isian awal (75-patch-hapus-bukti-penulis.sql, pemilik 2026-11-15).
+  const PATCH75 = 'jalankan supabase/75-patch-hapus-bukti-penulis.sql bila belum';
+  box.querySelectorAll('[data-kb-hapus], [data-kb-awal]').forEach(b => {
     b.onclick = async () => {
       const admin = saya.peran === 'admin';
       if(!confirm('Hapus bukti ini? ' + (admin ? PESAN_SAMPAH : 'Berkas di Drive tidak dihapus.'))) return;
       try{
         if(admin) await buangBerkas(sb, b.dataset.url);
       }catch(err){ alert('Gagal membuang berkas: ' + (err.message || err)); return; }
-      const { error } = await sb.from('karya_bukti').delete().eq('id', +b.dataset.kbHapus);
+      let error;
+      if(b.dataset.kbAwal){
+        ({ error } = await sb.rpc('hapus_bukti_awal', { k: b.dataset.kbAwal }));
+        if(error && /hapus_bukti_awal|function/i.test(error.message || '')) error = { message: 'fungsi belum ada; ' + PATCH75 + '.' };
+      } else {
+        let data;
+        ({ data, error } = await sb.from('karya_bukti').delete().eq('id', +b.dataset.kbHapus).select('id'));
+        if(!error && !(data || []).length) error = { message: 'bukti tidak terhapus (hanya penulis karya ini atau admin; ' + PATCH75 + ').' };
+      }
       if(error) alert('Gagal: ' + error.message); else muatUlang();
     };
   });
@@ -2091,8 +2102,10 @@ async function karyaProdi(){
       const sudah = (k.karya_penulis||[]).some(p=>p.dosen_id===saya.id);
       return barisKarya(k, sudah ? '' :
         `<button class="btn ghost sm" data-k="${k.id}" data-kat="${k.kategori}">Saya penulis</button>`,
-        admin ? htmlDaftarBukti(k, true) : '');
+        admin ? panelBuktiKarya(k) : '');
     }).join('');
+    // Admin mengunggah/menghapus bukti karya dosen mana pun (pemilik 2026-11-15).
+    if(admin){ pasangSalin(box); pasangAksiBukti(box, d, async () => { await muatBuktiUntuk(semua); gambar(); }); }
     box.querySelectorAll('[data-k]').forEach(b=>{
       b.onclick = async()=>{
         const opsi = b.dataset.kat === 'publikasi'
