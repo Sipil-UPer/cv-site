@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-15-d40445">
+<link rel="stylesheet" href="tema.css?v=2026-11-15-cc8b33">
 <style>
   :root{--bg:#EEF0ED; --ink:#161E26; --muted:#616C76; --line:#D8DDD8; --line-soft:#E8EBE7; --accent:var(--biru); --accent-soft:var(--biru-m7); --pending:#8A5A00; --pending-soft:#FAF0DC; --reject:#8C2F2F; --reject-soft:#F7E7E7;}
   *{box-sizing:border-box}
@@ -58,6 +58,7 @@
   .rekan-item{display:flex;gap:10px;align-items:center;flex-wrap:wrap;
     padding:6px 0;border-bottom:1px solid var(--line-soft)}
   .rekan-item:last-child{border-bottom:0}
+  .rekan-item[hidden]{display:none}
   .rekan-item .r-peran{padding:5px 8px;font:inherit;font-size:13px}
   .rekan-item select:disabled, .rekan-item input:disabled{opacity:.45}
   .mhs-baris{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
@@ -164,7 +165,7 @@
   .sitasi-sel small{color:var(--muted);font-size:10.5px;font-family:var(--sans)}
   @media(max-width:640px){.grid{grid-template-columns:1fr}}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-15-d40445">
+<link rel="stylesheet" href="kepala.css?v=2026-11-15-cc8b33">
 </head>
 <body>
 
@@ -178,7 +179,7 @@
 
 <div class="wrap" id="app"></div>
 
-<script src="config.js?v=2026-11-15-d40445"></script>
+<script src="config.js?v=2026-11-15-cc8b33"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -202,25 +203,25 @@ const SUPABASE_URL = window.SB_URL;
 const SUPABASE_ANON_KEY = window.SB_KEY;
 
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { JENIS_BUKTI_KARYA, namaJenisBukti, JENIS_KARYA_PRIVAT, teksAksesBukti } from './rencana-bukti.js?v=2026-11-15-d40445';
-import { tautanBerkas, temuanPakai } from './tautan-privat.js?v=2026-11-15-d40445';
-import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-15-d40445';
-import { periksaBerkas, kolomSidik, teksTemuan } from './sidik-berkas.js?v=2026-11-15-d40445';
-import { pasangContoh, durasiKS } from './manfaat-kerjasama.js?v=2026-11-15-d40445';
-import { pasangMenu } from './menu.js?v=2026-11-15-d40445';
-import { dosenLogin } from './dosen-login.js?v=2026-11-15-d40445';
-import { pasangPrestasi } from './prestasi.js?v=2026-11-15-d40445';
-import { htmlSaran } from './saran-bukti.js?v=2026-11-15-d40445';
-import { pasangBkd } from './bkd.js?v=2026-11-15-d40445';
-import { htmlTautanButir } from './tautan-butir.js?v=2026-11-15-d40445';
-import { ISIAN_32, ISIAN_25, ISIAN_74, TINGKAT, FORM, SDGS } from './form-karya.js?v=2026-11-15-d40445';
+import { JENIS_BUKTI_KARYA, namaJenisBukti, JENIS_KARYA_PRIVAT, teksAksesBukti } from './rencana-bukti.js?v=2026-11-15-cc8b33';
+import { tautanBerkas, temuanPakai } from './tautan-privat.js?v=2026-11-15-cc8b33';
+import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-15-cc8b33';
+import { periksaBerkas, kolomSidik, teksTemuan } from './sidik-berkas.js?v=2026-11-15-cc8b33';
+import { pasangContoh, durasiKS } from './manfaat-kerjasama.js?v=2026-11-15-cc8b33';
+import { pasangMenu } from './menu.js?v=2026-11-15-cc8b33';
+import { dosenLogin } from './dosen-login.js?v=2026-11-15-cc8b33';
+import { pasangPrestasi } from './prestasi.js?v=2026-11-15-cc8b33';
+import { htmlSaran } from './saran-bukti.js?v=2026-11-15-cc8b33';
+import { pasangBkd } from './bkd.js?v=2026-11-15-cc8b33';
+import { htmlTautanButir } from './tautan-butir.js?v=2026-11-15-cc8b33';
+import { ISIAN_32, ISIAN_25, ISIAN_74, TINGKAT, FORM, SDGS } from './form-karya.js?v=2026-11-15-cc8b33';
 import { barisKarya as htmlBarisKarya, muatBuktiKarya, daftarBuktiKarya as daftarBuktiDari,
   htmlDaftarBukti as htmlDaftarBuktiDari, berkasMilikKarya as berkasMilikDari,
-  pasangHapusBuktiAdmin } from './karya-tampil.js?v=2026-11-15-d40445';
-import { hitungVerifikasi } from './verifikasi-hitung.js?v=2026-11-15-d40445';
+  pasangHapusBuktiAdmin } from './karya-tampil.js?v=2026-11-15-cc8b33';
+import { hitungVerifikasi } from './verifikasi-hitung.js?v=2026-11-15-cc8b33';
 import { daftarDoi, ambilDoi, drafDari, rapiDoi, sitasiTahunan, cariJudul, bacaBibtex, judulRapi, pilihCocok,
-  drafDariBib, teksBatas, karyaOrcid } from './impor-karya.js?v=2026-11-15-d40445';
-import { SUMBER_SITASI } from './sitasi.js?v=2026-11-15-d40445';
+  drafDariBib, teksBatas, karyaOrcid } from './impor-karya.js?v=2026-11-15-cc8b33';
+import { SUMBER_SITASI } from './sitasi.js?v=2026-11-15-cc8b33';
 
 const app = document.getElementById('app');
 if (!SUPABASE_URL || !SUPABASE_ANON_KEY
@@ -427,34 +428,41 @@ const BUTIR_TAB = { publikasi: ['6', '33', '35', '46'], kegiatan: ['6', '10', '1
 
 function tampilForm(key, ubah = null){
   const F = FORM[key];
-  const ajuan = ubah?.mode === 'ajuan';
+  const ajuan = ubah?.mode === 'ajuan', olehAdmin = ubah?.mode === 'admin';
   // Rekan: dosen aktif, ditambah penulis lama yang tidak ada di daftar itu
   // (mis. sudah nonaktif) supaya tidak terhapus diam-diam saat disimpan.
-  const rekanList = dosenList.filter(d=>d.id!==saya.id);
+  // Dosen "atas nama" (pelaku(): pengisi sendiri, atau pilihan admin) tidak
+  // tampil sebagai rekan; posisinya diisi di "Posisi".
+  const rekanList = [...dosenList];
   (ubah?.k.karya_penulis || []).forEach(p => {
-    if(p.dosen_id !== saya.id && !rekanList.some(d => d.id === p.dosen_id))
+    if(!rekanList.some(d => d.id === p.dosen_id))
       rekanList.push({ id: p.dosen_id, nama: p.dosen?.nama || 'dosen' });
   });
+  const awal = atasNamaAwal(ubah);
+  const pilihAtasNama = saya.peran === 'admin' && (!ubah || olehAdmin);
   document.getElementById('isi').innerHTML = `
   <div class="panel">
     <h2>${ubah ? (ajuan ? 'Ajukan perubahan ' : 'Ubah ') : 'Tambah '}${F.judul.toLowerCase()}</h2>
-    <p class="hint">${!ubah ? F.hint : ajuan
+    <p class="hint">${!ubah ? F.hint : olehAdmin
+      ? 'Admin: perubahan langsung tersimpan tanpa ajuan dan status karya tidak berubah. Perubahan tercatat di Jejak atas nama akun Anda.'
+      : ajuan
       ? 'Ubah isian yang perlu diperbaiki. Perubahan baru berlaku setelah disetujui admin prodi; sampai saat itu data lama tetap tampil. Bukti dikelola lewat tombol Bukti di Karya saya.'
       : 'Karya ini belum terverifikasi, jadi perubahan langsung tersimpan dan karya kembali menunggu verifikasi admin. Bukti dikelola lewat tombol Bukti di Karya saya.'}</p>
     <p class="hint">${htmlTautanButir(BUTIR_TAB[key], null, 'Isian tab ini dapat dipakai di')}</p>
     ${htmlSaran(key)}
     <form id="frm" class="grid">
+      ${pilihAtasNama ? htmlAtasNama(rekanList, awal, !!ubah) : ''}
       ${F.f.map(fieldHTML).join('')}
       ${key === 'publikasi' ? htmlSitasi() : ''}
 
-      <div class="fld"><label for="f_peran">Posisi saya <span class="req">*</span></label>
+      <div class="fld"><label for="f_peran"><span id="lbl_posisi">${esc(labelPosisi(awal))}</span> <span class="req">*</span></label>
         <select id="f_peran" required>${F.peran.map(([v,l])=>
           `<option value="${v}">${l}</option>`).join('')}</select></div>
 
       ${F.korespondensi ? `
       <div class="fld"><label>Penulis korespondensi</label>
         <label class="cek"><input type="checkbox" id="f_koresponden">
-          Saya penulis korespondensi</label>
+          <span id="lbl_koresp">${esc(labelKoresp(awal))}</span></label>
         <div class="sub">Boleh dicentang meski Anda juga penulis pertama.</div>
       </div>` : ''}
 
@@ -528,7 +536,7 @@ function tampilForm(key, ubah = null){
 
       <div class="fld full"><label>Penulis lain dari prodi ini</label>
         <div class="rekan">${rekanList.map(d=>`
-          <div class="rekan-item">
+          <div class="rekan-item" ${d.id === awal ? 'hidden' : ''}>
             <label class="cek"><input type="checkbox" class="r-ikut" value="${d.id}"> ${esc(d.nama)}</label>
             <select class="r-peran" disabled>${F.peran.map(([v,l])=>
               `<option value="${v}" ${v==='anggota'?'selected':''}>${l}</option>`).join('')}</select>
@@ -565,6 +573,7 @@ function tampilForm(key, ubah = null){
   pasangMahasiswa(ubah ? (ubah.k.karya_mahasiswa || []) : []);
   pasangMitra(ubah ? (ubah.k.karya_mitra || []) : []);
   pasangRekan();
+  pasangAtasNama(!!ubah);
   const muat = [isiInduk(), isiDaftarIntegrasi(), isiMataKuliah(), isiKerjasama(), siapkanIsian25(), siapkanIsian32(), siapkanIsian74()];
   pasangDurasiKS();
   if(ubah){
@@ -573,7 +582,7 @@ function tampilForm(key, ubah = null){
       isiUbah(key, ubah.k);
       if(key === 'publikasi') pasangSitasi(ubah.k.karya_sitasi || []);   // setelah tahun terbit terisi
     });
-    document.getElementById('batalUbah').onclick = () => bukaTab('saya');
+    document.getElementById('batalUbah').onclick = () => bukaTab(olehAdmin ? 'semua' : 'saya');
     document.getElementById('frm').onsubmit = e=>{ e.preventDefault(); simpanUbah(key, ubah); };
     // Simpan draf: tanpa pemeriksaan isian wajib, tidak dikirim ke admin.
     const sd = document.getElementById('subDraf');
@@ -853,9 +862,83 @@ function pasangRekan(){
   });
 }
 
+// ---------------------------------------------------------------------
+//  Isi atas nama dosen (admin, pemilik 2026-11-15)
+//    Input baru: admin memilih dosen yang tercatat sebagai penulis dan
+//    pelapor; admin sendiri tidak ditambahkan. Ubah dari Karya prodi
+//    (mode 'admin'): bawaan = penulis yang ada, jadi admin tidak ikut
+//    tercatat. Jejak mencatat akun admin yang mengisi (patch 65).
+// ---------------------------------------------------------------------
+let ATAS_NAMA = null;   // pilihan admin untuk input baru, bertahan antar-tab
+const namaDosen = id => id === saya.id ? 'saya'
+  : (dosenList.find(d => d.id === id)?.nama || 'dosen ini');
+const labelPosisi = id => id === saya.id ? 'Posisi saya' : 'Posisi ' + namaDosen(id);
+const labelKoresp = id => id === saya.id ? 'Saya penulis korespondensi'
+  : namaDosen(id) + ' penulis korespondensi';
+// Dosen yang menjadi "saya" pada form: pilihan admin, atau pengisi sendiri.
+const pelaku = () => document.getElementById('f_atas_nama')?.value || saya.id;
+
+function atasNamaAwal(ubah){
+  if(saya.peran !== 'admin') return saya.id;
+  if(!ubah) return ATAS_NAMA || saya.id;
+  const ps = ubah.k.karya_penulis || [];
+  if(ubah.mode !== 'admin' || ps.some(p => p.dosen_id === saya.id) || !ps.length) return saya.id;
+  return (ps.find(p => p.dosen_id === ubah.k.dilaporkan_oleh) || ps[0]).dosen_id;
+}
+
+function htmlAtasNama(rekanList, awal, ubah){
+  const opsi = [{ id: saya.id, nama: 'Saya sendiri (' + (saya.nama || 'admin') + ')' },
+                ...rekanList.filter(d => d.id !== saya.id)];
+  return `<div class="fld full"><label for="f_atas_nama">Diisi atas nama (admin)</label>
+    <select id="f_atas_nama">${opsi.map(d =>
+      `<option value="${esc(d.id)}" ${d.id === awal ? 'selected' : ''}>${esc(d.nama)}</option>`).join('')}</select>
+    <div class="sub">${ubah
+      ? 'Penulis yang posisinya diisi di "Posisi" di bawah; penulis lain di daftar rekan. Admin tidak ditambahkan sebagai penulis kecuali dipilih.'
+      : 'Dosen ini tercatat sebagai penulis dan pelapor, seolah ia sendiri yang mengisi; Anda tidak ditambahkan sebagai penulis. Jejak mencatat bahwa Anda yang mengisi.'}</div></div>`;
+}
+
+// Ganti dosen atas nama: barisnya sebagai rekan disembunyikan. Pada form ubah,
+// posisi kedua dosen ditukar supaya daftar penulis tidak berubah tanpa sengaja.
+function pasangAtasNama(ubah){
+  const sel = document.getElementById('f_atas_nama');
+  if(!sel) return;
+  let lama = sel.value;
+  const item = id => document.querySelector(`.rekan .r-ikut[value="${CSS.escape(id)}"]`)?.closest('.rekan-item');
+  sel.addEventListener('change', () => {
+    const baru = sel.value, fp = document.getElementById('f_peran'),
+          fk = document.getElementById('f_koresponden');
+    const itBaru = item(baru), itLama = item(lama);
+    const posLama = { peran: fp.value, koresp: !!fk?.checked };
+    if(itBaru){
+      const c = itBaru.querySelector('.r-ikut');
+      if(ubah && c.checked){
+        fp.value = itBaru.querySelector('.r-peran').value;
+        if(fk) fk.checked = !!itBaru.querySelector('.r-koresp')?.checked;
+      }
+      c.checked = false; c.dispatchEvent(new Event('change'));
+      itBaru.hidden = true;
+    }
+    if(itLama){
+      itLama.hidden = false;
+      if(ubah){
+        const c = itLama.querySelector('.r-ikut');
+        c.checked = true; c.dispatchEvent(new Event('change'));
+        itLama.querySelector('.r-peran').value = posLama.peran;
+        const kr = itLama.querySelector('.r-koresp');
+        if(kr) kr.checked = posLama.koresp;
+      }
+    }
+    document.getElementById('lbl_posisi').textContent = labelPosisi(baru);
+    const lk = document.getElementById('lbl_koresp');
+    if(lk) lk.textContent = labelKoresp(baru);
+    if(!ubah) ATAS_NAMA = baru === saya.id ? null : baru;
+    lama = baru;
+  });
+}
+
 function bacaRekan(){
   return [...document.querySelectorAll('.rekan .rekan-item')]
-    .filter(it=>it.querySelector('.r-ikut').checked)
+    .filter(it=>!it.hidden && it.querySelector('.r-ikut').checked)
     .map(it=>({
       dosen_id: it.querySelector('.r-ikut').value,
       peran: it.querySelector('.r-peran').value,
@@ -1094,7 +1177,8 @@ function tampilDuplikat(d, peran, koresp){
           penulis terdaftar: ${nama.length ? esc(nama.join(', ')) : 'belum ada'}</span>
       </div>
       <div class="aksi" style="margin:0">
-        <button class="btn sm" id="klaim">Saya juga penulis karya ini</button>
+        <button class="btn sm" id="klaim">${pelaku() === saya.id ? 'Saya'
+          : esc(namaDosen(pelaku()))} juga penulis karya ini</button>
         <button class="btn ghost sm" id="batalDup">Bukan, ini karya berbeda</button>
         <span class="msg" id="dm"></span>
       </div>
@@ -1103,13 +1187,14 @@ function tampilDuplikat(d, peran, koresp){
   document.getElementById('klaim').onclick = async()=>{
     const dm = document.getElementById('dm');
     dm.className='msg'; dm.textContent='Mendaftarkan…';
+    const aku = pelaku();
     const { error } = await sb.from('karya_penulis').insert({
-      karya_id: d.karya.id, dosen_id: saya.id, peran,
+      karya_id: d.karya.id, dosen_id: aku, peran,
       korespondensi: koresp, ditambahkan_sendiri: true });
     if(error){
       dm.className='msg err';
       dm.textContent = error.code === '23505'
-        ? 'Anda sudah terdaftar sebagai penulis pada karya ini.' : error.message;
+        ? (aku === saya.id ? 'Anda' : namaDosen(aku)) + ' sudah terdaftar sebagai penulis pada karya ini.' : error.message;
     } else {
       dm.className='msg ok';
       dm.textContent='Terdaftar. Admin prodi akan meninjau penambahan ini.';
@@ -1234,23 +1319,25 @@ async function simpan(key){
     return;
   }
 
-  // 2. simpan
+  // 2. simpan. Admin yang mengisi atas nama dosen: dosen itu pelapor dan
+  // penulis (RLS karya_admin / kp_admin); Jejak mencatat akun admin.
+  const aku = pelaku();
   fm.textContent = 'Menyimpan…';
   try{
     let { data:k, error } = await sb.from('karya')
       .insert({ ...isi, bukti_url: buktiUrl || null,
-                status:'diajukan', dilaporkan_oleh: saya.id })
+                status:'diajukan', dilaporkan_oleh: aku })
       .select('id').single();
     // Tanpa 47-patch-sdgs.sql: simpan tanpa SDGs.
     if(error && /sdgs/.test(error.message || '')){
       const { sdgs, ...tanpa } = isi;
       ({ data:k, error } = await sb.from('karya').insert({ ...tanpa, bukti_url: buktiUrl || null,
-        status:'diajukan', dilaporkan_oleh: saya.id }).select('id').single());
+        status:'diajukan', dilaporkan_oleh: aku }).select('id').single());
     }
     if(error) throw error;
 
     const baris = [
-      { karya_id:k.id, dosen_id:saya.id, peran, korespondensi:koresp, ditambahkan_sendiri:false },
+      { karya_id:k.id, dosen_id:aku, peran, korespondensi:koresp, ditambahkan_sendiri:false },
       ...rekan.map(r=>({ karya_id:k.id, ...r, ditambahkan_sendiri:false }))];
     const { error:eP } = await sb.from('karya_penulis').insert(baris);
     if(eP) throw eP;
@@ -1281,13 +1368,16 @@ async function simpan(key){
     }
 
     frm.reset(); delete frm.dataset.lewati;
+    const an = document.getElementById('f_atas_nama');
+    if(an) an.value = aku;   // reset() mengembalikan pilihan awal render; rekan mengikuti pilihan terakhir
     antreanBukti = []; gambarAntrean();
     const um = document.getElementById('unggah_msg'); if(um){ um.className='msg'; um.textContent=''; }
     mhsSementara = []; pasangMahasiswa();
     mitraSementara = []; pasangMitra();
     if(key === 'kegiatan') pasangSkema();
     document.getElementById('dupBox').innerHTML = '';
-    fm.className='msg ok'; fm.textContent='Tersimpan. Menunggu verifikasi admin prodi.' + catatanBukti;
+    fm.className='msg ok'; fm.textContent='Tersimpan' + (aku !== saya.id ? ' atas nama ' + namaDosen(aku) : '')
+      + '. Menunggu verifikasi admin prodi.' + catatanBukti;
     muatKaryaSaya('daftar', 6);
   }catch(err){
     fm.className='msg err';
@@ -1367,13 +1457,14 @@ function isiUbah(key, k){
     }
     setel(document.getElementById('f_' + f.n), k[f.n]);
   });
-  const sendiri = (k.karya_penulis || []).find(p => p.dosen_id === saya.id);
+  const aku = pelaku();
+  const sendiri = (k.karya_penulis || []).find(p => p.dosen_id === aku);
   if(sendiri){
     setel(document.getElementById('f_peran'), sendiri.peran);
     const kr = document.getElementById('f_koresponden');
     if(kr) kr.checked = !!sendiri.korespondensi;
   }
-  (k.karya_penulis || []).filter(p => p.dosen_id !== saya.id).forEach(p => {
+  (k.karya_penulis || []).filter(p => p.dosen_id !== aku).forEach(p => {
     const c = frm.querySelector(`.r-ikut[value="${p.dosen_id}"]`);
     if(!c) return;
     c.checked = true; c.dispatchEvent(new Event('change'));
@@ -1426,7 +1517,7 @@ async function simpanUbah(key, { k, mode, tetapDraf }){
 
   const peran = document.getElementById('f_peran').value;
   const koresp = document.getElementById('f_koresponden')?.checked || false;
-  const penulis = [{ dosen_id: saya.id, peran, korespondensi: koresp }, ...bacaRekan()];
+  const penulis = [{ dosen_id: pelaku(), peran, korespondensi: koresp }, ...bacaRekan()];
   const penulisLama = (k.karya_penulis || []).map(p => ({ dosen_id: p.dosen_id, peran: p.peran,
                                                           korespondensi: !!p.korespondensi }));
   const kunciP = xs => xs.map(p => `${p.dosen_id}|${p.peran}|${!!p.korespondensi}`).sort().join(';');
@@ -1472,13 +1563,14 @@ async function simpanUbah(key, { k, mode, tetapDraf }){
       if(eA) throw eA;
     }
     alert(!adaData && !ajukan ? 'Sitasi tersimpan.'
+      : mode === 'admin' ? 'Perubahan tersimpan. Status karya tidak berubah; perubahan tercatat di Jejak.'
       : mode === 'ajuan'
       ? 'Ajuan perubahan terkirim. Perubahan berlaku setelah disetujui admin prodi.'
         + (adaSitasi ? ' Sitasi per tahun langsung tersimpan.' : '')
       : ajukan ? 'Karya diajukan dan menunggu verifikasi admin prodi.'
       : draf ? 'Draf tersimpan. Belum dikirim ke admin; klik "Lengkapi & ajukan" bila sudah lengkap.'
       : 'Perubahan tersimpan. Karya kembali menunggu verifikasi admin prodi.');
-    bukaTab('saya');
+    bukaTab(mode === 'admin' ? 'semua' : 'saya');
   }catch(err){
     gagal(err.code === '23505'
       ? (mode === 'ajuan' ? 'Karya ini sudah punya ajuan perubahan yang menunggu.'
@@ -2100,10 +2192,14 @@ async function karyaProdi(){
     box.className='';
     box.innerHTML = d.map(k=>{
       const sudah = (k.karya_penulis||[]).some(p=>p.dosen_id===saya.id);
-      return barisKarya(k, sudah ? '' :
-        `<button class="btn ghost sm" data-k="${k.id}" data-kat="${k.kategori}">Saya penulis</button>`,
+      // Admin: ubah langsung karya dosen mana pun, tanpa ajuan (rpc ubah_karya; pemilik 2026-11-15).
+      const ubahAdmin = admin && KUNCI_FORM[k.kategori]
+        ? `<button class="btn ghost sm" data-adm-ubah="${k.id}">Ubah</button>` : '';
+      return barisKarya(k, ubahAdmin + (sudah ? '' :
+        `<button class="btn ghost sm" data-k="${k.id}" data-kat="${k.kategori}">Saya penulis</button>`),
         admin ? panelBuktiKarya(k) : '');
     }).join('');
+    box.querySelectorAll('[data-adm-ubah]').forEach(b => { b.onclick = () => bukaUbah(b.dataset.admUbah, 'admin'); });
     // Admin mengunggah/menghapus bukti karya dosen mana pun (pemilik 2026-11-15).
     if(admin){ pasangSalin(box); pasangAksiBukti(box, d, async () => { await muatBuktiUntuk(semua); gambar(); }); }
     box.querySelectorAll('[data-k]').forEach(b=>{

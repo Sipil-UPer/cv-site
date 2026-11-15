@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-15-d40445">
+<link rel="stylesheet" href="tema.css?v=2026-11-15-cc8b33">
 <style>
   /* Panduan pengguna ruang kerja (pemilik 2026-11-04). Bagian admin hanya
      tampil untuk peran admin. Perbarui bila tombol atau halaman berubah. */
@@ -40,7 +40,7 @@
   @media(max-width:640px){nav.isi ol{columns:1}.wrap{padding:18px 16px 60px}}
   @media print{nav.isi{display:none}section{break-inside:avoid}}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-15-d40445">
+<link rel="stylesheet" href="kepala.css?v=2026-11-15-cc8b33">
 </head>
 <body>
 
@@ -140,6 +140,11 @@
     <h2>5. Karya rekan dan klaim penulis</h2>
     <p>Tab <b>Karya prodi</b> memuat semua karya prodi. Bila Anda ikut menulis karya yang diinput rekan, klik
       <b>Saya penulis</b> pada karya itu. Admin meninjau klaim tersebut. <b>Hapus klaim</b> membatalkannya.</p>
+    <p><b>Admin:</b> di form input ada pilihan <b>Diisi atas nama</b>. Dosen yang dipilih tercatat sebagai
+      penulis dan pelapor; admin tidak ikut menjadi penulis. Di <b>Karya prodi</b>, tombol <b>Ubah</b> mengubah
+      karya dosen mana pun langsung, tanpa ajuan, dan status karya tidak berubah. Panel bukti di sana dipakai
+      untuk mengunggah atau menghapus bukti. Semua isian admin tercatat di <b>Jejak perubahan</b> atas nama
+      akun admin.</p>
   </section>
 
   <section id="profil">
@@ -338,7 +343,7 @@
   </div>
 </main>
 
-<script src="config.js?v=2026-11-15-d40445"></script>
+<script src="config.js?v=2026-11-15-cc8b33"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -355,7 +360,7 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { gerbang } from './menu.js?v=2026-11-15-d40445';
+import { gerbang } from './menu.js?v=2026-11-15-cc8b33';
 
 // Bagian admin hanya untuk peran admin (isinya bukan rahasia; disembunyikan
 // supaya panduan dosen tetap ringkas).
