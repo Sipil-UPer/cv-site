@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-16-05a43b">
+<link rel="stylesheet" href="tema.css?v=2026-11-16-7f86d4">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
@@ -101,7 +101,7 @@
   .masuk{max-width:420px;margin:40px auto;background:#fff;border:1px solid var(--line);padding:20px}
   .masuk input{width:100%;padding:8px 10px;margin:8px 0;font:inherit}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-16-05a43b">
+<link rel="stylesheet" href="kepala.css?v=2026-11-16-7f86d4">
 </head>
 <body>
 
@@ -115,7 +115,7 @@
 
 <main class="wrap" id="isi"></main>
 
-<script src="config.js?v=2026-11-16-05a43b"></script>
+<script src="config.js?v=2026-11-16-7f86d4"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -132,25 +132,25 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-16-05a43b';
-import { pasangMenu } from './menu.js?v=2026-11-16-05a43b';
-import { dosenLogin } from './dosen-login.js?v=2026-11-16-05a43b';
-import { unggahKePustaka, opsiPustaka, opsiJenis, labelDokumen, cariDokumen } from './pustaka-dokumen.js?v=2026-11-16-05a43b';
-import { pasangRapikan } from './rapikan-berkas.js?v=2026-11-16-05a43b';
-import { UNSUR, skorUnsur, pihakUnsur } from './unsur-butir.js?v=2026-11-16-05a43b';
-import { OPSI_SUMBER } from './iku-otomatis.js?v=2026-11-16-05a43b';
-import { denganOtomatis as otomatisDari, tsTersedia, tsAwal, htmlCapaianIKU, KET_CAPAIAN, muatTambahan, denganTambahan } from './capaian-iku.js?v=2026-11-16-05a43b';
-import { KATEGORI_TEMUAN, STATUS_TEMUAN, PIHAK_TEMUAN, ringkasTemuan, htmlRingkasTemuan } from './temuan-ami.js?v=2026-11-16-05a43b';
-import { bacaRekapSPM, rencanaImporSPM, tsDariTanggal, labelTS, ringkasLembar, picProdi } from './standar-spmi.js?v=2026-11-16-05a43b';
-import { SHEETJS } from './nilai-cpl.js?v=2026-11-16-05a43b';
-import { bacaCSV, normKur, normCpl, KOLOM_IMPOR, CONTOH_IMPOR, rencanaImpor, sebaranCPL, htmlSebaran } from './kurikulum-cpl.js?v=2026-11-16-05a43b';
-import { htmlContoh, pasangContoh, JENIS_BUKTI_KS } from './manfaat-kerjasama.js?v=2026-11-16-05a43b';
-import { infoJenis } from './rencana-bukti.js?v=2026-11-16-05a43b';
-import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-16-05a43b';
-import { nomorButir, htmlTautanButir } from './tautan-butir.js?v=2026-11-16-05a43b';
-import { htmlSaran } from './saran-bukti.js?v=2026-11-16-05a43b';
-import { tautanBerkas, privatkanLama, adalahPrivat } from './tautan-privat.js?v=2026-11-16-05a43b';
-import { unggahLKD, buangLKD, bukaLKD, pendidikanTotal, pendidikanPS } from './bkd.js?v=2026-11-16-05a43b';
+import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-16-7f86d4';
+import { pasangMenu } from './menu.js?v=2026-11-16-7f86d4';
+import { dosenLogin } from './dosen-login.js?v=2026-11-16-7f86d4';
+import { unggahKePustaka, opsiPustaka, opsiJenis, labelDokumen, cariDokumen } from './pustaka-dokumen.js?v=2026-11-16-7f86d4';
+import { pasangRapikan } from './rapikan-berkas.js?v=2026-11-16-7f86d4';
+import { UNSUR, skorUnsur, pihakUnsur } from './unsur-butir.js?v=2026-11-16-7f86d4';
+import { OPSI_SUMBER } from './iku-otomatis.js?v=2026-11-16-7f86d4';
+import { denganOtomatis as otomatisDari, tsTersedia, tsAwal, htmlCapaianIKU, KET_CAPAIAN, muatTambahan, denganTambahan } from './capaian-iku.js?v=2026-11-16-7f86d4';
+import { KATEGORI_TEMUAN, STATUS_TEMUAN, PIHAK_TEMUAN, ringkasTemuan, htmlRingkasTemuan } from './temuan-ami.js?v=2026-11-16-7f86d4';
+import { bacaRekapSPM, rencanaImporSPM, tsDariTanggal, labelTS, ringkasLembar, picProdi } from './standar-spmi.js?v=2026-11-16-7f86d4';
+import { SHEETJS } from './nilai-cpl.js?v=2026-11-16-7f86d4';
+import { bacaCSV, normKur, normCpl, KOLOM_IMPOR, CONTOH_IMPOR, rencanaImpor, sebaranCPL, htmlSebaran } from './kurikulum-cpl.js?v=2026-11-16-7f86d4';
+import { htmlContoh, pasangContoh, JENIS_BUKTI_KS } from './manfaat-kerjasama.js?v=2026-11-16-7f86d4';
+import { infoJenis } from './rencana-bukti.js?v=2026-11-16-7f86d4';
+import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-16-7f86d4';
+import { nomorButir, htmlTautanButir } from './tautan-butir.js?v=2026-11-16-7f86d4';
+import { htmlSaran } from './saran-bukti.js?v=2026-11-16-7f86d4';
+import { tautanBerkas, privatkanLama, adalahPrivat } from './tautan-privat.js?v=2026-11-16-7f86d4';
+import { unggahLKD, buangLKD, bukaLKD, pendidikanTotal, pendidikanPS } from './bkd.js?v=2026-11-16-7f86d4';
 
 /* =====================================================================
    DATA PRODI — data kuantitatif LKPS diisi admin di situs (keputusan
@@ -2264,7 +2264,8 @@ async function bukaPustaka(){
         <p class="ket" id="pk_ket"></p></div></div>` : ''}
     <div class="aksi"><span class="msg" id="msg"></span></div>
     <div class="gulir" id="daftar"><p class="kosong">Memuat…</p></div>
-    <h3 class="sub-h">Pengumuman teks untuk mahasiswa</h3><div id="pengumuman"><p class="kosong">Memuat…</p></div>
+    <p class="ket">Pengumuman teks, tanya-jawab, dan kotak masuk pertanyaan/masukan mahasiswa ada di
+      <a href="kelola-mahasiswa.html">Wilayah mahasiswa (kelola)</a>.</p>
     <h3 class="sub-h">Privatkan berkas lama</h3>
     <p class="ket">Berkas jenis privat yang terlanjur punya tautan publik dipindah ke folder privat, tautan publiknya dicabut,
       dan catatannya menuju halaman kata sandi.</p>
@@ -2295,106 +2296,7 @@ async function bukaPustaka(){
     ['pk_jenis', 'pk_tahun', 'pk_judul'].forEach(i => { $(i).oninput = ket; });
     ket();
   }
-  await Promise.all([gambarPustaka(), pasangPengumuman($('pengumuman'))]);
-}
-
-// Pengumuman teks untuk mahasiswa, tanpa berkas (pemilik 2026-11-16; 77-patch-pengumuman-teks.sql).
-// Tampil di halaman publik berkas-mahasiswa.html sampai tanggal "berlaku sampai".
-let PENG = [], PENG_UBAH = null;
-const hariIni = () => new Date().toLocaleDateString('sv');   // YYYY-MM-DD waktu setempat
-
-async function pasangPengumuman(box){
-  if (!box) return;
-  const { data, error } = await sb.from('pengumuman_mahasiswa')
-    .select('id,judul,isi,berlaku_sampai,diperbarui').order('diperbarui', { ascending: false });
-  if (error) {
-    box.innerHTML = '<p class="kosong">Tabel <code>pengumuman_mahasiswa</code> belum bisa dibaca. Jalankan supabase/77-patch-pengumuman-teks.sql.</p>';
-    return;
-  }
-  PENG = data || [];
-  box.innerHTML = `<p class="ket">Pengumuman singkat tanpa berkas, mis. batas pendaftaran sidang TA. Tampil paling atas di halaman publik
-      <a href="berkas-mahasiswa.html" target="_blank" rel="noopener">Berkas mahasiswa</a> sampai tanggal berlaku, lalu hilang sendiri.
-      Alamat https://… di isi menjadi tautan.</p>
-    <div class="grid">
-      <div class="fld lebar"><label for="pg_judul">Judul</label><input type="text" id="pg_judul" maxlength="200"
-        placeholder="Batas pendaftaran Sidang TA Semester Ganjil 2026/2027"></div>
-      <div class="fld lebar"><label for="pg_isi">Isi</label><textarea id="pg_isi" rows="4" maxlength="4000"></textarea></div>
-      <div class="fld"><label for="pg_berlaku">Berlaku sampai (kosongkan bila tanpa batas)</label><input type="date" id="pg_berlaku"></div>
-    </div>
-    <div class="aksi"><button type="button" class="btn" id="pg_simpan">Terbitkan</button>
-      <button type="button" class="btn ghost" id="pg_batal" hidden>Batal ubah</button><span class="msg" id="pg_msg"></span></div>
-    <div class="gulir" id="pg_daftar"></div>`;
-  $('pg_simpan').onclick = simpanPengumuman;
-  $('pg_batal').onclick = () => isiFormPengumuman(null);
-  $('pg_daftar').onclick = e => {
-    const u = e.target.closest('[data-pg-ubah]');
-    if (u) return isiFormPengumuman(PENG.find(p => p.id === +u.dataset.pgUbah));
-    const h = e.target.closest('[data-pg-hapus]');
-    if (h) return hapusPengumuman(+h.dataset.pgHapus);
-  };
-  gambarPengumuman();
-}
-
-function pesanPengumuman(kelas, teks){
-  const m = $('pg_msg');
-  if (m) { m.className = 'msg' + (kelas ? ' ' + kelas : ''); m.textContent = teks; }
-}
-
-function gambarPengumuman(){
-  const box = $('pg_daftar');
-  if (!box) return;
-  if (!PENG.length) { box.innerHTML = '<p class="kosong">Belum ada pengumuman teks.</p>'; return; }
-  const kini = hariIni(), tgl = s => String(s || '').slice(0, 10).split('-').reverse().join('/');
-  box.innerHTML = `<table class="t"><thead><tr><th>Judul</th><th>Isi</th><th>Berlaku s.d.</th><th>Diperbarui</th><th></th></tr></thead><tbody>${PENG.map(p => {
-    const lewat = p.berlaku_sampai && p.berlaku_sampai < kini;
-    return `<tr><td>${esc(p.judul)}</td><td style="white-space:pre-line">${esc(p.isi.length > 160 ? p.isi.slice(0, 160) + '…' : p.isi)}</td>
-      <td>${p.berlaku_sampai ? esc(tgl(p.berlaku_sampai)) : 'tanpa batas'}${lewat ? '<br><small class="ket">tidak tampil lagi</small>' : ''}</td>
-      <td>${esc(tgl(p.diperbarui))}</td>
-      <td><button type="button" class="btn ghost kecil" data-pg-ubah="${esc(p.id)}">Ubah</button>
-        <button type="button" class="btn bahaya kecil" data-pg-hapus="${esc(p.id)}">Hapus</button></td></tr>`;
-  }).join('')}</tbody></table>`;
-}
-
-function isiFormPengumuman(p){
-  PENG_UBAH = p ? p.id : null;
-  $('pg_judul').value = p ? p.judul : '';
-  $('pg_isi').value = p ? p.isi : '';
-  $('pg_berlaku').value = p ? (p.berlaku_sampai || '') : '';
-  $('pg_simpan').textContent = p ? 'Simpan perubahan' : 'Terbitkan';
-  $('pg_batal').hidden = !p;
-  pesanPengumuman('', p ? `Mengubah: ${p.judul}` : '');
-  if (p) $('pg_judul').focus();
-}
-
-async function simpanPengumuman(){
-  const judul = $('pg_judul').value.trim(), isi = $('pg_isi').value.trim(), berlaku = $('pg_berlaku').value || null;
-  if (!judul) return pesanPengumuman('buruk', 'Isi judul pengumuman.');
-  if (berlaku && berlaku < hariIni() && !confirm('Tanggal berlaku sudah lewat, jadi pengumuman ini tidak akan tampil. Tetap simpan?')) return;
-  const baris = { judul, isi, berlaku_sampai: berlaku, oleh: SAYA.email, diperbarui: new Date().toISOString() };
-  $('pg_simpan').disabled = true;
-  const { error } = PENG_UBAH
-    ? await sb.from('pengumuman_mahasiswa').update(baris).eq('id', PENG_UBAH)
-    : await sb.from('pengumuman_mahasiswa').insert(baris);
-  $('pg_simpan').disabled = false;
-  if (error) return pesanPengumuman('buruk', 'Gagal menyimpan: ' + error.message);
-  const ubah = !!PENG_UBAH;
-  const { data } = await sb.from('pengumuman_mahasiswa')
-    .select('id,judul,isi,berlaku_sampai,diperbarui').order('diperbarui', { ascending: false });
-  PENG = data || PENG;
-  isiFormPengumuman(null);
-  gambarPengumuman();
-  pesanPengumuman('ok', ubah ? 'Perubahan pengumuman tersimpan.' : 'Pengumuman terbit di halaman Berkas mahasiswa.');
-}
-
-async function hapusPengumuman(id){
-  const p = PENG.find(x => x.id === id);
-  if (!p || !confirm(`Hapus pengumuman "${p.judul}"? Pengumuman hilang dari halaman mahasiswa dan tidak bisa dikembalikan.`)) return;
-  const { error } = await sb.from('pengumuman_mahasiswa').delete().eq('id', id);
-  if (error) return pesanPengumuman('buruk', 'Gagal menghapus: ' + error.message);
-  PENG = PENG.filter(x => x.id !== id);
-  if (PENG_UBAH === id) isiFormPengumuman(null);
-  gambarPengumuman();
-  pesanPengumuman('ok', 'Pengumuman dihapus.');
+  await gambarPustaka();
 }
 
 // Pemakaian dokumen: baris Data prodi (lkps_bukti) dan butir (butir_bukti).

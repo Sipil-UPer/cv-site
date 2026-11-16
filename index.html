@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-16-05a43b">
+<link rel="stylesheet" href="tema.css?v=2026-11-16-7f86d4">
 <style>
   /* =================================================================
      PALET — sesuaikan dengan pedoman identitas resmi institusi bila ada.
@@ -56,6 +56,30 @@
   .cta2:hover{background:rgba(255,255,255,.12)}
   .cta2 span{font-family:var(--mono);font-size:16px;line-height:1}
   .cta-cat{font-size:12.5px;color:var(--biru-m3);margin-top:9px;max-width:236px;line-height:1.45}
+  /* Wilayah mahasiswa + pita pengumuman (pemilik 2026-11-16; patch 76-78) */
+  .cta-mhs{display:flex;align-items:center;gap:12px;margin-top:16px;text-decoration:none;
+           background:#fff;color:var(--biru);border:1px solid #fff;border-left:4px solid var(--merah);
+           border-radius:2px;padding:11px 16px 11px 14px;max-width:300px;transition:transform .15s, box-shadow .15s}
+  .cta-mhs:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(0,0,0,.22)}
+  .cta-mhs:focus-visible{outline:2px solid #fff;outline-offset:3px}
+  .cta-mhs svg{flex:none;color:var(--merah)}
+  .cta-mhs .t{flex:1;min-width:0}
+  .cta-mhs b{display:block;font-size:15px;font-weight:700}
+  .cta-mhs small{display:block;font-size:12px;color:var(--muted);margin-top:1px;line-height:1.35}
+  .cta-mhs .p{font-family:var(--mono);font-size:17px;line-height:1}
+  @media(prefers-reduced-motion:reduce){.cta-mhs{transition:none}.cta-mhs:hover{transform:none}}
+  .pita{background:var(--panel);border-bottom:1px solid var(--line)}
+  .pita[hidden]{display:none}
+  .pita-in{max-width:1040px;margin:0 auto;padding:9px 20px;display:flex;gap:6px 14px;align-items:baseline;flex-wrap:wrap;font-size:14px}
+  .pita .lbl{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#fff;
+             background:var(--merah);padding:2px 8px;border-radius:2px;flex:none}
+  .pita ul{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:4px 18px;flex:1;min-width:0}
+  .pita li{min-width:0;overflow-wrap:anywhere}
+  .pita a{color:var(--ink);text-decoration:none}
+  .pita a:hover{text-decoration:underline}
+  .pita .tgl{color:var(--muted);font-size:12.5px;margin-left:5px}
+  .pita .semua{color:var(--biru);font-weight:600;white-space:nowrap}
+  @media(max-width:600px){.pita li:nth-child(n+2){display:none}}   /* ponsel: hanya yang terbaru */
 
   /* angka utama — satu pita data, bukan kartu terpisah */
   .angka{display:flex;flex-wrap:wrap;margin-top:36px;
@@ -172,6 +196,8 @@
 </head>
 <body>
 
+<div class="pita" id="pita" hidden></div>
+
 <header class="hero">
   <div class="hero-in">
     <div class="hero-atas">
@@ -186,8 +212,12 @@
         <a class="cta" href="ruang-kerja.html">Masuk ruang kerja <span>&rarr;</span></a>
         <div class="cta-cat">Ruang kerja (input data, monitoring, akreditasi)
           khusus email yang didaftarkan prodi, sesuai perannya.</div>
-        <a class="cta2" href="berkas-mahasiswa.html" style="margin-top:12px">Berkas mahasiswa <span>&rarr;</span></a>
-        <div class="cta-cat">Pedoman dan pengumuman prodi (jadwal sidang TA, dll.), tanpa login.</div>
+        <a class="cta-mhs" href="berkas-mahasiswa.html">
+          <svg viewBox="0 0 24 24" width="30" height="30" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7"
+            stroke-linecap="round" stroke-linejoin="round"><path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c0 1.7 2.7 3 6 3s6-1.3 6-3v-5"/><path d="M22 9v6"/></svg>
+          <span class="t"><b>Wilayah mahasiswa</b><small>Pengumuman · berkas · tanya-jawab · masukan</small></span>
+          <span class="p">&rarr;</span></a>
+        <div class="cta-cat">Untuk mahasiswa, tanpa login.</div>
       </div>
     </div>
     <div class="angka" id="angka"></div>
@@ -198,7 +228,7 @@
 
 <main class="wrap" id="isi"></main>
 
-<script src="config.js?v=2026-11-16-05a43b"></script>
+<script src="config.js?v=2026-11-16-7f86d4"></script>
 <script>
 const N = n => new Intl.NumberFormat('id-ID').format(n);
 const esc = s => String(s ?? '').replace(/[&<>"']/g,c=>
@@ -207,6 +237,30 @@ const rapi = s => s ? String(s).replace(/_/g,' ') : '';
 const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
 
 let D = null;
+
+// Pita pengumuman (pemilik 2026-11-16): 3 pengumuman terbaru yang masih berlaku, teks (77) dan berkas
+// berjenis pengumuman (76). REST RPC langsung dengan kunci publik (header apikey, diuji 2026-11-16),
+// tanpa memuat pustaka Supabase di beranda. Gagal atau kosong -> pita tetap tersembunyi.
+function muatPita(){
+  if (!window.SB_URL || !window.SB_KEY) return;
+  const rpc = f => fetch(window.SB_URL + '/rest/v1/rpc/' + f, { method: 'POST',
+    headers: { apikey: window.SB_KEY, 'Content-Type': 'application/json' }, body: '{}' })
+    .then(r => r.ok ? r.json() : []).catch(() => []);
+  Promise.all([rpc('pengumuman_mahasiswa_aktif'), rpc('dokumen_mahasiswa')]).then(([teks, dok]) => {
+    const xs = [...(Array.isArray(teks) ? teks : []),
+                ...(Array.isArray(dok) ? dok : []).filter(d => d.jenis === 'pengumuman')]
+      .sort((a, b) => String(b.diperbarui).localeCompare(String(a.diperbarui)));
+    if (!xs.length) return;
+    const tgl = s => String(s || '').slice(0, 10).split('-').reverse().join('/');
+    const el = document.getElementById('pita');
+    el.innerHTML = `<div class="pita-in"><span class="lbl">Pengumuman</span><ul>${xs.slice(0, 3).map(x =>
+      `<li><a href="berkas-mahasiswa.html#pengumuman">${esc(x.judul || 'Pengumuman')}</a>${x.berlaku_sampai
+        ? `<span class="tgl">s.d. ${esc(tgl(x.berlaku_sampai))}</span>` : ''}</li>`).join('')}</ul>
+      <a class="semua" href="berkas-mahasiswa.html#pengumuman">${xs.length > 1 ? `Semua (${xs.length})` : 'Lihat'} &rarr;</a></div>`;
+    el.hidden = false;
+  });
+}
+muatPita();
 
 fetch('data.json?v=' + Date.now())
   .then(r => { if(!r.ok) throw new Error(r.status); return r.json(); })
@@ -394,7 +448,7 @@ function render(){
   ].filter(([, , href]) => !(window.FITUR_MATI || []).includes({ 'sdgs.html': 'sdgs', 'keahlian.html?tab=peta': 'kepakaran' }[href]))
    .map(([v,l,href])=>`<a href="${href}"><b>${N(v)}</b><span>${l}</span></a>`).join('');
   // Jumlah topik persis sama dengan keahlian.html (petaTopik, termasuk bidang keahlian).
-  import('./keahlian.js?v=2026-11-16-05a43b').then(m => {
+  import('./keahlian.js?v=2026-11-16-7f86d4').then(m => {
     const b = document.querySelector('#angka a[href^="keahlian.html"] b');
     // Dengan daftar baku (patch 61): topik baku yang sudah punya dosen (memilih atau berkarya).
     const B = m.daftarBaku(D), P = m.profilKeahlian(D);
@@ -402,7 +456,7 @@ function render(){
   }).catch(() => {});
 
   // Cari data publik (pemilik 2026-11-12): dosen, karya, mitra, halaman umum dari data.json.
-  import('./cari.js?v=2026-11-16-05a43b').then(m => {
+  import('./cari.js?v=2026-11-16-7f86d4').then(m => {
     const idx = m.indeksPublik(D, k => !(window.FITUR_MATI || []).includes(k));
     const kotak = document.getElementById('cariUmum'), panel = document.getElementById('hasilUmum');
     const e = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));

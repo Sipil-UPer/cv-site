@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Wilayah mahasiswa — Kinerja Program Studi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tema.css?v=2026-11-16-7f86d4">
+<link rel="stylesheet" href="kepala.css?v=2026-11-16-7f86d4">
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
+  .wrap{max-width:1040px;margin:0 auto;padding:18px 20px 80px}
+  .kosong, .ket{color:var(--muted)}
+  .ket{font-size:13px}
+  /* Kelola wilayah mahasiswa (pemilik 2026-11-16; 77, 78) */
+  .loncat{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 16px}
+  .loncat a{font-size:13.5px;text-decoration:none;border:1px solid var(--line);background:var(--panel);color:var(--biru);padding:6px 12px}
+  .loncat a:hover{border-color:var(--biru)}
+  .loncat .n{font-family:var(--mono);font-size:11.5px;background:var(--merah);color:#fff;border-radius:9px;padding:1px 6px;margin-left:5px}
+  .kartu{background:var(--panel);border:1px solid var(--line);padding:14px 18px;margin-bottom:16px;scroll-margin-top:12px}
+  .kartu h2{font-size:17px;margin:0 0 8px;color:var(--biru)}
+  .b{font:12px/1.4 var(--sans);padding:4px 9px;border:1px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer;margin:0 3px 3px 0;text-decoration:none;display:inline-block}
+  .b:hover{border-color:var(--biru);color:var(--biru)}
+  .b.utama{background:var(--biru);color:#fff;border-color:var(--biru);font-size:14px;padding:7px 16px}
+  .b.bahaya{color:var(--merah)}
+  .b:disabled{opacity:.55;cursor:default}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px 14px;margin:8px 0}
+  .grid label, .lebar{font-size:13px;color:var(--muted);display:flex;flex-direction:column;gap:3px}
+  .lebar{grid-column:1/-1}
+  .grid input, .grid select, textarea, .saring select{font:inherit;font-size:14px;padding:5px 7px;border:1px solid var(--line);background:var(--panel);color:var(--ink)}
+  textarea{width:100%;min-height:70px;resize:vertical}
+  .cek{flex-direction:row !important;align-items:center;gap:6px !important;color:var(--ink) !important}
+  .aksi{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:8px}
+  .msg{font-size:13.5px} .msg.buruk{color:var(--merah)} .msg.ok{color:var(--hijau)}
+  .saring{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:4px 0 10px;font-size:13px;color:var(--muted)}
+  .item{border:1px solid var(--line-soft);border-left:4px solid var(--line);padding:10px 14px;margin:8px 0;background:var(--bg)}
+  .item.baru{border-left-color:var(--merah)}
+  .item.ditindaklanjuti{border-left-color:var(--kuning, #c9a227)}
+  .item.selesai{border-left-color:var(--hijau)}
+  .item .kepala{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:baseline;font-size:12.5px;color:var(--muted)}
+  .item .jenis{font-weight:600;color:var(--biru);text-transform:uppercase;letter-spacing:.05em;font-size:11.5px}
+  .item .isi{white-space:pre-line;margin:6px 0;overflow-wrap:anywhere}
+  .item textarea{min-height:48px;font-size:13.5px}
+  .item .baris{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:6px}
+  .item select{font:inherit;font-size:13px;padding:3px 6px;border:1px solid var(--line);background:var(--panel);color:var(--ink)}
+  h3.topik{font-size:14px;margin:16px 0 4px;color:var(--ink)}
+  .faq{border-top:1px solid var(--line-soft);padding:8px 0}
+  .faq .t{font-weight:600}
+  .faq .j{white-space:pre-line;color:var(--ink);font-size:14px;margin-top:3px;overflow-wrap:anywhere}
+  .faq.sembunyi .t, .faq.sembunyi .j{opacity:.5}
+  table.ds{width:100%;border-collapse:collapse;font-size:13.5px}
+  table.ds th{text-align:left;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--line);padding:5px 8px}
+  table.ds td{padding:7px 8px;border-bottom:1px solid var(--line-soft);vertical-align:top}
+  .gulir{overflow-x:auto}
+</style>
+</head>
+<body>
+<header class="hero"><div class="hero-in">
+  <div class="hero-inst" data-identitas></div>
+  <h1>Wilayah mahasiswa</h1>
+  <div class="sub" id="hSub">Memuat…</div>
+</div></header>
+<main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
+<script src="config.js?v=2026-11-16-7f86d4"></script>
+<script>
+// Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
+addEventListener('error', function (e) {
+  if (document.getElementById('galat-muat')) return;
+  var d = document.createElement('div');
+  d.id = 'galat-muat';
+  d.style.cssText = 'margin:16px;padding:12px 14px;border:1px solid var(--merah);' +
+    'background:var(--merah-m3);color:var(--ink);font:14px/1.5 system-ui,sans-serif';
+  d.textContent = 'Halaman gagal dimuat: ' + (e.message || 'galat skrip') +
+    '. Tekan Ctrl+Shift+R untuk memuat ulang tanpa cache; bila tetap muncul, kirim pesan ini ke admin.';
+  document.body.insertBefore(d, document.body.firstChild);
+});
+</script>
+<script type="module">
+// Kelola wilayah mahasiswa (pemilik 2026-11-16), khusus admin prodi:
+//   kotak masuk pertanyaan/masukan (78), tanya-jawab yang disusun admin (78),
+//   pengumuman teks (77, dipindah dari Data prodi > Dokumen).
+// Berkas pustaka untuk mahasiswa tetap dicentang di Data prodi > Dokumen (76).
+// Halaman publiknya: berkas-mahasiswa.html.
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+import { gerbang } from './menu.js?v=2026-11-16-7f86d4';
+
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const $ = id => document.getElementById(id);
+const sb = createClient(window.SB_URL, window.SB_KEY);
+const tgl = s => String(s || '').slice(0, 10).split('-').reverse().join('/');
+const jam = s => s ? new Date(s).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' }) : '';
+const hariIni = () => new Date().toLocaleDateString('sv');   // YYYY-MM-DD waktu setempat
+const STATUS = { baru: 'Baru', ditindaklanjuti: 'Ditindaklanjuti', selesai: 'Selesai' };
+const JENIS = { tanya: 'Pertanyaan', masukan: 'Masukan' };
+
+let SAYA = null, MASUK = [], FAQ = [], PENG = [];
+let GAGAL = { masuk: '', faq: '', peng: '' };
+let SARING = { status: 'aktif', jenis: '' };
+let FAQ_UBAH = null, FAQ_SUMBER = null, PENG_UBAH = null;
+
+function pesan(id, kelas, teks){
+  const m = $(id);
+  if (m) { m.className = 'msg' + (kelas ? ' ' + kelas : ''); m.textContent = teks; }
+}
+
+async function muat(){
+  const [m, f, p] = await Promise.all([
+    sb.from('masukan_mahasiswa').select('*').order('dikirim', { ascending: false }).limit(1000),
+    sb.from('tanya_jawab').select('*').order('topik', { nullsFirst: false }).order('urutan').order('id'),
+    sb.from('pengumuman_mahasiswa').select('id,judul,isi,berlaku_sampai,diperbarui').order('diperbarui', { ascending: false })]);
+  GAGAL = { masuk: m.error?.message || '', faq: f.error?.message || '', peng: p.error?.message || '' };
+  MASUK = m.data || []; FAQ = f.data || []; PENG = p.data || [];
+}
+
+function kerangka(){
+  const nBaru = MASUK.filter(x => x.status === 'baru').length;
+  $('isi').innerHTML = `
+    <nav class="loncat">
+      <a href="#kotak">Kotak masuk${nBaru ? `<span class="n">${nBaru}</span>` : ''}</a>
+      <a href="#faq">Tanya-jawab</a>
+      <a href="#pengumuman">Pengumuman teks</a>
+      <a href="data-prodi.html?tab=dokumen">Berkas untuk mahasiswa (Data prodi › Dokumen)</a>
+      <a href="berkas-mahasiswa.html" target="_blank" rel="noopener">Lihat halaman mahasiswa ↗</a>
+    </nav>
+    <section class="kartu" id="kotak"><h2>Kotak masuk pertanyaan dan masukan</h2>
+      <p class="ket">Kiriman mahasiswa dari halaman Wilayah mahasiswa. Hanya admin yang bisa membaca. Nama dan email boleh kosong;
+        bila ada email, balas lewat tombol <b>Balas lewat email</b>. Pertanyaan yang sering muncul bisa dijadikan Tanya-jawab publik
+        (tanpa nama penanya).</p>
+      <div id="kotak_isi"></div></section>
+    <section class="kartu" id="faq"><h2>Tanya-jawab (pertanyaan yang sering ditanya)</h2>
+      <p class="ket">Disusun admin; yang dicentang <b>Tampil</b> muncul di halaman mahasiswa, dikelompokkan per topik
+        (urutan kecil lebih atas). Alamat https://… di jawaban menjadi tautan.</p>
+      <div id="faq_isi"></div></section>
+    <section class="kartu" id="pengumuman"><h2>Pengumuman teks</h2>
+      <p class="ket">Pengumuman singkat tanpa berkas. Tampil paling atas di halaman mahasiswa dan di pita beranda sampai tanggal berlaku,
+        lalu hilang sendiri. Pengumuman berupa berkas (PDF jadwal sidang, dll.) diunggah di
+        <a href="data-prodi.html?tab=dokumen">Data prodi › Dokumen</a> dengan jenis <i>Pengumuman untuk mahasiswa</i>.</p>
+      <div id="peng_isi"></div></section>`;
+  gambarKotak(); gambarFaq(); gambarPeng();
+}
+
+// ---------------------------------------------------------------- kotak masuk
+function gambarKotak(){
+  const box = $('kotak_isi');
+  if (GAGAL.masuk) { box.innerHTML = `<p class="kosong">Tabel belum bisa dibaca (${esc(GAGAL.masuk)}). Jalankan supabase/78-patch-tanya-masukan-mahasiswa.sql.</p>`; return; }
+  const xs = MASUK.filter(x => (SARING.status === 'semua' || (SARING.status === 'aktif' ? x.status !== 'selesai' : x.status === SARING.status))
+    && (!SARING.jenis || x.jenis === SARING.jenis));
+  const n = s => MASUK.filter(x => x.status === s).length;
+  box.innerHTML = `<div class="saring">Tampilkan
+      <select id="sr_status" aria-label="Saring status">
+        <option value="aktif">Belum selesai (${n('baru') + n('ditindaklanjuti')})</option>
+        ${Object.entries(STATUS).map(([k, v]) => `<option value="${k}">${v} (${n(k)})</option>`).join('')}
+        <option value="semua">Semua (${MASUK.length})</option></select>
+      <select id="sr_jenis" aria-label="Saring jenis"><option value="">Pertanyaan dan masukan</option>
+        <option value="tanya">Pertanyaan saja</option><option value="masukan">Masukan saja</option></select>
+      <span class="msg" id="kotak_msg"></span></div>
+    ${xs.length ? xs.map(itemKotak).join('') : '<p class="kosong">Tidak ada kiriman.</p>'}`;
+  $('sr_status').value = SARING.status; $('sr_jenis').value = SARING.jenis;
+  $('sr_status').onchange = e => { SARING.status = e.target.value; gambarKotak(); };
+  $('sr_jenis').onchange = e => { SARING.jenis = e.target.value; gambarKotak(); };
+}
+
+function itemKotak(x){
+  const siapa = [x.nama, x.email].filter(Boolean).join(' · ') || 'tanpa nama';
+  const balas = x.email ? `<a class="b" href="mailto:${esc(x.email)}?subject=${encodeURIComponent('Balasan ' + (x.jenis === 'tanya' ? 'pertanyaan' : 'masukan') + ' Anda')}&body=${encodeURIComponent('\n\n---\nKiriman Anda (' + tgl(x.dikirim) + '):\n' + x.isi)}">Balas lewat email</a>` : '';
+  return `<div class="item ${esc(x.status)}" data-masuk="${x.id}">
+    <div class="kepala"><span class="jenis">${JENIS[x.jenis]}</span><span>${esc(jam(x.dikirim))}</span><span>${esc(siapa)}</span>
+      ${x.diubah ? `<span>diubah ${esc(jam(x.diubah))}${x.diubah_oleh ? ' oleh ' + esc(x.diubah_oleh) : ''}</span>` : ''}</div>
+    <div class="isi">${esc(x.isi)}</div>
+    <textarea data-catatan aria-label="Catatan tindak lanjut" placeholder="Catatan tindak lanjut (hanya admin)">${esc(x.catatan || '')}</textarea>
+    <div class="baris"><select data-status aria-label="Status">${Object.entries(STATUS).map(([k, v]) =>
+        `<option value="${k}"${k === x.status ? ' selected' : ''}>${v}</option>`).join('')}</select>
+      <button type="button" class="b" data-simpan-masuk>Simpan</button>
+      ${balas}
+      <button type="button" class="b" data-jadi-faq>Jadikan Tanya-jawab</button>
+      <button type="button" class="b bahaya" data-hapus-masuk>Hapus</button></div></div>`;
+}
+
+async function simpanMasuk(el){
+  const id = +el.dataset.masuk, x = MASUK.find(y => y.id === id);
+  const isi = { status: el.querySelector('[data-status]').value, catatan: el.querySelector('[data-catatan]').value.trim() || null,
+    diubah: new Date().toISOString(), diubah_oleh: SAYA.email };
+  const { error } = await sb.from('masukan_mahasiswa').update(isi).eq('id', id);
+  if (error) return pesan('kotak_msg', 'buruk', 'Gagal menyimpan: ' + error.message);
+  Object.assign(x, isi);
+  gambarKotak(); perbaruiLencana();
+  pesan('kotak_msg', 'ok', `Tersimpan: ${STATUS[isi.status]}.`);
+}
+
+async function hapusMasuk(el){
+  const id = +el.dataset.masuk;
+  if (!confirm('Hapus kiriman ini? Tidak bisa dikembalikan. (Tanya-jawab yang dibuat darinya tetap ada.)')) return;
+  const { error } = await sb.from('masukan_mahasiswa').delete().eq('id', id);
+  if (error) return pesan('kotak_msg', 'buruk', 'Gagal menghapus: ' + error.message);
+  MASUK = MASUK.filter(y => y.id !== id);
+  gambarKotak(); perbaruiLencana();
+  pesan('kotak_msg', 'ok', 'Kiriman dihapus.');
+}
+
+function perbaruiLencana(){
+  const a = document.querySelector('.loncat a[href="#kotak"]'), n = MASUK.filter(x => x.status === 'baru').length;
+  if (a) a.innerHTML = 'Kotak masuk' + (n ? `<span class="n">${n}</span>` : '');
+}
+
+// ---------------------------------------------------------------- tanya-jawab
+function gambarFaq(){
+  const box = $('faq_isi');
+  if (GAGAL.faq) { box.innerHTML = `<p class="kosong">Tabel belum bisa dibaca (${esc(GAGAL.faq)}). Jalankan supabase/78-patch-tanya-masukan-mahasiswa.sql.</p>`; return; }
+  const topik = [...new Set(FAQ.map(f => f.topik).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'id'));
+  const grup = new Map();
+  FAQ.forEach(f => { const k = f.topik || ''; if (!grup.has(k)) grup.set(k, []); grup.get(k).push(f); });
+  const urutTopik = [...grup.keys()].sort((a, b) => (a === '') - (b === '') || a.localeCompare(b, 'id'));
+  box.innerHTML = `<div class="grid">
+      <label>Topik (opsional)<input type="text" id="fq_topik" list="fq_topik_daftar" maxlength="80" placeholder="Tugas Akhir">
+        <datalist id="fq_topik_daftar">${topik.map(t => `<option value="${esc(t)}">`).join('')}</datalist></label>
+      <label>Urutan (kecil = lebih atas)<input type="number" id="fq_urutan" value="100" min="0" max="9999"></label>
+      <label class="cek"><input type="checkbox" id="fq_tampil" checked> Tampil di halaman mahasiswa</label>
+      <label class="lebar">Pertanyaan<input type="text" id="fq_tanya" maxlength="1000" placeholder="Kapan batas pendaftaran sidang Tugas Akhir?"></label>
+      <label class="lebar">Jawaban<textarea id="fq_jawab" maxlength="6000" rows="4"></textarea></label>
+    </div>
+    <div class="aksi"><button type="button" class="b utama" id="fq_simpan">Tambah ke Tanya-jawab</button>
+      <button type="button" class="b" id="fq_batal" hidden>Batal</button><span class="msg" id="fq_msg"></span></div>
+    <div id="fq_daftar">${FAQ.length ? urutTopik.map(k => `<h3 class="topik">${esc(k || 'Tanpa topik')}</h3>${grup.get(k).map(f => `
+      <div class="faq${f.tampil ? '' : ' sembunyi'}" data-faq="${f.id}">
+        <div class="t">${esc(f.pertanyaan)} <span class="ket">· urutan ${esc(f.urutan)}${f.tampil ? '' : ' · disembunyikan'}</span></div>
+        <div class="j">${esc(f.jawaban)}</div>
+        <div class="aksi"><button type="button" class="b" data-faq-ubah>Ubah</button>
+          <button type="button" class="b" data-faq-tampil>${f.tampil ? 'Sembunyikan' : 'Tampilkan'}</button>
+          <button type="button" class="b bahaya" data-faq-hapus>Hapus</button></div></div>`).join('')}`).join('')
+      : '<p class="kosong">Belum ada tanya-jawab.</p>'}</div>`;
+  $('fq_simpan').onclick = simpanFaq;
+  $('fq_batal').onclick = () => isiFormFaq(null);
+}
+
+function isiFormFaq(f, dari){
+  FAQ_UBAH = f?.id || null;
+  FAQ_SUMBER = dari?.id || null;
+  $('fq_topik').value = f?.topik || '';
+  $('fq_urutan').value = f?.urutan ?? 100;
+  $('fq_tampil').checked = f ? !!f.tampil : true;
+  $('fq_tanya').value = f?.pertanyaan || dari?.isi || '';
+  $('fq_jawab').value = f?.jawaban || '';
+  $('fq_simpan').textContent = FAQ_UBAH ? 'Simpan perubahan' : 'Tambah ke Tanya-jawab';
+  $('fq_batal').hidden = !FAQ_UBAH && !FAQ_SUMBER;
+  pesan('fq_msg', '', FAQ_UBAH ? 'Mengubah tanya-jawab.' : FAQ_SUMBER
+    ? 'Disalin dari kotak masuk. Sunting pertanyaannya (buang nama, NIM, atau detail pribadi), lalu tulis jawabannya.' : '');
+  if (f || dari) { $('faq').scrollIntoView({ behavior: 'smooth' }); $(FAQ_SUMBER ? 'fq_tanya' : 'fq_topik').focus({ preventScroll: true }); }
+}
+
+async function simpanFaq(){
+  const baris = { topik: $('fq_topik').value.trim() || null, urutan: parseInt($('fq_urutan').value, 10) || 0,
+    tampil: $('fq_tampil').checked, pertanyaan: $('fq_tanya').value.trim(), jawaban: $('fq_jawab').value.trim(),
+    oleh: SAYA.email, diperbarui: new Date().toISOString() };
+  if (baris.pertanyaan.length < 3) return pesan('fq_msg', 'buruk', 'Isi pertanyaannya.');
+  if (!baris.jawaban) return pesan('fq_msg', 'buruk', 'Isi jawabannya.');
+  if (!FAQ_UBAH && FAQ_SUMBER) baris.sumber_id = FAQ_SUMBER;
+  $('fq_simpan').disabled = true;
+  const { error } = FAQ_UBAH ? await sb.from('tanya_jawab').update(baris).eq('id', FAQ_UBAH)
+    : await sb.from('tanya_jawab').insert(baris);
+  $('fq_simpan').disabled = false;
+  if (error) return pesan('fq_msg', 'buruk', 'Gagal menyimpan: ' + error.message);
+  const ubah = !!FAQ_UBAH, sumber = FAQ_SUMBER;
+  // Kiriman asal ditandai selesai bila masih baru.
+  if (sumber) {
+    const x = MASUK.find(y => y.id === sumber);
+    if (x && x.status === 'baru') {
+      const isi = { status: 'selesai', catatan: [x.catatan, 'Dijadikan Tanya-jawab.'].filter(Boolean).join('\n'),
+        diubah: new Date().toISOString(), diubah_oleh: SAYA.email };
+      if (!(await sb.from('masukan_mahasiswa').update(isi).eq('id', x.id)).error) Object.assign(x, isi);
+    }
+  }
+  await muat();
+  gambarFaq(); gambarKotak(); perbaruiLencana();
+  pesan('fq_msg', 'ok', ubah ? 'Perubahan tersimpan.' : baris.tampil ? 'Ditambahkan dan tampil di halaman mahasiswa.' : 'Ditambahkan (disembunyikan).');
+}
+
+async function tampilFaq(id){
+  const f = FAQ.find(x => x.id === id);
+  const { error } = await sb.from('tanya_jawab').update({ tampil: !f.tampil }).eq('id', id);
+  if (error) return pesan('fq_msg', 'buruk', 'Gagal: ' + error.message);
+  f.tampil = !f.tampil;
+  gambarFaq();
+  pesan('fq_msg', 'ok', f.tampil ? 'Tampil di halaman mahasiswa.' : 'Disembunyikan dari halaman mahasiswa.');
+}
+
+async function hapusFaq(id){
+  const f = FAQ.find(x => x.id === id);
+  if (!f || !confirm(`Hapus tanya-jawab "${f.pertanyaan}"? Tidak bisa dikembalikan; pilih Sembunyikan bila hanya ingin menyembunyikan.`)) return;
+  const { error } = await sb.from('tanya_jawab').delete().eq('id', id);
+  if (error) return pesan('fq_msg', 'buruk', 'Gagal menghapus: ' + error.message);
+  FAQ = FAQ.filter(x => x.id !== id);
+  gambarFaq();
+  pesan('fq_msg', 'ok', 'Tanya-jawab dihapus.');
+}
+
+// ---------------------------------------------------------------- pengumuman teks (77)
+function gambarPeng(){
+  const box = $('peng_isi');
+  if (GAGAL.peng) { box.innerHTML = `<p class="kosong">Tabel belum bisa dibaca (${esc(GAGAL.peng)}). Jalankan supabase/77-patch-pengumuman-teks.sql.</p>`; return; }
+  const kini = hariIni();
+  box.innerHTML = `<div class="grid">
+      <label class="lebar">Judul<input type="text" id="pg_judul" maxlength="200" placeholder="Batas pendaftaran Sidang TA Semester Ganjil 2026/2027"></label>
+      <label class="lebar">Isi (alamat https://… menjadi tautan)<textarea id="pg_isi" rows="4" maxlength="4000"></textarea></label>
+      <label>Berlaku sampai (kosongkan bila tanpa batas)<input type="date" id="pg_berlaku"></label>
+    </div>
+    <div class="aksi"><button type="button" class="b utama" id="pg_simpan">Terbitkan</button>
+      <button type="button" class="b" id="pg_batal" hidden>Batal ubah</button><span class="msg" id="pg_msg"></span></div>
+    <div class="gulir">${PENG.length ? `<table class="ds"><thead><tr><th>Judul</th><th>Isi</th><th>Berlaku s.d.</th><th>Diperbarui</th><th></th></tr></thead><tbody>${PENG.map(p => {
+      const lewat = p.berlaku_sampai && p.berlaku_sampai < kini;
+      return `<tr data-peng="${p.id}"><td>${esc(p.judul)}</td><td style="white-space:pre-line">${esc(p.isi.length > 160 ? p.isi.slice(0, 160) + '…' : p.isi)}</td>
+        <td>${p.berlaku_sampai ? esc(tgl(p.berlaku_sampai)) : 'tanpa batas'}${lewat ? '<br><small class="ket">tidak tampil lagi</small>' : ''}</td>
+        <td>${esc(tgl(p.diperbarui))}</td>
+        <td><button type="button" class="b" data-peng-ubah>Ubah</button><button type="button" class="b bahaya" data-peng-hapus>Hapus</button></td></tr>`;
+    }).join('')}</tbody></table>` : '<p class="kosong">Belum ada pengumuman teks.</p>'}</div>`;
+  $('pg_simpan').onclick = simpanPeng;
+  $('pg_batal').onclick = () => isiFormPeng(null);
+}
+
+function isiFormPeng(p){
+  PENG_UBAH = p ? p.id : null;
+  $('pg_judul').value = p ? p.judul : '';
+  $('pg_isi').value = p ? p.isi : '';
+  $('pg_berlaku').value = p ? (p.berlaku_sampai || '') : '';
+  $('pg_simpan').textContent = p ? 'Simpan perubahan' : 'Terbitkan';
+  $('pg_batal').hidden = !p;
+  pesan('pg_msg', '', p ? `Mengubah: ${p.judul}` : '');
+  if (p) $('pg_judul').focus();
+}
+
+async function simpanPeng(){
+  const judul = $('pg_judul').value.trim(), isi = $('pg_isi').value.trim(), berlaku = $('pg_berlaku').value || null;
+  if (!judul) return pesan('pg_msg', 'buruk', 'Isi judul pengumuman.');
+  if (berlaku && berlaku < hariIni() && !confirm('Tanggal berlaku sudah lewat, jadi pengumuman ini tidak akan tampil. Tetap simpan?')) return;
+  const baris = { judul, isi, berlaku_sampai: berlaku, oleh: SAYA.email, diperbarui: new Date().toISOString() };
+  $('pg_simpan').disabled = true;
+  const { error } = PENG_UBAH ? await sb.from('pengumuman_mahasiswa').update(baris).eq('id', PENG_UBAH)
+    : await sb.from('pengumuman_mahasiswa').insert(baris);
+  $('pg_simpan').disabled = false;
+  if (error) return pesan('pg_msg', 'buruk', 'Gagal menyimpan: ' + error.message);
+  const ubah = !!PENG_UBAH;
+  await muat();
+  gambarPeng();
+  pesan('pg_msg', 'ok', ubah ? 'Perubahan pengumuman tersimpan.' : 'Pengumuman terbit di halaman mahasiswa.');
+}
+
+async function hapusPeng(id){
+  const p = PENG.find(x => x.id === id);
+  if (!p || !confirm(`Hapus pengumuman "${p.judul}"? Pengumuman hilang dari halaman mahasiswa dan tidak bisa dikembalikan.`)) return;
+  const { error } = await sb.from('pengumuman_mahasiswa').delete().eq('id', id);
+  if (error) return pesan('pg_msg', 'buruk', 'Gagal menghapus: ' + error.message);
+  PENG = PENG.filter(x => x.id !== id);
+  gambarPeng();
+  pesan('pg_msg', 'ok', 'Pengumuman dihapus.');
+}
+
+// Satu pendengar klik untuk ketiga bagian.
+$('isi').addEventListener('click', e => {
+  const t = e.target;
+  const m = t.closest('[data-masuk]');
+  if (m && t.closest('[data-simpan-masuk]')) return simpanMasuk(m);
+  if (m && t.closest('[data-hapus-masuk]')) return hapusMasuk(m);
+  if (m && t.closest('[data-jadi-faq]')) return isiFormFaq(null, MASUK.find(x => x.id === +m.dataset.masuk));
+  const f = t.closest('[data-faq]');
+  if (f && t.closest('[data-faq-ubah]')) return isiFormFaq(FAQ.find(x => x.id === +f.dataset.faq));
+  if (f && t.closest('[data-faq-tampil]')) return tampilFaq(+f.dataset.faq);
+  if (f && t.closest('[data-faq-hapus]')) return hapusFaq(+f.dataset.faq);
+  const p = t.closest('[data-peng]');
+  if (p && t.closest('[data-peng-ubah]')) return isiFormPeng(PENG.find(x => x.id === +p.dataset.peng));
+  if (p && t.closest('[data-peng-hapus]')) return hapusPeng(+p.dataset.peng);
+});
+
+async function mulai(){
+  SAYA = await gerbang(sb);
+  if (!SAYA) return;
+  $('hSub').textContent = `Masuk sebagai ${SAYA.nama}`;
+  if (SAYA.peran !== 'admin') { $('isi').innerHTML = '<p class="kosong">Halaman ini khusus admin prodi.</p>'; return; }
+  await muat();
+  kerangka();
+  if (location.hash) document.querySelector(location.hash)?.scrollIntoView();
+}
+mulai().catch(e => { $('isi').innerHTML = `<p class="kosong">Gagal memuat: ${esc(e.message)}</p>`; });
+</script>
+</body>
+</html>

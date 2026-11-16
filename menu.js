@@ -1,4 +1,4 @@
-import { dosenLogin } from './dosen-login.js?v=2026-11-16-05a43b';
+import { dosenLogin } from './dosen-login.js?v=2026-11-16-7f86d4';
 // Menu bersama ruang kerja (pemilik 2026-11-04).
 //
 // Situs dibagi dua:
@@ -19,7 +19,7 @@ const penyusun = s => admin(s) || (!!s.tim_penyusun && s.peran !== 'asesor');
 // Asesor, dan pimpinan yang bukan DTPS prodi ini (aktif=false), tidak mengisi karya.
 const isiKarya = s => s.peran !== 'asesor' && !(s.peran === 'pimpinan' && !s.aktif);
 
-import { halamanAktif } from './fitur.js?v=2026-11-16-05a43b';
+import { halamanAktif } from './fitur.js?v=2026-11-16-7f86d4';
 
 export const MODUL = [
   // Susunan modul (pemilik 2026-11-12): isian dosen, operasional prodi, dan fungsi admin dipisah.
@@ -53,6 +53,9 @@ export const MODUL = [
       ket: 'Panggilan hibah dan proposal tim: tenggat, status, dana; didanai menjadi draf karya.' },
     { href: 'kelola-survei.html', judul: 'Survei kepuasan', boleh: admin,
       ket: 'Survei anonim mahasiswa, dosen, tendik, mitra, pengguna lulusan: buat, bagikan tautan, baca hasil.' },
+    // Wilayah mahasiswa (77, 78; pemilik 2026-11-16): pengumuman teks, tanya-jawab, kotak masuk pertanyaan/masukan.
+    { href: 'kelola-mahasiswa.html', judul: 'Wilayah mahasiswa', boleh: admin,
+      ket: 'Pengumuman, tanya-jawab yang sering ditanya, dan kotak masuk pertanyaan/masukan mahasiswa.' },
     { href: 'pengingat.html', judul: 'Pengingat', boleh: admin,
       ket: 'Kirim pengingat email (templat bisa disimpan): pembaruan karya dan profil, BKD, karya perlu diperbaiki, bukti, hibah, tindak lanjut.' },
   ]},
@@ -256,7 +259,7 @@ export async function pasangMenu(sb){
   // Pencarian menyeluruh (pemilik 2026-11-12; cari-ui.js, cari.js): dimuat saat pertama dipakai.
   const kotak = nav.querySelector('.rk-cari input');
   let siapCari = null;
-  const muatCari = () => siapCari || (siapCari = import('./cari-ui.js?v=2026-11-16-05a43b').then(m =>
+  const muatCari = () => siapCari || (siapCari = import('./cari-ui.js?v=2026-11-16-7f86d4').then(m =>
     m.pasangCari(kotak, { sb, saya: u.saya, modul: halamanBoleh(u.saya), boleh: h => bolehBuka(u.saya, h) !== false })));
   kotak.addEventListener('focus', muatCari);
   document.addEventListener('keydown', e => {

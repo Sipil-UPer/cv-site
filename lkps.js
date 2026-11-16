@@ -15,10 +15,10 @@
    angka yang sama dengan halaman skor. Lembar lain dibiarkan untuk diisi
    prodi; kolom yang tidak disimpan situs (mis. pita waktu tunggu) kosong.
    ===================================================================== */
-import { versiUntukTS, daftarProdi, STATUS_PS, tglTeks } from './pustaka-dokumen.js?v=2026-11-16-05a43b';
-import { teksPendidikan } from './profil-dosen.js?v=2026-11-16-05a43b';
-import { barisKerjaSama } from './kerjasama-karya.js?v=2026-11-16-05a43b';
-import { karya4i } from './sitasi.js?v=2026-11-16-05a43b';
+import { versiUntukTS, daftarProdi, STATUS_PS, tglTeks } from './pustaka-dokumen.js?v=2026-11-16-7f86d4';
+import { teksPendidikan } from './profil-dosen.js?v=2026-11-16-7f86d4';
+import { barisKerjaSama } from './kerjasama-karya.js?v=2026-11-16-7f86d4';
+import { karya4i } from './sitasi.js?v=2026-11-16-7f86d4';
 
 const TEMPLATE = 'lkps-template.xlsx';
 export const JSZIP = 'https://cdn.jsdelivr.net/npm/jszip@3.10.1/+esm';

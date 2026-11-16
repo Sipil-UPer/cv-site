@@ -4,8 +4,8 @@
 // dosen; Tolak -> alasan dilihat dosen di profil.html. Dipindah dari
 // kelola-dosen.html (pemilik 2026-11-08).
 
-import { buangBuktiLepas } from './hapus-berkas.js?v=2026-11-16-05a43b';
-import { ISIAN_PROFIL, KOLOM_PROFIL, JABATAN, tampil as tampilIsian, setelNamaTopik, berkasLepas } from './profil-dosen.js?v=2026-11-16-05a43b';
+import { buangBuktiLepas } from './hapus-berkas.js?v=2026-11-16-7f86d4';
+import { ISIAN_PROFIL, KOLOM_PROFIL, JABATAN, tampil as tampilIsian, setelNamaTopik, berkasLepas } from './profil-dosen.js?v=2026-11-16-7f86d4';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g,
   c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));

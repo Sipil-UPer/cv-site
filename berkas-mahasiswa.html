@@ -3,27 +3,40 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Berkas mahasiswa — Program Studi</title>
-<meta name="description" content="Pedoman, pengumuman, dan berkas program studi untuk mahasiswa.">
+<title>Wilayah mahasiswa — Program Studi</title>
+<meta name="description" content="Pengumuman, pedoman, tanya-jawab, dan kotak pertanyaan/masukan program studi untuk mahasiswa.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-16-05a43b">
+<link rel="stylesheet" href="tema.css?v=2026-11-16-7f86d4">
 <style>
-  /* Halaman publik berkas mahasiswa (pemilik 2026-11-16; 76-patch-berkas-mahasiswa.sql). Warna dari tema.css. */
+  /* Wilayah mahasiswa, publik (pemilik 2026-11-16; patch 76, 77, 78). Warna dari tema.css. */
   *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15.5px;line-height:1.55;-webkit-font-smoothing:antialiased}
   .wrap{max-width:860px;margin:0 auto;padding:0 16px 80px}
   .hero{background:var(--biru);color:#fff;border-bottom:4px solid var(--merah)}
-  .hero-in{max-width:860px;margin:0 auto;padding:22px 16px 20px}
-  h1{font-family:var(--serif);font-size:clamp(22px,4.2vw,30px);font-weight:600;margin:0;line-height:1.2;color:#fff}
+  .hero-in{max-width:860px;margin:0 auto;padding:22px 16px 18px}
+  .hero a.balik{color:var(--biru-m4);font-size:13px;text-decoration:none}
+  .hero a.balik:hover{text-decoration:underline}
+  h1{font-family:var(--serif);font-size:clamp(22px,4.2vw,30px);font-weight:600;margin:6px 0 0;line-height:1.2;color:#fff}
   .prodi{color:var(--biru-m4);font-size:14px;margin-top:6px}
+  .pintu{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:16px}
+  .pintu a{display:block;text-decoration:none;color:#fff;border:1px solid rgba(255,255,255,.4);border-radius:8px;
+    padding:9px 12px;font-weight:600;font-size:14px;transition:background .15s}
+  .pintu a small{display:block;font-weight:400;font-size:12px;color:var(--biru-m4);margin-top:1px}
+  .pintu a:hover{background:rgba(255,255,255,.12)}
+  .pintu a:focus-visible{outline:2px solid #fff;outline-offset:2px}
+  @media (max-width:640px){.pintu{grid-template-columns:1fr 1fr}}
   .kosong, .ket{color:var(--muted)}
   .ket{font-size:13.5px}
   .cari{margin:18px 0 4px}
   .cari input{width:100%;font:inherit;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--ink)}
+  section{scroll-margin-top:12px}
   h2{font-family:var(--serif);font-size:19px;font-weight:600;margin:24px 0 8px}
   h2 .n{font-family:var(--mono);font-size:12px;color:var(--muted);font-weight:400;margin-left:6px}
+  h2.besar{font-size:22px;margin-top:40px;padding-top:16px;border-top:1px solid var(--line)}
   .daftar{list-style:none;margin:0;padding:0;background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:hidden}
   .daftar li{display:flex;gap:12px;align-items:center;padding:12px 16px;border-bottom:1px solid var(--line-soft)}
   .daftar li:last-child{border-bottom:0}
@@ -36,20 +49,84 @@
   a.buka:hover{filter:brightness(1.1)}
   a.buka:focus-visible{outline:2px solid var(--biru);outline-offset:2px}
   @media (max-width:480px){.daftar li{flex-direction:column;align-items:stretch}.daftar a.buka{text-align:center}}
-  .msg.buruk{color:var(--merah)}
+  /* Tanya-jawab */
+  .faq{background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  .faq details{border-bottom:1px solid var(--line-soft)}
+  .faq details:last-child{border-bottom:0}
+  .faq summary{cursor:pointer;padding:12px 16px;font-weight:600;list-style:none;display:flex;gap:10px;align-items:flex-start}
+  .faq summary::-webkit-details-marker{display:none}
+  .faq summary::before{content:'+';font-family:var(--mono);color:var(--biru);flex:none;width:12px}
+  .faq details[open] summary::before{content:'\2212'}
+  .faq summary:focus-visible{outline:2px solid var(--biru);outline-offset:-2px}
+  .faq .jawab{padding:0 16px 14px 38px;white-space:pre-line;overflow-wrap:anywhere}
+  /* Formulir */
+  .form{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px}
+  .pilih{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+  .pilih label{flex:1 1 200px;border:1px solid var(--line);border-radius:8px;padding:10px 12px;cursor:pointer;display:flex;gap:8px;align-items:flex-start}
+  .pilih label:has(input:checked){border-color:var(--biru);background:var(--biru-m4, rgba(0,0,0,.03))}
+  .pilih small{display:block;color:var(--muted);font-size:12.5px}
+  .fld{margin:10px 0}
+  .fld label{display:block;font-size:13.5px;font-weight:600;margin-bottom:4px}
+  .fld label span{font-weight:400;color:var(--muted)}
+  .fld input, .fld textarea{width:100%;font:inherit;padding:9px 11px;border:1px solid var(--line);border-radius:7px;background:var(--bg);color:var(--ink)}
+  .fld textarea{min-height:120px;resize:vertical}
+  .dua{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}
+  @media (max-width:560px){.dua{grid-template-columns:1fr}}
+  .jebakan{position:absolute;left:-10000px;width:1px;height:1px;overflow:hidden}
+  button.kirim{font:inherit;font-weight:600;color:#fff;background:var(--biru);border:0;border-radius:7px;padding:10px 20px;cursor:pointer}
+  button.kirim:disabled{opacity:.6;cursor:default}
+  button.kirim:focus-visible{outline:2px solid var(--biru);outline-offset:2px}
+  .hitung{font-family:var(--mono);font-size:12px;color:var(--muted);text-align:right}
+  .msg{font-size:14px} .msg.buruk{color:var(--merah)} .msg.ok{color:var(--hijau)}
   footer{margin-top:32px;font-size:13px;color:var(--muted)}
+  footer a{color:var(--muted)}
 </style>
 </head>
 <body>
 <header class="hero"><div class="hero-in">
-  <h1>Berkas mahasiswa</h1><div class="prodi" id="hProdi"></div>
+  <a class="balik" href="index.html">&larr; Beranda</a>
+  <h1>Wilayah mahasiswa</h1><div class="prodi" id="hProdi"></div>
+  <nav class="pintu" aria-label="Bagian halaman">
+    <a href="#pengumuman">Pengumuman<small>jadwal, batas waktu</small></a>
+    <a href="#berkas">Berkas<small>pedoman, panduan</small></a>
+    <a href="#tanya-jawab">Tanya-jawab<small>yang sering ditanya</small></a>
+    <a href="#kirim">Tanya / masukan<small>kirim ke prodi</small></a>
+  </nav>
 </div></header>
 <main class="wrap">
-  <div class="cari"><input id="cari" type="search" placeholder="Cari pedoman, pengumuman, jadwal…" aria-label="Cari berkas" autocomplete="off"></div>
+  <div class="cari"><input id="cari" type="search" placeholder="Cari pengumuman, pedoman, tanya-jawab…" aria-label="Cari" autocomplete="off"></div>
   <div id="isi"><p class="kosong">Memuat…</p></div>
-  <footer>Berkas dibuka di Google Drive. Pertanyaan tentang isi berkas: hubungi sekretariat program studi.</footer>
+
+  <section id="tanya-jawab">
+    <h2 class="besar">Tanya-jawab</h2>
+    <div id="faq"><p class="kosong">Memuat…</p></div>
+  </section>
+
+  <section id="kirim">
+    <h2 class="besar">Kirim pertanyaan atau masukan</h2>
+    <p class="ket">Kiriman hanya dibaca admin program studi dan tidak tampil di halaman ini. Pertanyaan yang sering muncul
+      bisa dijawab di Tanya-jawab di atas, tanpa nama penanya. Nama dan email boleh dikosongkan; isi email bila ingin dibalas.
+      Jangan menulis NIM, nilai, atau data pribadi lain di isi.</p>
+    <form class="form" id="frm" novalidate>
+      <div class="pilih" role="radiogroup" aria-label="Jenis kiriman">
+        <label><input type="radio" name="jenis" value="tanya" checked><span>Pertanyaan<small>seputar operasional prodi: TA, KP, perwalian, jadwal…</small></span></label>
+        <label><input type="radio" name="jenis" value="masukan"><span>Masukan<small>saran atau keluhan untuk perbaikan prodi</small></span></label>
+      </div>
+      <div class="fld"><label for="k_isi">Isi</label>
+        <textarea id="k_isi" maxlength="3000" required></textarea><div class="hitung" id="k_hitung">0 / 3000</div></div>
+      <div class="dua">
+        <div class="fld"><label for="k_nama">Nama <span>(opsional)</span></label><input id="k_nama" type="text" maxlength="120" autocomplete="name"></div>
+        <div class="fld"><label for="k_email">Email <span>(opsional, untuk dibalas)</span></label><input id="k_email" type="email" maxlength="200" autocomplete="email"></div>
+      </div>
+      <div class="jebakan" aria-hidden="true"><label for="k_situs">Situs web</label><input id="k_situs" type="text" tabindex="-1" autocomplete="off"></div>
+      <button type="submit" class="kirim" id="k_kirim">Kirim</button> <span class="msg" id="k_msg" role="status"></span>
+    </form>
+  </section>
+
+  <footer>Berkas dibuka di Google Drive. Pertanyaan tentang isi berkas: hubungi sekretariat program studi.
+    · <a href="kelola-mahasiswa.html">Admin prodi</a></footer>
 </main>
-<script src="config.js?v=2026-11-16-05a43b"></script>
+<script src="config.js?v=2026-11-16-7f86d4"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -64,11 +141,14 @@ addEventListener('error', function (e) {
 });
 </script>
 <script type="module">
-// Berkas prodi untuk mahasiswa, tanpa login (pemilik 2026-11-16). Isi dipilih admin per dokumen pustaka
-// (Data prodi > Dokumen, centang "Mahasiswa"); fungsi dokumen_mahasiswa() (76-patch-berkas-mahasiswa.sql)
-// hanya mengembalikan dokumen yang dicentang, bukan berkas privat, dan belum lewat masa berlakunya.
+// Wilayah mahasiswa, tanpa login (pemilik 2026-11-16). Alamat tetap berkas-mahasiswa.html supaya tautan lama tidak putus.
+//   Berkas: dipilih admin per dokumen pustaka (Data prodi > Dokumen, centang "Mahasiswa"); dokumen_mahasiswa() (76)
+//     hanya mengembalikan yang dicentang, bukan berkas privat, dan belum lewat masa berlakunya.
+//   Pengumuman teks: pengumuman_mahasiswa_aktif() (77).
+//   Tanya-jawab: tanya_jawab_publik() (78), disusun admin di kelola-mahasiswa.html.
+//   Kiriman: kirim_masukan_mahasiswa() (78) ke kotak masuk tertutup; kolom k_situs adalah jebakan bot.
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { infoJenis } from './rencana-bukti.js?v=2026-11-16-05a43b';
+import { infoJenis } from './rencana-bukti.js?v=2026-11-16-7f86d4';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
@@ -79,10 +159,14 @@ fetch('data.json?v=' + Date.now()).then(r => r.ok ? r.json() : {}).catch(() => (
   .then(d => {
     const p = [d.prodi, d.institusi].filter(Boolean).join(' · ');
     $('hProdi').textContent = p;
-    if (d.prodi) document.title = 'Berkas mahasiswa — ' + d.prodi;
+    if (d.prodi) document.title = 'Wilayah mahasiswa — ' + d.prodi;
   });
 
-let DOK = [];
+let DOK = [], FAQ = [], GAGAL_FAQ = false;
+
+// Alamat https://… di teks menjadi tautan (teks sudah di-escape; tanda baca penutup tidak ikut).
+const tautkan = s => esc(s).replace(/https?:\/\/[^\s<]*[^\s<.,;:!?)]/g,
+  u => `<a href="${u}" target="_blank" rel="noopener nofollow">${u}</a>`);
 
 // Pengumuman paling atas (terbaru dulu), lalu kelompok jenis menurut abjad; di dalam kelompok, tahun terbaru dulu.
 function kelompok(xs){
@@ -95,10 +179,6 @@ function kelompok(xs){
     .sort((a, b) => (b.jenis === 'pengumuman') - (a.jenis === 'pengumuman') || a.nama.localeCompare(b.nama, 'id'));
 }
 
-// Alamat https://… di pengumuman teks menjadi tautan (teks sudah di-escape; tanda baca penutup tidak ikut).
-const tautkan = s => esc(s).replace(/https?:\/\/[^\s<]*[^\s<.,;:!?)]/g,
-  u => `<a href="${u}" target="_blank" rel="noopener nofollow">${u}</a>`);
-
 function baris(d){
   const nama = d.judul || infoJenis(d.jenis).nama;
   const meta = [d.tahun, d.nomor && 'No. ' + d.nomor, d.tanggal && 'tanggal ' + tgl(d.tanggal),
@@ -109,27 +189,72 @@ function baris(d){
     <a class="buka" href="${esc(d.url)}" target="_blank" rel="noopener">Buka</a></li>`;
 }
 
+const cocok = (q, ...xs) => !q || xs.join(' ').toLowerCase().includes(q);
+
 function gambar(){
   const q = $('cari').value.trim().toLowerCase();
-  const xs = DOK.filter(d => !q || [d.judul, d.isi, infoJenis(d.jenis).nama, d.nomor, d.tahun].join(' ').toLowerCase().includes(q));
-  if (!DOK.length) { $('isi').innerHTML = '<p class="kosong">Belum ada berkas yang dibagikan untuk mahasiswa.</p>'; return; }
-  if (!xs.length) { $('isi').innerHTML = '<p class="kosong">Tidak ada berkas yang cocok.</p>'; return; }
-  $('isi').innerHTML = kelompok(xs).map(g => `<section><h2>${esc(g.nama)}<span class="n">${g.xs.length}</span></h2>
-    <ul class="daftar${g.jenis === 'pengumuman' ? ' pengumuman' : ''}">${g.xs.map(baris).join('')}</ul></section>`).join('');
+  const xs = DOK.filter(d => cocok(q, d.judul, d.isi, infoJenis(d.jenis).nama, d.nomor, d.tahun));
+  const gs = kelompok(xs), peng = gs.find(g => g.jenis === 'pengumuman'), lain = gs.filter(g => g.jenis !== 'pengumuman');
+  const daftar = g => `<ul class="daftar${g.jenis === 'pengumuman' ? ' pengumuman' : ''}">${g.xs.map(baris).join('')}</ul>`;
+  $('isi').innerHTML = `<section id="pengumuman"><h2>Pengumuman${peng ? `<span class="n">${peng.xs.length}</span>` : ''}</h2>
+      ${peng ? daftar(peng) : `<p class="kosong">${q ? 'Tidak ada pengumuman yang cocok.' : 'Belum ada pengumuman yang berlaku.'}</p>`}</section>
+    <section id="berkas"><h2 class="besar">Berkas</h2>
+      ${lain.length ? lain.map(g => `<h2>${esc(g.nama)}<span class="n">${g.xs.length}</span></h2>${daftar(g)}`).join('')
+        : `<p class="kosong">${q ? 'Tidak ada berkas yang cocok.' : 'Belum ada berkas yang dibagikan untuk mahasiswa.'}</p>`}</section>`;
+  gambarFaq(q);
 }
 
-// Berkas (76) dan pengumuman teks (77) dimuat bersamaan; bila salah satu gagal, yang lain tetap tampil.
-const [rb, rp] = await Promise.all([sb.rpc('dokumen_mahasiswa'), sb.rpc('pengumuman_mahasiswa_aktif')]);
+function gambarFaq(q){
+  if (GAGAL_FAQ) { $('faq').innerHTML = '<p class="kosong">Tanya-jawab belum tersedia.</p>'; return; }
+  const xs = FAQ.filter(f => cocok(q, f.topik, f.pertanyaan, f.jawaban));
+  if (!xs.length) { $('faq').innerHTML = `<p class="kosong">${q ? 'Tidak ada tanya-jawab yang cocok.' : 'Belum ada tanya-jawab. Kirim pertanyaan Anda di bawah.'}</p>`; return; }
+  const m = new Map();
+  xs.forEach(f => { const k = f.topik || ''; if (!m.has(k)) m.set(k, []); m.get(k).push(f); });
+  const topik = [...m.keys()].sort((a, b) => (a === '') - (b === '') || a.localeCompare(b, 'id'));
+  const banyakTopik = topik.length > 1 || topik[0] !== '';
+  $('faq').innerHTML = topik.map(k => `${banyakTopik ? `<h2>${esc(k || 'Lainnya')}<span class="n">${m.get(k).length}</span></h2>` : ''}
+    <div class="faq">${m.get(k).map(f => `<details${q ? ' open' : ''}><summary>${esc(f.pertanyaan)}</summary>
+      <div class="jawab">${tautkan(f.jawaban)}</div></details>`).join('')}</div>`).join('');
+}
+
+// Berkas (76), pengumuman teks (77), dan tanya-jawab (78) dimuat bersamaan; bila satu gagal, yang lain tetap tampil.
+const [rb, rp, rf] = await Promise.all([sb.rpc('dokumen_mahasiswa'), sb.rpc('pengumuman_mahasiswa_aktif'), sb.rpc('tanya_jawab_publik')]);
 if (rb.error) console.error('dokumen_mahasiswa:', rb.error.message, '(jalankan supabase/76-patch-berkas-mahasiswa.sql)');
 if (rp.error) console.error('pengumuman_mahasiswa_aktif:', rp.error.message, '(jalankan supabase/77-patch-pengumuman-teks.sql)');
+if (rf.error) console.error('tanya_jawab_publik:', rf.error.message, '(jalankan supabase/78-patch-tanya-masukan-mahasiswa.sql)');
+GAGAL_FAQ = !!rf.error;
+FAQ = rf.data || [];
+DOK = [...(rb.data || []).filter(d => /^https?:\/\//i.test(d.url || '')),
+       ...(rp.data || []).map(p => ({ ...p, jenis: 'pengumuman', teks: true }))];
 if (rb.error && rp.error) {
-  $('isi').innerHTML = '<p class="msg buruk">Daftar berkas belum tersedia. Coba lagi nanti.</p>';
+  $('isi').innerHTML = '<p class="msg buruk">Pengumuman dan berkas belum tersedia. Coba lagi nanti.</p>';
+  gambarFaq('');
 } else {
-  DOK = [...(rb.data || []).filter(d => /^https?:\/\//i.test(d.url || '')),
-         ...(rp.data || []).map(p => ({ ...p, jenis: 'pengumuman', teks: true }))];
   gambar();
   $('cari').addEventListener('input', gambar);
 }
+// Tautan #pengumuman, #berkas dibuat setelah data dimuat; loncat lagi bila halaman dibuka dengan tanda #.
+if (location.hash) document.querySelector(location.hash)?.scrollIntoView();
+
+// ---------------------------------------------------------------- kiriman
+$('k_isi').addEventListener('input', () => { $('k_hitung').textContent = `${$('k_isi').value.length} / 3000`; });
+$('frm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const m = $('k_msg'), tulis = (k, t) => { m.className = 'msg' + (k ? ' ' + k : ''); m.textContent = t; };
+  const isi = $('k_isi').value.trim(), email = $('k_email').value.trim();
+  if (isi.length < 10) return tulis('buruk', 'Isi minimal 10 huruf.');
+  if (email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return tulis('buruk', 'Alamat email tidak sah (atau kosongkan).');
+  const jenis = document.querySelector('input[name="jenis"]:checked').value;
+  $('k_kirim').disabled = true; tulis('', 'Mengirim…');
+  const { error } = await sb.rpc('kirim_masukan_mahasiswa', { p_jenis: jenis, p_isi: isi,
+    p_nama: $('k_nama').value.trim() || null, p_email: email || null, p_jebakan: $('k_situs').value || null });
+  $('k_kirim').disabled = false;
+  if (error) return tulis('buruk', 'Gagal mengirim: ' + error.message);
+  $('k_isi').value = ''; $('k_hitung').textContent = '0 / 3000';
+  tulis('ok', jenis === 'tanya'
+    ? `Terima kasih, pertanyaan terkirim ke admin prodi.${email ? ' Admin dapat membalas ke email Anda.' : ' Pantau Tanya-jawab di halaman ini.'}`
+    : 'Terima kasih, masukan Anda terkirim ke admin prodi.');
+});
 </script>
 </body>
 </html>
