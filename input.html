@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-16-f96bfd">
+<link rel="stylesheet" href="tema.css?v=2026-11-16-2c0ec7">
 <style>
   :root{--bg:#EEF0ED; --ink:#161E26; --muted:#616C76; --line:#D8DDD8; --line-soft:#E8EBE7; --accent:var(--biru); --accent-soft:var(--biru-m7); --pending:#8A5A00; --pending-soft:#FAF0DC; --reject:#8C2F2F; --reject-soft:#F7E7E7;}
   *{box-sizing:border-box}
@@ -73,6 +73,9 @@
   .mhs-baris label.cek{flex:0 0 auto;font-size:13px;white-space:nowrap}
   /* SDGs (pemilik 2026-11-11) */
   .sdg-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:4px 14px;margin:6px 0}
+  /* Tanpa ini display:grid menimpa atribut hidden: daftar SDG tampil sebelum "ada unsur SDGs" dicentang,
+     dan SDG yang dicentang tidak terbaca (pemilik 2026-11-16, "Tidak ada isian yang berubah"). */
+  .sdg-grid[hidden]{display:none}
   .sdg-grid .cek{font-size:13px}
   .mhs-item .n{flex:1}
   .mhs-item .i{font-family:var(--mono);font-size:12px;color:var(--muted);
@@ -165,7 +168,7 @@
   .sitasi-sel small{color:var(--muted);font-size:10.5px;font-family:var(--sans)}
   @media(max-width:640px){.grid{grid-template-columns:1fr}}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-16-f96bfd">
+<link rel="stylesheet" href="kepala.css?v=2026-11-16-2c0ec7">
 </head>
 <body>
 
@@ -179,7 +182,7 @@
 
 <div class="wrap" id="app"></div>
 
-<script src="config.js?v=2026-11-16-f96bfd"></script>
+<script src="config.js?v=2026-11-16-2c0ec7"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -203,25 +206,25 @@ const SUPABASE_URL = window.SB_URL;
 const SUPABASE_ANON_KEY = window.SB_KEY;
 
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { JENIS_BUKTI_KARYA, namaJenisBukti, JENIS_KARYA_PRIVAT, teksAksesBukti } from './rencana-bukti.js?v=2026-11-16-f96bfd';
-import { tautanBerkas, temuanPakai } from './tautan-privat.js?v=2026-11-16-f96bfd';
-import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-16-f96bfd';
-import { periksaBerkas, kolomSidik, teksTemuan } from './sidik-berkas.js?v=2026-11-16-f96bfd';
-import { pasangContoh, durasiKS } from './manfaat-kerjasama.js?v=2026-11-16-f96bfd';
-import { pasangMenu } from './menu.js?v=2026-11-16-f96bfd';
-import { dosenLogin } from './dosen-login.js?v=2026-11-16-f96bfd';
-import { pasangPrestasi } from './prestasi.js?v=2026-11-16-f96bfd';
-import { htmlSaran } from './saran-bukti.js?v=2026-11-16-f96bfd';
-import { pasangBkd } from './bkd.js?v=2026-11-16-f96bfd';
-import { htmlTautanButir } from './tautan-butir.js?v=2026-11-16-f96bfd';
-import { ISIAN_32, ISIAN_25, ISIAN_74, TINGKAT, FORM, SDGS } from './form-karya.js?v=2026-11-16-f96bfd';
+import { JENIS_BUKTI_KARYA, namaJenisBukti, JENIS_KARYA_PRIVAT, teksAksesBukti } from './rencana-bukti.js?v=2026-11-16-2c0ec7';
+import { tautanBerkas, temuanPakai } from './tautan-privat.js?v=2026-11-16-2c0ec7';
+import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-16-2c0ec7';
+import { periksaBerkas, kolomSidik, teksTemuan } from './sidik-berkas.js?v=2026-11-16-2c0ec7';
+import { pasangContoh, durasiKS } from './manfaat-kerjasama.js?v=2026-11-16-2c0ec7';
+import { pasangMenu } from './menu.js?v=2026-11-16-2c0ec7';
+import { dosenLogin } from './dosen-login.js?v=2026-11-16-2c0ec7';
+import { pasangPrestasi } from './prestasi.js?v=2026-11-16-2c0ec7';
+import { htmlSaran } from './saran-bukti.js?v=2026-11-16-2c0ec7';
+import { pasangBkd } from './bkd.js?v=2026-11-16-2c0ec7';
+import { htmlTautanButir } from './tautan-butir.js?v=2026-11-16-2c0ec7';
+import { ISIAN_32, ISIAN_25, ISIAN_74, TINGKAT, FORM, SDGS } from './form-karya.js?v=2026-11-16-2c0ec7';
 import { barisKarya as htmlBarisKarya, muatBuktiKarya, daftarBuktiKarya as daftarBuktiDari,
   htmlDaftarBukti as htmlDaftarBuktiDari, berkasMilikKarya as berkasMilikDari,
-  pasangHapusBuktiAdmin } from './karya-tampil.js?v=2026-11-16-f96bfd';
-import { hitungVerifikasi } from './verifikasi-hitung.js?v=2026-11-16-f96bfd';
+  pasangHapusBuktiAdmin } from './karya-tampil.js?v=2026-11-16-2c0ec7';
+import { hitungVerifikasi } from './verifikasi-hitung.js?v=2026-11-16-2c0ec7';
 import { daftarDoi, ambilDoi, drafDari, rapiDoi, sitasiTahunan, cariJudul, bacaBibtex, judulRapi, pilihCocok,
-  drafDariBib, teksBatas, karyaOrcid } from './impor-karya.js?v=2026-11-16-f96bfd';
-import { SUMBER_SITASI } from './sitasi.js?v=2026-11-16-f96bfd';
+  drafDariBib, teksBatas, karyaOrcid } from './impor-karya.js?v=2026-11-16-2c0ec7';
+import { SUMBER_SITASI } from './sitasi.js?v=2026-11-16-2c0ec7';
 
 const app = document.getElementById('app');
 if (!SUPABASE_URL || !SUPABASE_ANON_KEY
@@ -379,7 +382,16 @@ function isiSDGs(v){
   document.querySelectorAll('#f_sdgs .sdg-cek').forEach(c => { c.checked = pilih.has(+c.value); });
 }
 document.addEventListener('change', e => {
-  if(e.target.id === 'f_sdgs_ada') document.getElementById('f_sdgs').hidden = !e.target.checked;
+  // Centang induk dan pilihan SDG selalu sejalan (pemilik 2026-11-16): mencentang satu SDG ikut mencentang
+  // "ada unsur SDGs"; melepas induk mengosongkan pilihan, supaya yang tampil sama dengan yang tersimpan.
+  if(e.target.id === 'f_sdgs_ada'){
+    document.getElementById('f_sdgs').hidden = !e.target.checked;
+    if(!e.target.checked) document.querySelectorAll('#f_sdgs .sdg-cek').forEach(c => { c.checked = false; });
+  }
+  if(e.target.classList?.contains('sdg-cek') && e.target.checked){
+    const ada = document.getElementById('f_sdgs_ada');
+    if(ada && !ada.checked){ ada.checked = true; document.getElementById('f_sdgs').hidden = false; }
+  }
 });
 
 function fieldHTML(f){
