@@ -1919,7 +1919,10 @@
     }
    ],
    "mahasiswa": 0,
-   "sdgs": [],
+   "sdgs": [
+    11,
+    13
+   ],
    "topik": [
     {
      "t": "Flood Risk Assessment and Management",

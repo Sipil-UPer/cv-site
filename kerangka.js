@@ -1,11 +1,11 @@
 // Kerangka halaman publik (pemilik 2026-11-16): kepala bergaya situs universitas (deret logo di bilah
 // biru, nama prodi, menu turun) dan kaki halaman yang sama di halaman publik. Pemakaian:
-//   import { pasangKerangka, isiKerangka } from './kerangka.js?v=2026-11-16-e72bee';
+//   import { pasangKerangka, isiKerangka } from './kerangka.js?v=2026-11-16-114bad';
 //   pasangKerangka({ aktif: 'akademik' });   // segera, sebelum data.json
 //   isiKerangka(D);                           // setelah data.json: nama prodi, kontak, media sosial
 // Logo: window.LOGO_KEPALA di config.js; tanpa itu logo.png. Menu hanya memuat halaman yang ada
 // dan modul yang menyala (fitur.js). Tautan relatif (situs akan pindah ke subdomain kampus).
-import { halamanAktif } from './fitur.js?v=2026-11-16-e72bee';
+import { halamanAktif } from './fitur.js?v=2026-11-16-114bad';
 
 export const MENU = [
   { id: 'profil', judul: 'Profil', isi: [
@@ -102,7 +102,7 @@ const CSS = `
 }
 @media (max-width:420px){ .kr-kepala-in{min-height:46px} .kr-logo img{height:46px} .kr-burger{margin-right:10px;padding:6px 10px} }
 .kr-kaki{background:var(--biru);color:var(--biru-m4);margin-top:70px;font-size:14px}
-.kr-kaki-in{max-width:1180px;margin:0 auto;padding:44px 20px 28px;display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:28px}
+.kr-kaki-in{max-width:1180px;margin:0 auto;padding:44px 20px 28px;display:grid;grid-template-columns:1.4fr repeat(4,1fr);gap:28px}
 .kr-kaki h4{border-bottom:2px solid var(--aksen,transparent);padding-bottom:6px;display:inline-block;font-family:var(--mono);font-size:11px;
   letter-spacing:.12em;text-transform:uppercase;color:#fff;margin:0 0 12px;font-weight:500}
 .kr-kaki ul{list-style:none;margin:0;padding:0}
@@ -157,12 +157,15 @@ export function pasangKerangka({ aktif = '' } = {}){
   kaki.innerHTML = `<div class="kr-kaki-in">
     <div><div class="kr-nama">Program Studi <span data-kr="prodi"></span></div><div data-kr="institusi"></div><div data-kr="akreditasi" hidden style="margin-top:6px;color:#fff;font-weight:600"></div>
       <address data-kr="kontak" hidden></address></div>
-    <div><h4>Akademik</h4><ul>
-      <li><a href="kurikulum.html">Kurikulum</a></li><li><a href="berkas-mahasiswa.html">Layanan mahasiswa</a></li>
-      <li><a href="prestasi.html">Prestasi mahasiswa</a></li></ul></div>
+    <div><h4>Program studi</h4><ul>
+      <li><a href="profil-prodi.html">Profil program studi</a></li><li><a href="kurikulum.html">Kurikulum</a></li>
+      <li><a href="laboratorium.html">Laboratorium</a></li><li><a href="kerja-sama.html">Kerja sama</a></li></ul></div>
+    <div><h4>Mahasiswa</h4><ul>
+      <li><a href="berkas-mahasiswa.html">Layanan mahasiswa</a></li><li><a href="prestasi.html">Prestasi mahasiswa</a></li>
+      <li><a href="berkas-mahasiswa.html#pembimbing">Calon pembimbing TA</a></li></ul></div>
     <div><h4>Riset</h4><ul>
       <li><a href="daftar.html?jenis=dosen">Dosen</a></li><li><a href="daftar.html?jenis=publikasi">Publikasi</a></li>
-      <li><a href="kerja-sama.html">Kerja sama</a></li><li><a href="kinerja.html">Kinerja program studi</a></li></ul></div>
+      <li><a href="kinerja.html">Kinerja program studi</a></li></ul></div>
     <div><div data-kr="sosial" hidden></div><h4>Tautan</h4><ul>
       <li><a href="ruang-kerja.html">Ruang kerja dosen</a></li><li><a href="privasi.html">Kebijakan privasi</a></li><li><a href="peta-situs.html">Peta situs</a></li></ul></div>
   </div>
