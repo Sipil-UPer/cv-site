@@ -15,7 +15,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-16-c1c70f">
+<link rel="stylesheet" href="tema.css?v=2026-11-16-42fbba">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:#fff;color:var(--ink);font-family:var(--sans);font-size:15.5px;line-height:1.6;-webkit-font-smoothing:antialiased}
@@ -155,8 +155,11 @@
   @media(max-width:900px){.pres{grid-template-columns:1fr 1fr}}
   @media(max-width:560px){.pres{grid-template-columns:1fr}}
   .pres .kartu{padding:0;overflow:hidden;display:flex;flex-direction:column}
-  .pres img,.pres .tanpa-foto{width:100%;aspect-ratio:16/10;object-fit:cover;display:block;background:var(--biru-m10)}
-  .pres .tanpa-foto{display:grid;place-items:center;font-size:40px}
+  .pres img{width:100%;aspect-ratio:16/10;object-fit:cover;display:block;background:var(--biru-m10)}
+  /* Tanpa foto: pita tipis, bukan kotak kosong (pemilik 2026-11-16). */
+  .pres .tanpa-foto{display:flex;align-items:center;gap:10px;padding:12px 18px;background:var(--biru);color:#fff;
+    border-bottom:3px solid var(--aksen);font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase}
+  .pres .tanpa-foto span{font-size:22px;letter-spacing:0}
   .pres .isi{padding:16px 18px 18px}
   .pres .isi h3{font-size:20px;margin:6px 0 2px}
   .pres .lomba{font-weight:600;color:var(--ink);font-size:14.5px}
@@ -186,9 +189,9 @@
       <aside class="akses" aria-labelledby="jAkses">
         <h2 id="jAkses">Akses cepat</h2>
         <ul id="akses">
-          <li><a href="berkas-mahasiswa.html"><div>Wilayah mahasiswa<small>Pengumuman, berkas, tanya-jawab</small></div><span>&rarr;</span></a></li>
+          <li><a href="berkas-mahasiswa.html"><div>Layanan mahasiswa<small>Pengumuman, berkas, tanya-jawab</small></div><span>&rarr;</span></a></li>
           <li><a href="prestasi.html"><div>Prestasi mahasiswa<small>Kompetisi dan capaian mahasiswa</small></div><span>&rarr;</span></a></li>
-          <li><a href="kurikulum.html"><div>Kurikulum dan CPL<small>Mata kuliah per semester</small></div><span>&rarr;</span></a></li>
+          <li><a href="kurikulum.html"><div>Kurikulum<small>Profil lulusan, CPL, dan mata kuliah</small></div><span>&rarr;</span></a></li>
           <li><a href="berkas-mahasiswa.html#kirim"><div>Tanya / masukan<small>Kirim ke program studi</small></div><span>&rarr;</span></a></li>
           <li><a href="kinerja.html"><div>Kinerja program studi<small>Angka dan grafik kinerja</small></div><span>&rarr;</span></a></li>
         </ul>
@@ -266,7 +269,7 @@
 
 </main>
 
-<script src="config.js?v=2026-11-16-c1c70f"></script>
+<script src="config.js?v=2026-11-16-42fbba"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -284,8 +287,8 @@ addEventListener('error', function (e) {
 // Beranda program studi (pemilik 2026-11-16). Data dari data.json (bangun.py); pita dari RPC publik.
 // Isi yang belum ada (config.yaml public_site: tagline, kontak, media sosial, PMB) tidak ditampilkan.
 // Dasbor kinerja yang dulu di sini pindah ke kinerja.html.
-import { pasangKerangka, isiKerangka } from './kerangka.js?v=2026-11-16-c1c70f';
-import { halamanAktif } from './fitur.js?v=2026-11-16-c1c70f';
+import { pasangKerangka, isiKerangka } from './kerangka.js?v=2026-11-16-42fbba';
+import { halamanAktif } from './fitur.js?v=2026-11-16-42fbba';
 pasangKerangka({ aktif: '' });
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -364,22 +367,25 @@ function gambar(d){
     $('bKabar').hidden = false;
   }
 
-  // Prestasi mahasiswa terbaru (data.json prestasi): yang berfoto didahulukan, paling banyak 6.
+  // Prestasi mahasiswa terbaru (data.json prestasi): 3 terakhir menurut tahun dan bulan (pemilik 2026-11-16).
   const TINGKAT = { internasional: 'Internasional', nasional: 'Nasional', wilayah_lokal: 'Wilayah/lokal' };
-  const pres = [...(d.prestasi || [])].sort((a, b) => (b.foto?.length ? 1 : 0) - (a.foto?.length ? 1 : 0)
-    || (b.tahun || 0) - (a.tahun || 0) || (b.bulan || 0) - (a.bulan || 0)).slice(0, 6);
+  const pres = [...(d.prestasi || [])].sort((a, b) => (b.tahun || 0) - (a.tahun || 0)
+    || (b.bulan || 0) - (a.bulan || 0)).slice(0, 3);
   if (pres.length) {
     $('pres').innerHTML = pres.map(x => `<a class="kartu" href="prestasi.html">
-      ${x.foto?.length ? `<img src="${esc(x.foto[0])}" alt="Dokumentasi ${esc(x.kegiatan)}" loading="lazy">` : '<div class="tanpa-foto" aria-hidden="true">&#127942;</div>'}
-      <div class="isi"><div class="meta"><span class="tag${x.tingkat === 'internasional' ? ' int' : ''}">${esc(TINGKAT[x.tingkat] || x.tingkat || '')}</span>${esc(x.tahun || '')}</div>
+      ${x.foto?.length ? `<img src="${esc(x.foto[0])}" alt="Dokumentasi ${esc(x.kegiatan)}" loading="lazy">` : `<div class="tanpa-foto"><span aria-hidden="true">&#127942;</span>${esc(TINGKAT[x.tingkat] || 'Prestasi')}</div>`}
+      <div class="isi"><div class="meta">${x.foto?.length ? `<span class="tag${x.tingkat === 'internasional' ? ' int' : ''}">${esc(TINGKAT[x.tingkat] || x.tingkat || '')}</span>` : ''}${esc(x.tahun || '')}</div>
       <h3>${esc(x.capaian || 'Prestasi')}</h3><div class="lomba">${esc(x.kegiatan)}</div>
       <div class="siapa">${esc((x.mahasiswa || []).join(', ') || 'Tim mahasiswa')}</div></div></a>`).join('');
     $('bPres').hidden = false;
   }
 
   if (situs.karier?.length) { $('karier').innerHTML = situs.karier.map(x => `<li>${esc(x)}</li>`).join(''); $('kKarier').hidden = false; }
-  if (situs.laboratorium?.length) { $('lab').innerHTML = situs.laboratorium.map(x => `<li>${esc(x)}</li>`).join(''); $('kLab').hidden = false; }
-  $('bKarier').hidden = !(situs.karier?.length || situs.laboratorium?.length);
+  // Laboratorium: profil dari tabel laboratorium (patch 82) bila ada, selain itu nama dari config.yaml.
+  const labs = (d.laboratorium || []).length ? d.laboratorium.map(x => `<li><a href="laboratorium.html#lab-${esc(x.id)}">${esc(x.nama)}</a></li>`)
+    : (situs.laboratorium || []).map(x => `<li><a href="laboratorium.html">${esc(x)}</a></li>`);
+  if (labs.length) { $('lab').innerHTML = labs.join(''); $('kLab').hidden = false; }
+  $('bKarier').hidden = !(situs.karier?.length || labs.length);
   if (situs.berita) { $('lBerita').href = situs.berita; $('bBerita').hidden = false; }
 
   // Bidang keahlian dari topik baku yang dipilih dosen (kode topik -> bidang); tanpa jumlah dosen
@@ -427,7 +433,7 @@ function gambar(d){
   const sks = wajib.reduce((a, m) => a + (Number(m.sks) || 0), 0);
   const prestasi = (d.prestasi_agregat || []).reduce((a, p) => a + (p.jumlah || 0), 0);
   $('mhs').innerHTML = `
-    <a class="kartu" href="berkas-mahasiswa.html"><div class="ikon">${IKON.mhs}</div><h3>Wilayah mahasiswa</h3>
+    <a class="kartu" href="berkas-mahasiswa.html"><div class="ikon">${IKON.mhs}</div><h3>Layanan mahasiswa</h3>
       <p>Pengumuman, berkas panduan dan formulir, tanya-jawab, serta kotak pertanyaan dan masukan.</p><span class="panah">Buka &rarr;</span></a>
     <a class="kartu" href="kurikulum.html"><div class="ikon">${IKON.kur}</div><h3>Kurikulum ${esc(k?.kode || '')}</h3>
       <p>${k ? `${k.cpl.length} capaian pembelajaran lulusan dan ${wajib.length} mata kuliah wajib (${sks} sks), ditambah mata kuliah pilihan.` : 'Kurikulum dan capaian pembelajaran lulusan.'}</p><span class="panah">Lihat kurikulum &rarr;</span></a>
@@ -436,7 +442,7 @@ function gambar(d){
 }
 
 function pasangCari(D){
-  import('./cari.js?v=2026-11-16-c1c70f').then(m => {
+  import('./cari.js?v=2026-11-16-42fbba').then(m => {
     const idx = m.indeksPublik(D, k => !(window.FITUR_MATI || []).includes(k));
     const kotak = $('cariUmum'), panel = $('hasilUmum');
     let aktif = -1;

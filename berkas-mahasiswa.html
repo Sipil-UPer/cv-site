@@ -3,14 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Wilayah mahasiswa — Program Studi</title>
+<title>Layanan mahasiswa — Program Studi</title>
 <meta name="description" content="Pengumuman, pedoman, tanya-jawab, dan kotak pertanyaan/masukan program studi untuk mahasiswa.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-16-c1c70f">
+<link rel="stylesheet" href="tema.css?v=2026-11-16-42fbba">
 <style>
-  /* Wilayah mahasiswa, publik (pemilik 2026-11-16; patch 76, 77, 78). Warna dari tema.css. */
+  /* Layanan mahasiswa, publik (pemilik 2026-11-16; patch 76, 77, 78). Warna dari tema.css. */
   *{box-sizing:border-box}
   html{scroll-behavior:smooth}
   @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
@@ -85,7 +85,7 @@
 <body>
 <header class="hero"><div class="hero-in">
   <a class="balik" href="index.html">&larr; Beranda</a>
-  <h1>Wilayah mahasiswa</h1><div class="prodi" id="hProdi"></div>
+  <h1>Layanan mahasiswa</h1><div class="prodi" id="hProdi"></div>
   <nav class="pintu" aria-label="Bagian halaman">
     <a href="#pengumuman">Pengumuman<small>jadwal, batas waktu</small></a>
     <a href="#berkas">Berkas<small>pedoman, panduan</small></a>
@@ -127,7 +127,7 @@
   <footer>Pertanyaan tentang isi berkas: hubungi sekretariat program studi.
     · <a href="kurikulum.html">Kurikulum</a> · <a href="privasi.html">Kebijakan privasi</a></footer>
 </main>
-<script src="config.js?v=2026-11-16-c1c70f"></script>
+<script src="config.js?v=2026-11-16-42fbba"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -142,14 +142,14 @@ addEventListener('error', function (e) {
 });
 </script>
 <script type="module">
-// Wilayah mahasiswa, tanpa login (pemilik 2026-11-16). Alamat tetap berkas-mahasiswa.html supaya tautan lama tidak putus.
+// Layanan mahasiswa, tanpa login (pemilik 2026-11-16). Alamat tetap berkas-mahasiswa.html supaya tautan lama tidak putus.
 //   Berkas: dipilih admin per dokumen pustaka (Data prodi > Dokumen, centang "Mahasiswa"); dokumen_mahasiswa() (76)
 //     hanya mengembalikan yang dicentang, bukan berkas privat, dan belum lewat masa berlakunya.
 //   Pengumuman teks: pengumuman_mahasiswa_aktif() (77).
 //   Tanya-jawab: tanya_jawab_publik() (78), disusun admin di kelola-mahasiswa.html.
 //   Kiriman: kirim_masukan_mahasiswa() (78) ke kotak masuk tertutup; kolom k_situs adalah jebakan bot.
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { infoJenis } from './rencana-bukti.js?v=2026-11-16-c1c70f';
+import { infoJenis } from './rencana-bukti.js?v=2026-11-16-42fbba';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
@@ -160,7 +160,7 @@ fetch('data.json?v=' + Date.now()).then(r => r.ok ? r.json() : {}).catch(() => (
   .then(d => {
     const p = [d.prodi, d.institusi].filter(Boolean).join(' · ');
     $('hProdi').textContent = p;
-    if (d.prodi) document.title = 'Wilayah mahasiswa — ' + d.prodi;
+    if (d.prodi) document.title = 'Layanan mahasiswa — ' + d.prodi;
   });
 
 let DOK = [], FAQ = [], GAGAL_FAQ = false;

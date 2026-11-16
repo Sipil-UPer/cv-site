@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Laboratorium — Kinerja Program Studi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tema.css?v=2026-11-16-42fbba">
+<link rel="stylesheet" href="kepala.css?v=2026-11-16-42fbba">
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
+  .wrap{max-width:1040px;margin:0 auto;padding:18px 20px 80px}
+  .kosong, .ket{color:var(--muted)}
+  .ket{font-size:13px}
+  .kartu{background:var(--panel);border:1px solid var(--line);padding:14px 18px;margin-bottom:16px}
+  .kartu h2{font-size:17px;margin:0 0 8px;color:var(--biru)}
+  .b{font:12px/1.4 var(--sans);padding:4px 9px;border:1px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer;margin:0 3px 3px 0}
+  .b:hover{border-color:var(--biru);color:var(--biru)}
+  .b.utama{background:var(--biru);color:#fff;border-color:var(--biru);font-size:14px;padding:7px 16px}
+  .b.bahaya{color:var(--merah)}
+  .b:disabled{opacity:.55;cursor:default}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px 14px;margin:8px 0}
+  .grid label, .lbl{font-size:13px;color:var(--muted);display:flex;flex-direction:column;gap:3px}
+  .lebar{grid-column:1/-1}
+  .grid input, .grid select, textarea{font:inherit;font-size:14px;padding:5px 7px;border:1px solid var(--line);background:var(--panel);color:var(--ink)}
+  textarea{width:100%;min-height:90px;resize:vertical}
+  .aksi{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:8px}
+  .msg{font-size:13.5px} .msg.buruk{color:var(--merah)} .msg.ok{color:var(--hijau)}
+  .foto{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+  .foto span{display:inline-flex;gap:6px;align-items:center;font-size:12.5px;border:1px solid var(--line);padding:3px 8px;background:var(--bg)}
+  .pilih{max-height:220px;overflow:auto;border:1px solid var(--line);background:var(--bg);padding:6px 10px;
+    display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:2px 14px}
+  .pilih label{flex-direction:row;align-items:flex-start;gap:6px;color:var(--ink);font-size:13.5px}
+  .pilih input{margin-top:3px}
+  .item{border:1px solid var(--line-soft);border-left:4px solid var(--hijau);padding:10px 14px;margin:8px 0;background:var(--bg)}
+  .item.sembunyi{border-left-color:var(--line);opacity:.75}
+  .item .kepala{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:baseline;font-size:12.5px;color:var(--muted)}
+  .item .judul{font-weight:600;color:var(--ink);font-size:15px}
+  .item .isi{white-space:pre-line;margin:6px 0;overflow-wrap:anywhere}
+</style>
+</head>
+<body>
+<header class="hero"><div class="hero-in">
+  <div class="hero-inst" data-identitas></div>
+  <h1>Laboratorium</h1>
+  <div class="sub" id="hSub">Memuat…</div>
+</div></header>
+<main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
+<script src="config.js?v=2026-11-16-42fbba"></script>
+<script>
+// Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
+addEventListener('error', function (e) {
+  if (document.getElementById('galat-muat')) return;
+  var d = document.createElement('div');
+  d.id = 'galat-muat';
+  d.style.cssText = 'margin:16px;padding:12px 14px;border:1px solid var(--merah);' +
+    'background:var(--merah-m3);color:var(--ink);font:14px/1.5 system-ui,sans-serif';
+  d.textContent = 'Halaman gagal dimuat: ' + (e.message || 'galat skrip') +
+    '. Tekan Ctrl+Shift+R untuk memuat ulang tanpa cache; bila tetap muncul, kirim pesan ini ke admin.';
+  document.body.insertBefore(d, document.body.firstChild);
+});
+</script>
+<script type="module">
+// Profil laboratorium untuk situs publik (pemilik 2026-11-16; 82-patch-laboratorium.sql), khusus admin.
+// Tampil di laboratorium.html (dibangun bangun.py tiap jam, foto disalin dari Drive). Daftar alat diambil dari
+// Data prodi > Prasarana & alat (LKPS 5.a) dengan nama prasarana yang dipilih di sini; penelitian terkait hanya
+// yang terverifikasi.
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
+import { gerbang } from './menu.js?v=2026-11-16-42fbba';
+
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const $ = id => document.getElementById(id);
+const sb = createClient(window.SB_URL, window.SB_KEY);
+const FOTO_EXT = ['jpg', 'jpeg', 'png'];
+const MAKS_FOTO = 6;
+const JENIS_KARYA = { penelitian: 'Penelitian', pkm: 'PkM' };
+
+let SAYA = null, DATA = [], SUNTING = null, FOTO = [];
+let DOSEN = [], MK = [], KARYA = [], RUANG = [], ALAT = [];
+
+const keB64 = f => new Promise((ok, gagal) => {
+  const r = new FileReader();
+  r.onload = () => ok(String(r.result).split(',')[1]);
+  r.onerror = () => gagal(r.error);
+  r.readAsDataURL(f);
+});
+
+// Foto ke Drive lewat Apps Script (kind 'karya'): <tahun>/<pengunggah>/Laboratorium - <nama>/, dibagikan baca-saja.
+async function unggahFoto(berkas, nama, tulis){
+  if (!window.UPLOAD_URL) throw new Error('Unggah berkas belum disiapkan di config.js.');
+  const maxMb = Number(window.UPLOAD_MAX_MB) || 0;
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) throw new Error('Sesi login habis. Muat ulang halaman.');
+  const hasil = [];
+  for (let i = 0; i < berkas.length; i++) {
+    const f = berkas[i], e = ((f.name.match(/\.([^.]+)$/) || [])[1] || '').toLowerCase();
+    if (!FOTO_EXT.includes(e)) throw new Error(`${f.name}: unggah foto JPG atau PNG.`);
+    if (maxMb && f.size > maxMb * 1024 * 1024) throw new Error(`${f.name}: lebih dari ${maxMb} MB.`);
+    tulis('', `Mengunggah ${i + 1}/${berkas.length}: ${f.name}…`);
+    const res = await fetch(window.UPLOAD_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ token: session.access_token, kind: 'karya', year: String(new Date().getFullYear()),
+                             group: `Laboratorium - ${nama}`, filename: f.name, data: await keB64(f) }) });
+    const out = await res.json();
+    if (!out.ok) throw new Error(out.error || 'Unggah gagal.');
+    hasil.push(out.url);
+  }
+  return hasil;
+}
+
+function kerangka(){
+  $('isi').innerHTML = `
+    <div class="kartu"><h2 id="fJudul">Laboratorium baru</h2>
+      <p class="ket">Profil laboratorium untuk halaman publik Laboratorium, tampil paling lambat sejam setelah disimpan.
+        Daftar alat diambil dari Data prodi › Prasarana &amp; alat (LKPS 5.a) untuk prasarana yang dipilih di bawah.
+        Foto: ruang dan peralatan lab, tanpa orang yang belum setuju difoto.</p>
+      <div class="grid">
+        <label>Nama laboratorium<input id="fN" maxlength="120" placeholder="Laboratorium Mekanika Tanah"></label>
+        <label>Prasarana di LKPS 5.a<select id="fP"></select></label>
+        <label>Koordinator / kepala lab<select id="fK"></select></label>
+        <label>Urutan tampil<input id="fU" type="number" value="100"></label>
+        <label class="lebar">Ringkasan (20–1500 huruf)<textarea id="fR" maxlength="1500"
+          placeholder="Fungsi laboratorium, jenis praktikum dan pengujian, serta bidang penelitian yang didukung."></textarea></label>
+        <label class="lebar">Layanan pengujian untuk pihak luar (satu jenis uji per baris)<textarea id="fL" style="min-height:70px"
+          placeholder="Uji kuat tekan beton&#10;Uji sondir (CPT)"></textarea></label>
+        <label class="lebar">Kontak permintaan pengujian (email atau teks, opsional)<input id="fKt" maxlength="200"></label>
+        <div class="lebar lbl">Mata kuliah praktikum <span id="mkKet"></span><div class="pilih" id="fMk"></div></div>
+        <div class="lebar lbl">Penelitian dan pengabdian terkait (yang terverifikasi)<div class="pilih" id="fRs"></div></div>
+        <div class="lebar"><span class="lbl">Foto (JPG/PNG, maks. ${MAKS_FOTO})</span>
+          <div class="aksi" style="margin-top:4px"><input id="fF" type="file" accept=".jpg,.jpeg,.png" multiple>
+            <button class="b" type="button" id="fUnggah">Unggah foto</button></div>
+          <div class="foto" id="fFoto"></div></div>
+        <label class="lebar" style="flex-direction:row;gap:6px;align-items:center;color:var(--ink)">
+          <input id="fT" type="checkbox" checked> Tampil di situs publik</label>
+      </div>
+      <div class="aksi"><button class="b utama" type="button" id="fSimpan">Simpan</button>
+        <button class="b" type="button" id="fBatal" hidden>Batal</button><span class="msg" id="fMsg"></span></div>
+    </div>
+    <div class="kartu"><h2>Semua laboratorium</h2><div id="daftar"></div></div>`;
+  $('fK').innerHTML = '<option value="">(belum ditentukan)</option>'
+    + DOSEN.map(d => `<option value="${esc(d.nidn)}">${esc(d.nama)}</option>`).join('');
+  $('fUnggah').onclick = unggah;
+  $('fSimpan').onclick = simpan;
+  $('fBatal').onclick = () => isiForm(null);
+  $('isi').addEventListener('click', klik);
+  isiForm(null);
+}
+
+function tulis(kelas, t){ const m = $('fMsg'); m.className = 'msg' + (kelas ? ' ' + kelas : ''); m.textContent = t; }
+function gambarFoto(){
+  $('fFoto').innerHTML = FOTO.map((u, i) => `<span><a href="${esc(u)}" target="_blank" rel="noopener">Foto ${i + 1}</a>
+    <button class="b" type="button" data-buang-foto="${i}">×</button></span>`).join('');
+}
+function centang(id, daftar, pilih){
+  $(id).innerHTML = daftar.map(([v, l]) => `<label><input type="checkbox" value="${esc(v)}"${pilih.has(String(v)) ? ' checked' : ''}>
+    <span>${l}</span></label>`).join('') || '<span class="kosong">Belum ada pilihan.</span>';
+}
+const dicentang = id => [...$(id).querySelectorAll('input:checked')].map(c => c.value);
+
+function isiForm(r){
+  SUNTING = r; FOTO = r ? [...(r.foto || [])] : [];
+  $('fJudul').textContent = r ? 'Ubah laboratorium' : 'Laboratorium baru';
+  $('fN').value = r?.nama || ''; $('fR').value = r?.ringkasan || ''; $('fU').value = r?.urutan ?? 100;
+  $('fK').value = r?.kepala_nidn || ''; $('fL').value = (r?.layanan || []).join('\n'); $('fKt').value = r?.kontak_layanan || '';
+  $('fT').checked = r ? r.tampil !== false : true;
+  // Prasarana: nama yang ada di LKPS 5.a; nilai tersimpan yang tidak lagi ada tetap bisa dipilih.
+  const ruang = [...new Set([...RUANG, ...(r?.prasarana ? [r.prasarana] : [])])];
+  $('fP').innerHTML = '<option value="">(sama dengan nama laboratorium)</option>'
+    + ruang.map(p => `<option value="${esc(p)}">${esc(p)} (${ALAT.filter(a => a.prasarana === p && a.alat).length} alat)</option>`).join('');
+  $('fP').value = r?.prasarana || '';
+  // MK praktikum (SKS praktikum > 0); bila tidak ada data SKS praktikum, semua MK.
+  const prak = MK.filter(m => Number(m.sks_praktikum) > 0), pilihMk = new Set((r?.mata_kuliah || []).map(String));
+  const mk = (prak.length ? prak : MK).concat(MK.filter(m => pilihMk.has(m.kode) && !(prak.length ? prak : MK).includes(m)));
+  $('mkKet').textContent = prak.length ? '(MK dengan SKS praktikum)' : '(semua MK; SKS praktikum belum diisi di kurikulum)';
+  const mkUnik = [...new Map(mk.map(m => [m.kode, m])).values()];
+  centang('fMk', mkUnik.map(m => [m.kode, `${esc(m.kode)} — ${esc(m.nama)}${m.kurikulum ? ` <span class="ket">${esc(m.kurikulum)}</span>` : ''}`]), pilihMk);
+  centang('fRs', KARYA.map(k => [k.id, `${esc(k.judul)} <span class="ket">${JENIS_KARYA[k.kategori] || ''} ${esc(k.tahun)}</span>`]),
+    new Set((r?.penelitian || []).map(String)));
+  $('fBatal').hidden = !r; tulis('', ''); gambarFoto();
+}
+
+async function unggah(){
+  const f = [...$('fF').files], nama = $('fN').value.trim();
+  if (!f.length) return tulis('buruk', 'Pilih foto dulu.');
+  if (!nama) return tulis('buruk', 'Isi nama laboratorium dulu; nama menjadi nama folder foto.');
+  if (FOTO.length + f.length > MAKS_FOTO) return tulis('buruk', `Paling banyak ${MAKS_FOTO} foto.`);
+  $('fUnggah').disabled = true;
+  try { FOTO.push(...await unggahFoto(f, nama, tulis)); $('fF').value = ''; gambarFoto(); tulis('ok', 'Foto terunggah; tekan Simpan.'); }
+  catch (e) { tulis('buruk', e.message || String(e)); }
+  finally { $('fUnggah').disabled = false; }
+}
+
+async function simpan(){
+  const isi = { nama: $('fN').value.trim(), ringkasan: $('fR').value.trim(), prasarana: $('fP').value || null,
+    kepala_nidn: $('fK').value || null, urutan: Number($('fU').value) || 100,
+    layanan: $('fL').value.split('\n').map(s => s.trim()).filter(Boolean), kontak_layanan: $('fKt').value.trim() || null,
+    mata_kuliah: dicentang('fMk'), penelitian: dicentang('fRs'), foto: FOTO, tampil: $('fT').checked,
+    oleh: SAYA.email, diperbarui: new Date().toISOString() };
+  if (isi.nama.length < 3) return tulis('buruk', 'Nama minimal 3 huruf.');
+  if (isi.ringkasan.length < 20) return tulis('buruk', 'Ringkasan minimal 20 huruf.');
+  if (isi.layanan.length > 30) return tulis('buruk', 'Paling banyak 30 jenis layanan.');
+  if (isi.penelitian.length > 30) return tulis('buruk', 'Paling banyak 30 penelitian terkait.');
+  $('fSimpan').disabled = true;
+  try {
+    const q = SUNTING ? sb.from('laboratorium').update(isi).eq('id', SUNTING.id) : sb.from('laboratorium').insert(isi);
+    const { error } = await q;
+    if (error) throw new Error(/duplicate|unique/i.test(error.message) ? 'Nama laboratorium sudah ada.' : error.message);
+    await muat(); isiForm(null); tulis('ok', 'Tersimpan.');
+  } catch (e) { tulis('buruk', 'Gagal: ' + (e.message || e)); }
+  finally { $('fSimpan').disabled = false; }
+}
+
+async function klik(ev){
+  const t = ev.target.closest('button'); if (!t) return;
+  if (t.dataset.buangFoto != null) { FOTO.splice(+t.dataset.buangFoto, 1); gambarFoto(); return; }
+  const r = DATA.find(x => String(x.id) === (t.dataset.ubah || t.dataset.hapus));
+  if (!r) return;
+  if (t.dataset.ubah) { isiForm(r); $('fJudul').scrollIntoView({ behavior: 'smooth' }); }
+  else if (t.dataset.hapus) {
+    if (!confirm(`Hapus laboratorium "${r.nama}"? Foto di Drive dan daftar alat di LKPS 5.a tidak ikut terhapus.`)) return;
+    const { error } = await sb.from('laboratorium').delete().eq('id', r.id);
+    if (error) return alert('Gagal: ' + error.message);
+    await muat();
+  }
+}
+
+function htmlItem(r){
+  const ruang = r.prasarana || r.nama;
+  const kepala = DOSEN.find(d => d.nidn === r.kepala_nidn)?.nama;
+  return `<div class="item${r.tampil === false ? ' sembunyi' : ''}"><div class="kepala">
+      <span>${r.tampil === false ? 'Tidak tampil' : 'Tampil'} · urutan ${esc(r.urutan)}</span>
+      <span>${ALAT.filter(a => a.prasarana === ruang && a.alat).length} alat</span><span>${(r.mata_kuliah || []).length} MK</span>
+      <span>${(r.layanan || []).length} layanan</span><span>${(r.penelitian || []).length} penelitian</span><span>${(r.foto || []).length} foto</span></div>
+    <div class="judul">${esc(r.nama)}</div>${kepala ? `<div class="ket">Koordinator: ${esc(kepala)}</div>` : ''}
+    <div class="isi">${esc(r.ringkasan)}</div>
+    <div class="aksi"><button class="b" data-ubah="${r.id}">Ubah</button><button class="b bahaya" data-hapus="${r.id}">Hapus</button></div></div>`;
+}
+
+async function muatPilihan(){
+  const [d, m, k, p] = await Promise.all([
+    sb.from('dosen').select('nidn,nama,peran,dtps').order('nama'),
+    sb.from('ref_mata_kuliah').select('kurikulum,kode,nama,sks_praktikum').order('kurikulum', { ascending: false }).order('kode'),
+    sb.from('karya').select('id,judul,tahun,kategori').in('kategori', ['penelitian', 'pkm']).eq('status', 'terverifikasi')
+      .order('tahun', { ascending: false }).order('judul'),
+    sb.from('lkps_prasarana').select('prasarana,alat').order('prasarana')]);
+  // Sama dengan Data prodi: tanpa admin/asesor yang bukan DTPS (staf/tendik bukan dosen).
+  DOSEN = (d.data || []).filter(x => x.nidn && (x.dtps || ['dosen', 'pimpinan'].includes(x.peran)));
+  MK = m.data || [];
+  KARYA = k.data || [];
+  ALAT = (p.data || []).map(x => ({ prasarana: (x.prasarana || '').trim(), alat: (x.alat || '').trim() }));
+  RUANG = [...new Set(ALAT.map(x => x.prasarana).filter(Boolean))];
+}
+
+async function muat(){
+  const { data, error } = await sb.from('laboratorium').select('*').order('urutan').order('nama');
+  if (error) throw new Error(/laboratorium/.test(error.message) ? 'Tabel laboratorium belum ada: jalankan supabase/82-patch-laboratorium.sql.' : error.message);
+  DATA = data || [];
+  $('daftar').innerHTML = DATA.map(htmlItem).join('') || '<p class="kosong">Belum ada laboratorium.</p>';
+}
+
+async function mulai(){
+  SAYA = await gerbang(sb);
+  if (!SAYA) return;
+  $('hSub').textContent = `Masuk sebagai ${SAYA.nama}`;
+  if (SAYA.peran !== 'admin') { $('isi').innerHTML = '<p class="kosong">Halaman ini khusus admin program studi.</p>'; return; }
+  await muatPilihan();
+  kerangka();
+  await muat();
+}
+mulai().catch(e => { $('isi').innerHTML = `<p class="kosong">Gagal memuat: ${esc(e.message)}</p>`; });
+</script>
+</body>
+</html>

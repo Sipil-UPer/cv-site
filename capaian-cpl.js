@@ -5,8 +5,8 @@
 // Bukti: butir 13 unsur 9, butir 14 unsur 5 (tinjauan rutin pencapaian CPL),
 // butir 15 unsur 5 (tinjauan RPS: analisis CPL), butir 16 unsur 1.
 
-import { htmlRadarAngkatan, htmlProgresKecil, htmlPetaPanas, CSS_GRAFIK } from './grafik-cpl.js?v=2026-11-16-c1c70f';
-import { htmlTrenLintas, normKur, normCpl } from './kurikulum-cpl.js?v=2026-11-16-c1c70f';
+import { htmlRadarAngkatan, htmlProgresKecil, htmlPetaPanas, CSS_GRAFIK } from './grafik-cpl.js?v=2026-11-16-42fbba';
+import { htmlTrenLintas, normKur, normCpl } from './kurikulum-cpl.js?v=2026-11-16-42fbba';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
