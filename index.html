@@ -15,7 +15,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-16-4e140c">
+<link rel="stylesheet" href="tema.css?v=2026-11-16-c1c70f">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:#fff;color:var(--ink);font-family:var(--sans);font-size:15.5px;line-height:1.6;-webkit-font-smoothing:antialiased}
@@ -140,10 +140,28 @@
   .berita-band{display:flex;justify-content:space-between;align-items:center;gap:18px;flex-wrap:wrap;background:var(--biru-m11);border:1px solid var(--line);border-left:4px solid var(--aksen);padding:22px 26px}
   .berita-band h3{font-family:var(--judul);font-size:22px;color:var(--biru);margin:0 0 4px}
   .berita-band p{margin:0;color:var(--muted)}
-  .ajak{margin-top:70px;color:#fff;background:linear-gradient(110deg,rgba(var(--biru-gelap-rgb),1),rgba(var(--biru-rgb),.92)),repeating-linear-gradient(135deg,#1d5aa6 0 22px,#16509a 22px 44px)}
-  .ajak-in{max-width:1180px;margin:0 auto;padding:54px 20px;display:flex;justify-content:space-between;align-items:center;gap:24px;flex-wrap:wrap}
-  .ajak h2{font-family:var(--judul);font-size:clamp(26px,3.4vw,38px);margin:0 0 6px;line-height:1.1}
-  .ajak p{margin:0;color:var(--biru-m4);max-width:560px}
+  /* Akreditasi dan kabar kegiatan (pemilik 2026-11-16; 81-patch-kabar-kegiatan.sql) */
+  .lencana{display:inline-flex;align-items:center;gap:8px;margin:0 0 14px;padding:6px 12px;background:rgba(255,255,255,.12);
+    border:1px solid rgba(255,255,255,.3);border-left:4px solid var(--aksen);font-size:13.5px;color:#fff;border-radius:2px}
+  .lencana b{font-family:var(--judul);font-size:16px;letter-spacing:.01em}
+  .lencana span{color:var(--biru-m4)}
+  .kabar .kartu{padding:0;overflow:hidden;display:flex;flex-direction:column}
+  .kabar img{width:100%;aspect-ratio:16/10;object-fit:cover;display:block;background:var(--biru-m10)}
+  .kabar .isi{padding:16px 18px 18px}
+  .kabar .isi h3{font-size:18px;margin:6px 0 6px}
+  .kabar .isi p{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+  /* Prestasi mahasiswa (pemilik 2026-11-16; 80-patch-prestasi-publik.sql) */
+  .pres{grid-template-columns:repeat(3,1fr)}
+  @media(max-width:900px){.pres{grid-template-columns:1fr 1fr}}
+  @media(max-width:560px){.pres{grid-template-columns:1fr}}
+  .pres .kartu{padding:0;overflow:hidden;display:flex;flex-direction:column}
+  .pres img,.pres .tanpa-foto{width:100%;aspect-ratio:16/10;object-fit:cover;display:block;background:var(--biru-m10)}
+  .pres .tanpa-foto{display:grid;place-items:center;font-size:40px}
+  .pres .isi{padding:16px 18px 18px}
+  .pres .isi h3{font-size:20px;margin:6px 0 2px}
+  .pres .lomba{font-weight:600;color:var(--ink);font-size:14.5px}
+  .pres .siapa{margin-top:8px;font-size:13px;color:var(--muted)}
+  .tag.int{background:var(--aksen);color:var(--biru-gelap)}
 </style>
 </head>
 <body>
@@ -153,11 +171,13 @@
   <div class="hero">
     <div class="hero-in">
       <div>
+        <div class="lencana" id="hLencana" hidden></div>
         <div class="eyebrow" id="hInst">Universitas Pertamina</div>
         <h1><b id="hProdi" style="font-weight:700">Teknik Sipil</b><span>Program Studi</span></h1>
         <p class="lead" id="hLead">Rekayasa teknik sipil yang inovatif untuk infrastruktur berkelanjutan, khususnya di bidang energi.</p>
         <div class="tombol" id="hTombol">
-          <a class="btn utama" href="kurikulum.html">Lihat kurikulum &rarr;</a>
+          <a class="btn utama" href="prestasi.html">Lihat prestasi mahasiswa &rarr;</a>
+          <a class="btn garis" href="kurikulum.html">Kurikulum</a>
           <a class="btn garis" href="daftar.html?jenis=dosen">Dosen</a>
         </div>
         <div class="cari-umum"><input type="search" id="cariUmum" autocomplete="off" aria-label="Cari di situs program studi"
@@ -167,6 +187,7 @@
         <h2 id="jAkses">Akses cepat</h2>
         <ul id="akses">
           <li><a href="berkas-mahasiswa.html"><div>Wilayah mahasiswa<small>Pengumuman, berkas, tanya-jawab</small></div><span>&rarr;</span></a></li>
+          <li><a href="prestasi.html"><div>Prestasi mahasiswa<small>Kompetisi dan capaian mahasiswa</small></div><span>&rarr;</span></a></li>
           <li><a href="kurikulum.html"><div>Kurikulum dan CPL<small>Mata kuliah per semester</small></div><span>&rarr;</span></a></li>
           <li><a href="berkas-mahasiswa.html#kirim"><div>Tanya / masukan<small>Kirim ke program studi</small></div><span>&rarr;</span></a></li>
           <li><a href="kinerja.html"><div>Kinerja program studi<small>Angka dan grafik kinerja</small></div><span>&rarr;</span></a></li>
@@ -175,6 +196,24 @@
     </div>
   </div>
   <nav class="angka" aria-label="Angka program studi"><div class="angka-in" id="angka"></div></nav>
+
+  <!-- Prestasi mahasiswa terverifikasi, dari isian dosen (pemilik 2026-11-16). -->
+  <div class="kotak">
+    <section aria-labelledby="jPres" id="bPres" hidden>
+      <div class="kepala-bag"><div><div class="eyebrow">Prestasi mahasiswa</div><h2 id="jPres">Prestasi terbaru</h2></div>
+        <a class="lagi" href="prestasi.html">Semua prestasi &rarr;</a></div>
+      <div class="grid pres" id="pres"></div>
+    </section>
+  </div>
+
+  <!-- Kabar kegiatan terbit (pemilik 2026-11-16). -->
+  <div class="kotak">
+    <section aria-labelledby="jKabar" id="bKabar" hidden>
+      <div class="kepala-bag"><div><div class="eyebrow">Kabar kegiatan</div><h2 id="jKabar">Kabar terbaru</h2></div>
+        <a class="lagi" href="kabar.html">Semua kabar &rarr;</a></div>
+      <div class="grid g3 kabar" id="kabar"></div>
+    </section>
+  </div>
 
   <!-- Kegiatan dan kinerja program studi langsung di bawah angka (pemilik 2026-11-16). -->
   <div class="latar" id="bRiset" hidden>
@@ -225,13 +264,9 @@
     </section>
   </div>
 
-  <section class="ajak" id="bAjak" hidden aria-labelledby="jAjak"><div class="ajak-in">
-    <div><h2 id="jAjak">Siap bergabung?</h2><p id="ajakTeks">Bangun infrastruktur masa depan bersama kami.</p></div>
-    <div class="tombol" id="ajakTombol"></div>
-  </div></section>
 </main>
 
-<script src="config.js?v=2026-11-16-4e140c"></script>
+<script src="config.js?v=2026-11-16-c1c70f"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -249,8 +284,8 @@ addEventListener('error', function (e) {
 // Beranda program studi (pemilik 2026-11-16). Data dari data.json (bangun.py); pita dari RPC publik.
 // Isi yang belum ada (config.yaml public_site: tagline, kontak, media sosial, PMB) tidak ditampilkan.
 // Dasbor kinerja yang dulu di sini pindah ke kinerja.html.
-import { pasangKerangka, isiKerangka } from './kerangka.js?v=2026-11-16-4e140c';
-import { halamanAktif } from './fitur.js?v=2026-11-16-4e140c';
+import { pasangKerangka, isiKerangka } from './kerangka.js?v=2026-11-16-c1c70f';
+import { halamanAktif } from './fitur.js?v=2026-11-16-c1c70f';
 pasangKerangka({ aktif: '' });
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -309,14 +344,39 @@ function gambar(d){
   // Pendaftaran (PMB), karier, laboratorium, berita, dan ajakan penutup (pemilik 2026-11-16).
   // Bagian kosong tidak tampil. "Mengapa memilih kami" dan peminatan dihapus pemilik 2026-11-16:
   // beranda menyampaikan kegiatan dan kinerja program studi.
-  const daftarBtn = situs.pendaftaran ? `<a class="btn utama" href="${esc(situs.pendaftaran)}" rel="noopener">Daftar sekarang &#8599;</a>` : '';
-  const waBtn = situs.konsultasi ? `<a class="btn garis" href="${esc(situs.konsultasi)}" rel="noopener">Konsultasi WhatsApp &#8599;</a>` : '';
-  if (daftarBtn) {
-    $('hTombol').innerHTML = daftarBtn + waBtn + `<a class="btn garis" href="kurikulum.html">Lihat kurikulum</a>`;
-    $('ajakTombol').innerHTML = daftarBtn + waBtn;
-    $('ajakTeks').textContent = `Daftarkan diri di Program Studi ${d.prodi || ''}${d.institusi ? ', ' + d.institusi : ''}.`;
-    $('bAjak').hidden = false;
+  // Status akreditasi (Data prodi > Prodi di UPPS, baris "prodi ini"): hanya bila masih berlaku.
+  const ak = d.akreditasi_prodi || {};
+  if (ak.peringkat) {
+    const sampai = ak.berlaku_sampai ? new Date(ak.berlaku_sampai + 'T00:00').toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : '';
+    $('hLencana').innerHTML = `<b>Terakreditasi ${esc(ak.peringkat)}</b>${ak.lembaga ? `<span>${esc(ak.lembaga)}</span>` : ''}${sampai ? `<span>berlaku s.d. ${esc(sampai)}</span>` : ''}`;
+    $('hLencana').hidden = false;
   }
+
+  // Kabar kegiatan terbit terbaru, paling banyak 3.
+  const JENIS_KABAR = { kuliah_tamu: 'Kuliah tamu', kunjungan_lapangan: 'Kunjungan lapangan', seminar: 'Seminar',
+    pengabdian: 'Pengabdian', kerja_praktik: 'Kerja praktik', kompetisi: 'Kompetisi', kerja_sama: 'Kerja sama', lainnya: 'Kegiatan' };
+  const kabar = (d.kabar || []).slice(0, 3);
+  if (kabar.length) {
+    $('kabar').innerHTML = kabar.map(x => `<a class="kartu" href="kabar.html#kabar-${esc(x.id)}">
+      ${x.foto?.length ? `<img src="${esc(x.foto[0])}" alt="${esc(x.judul)}" loading="lazy">` : ''}
+      <div class="isi"><div class="meta"><span class="tag">${esc(JENIS_KABAR[x.jenis] || 'Kegiatan')}</span>${esc(String(x.tanggal || '').split('-').reverse().join('/'))}</div>
+      <h3>${esc(x.judul)}</h3><p>${esc(x.ringkasan)}</p></div></a>`).join('');
+    $('bKabar').hidden = false;
+  }
+
+  // Prestasi mahasiswa terbaru (data.json prestasi): yang berfoto didahulukan, paling banyak 6.
+  const TINGKAT = { internasional: 'Internasional', nasional: 'Nasional', wilayah_lokal: 'Wilayah/lokal' };
+  const pres = [...(d.prestasi || [])].sort((a, b) => (b.foto?.length ? 1 : 0) - (a.foto?.length ? 1 : 0)
+    || (b.tahun || 0) - (a.tahun || 0) || (b.bulan || 0) - (a.bulan || 0)).slice(0, 6);
+  if (pres.length) {
+    $('pres').innerHTML = pres.map(x => `<a class="kartu" href="prestasi.html">
+      ${x.foto?.length ? `<img src="${esc(x.foto[0])}" alt="Dokumentasi ${esc(x.kegiatan)}" loading="lazy">` : '<div class="tanpa-foto" aria-hidden="true">&#127942;</div>'}
+      <div class="isi"><div class="meta"><span class="tag${x.tingkat === 'internasional' ? ' int' : ''}">${esc(TINGKAT[x.tingkat] || x.tingkat || '')}</span>${esc(x.tahun || '')}</div>
+      <h3>${esc(x.capaian || 'Prestasi')}</h3><div class="lomba">${esc(x.kegiatan)}</div>
+      <div class="siapa">${esc((x.mahasiswa || []).join(', ') || 'Tim mahasiswa')}</div></div></a>`).join('');
+    $('bPres').hidden = false;
+  }
+
   if (situs.karier?.length) { $('karier').innerHTML = situs.karier.map(x => `<li>${esc(x)}</li>`).join(''); $('kKarier').hidden = false; }
   if (situs.laboratorium?.length) { $('lab').innerHTML = situs.laboratorium.map(x => `<li>${esc(x)}</li>`).join(''); $('kLab').hidden = false; }
   $('bKarier').hidden = !(situs.karier?.length || situs.laboratorium?.length);
@@ -371,12 +431,12 @@ function gambar(d){
       <p>Pengumuman, berkas panduan dan formulir, tanya-jawab, serta kotak pertanyaan dan masukan.</p><span class="panah">Buka &rarr;</span></a>
     <a class="kartu" href="kurikulum.html"><div class="ikon">${IKON.kur}</div><h3>Kurikulum ${esc(k?.kode || '')}</h3>
       <p>${k ? `${k.cpl.length} capaian pembelajaran lulusan dan ${wajib.length} mata kuliah wajib (${sks} sks), ditambah mata kuliah pilihan.` : 'Kurikulum dan capaian pembelajaran lulusan.'}</p><span class="panah">Lihat kurikulum &rarr;</span></a>
-    <a class="kartu" href="daftar.html?jenis=prestasi"><div class="ikon">${IKON.pres}</div><h3>Prestasi mahasiswa</h3>
+    <a class="kartu" href="prestasi.html"><div class="ikon">${IKON.pres}</div><h3>Prestasi mahasiswa</h3>
       <p>${prestasi ? `${prestasi} prestasi mahasiswa yang telah diverifikasi program studi.` : 'Prestasi mahasiswa yang telah diverifikasi program studi.'}</p><span class="panah">Lihat prestasi &rarr;</span></a>`;
 }
 
 function pasangCari(D){
-  import('./cari.js?v=2026-11-16-4e140c').then(m => {
+  import('./cari.js?v=2026-11-16-c1c70f').then(m => {
     const idx = m.indeksPublik(D, k => !(window.FITUR_MATI || []).includes(k));
     const kotak = $('cariUmum'), panel = $('hasilUmum');
     let aktif = -1;

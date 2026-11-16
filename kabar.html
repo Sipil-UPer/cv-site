@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="bangun.py halaman_publik">
+<title>Kabar kegiatan — Program Studi Teknik Sipil, Universitas Pertamina</title>
+<meta name="description" content="Kegiatan Program Studi Teknik Sipil, Universitas Pertamina: kuliah tamu, kunjungan lapangan, seminar, pengabdian kepada masyarakat, dan kerja sama.">
+<meta property="og:title" content="Kabar kegiatan — Program Studi Teknik Sipil, Universitas Pertamina">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tema.css?v=2026-11-16-c1c70f">
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15.5px;line-height:1.6}
+.kepala{background:var(--biru);color:#fff}
+.kepala-in{max-width:1080px;margin:0 auto;padding:40px 20px 34px}
+.eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--biru-m2)}
+h1{font-family:var(--serif);font-size:clamp(30px,4.6vw,48px);margin:8px 0 6px;line-height:1.08}
+.kepala p{margin:0;color:var(--biru-m4);max-width:640px}
+.daftar{max-width:1080px;margin:0 auto;padding:24px 20px 20px;display:grid;gap:20px}
+.kartu{background:#fff;border:1px solid var(--line);display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);overflow:hidden}
+.kartu:not(:has(> img)){grid-template-columns:1fr}
+.kartu>img{width:100%;height:100%;min-height:220px;object-fit:cover;display:block;background:var(--biru-m10)}
+.isi{padding:20px 24px}
+.meta{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.tag{display:inline-block;padding:1px 7px;border-radius:2px;background:var(--aksen);color:var(--biru-gelap);margin-right:8px}
+h2{font-family:var(--serif);font-size:23px;color:var(--biru);margin:8px 0 6px;line-height:1.2}
+.isi p{margin:0;white-space:pre-line}
+.lain{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.lain img{width:84px;height:60px;object-fit:cover;border-radius:2px}
+.lagi{display:inline-block;margin-top:12px;font-weight:600;color:var(--biru-2);text-decoration:none}
+.univ{max-width:1080px;margin:0 auto;padding:0 20px;color:var(--muted)}
+.kosong{color:var(--muted)}
+@media(max-width:760px){.kartu{grid-template-columns:1fr}.kartu>img{min-height:0;aspect-ratio:16/10}}
+</style>
+</head>
+<body>
+<main id="utama">
+  <header class="kepala"><div class="kepala-in">
+    <div class="eyebrow">Program Studi Teknik Sipil, Universitas Pertamina</div>
+    <h1>Kabar kegiatan</h1>
+    <p>Kuliah tamu, kunjungan lapangan, seminar, pengabdian kepada masyarakat, kompetisi, dan kerja sama program studi.</p>
+  </div></header>
+  <div class="daftar"><p class="kosong">Kabar kegiatan program studi akan tampil di sini.</p></div>
+  <p class="univ">Berita program studi juga dimuat di <a href="https://universitaspertamina.ac.id/prodi/teknik-sipil/berita" rel="noopener">laman berita universitas &#8599;</a>.</p>
+</main>
+<script src="config.js?v=2026-11-16-c1c70f"></script>
+<script type="module">
+import { pasangKerangka, isiKerangka } from './kerangka.js?v=2026-11-16-c1c70f';
+pasangKerangka({ aktif: 'berita' });
+fetch('data.json?v=' + Date.now()).then(r => r.json()).then(isiKerangka).catch(() => {});
+</script>
+</body>
+</html>

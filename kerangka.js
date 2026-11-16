@@ -1,11 +1,11 @@
 // Kerangka halaman publik (pemilik 2026-11-16): kepala bergaya situs universitas (deret logo di bilah
 // biru, nama prodi, menu turun) dan kaki halaman yang sama di halaman publik. Pemakaian:
-//   import { pasangKerangka, isiKerangka } from './kerangka.js?v=2026-11-16-4e140c';
+//   import { pasangKerangka, isiKerangka } from './kerangka.js?v=2026-11-16-c1c70f';
 //   pasangKerangka({ aktif: 'akademik' });   // segera, sebelum data.json
 //   isiKerangka(D);                           // setelah data.json: nama prodi, kontak, media sosial
 // Logo: window.LOGO_KEPALA di config.js; tanpa itu logo.png. Menu hanya memuat halaman yang ada
 // dan modul yang menyala (fitur.js). Tautan relatif (situs akan pindah ke subdomain kampus).
-import { halamanAktif } from './fitur.js?v=2026-11-16-4e140c';
+import { halamanAktif } from './fitur.js?v=2026-11-16-c1c70f';
 
 export const MENU = [
   { id: 'profil', judul: 'Profil', isi: [
@@ -29,7 +29,7 @@ export const MENU = [
   ] },
   { id: 'mahasiswa', judul: 'Mahasiswa', isi: [
     { judul: 'Pengumuman', href: 'berkas-mahasiswa.html#pengumuman' },
-    { judul: 'Prestasi mahasiswa', href: 'daftar.html?jenis=prestasi' },
+    { judul: 'Prestasi mahasiswa', href: 'prestasi.html' },
     { judul: 'Tanya-jawab', href: 'berkas-mahasiswa.html#tanya-jawab' },
     { judul: 'Kirim pertanyaan / masukan', href: 'berkas-mahasiswa.html#kirim' },
   ] },
@@ -152,11 +152,11 @@ export function pasangKerangka({ aktif = '' } = {}){
   kaki.className = 'kr-kaki';
   kaki.id = 'kontak';
   kaki.innerHTML = `<div class="kr-kaki-in">
-    <div><div class="kr-nama">Program Studi <span data-kr="prodi"></span></div><div data-kr="institusi"></div>
+    <div><div class="kr-nama">Program Studi <span data-kr="prodi"></span></div><div data-kr="institusi"></div><div data-kr="akreditasi" hidden style="margin-top:6px;color:#fff;font-weight:600"></div>
       <address data-kr="kontak" hidden></address></div>
     <div><h4>Akademik</h4><ul>
       <li><a href="kurikulum.html">Kurikulum dan CPL</a></li><li><a href="berkas-mahasiswa.html">Wilayah mahasiswa</a></li>
-      <li><a href="daftar.html?jenis=prestasi">Prestasi mahasiswa</a></li></ul></div>
+      <li><a href="prestasi.html">Prestasi mahasiswa</a></li></ul></div>
     <div><h4>Riset</h4><ul>
       <li><a href="daftar.html?jenis=dosen">Dosen</a></li><li><a href="daftar.html?jenis=publikasi">Publikasi</a></li>
       <li><a href="mitra.html">Mitra kerja sama</a></li><li><a href="kinerja.html">Kinerja program studi</a></li></ul></div>
@@ -202,10 +202,17 @@ export function isiKerangka(D){
   // Menu Kontak hanya bila kontak diisi (config.yaml public_site.contact).
   document.querySelectorAll('[data-kr-menu="kontak"]').forEach(el => { el.hidden = !baris.length; });
   // Berita prodi dan pendaftaran: tautan luar dari config.yaml public_site (news_url, admission_url).
-  const berita = D.situs?.berita, daftar = D.situs?.pendaftaran;
+  // Berita: kabar kegiatan prodi sendiri (kabar.html) bila ada yang terbit; selain itu laman berita universitas.
+  const berita = (D.kabar || []).length ? 'kabar.html' : D.situs?.berita, daftar = D.situs?.pendaftaran;
   document.querySelectorAll('[data-kr-menu="berita"]').forEach(el => {
     el.hidden = !berita;
-    if (berita) Object.assign(el.querySelector('a'), { href: berita, rel: 'noopener' });
+    if (berita) Object.assign(el.querySelector('a'), { href: berita, ...(berita.startsWith('http') ? { rel: 'noopener' } : {}) });
+  });
+  // Status akreditasi di kaki halaman (hanya bila masih berlaku; bangun.py akreditasi_publik).
+  const ak = D.akreditasi_prodi || {};
+  document.querySelectorAll('[data-kr="akreditasi"]').forEach(el => {
+    el.textContent = ak.peringkat ? `Terakreditasi ${ak.peringkat}${ak.lembaga ? ' · ' + ak.lembaga : ''}` : '';
+    el.hidden = !ak.peringkat;
   });
   document.querySelectorAll('[data-kr="daftar"]').forEach(el => {
     el.hidden = !daftar;

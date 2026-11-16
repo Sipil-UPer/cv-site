@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Kabar kegiatan — Kinerja Program Studi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tema.css?v=2026-11-16-c1c70f">
+<link rel="stylesheet" href="kepala.css?v=2026-11-16-c1c70f">
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
+  .wrap{max-width:1040px;margin:0 auto;padding:18px 20px 80px}
+  .kosong, .ket{color:var(--muted)}
+  .ket{font-size:13px}
+  .kartu{background:var(--panel);border:1px solid var(--line);padding:14px 18px;margin-bottom:16px}
+  .kartu h2{font-size:17px;margin:0 0 8px;color:var(--biru)}
+  .b{font:12px/1.4 var(--sans);padding:4px 9px;border:1px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer;margin:0 3px 3px 0}
+  .b:hover{border-color:var(--biru);color:var(--biru)}
+  .b.utama{background:var(--biru);color:#fff;border-color:var(--biru);font-size:14px;padding:7px 16px}
+  .b.bahaya{color:var(--merah)}
+  .b:disabled{opacity:.55;cursor:default}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px 14px;margin:8px 0}
+  .grid label{font-size:13px;color:var(--muted);display:flex;flex-direction:column;gap:3px}
+  .lebar{grid-column:1/-1}
+  .grid input, .grid select, textarea{font:inherit;font-size:14px;padding:5px 7px;border:1px solid var(--line);background:var(--panel);color:var(--ink)}
+  textarea{width:100%;min-height:90px;resize:vertical}
+  .aksi{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:8px}
+  .msg{font-size:13.5px} .msg.buruk{color:var(--merah)} .msg.ok{color:var(--hijau)}
+  .foto{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+  .foto span{display:inline-flex;gap:6px;align-items:center;font-size:12.5px;border:1px solid var(--line);padding:3px 8px;background:var(--bg)}
+  .item{border:1px solid var(--line-soft);border-left:4px solid var(--line);padding:10px 14px;margin:8px 0;background:var(--bg)}
+  .item.diajukan{border-left-color:var(--emas)}
+  .item.terbit{border-left-color:var(--hijau)}
+  .item.ditolak{border-left-color:var(--merah)}
+  .item .kepala{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:baseline;font-size:12.5px;color:var(--muted)}
+  .item .judul{font-weight:600;color:var(--ink);font-size:15px}
+  .item .isi{white-space:pre-line;margin:6px 0;overflow-wrap:anywhere}
+  .status{font-weight:600;text-transform:uppercase;letter-spacing:.05em;font-size:11px}
+</style>
+</head>
+<body>
+<header class="hero"><div class="hero-in">
+  <div class="hero-inst" data-identitas></div>
+  <h1>Kabar kegiatan</h1>
+  <div class="sub" id="hSub">Memuat…</div>
+</div></header>
+<main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
+<script src="config.js?v=2026-11-16-c1c70f"></script>
+<script>
+// Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
+addEventListener('error', function (e) {
+  if (document.getElementById('galat-muat')) return;
+  var d = document.createElement('div');
+  d.id = 'galat-muat';
+  d.style.cssText = 'margin:16px;padding:12px 14px;border:1px solid var(--merah);' +
+    'background:var(--merah-m3);color:var(--ink);font:14px/1.5 system-ui,sans-serif';
+  d.textContent = 'Halaman gagal dimuat: ' + (e.message || 'galat skrip') +
+    '. Tekan Ctrl+Shift+R untuk memuat ulang tanpa cache; bila tetap muncul, kirim pesan ini ke admin.';
+  document.body.insertBefore(d, document.body.firstChild);
+});
+</script>
+<script type="module">
+// Kabar kegiatan program studi (pemilik 2026-11-16; 81-patch-kabar-kegiatan.sql).
+// Dosen dan admin mengajukan kabar beserta foto; admin menerbitkan. Kabar terbit tampil di
+// beranda dan kabar.html (dibangun bangun.py tiap jam, foto disalin dari Drive).
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
+import { gerbang } from './menu.js?v=2026-11-16-c1c70f';
+
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const $ = id => document.getElementById(id);
+const sb = createClient(window.SB_URL, window.SB_KEY);
+const tgl = s => String(s || '').slice(0, 10).split('-').reverse().join('/');
+const JENIS = [['kuliah_tamu', 'Kuliah tamu'], ['kunjungan_lapangan', 'Kunjungan lapangan'], ['seminar', 'Seminar / lokakarya'],
+  ['pengabdian', 'Pengabdian kepada masyarakat'], ['kerja_praktik', 'Kerja praktik'], ['kompetisi', 'Kompetisi'],
+  ['kerja_sama', 'Kerja sama'], ['lainnya', 'Lainnya']];
+const STATUS = { diajukan: 'Menunggu terbit', terbit: 'Terbit', ditolak: 'Ditolak' };
+const FOTO_EXT = ['jpg', 'jpeg', 'png'];
+const MAKS_FOTO = 6;
+
+let SAYA = null, DATA = [], SUNTING = null, FOTO = [];
+const admin = () => SAYA?.peran === 'admin';
+const milik = r => r.dilaporkan_oleh === SAYA.id;
+
+const keB64 = f => new Promise((ok, gagal) => {
+  const r = new FileReader();
+  r.onload = () => ok(String(r.result).split(',')[1]);
+  r.onerror = () => gagal(r.error);
+  r.readAsDataURL(f);
+});
+
+// Foto ke Drive lewat Apps Script (kind 'karya'): <tahun>/<pengunggah>/Kabar - <judul>/, dibagikan baca-saja.
+async function unggahFoto(berkas, tahun, judul, tulis){
+  if (!window.UPLOAD_URL) throw new Error('Unggah berkas belum disiapkan di config.js.');
+  const maxMb = Number(window.UPLOAD_MAX_MB) || 0;
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) throw new Error('Sesi login habis. Muat ulang halaman.');
+  const hasil = [];
+  for (let i = 0; i < berkas.length; i++) {
+    const f = berkas[i], e = ((f.name.match(/\.([^.]+)$/) || [])[1] || '').toLowerCase();
+    if (!FOTO_EXT.includes(e)) throw new Error(`${f.name}: unggah foto JPG atau PNG.`);
+    if (maxMb && f.size > maxMb * 1024 * 1024) throw new Error(`${f.name}: lebih dari ${maxMb} MB.`);
+    tulis('', `Mengunggah ${i + 1}/${berkas.length}: ${f.name}…`);
+    const res = await fetch(window.UPLOAD_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ token: session.access_token, kind: 'karya', year: tahun, group: `Kabar - ${judul}`,
+                             filename: f.name, data: await keB64(f) }) });
+    const out = await res.json();
+    if (!out.ok) throw new Error(out.error || 'Unggah gagal.');
+    hasil.push(out.url);
+  }
+  return hasil;
+}
+
+function kerangka(){
+  $('isi').innerHTML = `
+    <div class="kartu"><h2 id="fJudul">Kabar baru</h2>
+      <p class="ket">Kegiatan program studi untuk situs publik: kuliah tamu, kunjungan lapangan, seminar, pengabdian,
+        kerja praktik, kompetisi, kerja sama. Setelah diterbitkan admin, kabar tampil di beranda dan halaman Kabar
+        kegiatan, paling lambat sejam kemudian. Foto: suasana kegiatan, tanpa dokumen pribadi.</p>
+      <div class="grid">
+        <label class="lebar">Judul<input id="fJ" maxlength="200" placeholder="Kuliah tamu: Teknologi beton rendah karbon"></label>
+        <label>Tanggal<input id="fT" type="date"></label>
+        <label>Jenis<select id="fJn">${JENIS.map(([k, l]) => `<option value="${k}">${l}</option>`).join('')}</select></label>
+        <label>Tempat<input id="fTp" maxlength="200"></label>
+        <label class="lebar">Ringkasan (20–1200 huruf)<textarea id="fR" maxlength="1200"
+          placeholder="Apa kegiatannya, siapa yang terlibat, dan apa hasilnya."></textarea></label>
+        <label class="lebar">Tautan (opsional)<input id="fU" type="url" placeholder="https://"></label>
+        <div class="lebar"><label style="font-size:13px;color:var(--muted)">Foto (JPG/PNG, maks. ${MAKS_FOTO})</label>
+          <div class="aksi" style="margin-top:4px"><input id="fF" type="file" accept=".jpg,.jpeg,.png" multiple>
+            <button class="b" type="button" id="fUnggah">Unggah foto</button></div>
+          <div class="foto" id="fFoto"></div></div>
+      </div>
+      <div class="aksi"><button class="b utama" type="button" id="fSimpan">Ajukan</button>
+        <button class="b" type="button" id="fBatal" hidden>Batal</button><span class="msg" id="fMsg"></span></div>
+    </div>
+    ${admin() ? `<div class="kartu"><h2>Menunggu terbit</h2><div id="antre"></div></div>` : ''}
+    <div class="kartu"><h2>${admin() ? 'Semua kabar' : 'Kabar saya'}</h2><div id="daftar"></div></div>`;
+  $('fUnggah').onclick = unggah;
+  $('fSimpan').onclick = simpan;
+  $('fBatal').onclick = () => isiForm(null);
+  $('isi').addEventListener('click', klik);
+  isiForm(null);
+}
+
+function tulis(kelas, t){ const m = $('fMsg'); m.className = 'msg' + (kelas ? ' ' + kelas : ''); m.textContent = t; }
+function gambarFoto(){
+  $('fFoto').innerHTML = FOTO.map((u, i) => `<span><a href="${esc(u)}" target="_blank" rel="noopener">Foto ${i + 1}</a>
+    <button class="b" type="button" data-buang-foto="${i}">×</button></span>`).join('');
+}
+function isiForm(r){
+  SUNTING = r; FOTO = r ? [...(r.foto || [])] : [];
+  $('fJudul').textContent = r ? 'Ubah kabar' : 'Kabar baru';
+  $('fJ').value = r?.judul || ''; $('fT').value = r?.tanggal || new Date().toLocaleDateString('sv');
+  $('fJn').value = r?.jenis || 'kuliah_tamu'; $('fTp').value = r?.tempat || '';
+  $('fR').value = r?.ringkasan || ''; $('fU').value = r?.tautan || '';
+  $('fSimpan').textContent = r ? 'Simpan' : 'Ajukan';
+  $('fBatal').hidden = !r; tulis('', ''); gambarFoto();
+}
+
+async function unggah(){
+  const f = [...$('fF').files], judul = $('fJ').value.trim(), tanggal = $('fT').value;
+  if (!f.length) return tulis('buruk', 'Pilih foto dulu.');
+  if (!judul || !tanggal) return tulis('buruk', 'Isi judul dan tanggal dulu; keduanya menjadi nama folder foto.');
+  if (FOTO.length + f.length > MAKS_FOTO) return tulis('buruk', `Paling banyak ${MAKS_FOTO} foto.`);
+  $('fUnggah').disabled = true;
+  try { FOTO.push(...await unggahFoto(f, tanggal.slice(0, 4), judul, tulis)); $('fF').value = ''; gambarFoto(); tulis('ok', 'Foto terunggah.'); }
+  catch (e) { tulis('buruk', e.message || String(e)); }
+  finally { $('fUnggah').disabled = false; }
+}
+
+async function simpan(){
+  const isi = { judul: $('fJ').value.trim(), tanggal: $('fT').value, jenis: $('fJn').value,
+    tempat: $('fTp').value.trim() || null, ringkasan: $('fR').value.trim(), tautan: $('fU').value.trim() || null,
+    foto: FOTO, oleh: SAYA.email, diperbarui: new Date().toISOString() };
+  if (isi.judul.length < 3) return tulis('buruk', 'Judul minimal 3 huruf.');
+  if (!isi.tanggal) return tulis('buruk', 'Isi tanggal kegiatan.');
+  if (isi.ringkasan.length < 20) return tulis('buruk', 'Ringkasan minimal 20 huruf.');
+  if (isi.tautan && !/^https?:\/\/\S+$/i.test(isi.tautan)) return tulis('buruk', 'Tautan harus diawali http:// atau https://.');
+  $('fSimpan').disabled = true;
+  try {
+    let q;
+    if (!SUNTING) q = sb.from('kabar_kegiatan').insert({ ...isi, status: 'diajukan', dilaporkan_oleh: SAYA.id });
+    else if (admin()) q = sb.from('kabar_kegiatan').update(isi).eq('id', SUNTING.id);
+    else q = sb.from('kabar_kegiatan').update({ ...isi, status: 'diajukan', catatan: null }).eq('id', SUNTING.id);
+    const { error } = await q;
+    if (error) throw error;
+    const baru = !SUNTING;
+    await muat(); isiForm(null);
+    tulis('ok', baru && !admin() ? 'Terkirim; admin akan menerbitkannya.' : 'Tersimpan.');
+  } catch (e) { tulis('buruk', 'Gagal: ' + (e.message || e)); }
+  finally { $('fSimpan').disabled = false; }
+}
+
+async function ubahStatus(id, status, catatan){
+  const { error } = await sb.from('kabar_kegiatan').update({ status, catatan: catatan ?? null, diperbarui: new Date().toISOString() }).eq('id', id);
+  if (error) return alert('Gagal: ' + error.message);
+  await muat();
+}
+
+async function klik(ev){
+  const t = ev.target.closest('button'); if (!t) return;
+  if (t.dataset.buangFoto != null) { FOTO.splice(+t.dataset.buangFoto, 1); gambarFoto(); return; }
+  const r = DATA.find(x => String(x.id) === (t.dataset.ubah || t.dataset.hapus || t.dataset.terbit || t.dataset.tolak || t.dataset.tarik));
+  if (!r) return;
+  if (t.dataset.ubah) { isiForm(r); $('fJudul').scrollIntoView({ behavior: 'smooth' }); }
+  else if (t.dataset.terbit) await ubahStatus(r.id, 'terbit');
+  else if (t.dataset.tarik) await ubahStatus(r.id, 'diajukan');
+  else if (t.dataset.tolak) { const c = prompt('Catatan untuk pengaju (alasan ditolak):'); if (c?.trim()) await ubahStatus(r.id, 'ditolak', c.trim()); }
+  else if (t.dataset.hapus) {
+    if (!confirm(`Hapus kabar "${r.judul}"? Foto di Drive tidak ikut terhapus.`)) return;
+    const { error } = await sb.from('kabar_kegiatan').delete().eq('id', r.id);
+    if (error) return alert('Gagal: ' + error.message);
+    await muat();
+  }
+}
+
+function htmlItem(r){
+  const jenis = (JENIS.find(j => j[0] === r.jenis) || [, r.jenis])[1];
+  const bolehUbah = admin() || (milik(r) && r.status !== 'terbit');
+  return `<div class="item ${esc(r.status)}"><div class="kepala"><span class="status">${STATUS[r.status] || esc(r.status)}</span>
+      <span>${tgl(r.tanggal)} · ${esc(jenis)}${r.tempat ? ' · ' + esc(r.tempat) : ''}</span><span>${(r.foto || []).length} foto</span></div>
+    <div class="judul">${esc(r.judul)}</div><div class="isi">${esc(r.ringkasan)}</div>
+    ${r.catatan ? `<div class="ket">Catatan admin: ${esc(r.catatan)}</div>` : ''}
+    <div class="aksi">${bolehUbah ? `<button class="b" data-ubah="${r.id}">Ubah</button><button class="b bahaya" data-hapus="${r.id}">Hapus</button>` : ''}
+      ${admin() && r.status !== 'terbit' ? `<button class="b" data-terbit="${r.id}">Terbitkan</button>` : ''}
+      ${admin() && r.status === 'diajukan' ? `<button class="b" data-tolak="${r.id}">Tolak</button>` : ''}
+      ${admin() && r.status === 'terbit' ? `<button class="b" data-tarik="${r.id}">Tarik dari situs</button>` : ''}</div></div>`;
+}
+
+async function muat(){
+  const { data, error } = await sb.from('kabar_kegiatan').select('*').order('tanggal', { ascending: false }).order('id', { ascending: false });
+  if (error) throw new Error(/kabar_kegiatan/.test(error.message) ? 'Tabel kabar belum ada: jalankan supabase/81-patch-kabar-kegiatan.sql.' : error.message);
+  DATA = data || [];
+  const lihat = admin() ? DATA : DATA.filter(milik);
+  if ($('antre')) $('antre').innerHTML = DATA.filter(r => r.status === 'diajukan').map(htmlItem).join('') || '<p class="kosong">Tidak ada yang menunggu.</p>';
+  $('daftar').innerHTML = lihat.map(htmlItem).join('') || '<p class="kosong">Belum ada kabar.</p>';
+}
+
+async function mulai(){
+  SAYA = await gerbang(sb);
+  if (!SAYA) return;
+  $('hSub').textContent = `Masuk sebagai ${SAYA.nama}`;
+  kerangka();
+  await muat();
+}
+mulai().catch(e => { $('isi').innerHTML = `<p class="kosong">Gagal memuat: ${esc(e.message)}</p>`; });
+</script>
+</body>
+</html>

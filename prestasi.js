@@ -3,11 +3,11 @@
 // mahasiswa (pasangPrestasi) dan verifikasi.html (pasangVerifikasiPrestasi).
 // Admin tetap bisa mengisi langsung di Data prodi.
 
-import { periksaBerkas, kolomSidik, teksTemuan } from './sidik-berkas.js?v=2026-11-16-4e140c';
-import { buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-16-4e140c';
-import { htmlSaran } from './saran-bukti.js?v=2026-11-16-4e140c';
-import { tautanBerkas, temuanPakai } from './tautan-privat.js?v=2026-11-16-4e140c';
-import { htmlTautanButir, tsBaris } from './tautan-butir.js?v=2026-11-16-4e140c';
+import { periksaBerkas, kolomSidik, teksTemuan } from './sidik-berkas.js?v=2026-11-16-c1c70f';
+import { buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-16-c1c70f';
+import { htmlSaran } from './saran-bukti.js?v=2026-11-16-c1c70f';
+import { tautanBerkas, temuanPakai } from './tautan-privat.js?v=2026-11-16-c1c70f';
+import { htmlTautanButir, tsBaris } from './tautan-butir.js?v=2026-11-16-c1c70f';
 
 export const TABEL = 'lkps_prestasi_mahasiswa';
 
@@ -25,7 +25,8 @@ const TINGKAT = [['internasional', 'Internasional'], ['nasional', 'Nasional'], [
 const BULAN = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September',
   'Oktober', 'November', 'Desember'];
 const LABEL = { nama_kegiatan: 'Nama kegiatan', nama_mahasiswa: 'Mahasiswa', nim: 'NIM', penyelenggara: 'Penyelenggara',
-  bidang: 'Bidang', tingkat: 'Tingkat', capaian: 'Capaian', tahun: 'Tahun', bulan: 'Bulan', pembimbing: 'Pembimbing' };
+  bidang: 'Bidang', tingkat: 'Tingkat', capaian: 'Capaian', tahun: 'Tahun', bulan: 'Bulan', pembimbing: 'Pembimbing',
+  tampil_nama: 'Nama tampil di situs', cerita: 'Cerita untuk situs' };
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -190,12 +191,20 @@ export async function pasangPrestasi(wadah, { sb, saya, dosen }){
         <input id="pr_capaian" type="text" placeholder="Juara 2"></div>
       <div class="fld"><label for="pr_penyelenggara">Penyelenggara</label>
         <input id="pr_penyelenggara" type="text"></div>
+      <div class="fld full"><label for="pr_cerita">Cerita singkat untuk situs (opsional)</label>
+        <textarea id="pr_cerita" maxlength="600" rows="3" placeholder="Mis. tim merancang jembatan rangka baja ringan yang hemat material 20%."></textarea>
+        <span class="sub">1–3 kalimat tentang karya atau capaian tim; tampil di halaman Prestasi situs publik. Maks. 600 huruf.</span></div>
+      <div class="fld full"><label style="display:flex;gap:8px;align-items:flex-start;font-weight:400">
+        <input id="pr_tampil_nama" type="checkbox" style="width:auto;margin-top:4px">
+        <span>Mahasiswa setuju namanya ditampilkan di situs publik. Tanpa centang: tampil sebagai "Tim mahasiswa". NIM tidak pernah ditampilkan.</span></label></div>
       <div class="fld full"><label>Dosen pembimbing <span class="req">*</span></label>
         <div id="pr_pembimbing" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:2px 12px">
           ${dosen.map(d => `<label style="display:flex;gap:6px;align-items:center;font-weight:400">
             <input type="checkbox" value="${esc(d.nidn)}" style="width:auto">${esc(d.nama)}</label>`).join('')}</div></div>
       <div class="fld full" id="pr_blok_bukti"><label>Bukti <span class="req">*</span></label>
-        <span class="sub">Sertifikat atau piagam wajib. Surat tugas dan foto boleh ditambahkan.</span>
+        <span class="sub">Sertifikat atau piagam wajib. Surat tugas dan foto boleh ditambahkan. Bukti berjenis
+          <b>Foto kegiatan</b> (mis. foto tim, karya, atau penyerahan penghargaan) tampil di halaman Prestasi situs publik;
+          sertifikat tidak pernah ditampilkan.</span>
         <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
           <select id="pr_jenis" style="width:auto">${opsi(JENIS_BUKTI_PRESTASI)}</select>
           <input id="pr_berkas" type="file" multiple style="width:auto;flex:1;min-width:200px">
@@ -224,7 +233,8 @@ export async function pasangPrestasi(wadah, { sb, saya, dosen }){
     $('pr_blok_bukti').hidden = !!r;
     $('pr_simpan').textContent = r && !ubahLangsung(r, saya) ? 'Kirim ajuan' : 'Simpan';
     [['kegiatan', 'nama_kegiatan'], ['bidang', 'bidang'], ['tingkat', 'tingkat'], ['tahun', 'tahun'], ['bulan', 'bulan'],
-     ['capaian', 'capaian'], ['penyelenggara', 'penyelenggara']].forEach(([id, k]) => { $('pr_' + id).value = r?.[k] ?? ''; });
+     ['capaian', 'capaian'], ['penyelenggara', 'penyelenggara'], ['cerita', 'cerita']].forEach(([id, k]) => { $('pr_' + id).value = r?.[k] ?? ''; });
+    $('pr_tampil_nama').checked = !!r?.tampil_nama;
     const mhs = barisMahasiswa(r);
     $('pr_mhs').innerHTML = (mhs.length ? mhs : [{}]).map(baris).join('');
     const pilih = new Set(r ? r.pembimbing || [] : [saya.nidn]);
@@ -234,6 +244,7 @@ export async function pasangPrestasi(wadah, { sb, saya, dosen }){
     nama_kegiatan: $('pr_kegiatan').value.trim(), bidang: $('pr_bidang').value || null, tingkat: $('pr_tingkat').value || null,
     tahun: $('pr_tahun').value ? +$('pr_tahun').value : null, bulan: $('pr_bulan').value ? +$('pr_bulan').value : null,
     capaian: $('pr_capaian').value.trim() || null, penyelenggara: $('pr_penyelenggara').value.trim() || null,
+    cerita: $('pr_cerita').value.trim() || null, tampil_nama: $('pr_tampil_nama').checked,
     pembimbing: centang().filter(c => c.checked).map(c => c.value), ...gabungMahasiswa(mahasiswa()) });
 
   async function unggahAntrean(){

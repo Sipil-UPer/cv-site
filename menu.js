@@ -1,4 +1,4 @@
-import { dosenLogin } from './dosen-login.js?v=2026-11-16-4e140c';
+import { dosenLogin } from './dosen-login.js?v=2026-11-16-c1c70f';
 // Menu bersama ruang kerja (pemilik 2026-11-04).
 //
 // Situs dibagi dua:
@@ -19,7 +19,7 @@ const penyusun = s => admin(s) || (!!s.tim_penyusun && s.peran !== 'asesor');
 // Asesor, dan pimpinan yang bukan DTPS prodi ini (aktif=false), tidak mengisi karya.
 const isiKarya = s => s.peran !== 'asesor' && !(s.peran === 'pimpinan' && !s.aktif);
 
-import { halamanAktif } from './fitur.js?v=2026-11-16-4e140c';
+import { halamanAktif } from './fitur.js?v=2026-11-16-c1c70f';
 
 export const MODUL = [
   // Susunan modul (pemilik 2026-11-12): isian dosen, operasional prodi, dan fungsi admin dipisah.
@@ -45,6 +45,9 @@ export const MODUL = [
     // Kalender (64-patch-kegiatan.sql): semua pengguna terdaftar; kegiatan manual diisi admin (pemilik 2026-11-12).
     { href: 'kalender.html', judul: 'Kalender kegiatan',
       ket: 'Rapat, kegiatan prodi, tenggat hibah, tindak lanjut, dan temuan AMI dalam satu kalender; unduh .ics.' },
+    // Kabar kegiatan (81-patch-kabar-kegiatan.sql, pemilik 2026-11-16): dosen mengajukan, admin menerbitkan.
+    { href: 'kabar-kegiatan.html', judul: 'Kabar kegiatan', boleh: s => s.peran !== 'asesor',
+      ket: 'Kuliah tamu, kunjungan lapangan, seminar, pengabdian, kompetisi: kabar dan foto untuk situs publik.' },
     // Rapat dan notulen (62-patch-rapat.sql): admin dan dosen mencatat; semua terdaftar membaca.
     { href: 'rapat.html', judul: 'Rapat dan notulen', boleh: s => s.peran !== 'asesor',
       ket: 'Agenda, peserta, keputusan, tindak lanjut ber-PJ, notulen Word, daftar hadir daring (QR).' },
@@ -259,7 +262,7 @@ export async function pasangMenu(sb){
   // Pencarian menyeluruh (pemilik 2026-11-12; cari-ui.js, cari.js): dimuat saat pertama dipakai.
   const kotak = nav.querySelector('.rk-cari input');
   let siapCari = null;
-  const muatCari = () => siapCari || (siapCari = import('./cari-ui.js?v=2026-11-16-4e140c').then(m =>
+  const muatCari = () => siapCari || (siapCari = import('./cari-ui.js?v=2026-11-16-c1c70f').then(m =>
     m.pasangCari(kotak, { sb, saya: u.saya, modul: halamanBoleh(u.saya), boleh: h => bolehBuka(u.saya, h) !== false })));
   kotak.addEventListener('focus', muatCari);
   document.addEventListener('keydown', e => {

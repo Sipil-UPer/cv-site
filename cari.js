@@ -80,7 +80,7 @@ export function indeksPublik(D, aktif = () => true){
     ['daftar.html?jenis=publikasi', 'Daftar publikasi', 'jurnal dan prosiding', 'artikel'],
     ['daftar.html?jenis=penelitian', 'Daftar penelitian', 'penelitian dosen', 'riset'],
     ['daftar.html?jenis=pkm', 'Daftar pengabdian', 'pengabdian kepada masyarakat', 'pkm'],
-    ['daftar.html?jenis=prestasi', 'Prestasi mahasiswa', 'lomba dan kompetisi', 'juara'],
+    ['prestasi.html', 'Prestasi mahasiswa', 'lomba dan kompetisi', 'juara'],
     ['mitra.html', 'Mitra kerja sama', 'mitra karya dan kerja sama', 'mou'],
     ['hasil-survei.html', 'Hasil survei kepuasan', 'rekap survei', 'kepuasan'],
   ];

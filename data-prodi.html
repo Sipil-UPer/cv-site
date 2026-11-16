@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-16-4e140c">
+<link rel="stylesheet" href="tema.css?v=2026-11-16-c1c70f">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
@@ -101,7 +101,7 @@
   .masuk{max-width:420px;margin:40px auto;background:#fff;border:1px solid var(--line);padding:20px}
   .masuk input{width:100%;padding:8px 10px;margin:8px 0;font:inherit}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-16-4e140c">
+<link rel="stylesheet" href="kepala.css?v=2026-11-16-c1c70f">
 </head>
 <body>
 
@@ -115,7 +115,7 @@
 
 <main class="wrap" id="isi"></main>
 
-<script src="config.js?v=2026-11-16-4e140c"></script>
+<script src="config.js?v=2026-11-16-c1c70f"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -132,25 +132,25 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-16-4e140c';
-import { pasangMenu } from './menu.js?v=2026-11-16-4e140c';
-import { dosenLogin } from './dosen-login.js?v=2026-11-16-4e140c';
-import { unggahKePustaka, opsiPustaka, opsiJenis, labelDokumen, cariDokumen } from './pustaka-dokumen.js?v=2026-11-16-4e140c';
-import { pasangRapikan } from './rapikan-berkas.js?v=2026-11-16-4e140c';
-import { UNSUR, skorUnsur, pihakUnsur } from './unsur-butir.js?v=2026-11-16-4e140c';
-import { OPSI_SUMBER } from './iku-otomatis.js?v=2026-11-16-4e140c';
-import { denganOtomatis as otomatisDari, tsTersedia, tsAwal, htmlCapaianIKU, KET_CAPAIAN, muatTambahan, denganTambahan } from './capaian-iku.js?v=2026-11-16-4e140c';
-import { KATEGORI_TEMUAN, STATUS_TEMUAN, PIHAK_TEMUAN, ringkasTemuan, htmlRingkasTemuan } from './temuan-ami.js?v=2026-11-16-4e140c';
-import { bacaRekapSPM, rencanaImporSPM, tsDariTanggal, labelTS, ringkasLembar, picProdi } from './standar-spmi.js?v=2026-11-16-4e140c';
-import { SHEETJS } from './nilai-cpl.js?v=2026-11-16-4e140c';
-import { bacaCSV, normKur, normCpl, KOLOM_IMPOR, CONTOH_IMPOR, rencanaImpor, sebaranCPL, htmlSebaran } from './kurikulum-cpl.js?v=2026-11-16-4e140c';
-import { htmlContoh, pasangContoh, JENIS_BUKTI_KS } from './manfaat-kerjasama.js?v=2026-11-16-4e140c';
-import { infoJenis } from './rencana-bukti.js?v=2026-11-16-4e140c';
-import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-16-4e140c';
-import { nomorButir, htmlTautanButir } from './tautan-butir.js?v=2026-11-16-4e140c';
-import { htmlSaran } from './saran-bukti.js?v=2026-11-16-4e140c';
-import { tautanBerkas, privatkanLama, adalahPrivat } from './tautan-privat.js?v=2026-11-16-4e140c';
-import { unggahLKD, buangLKD, bukaLKD, pendidikanTotal, pendidikanPS } from './bkd.js?v=2026-11-16-4e140c';
+import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-16-c1c70f';
+import { pasangMenu } from './menu.js?v=2026-11-16-c1c70f';
+import { dosenLogin } from './dosen-login.js?v=2026-11-16-c1c70f';
+import { unggahKePustaka, opsiPustaka, opsiJenis, labelDokumen, cariDokumen } from './pustaka-dokumen.js?v=2026-11-16-c1c70f';
+import { pasangRapikan } from './rapikan-berkas.js?v=2026-11-16-c1c70f';
+import { UNSUR, skorUnsur, pihakUnsur } from './unsur-butir.js?v=2026-11-16-c1c70f';
+import { OPSI_SUMBER } from './iku-otomatis.js?v=2026-11-16-c1c70f';
+import { denganOtomatis as otomatisDari, tsTersedia, tsAwal, htmlCapaianIKU, KET_CAPAIAN, muatTambahan, denganTambahan } from './capaian-iku.js?v=2026-11-16-c1c70f';
+import { KATEGORI_TEMUAN, STATUS_TEMUAN, PIHAK_TEMUAN, ringkasTemuan, htmlRingkasTemuan } from './temuan-ami.js?v=2026-11-16-c1c70f';
+import { bacaRekapSPM, rencanaImporSPM, tsDariTanggal, labelTS, ringkasLembar, picProdi } from './standar-spmi.js?v=2026-11-16-c1c70f';
+import { SHEETJS } from './nilai-cpl.js?v=2026-11-16-c1c70f';
+import { bacaCSV, normKur, normCpl, KOLOM_IMPOR, CONTOH_IMPOR, rencanaImpor, sebaranCPL, htmlSebaran } from './kurikulum-cpl.js?v=2026-11-16-c1c70f';
+import { htmlContoh, pasangContoh, JENIS_BUKTI_KS } from './manfaat-kerjasama.js?v=2026-11-16-c1c70f';
+import { infoJenis } from './rencana-bukti.js?v=2026-11-16-c1c70f';
+import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-16-c1c70f';
+import { nomorButir, htmlTautanButir } from './tautan-butir.js?v=2026-11-16-c1c70f';
+import { htmlSaran } from './saran-bukti.js?v=2026-11-16-c1c70f';
+import { tautanBerkas, privatkanLama, adalahPrivat } from './tautan-privat.js?v=2026-11-16-c1c70f';
+import { unggahLKD, buangLKD, bukaLKD, pendidikanTotal, pendidikanPS } from './bkd.js?v=2026-11-16-c1c70f';
 
 /* =====================================================================
    DATA PRODI — data kuantitatif LKPS diisi admin di situs (keputusan
@@ -828,8 +828,10 @@ const TABEL = [
     ] },
   { id: 'prestasi', tabel: 'lkps_prestasi_mahasiswa', judul: 'Prestasi mahasiswa', butir: '43',
     ket: 'Satu baris per prestasi (Tabel 6.c.1 akademik, 6.c.2 nonakademik), 5 tahun terakhir. '
-       + 'Nama dan NIM tidak dipublikasikan; situs hanya menampilkan jumlah. Dosen pembimbing juga mengisi di '
-       + 'Input › Prestasi mahasiswa; isiannya dihitung setelah diverifikasi di halaman Verifikasi.',
+       + 'Dosen pembimbing juga mengisi di Input › Prestasi mahasiswa; isiannya dihitung setelah diverifikasi di halaman '
+       + 'Verifikasi. Prestasi terverifikasi tampil di halaman Prestasi situs publik (80-patch-prestasi-publik.sql) dengan foto '
+       + 'dari bukti berjenis Foto kegiatan; nama mahasiswa hanya bila dicentang setuju, NIM tidak pernah tampil. '
+       + 'Centang "Sembunyikan dari situs publik" untuk prestasi yang tidak ingin ditampilkan.',
     tanda: r => r.status && r.status !== 'terverifikasi' ? `<br><b>${esc(r.status)}</b>` : '',
     label: r => `${r.nama_kegiatan || 'Prestasi'}`, tahun: r => r.tahun,
     kolom: [
@@ -845,7 +847,12 @@ const TABEL = [
       { k: 'pembimbing', l: 'Dosen pembimbing', t: 'jamak', kosong: 'Daftar dosen kosong.',
         o: () => DOSEN.map(d => [d.nidn, d.nama]) },
       { k: 'tautan_bukti', l: 'Bukti (sertifikat/piagam)', t: 'url' },
-    ] },
+      // Situs publik (80-patch-prestasi-publik.sql, pemilik 2026-11-16).
+      { k: 'tampil_nama', l: 'Mahasiswa setuju namanya ditampilkan di situs', t: 'cek' },
+      { k: 'cerita', l: 'Cerita singkat untuk situs (maks. 600 huruf)', t: 'paragraf' },
+      { k: 'sembunyikan_publik', l: 'Sembunyikan dari situs publik', t: 'cek' },
+    ],
+    cek: r => r.cerita && r.cerita.length > 600 ? 'Cerita untuk situs paling banyak 600 huruf.' : '' },
   { id: 'publikasi', tabel: 'lkps_publikasi_mahasiswa', judul: 'Publikasi mahasiswa', butir: '46',
     ket: 'Publikasi MANDIRI mahasiswa tanpa dosen (Tabel 6.e.1). Publikasi bersama dosen sudah masuk lewat '
        + 'form karya dosen. Indeksasi dipakai butir 46.',
