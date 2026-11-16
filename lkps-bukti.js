@@ -8,11 +8,11 @@
    Data prodi (lkps_bukti, tautan_bukti), dan dokumen pustaka sesuai tabelnya.
    Pemilihan baris mengikuti lkps.js petaDaftar (jendela TS, kategori karya).
    ===================================================================== */
-import { versiUntukTS } from './pustaka-dokumen.js?v=2026-11-17-def33b';
-import { JSZIP } from './lkps.js?v=2026-11-17-def33b';
-import { labelDokumenLED } from './led-isi.js?v=2026-11-17-def33b';
-import { barisKerjaSama } from './kerjasama-karya.js?v=2026-11-17-def33b';
-import { karya4i, tautanPengutip } from './sitasi.js?v=2026-11-17-def33b';
+import { versiUntukTS } from './pustaka-dokumen.js?v=2026-11-17-3e2c29';
+import { JSZIP } from './lkps.js?v=2026-11-17-3e2c29';
+import { labelDokumenLED } from './led-isi.js?v=2026-11-17-3e2c29';
+import { barisKerjaSama } from './kerjasama-karya.js?v=2026-11-17-3e2c29';
+import { karya4i, tautanPengutip } from './sitasi.js?v=2026-11-17-3e2c29';
 
 const OUTLINE = 'lkps-outline.json';
 const DOCX = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';

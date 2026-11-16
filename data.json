@@ -18,42 +18,48 @@
     "TRN05",
     "TRN06",
     "TRN07"
-   ]
+   ],
+   "kelompok": "TRN"
   },
   {
    "nama": "Arianta",
    "slug": "arianta",
    "sinta_id": "6733873",
    "scopus_id": "58317389400",
-   "orcid": "0000-0002-2892-3494"
+   "orcid": "0000-0002-2892-3494",
+   "kelompok": "STR"
   },
   {
    "nama": "Arlyn Aristo",
    "slug": "arlyn-aristo",
    "sinta_id": "6749907",
    "scopus_id": "",
-   "orcid": ""
+   "orcid": "",
+   "kelompok": "GEO"
   },
   {
    "nama": "Fera Dwi Setyani",
    "slug": "fera-dwi-setyani",
    "sinta_id": "6733296",
    "scopus_id": "57221132574",
-   "orcid": "0009-0004-4490-0235"
+   "orcid": "0009-0004-4490-0235",
+   "kelompok": "AIR"
   },
   {
    "nama": "Gati Annisa Hayu",
    "slug": "gati-annisa-hayu",
    "sinta_id": "6650203",
    "scopus_id": "58600645500",
-   "orcid": "0009-0005-2410-4837"
+   "orcid": "0009-0005-2410-4837",
+   "kelompok": "STR"
   },
   {
    "nama": "M Fanshurullah Asa",
    "slug": "m-fanshurullah-asa",
    "sinta_id": "6798506",
    "scopus_id": "60216450500",
-   "orcid": "0009-0009-2518-951X"
+   "orcid": "0009-0009-2518-951X",
+   "kelompok": "MRK"
   },
   {
    "nama": "Nurul Fajar Januriyadi",
@@ -66,6 +72,7 @@
     "BCN02",
     "BCN03"
    ],
+   "kelompok": "AIR",
    "foto": "foto-profil/1YHCAL3j3yQ48gXIdvj48ScdGSX28qj6I.jpg"
   },
   {
@@ -73,21 +80,24 @@
    "slug": "ranny-adriana",
    "sinta_id": "6907851",
    "scopus_id": "60009507700",
-   "orcid": ""
+   "orcid": "",
+   "kelompok": "STR"
   },
   {
    "nama": "Teuku Mahlil",
    "slug": "teuku-mahlil",
    "sinta_id": "",
    "scopus_id": "",
-   "orcid": ""
+   "orcid": "",
+   "kelompok": "AIR"
   },
   {
    "nama": "Vani Arliani",
    "slug": "vani-arliani",
    "sinta_id": "6926173",
    "scopus_id": "58902592000",
-   "orcid": "0000-0002-3831-107X"
+   "orcid": "0000-0002-3831-107X",
+   "kelompok": "TRN"
   }
  ],
  "publikasi": [

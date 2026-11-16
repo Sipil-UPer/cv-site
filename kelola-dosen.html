@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-17-def33b">
+<link rel="stylesheet" href="tema.css?v=2026-11-17-3e2c29">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
@@ -54,7 +54,7 @@
   .masuk{max-width:420px;margin:40px auto;background:#fff;border:1px solid var(--line);padding:20px}
   .masuk input{width:100%;padding:8px 10px;margin:8px 0;font:inherit}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-17-def33b">
+<link rel="stylesheet" href="kepala.css?v=2026-11-17-3e2c29">
 </head>
 <body>
 
@@ -68,7 +68,7 @@
 
 <main class="wrap" id="isi"></main>
 
-<script src="config.js?v=2026-11-17-def33b"></script>
+<script src="config.js?v=2026-11-17-3e2c29"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -85,13 +85,13 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { pasangMenu } from './menu.js?v=2026-11-17-def33b';
-import { dosenLogin } from './dosen-login.js?v=2026-11-17-def33b';
-import { htmlSaran } from './saran-bukti.js?v=2026-11-17-def33b';
-import { unduhCV } from './cv-dosen.js?v=2026-11-17-def33b';
+import { pasangMenu } from './menu.js?v=2026-11-17-3e2c29';
+import { dosenLogin } from './dosen-login.js?v=2026-11-17-3e2c29';
+import { htmlSaran } from './saran-bukti.js?v=2026-11-17-3e2c29';
+import { unduhCV } from './cv-dosen.js?v=2026-11-17-3e2c29';
 import { KOLOM_PROFIL, KATEGORI, JABATAN,
-  formLKPS, bacaFormLKPS, pasangEditor } from './profil-dosen.js?v=2026-11-17-def33b';
-import { hitungVerifikasi } from './verifikasi-hitung.js?v=2026-11-17-def33b';
+  formLKPS, bacaFormLKPS, pasangEditor } from './profil-dosen.js?v=2026-11-17-3e2c29';
+import { hitungVerifikasi } from './verifikasi-hitung.js?v=2026-11-17-3e2c29';
 
 /* =====================================================================
    KELOLA DOSEN — daftar dosen prodi diisi admin di situs (keputusan
@@ -143,7 +143,7 @@ const POLA = {
 const KOLOM = 'id,nidn,nama,email,peran,pendidikan,jabatan,sinta_id,scopus_id,orcid,aktif,dtps';
 
 // ADA_LKPS: kolom profil LKPS 4.a ada (supabase/22-patch-profil-dosen.sql).
-let SAYA = null, DOSEN = [], SUNTING = null, ADA_LKPS = true, ADA_ALT = false, ADA_KK = false, KK = null;
+let SAYA = null, DOSEN = [], SUNTING = null, ADA_LKPS = true, ADA_ALT = false, ADA_KK = false, KK = null, ADA_TB = false;
 
 const nama = (daftar, v) => (daftar.find(x => x[0] === (v || '')) || [, v || '—'])[1];
 const opsi = (daftar, v) => daftar.map(([k, l]) =>
@@ -218,6 +218,10 @@ async function muat(){
   const kq = await sb.from('dosen').select('id,kelompok_keahlian');
   ADA_KK = !kq.error;
   if (ADA_KK) { const m = new Map((kq.data || []).map(x => [x.id, x.kelompok_keahlian])); DOSEN.forEach(d => { d.kelompok_keahlian = m.get(d.id) ?? null; }); }
+  // Tugas belajar (patch 87, pemilik 2026-11-17): tampil di situs, tidak dihitung DTPS; kolom dibaca terpisah.
+  const tq = await sb.from('dosen').select('id,tugas_belajar');
+  ADA_TB = !tq.error;
+  if (ADA_TB) { const m = new Map((tq.data || []).map(x => [x.id, x.tugas_belajar])); DOSEN.forEach(d => { d.tugas_belajar = m.get(d.id) ?? null; }); }
   if (KK === null) KK = await fetch('data.json?v=' + Date.now()).then(r => r.ok ? r.json() : {}).then(d => d.situs?.kelompok_keahlian || []).catch(() => []);
   gambarDaftar();
   isiForm(SUNTING ? DOSEN.find(d => d.id === SUNTING) : null);
@@ -236,7 +240,7 @@ function gambarDaftar(){
       <td>${esc(d.nama)}</td><td>${esc(d.nidn)}</td><td>${esc(d.email)}</td>
       <td>${esc(nama(PERAN, d.peran))}</td>${ADA_LKPS ? `<td>${esc(nama(KATEGORI, d.kategori))}</td>` : ''}<td>${esc(d.pendidikan || '—')}</td>
       <td>${esc(nama(JABATAN, d.jabatan))}</td>${ADA_KK && KK.length ? `<td>${esc(KK.find(k => k.kode === d.kelompok_keahlian)?.nama || '—')}</td>` : ''}<td>${d.aktif ? 'ya' : 'tidak'}</td>
-      <td>${d.dtps ? 'ya' : 'tidak'}</td>
+      <td>${d.tugas_belajar ? 'tugas belajar' : d.dtps ? 'ya' : 'tidak'}</td>
       <td><button class="btn ghost kecil" data-ubah="${esc(d.id)}">Ubah</button>
         <button class="btn ghost kecil" data-cv-dosen="${esc(d.id)}" title="Unduh CV dosen ini (.docx)">CV</button></td></tr>`).join('')
   }</tbody></table>`;
@@ -278,6 +282,9 @@ function isiForm(d){
       ${ADA_KK && KK.length ? `<div class="fld"><label>Kelompok keahlian</label><select id="f_kk"><option value="">(belum ditetapkan)</option>${
         KK.map(k => `<option value="${esc(k.kode)}"${r.kelompok_keahlian === k.kode ? ' selected' : ''}>${esc(k.nama)}</option>`).join('')}</select>
         <small>Pengelompokan di daftar dosen publik.</small></div>` : ''}
+      ${ADA_TB ? `<div class="fld"><label>Sedang tugas belajar (keterangan)</label><input id="f_tb" maxlength="200"
+        value="${esc(r.tugas_belajar || '')}" placeholder="S3, Kyoto University (2024–2028)">
+        <small>Diisi = tampil di situs dengan keterangan ini, tetapi tidak dihitung DTPS. Kosongkan bila sudah kembali.</small></div>` : ''}
       <div class="fld"><label>SINTA ID</label><input id="f_sinta_id" value="${esc(r.sinta_id)}"></div>
       <div class="fld"><label>Scopus ID</label><input id="f_scopus_id" value="${esc(r.scopus_id)}"></div>
       <div class="fld"><label>ORCID</label><input id="f_orcid" value="${esc(r.orcid)}"></div>
@@ -342,6 +349,12 @@ async function simpan(){
     sesuai_kompetensi_inti: $('f_sesuai_kompetensi_inti').checked,
     sesuai_keahlian_mk: $('f_sesuai_keahlian_mk').checked,
   });
+  // Tugas belajar (patch 87): tidak dihitung DTPS (aturan basis data); kategori dosen tetap (DT). Sesudah
+  // isian LKPS di atas, supaya pilihan kelompok DTPS tidak menimpanya.
+  if (ADA_TB && $('f_tb')) {
+    isi.tugas_belajar = $('f_tb').value.trim() || null;
+    if (isi.tugas_belajar) { isi.dtps = false; if (ADA_LKPS) isi.kategori = 'tetap'; }
+  }
   if (!isi.nama || !isi.nidn || !isi.email) return tulis('buruk', 'Nama, NIDN/kode, dan email wajib diisi.');
   if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(isi.email)) return tulis('buruk', 'Email tidak sah.');
   if (PERAN_BUKAN_DTPS.includes(isi.peran)) isi.dtps = false;
