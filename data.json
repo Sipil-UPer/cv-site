@@ -65,7 +65,8 @@
     "AIR01",
     "BCN02",
     "BCN03"
-   ]
+   ],
+   "foto": "foto-profil/1YHCAL3j3yQ48gXIdvj48ScdGSX28qj6I.jpg"
   },
   {
    "nama": "Ranny Adriana",
@@ -7028,6 +7029,28 @@
    "Laboratorium Transportasi dan Rekayasa Jalan",
    "Laboratorium Mekanika Tanah",
    "Laboratorium Struktur (Bahan dan Konstruksi)"
+  ],
+  "kelompok_keahlian": [
+   {
+    "kode": "STR",
+    "nama": "Rekayasa Struktur dan Material"
+   },
+   {
+    "kode": "AIR",
+    "nama": "Rekayasa Sumber Daya Air"
+   },
+   {
+    "kode": "TRN",
+    "nama": "Rekayasa Transportasi"
+   },
+   {
+    "kode": "GEO",
+    "nama": "Rekayasa Geoteknik"
+   },
+   {
+    "kode": "MRK",
+    "nama": "Manajemen dan Rekayasa Konstruksi"
+   }
   ]
  },
  "prestasi": [

@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-17-471254">
+<link rel="stylesheet" href="tema.css?v=2026-11-17-def33b">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
@@ -54,7 +54,7 @@
   .masuk{max-width:420px;margin:40px auto;background:#fff;border:1px solid var(--line);padding:20px}
   .masuk input{width:100%;padding:8px 10px;margin:8px 0;font:inherit}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-17-471254">
+<link rel="stylesheet" href="kepala.css?v=2026-11-17-def33b">
 </head>
 <body>
 
@@ -68,7 +68,7 @@
 
 <main class="wrap" id="isi"></main>
 
-<script src="config.js?v=2026-11-17-471254"></script>
+<script src="config.js?v=2026-11-17-def33b"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -85,13 +85,13 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { pasangMenu } from './menu.js?v=2026-11-17-471254';
-import { dosenLogin } from './dosen-login.js?v=2026-11-17-471254';
-import { htmlSaran } from './saran-bukti.js?v=2026-11-17-471254';
-import { unduhCV } from './cv-dosen.js?v=2026-11-17-471254';
+import { pasangMenu } from './menu.js?v=2026-11-17-def33b';
+import { dosenLogin } from './dosen-login.js?v=2026-11-17-def33b';
+import { htmlSaran } from './saran-bukti.js?v=2026-11-17-def33b';
+import { unduhCV } from './cv-dosen.js?v=2026-11-17-def33b';
 import { KOLOM_PROFIL, KATEGORI, JABATAN,
-  formLKPS, bacaFormLKPS, pasangEditor } from './profil-dosen.js?v=2026-11-17-471254';
-import { hitungVerifikasi } from './verifikasi-hitung.js?v=2026-11-17-471254';
+  formLKPS, bacaFormLKPS, pasangEditor } from './profil-dosen.js?v=2026-11-17-def33b';
+import { hitungVerifikasi } from './verifikasi-hitung.js?v=2026-11-17-def33b';
 
 /* =====================================================================
    KELOLA DOSEN — daftar dosen prodi diisi admin di situs (keputusan
@@ -143,7 +143,7 @@ const POLA = {
 const KOLOM = 'id,nidn,nama,email,peran,pendidikan,jabatan,sinta_id,scopus_id,orcid,aktif,dtps';
 
 // ADA_LKPS: kolom profil LKPS 4.a ada (supabase/22-patch-profil-dosen.sql).
-let SAYA = null, DOSEN = [], SUNTING = null, ADA_LKPS = true, ADA_ALT = false;
+let SAYA = null, DOSEN = [], SUNTING = null, ADA_LKPS = true, ADA_ALT = false, ADA_KK = false, KK = null;
 
 const nama = (daftar, v) => (daftar.find(x => x[0] === (v || '')) || [, v || '—'])[1];
 const opsi = (daftar, v) => daftar.map(([k, l]) =>
@@ -213,6 +213,12 @@ async function muat(){
   const alt = await sb.from('dosen').select('id,email_alternatif');
   ADA_ALT = !alt.error;
   if (ADA_ALT) { const m = new Map((alt.data || []).map(x => [x.id, x.email_alternatif])); DOSEN.forEach(d => { d.email_alternatif = m.get(d.id) ?? null; }); }
+  // Kelompok keahlian (patch 86, pemilik 2026-11-17): kolom dibaca terpisah; daftar KK dari data.json
+  // (config.yaml public_site.expertise_groups), supaya daftarnya hanya ada di satu tempat.
+  const kq = await sb.from('dosen').select('id,kelompok_keahlian');
+  ADA_KK = !kq.error;
+  if (ADA_KK) { const m = new Map((kq.data || []).map(x => [x.id, x.kelompok_keahlian])); DOSEN.forEach(d => { d.kelompok_keahlian = m.get(d.id) ?? null; }); }
+  if (KK === null) KK = await fetch('data.json?v=' + Date.now()).then(r => r.ok ? r.json() : {}).then(d => d.situs?.kelompok_keahlian || []).catch(() => []);
   gambarDaftar();
   isiForm(SUNTING ? DOSEN.find(d => d.id === SUNTING) : null);
 }
@@ -225,11 +231,11 @@ function gambarDaftar(){
         <option value="hibah">Biodata pengusul hibah (A–J)</option></select> periode karya <select id="cv_periode"><option value="semua">semua tahun</option>
         <option value="5">5 tahun terakhir</option></select></label> <span class="msg" id="cv_msg"></span></p>
     <table class="t"><thead><tr><th>Nama</th><th>NIDN/kode</th><th>Email</th><th>Peran</th>
-      ${ADA_LKPS ? '<th>Kategori</th>' : ''}<th>Pendidikan</th><th>Jabatan</th><th>Aktif</th><th>DTPS</th><th></th></tr></thead><tbody>${
+      ${ADA_LKPS ? '<th>Kategori</th>' : ''}<th>Pendidikan</th><th>Jabatan</th>${ADA_KK && KK.length ? '<th>KK</th>' : ''}<th>Aktif</th><th>DTPS</th><th></th></tr></thead><tbody>${
     DOSEN.map(d => `<tr class="${d.id === SUNTING ? 'sunting' : ''}${d.aktif ? '' : ' nonaktif'}">
       <td>${esc(d.nama)}</td><td>${esc(d.nidn)}</td><td>${esc(d.email)}</td>
       <td>${esc(nama(PERAN, d.peran))}</td>${ADA_LKPS ? `<td>${esc(nama(KATEGORI, d.kategori))}</td>` : ''}<td>${esc(d.pendidikan || '—')}</td>
-      <td>${esc(nama(JABATAN, d.jabatan))}</td><td>${d.aktif ? 'ya' : 'tidak'}</td>
+      <td>${esc(nama(JABATAN, d.jabatan))}</td>${ADA_KK && KK.length ? `<td>${esc(KK.find(k => k.kode === d.kelompok_keahlian)?.nama || '—')}</td>` : ''}<td>${d.aktif ? 'ya' : 'tidak'}</td>
       <td>${d.dtps ? 'ya' : 'tidak'}</td>
       <td><button class="btn ghost kecil" data-ubah="${esc(d.id)}">Ubah</button>
         <button class="btn ghost kecil" data-cv-dosen="${esc(d.id)}" title="Unduh CV dosen ini (.docx)">CV</button></td></tr>`).join('')
@@ -269,6 +275,9 @@ function isiForm(d){
         <small>Admin: verifikasi dan data prodi. Pimpinan: skor + rincian per dosen. Asesor: lihat skor.</small></div>
       <div class="fld"><label>Pendidikan tertinggi</label><select id="f_pendidikan">${opsi(PENDIDIKAN, r.pendidikan)}</select></div>
       <div class="fld"><label>Jabatan akademik</label><select id="f_jabatan">${opsi(JABATAN, r.jabatan)}</select></div>
+      ${ADA_KK && KK.length ? `<div class="fld"><label>Kelompok keahlian</label><select id="f_kk"><option value="">(belum ditetapkan)</option>${
+        KK.map(k => `<option value="${esc(k.kode)}"${r.kelompok_keahlian === k.kode ? ' selected' : ''}>${esc(k.nama)}</option>`).join('')}</select>
+        <small>Pengelompokan di daftar dosen publik.</small></div>` : ''}
       <div class="fld"><label>SINTA ID</label><input id="f_sinta_id" value="${esc(r.sinta_id)}"></div>
       <div class="fld"><label>Scopus ID</label><input id="f_scopus_id" value="${esc(r.scopus_id)}"></div>
       <div class="fld"><label>ORCID</label><input id="f_orcid" value="${esc(r.orcid)}"></div>
@@ -325,6 +334,7 @@ async function simpan(){
     orcid: idSaja(v('orcid')) || null,
     aktif: $('f_aktif').checked, dtps: ADA_LKPS ? false : $('f_dtps').checked,
   };
+  if (ADA_KK && $('f_kk')) isi.kelompok_keahlian = $('f_kk').value || null;
   const kel = KELOMPOK.find(([k]) => document.querySelector(`[data-kelompok="${k}"]`)?.checked);
   if (ADA_LKPS) Object.assign(isi, bacaFormLKPS(isi.pendidikan), {
     dtps: kel ? kel[2] : false,

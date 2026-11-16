@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-17-471254">
+<link rel="stylesheet" href="tema.css?v=2026-11-17-def33b">
 <style>
   /* Daftar dosen, publikasi, penelitian, pengabdian (pemilik 2026-11-16): kerangka publik bersama, kartu
      dosen, lencana mutu publikasi (warna sama dengan kinerja.html), dikelompokkan per tahun. */
@@ -75,7 +75,7 @@
   </div></header>
   <div class="isi" id="isi"><p class="kosong">Memuat…</p></div>
 </main>
-<script src="config.js?v=2026-11-17-471254"></script>
+<script src="config.js?v=2026-11-17-def33b"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -91,7 +91,7 @@ addEventListener('error', function (e) {
 });
 </script>
 <script type="module">
-import { pasangKerangka, isiKerangka } from './kerangka.js?v=2026-11-17-471254';
+import { pasangKerangka, isiKerangka } from './kerangka.js?v=2026-11-17-def33b';
 
 const SINTA = window.PROFIL_SINTA || 'https://sinta.kemdiktisaintek.go.id/authors/profile/';
 const SCOPUS = window.PROFIL_SCOPUS || 'https://www.scopus.com/pages/authors/';
@@ -142,9 +142,9 @@ function dosen(){
   const kb = D.keahlian_baku, namaTopik = kb ? Object.fromEntries(kb.topik.map(t => [t.kode, t.nama])) : {};
   const milik = (xs, slug) => (xs || []).filter(x => (x.penulis || []).some(p => p.slug === slug)).length;
   const semua = [...D.dosen].sort((a, b) => a.nama.localeCompare(b.nama, 'id'));
-  $('hKet').textContent = `${semua.length} dosen tetap, dengan bidang keahlian dan karya yang tercatat di program studi.`;
+  $('hKet').textContent = `${semua.length} dosen tetap${(D.situs?.kelompok_keahlian || []).length ? ' menurut kelompok keahlian' : ''}, dengan bidang keahlian dan karya yang tercatat di program studi.`;
   $('isi').innerHTML = `<div class="saring"><input type="search" id="fCari" placeholder="Cari nama, bidang, atau topik keahlian" aria-label="Cari dosen">
-    <span class="jml" id="jml"></span></div><div class="dsn" id="lst"></div>`;
+    <span class="jml" id="jml"></span></div><div id="lst"></div>`;
   const kartu = d => {
     const topik = (d.topik_keahlian || []).map(k => namaTopik[k]).filter(Boolean);
     const profil = [d.sinta_id && `<a href="${SINTA}${esc(d.sinta_id)}" rel="noopener">SINTA</a>`,
@@ -165,7 +165,17 @@ function dosen(){
     const d = semua.filter(x => !q || [x.nama, x.bidang_keahlian, ...(x.topik_keahlian || []).map(k => namaTopik[k])]
       .some(v => String(v || '').toLowerCase().includes(q)));
     $('jml').textContent = `${d.length} dosen`;
-    $('lst').innerHTML = d.map(kartu).join('') || '<p class="kosong">Tidak ada dosen yang cocok.</p>';
+    // Dikelompokkan menurut kelompok keahlian (config.yaml public_site.expertise_groups, urutan tampil;
+    // 86-patch-kelompok-keahlian.sql, pemilik 2026-11-17). Tanpa daftar KK: satu kisi tanpa judul.
+    const kk = D.situs?.kelompok_keahlian || [];
+    const kisi = xs => `<div class="dsn">${xs.map(kartu).join('')}</div>`;
+    if (!d.length) { $('lst').innerHTML = '<p class="kosong">Tidak ada dosen yang cocok.</p>'; return; }
+    if (!kk.length) { $('lst').innerHTML = kisi(d); return; }
+    const kode = new Set(kk.map(k => k.kode));
+    $('lst').innerHTML = [...kk.map(k => [k.nama, d.filter(x => x.kelompok === k.kode)]),
+                          ['Belum ditetapkan', d.filter(x => !kode.has(x.kelompok))]]
+      .filter(([, xs]) => xs.length)
+      .map(([nama, xs]) => `<h2 class="tahun">${esc(nama)}<span>${xs.length} dosen</span></h2>${kisi(xs)}`).join('');
   };
   $('fCari').addEventListener('input', isi);
   isi();
