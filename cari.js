@@ -74,7 +74,8 @@ const daftarNama = xs => (xs || []).map(p => (typeof p === 'string' ? p : p?.nam
 export function indeksPublik(D, aktif = () => true){
   const xs = [];
   const umum = [
-    ['index.html', 'Beranda', 'ringkasan kinerja program studi', ''],
+    ['index.html', 'Beranda', 'beranda program studi', ''],
+    ['kinerja.html', 'Kinerja program studi', 'angka dan grafik kinerja program studi', 'dashboard rekap'],
     ['daftar.html?jenis=dosen', 'Daftar dosen', 'semua dosen program studi', ''],
     ['daftar.html?jenis=publikasi', 'Daftar publikasi', 'jurnal dan prosiding', 'artikel'],
     ['daftar.html?jenis=penelitian', 'Daftar penelitian', 'penelitian dosen', 'riset'],
@@ -88,9 +89,9 @@ export function indeksPublik(D, aktif = () => true){
   for (const [href, j, k, e] of umum) xs.push(entri('halaman', j, k, href, e));
 
   const slug = new Map((D?.dosen || []).map(d => [d.nama, d.slug]));
-  const keDosen = nama => slug.get(nama) ? `dosen.html?d=${encodeURIComponent(slug.get(nama))}` : 'daftar.html?jenis=dosen';
+  const keDosen = nama => slug.get(nama) ? `dosen/${encodeURIComponent(slug.get(nama))}.html` : 'daftar.html?jenis=dosen';
   for (const d of D?.dosen || [])
-    xs.push(entri('dosen', d.nama, d.bidang_keahlian || 'Dosen', `dosen.html?d=${encodeURIComponent(d.slug)}`, (d.kata_kunci || []).join(' ')));
+    xs.push(entri('dosen', d.nama, d.bidang_keahlian || 'Dosen', `dosen/${encodeURIComponent(d.slug)}.html`, (d.kata_kunci || []).join(' ')));
   const mitra = new Map();
   const catatMitra = k => daftarNama(k.mitra).forEach(m => mitra.set(m, (mitra.get(m) || 0) + 1));
   for (const p of D?.publikasi || []) {

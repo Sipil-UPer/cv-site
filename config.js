@@ -71,3 +71,13 @@ window.UPLOAD_EXT    = 'pdf,jpg,jpeg,png,docx,xlsx';
    (bila ada) tidak dihapus dan tampil lagi bila modulnya dinyalakan.
    ===================================================================== */
 window.FITUR_MATI = [];
+/* =====================================================================
+   Logo di kepala halaman publik (kerangka.js), berurutan dari kiri, seperti
+   kepala situs universitas (pemilik 2026-11-16). Tanpa baris ini: logo.png.
+   w/h = ukuran asli gambar, agar halaman tidak bergeser saat logo dimuat.
+   ===================================================================== */
+window.LOGO_KEPALA = [
+  { src: 'logo-up.webp', alt: 'Universitas Pertamina', w: 271, h: 200 },
+  { src: 'logo-dekade.webp', alt: '1 Dekade Universitas Pertamina', w: 271, h: 200 },
+  { src: 'logo-diktisaintek.webp', alt: 'Diktisaintek Berdampak', w: 397, h: 136 },
+];
