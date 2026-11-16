@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Profil prodi — Kinerja Program Studi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tema.css?v=2026-11-16-52633c">
+<link rel="stylesheet" href="kepala.css?v=2026-11-16-52633c">
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
+  .wrap{max-width:1040px;margin:0 auto;padding:18px 20px 80px}
+  .kosong, .ket{color:var(--muted)}
+  .ket{font-size:13px}
+  .kartu{background:var(--panel);border:1px solid var(--line);padding:14px 18px;margin-bottom:16px}
+  .kartu h2{font-size:17px;margin:0 0 8px;color:var(--biru)}
+  .b{font:12px/1.4 var(--sans);padding:4px 9px;border:1px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer;margin:0 3px 3px 0}
+  .b:hover{border-color:var(--biru);color:var(--biru)}
+  .b.utama{background:var(--biru);color:#fff;border-color:var(--biru);font-size:14px;padding:7px 16px}
+  .b.bahaya{color:var(--merah)}
+  .b:disabled{opacity:.55;cursor:default}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px 14px;margin:8px 0}
+  .grid label{font-size:13px;color:var(--muted);display:flex;flex-direction:column;gap:3px}
+  .lebar{grid-column:1/-1}
+  .grid input, .grid select, textarea{font:inherit;font-size:14px;padding:5px 7px;border:1px solid var(--line);background:var(--panel);color:var(--ink)}
+  textarea{width:100%;min-height:140px;resize:vertical}
+  .aksi{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:8px}
+  .msg{font-size:13.5px} .msg.buruk{color:var(--merah)} .msg.ok{color:var(--hijau)}
+  table{width:100%;border-collapse:collapse;font-size:14px;margin-top:10px}
+  th{text-align:left;font-size:12px;color:var(--muted);font-weight:500;border-bottom:1px solid var(--line);padding:4px 6px}
+  td{border-bottom:1px solid var(--line-soft);padding:6px}
+  tr.sunting td{background:var(--biru-m10)}
+</style>
+</head>
+<body>
+<header class="hero"><div class="hero-in">
+  <div class="hero-inst" data-identitas></div>
+  <h1>Profil prodi</h1>
+  <div class="sub" id="hSub">Memuat…</div>
+</div></header>
+<main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
+<script src="config.js?v=2026-11-16-52633c"></script>
+<script>
+// Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
+addEventListener('error', function (e) {
+  if (document.getElementById('galat-muat')) return;
+  var d = document.createElement('div');
+  d.id = 'galat-muat';
+  d.style.cssText = 'margin:16px;padding:12px 14px;border:1px solid var(--merah);' +
+    'background:var(--merah-m3);color:var(--ink);font:14px/1.5 system-ui,sans-serif';
+  d.textContent = 'Halaman gagal dimuat: ' + (e.message || 'galat skrip') +
+    '. Tekan Ctrl+Shift+R untuk memuat ulang tanpa cache; bila tetap muncul, kirim pesan ini ke admin.';
+  document.body.insertBefore(d, document.body.firstChild);
+});
+</script>
+<script type="module">
+// Profil program studi untuk situs publik (pemilik 2026-11-16; 84-patch-profil-prodi.sql), khusus admin.
+// Tampil di profil.html (dibangun bangun.py tiap jam) bersama visi-misi (Data prodi > VMTS), profil lulusan
+// (Kurikulum > Profil lulusan), dan status akreditasi (Data prodi > Prodi di UPPS).
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
+import { gerbang } from './menu.js?v=2026-11-16-52633c';
+
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const $ = id => document.getElementById(id);
+const sb = createClient(window.SB_URL, window.SB_KEY);
+const JABATAN = ['Ketua Program Studi', 'Sekretaris Program Studi', 'Koordinator Tugas Akhir', 'Koordinator Kerja Praktik',
+  'Koordinator Kemahasiswaan', 'Koordinator Laboratorium', 'Gugus Penjaminan Mutu', 'Tenaga Kependidikan'];
+
+let SAYA = null, DOSEN = [], PENGELOLA = [], SUNTING = null;
+const namaDosen = n => DOSEN.find(d => d.nidn === n)?.nama;
+const opsiDosen = kosong => `<option value="">${kosong}</option>`
+  + DOSEN.map(d => `<option value="${esc(d.nidn)}">${esc(d.nama)}</option>`).join('');
+const tulis = (id, kelas, t) => { const m = $(id); m.className = 'msg' + (kelas ? ' ' + kelas : ''); m.textContent = t; };
+
+function kerangka(){
+  $('isi').innerHTML = `
+    <div class="kartu"><h2>Sambutan dan sejarah</h2>
+      <p class="ket">Tampil di halaman publik Profil, paling lambat sejam setelah disimpan. Pisahkan paragraf dengan baris kosong.
+        Visi-misi diisi di Data prodi › VMTS, profil lulusan di Kurikulum › Profil lulusan, dan status akreditasi di
+        Data prodi › Prodi di UPPS.</p>
+      <div class="grid">
+        <label class="lebar">Sambutan (maks. 2500 huruf)<textarea id="pS" maxlength="2500"></textarea></label>
+        <label>Disampaikan oleh<select id="pP">${opsiDosen('(tanpa nama)')}</select></label>
+        <label class="lebar">Sejarah singkat (maks. 4000 huruf)<textarea id="pJ" maxlength="4000"
+          placeholder="Tahun berdiri, SK pendirian, tonggak penting, akreditasi pertama."></textarea></label>
+      </div>
+      <div class="aksi"><button class="b utama" type="button" id="pSimpan">Simpan</button><span class="msg" id="pMsg"></span></div>
+    </div>
+    <div class="kartu"><h2>Pengelola program studi</h2>
+      <p class="ket">Dosen dipilih dari daftar (tertaut ke halaman dosennya, dengan fotonya bila ada); yang bukan dosen ditulis namanya.
+        Urutan kecil tampil lebih dulu.</p>
+      <div class="grid">
+        <label>Jabatan<input id="gJ" list="dlJabatan" maxlength="120" autocomplete="off">
+          <datalist id="dlJabatan">${JABATAN.map(j => `<option value="${esc(j)}">`).join('')}</datalist></label>
+        <label>Dosen<select id="gD">${opsiDosen('(bukan dosen: tulis nama)')}</select></label>
+        <label>Nama (bila bukan dosen)<input id="gN" maxlength="160"></label>
+        <label>Urutan<input id="gU" type="number" value="100"></label>
+      </div>
+      <div class="aksi"><button class="b utama" type="button" id="gSimpan">Tambah</button>
+        <button class="b" type="button" id="gBatal" hidden>Batal</button><span class="msg" id="gMsg"></span></div>
+      <div id="gDaftar"></div>
+    </div>`;
+  $('pSimpan').onclick = simpanProfil;
+  $('gSimpan').onclick = simpanPengelola;
+  $('gBatal').onclick = () => isiPengelola(null);
+  $('gDaftar').addEventListener('click', klik);
+}
+
+async function muatProfil(){
+  const { data, error } = await sb.from('profil_prodi').select('*').eq('id', 1).maybeSingle();
+  if (error) throw new Error(/profil_prodi/.test(error.message) ? 'Tabel profil belum ada: jalankan supabase/84-patch-profil-prodi.sql.' : error.message);
+  $('pS').value = data?.sambutan || ''; $('pJ').value = data?.sejarah || ''; $('pP').value = data?.penyambut_nidn || '';
+}
+
+async function simpanProfil(){
+  const isi = { id: 1, sambutan: $('pS').value.trim() || null, sejarah: $('pJ').value.trim() || null,
+    penyambut_nidn: $('pP').value || null, oleh: SAYA.email, diperbarui: new Date().toISOString() };
+  $('pSimpan').disabled = true;
+  const { error } = await sb.from('profil_prodi').upsert(isi);
+  $('pSimpan').disabled = false;
+  if (error) return tulis('pMsg', 'buruk', 'Gagal: ' + error.message);
+  tulis('pMsg', 'ok', 'Tersimpan.');
+}
+
+function isiPengelola(r){
+  SUNTING = r;
+  $('gJ').value = r?.jabatan || ''; $('gD').value = r?.nidn || ''; $('gN').value = r?.nama || ''; $('gU').value = r?.urutan ?? 100;
+  $('gSimpan').textContent = r ? 'Simpan' : 'Tambah'; $('gBatal').hidden = !r; tulis('gMsg', '', '');
+  gambarPengelola();
+}
+
+async function simpanPengelola(){
+  const isi = { jabatan: $('gJ').value.trim(), nidn: $('gD').value || null, nama: $('gD').value ? null : ($('gN').value.trim() || null),
+    urutan: Number($('gU').value) || 100, oleh: SAYA.email, diperbarui: new Date().toISOString() };
+  if (isi.jabatan.length < 3) return tulis('gMsg', 'buruk', 'Isi jabatan.');
+  if (!isi.nidn && (!isi.nama || isi.nama.length < 3)) return tulis('gMsg', 'buruk', 'Pilih dosen atau tulis nama.');
+  $('gSimpan').disabled = true;
+  const q = SUNTING ? sb.from('pengelola_prodi').update(isi).eq('id', SUNTING.id) : sb.from('pengelola_prodi').insert(isi);
+  const { error } = await q;
+  $('gSimpan').disabled = false;
+  if (error) return tulis('gMsg', 'buruk', 'Gagal: ' + error.message);
+  await muatPengelola(); isiPengelola(null); tulis('gMsg', 'ok', 'Tersimpan.');
+}
+
+async function klik(ev){
+  const t = ev.target.closest('button'); if (!t) return;
+  const r = PENGELOLA.find(x => String(x.id) === (t.dataset.ubah || t.dataset.hapus));
+  if (!r) return;
+  if (t.dataset.ubah) return isiPengelola(r);
+  if (!confirm(`Hapus ${r.jabatan} (${namaDosen(r.nidn) || r.nama || ''})?`)) return;
+  const { error } = await sb.from('pengelola_prodi').delete().eq('id', r.id);
+  if (error) return alert('Gagal: ' + error.message);
+  await muatPengelola();
+}
+
+function gambarPengelola(){
+  $('gDaftar').innerHTML = PENGELOLA.length ? `<table><thead><tr><th>Urutan</th><th>Jabatan</th><th>Nama</th><th></th></tr></thead><tbody>${
+    PENGELOLA.map(r => `<tr${SUNTING?.id === r.id ? ' class="sunting"' : ''}><td>${esc(r.urutan)}</td><td>${esc(r.jabatan)}</td>
+      <td>${esc(namaDosen(r.nidn) || r.nama || r.nidn)}${r.nidn && !namaDosen(r.nidn) ? ' <span class="ket">(NIDN tidak ada di daftar dosen)</span>' : ''}</td>
+      <td><button class="b" data-ubah="${r.id}">Ubah</button><button class="b bahaya" data-hapus="${r.id}">Hapus</button></td></tr>`).join('')
+  }</tbody></table>` : '<p class="kosong">Belum ada pengelola.</p>';
+}
+
+async function muatPengelola(){
+  const { data, error } = await sb.from('pengelola_prodi').select('*').order('urutan').order('id');
+  if (error) throw new Error(error.message);
+  PENGELOLA = data || [];
+  gambarPengelola();
+}
+
+async function mulai(){
+  SAYA = await gerbang(sb);
+  if (!SAYA) return;
+  $('hSub').textContent = `Masuk sebagai ${SAYA.nama}`;
+  if (SAYA.peran !== 'admin') { $('isi').innerHTML = '<p class="kosong">Halaman ini khusus admin program studi.</p>'; return; }
+  // Sama dengan Data prodi: tanpa admin/asesor yang bukan DTPS (staf/tendik bukan dosen).
+  const { data: ds } = await sb.from('dosen').select('nidn,nama,peran,dtps').order('nama');
+  DOSEN = (ds || []).filter(x => x.nidn && (x.dtps || ['dosen', 'pimpinan'].includes(x.peran)));
+  kerangka();
+  await muatProfil();
+  await muatPengelola();
+}
+mulai().catch(e => { $('isi').innerHTML = `<p class="kosong">Gagal memuat: ${esc(e.message)}</p>`; });
+</script>
+</body>
+</html>
