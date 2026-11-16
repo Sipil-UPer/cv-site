@@ -3,9 +3,9 @@
 // halaman Skor: data.json publik, capaian IKU/IKT (Data prodi), dan perkiraan
 // status akreditasi. Untuk rapat tinjauan manajemen dan laporan kinerja;
 // bebas disunting di Word.
-import { hitungSumber } from './iku-otomatis.js?v=2026-11-15-bd528e';
-import { SDGS } from './form-karya.js?v=2026-11-15-bd528e';
-import { LEBAR, xe, run, para, judul, teks, tabel, buatDocx } from './docx-dasar.js?v=2026-11-15-bd528e';
+import { hitungSumber } from './iku-otomatis.js?v=2026-11-16-05a43b';
+import { SDGS } from './form-karya.js?v=2026-11-16-05a43b';
+import { LEBAR, xe, run, para, judul, teks, tabel, buatDocx } from './docx-dasar.js?v=2026-11-16-05a43b';
 
 const angka = v => v == null ? '—' : (Math.round(+v * 100) / 100).toLocaleString('id-ID');
 const diTS = (xs, ts) => (xs || []).filter(x => +x.tahun_ts === +ts);

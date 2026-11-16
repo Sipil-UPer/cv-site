@@ -10,7 +10,7 @@
    2026-11-03).
    ===================================================================== */
 
-import { pihakBukti, UNSUR_BUTIR } from './unsur-butir.js?v=2026-11-15-bd528e';
+import { pihakBukti, UNSUR_BUTIR } from './unsur-butir.js?v=2026-11-16-05a43b';
 
 export const RENCANA_BUKTI = {
  "1": {
@@ -801,6 +801,9 @@ export const JENIS_DOKUMEN = [
   { id: 'daftar_hadir', nama: 'Daftar hadir', tunggal: false, butir: [], contoh: 'Rapat kurikulum Maret 2026' },
   { id: 'kontrak_hibah', nama: 'Kontrak atau SK hibah', tunggal: false, butir: [], contoh: 'Kontrak hibah internal 2026' },
   { id: 'sertifikat', nama: 'Sertifikat/piagam', tunggal: false, butir: [], contoh: 'Sertifikat K3 laboran A' },
+  // Halaman publik berkas-mahasiswa.html (76-patch-berkas-mahasiswa.sql, pemilik 2026-11-16).
+  { id: 'pengumuman', nama: 'Pengumuman untuk mahasiswa (jadwal sidang TA, dll.)', tunggal: false, butir: [],
+    contoh: 'Jadwal Sidang Tugas Akhir Semester Ganjil 2026/2027' },
   { id: 'lainnya', nama: 'Dokumen lain', tunggal: false, butir: [], contoh: 'Judul dokumen' },
 ];
 // Tanpa tautan publik (pemilik 2026-11-06): data pribadi atau internal. Sama
