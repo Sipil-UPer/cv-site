@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-16-7f86d4">
+<link rel="stylesheet" href="tema.css?v=2026-11-16-8ad5aa">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
@@ -101,7 +101,7 @@
   .masuk{max-width:420px;margin:40px auto;background:#fff;border:1px solid var(--line);padding:20px}
   .masuk input{width:100%;padding:8px 10px;margin:8px 0;font:inherit}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-16-7f86d4">
+<link rel="stylesheet" href="kepala.css?v=2026-11-16-8ad5aa">
 </head>
 <body>
 
@@ -115,7 +115,7 @@
 
 <main class="wrap" id="isi"></main>
 
-<script src="config.js?v=2026-11-16-7f86d4"></script>
+<script src="config.js?v=2026-11-16-8ad5aa"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -132,25 +132,25 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-16-7f86d4';
-import { pasangMenu } from './menu.js?v=2026-11-16-7f86d4';
-import { dosenLogin } from './dosen-login.js?v=2026-11-16-7f86d4';
-import { unggahKePustaka, opsiPustaka, opsiJenis, labelDokumen, cariDokumen } from './pustaka-dokumen.js?v=2026-11-16-7f86d4';
-import { pasangRapikan } from './rapikan-berkas.js?v=2026-11-16-7f86d4';
-import { UNSUR, skorUnsur, pihakUnsur } from './unsur-butir.js?v=2026-11-16-7f86d4';
-import { OPSI_SUMBER } from './iku-otomatis.js?v=2026-11-16-7f86d4';
-import { denganOtomatis as otomatisDari, tsTersedia, tsAwal, htmlCapaianIKU, KET_CAPAIAN, muatTambahan, denganTambahan } from './capaian-iku.js?v=2026-11-16-7f86d4';
-import { KATEGORI_TEMUAN, STATUS_TEMUAN, PIHAK_TEMUAN, ringkasTemuan, htmlRingkasTemuan } from './temuan-ami.js?v=2026-11-16-7f86d4';
-import { bacaRekapSPM, rencanaImporSPM, tsDariTanggal, labelTS, ringkasLembar, picProdi } from './standar-spmi.js?v=2026-11-16-7f86d4';
-import { SHEETJS } from './nilai-cpl.js?v=2026-11-16-7f86d4';
-import { bacaCSV, normKur, normCpl, KOLOM_IMPOR, CONTOH_IMPOR, rencanaImpor, sebaranCPL, htmlSebaran } from './kurikulum-cpl.js?v=2026-11-16-7f86d4';
-import { htmlContoh, pasangContoh, JENIS_BUKTI_KS } from './manfaat-kerjasama.js?v=2026-11-16-7f86d4';
-import { infoJenis } from './rencana-bukti.js?v=2026-11-16-7f86d4';
-import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-16-7f86d4';
-import { nomorButir, htmlTautanButir } from './tautan-butir.js?v=2026-11-16-7f86d4';
-import { htmlSaran } from './saran-bukti.js?v=2026-11-16-7f86d4';
-import { tautanBerkas, privatkanLama, adalahPrivat } from './tautan-privat.js?v=2026-11-16-7f86d4';
-import { unggahLKD, buangLKD, bukaLKD, pendidikanTotal, pendidikanPS } from './bkd.js?v=2026-11-16-7f86d4';
+import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-16-8ad5aa';
+import { pasangMenu } from './menu.js?v=2026-11-16-8ad5aa';
+import { dosenLogin } from './dosen-login.js?v=2026-11-16-8ad5aa';
+import { unggahKePustaka, opsiPustaka, opsiJenis, labelDokumen, cariDokumen } from './pustaka-dokumen.js?v=2026-11-16-8ad5aa';
+import { pasangRapikan } from './rapikan-berkas.js?v=2026-11-16-8ad5aa';
+import { UNSUR, skorUnsur, pihakUnsur } from './unsur-butir.js?v=2026-11-16-8ad5aa';
+import { OPSI_SUMBER } from './iku-otomatis.js?v=2026-11-16-8ad5aa';
+import { denganOtomatis as otomatisDari, tsTersedia, tsAwal, htmlCapaianIKU, KET_CAPAIAN, muatTambahan, denganTambahan } from './capaian-iku.js?v=2026-11-16-8ad5aa';
+import { KATEGORI_TEMUAN, STATUS_TEMUAN, PIHAK_TEMUAN, ringkasTemuan, htmlRingkasTemuan } from './temuan-ami.js?v=2026-11-16-8ad5aa';
+import { bacaRekapSPM, rencanaImporSPM, tsDariTanggal, labelTS, ringkasLembar, picProdi } from './standar-spmi.js?v=2026-11-16-8ad5aa';
+import { SHEETJS } from './nilai-cpl.js?v=2026-11-16-8ad5aa';
+import { bacaCSV, normKur, normCpl, KOLOM_IMPOR, CONTOH_IMPOR, rencanaImpor, sebaranCPL, htmlSebaran } from './kurikulum-cpl.js?v=2026-11-16-8ad5aa';
+import { htmlContoh, pasangContoh, JENIS_BUKTI_KS } from './manfaat-kerjasama.js?v=2026-11-16-8ad5aa';
+import { infoJenis } from './rencana-bukti.js?v=2026-11-16-8ad5aa';
+import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-16-8ad5aa';
+import { nomorButir, htmlTautanButir } from './tautan-butir.js?v=2026-11-16-8ad5aa';
+import { htmlSaran } from './saran-bukti.js?v=2026-11-16-8ad5aa';
+import { tautanBerkas, privatkanLama, adalahPrivat } from './tautan-privat.js?v=2026-11-16-8ad5aa';
+import { unggahLKD, buangLKD, bukaLKD, pendidikanTotal, pendidikanPS } from './bkd.js?v=2026-11-16-8ad5aa';
 
 /* =====================================================================
    DATA PRODI — data kuantitatif LKPS diisi admin di situs (keputusan
@@ -439,6 +439,30 @@ const TABEL = [
     cek: r => r.kurikulum_asal === r.kurikulum_tujuan ? 'Kurikulum asal dan tujuan harus berbeda.'
       : REF_CPL.cpl && !REF_CPL.cpl.some(c => c.kurikulum === r.kurikulum_asal && c.kode === r.cpl_asal) ? `CPL ${r.cpl_asal} tidak ada di ${r.kurikulum_asal}.`
       : REF_CPL.cpl && !REF_CPL.cpl.some(c => c.kurikulum === r.kurikulum_tujuan && c.kode === r.cpl_tujuan) ? `CPL ${r.cpl_tujuan} tidak ada di ${r.kurikulum_tujuan}.` : '' },
+  // Profil lulusan per kurikulum (79-patch-profil-lulusan.sql, pemilik 2026-11-16): tampil di halaman publik kurikulum.html.
+  { id: 'profil_lulusan', tabel: 'ref_profil_lulusan', judul: 'Profil lulusan', butir: '13',
+    patch: '79-patch-profil-lulusan.sql', urut: ['kurikulum', 'urutan', 'kode'], tanpaBukti: true,
+    ket: 'Profil lulusan per kurikulum (mis. PL1 Perencana infrastruktur), sesuai dokumen kurikulum. Tampil di halaman '
+       + 'publik Kurikulum di atas daftar CPL, setelah pembangunan situs berikutnya (paling lama sejam). '
+       + 'Kolom CPL terkait: kode CPL kurikulum yang sama, dipisah koma (mis. A, B, E).',
+    label: r => `${r.kurikulum || ''} ${r.kode || ''} ${r.nama || 'Profil lulusan'}`.trim(), tahun: () => null,
+    kolom: [
+      { k: 'kurikulum', l: 'Kurikulum (mis. K26)', t: 'teks', wajib: true },
+      { k: 'kode', l: 'Kode (mis. PL1)', t: 'teks', wajib: true },
+      { k: 'nama', l: 'Nama profil', t: 'teks', wajib: true, lebar: true },
+      { k: 'nama_en', l: 'Nama (English)', t: 'teks', lebar: true },
+      { k: 'deskripsi', l: 'Deskripsi', t: 'paragraf' },
+      { k: 'cpl', l: 'CPL terkait (mis. A, B, E)', t: 'teks' },
+      { k: 'urutan', l: 'Urutan tampil', t: 'int' },
+    ],
+    olah: r => {
+      r.kurikulum = normKur(r.kurikulum);
+      r.kode = String(r.kode || '').trim().toUpperCase();
+      r.cpl = r.cpl ? String(r.cpl).split(/[,;\s]+/).filter(Boolean).map(normCpl).join(', ') : null;
+      if (r.urutan == null) r.urutan = 100;
+    },
+    cek: r => !/^K\d{2}$/.test(r.kurikulum || '') ? 'Kurikulum: huruf K dan dua angka tahun, mis. K26.'
+      : !/^[A-Za-z0-9.-]{1,10}$/.test(r.kode || '') ? 'Kode: 1–10 huruf/angka, mis. PL1.' : '' },
   { id: 'tema', tabel: 'ref_tema_peta_jalan', judul: 'Peta jalan', butir: '22–25',
     patch: '25-patch-isian-karya.sql', urut: ['urutan', 'nama'],
     ket: 'Tema peta jalan penelitian dan PkM prodi. Dosen memilih temanya di isian karya penelitian/PkM; '
@@ -1653,7 +1677,7 @@ const GRUP_TAB = [
   ['Dokumen', ['dokumen']],
   // Susunan 2026-11-13 (pemilik): kurikulum/CPL terpisah dari penelitian; keahlian ke Dosen & SDM.
   ['Dosen & SDM', ['bkd', 'tendik', 'bidang_keahlian', 'topik_keahlian']],
-  ['Kurikulum & CPL', ['mk', 'cpl', 'mk_cpl', 'korelasi_cpl']],
+  ['Kurikulum & CPL', ['mk', 'cpl', 'mk_cpl', 'korelasi_cpl', 'profil_lulusan']],
   ['Penelitian & kerja sama', ['tema', 'peta_dok', 'kerjasama']],
   ['Mahasiswa & lulusan', ['mahasiswa', 'kohort', 'prestasi', 'publikasi', 'luaran', 'tracer', 'kepuasan']],
   ['Institusi & keuangan', ['vmts', 'prodi_upps', 'dana']],
@@ -1920,6 +1944,7 @@ const RINGKAS = {
   kerjasama: ['mitra', 'jenis', 'tingkat', 'kegiatan', 'tahun_mulai', 'tahun_selesai'],
   mk: ['kurikulum', 'kode', 'nama', 'semester', 'sifat', 'pengampu', 'aktif'],
   cpl: ['kurikulum', 'kode', 'ranah', 'rumusan'],
+  profil_lulusan: ['kurikulum', 'kode', 'nama', 'cpl'],
   korelasi_cpl: ['kurikulum_asal', 'cpl_asal', 'kurikulum_tujuan', 'cpl_tujuan', 'tingkat', 'status'],
   topik_keahlian: ['kode', 'bidang', 'nama', 'aktif'],
   vmts: ['jenis', 'nomor_sk', 'visi'],

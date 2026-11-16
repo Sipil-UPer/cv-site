@@ -3943,6 +3943,3070 @@
    }
   ]
  },
+ "kurikulum": [
+  {
+   "kode": "K26",
+   "profil": [],
+   "cpl": [
+    {
+     "kode": "A",
+     "ranah": "Sikap (S)",
+     "rumusan": "Mampu menunjukkan sikap bertakwa, berintegritas, serta menjunjung tinggi nilai kemanusiaan, kebangsaan, dan cinta tanah air.",
+     "rumusan_en": "Able to demonstrate piety and integrity, and to uphold humanitarian values, nationalism, and love for the homeland."
+    },
+    {
+     "kode": "B",
+     "ranah": "Sikap (S)",
+     "rumusan": "Mampu bertindak secara etis, profesional, dan akuntabel dalam pengambilan keputusan, serta bertanggung jawab terhadap diri sendiri, masyarakat, dan organisasi atas dampaknya pada konteks sosial, ekonomi, lingkungan, dan global.",
+     "rumusan_en": "Able to act ethically, professionally, and accountably in decision-making, and to take responsibility toward oneself, society, and the organization for its impact in social, economic, environmental, and global contexts."
+    },
+    {
+     "kode": "C",
+     "ranah": "Keterampilan Umum (KU)",
+     "rumusan": "Mampu berpikir kritis, kreatif, efisien, dan inovatif dalam mengidentifikasi, merumuskan, menganalisis, dan memecahkan permasalahan kompleks di bidang keilmuannya, dengan menerapkan prinsip, teori, dan metodologi keilmuan yang relevan serta mengambil keputusan berbasis data dan bukti, baik pada ranah sains-rekayasa maupun sosial-humaniora.",
+     "rumusan_en": "Able to think critically, creatively, efficiently, and innovatively in identifying, formulating, analyzing, and solving complex problems in the field of study, by applying relevant principles, theories, and disciplinary methodologies and making data- and evidence-based decisions, in both the science-engineering and social-humanities domains."
+    },
+    {
+     "kode": "D",
+     "ranah": "Keterampilan Umum (KU)",
+     "rumusan": "Mampu memimpin dan/atau berkontribusi secara efektif dalam tim yang multikultural dan/atau multidisiplin.",
+     "rumusan_en": "Able to lead and/or contribute effectively in multicultural and/or multidisciplinary teams."
+    },
+    {
+     "kode": "E",
+     "ranah": "Keterampilan Umum (KU)",
+     "rumusan": "Mampu berkomunikasi secara efektif, baik secara lisan maupun tulisan, kepada beragam audiens.",
+     "rumusan_en": "Able to communicate effectively, both orally and in writing, to a range of audiences."
+    },
+    {
+     "kode": "F",
+     "ranah": "Keterampilan Umum (KU)",
+     "rumusan": "Mampu mengembangkan diri secara mandiri sebagai pembelajar sepanjang hayat yang mengikuti perkembangan zaman.",
+     "rumusan_en": "Able to develop oneself independently as a lifelong learner who keeps pace with contemporary developments."
+    },
+    {
+     "kode": "G",
+     "ranah": "Pengetahuan (P)",
+     "rumusan": "Mampu menerapkan konsep matematika, sains dasar, dan prinsip rekayasa untuk memformulasikan permasalahan teknik sipil ke dalam model yang dapat diselesaikan secara sistematis.",
+     "rumusan_en": "Able to apply concepts of mathematics, basic science, and engineering principles to formulate civil engineering problems into models that can be solved systematically."
+    },
+    {
+     "kode": "H",
+     "ranah": "Keterampilan Khusus (KK)",
+     "rumusan": "Mampu merancang dan melaksanakan eksperimen laboratorium dan/atau investigasi lapangan, serta menganalisis dan menafsirkan data untuk mendukung keputusan rekayasa.",
+     "rumusan_en": "Able to design and conduct laboratory experiments and/or field investigations, and to analyze and interpret data to support engineering decisions."
+    },
+    {
+     "kode": "I",
+     "ranah": "Keterampilan Khusus (KK)",
+     "rumusan": "Mampu merancang sistem, komponen, atau proses teknik sipil yang memenuhi kebutuhan teknis dalam batasan realistis, dengan mempertimbangkan keselamatan, keberlanjutan, lingkungan, dan ketahanan energi.",
+     "rumusan_en": "Able to design civil engineering systems, components, or processes that meet technical needs within realistic constraints, considering safety, sustainability, the environment, and energy resilience."
+    },
+    {
+     "kode": "J",
+     "ranah": "Keterampilan Khusus (KK)",
+     "rumusan": "Mampu memilih dan menggunakan metode, perangkat, dan teknologi rekayasa modern yang sesuai dalam analisis dan perancangan teknik sipil, dengan memahami asumsi dan keterbatasannya.",
+     "rumusan_en": "Able to select and use appropriate modern engineering methods, tools, and technologies in civil engineering analysis and design, with an understanding of their assumptions and limitations."
+    },
+    {
+     "kode": "K",
+     "ranah": "Keterampilan Khusus (KK)",
+     "rumusan": "Mampu menerapkan prinsip manajemen proyek, ekonomi rekayasa, dan keselamatan konstruksi dalam penyelenggaraan infrastruktur, dengan mempertimbangkan keberlanjutan dan ketahanan energi.",
+     "rumusan_en": "Able to apply principles of project management, engineering economics, and construction safety in infrastructure delivery, considering sustainability and energy resilience."
+    }
+   ],
+   "mk": [
+    {
+     "kode": "01207",
+     "nama": "Bahasa Inggris 1",
+     "semester": 1,
+     "sks": 2.0,
+     "bagian": {
+      "kuliah": 2.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "wajib",
+     "unit": "universitas",
+     "capstone": false,
+     "cpl": [
+      "E"
+     ]
+    },
+    {
+     "kode": "01209",
+     "nama": "Literasi Digital",
+     "semester": 1,
+     "sks": 2.0,
+     "bagian": {
+      "kuliah": 2.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "wajib",
+     "unit": "universitas",
+     "capstone": false,
+     "cpl": [
+      "E",
+      "F"
+     ]
+    },
+    {
+     "kode": "01211",
+     "nama": "Berpikir Integratif",
+     "semester": 1,
+     "sks": 2.0,
+     "bagian": {
+      "kuliah": 2.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "wajib",
+     "unit": "universitas",
+     "capstone": false,
+     "cpl": [
+      "C"
+     ]
+    },
+    {
+     "kode": "41301",
+     "nama": "Kalkulus 1",
+     "semester": 1,
+     "sks": 4.0,
+     "bagian": {
+      "kuliah": 4.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "wajib",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "G"
+     ]
+    },
+    {
+     "kode": "41302",
+     "nama": "Fisika Dasar 1",
+     "semester": 1,
+     "sks": 3.0,
+     "bagian": {
+      "kuliah": 3.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "wajib",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "G"
+     ]
+    },
+    {
+     "kode": "41303",
+     "nama": "Praktikum Fisika Dasar 1",
+     "semester": 1,
+     "sks": 1.0,
+     "bagian": {
+      "kuliah": 0.0,
+      "seminar": 0.0,
+      "praktikum": 1.0
+     },
+     "sifat": "wajib",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "E",
+      "G",
+      "H"
+     ]
+    },
+    {
+     "kode": "51502",
+     "nama": "Kimia Dasar",
+     "semester": 1,
+     "sks": 2.0,
+     "bagian": {
+      "kuliah": 2.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "wajib",
+     "unit": "",
+     "capstone": false,
+     "cpl": [
+      "G"
+     ]
+    },
+    {
+     "kode": "51503",
+     "nama": "Praktikum Kimia Dasar",
+     "semester": 1,
+     "sks": 1.0,
+     "bagian": {
+      "kuliah": 0.0,
+      "seminar": 0.0,
+      "praktikum": 1.0
+     },
+     "sifat": "wajib",
+     "unit": "",
+     "capstone": false,
+     "cpl": [
+      "E",
+      "G",
+      "H"
+     ]
+    },
+    {
+     "kode": "01104",
+     "nama": "Bahasa Indonesia",
+     "semester": 2,
+     "sks": 2.0,
+     "bagian": {
+      "kuliah": 2.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "wajib",
+     "unit": "universitas",
+     "capstone": false,
+     "cpl": [
+      "E",
+      "F"
+     ]
+    },
+    {
+     "kode": "41304",
+     "nama": "Geologi Dasar",
+     "semester": 2,
+     "sks": 2.0,
+     "bagian": {
+      "kuliah": 2.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "wajib",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "G",
+      "K"
+     ]
+    },
+    {
+     "kode": "41305",
+     "nama": "Fisika Dasar 2",
+     "semester": 2,
+     "sks": 3.0,
+     "bagian": {
+      "kuliah": 3.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "wajib",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "C",
+      "G"
+     ]
+    },
+    {
+     "kode": "41306",
+     "nama": "Kalkulus 2",
+     "semester": 2,
+     "sks": 4.0,
+     "bagian": {
+      "kuliah": 4.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "wajib",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "G"
+     ]
+    },
+    {
+     "kode": "41307",
+     "nama": "Pengantar Surveying dan Pemetaan",
+     "semester": 2,
+     "sks": 2.0,
+     "bagian": {
+      "kuliah": 2.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "wajib",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "C",
+      "J"
+     ]
+    },
+    {
+     "kode": "41308",
+     "nama": "Gambar Teknik",
+     "semester": 2,
+     "sks": 2.0,
+     "bagian": {
+      "kuliah": 2.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "wajib",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "C",
+      "J"
+     ]
+    },
+    {
+     "kode": "41309",
+     "nama": "Praktikum Gambar Teknik",
+     "semester": 2,
+     "sks": 1.0,
+     "bagian": {
+      "kuliah": 0.0,
+      "seminar": 0.0,
+      "praktikum": 1.0
+     },
+     "sifat": "wajib",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "E",
+      "H",
+      "J"
+     ]
+    },
+    {
+     "kode": "41310",
+     "nama": "Praktikum Fisika Dasar 2",
+     "semester": 2,
+     "sks": 1.0,
+     "bagian": {
+      "kuliah": 0.0,
+      "seminar": 0.0,
+      "praktikum": 1.0
+     },
+     "sifat": "wajib",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "E",
+      "G",
+      "H"
+     ]
+    },
+    {
+     "kode": "41501",
+     "nama": "Pengantar Infrastruktur",
+     "semester": 2,
+     "sks": 2.0,
+     "bagian": {
+      "kuliah": 2.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "wajib",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "C",
+      "D",
+      "E"
+     ]
+    },
+    {
+     "kode": "01205",
+     "nama": "Literasi Energi",
+     "semester": 3,
+     "sks": 2.0,
+     "bagian": {
+      "kuliah": 2.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "wajib",
+     "unit": "universitas",
+     "capstone": false,
+     "cpl": [
+      "C"
+     ]
+    },
+    {
+     "kode": "01210",
+     "nama": "Pembangunan Berkelanjutan",
+     "semester": 3,
+     "sks": 2.0,
+     "bagian": {
+      "kuliah": 2.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "wajib",
+     "unit": "universitas",
+     "capstone": false,
+     "cpl": [
+      "C",
+      "F"
+     ]
+    },
+    {
+     "kode": "41311",
+     "nama": "Pemrograman dan Aplikasi Komputer",
+     "semester": 3,
+     "sks": 2.0,
+     "bagian": {
+      "kuliah": 2.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "wajib",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "E",
+      "F",
+      "J"
+     ]
+    },
+    {
+     "kode": "41312",
+     "nama": "Statistika",
+     "semester": 3,
+     "sks": 3.0,
+     "bagian": {
+      "kuliah": 3.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "wajib",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "C",
+      "G"
+     ]
+    },
+    {
+     "kode": "41313",
+     "nama": "Analisis Struktur Statis Tertentu",
+     "semester": 3,
+     "sks": 3.0,
+     "bagian": {
+      "kuliah": 3.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "wajib",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "C",
+      "G"
+     ]
+    },
+    {
+     "kode": "41314",
+     "nama": "Rekayasa Bahan",
+     "semester": 3,
+     "sks": 2.0,
+     "bagian": {
+      "kuliah": 2.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "wajib",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "C",
+      "K"
+     ]
+    },
+    {
+     "kode": "41315",
+     "nama": "Praktikum Teknologi Bahan",
+     "semester": 3,
+     "sks": 1.0,
+     "bagian": {
+      "kuliah": 0.0,
+      "seminar": 0.0,
+      "praktikum": 1.0
+     },
+     "sifat": "wajib",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "E",
+      "H"
+     ]
+    },
+    {
+     "kode": "41316",
+     "nama": "Mekanika Fluida dan Hidraulika",
+     "semester": 3,
+     "sks": 2.0,
+     "bagian": {
+      "kuliah": 2.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "wajib",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "C",
+      "J"
+     ]
+    },
+    {
+     "kode": "41317",
+     "nama": "Praktikum Mekanika Fluida dan Hidraulika",
+     "semester": 3,
+     "sks": 1.0,
+     "bagian": {
+      "kuliah": 0.0,
+      "seminar": 0.0,
+      "praktikum": 1.0
+     },
+     "sifat": "wajib",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "E",
+      "H"
+     ]
+    },
+    {
+     "kode": "41318",
+     "nama": "Rekayasa Lalulintas dan Sistem Transportasi",
+     "semester": 3,
+     "sks": 3.0,
+     "bagian": {
+      "kuliah": 3.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "wajib",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "C",
+      "K"
+     ]
+    },
+    {
+     "kode": "01103",
+     "nama": "Kewarganegaraan",
+     "semester": 4,
+     "sks": 2.0,
+     "bagian": {
+      "kuliah": 2.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "wajib",
+     "unit": "universitas",
+     "capstone": false,
+     "cpl": [
+      "B"
+     ]
+    },
+    {
+     "kode": "41319",
+     "nama": "Persamaan Diferensial",
+     "semester": 4,
+     "sks": 3.0,
+     "bagian": {
+      "kuliah": 3.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "wajib",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "G"
+     ]
+    },
+    {
+     "kode": "41320",
+     "nama": "Mekanika Bahan",
+     "semester": 4,
+     "sks": 2.0,
+     "bagian": {
+      "kuliah": 2.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "wajib",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "C",
+      "G"
+     ]
+    },
+    {
+     "kode": "41321",
+     "nama": "Mekanika Tanah 1",
+     "semester": 4,
+     "sks": 2.0,
+     "bagian": {
+      "kuliah": 2.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "wajib",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "C",
+      "G"
+     ]
+    },
+    {
+     "kode": "41322",
+     "nama": "Praktikum Mekanika Tanah 1",
+     "semester": 4,
+     "sks": 1.0,
+     "bagian": {
+      "kuliah": 1.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "wajib",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "E",
+      "H"
+     ]
+    },
+    {
+     "kode": "41323",
+     "nama": "Hidrologi",
+     "semester": 4,
+     "sks": 3.0,
+     "bagian": {
+      "kuliah": 3.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "wajib",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "C",
+      "J"
+     ]
+    },
+    {
+     "kode": "41324",
+     "nama": "Geometri Jalan Raya",
+     "semester": 4,
+     "sks": 2.0,
+     "bagian": {
+      "kuliah": 2.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "wajib",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "C",
+      "I",
+      "K"
+     ]
+    },
+    {
+     "kode": "41325",
+     "nama": "Mekanika Gelombang Laut",
+     "semester": 4,
+     "sks": 3.0,
+     "bagian": {
+      "kuliah": 3.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "wajib",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "C",
+      "J"
+     ]
+    },
+    {
+     "kode": "41502",
+     "nama": "Manajemen Konstruksi",
+     "semester": 4,
+     "sks": 2.0,
+     "bagian": {
+      "kuliah": 2.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "wajib",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "J",
+      "K"
+     ]
+    },
+    {
+     "kode": "01208",
+     "nama": "Bahasa Inggris 2",
+     "semester": 5,
+     "sks": 2.0,
+     "bagian": {
+      "kuliah": 2.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "wajib",
+     "unit": "universitas",
+     "capstone": false,
+     "cpl": [
+      "E"
+     ]
+    },
+    {
+     "kode": "41337",
+     "nama": "Metoda Numerik",
+     "semester": 5,
+     "sks": 3.0,
+     "bagian": {
+      "kuliah": 3.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "wajib",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "G"
+     ]
+    },
+    {
+     "kode": "41338",
+     "nama": "Struktur Baja",
+     "semester": 5,
+     "sks": 3.0,
+     "bagian": {
+      "kuliah": 3.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "wajib",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "C",
+      "I",
+      "J"
+     ]
+    },
+    {
+     "kode": "41339",
+     "nama": "Mekanika Tanah 2",
+     "semester": 5,
+     "sks": 2.0,
+     "bagian": {
+      "kuliah": 2.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "wajib",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "C",
+      "G",
+      "I"
+     ]
+    },
+    {
+     "kode": "41340",
+     "nama": "Praktikum Mekanika Tanah 2",
+     "semester": 5,
+     "sks": 1.0,
+     "bagian": {
+      "kuliah": 0.0,
+      "seminar": 0.0,
+      "praktikum": 1.0
+     },
+     "sifat": "wajib",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "E",
+      "H"
+     ]
+    },
+    {
+     "kode": "41341",
+     "nama": "Analisis Struktur Dengan Matriks",
+     "semester": 5,
+     "sks": 3.0,
+     "bagian": {
+      "kuliah": 3.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "wajib",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "C",
+      "G"
+     ]
+    },
+    {
+     "kode": "41342",
+     "nama": "Struktur Beton",
+     "semester": 5,
+     "sks": 3.0,
+     "bagian": {
+      "kuliah": 3.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "wajib",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "C",
+      "I",
+      "J"
+     ]
+    },
+    {
+     "kode": "41503",
+     "nama": "Ekonomi Rekayasa",
+     "semester": 5,
+     "sks": 2.0,
+     "bagian": {
+      "kuliah": 2.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "wajib",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "C",
+      "K"
+     ]
+    },
+    {
+     "kode": "41343",
+     "nama": "Rekayasa Perkerasan Jalan",
+     "semester": 6,
+     "sks": 2.0,
+     "bagian": {
+      "kuliah": 2.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "wajib",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "C",
+      "I",
+      "K"
+     ]
+    },
+    {
+     "kode": "41344",
+     "nama": "Praktikum Bahan Perkerasan Jalan",
+     "semester": 6,
+     "sks": 1.0,
+     "bagian": {
+      "kuliah": 0.0,
+      "seminar": 0.0,
+      "praktikum": 1.0
+     },
+     "sifat": "wajib",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "E",
+      "H"
+     ]
+    },
+    {
+     "kode": "41345",
+     "nama": "Desain Struktur Baja Lepas Pantai",
+     "semester": 6,
+     "sks": 3.0,
+     "bagian": {
+      "kuliah": 3.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "wajib",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "I",
+      "J"
+     ]
+    },
+    {
+     "kode": "41346",
+     "nama": "Rekayasa Fondasi",
+     "semester": 6,
+     "sks": 3.0,
+     "bagian": {
+      "kuliah": 3.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "wajib",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "I",
+      "J"
+     ]
+    },
+    {
+     "kode": "41347",
+     "nama": "Desain Struktur Beton Tahan Gempa",
+     "semester": 6,
+     "sks": 3.0,
+     "bagian": {
+      "kuliah": 3.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "wajib",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "I",
+      "J"
+     ]
+    },
+    {
+     "kode": "41348",
+     "nama": "Metode Pelaksanaan Konstruksi dan K3",
+     "semester": 6,
+     "sks": 2.0,
+     "bagian": {
+      "kuliah": 2.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "wajib",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "B",
+      "C",
+      "K"
+     ]
+    },
+    {
+     "kode": "41349",
+     "nama": "Hidrologi Bendungan dan Energi Air",
+     "semester": 6,
+     "sks": 3.0,
+     "bagian": {
+      "kuliah": 3.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "wajib",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "I",
+      "J",
+      "K"
+     ]
+    },
+    {
+     "kode": "01206",
+     "nama": "Inovasi dan Kewirausahaan",
+     "semester": 7,
+     "sks": 2.0,
+     "bagian": {
+      "kuliah": 2.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "wajib",
+     "unit": "universitas",
+     "capstone": false,
+     "cpl": [
+      "C",
+      "D"
+     ]
+    },
+    {
+     "kode": "01212",
+     "nama": "Studium Generale",
+     "semester": 7,
+     "sks": 1.0,
+     "bagian": {
+      "kuliah": 1.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "wajib",
+     "unit": "universitas",
+     "capstone": false,
+     "cpl": [
+      "B"
+     ]
+    },
+    {
+     "kode": "01214",
+     "nama": "Etika Profesi Keinsinyuran",
+     "semester": 7,
+     "sks": 2.0,
+     "bagian": {
+      "kuliah": 2.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "wajib",
+     "unit": "universitas",
+     "capstone": false,
+     "cpl": [
+      "B"
+     ]
+    },
+    {
+     "kode": "41350",
+     "nama": "Kerja Praktik",
+     "semester": 7,
+     "sks": 2.0,
+     "bagian": {
+      "kuliah": 0.0,
+      "seminar": 0.0,
+      "praktikum": 2.0
+     },
+     "sifat": "wajib",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "B",
+      "C",
+      "D",
+      "E",
+      "F"
+     ]
+    },
+    {
+     "kode": "41351",
+     "nama": "Perancangan Bangunan dan Inovasi Teknik Sipil",
+     "semester": 7,
+     "sks": 4.0,
+     "bagian": {
+      "kuliah": 4.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "wajib",
+     "unit": "prodi",
+     "capstone": true,
+     "cpl": [
+      "C",
+      "D",
+      "E",
+      "I",
+      "J",
+      "K"
+     ]
+    },
+    {
+     "kode": "41352",
+     "nama": "Metodologi Penelitian",
+     "semester": 7,
+     "sks": 2.0,
+     "bagian": {
+      "kuliah": 2.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "wajib",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "C",
+      "E",
+      "F"
+     ]
+    },
+    {
+     "kode": "01101",
+     "nama": "Agama dan Etika",
+     "semester": 8,
+     "sks": 2.0,
+     "bagian": {
+      "kuliah": 2.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "wajib",
+     "unit": "universitas",
+     "capstone": false,
+     "cpl": [
+      "A"
+     ]
+    },
+    {
+     "kode": "01102",
+     "nama": "Pancasila",
+     "semester": 8,
+     "sks": 2.0,
+     "bagian": {
+      "kuliah": 2.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "wajib",
+     "unit": "universitas",
+     "capstone": false,
+     "cpl": [
+      "A"
+     ]
+    },
+    {
+     "kode": "41353",
+     "nama": "Tugas Akhir",
+     "semester": 8,
+     "sks": 4.0,
+     "bagian": {
+      "kuliah": 4.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "wajib",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "C",
+      "E",
+      "F",
+      "H",
+      "I",
+      "J"
+     ]
+    },
+    {
+     "kode": "41401",
+     "nama": "Dinamika Struktur",
+     "semester": null,
+     "sks": 3.0,
+     "bagian": {
+      "kuliah": 3.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "pilihan",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "C",
+      "G",
+      "J"
+     ]
+    },
+    {
+     "kode": "41404",
+     "nama": "Analisis Konstruksi Anjungan Lepas Pantai",
+     "semester": null,
+     "sks": 3.0,
+     "bagian": {
+      "kuliah": 3.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "pilihan",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "I",
+      "J"
+     ]
+    },
+    {
+     "kode": "41405",
+     "nama": "Desain Bangunan Terapung",
+     "semester": null,
+     "sks": 3.0,
+     "bagian": {
+      "kuliah": 3.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "pilihan",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "I",
+      "J"
+     ]
+    },
+    {
+     "kode": "41406",
+     "nama": "Manajemen Konstruksi dan Aspek Hukum Proyek",
+     "semester": null,
+     "sks": 2.0,
+     "bagian": {
+      "kuliah": 2.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "pilihan",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "B",
+      "K"
+     ]
+    },
+    {
+     "kode": "41407",
+     "nama": "Standar Internasional dalam Manajmemen Konstruksi",
+     "semester": null,
+     "sks": 2.0,
+     "bagian": {
+      "kuliah": 2.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "pilihan",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "B",
+      "K"
+     ]
+    },
+    {
+     "kode": "41408",
+     "nama": "Rekayasa Fondasi Lanjut",
+     "semester": null,
+     "sks": 3.0,
+     "bagian": {
+      "kuliah": 3.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "pilihan",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "C",
+      "I",
+      "J"
+     ]
+    },
+    {
+     "kode": "41409",
+     "nama": "Mekanika Tanah Lanjut",
+     "semester": null,
+     "sks": 3.0,
+     "bagian": {
+      "kuliah": 3.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "pilihan",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "C",
+      "I"
+     ]
+    },
+    {
+     "kode": "41410",
+     "nama": "Rekayasa Gempa dalam Geoteknik",
+     "semester": null,
+     "sks": 2.0,
+     "bagian": {
+      "kuliah": 2.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "pilihan",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "C",
+      "I"
+     ]
+    },
+    {
+     "kode": "41411",
+     "nama": "Perbaikan Tanah",
+     "semester": null,
+     "sks": 2.0,
+     "bagian": {
+      "kuliah": 2.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "pilihan",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "C",
+      "I"
+     ]
+    },
+    {
+     "kode": "41412",
+     "nama": "Analisis Kebutuhan Pergerakan",
+     "semester": null,
+     "sks": 3.0,
+     "bagian": {
+      "kuliah": 3.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "pilihan",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "C",
+      "I",
+      "J"
+     ]
+    },
+    {
+     "kode": "41413",
+     "nama": "Rekayasa Bandara",
+     "semester": null,
+     "sks": 2.0,
+     "bagian": {
+      "kuliah": 2.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "pilihan",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "C",
+      "I",
+      "J"
+     ]
+    },
+    {
+     "kode": "41414",
+     "nama": "Transportasi Berkelanjutan",
+     "semester": null,
+     "sks": 2.0,
+     "bagian": {
+      "kuliah": 2.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "pilihan",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "C",
+      "I"
+     ]
+    },
+    {
+     "kode": "41415",
+     "nama": "Hidrologi Lanjut",
+     "semester": null,
+     "sks": 3.0,
+     "bagian": {
+      "kuliah": 3.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "pilihan",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "C",
+      "J"
+     ]
+    },
+    {
+     "kode": "41416",
+     "nama": "Rekayasa Pelabuhan",
+     "semester": null,
+     "sks": 3.0,
+     "bagian": {
+      "kuliah": 3.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "pilihan",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "I",
+      "J"
+     ]
+    },
+    {
+     "kode": "41417",
+     "nama": "Perencanaan Drainase",
+     "semester": null,
+     "sks": 3.0,
+     "bagian": {
+      "kuliah": 3.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "pilihan",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "I",
+      "J"
+     ]
+    },
+    {
+     "kode": "41418",
+     "nama": "Model Sumberdaya Air",
+     "semester": null,
+     "sks": 3.0,
+     "bagian": {
+      "kuliah": 3.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "pilihan",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "C",
+      "J"
+     ]
+    },
+    {
+     "kode": "41419",
+     "nama": "Proses dan Bangunan Pantai",
+     "semester": null,
+     "sks": 3.0,
+     "bagian": {
+      "kuliah": 3.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "pilihan",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "C",
+      "I"
+     ]
+    },
+    {
+     "kode": "41420",
+     "nama": "Manajemen Perencanaan Pesisir",
+     "semester": null,
+     "sks": 3.0,
+     "bagian": {
+      "kuliah": 3.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "pilihan",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "C",
+      "K"
+     ]
+    },
+    {
+     "kode": "41421",
+     "nama": "Aspek Kebencanaan dan Kegagalan Infrastruktur",
+     "semester": null,
+     "sks": 3.0,
+     "bagian": {
+      "kuliah": 3.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "pilihan",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "C"
+     ]
+    },
+    {
+     "kode": "41504",
+     "nama": "Metoda Elemen Hingga",
+     "semester": null,
+     "sks": 3.0,
+     "bagian": {
+      "kuliah": 3.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "pilihan",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "G",
+      "I",
+      "J"
+     ]
+    },
+    {
+     "kode": "41505",
+     "nama": "Desain Pipa Bawah Laut",
+     "semester": null,
+     "sks": 3.0,
+     "bagian": {
+      "kuliah": 3.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "pilihan",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "I",
+      "J"
+     ]
+    }
+   ]
+  },
+  {
+   "kode": "K21",
+   "profil": [],
+   "cpl": [
+    {
+     "kode": "a",
+     "ranah": "",
+     "rumusan": "Memiliki karakter individu yang berbudi pekerti luhur, berintegritas, spiritual dan cinta tanah air",
+     "rumusan_en": ""
+    },
+    {
+     "kode": "b",
+     "ranah": "",
+     "rumusan": "Memiliki kemampuan untuk memahami pertimbangan etis, budaya akademik, dan bertanggung jawab secara profesional",
+     "rumusan_en": ""
+    },
+    {
+     "kode": "c",
+     "ranah": "",
+     "rumusan": "Memiliki kemampuan untuk berkomunikasi secara efektif",
+     "rumusan_en": ""
+    },
+    {
+     "kode": "d",
+     "ranah": "",
+     "rumusan": "Memiliki kemampuan untuk berpikir kritis serta bertindak kreatif dan inovatif",
+     "rumusan_en": ""
+    },
+    {
+     "kode": "e",
+     "ranah": "",
+     "rumusan": "Memiliki kemampuan untuk memimpin",
+     "rumusan_en": ""
+    },
+    {
+     "kode": "f",
+     "ranah": "",
+     "rumusan": "Memiliki kemampuan untuk bekerja efektif baik secara mandiri/maupun sebagai anggota tim",
+     "rumusan_en": ""
+    },
+    {
+     "kode": "g",
+     "ranah": "",
+     "rumusan": "Memiliki kemampuan untuk memperoleh dan menerapkan pengetahuan baru",
+     "rumusan_en": ""
+    },
+    {
+     "kode": "h",
+     "ranah": "",
+     "rumusan": "Memiliki kemampuan untuk mengikuti perkembangan di bidang sains, teknologi dan sosial",
+     "rumusan_en": ""
+    },
+    {
+     "kode": "i",
+     "ranah": "",
+     "rumusan": "Memiliki kemampuan untuk menggunakan dan menganalisis data dan/atau informasi digital",
+     "rumusan_en": ""
+    },
+    {
+     "kode": "j",
+     "ranah": "",
+     "rumusan": "Memiliki kemampuan untuk mengidentifikasi, merumuskan dan menyelesaikan permasalahan rekayasa di bidang Teknik Sipil; dan memilih serta menerapkan metode-metode relevan yang dibangun dari metode analitis, komputasi, dan eksperimental yang telah diakui",
+     "rumusan_en": ""
+    },
+    {
+     "kode": "k",
+     "ranah": "",
+     "rumusan": "Memiliki kemampuan untuk melakukan investigasi menggunakan pengetahuan berbasis penelitian dan metode-metode penelitian termasuk desain dan tata cara eksperimen, analisis dan interpretasi data",
+     "rumusan_en": ""
+    },
+    {
+     "kode": "l",
+     "ranah": "",
+     "rumusan": "Memiliki kemampuan untuk memahami dampak penyelesaian rekayasa dalam konteks sosial, kesehatan dan keselamatan, lingkungan, ekonomi, dan industri",
+     "rumusan_en": ""
+    }
+   ],
+   "mk": [
+    {
+     "kode": "1000X",
+     "nama": "Agama dan Etika",
+     "semester": 1,
+     "sks": 2.0,
+     "bagian": {
+      "kuliah": 2.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "wajib",
+     "unit": "universitas",
+     "capstone": false,
+     "cpl": [
+      "a"
+     ]
+    },
+    {
+     "kode": "10101",
+     "nama": "Bahasa Indonesia",
+     "semester": 1,
+     "sks": 2.0,
+     "bagian": {
+      "kuliah": 2.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "wajib",
+     "unit": "universitas",
+     "capstone": false,
+     "cpl": [
+      "c",
+      "d",
+      "i"
+     ]
+    },
+    {
+     "kode": "10102",
+     "nama": "Bahasa Inggris I",
+     "semester": 1,
+     "sks": 2.0,
+     "bagian": {
+      "kuliah": 2.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "wajib",
+     "unit": "universitas",
+     "capstone": false,
+     "cpl": [
+      "c",
+      "d",
+      "i"
+     ]
+    },
+    {
+     "kode": "10104",
+     "nama": "Berpikir Kritis",
+     "semester": 1,
+     "sks": 1.0,
+     "bagian": {
+      "kuliah": 1.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "wajib",
+     "unit": "universitas",
+     "capstone": false,
+     "cpl": [
+      "c",
+      "d"
+     ]
+    },
+    {
+     "kode": "10106",
+     "nama": "Pengantar Teknologi dan Bisnis Energi",
+     "semester": 1,
+     "sks": 2.0,
+     "bagian": {
+      "kuliah": 2.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "wajib",
+     "unit": "universitas",
+     "capstone": false,
+     "cpl": [
+      "c",
+      "h"
+     ]
+    },
+    {
+     "kode": "41101",
+     "nama": "Matematika Lanjut",
+     "semester": 1,
+     "sks": 3.0,
+     "bagian": {
+      "kuliah": 3.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "wajib",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "g"
+     ]
+    },
+    {
+     "kode": "41102",
+     "nama": "Fisika Dasar",
+     "semester": 1,
+     "sks": 3.0,
+     "bagian": {
+      "kuliah": 3.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "wajib",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "f",
+      "g",
+      "k"
+     ]
+    },
+    {
+     "kode": "41103",
+     "nama": "Praktikum Fisika Dasar",
+     "semester": 1,
+     "sks": 1.0,
+     "bagian": {
+      "kuliah": 0.0,
+      "seminar": 0.0,
+      "praktikum": 1.0
+     },
+     "sifat": "wajib",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "c",
+      "f",
+      "g",
+      "k"
+     ]
+    },
+    {
+     "kode": "41104",
+     "nama": "Kimia Dasar",
+     "semester": 1,
+     "sks": 2.0,
+     "bagian": {
+      "kuliah": 2.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "wajib",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "g"
+     ]
+    },
+    {
+     "kode": "10009",
+     "nama": "Kewarganegaraan",
+     "semester": 2,
+     "sks": 2.0,
+     "bagian": {
+      "kuliah": 2.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "wajib",
+     "unit": "universitas",
+     "capstone": false,
+     "cpl": [
+      "a"
+     ]
+    },
+    {
+     "kode": "10103",
+     "nama": "Bahasa Inggris II",
+     "semester": 2,
+     "sks": 2.0,
+     "bagian": {
+      "kuliah": 2.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "wajib",
+     "unit": "universitas",
+     "capstone": false,
+     "cpl": [
+      "c",
+      "d",
+      "i"
+     ]
+    },
+    {
+     "kode": "10105",
+     "nama": "Berpikir Solusi Kreatif",
+     "semester": 2,
+     "sks": 1.0,
+     "bagian": {
+      "kuliah": 1.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "wajib",
+     "unit": "universitas",
+     "capstone": false,
+     "cpl": [
+      "c",
+      "d"
+     ]
+    },
+    {
+     "kode": "41105",
+     "nama": "Pengantar Infrastruktur",
+     "semester": 2,
+     "sks": 2.0,
+     "bagian": {
+      "kuliah": 2.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "wajib",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "b",
+      "h",
+      "l"
+     ]
+    },
+    {
+     "kode": "41106",
+     "nama": "Pengantar Surveying dan Pemetaan",
+     "semester": 2,
+     "sks": 2.0,
+     "bagian": {
+      "kuliah": 2.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "wajib",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "i",
+      "j"
+     ]
+    },
+    {
+     "kode": "41107",
+     "nama": "Matematika Teknik I",
+     "semester": 2,
+     "sks": 3.0,
+     "bagian": {
+      "kuliah": 3.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "wajib",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "g",
+      "j"
+     ]
+    },
+    {
+     "kode": "41108",
+     "nama": "Gambar Teknik",
+     "semester": 2,
+     "sks": 2.0,
+     "bagian": {
+      "kuliah": 2.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "wajib",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "h",
+      "i"
+     ]
+    },
+    {
+     "kode": "41109",
+     "nama": "Praktikum Gambar",
+     "semester": 2,
+     "sks": 1.0,
+     "bagian": {
+      "kuliah": 0.0,
+      "seminar": 0.0,
+      "praktikum": 1.0
+     },
+     "sifat": "wajib",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "c",
+      "h",
+      "i"
+     ]
+    },
+    {
+     "kode": "41110",
+     "nama": "Ilmu Lingkungan",
+     "semester": 2,
+     "sks": 2.0,
+     "bagian": {
+      "kuliah": 2.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "wajib",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "g",
+      "k",
+      "l"
+     ]
+    },
+    {
+     "kode": "41201",
+     "nama": "Matematika Teknik II",
+     "semester": 3,
+     "sks": 3.0,
+     "bagian": {
+      "kuliah": 3.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "wajib",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "g",
+      "j"
+     ]
+    },
+    {
+     "kode": "41202",
+     "nama": "Statistik dan Analisis Probabilitas",
+     "semester": 3,
+     "sks": 2.0,
+     "bagian": {
+      "kuliah": 2.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "wajib",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "g",
+      "j",
+      "k"
+     ]
+    },
+    {
+     "kode": "41203",
+     "nama": "Analisis Struktur Statis Tertentu",
+     "semester": 3,
+     "sks": 3.0,
+     "bagian": {
+      "kuliah": 3.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "wajib",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "g",
+      "j"
+     ]
+    },
+    {
+     "kode": "41204",
+     "nama": "Rekayasa Bahan",
+     "semester": 3,
+     "sks": 2.0,
+     "bagian": {
+      "kuliah": 2.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "wajib",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "g",
+      "h",
+      "j"
+     ]
+    },
+    {
+     "kode": "41205",
+     "nama": "Praktikum Teknologi Bahan",
+     "semester": 3,
+     "sks": 1.0,
+     "bagian": {
+      "kuliah": 0.0,
+      "seminar": 0.0,
+      "praktikum": 1.0
+     },
+     "sifat": "wajib",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "c",
+      "f",
+      "k"
+     ]
+    },
+    {
+     "kode": "41206",
+     "nama": "Mekanika Fluida dan Hidraulika",
+     "semester": 3,
+     "sks": 3.0,
+     "bagian": {
+      "kuliah": 3.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "wajib",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "g",
+      "j"
+     ]
+    },
+    {
+     "kode": "41207",
+     "nama": "Praktikum Mekanika Fluida dan Hidraulika",
+     "semester": 3,
+     "sks": 1.0,
+     "bagian": {
+      "kuliah": 0.0,
+      "seminar": 0.0,
+      "praktikum": 1.0
+     },
+     "sifat": "wajib",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "c",
+      "f",
+      "k"
+     ]
+    },
+    {
+     "kode": "41208",
+     "nama": "Rekayasa Lalulintas dan Sistem Transportasi",
+     "semester": 3,
+     "sks": 3.0,
+     "bagian": {
+      "kuliah": 3.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "wajib",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "d",
+      "e",
+      "j"
+     ]
+    },
+    {
+     "kode": "41209",
+     "nama": "Mekanika Bahan",
+     "semester": 4,
+     "sks": 3.0,
+     "bagian": {
+      "kuliah": 3.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "wajib",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "g",
+      "j"
+     ]
+    },
+    {
+     "kode": "41210",
+     "nama": "Mekanika Tanah I",
+     "semester": 4,
+     "sks": 2.0,
+     "bagian": {
+      "kuliah": 2.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "wajib",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "j",
+      "k"
+     ]
+    },
+    {
+     "kode": "41211",
+     "nama": "Hidrologi dan Drainase",
+     "semester": 4,
+     "sks": 3.0,
+     "bagian": {
+      "kuliah": 3.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "wajib",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "b",
+      "j",
+      "l"
+     ]
+    },
+    {
+     "kode": "41212",
+     "nama": "Analisis Struktur Statis Tak Tentu",
+     "semester": 4,
+     "sks": 3.0,
+     "bagian": {
+      "kuliah": 3.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "wajib",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "f",
+      "g",
+      "j"
+     ]
+    },
+    {
+     "kode": "41213",
+     "nama": "Manajemen Konstruksi",
+     "semester": 4,
+     "sks": 3.0,
+     "bagian": {
+      "kuliah": 3.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "wajib",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "f",
+      "j",
+      "l"
+     ]
+    },
+    {
+     "kode": "41214",
+     "nama": "Pemrograman dan Aplikasi Komputer",
+     "semester": 4,
+     "sks": 2.0,
+     "bagian": {
+      "kuliah": 2.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "wajib",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "c",
+      "i"
+     ]
+    },
+    {
+     "kode": "41215",
+     "nama": "Geometri Jalan Raya",
+     "semester": 4,
+     "sks": 2.0,
+     "bagian": {
+      "kuliah": 2.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "wajib",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "f",
+      "j"
+     ]
+    },
+    {
+     "kode": "10011",
+     "nama": "Pembangunan Berkelanjutan",
+     "semester": 5,
+     "sks": 2.0,
+     "bagian": {
+      "kuliah": 2.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "wajib",
+     "unit": "universitas",
+     "capstone": false,
+     "cpl": [
+      "a",
+      "c",
+      "d",
+      "e",
+      "f"
+     ]
+    },
+    {
+     "kode": "41301",
+     "nama": "Struktur Baja I",
+     "semester": 5,
+     "sks": 3.0,
+     "bagian": {
+      "kuliah": 3.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "wajib",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "g",
+      "j"
+     ]
+    },
+    {
+     "kode": "41302",
+     "nama": "Mekanika Tanah II",
+     "semester": 5,
+     "sks": 2.0,
+     "bagian": {
+      "kuliah": 2.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "wajib",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "j",
+      "k"
+     ]
+    },
+    {
+     "kode": "41303",
+     "nama": "Praktikum Mekanika Tanah",
+     "semester": 5,
+     "sks": 1.0,
+     "bagian": {
+      "kuliah": 0.0,
+      "seminar": 0.0,
+      "praktikum": 1.0
+     },
+     "sifat": "wajib",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "c",
+      "f",
+      "k"
+     ]
+    },
+    {
+     "kode": "41304",
+     "nama": "Rekayasa Perkerasan Jalan",
+     "semester": 5,
+     "sks": 2.0,
+     "bagian": {
+      "kuliah": 2.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "wajib",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "h",
+      "j"
+     ]
+    },
+    {
+     "kode": "41305",
+     "nama": "Analisis Struktur Dengan Matriks",
+     "semester": 5,
+     "sks": 3.0,
+     "bagian": {
+      "kuliah": 3.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "wajib",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "c",
+      "h",
+      "j"
+     ]
+    },
+    {
+     "kode": "41306",
+     "nama": "Struktur Beton I",
+     "semester": 5,
+     "sks": 3.0,
+     "bagian": {
+      "kuliah": 3.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "wajib",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "g",
+      "j"
+     ]
+    },
+    {
+     "kode": "41307",
+     "nama": "Perencanaan Bangunan Air",
+     "semester": 5,
+     "sks": 2.0,
+     "bagian": {
+      "kuliah": 2.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "wajib",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "f",
+      "j",
+      "k"
+     ]
+    },
+    {
+     "kode": "41308",
+     "nama": "Struktur Baja II",
+     "semester": 6,
+     "sks": 2.0,
+     "bagian": {
+      "kuliah": 2.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "wajib",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "g",
+      "j"
+     ]
+    },
+    {
+     "kode": "41309",
+     "nama": "Rekayasa Fondasi",
+     "semester": 6,
+     "sks": 3.0,
+     "bagian": {
+      "kuliah": 3.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "wajib",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "h",
+      "j",
+      "l"
+     ]
+    },
+    {
+     "kode": "41310",
+     "nama": "Struktur Beton II",
+     "semester": 6,
+     "sks": 3.0,
+     "bagian": {
+      "kuliah": 3.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "wajib",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "g",
+      "j"
+     ]
+    },
+    {
+     "kode": "41311",
+     "nama": "Metode dan Teknologi Konstruksi",
+     "semester": 6,
+     "sks": 2.0,
+     "bagian": {
+      "kuliah": 2.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "wajib",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "h",
+      "l"
+     ]
+    },
+    {
+     "kode": "41312",
+     "nama": "Praktikum Bahan Perkerasan Jalan",
+     "semester": 6,
+     "sks": 1.0,
+     "bagian": {
+      "kuliah": 0.0,
+      "seminar": 0.0,
+      "praktikum": 1.0
+     },
+     "sifat": "wajib",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "c",
+      "f",
+      "k"
+     ]
+    },
+    {
+     "kode": "41313",
+     "nama": "Mekanika Gelombang Laut",
+     "semester": 6,
+     "sks": 3.0,
+     "bagian": {
+      "kuliah": 3.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "wajib",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "d",
+      "i",
+      "j"
+     ]
+    },
+    {
+     "kode": "41401",
+     "nama": "Kerja Praktik",
+     "semester": 7,
+     "sks": 2.0,
+     "bagian": {
+      "kuliah": 0.0,
+      "seminar": 0.0,
+      "praktikum": 2.0
+     },
+     "sifat": "wajib",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "a",
+      "b",
+      "c",
+      "d",
+      "f"
+     ]
+    },
+    {
+     "kode": "41402",
+     "nama": "Perancangan Bangunan dan Inovasi Teknik Sipil",
+     "semester": 7,
+     "sks": 4.0,
+     "bagian": {
+      "kuliah": 4.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "wajib",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "f",
+      "j",
+      "l"
+     ]
+    },
+    {
+     "kode": "10007",
+     "nama": "Cipta Karsa",
+     "semester": 8,
+     "sks": 2.0,
+     "bagian": {
+      "kuliah": 2.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "wajib",
+     "unit": "universitas",
+     "capstone": false,
+     "cpl": [
+      "b",
+      "d"
+     ]
+    },
+    {
+     "kode": "10008",
+     "nama": "Inovasi dan Kewirausahaan",
+     "semester": 8,
+     "sks": 2.0,
+     "bagian": {
+      "kuliah": 2.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "wajib",
+     "unit": "universitas",
+     "capstone": false,
+     "cpl": [
+      "a",
+      "c",
+      "d",
+      "e",
+      "f",
+      "i"
+     ]
+    },
+    {
+     "kode": "10010",
+     "nama": "Pancasila",
+     "semester": 8,
+     "sks": 1.0,
+     "bagian": {
+      "kuliah": 1.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "wajib",
+     "unit": "universitas",
+     "capstone": false,
+     "cpl": [
+      "a"
+     ]
+    },
+    {
+     "kode": "41403",
+     "nama": "Metodologi Penelitian",
+     "semester": 8,
+     "sks": 2.0,
+     "bagian": {
+      "kuliah": 2.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "wajib",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "c",
+      "d"
+     ]
+    },
+    {
+     "kode": "41404",
+     "nama": "Ekonomi Rekayasa",
+     "semester": 8,
+     "sks": 2.0,
+     "bagian": {
+      "kuliah": 2.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "wajib",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "h",
+      "l"
+     ]
+    },
+    {
+     "kode": "41405",
+     "nama": "Tugas Akhir",
+     "semester": 8,
+     "sks": 4.0,
+     "bagian": {
+      "kuliah": 4.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "wajib",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "a",
+      "b",
+      "c",
+      "d",
+      "h",
+      "i",
+      "j",
+      "k",
+      "l"
+     ]
+    },
+    {
+     "kode": "41406",
+     "nama": "Metode Elemen Hingga",
+     "semester": null,
+     "sks": 3.0,
+     "bagian": {
+      "kuliah": 3.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "pilihan",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "g",
+      "i",
+      "j"
+     ]
+    },
+    {
+     "kode": "41407",
+     "nama": "Desain Bangunan Lepas Pantai",
+     "semester": null,
+     "sks": 3.0,
+     "bagian": {
+      "kuliah": 3.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "pilihan",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "c",
+      "j"
+     ]
+    },
+    {
+     "kode": "41408",
+     "nama": "Desain Pipa Bawah Laut",
+     "semester": null,
+     "sks": 2.0,
+     "bagian": {
+      "kuliah": 2.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "pilihan",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "g",
+      "j"
+     ]
+    },
+    {
+     "kode": "41409",
+     "nama": "Rekayasa dan Perancangan Gedung",
+     "semester": null,
+     "sks": 3.0,
+     "bagian": {
+      "kuliah": 3.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "pilihan",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "c",
+      "j"
+     ]
+    },
+    {
+     "kode": "41410",
+     "nama": "Beton Prategang",
+     "semester": null,
+     "sks": 3.0,
+     "bagian": {
+      "kuliah": 3.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "pilihan",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "g",
+      "j"
+     ]
+    },
+    {
+     "kode": "41411",
+     "nama": "Desain Struktur Jembatan",
+     "semester": null,
+     "sks": 3.0,
+     "bagian": {
+      "kuliah": 3.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "pilihan",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "j"
+     ]
+    },
+    {
+     "kode": "41412",
+     "nama": "Desain Bangunan Terapung",
+     "semester": null,
+     "sks": 3.0,
+     "bagian": {
+      "kuliah": 3.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "pilihan",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "h",
+      "j"
+     ]
+    },
+    {
+     "kode": "41413",
+     "nama": "Dinamika Struktur",
+     "semester": null,
+     "sks": 2.0,
+     "bagian": {
+      "kuliah": 2.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "pilihan",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "d",
+      "g",
+      "j"
+     ]
+    },
+    {
+     "kode": "41414",
+     "nama": "Metode Numerik",
+     "semester": null,
+     "sks": 2.0,
+     "bagian": {
+      "kuliah": 2.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "pilihan",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "g",
+      "h",
+      "j"
+     ]
+    },
+    {
+     "kode": "41415",
+     "nama": "Konversi Energi Sumber Daya Air",
+     "semester": null,
+     "sks": 2.0,
+     "bagian": {
+      "kuliah": 2.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "pilihan",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "d",
+      "j"
+     ]
+    },
+    {
+     "kode": "41416",
+     "nama": "Proses dan Bangunan Pantai",
+     "semester": null,
+     "sks": 3.0,
+     "bagian": {
+      "kuliah": 3.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "pilihan",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "h",
+      "i",
+      "j"
+     ]
+    },
+    {
+     "kode": "41417",
+     "nama": "Manajemen Perencanaan Pantai",
+     "semester": null,
+     "sks": 3.0,
+     "bagian": {
+      "kuliah": 3.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "pilihan",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "b",
+      "h"
+     ]
+    },
+    {
+     "kode": "41418",
+     "nama": "Analisis Kebutuhan Pergerakan",
+     "semester": null,
+     "sks": 3.0,
+     "bagian": {
+      "kuliah": 3.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "pilihan",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "f",
+      "j"
+     ]
+    },
+    {
+     "kode": "41419",
+     "nama": "Perencanaan Bandara",
+     "semester": null,
+     "sks": 2.0,
+     "bagian": {
+      "kuliah": 2.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "pilihan",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "f",
+      "j"
+     ]
+    },
+    {
+     "kode": "41420",
+     "nama": "Perencanaan Pelabuhan",
+     "semester": null,
+     "sks": 3.0,
+     "bagian": {
+      "kuliah": 3.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "pilihan",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "f",
+      "j"
+     ]
+    },
+    {
+     "kode": "41421",
+     "nama": "Transportasi Masal dan Fasilitas Transportasi",
+     "semester": null,
+     "sks": 2.0,
+     "bagian": {
+      "kuliah": 2.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "pilihan",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "f",
+      "j"
+     ]
+    },
+    {
+     "kode": "41422",
+     "nama": "Aspek Kebencanaan dan Kegagalan Infrastruktur",
+     "semester": null,
+     "sks": 3.0,
+     "bagian": {
+      "kuliah": 3.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "pilihan",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "d",
+      "e",
+      "j"
+     ]
+    },
+    {
+     "kode": "41423",
+     "nama": "Rekayasa Gempa dalam Geoteknik",
+     "semester": null,
+     "sks": 3.0,
+     "bagian": {
+      "kuliah": 3.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "pilihan",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "g",
+      "j"
+     ]
+    },
+    {
+     "kode": "41424",
+     "nama": "Rekayasa Geoteknik Lanjut",
+     "semester": null,
+     "sks": 2.0,
+     "bagian": {
+      "kuliah": 2.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "pilihan",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "g",
+      "j"
+     ]
+    },
+    {
+     "kode": "41425",
+     "nama": "Rekayasa Geoteknik Lepas Pantai",
+     "semester": null,
+     "sks": 2.0,
+     "bagian": {
+      "kuliah": 2.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "pilihan",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "g",
+      "j"
+     ]
+    },
+    {
+     "kode": "41426",
+     "nama": "Mekanika Batuan",
+     "semester": null,
+     "sks": 2.0,
+     "bagian": {
+      "kuliah": 2.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "pilihan",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "g",
+      "j"
+     ]
+    },
+    {
+     "kode": "41427",
+     "nama": "Penyelidikan Tanah Lapangan dan Laboratorium",
+     "semester": null,
+     "sks": 2.0,
+     "bagian": {
+      "kuliah": 2.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "pilihan",
+     "unit": "prodi",
+     "capstone": false,
+     "cpl": [
+      "g",
+      "j"
+     ]
+    }
+   ]
+  }
+ ],
+ "vmts": {},
+ "privasi": {
+  "kontak": "",
+  "masa_simpan": {
+   "karya_mahasiswa": 8,
+   "masukan_mahasiswa": 5,
+   "survei_jawaban": 5,
+   "rapat_peserta": 5
+  }
+ },
  "prestasi_agregat": [
   {
    "tahun": 2026,

@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kebijakan privasi — Program Studi</title>
+<meta name="description" content="Data pribadi apa yang dikumpulkan situs program studi, untuk apa, siapa yang dapat melihatnya, berapa lama disimpan, dan hak Anda.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tema.css?v=2026-11-16-8ad5aa">
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
+       font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:780px;margin:0 auto;padding:0 20px 90px}
+  a{color:var(--biru-2)}
+  .hero{background:var(--biru);color:#fff;border-bottom:4px solid var(--merah)}
+  .hero-in{max-width:780px;margin:0 auto;padding:30px 20px 28px}
+  .balik{display:inline-flex;gap:7px;align-items:center;text-decoration:none;font-family:var(--mono);font-size:11px;
+         letter-spacing:.1em;text-transform:uppercase;color:var(--biru-m2);margin-bottom:20px}
+  .balik:hover{color:#fff}
+  h1{font-family:var(--serif);font-size:clamp(24px,4.2vw,34px);font-weight:600;letter-spacing:-.018em;margin:0;line-height:1.14}
+  .prodi{color:var(--biru-m4);font-size:14.5px;margin-top:7px}
+  .ringkas{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--merah);padding:14px 18px;margin:26px 0 6px}
+  .ringkas ul{margin:6px 0 0;padding-left:20px}
+  h2{font-family:var(--serif);font-size:19px;font-weight:600;margin:30px 0 6px;color:var(--biru)}
+  h3{font-size:15px;margin:16px 0 2px}
+  p,li{max-width:70ch}
+  .ket{color:var(--muted);font-size:13px}
+  table{width:100%;border-collapse:collapse;font-size:14px;margin-top:8px}
+  th{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);text-align:left;font-weight:400;
+     padding:8px 10px 6px 0;border-bottom:1px solid var(--line)}
+  td{padding:8px 10px 8px 0;border-bottom:1px solid var(--line-soft);vertical-align:top}
+  td.num{font-family:var(--mono);white-space:nowrap}
+  .kontak{background:var(--panel);border:1px solid var(--line);padding:12px 16px;margin:10px 0}
+  footer{margin-top:50px;padding-top:20px;border-top:3px solid var(--biru);font-size:12.5px;color:var(--muted)}
+  footer a{margin-right:14px}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="hero-in">
+    <a class="balik" href="index.html">&larr; Beranda</a>
+    <h1>Kebijakan privasi</h1>
+    <div class="prodi" id="hProdi">Situs kinerja program studi</div>
+  </div>
+</header>
+<main class="wrap">
+  <div class="ringkas">
+    <b>Ringkasnya</b>
+    <ul>
+      <li>Membaca situs ini tidak memerlukan akun, dan situs ini tidak memasang cookie pelacak atau iklan.</li>
+      <li>Data pribadi hanya dikumpulkan bila Anda sendiri mengisinya: pertanyaan/masukan, survei, daftar hadir rapat, atau akun dosen.</li>
+      <li>Nama dan NIM mahasiswa tidak pernah ditampilkan di halaman publik.</li>
+      <li>Data pribadi dihapus dari basis data setelah masa simpannya lewat (<a href="#masa">tabel di bawah</a>). Anda boleh meminta salinan, perbaikan, atau penghapusannya.</li>
+    </ul>
+  </div>
+
+  <h2>Siapa yang mengelola data</h2>
+  <p>Situs ini dikelola oleh <span class="nama-prodi">program studi</span>. Admin program studi yang ditunjuk mengelola isinya
+    dan menanggapi permintaan tentang data pribadi. Kebijakan ini disusun dengan merujuk Undang-Undang Nomor 27 Tahun 2022
+    tentang Pelindungan Data Pribadi.</p>
+
+  <h2>Data yang dikumpulkan dan tujuannya</h2>
+  <h3>Pengunjung</h3>
+  <p>Halaman publik (beranda, profil dosen, kurikulum, wilayah mahasiswa) dapat dibaca tanpa login dan tanpa mengisi apa pun.
+    Situs ini tidak memakai alat analitik pengunjung. Seperti situs web lainnya, peramban Anda menghubungi layanan
+    yang memuat bagian halaman, dan layanan itu menerima alamat IP Anda: GitHub Pages (tempat situs), Google Fonts (huruf),
+    dan jsDelivr (pustaka program).</p>
+
+  <h3>Pertanyaan dan masukan mahasiswa</h3>
+  <p>Formulir di <a href="berkas-mahasiswa.html#kirim">Wilayah mahasiswa</a> menyimpan isi pertanyaan atau masukan,
+    serta nama dan email <b>bila Anda mengisinya</b> (keduanya boleh kosong). Tujuannya menjawab pertanyaan dan memperbaiki
+    layanan program studi. Kiriman hanya dibaca admin program studi. Pertanyaan yang sering muncul dapat dijadikan
+    tanya-jawab publik, ditulis ulang tanpa nama, NIM, atau email.</p>
+
+  <h3>Survei kepuasan</h3>
+  <p>Jawaban survei dipakai untuk penjaminan mutu dan akreditasi, dan diolah secara gabungan. Survei hanya meminta nama,
+    NIM, atau email bila hal itu tertulis di halaman survei; selain itu jawaban bersifat anonim. Supaya satu perangkat
+    mengisi satu kali, peramban menyimpan sebuah kode acak (<code>surveiKlien</code>) dan draf jawaban Anda sampai terkirim.</p>
+
+  <h3>Daftar hadir rapat</h3>
+  <p>Tamu rapat mengisi nama dan instansi sebagai bukti kehadiran dan notulen rapat. Peramban menyimpan kode acak agar
+    kehadiran tidak tercatat dua kali.</p>
+
+  <h3>Dosen dan admin (pengguna login)</h3>
+  <p>Login memakai tautan yang dikirim ke email terdaftar; sesi login disimpan di peramban Anda. Data profil, karya, dan bukti
+    kinerja dipakai untuk laporan kinerja dan akreditasi program studi. Yang tampil di halaman publik hanya nama dosen,
+    ID SINTA/Scopus/ORCID, kepakaran, dan karya yang sudah diverifikasi.</p>
+
+  <h3>Mahasiswa dalam karya dosen</h3>
+  <p>Karya dosen yang melibatkan mahasiswa mencatat NIM dan nama mahasiswa itu untuk laporan akreditasi. Data ini tidak
+    pernah ditampilkan di halaman publik; halaman publik hanya menyebut jumlah mahasiswa yang terlibat. Pembangunan situs
+    berhenti otomatis bila nama atau NIM mahasiswa ikut terbawa ke data publik.</p>
+
+  <h2>Tempat penyimpanan</h2>
+  <ul>
+    <li>Basis data situs: layanan Supabase. Akses dibatasi menurut peran (admin, dosen, pengunjung).</li>
+    <li>Berkas bukti: Google Drive milik program studi.</li>
+    <li>Cadangan bulanan dan arsip tahunan basis data: repositori privat program studi di GitHub, yang hanya dapat dibuka
+      pengelola teknis situs.</li>
+    <li>Email pengingat untuk dosen dikirim lewat Google Apps Script milik program studi.</li>
+  </ul>
+
+  <h2>Siapa yang dapat melihat</h2>
+  <p>Admin program studi dapat melihat seluruh data untuk keperluan di atas. Dosen melihat data kinerja program studi dan
+    datanya sendiri. Asesor akreditasi mendapat akses baca selama masa penilaian. Data pribadi tidak dijual dan tidak
+    dibagikan untuk iklan.</p>
+
+  <h2 id="masa">Berapa lama disimpan</h2>
+  <p>Setelah masa simpan lewat, data dihapus dari basis data dalam pemangkasan tahunan. Salinan lama di cadangan dan arsip
+    (repositori privat di atas) tidak ikut terhapus otomatis; atas permintaan Anda, admin dapat menghapusnya dari cadangan.</p>
+  <table>
+    <thead><tr><th>Data</th><th>Masa simpan</th></tr></thead>
+    <tbody id="tMasa">
+      <tr><td colspan="2" class="ket">Memuat…</td></tr>
+    </tbody>
+  </table>
+  <p class="ket">Masa dihitung dalam tahun kalender sejak data dikirim (untuk karya: tahun karya). Data lain, seperti
+    profil dan karya dosen, disimpan selama diperlukan sebagai riwayat kinerja program studi.</p>
+
+  <h2 id="hak">Hak Anda</h2>
+  <p>Anda berhak mengetahui data pribadi Anda yang disimpan, meminta salinannya, memperbaiki yang keliru, dan meminta
+    penghapusan, kecuali data yang wajib disimpan untuk akreditasi selama masa simpannya.</p>
+  <div class="kontak" id="kontak">Kirim permintaan lewat formulir
+    <a href="berkas-mahasiswa.html#kirim">Tanya / masukan</a> (pilih "Masukan") dan cantumkan email untuk balasan.</div>
+
+  <h2>Perubahan kebijakan</h2>
+  <p>Kebijakan ini dapat diperbarui bila cara situs mengumpulkan data berubah. Tanggal di bawah menunjukkan perubahan terakhir.</p>
+
+  <footer>Diperbarui 16 November 2026.
+    <div style="margin-top:8px"><a href="index.html">Beranda</a><a href="kurikulum.html">Kurikulum</a><a href="berkas-mahasiswa.html">Wilayah mahasiswa</a></div>
+  </footer>
+</main>
+<script>
+// Kebijakan privasi (pemilik 2026-11-16). Teks tetap di halaman; nama prodi, kontak
+// (config.yaml public_site.privacy_contact_email) dan masa simpan (config.yaml
+// supabase.retention) dari data.json, supaya halaman sama dengan yang dijalankan pemangkasan.
+(function () {
+  var NAMA = {
+    masukan_mahasiswa: 'Pertanyaan dan masukan mahasiswa (isi, nama, email)',
+    survei_jawaban: 'Jawaban survei yang memuat nama, NIM, atau email',
+    rapat_peserta: 'Nama dan instansi tamu rapat',
+    karya_mahasiswa: 'NIM dan nama mahasiswa dalam karya dosen'
+  };
+  var esc = function (s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
+  var tbody = document.getElementById('tMasa');
+  fetch('data.json?v=' + Date.now())
+    .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+    .then(function (d) {
+      var nama = [d.prodi ? 'Program Studi ' + d.prodi : '', d.institusi].filter(Boolean).join(', ');
+      if (nama) {
+        document.getElementById('hProdi').textContent = nama;
+        document.querySelectorAll('.nama-prodi').forEach(function (el) { el.textContent = nama; });
+        document.title = 'Kebijakan privasi — ' + (d.prodi || 'Program Studi');
+      }
+      var p = d.privasi || {}, masa = p.masa_simpan || {};
+      var baris = Object.keys(NAMA).filter(function (k) { return masa[k]; });
+      tbody.innerHTML = baris.length ? baris.map(function (k) {
+        return '<tr><td>' + esc(NAMA[k]) + '</td><td class="num">' + esc(masa[k]) + ' tahun</td></tr>';
+      }).join('') : '<tr><td colspan="2" class="ket">Belum ditetapkan.</td></tr>';
+      // Jejak perubahan (65-patch-jejak.sql, pemilik 2026-11-12): dihapus otomatis tiap bulan oleh pemeliharaan.yml.
+      tbody.innerHTML += '<tr><td>Jejak perubahan data (siapa mengubah apa, kapan)</td><td class="num">3 tahun</td></tr>';
+      if (p.kontak) {
+        document.getElementById('kontak').innerHTML = 'Kirim permintaan ke <a href="mailto:' + esc(p.kontak) + '">'
+          + esc(p.kontak) + '</a>, atau lewat formulir <a href="berkas-mahasiswa.html#kirim">Tanya / masukan</a> (pilih "Masukan").';
+      }
+    })
+    .catch(function () {
+      tbody.innerHTML = '<tr><td colspan="2" class="ket">Tabel masa simpan belum dapat dimuat. Hubungi admin prodi.</td></tr>';
+    });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kurikulum — Program Studi</title>
+<meta name="description" content="Kurikulum program studi: visi, profil lulusan, capaian pembelajaran lulusan (CPL), dan mata kuliah per semester.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tema.css?v=2026-11-16-8ad5aa">
+<style>
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
+       font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:960px;margin:0 auto;padding:0 20px 90px}
+  a{color:var(--biru-2)}
+  .hero{position:relative;background:var(--biru);color:#fff;overflow:hidden;border-bottom:4px solid var(--merah)}
+  .hero-in{position:relative;max-width:960px;margin:0 auto;padding:30px 20px 0}
+  .balik{display:inline-flex;gap:7px;align-items:center;text-decoration:none;font-family:var(--mono);font-size:11px;
+         letter-spacing:.1em;text-transform:uppercase;color:var(--biru-m2);margin-bottom:20px}
+  .balik:hover{color:#fff}
+  h1{font-family:var(--serif);font-size:clamp(24px,4.2vw,34px);font-weight:600;letter-spacing:-.018em;margin:0;line-height:1.14;color:#fff}
+  .prodi{color:var(--biru-m4);font-size:14.5px;margin-top:7px}
+  .angka{display:flex;flex-wrap:wrap;margin-top:28px;border-top:1px solid rgba(255,255,255,.18)}
+  .angka div{flex:1 1 120px;padding:16px 18px 18px;border-right:1px solid rgba(255,255,255,.12)}
+  .angka div:last-child{border-right:0}
+  .angka b{display:block;font-family:var(--mono);font-size:28px;font-weight:400;line-height:1;color:#fff}
+  .angka span{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--biru-m2);display:block;margin-top:8px}
+  .pilih{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:22px 0 0}
+  .pilih span{font-size:13px;color:var(--muted);margin-right:4px}
+  .pilih button{font:inherit;font-size:13.5px;padding:7px 14px;border:1px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer;border-radius:2px}
+  .pilih button[aria-pressed="true"]{background:var(--biru);color:#fff;border-color:var(--biru)}
+  .loncat{display:flex;flex-wrap:wrap;gap:6px 16px;margin:14px 0 0;font-size:13.5px}
+  h2{font-family:var(--serif);font-size:21px;font-weight:600;margin:34px 0 8px;color:var(--biru);scroll-margin-top:12px}
+  h3{font-size:15px;margin:0 0 4px}
+  .ket{color:var(--muted);font-size:13px}
+  .kosong{color:var(--muted);font-size:13.5px;padding:16px 0}
+  .kartu{background:var(--panel);border:1px solid var(--line);border-radius:2px;padding:14px 18px;margin:10px 0}
+  .visi{border-left:4px solid var(--merah);font-family:var(--serif);font-size:17px;line-height:1.5}
+  .visi small{display:block;font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+  .teks{white-space:pre-line}
+  details.kartu summary{cursor:pointer;font-weight:600}
+  details.kartu dl{margin:10px 0 0}
+  details.kartu dt{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:10px}
+  details.kartu dd{margin:2px 0 0}
+  .profil{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px}
+  .profil .kartu{margin:0}
+  .kode{display:inline-block;font-family:var(--mono);font-size:12px;padding:1px 7px;border-radius:2px;background:var(--biru);color:#fff;margin-right:6px}
+  .en{color:var(--muted);font-style:italic;font-size:13.5px}
+  .chip{display:inline-block;font-family:var(--mono);font-size:11.5px;padding:1px 7px;margin:2px 3px 2px 0;border-radius:2px;background:var(--biru-m8);color:var(--biru)}
+  .chip.pil{background:var(--line-soft);color:var(--ink);font-family:var(--sans)}
+  .chip.cap{background:var(--merah-m3);color:var(--ink);font-family:var(--sans)}
+  ol.cpl{list-style:none;margin:0;padding:0}
+  ol.cpl li{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--line-soft)}
+  ol.cpl li .kode{flex:0 0 auto;height:fit-content;margin-top:2px}
+  .ranah{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+  .saring{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:10px 0 4px;font-size:13.5px}
+  .saring input,.saring select{font:inherit;font-size:14px;padding:7px 10px;border:1px solid var(--line);background:var(--panel);color:var(--ink)}
+  .saring input{flex:1 1 240px}
+  .smt{margin:18px 0 0}
+  .smt-kepala{display:flex;justify-content:space-between;align-items:baseline;gap:10px;border-bottom:2px solid var(--biru);padding-bottom:4px}
+  .smt-kepala b{font-family:var(--serif);font-size:16px;color:var(--biru)}
+  .smt-kepala span{font-family:var(--mono);font-size:12px;color:var(--muted)}
+  table{width:100%;border-collapse:collapse;font-size:13.5px}
+  td{padding:7px 10px 7px 0;border-bottom:1px solid var(--line-soft);vertical-align:top}
+  td.k{font-family:var(--mono);font-size:12.5px;white-space:nowrap;width:1%}
+  td.num{font-family:var(--mono);text-align:right;white-space:nowrap;width:1%}
+  td .rinci{display:block;font-family:var(--mono);font-size:11px;color:var(--muted)}
+  .total{display:flex;justify-content:flex-end;gap:8px;margin-top:14px;font-family:var(--mono);font-size:13px}
+  footer{margin-top:50px;padding-top:20px;border-top:3px solid var(--biru);font-size:12.5px;color:var(--muted)}
+  footer a{margin-right:14px}
+  @media (max-width:600px){ td.sifat{display:none} .angka div{flex-basis:50%} }
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="hero-in">
+    <a class="balik" href="index.html">&larr; Beranda</a>
+    <h1>Kurikulum</h1>
+    <div class="prodi" id="hProdi"></div>
+    <div class="angka" id="angka"></div>
+  </div>
+</header>
+<main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
+<script src="config.js?v=2026-11-16-8ad5aa"></script>
+<script>
+// Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
+addEventListener('error', function (e) {
+  if (document.getElementById('galat-muat')) return;
+  var d = document.createElement('div');
+  d.id = 'galat-muat';
+  d.style.cssText = 'margin:16px;padding:12px 14px;border:1px solid var(--merah);' +
+    'background:var(--merah-m3);color:var(--ink);font:14px/1.5 system-ui,sans-serif';
+  d.textContent = 'Halaman gagal dimuat: ' + (e.message || 'galat skrip') +
+    '. Tekan Ctrl+Shift+R untuk memuat ulang tanpa cache; bila tetap muncul, kirim pesan ini ke admin.';
+  document.body.insertBefore(d, document.body.firstChild);
+});
+</script>
+<script type="module">
+// Kurikulum publik (pemilik 2026-11-16): visi, profil lulusan (79-patch-profil-lulusan.sql),
+// CPL (71) dan mata kuliah per semester, dari data.json (bangun.py kurikulum_publik). Kurikulum
+// terbaru menjadi utama; kurikulum lama bisa dipilih (?k=K21) untuk mahasiswa angkatan lama.
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const $ = id => document.getElementById(id);
+const angka = v => v == null ? '–' : Number(v).toLocaleString('id-ID', { maximumFractionDigits: 2 });
+const tahunKur = k => /^K\d{2}$/.test(k) ? `20${k.slice(1)}` : k;
+let D = null, K = null, CARI = '', CPL_PILIH = '';
+
+function jumlahSks(mk){ return mk.reduce((a, m) => a + (Number(m.sks) || 0), 0); }
+
+function gambarVisi(){
+  const v = D.vmts || {};
+  const ps = v.ps, lain = [['upps', 'Fakultas / UPPS'], ['pt', 'Universitas']].filter(([k]) => v[k]);
+  if (!ps && !lain.length) return '';
+  const dl = x => ['visi', 'misi', 'tujuan', 'strategi'].filter(k => x[k])
+    .map(k => `<dt>${k[0].toUpperCase() + k.slice(1)}</dt><dd class="teks">${esc(x[k])}</dd>`).join('');
+  return `<h2 id="visi">Visi</h2>
+    ${ps && ps.visi ? `<div class="kartu visi"><small>Visi keilmuan program studi</small><span class="teks">${esc(ps.visi)}</span></div>` : ''}
+    ${ps && (ps.misi || ps.tujuan || ps.strategi) ? `<details class="kartu"><summary>Misi, tujuan, dan strategi program studi</summary><dl>${dl({ ...ps, visi: '' })}</dl></details>` : ''}
+    ${lain.map(([k, l]) => `<details class="kartu"><summary>Visi dan misi ${l}</summary><dl>${dl(v[k])}</dl></details>`).join('')}`;
+}
+
+function gambarProfil(){
+  if (!K.profil.length) return '';
+  return `<h2 id="profil">Profil lulusan</h2>
+    <p class="ket">Peran yang disiapkan kurikulum ${esc(K.kode)} bagi lulusan, beserta CPL yang mendukungnya.</p>
+    <div class="profil">${K.profil.map(p => `<div class="kartu">
+      <h3><span class="kode">${esc(p.kode)}</span>${esc(p.nama)}</h3>
+      ${p.nama_en ? `<div class="en">${esc(p.nama_en)}</div>` : ''}
+      ${p.deskripsi ? `<p class="teks" style="margin:8px 0 6px">${esc(p.deskripsi)}</p>` : ''}
+      ${p.cpl.length ? `<div>${p.cpl.map(c => `<span class="chip">CPL ${esc(c)}</span>`).join('')}</div>` : ''}
+    </div>`).join('')}</div>`;
+}
+
+function gambarCPL(){
+  if (!K.cpl.length) return '';
+  return `<h2 id="cpl">Capaian pembelajaran lulusan (CPL)</h2>
+    <p class="ket">Kemampuan yang dimiliki setiap lulusan kurikulum ${esc(K.kode)}.</p>
+    <ol class="cpl">${K.cpl.map(c => `<li><span class="kode">${esc(c.kode)}</span><div>
+      ${c.ranah ? `<div class="ranah">${esc(c.ranah)}</div>` : ''}
+      <div>${esc(c.rumusan)}</div>${c.rumusan_en ? `<div class="en">${esc(c.rumusan_en)}</div>` : ''}</div></li>`).join('')}</ol>`;
+}
+
+function cocok(m){
+  if (CPL_PILIH && !m.cpl.includes(CPL_PILIH)) return false;
+  if (!CARI) return true;
+  return `${m.kode} ${m.nama}`.toLowerCase().includes(CARI);
+}
+
+function barisMK(m){
+  const b = m.bagian || {};
+  const rinci = [['kuliah', 'K'], ['seminar', 'S'], ['praktikum', 'P']].filter(([k]) => b[k]).map(([k, l]) => `${l} ${angka(b[k])}`);
+  const tanda = [m.sifat === 'pilihan' ? '<span class="chip pil">Pilihan</span>' : '',
+                 m.capstone ? '<span class="chip cap">Capstone</span>' : ''].join('');
+  return `<tr><td class="k">${esc(m.kode)}</td>
+    <td>${esc(m.nama)} ${tanda}${m.cpl.length ? `<div>${m.cpl.map(c => `<span class="chip">${esc(c)}</span>`).join('')}</div>` : ''}</td>
+    <td class="num">${angka(m.sks)} sks${rinci.length > 1 ? `<span class="rinci">${rinci.join(' · ')}</span>` : ''}</td></tr>`;
+}
+
+function gambarStruktur(){
+  const el = $('struktur');
+  if (!el) return;
+  const mk = K.mk.filter(cocok);
+  if (!mk.length) { el.innerHTML = '<p class="kosong">Tidak ada mata kuliah yang cocok.</p>'; return; }
+  const smt = new Map();
+  for (const m of mk) { const s = m.semester || 0; if (!smt.has(s)) smt.set(s, []); smt.get(s).push(m); }
+  const urut = [...smt.keys()].sort((a, b) => (a || 99) - (b || 99));
+  el.innerHTML = urut.map(s => `<div class="smt"><div class="smt-kepala"><b>${s ? `Semester ${s}` : 'Tanpa semester tetap'}</b>
+      <span>${smt.get(s).length} MK · ${angka(jumlahSks(smt.get(s)))} sks</span></div>
+      <table>${smt.get(s).map(barisMK).join('')}</table></div>`).join('')
+    + `<div class="total"><span>${mk.length} MK</span><b>${angka(jumlahSks(mk))} sks</b></div>`;
+}
+
+function gambar(){
+  const kur = D.kurikulum || [];
+  const nav = [];
+  const visi = gambarVisi(), profil = gambarProfil(), cpl = gambarCPL();
+  if (visi) nav.push(['visi', 'Visi']);
+  if (profil) nav.push(['profil', 'Profil lulusan']);
+  if (cpl) nav.push(['cpl', 'CPL']);
+  if (K.mk.length) nav.push(['mk', 'Mata kuliah']);
+  const wajib = K.mk.filter(m => m.sifat !== 'pilihan');
+  $('angka').innerHTML = `<div><b>${esc(K.kode)}</b><span>Kurikulum ${esc(tahunKur(K.kode))}</span></div>
+    <div><b>${K.profil.length}</b><span>Profil lulusan</span></div>
+    <div><b>${K.cpl.length}</b><span>CPL</span></div>
+    <div><b>${K.mk.length}</b><span>Mata kuliah</span></div>
+    <div><b>${angka(jumlahSks(wajib))}</b><span>SKS wajib</span></div>`;
+  $('isi').innerHTML = `
+    ${kur.length > 1 ? `<div class="pilih" role="group" aria-label="Pilih kurikulum"><span>Kurikulum:</span>
+      ${kur.map((k, i) => `<button type="button" data-k="${esc(k.kode)}" aria-pressed="${k.kode === K.kode}">${esc(k.kode)}${i === 0 ? ' (terbaru)' : ''}</button>`).join('')}</div>
+      ${K !== kur[0] ? `<p class="ket">Kurikulum ${esc(K.kode)} berlaku bagi mahasiswa angkatan lama. Kurikulum terbaru: ${esc(kur[0].kode)}.</p>` : ''}` : ''}
+    ${nav.length > 1 ? `<nav class="loncat">${nav.map(([id, l]) => `<a href="#${id}">${l}</a>`).join('')}</nav>` : ''}
+    ${visi}${profil}${cpl}
+    ${K.mk.length ? `<h2 id="mk">Mata kuliah per semester</h2>
+      <p class="ket">K = kuliah/responsi, S = seminar, P = praktikum/praktik lapangan. Kode di bawah nama mata kuliah = CPL yang didukung.</p>
+      <div class="saring">
+        <input id="fCari" type="search" placeholder="Cari kode atau nama mata kuliah" aria-label="Cari mata kuliah" value="${esc(CARI)}">
+        ${K.cpl.length ? `<select id="fCpl" aria-label="Saring menurut CPL"><option value="">Semua CPL</option>
+          ${K.cpl.map(c => `<option value="${esc(c.kode)}"${c.kode === CPL_PILIH ? ' selected' : ''}>MK pendukung CPL ${esc(c.kode)}</option>`).join('')}</select>` : ''}
+      </div><div id="struktur"></div>` : ''}
+    <footer>Data kurikulum diperbarui ${esc(D.diperbarui || '')}.
+      <div style="margin-top:8px"><a href="berkas-mahasiswa.html">Wilayah mahasiswa</a><a href="privasi.html">Kebijakan privasi</a><a href="index.html">Beranda</a></div></footer>`;
+  gambarStruktur();
+  document.querySelectorAll('.pilih button').forEach(b => b.onclick = () => {
+    K = kur.find(k => k.kode === b.dataset.k); CPL_PILIH = ''; CARI = '';
+    const u = new URL(location.href);
+    if (K === kur[0]) u.searchParams.delete('k'); else u.searchParams.set('k', K.kode);
+    history.replaceState(null, '', u);
+    gambar();
+  });
+  if ($('fCari')) $('fCari').oninput = e => { CARI = e.target.value.trim().toLowerCase(); gambarStruktur(); };
+  if ($('fCpl')) $('fCpl').onchange = e => { CPL_PILIH = e.target.value; gambarStruktur(); };
+}
+
+fetch('data.json?v=' + Date.now())
+  .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
+  .then(d => {
+    D = d;
+    $('hProdi').textContent = [d.prodi, d.institusi].filter(Boolean).join(' · ');
+    if (d.prodi) document.title = `Kurikulum — ${d.prodi}`;
+    const kur = d.kurikulum || [];
+    if (!kur.length) { $('isi').innerHTML = '<p class="kosong">Kurikulum belum diterbitkan. Hubungi admin prodi.</p>'; return; }
+    const minta = new URLSearchParams(location.search).get('k');
+    K = kur.find(k => k.kode === String(minta || '').toUpperCase()) || kur[0];
+    gambar();
+  })
+  .catch(() => { $('isi').innerHTML = '<p class="kosong">Data belum tersedia. Hubungi admin prodi.</p>'; });
+</script>
+</body>
+</html>

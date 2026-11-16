@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-16-7f86d4">
+<link rel="stylesheet" href="tema.css?v=2026-11-16-8ad5aa">
 <style>
   /* Panduan pengguna ruang kerja (pemilik 2026-11-04). Bagian admin hanya
      tampil untuk peran admin. Perbarui bila tombol atau halaman berubah. */
@@ -40,7 +40,7 @@
   @media(max-width:640px){nav.isi ol{columns:1}.wrap{padding:18px 16px 60px}}
   @media print{nav.isi{display:none}section{break-inside:avoid}}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-16-7f86d4">
+<link rel="stylesheet" href="kepala.css?v=2026-11-16-8ad5aa">
 </head>
 <body>
 
@@ -252,6 +252,7 @@
       semua isinya, atau tekan <b>Semua kolom</b> untuk menampilkan semua kolom tab itu.</p>
     <p><b>Tab Dokumen</b> (tab pertama) adalah pustaka dokumen prodi: setiap dokumen tersimpan <b>satu kali</b> menurut jenis + tahun + judul, lalu bisa dipakai sebagai bukti di banyak tab dan butir. Di bukti baris: <b>Tautkan dari pustaka</b> untuk dokumen yang sudah ada; <b>Unggah dokumen baru</b> menyimpan berkas ke pustaka lalu menautkannya (bila jenis, tahun, dan judulnya sudah ada, berkas itu <b>diganti</b>, tidak disalin); <b>Tambah tautan luar</b> untuk DOI atau halaman mitra. Melepas bukti dari baris tidak menghapus dokumennya; dokumen dihapus hanya dari tab Dokumen, yang menampilkan di mana saja dokumen itu dipakai.</p>
     <p><b>Berkas untuk mahasiswa.</b> Centang kolom <b>Mahasiswa</b> di tab Dokumen untuk menampilkan dokumen itu di halaman publik <a href="berkas-mahasiswa.html">Berkas mahasiswa</a> (tanpa login; tautannya juga ada di beranda). Pengumuman seperti jadwal sidang TA diunggah dengan jenis <b>Pengumuman untuk mahasiswa</b>; isi <b>berlaku sampai</b> (tombol Nomor/tanggal) supaya pengumuman hilang sendiri setelah tanggal itu. Berkas privat tidak bisa dicentang. Pengumuman singkat tanpa berkas, tanya-jawab (pertanyaan yang sering ditanya), dan kotak masuk pertanyaan/masukan mahasiswa dikelola di menu <a href="kelola-mahasiswa.html">Wilayah mahasiswa</a> (Operasional). Pengumuman yang berlaku juga tampil di pita atas beranda. Kiriman mahasiswa hanya dibaca admin; pertanyaan yang sering muncul bisa dijadikan tanya-jawab publik (tombol <b>Jadikan Tanya-jawab</b>) setelah nama atau data pribadinya dibuang.</p>
+    <p><b>Halaman publik Kurikulum.</b> Halaman <a href="kurikulum.html">Kurikulum</a> (tanpa login; tautannya di beranda) disusun otomatis dari kelompok <b>Kurikulum &amp; CPL</b>: tab <b>Profil lulusan</b>, <b>CPL</b>, <b>Mata kuliah</b>, dan <b>Peta MK–CPL</b>, serta visi dari tab <b>VMTS</b>. Kurikulum terbaru tampil sebagai utama; kurikulum lama bisa dipilih. Dosen pengampu, tautan RPS, dan nomor SK tidak tampil. Perubahan muncul setelah pembangunan situs berikutnya (paling lama sejam). <a href="privasi.html">Kebijakan privasi</a> menyebut data pribadi yang disimpan dan masa simpannya (config.yaml <code>supabase.retention</code> dan <code>public_site</code>).</p>
     <p><b>Berkas yang sama tidak tersimpan dua kali.</b> Sebelum mengunggah (pustaka, bukti butir, bukti baris, bukti karya), situs memeriksa isi berkas, bukan namanya. Bila berkas yang sama persis sudah tersimpan, tautannya dipakai ulang dan tidak ada unggahan baru; pesan di bawah tombol menyebut di mana berkas itu sudah ada. Menghapus bukti tidak membuang berkas yang masih dipakai di tempat lain. Untuk berkas lama, buka <b>tab Dokumen › Rapikan berkas lama › Periksa berkas lama</b>: berkas yang tersimpan lebih dari sekali bisa <b>disatukan</b> (salinannya ke Sampah Drive), dan unggahan bukti baris lama bisa <b>dimasukkan ke pustaka</b> dengan jenis, tahun, dan judul yang Anda pilih.</p>
     <table>
       <tr><th>Tab</th><th>Butir</th><th>Satu baris =</th></tr>
@@ -343,7 +344,7 @@
   </div>
 </main>
 
-<script src="config.js?v=2026-11-16-7f86d4"></script>
+<script src="config.js?v=2026-11-16-8ad5aa"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -360,7 +361,7 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { gerbang } from './menu.js?v=2026-11-16-7f86d4';
+import { gerbang } from './menu.js?v=2026-11-16-8ad5aa';
 
 // Bagian admin hanya untuk peran admin (isinya bukan rahasia; disembunyikan
 // supaya panduan dosen tetap ringkas).
