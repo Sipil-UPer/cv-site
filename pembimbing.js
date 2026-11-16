@@ -15,7 +15,8 @@ const UMUM = new Set(`yang dan atau di ke dari pada untuk dengan dalam terhadap 
   kawasan proyek pembangunan teknik sipil indonesia baru lama tahun bagi hasil nilai jenis tinggi rendah
   the of and in on for to a an with using use based study case analysis evaluation assessment design approach
   method methods model modeling modelling system systems effect effects impact its from by at as into via
-  between toward towards new review application applications performance indonesia jakarta`.split(/\s+/).filter(Boolean));
+  between toward towards new review application applications performance indonesia jakarta
+  control management manajemen engineering rekayasa technology teknologi`.split(/\s+/).filter(Boolean));
 
 const BOBOT = { topik: 4, bidang: 1.5, publikasi: 1, kegiatan: 1 };
 const SAMBUNG = 0.8;     // bobot kata tambahan dari padanan topik baku yang cocok (terjemahan langsung)
