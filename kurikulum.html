@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-16-8ad5aa">
+<link rel="stylesheet" href="tema.css?v=2026-11-16-abde72">
 <style>
   *{box-sizing:border-box}
   html{scroll-behavior:smooth}
@@ -84,7 +84,7 @@
   </div>
 </header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-16-8ad5aa"></script>
+<script src="config.js?v=2026-11-16-abde72"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -167,10 +167,15 @@ function gambarStruktur(){
   const smt = new Map();
   for (const m of mk) { const s = m.semester || 0; if (!smt.has(s)) smt.set(s, []); smt.get(s).push(m); }
   const urut = [...smt.keys()].sort((a, b) => (a || 99) - (b || 99));
-  el.innerHTML = urut.map(s => `<div class="smt"><div class="smt-kepala"><b>${s ? `Semester ${s}` : 'Tanpa semester tetap'}</b>
+  // MK tanpa semester yang semuanya pilihan = daftar MK pilihan; jumlah dipisah wajib/pilihan supaya
+  // MK pilihan tidak terbaca sebagai beban studi (2026-11-16: K26 81 MK, 134 sks wajib + 57 sks pilihan).
+  const judul = s => s ? `Semester ${s}` : smt.get(s).every(m => m.sifat === 'pilihan') ? 'Mata kuliah pilihan' : 'Tanpa semester tetap';
+  const wajib = mk.filter(m => m.sifat !== 'pilihan'), pilihan = mk.filter(m => m.sifat === 'pilihan');
+  el.innerHTML = urut.map(s => `<div class="smt"><div class="smt-kepala"><b>${judul(s)}</b>
       <span>${smt.get(s).length} MK · ${angka(jumlahSks(smt.get(s)))} sks</span></div>
       <table>${smt.get(s).map(barisMK).join('')}</table></div>`).join('')
-    + `<div class="total"><span>${mk.length} MK</span><b>${angka(jumlahSks(mk))} sks</b></div>`;
+    + `<div class="total"><span>Wajib: ${wajib.length} MK, <b>${angka(jumlahSks(wajib))} sks</b></span>`
+    + (pilihan.length ? `<span>· Pilihan: ${pilihan.length} MK, ${angka(jumlahSks(pilihan))} sks</span>` : '') + `</div>`;
 }
 
 function gambar(){

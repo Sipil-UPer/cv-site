@@ -5,28 +5,35 @@
 
    Warna status (tint hijau "selesai", tint kuning "menunggu") sengaja tetap
    di halaman: maknanya status, bukan identitas institusi.
+
+   Palet mengikuti universitaspertamina.ac.id (pemilik 2026-11-16; dibaca dari
+   CSS situs itu): bg-up-blue #084999, #0C4C9B, #135CB2, aksen #C1D340, abu
+   #6B7280, latar #F3F5F7, judul Roboto Condensed. Merah tetap untuk garis
+   aksen dan peringatan (merah ada di logo dan lengkung kepala situs UPer).
    ===================================================================== */
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@500;600;700&display=swap');
+
 :root{
   /* Warna utama institusi: gelap ke terang */
-  --biru-gelap:#081D36;  --biru-gelap-rgb:8,29,54;     /* pita menu */
-  --biru:#0C2A4D;        --biru-rgb:12,42,77;          /* kepala halaman, judul, tombol */
-  --biru-2:#17436F;
-  --biru-3:#5C86B0;
-  --biru-4:#A9C3DA;
+  --biru-gelap:#063A7C;  --biru-gelap-rgb:6,58,124;     /* pita menu */
+  --biru:#084999;        --biru-rgb:8,73,153;           /* kepala halaman, judul, tombol */
+  --biru-2:#0C4C9B;
+  --biru-3:#135CB2;
+  --biru-4:#9DBBE0;
 
   /* Turunan warna utama: teks di atas latar gelap dan latar pucat, gelap ke terang */
-  --biru-m1:#7FA5C6;
-  --biru-m2:#9FC2E0;
-  --biru-m3:#A9C0D6;
-  --biru-m4:#B9CCDE;
-  --biru-m5:#C9D7E4;
-  --biru-m6:#DCE6F0;
-  --biru-m7:#E3EAF2;
-  --biru-m8:#E7EDF3;
-  --biru-m9:#E8EEF5;
-  --biru-m10:#EEF3F8;
-  --biru-m11:#F2F6FA;
-  --biru-m12:#F6F9FC;
+  --biru-m1:#7FA6D6;
+  --biru-m2:#A7C3E6;
+  --biru-m3:#B6CDEA;
+  --biru-m4:#C7D9EF;
+  --biru-m5:#D6E3F3;
+  --biru-m6:#E1EAF6;
+  --biru-m7:#E6EEF8;
+  --biru-m8:#EAF1F9;
+  --biru-m9:#EDF3FA;
+  --biru-m10:#F0F5FB;
+  --biru-m11:#F4F8FC;
+  --biru-m12:#F8FAFD;
 
   /* Warna aksen: garis kepala halaman, peringatan */
   --merah:#C8102E;
@@ -35,10 +42,13 @@
   --merah-m3:#FBE5E8;
   --merah-m4:#FBE9EB;
   --merah-m5:#FDF3F4;
+  /* Aksen kuning-hijau situs UPer (tautan ID/EN di sana); untuk penanda, bukan teks di latar putih */
+  --aksen:#C1D340;
+  --aksen-gelap:#8FA01C;
 
   /* Tombol utama: terang, tulisan putih tetap kontras */
-  --aksi:#1565C0;
-  --aksi-2:#0D4F9E;
+  --aksi:#135CB2;
+  --aksi-2:#0C4C9B;
 
   /* Warna data dan status */
   --hijau:#00954E;
@@ -46,18 +56,25 @@
   --ungu:#6B4E9B;
 
   /* Netral */
-  --bg:#F2F4F2;
+  --bg:#F3F5F7;
   --panel:#fff;
-  --ink:#14212E;
-  --muted:#5D6B78;
-  --line:#D9DFDA;
-  --line-soft:#EBEEEB;
+  --ink:#111827;
+  --muted:#6B7280;
+  --line:#E5E7EB;
+  --line-soft:#F0F1F3;
 
-  /* Huruf */
+  /* Huruf. --serif = huruf judul (nama lama dipertahankan agar halaman tidak berubah kode). */
   --sans:'IBM Plex Sans',system-ui,sans-serif;
   --mono:'IBM Plex Mono',ui-monospace,monospace;
-  --serif:'IBM Plex Serif',Georgia,serif;
+  --serif:'Roboto Condensed','IBM Plex Sans',system-ui,sans-serif;
+  --judul:var(--serif);
 }
+
+/* Deret logo seperti kepala universitaspertamina.ac.id (logo-up, logo-dekade, logo-diktisaintek;
+   gambar ketiga memuat lengkung merah dan gradasi ke biru). Dipakai di kepala index, daftar, ruang-kerja. */
+.logo-deret{display:flex;line-height:0;margin-bottom:16px;max-width:100%}
+.logo-deret img{height:64px;width:auto;display:block}
+@media (max-width:420px){ .logo-deret img{height:48px} }
 
 /* Tautan isian -> kartu butir di skor.html (tautan-butir.js, pemilik 2026-11-07). */
 .ke-butir-data{font-size:12px;color:var(--muted)}
