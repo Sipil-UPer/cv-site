@@ -15,7 +15,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-16-890867">
+<link rel="stylesheet" href="tema.css?v=2026-11-17-fe8393">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:#fff;color:var(--ink);font-family:var(--sans);font-size:15.5px;line-height:1.6;-webkit-font-smoothing:antialiased}
@@ -273,7 +273,7 @@
 
 </main>
 
-<script src="config.js?v=2026-11-16-890867"></script>
+<script src="config.js?v=2026-11-17-fe8393"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -291,8 +291,8 @@ addEventListener('error', function (e) {
 // Beranda program studi (pemilik 2026-11-16). Data dari data.json (bangun.py); pita dari RPC publik.
 // Isi yang belum ada (config.yaml public_site: tagline, kontak, media sosial, PMB) tidak ditampilkan.
 // Dasbor kinerja yang dulu di sini pindah ke kinerja.html.
-import { pasangKerangka, isiKerangka } from './kerangka.js?v=2026-11-16-890867';
-import { halamanAktif } from './fitur.js?v=2026-11-16-890867';
+import { pasangKerangka, isiKerangka } from './kerangka.js?v=2026-11-17-fe8393';
+import { halamanAktif } from './fitur.js?v=2026-11-17-fe8393';
 pasangKerangka({ aktif: '' });
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -371,6 +371,10 @@ function gambar(d){
     $('bKabar').hidden = false;
   }
 
+  // Nama mahasiswa (pemilik 2026-11-16; sama dengan halaman_publik.nama_tim): 1 nama; 2 nama dengan "dan";
+  // 3 atau lebih "nama pertama dkk."; tanpa persetujuan tampil nama: "Tim mahasiswa".
+  const namaTim = xs => { xs = (xs || []).filter(Boolean);
+    return !xs.length ? 'Tim mahasiswa' : xs.length === 1 ? xs[0] : xs.length === 2 ? `${xs[0]} dan ${xs[1]}` : `${xs[0]} dkk.`; };
   // Prestasi mahasiswa terbaru (data.json prestasi): 3 terakhir menurut tahun dan bulan (pemilik 2026-11-16).
   const TINGKAT = { internasional: 'Internasional', nasional: 'Nasional', wilayah_lokal: 'Wilayah/lokal' };
   const pres = [...(d.prestasi || [])].sort((a, b) => (b.tahun || 0) - (a.tahun || 0)
@@ -380,7 +384,7 @@ function gambar(d){
       ${x.foto?.length ? `<img src="${esc(x.foto[0])}" alt="Dokumentasi ${esc(x.kegiatan)}" loading="lazy">` : `<div class="tanpa-foto"><span aria-hidden="true">&#127942;</span>${esc(TINGKAT[x.tingkat] || 'Prestasi')}</div>`}
       <div class="isi"><div class="meta">${x.foto?.length ? `<span class="tag${x.tingkat === 'internasional' ? ' int' : ''}">${esc(TINGKAT[x.tingkat] || x.tingkat || '')}</span>` : ''}${esc(x.tahun || '')}</div>
       <h3>${esc(x.capaian || 'Prestasi')}</h3><div class="lomba">${esc(x.kegiatan)}</div>
-      <div class="siapa">${esc((x.mahasiswa || []).join(', ') || 'Tim mahasiswa')}</div></div></a>`).join('');
+      <div class="siapa">${esc(namaTim(x.mahasiswa))}</div></div></a>`).join('');
     $('bPres').hidden = false;
   }
 
@@ -446,7 +450,7 @@ function gambar(d){
 }
 
 function pasangCari(D){
-  import('./cari.js?v=2026-11-16-890867').then(m => {
+  import('./cari.js?v=2026-11-17-fe8393').then(m => {
     const idx = m.indeksPublik(D, k => !(window.FITUR_MATI || []).includes(k));
     const kotak = $('cariUmum'), panel = $('hasilUmum');
     let aktif = -1;

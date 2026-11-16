@@ -7,177 +7,199 @@
 <meta name="description" content="Daftar dosen, publikasi, penelitian, pengabdian, dan prestasi mahasiswa program studi.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-16-890867">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tema.css?v=2026-11-17-fe8393">
 <style>
-  /* Daftar publik (pemilik 2026-11-04): beranda hanya grafik; tiap angka
-     rekap membuka daftarnya di sini. Masyarakat umum melihat daftar saja —
-     tidak ada tautan bukti maupun tautan karya. Warna sama dengan index.html. */
+  /* Daftar dosen, publikasi, penelitian, pengabdian (pemilik 2026-11-16): kerangka publik bersama, kartu
+     dosen, lencana mutu publikasi (warna sama dengan kinerja.html), dikelompokkan per tahun. */
   *{box-sizing:border-box}
-  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
-       font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
-  .wrap{max-width:1040px;margin:0 auto;padding:0 20px 90px}
-  a{color:var(--biru-2)}
-
-  .hero{background:var(--biru);color:#fff;border-bottom:4px solid var(--merah)}
-  .hero-in{max-width:1040px;margin:0 auto;padding:22px 20px 0}
-  .balik{color:var(--biru-m5);font-size:13px;text-decoration:none}
-  .balik:hover{color:#fff}
-  .hero-baris{display:flex;gap:16px;align-items:center;margin-top:14px;flex-wrap:wrap}
-  .logo-kampus{background:#fff;border-radius:5px;padding:5px 8px;line-height:0}
-  .logo-kampus img{height:44px}
-  .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.12em;
-           text-transform:uppercase;color:var(--biru-m3)}
-  h1{font-family:var(--serif);font-size:clamp(22px,3.4vw,28px);font-weight:600;
-     margin:4px 0 0;line-height:1.2;color:#fff}
-  nav.jenis{display:flex;flex-wrap:wrap;gap:2px;margin-top:20px}
-  nav.jenis a{color:var(--biru-m5);text-decoration:none;font-family:var(--mono);font-size:11.5px;
-    letter-spacing:.08em;text-transform:uppercase;padding:9px 12px 10px;border-bottom:3px solid transparent}
-  nav.jenis a:hover{color:#fff}
-  nav.jenis a[aria-current="page"]{color:#fff;border-bottom-color:var(--merah)}
-
-  .bar{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin:30px 0 4px}
-  .bar .jml{flex:1;font-family:var(--mono);font-size:12px;color:var(--muted)}
-  select,input[type=search]{font-family:var(--sans);font-size:13.5px;padding:7px 10px;
-    border:1px solid var(--line);border-radius:2px;background:#fff;color:var(--ink)}
-  input[type=search]{min-width:200px}
-  :focus-visible{outline:2px solid var(--biru-2);outline-offset:1px}
-
-  .list{background:var(--panel);border:1px solid var(--line);border-radius:2px;
-        padding:4px 22px;margin-top:14px}
-  .e{display:flex;gap:16px;padding:15px 0;border-top:1px solid var(--line-soft)}
-  .e:first-child{border-top:0}
-  .thn{font-family:var(--mono);font-size:13px;color:var(--muted);flex:none;width:42px;padding-top:1px}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15.5px;line-height:1.6}
+  .kepala{background:var(--biru);color:#fff}
+  .kepala-in{max-width:1120px;margin:0 auto;padding:36px 20px 0}
+  .eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--biru-m2)}
+  h1{font-family:var(--serif);font-size:clamp(30px,4.6vw,46px);margin:8px 0 4px;line-height:1.08}
+  .kepala p{margin:0 0 18px;color:var(--biru-m4)}
+  .jenis{display:flex;flex-wrap:wrap;gap:6px;padding-bottom:16px}
+  .jenis a{padding:6px 14px;border:1px solid rgba(255,255,255,.4);color:#fff;text-decoration:none;font-size:14px;font-weight:500}
+  .jenis a:hover{background:rgba(255,255,255,.12)}
+  .jenis a[aria-current="page"]{background:#fff;color:var(--biru);border-color:#fff;font-weight:600}
+  .isi{max-width:1120px;margin:0 auto;padding:20px 20px 50px}
+  .saring{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:0 0 16px}
+  .saring select, .saring input{font:inherit;font-size:14.5px;padding:8px 10px;border:1px solid var(--line);background:#fff;color:var(--ink)}
+  .saring input{flex:1;min-width:220px}
+  .jml{font-family:var(--mono);font-size:12.5px;color:var(--muted);margin-left:auto}
+  .kosong{color:var(--muted)}
+  /* Kartu dosen */
+  .dsn{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,320px),1fr));gap:14px}
+  .dsn .k{background:#fff;border:1px solid var(--line);border-top:3px solid var(--biru);padding:16px;display:flex;gap:14px}
+  .dsn .k:hover{border-top-color:var(--aksen)}
+  .foto{flex:none;width:64px;height:64px;border-radius:50%;object-fit:cover;background:var(--biru-m10)}
+  .inisial{display:grid;place-items:center;font-family:var(--serif);font-weight:600;font-size:22px;color:var(--biru)}
+  .dsn h3{margin:0;font-size:16.5px;line-height:1.3}
+  .dsn h3 a{color:var(--ink);text-decoration:none}
+  .dsn h3 a:hover{color:var(--biru-2);text-decoration:underline}
+  .bidang{font-size:13.5px;color:var(--biru-2);font-weight:500;margin-top:1px}
+  .topik{display:flex;flex-wrap:wrap;gap:4px;margin:7px 0 0}
+  .topik span{font-size:12px;background:var(--biru-m10);color:var(--biru);padding:1px 7px}
+  .hitung{display:flex;gap:14px;margin-top:9px;font-size:12.5px;color:var(--muted)}
+  .hitung b{font-family:var(--mono);color:var(--ink);font-weight:500;margin-right:3px}
+  .profil{display:flex;gap:6px;margin-top:9px}
+  .profil a{font-family:var(--mono);font-size:11px;padding:1px 7px;border:1px solid var(--line);color:var(--biru-2);text-decoration:none}
+  .profil a:hover{border-color:var(--biru-2)}
+  /* Daftar karya per tahun */
+  .tahun{font-family:var(--serif);font-size:22px;color:var(--biru);margin:22px 0 8px;display:flex;align-items:baseline;gap:10px}
+  .tahun span{font-family:var(--mono);font-size:12px;color:var(--muted)}
+  .karya{background:#fff;border:1px solid var(--line)}
+  .karya .e{display:flex;gap:14px;padding:13px 16px;border-bottom:1px solid var(--line-soft);align-items:flex-start}
+  .karya .e:last-child{border-bottom:0}
   .e-b{flex:1;min-width:0}
-  .e-j{font-weight:500;line-height:1.4}
-  .e-m{font-size:13px;color:var(--muted);margin-top:3px}
-  .e-p{font-family:var(--mono);font-size:11.5px;color:var(--muted);margin-top:5px}
-  .e-p a{color:var(--muted);text-decoration:none;border-bottom:1px dotted var(--line)}
-  .e-p a:hover{color:var(--biru-2);border-bottom-color:var(--biru-3)}
-  .pill{font-family:var(--mono);font-size:9.5px;letter-spacing:.09em;text-transform:uppercase;
-        padding:3px 8px;border-radius:2px;background:var(--biru-m8);color:var(--biru);
-        white-space:nowrap;align-self:flex-start;margin-top:2px}
-  .pill.pkm{background:#E6F3EC;color:var(--hijau)}
-  .kosong{color:var(--muted);font-size:13.5px;padding:22px 0}
-
-  table{width:100%;border-collapse:collapse;font-size:13.5px}
-  th{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
-     color:var(--muted);text-align:left;font-weight:400;padding:12px 10px 10px 0;
-     border-bottom:1px solid var(--line)}
-  td{padding:10px 10px 10px 0;border-bottom:1px solid var(--line-soft)}
-  td.num,th.num{text-align:right;font-family:var(--mono);padding-right:0}
-  .dsn{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:0}
-  .dsn div{padding:13px 16px 13px 0}
-  .dsn b{font-weight:500;display:block}
-  .dsn b a{color:var(--ink);text-decoration:none}
-  .dsn b a:hover{color:var(--biru-2);text-decoration:underline}
-  .dsn span a{font-family:var(--mono);font-size:11px;margin-right:10px;text-decoration:none}
-
-  footer{margin-top:48px;padding-top:20px;border-top:3px solid var(--biru);
-         font-size:12.5px;color:var(--muted)}
+  .e-j{font-weight:600;line-height:1.4}
+  .e-m{font-size:13.5px;color:var(--muted);margin-top:3px}
+  .e-p{font-size:13.5px;margin-top:4px}
+  .e-p a{color:var(--biru-2);text-decoration:none}
+  .e-p a:hover{text-decoration:underline}
+  .lencana{flex:none;font-family:var(--mono);font-size:11px;padding:2px 8px;white-space:nowrap;color:#fff;background:var(--w)}
+  .lencana.terang{color:var(--biru-gelap)}
+  .o1{--w:var(--biru-gelap)} .o2{--w:var(--biru-3)} .o3{--w:#4F86C6} .o4{--w:#8FB2DD} .s2{--w:#eb6834}
+  .catatan{margin-top:26px;color:var(--muted);font-size:13px}
+  @media(max-width:600px){.karya .e{flex-direction:column;gap:6px}.jml{margin-left:0;width:100%}}
 </style>
 </head>
 <body>
-
-<header class="hero">
-  <div class="hero-in">
-    <a class="balik" href="index.html">&larr; Beranda</a>
-    <div class="hero-baris">
-      <div class="logo-deret"><img src="logo-up.webp" alt="Universitas Pertamina" id="hLogo" width="271" height="200"><img src="logo-dekade.webp" alt="1 Dekade Universitas Pertamina" width="271" height="200"><img src="logo-diktisaintek.webp" alt="Diktisaintek Berdampak" width="397" height="136"></div>
-      <div>
-        <div class="eyebrow" id="hInst">&nbsp;</div>
-        <h1 id="hJudul">Memuat&hellip;</h1>
-      </div>
-    </div>
+<main id="utama">
+  <header class="kepala"><div class="kepala-in">
+    <div class="eyebrow" id="hInst">Program studi</div>
+    <h1 id="hJudul">Daftar</h1>
+    <p id="hKet">&nbsp;</p>
     <nav class="jenis" id="nav" aria-label="Jenis daftar"></nav>
-  </div>
-</header>
-
-<main class="wrap" id="isi"></main>
-
+  </div></header>
+  <div class="isi" id="isi"><p class="kosong">Memuat…</p></div>
+</main>
+<script src="config.js?v=2026-11-17-fe8393"></script>
 <script>
-const SINTA  = window.PROFIL_SINTA  || 'https://sinta.kemdiktisaintek.go.id/authors/profile/';
-const SCOPUS = window.PROFIL_SCOPUS || 'https://www.scopus.com/pages/authors/';
-const ORCID  = window.PROFIL_ORCID  || 'https://orcid.org/';
-const esc = s => String(s ?? '').replace(/[&<>"']/g,c=>
-  ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const rapi = s => s ? String(s).replace(/_/g,' ') : '';
-const $ = id => document.getElementById(id);
-// Nama penulis menuju profil dosen (bukan tautan bukti).
-const tautanPenulis = a => (a||[]).map(x =>
-  `<a href="dosen.html?d=${encodeURIComponent(x.slug)}">${esc(x.nama)}</a>`).join(' · ');
+// Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
+// halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
+addEventListener('error', function (e) {
+  if (document.getElementById('galat-muat')) return;
+  var d = document.createElement('div');
+  d.id = 'galat-muat';
+  d.style.cssText = 'margin:16px;padding:12px 14px;border:1px solid var(--merah);' +
+    'background:var(--merah-m3);color:var(--ink);font:14px/1.5 system-ui,sans-serif';
+  d.textContent = 'Halaman gagal dimuat: ' + (e.message || 'galat skrip') +
+    '. Tekan Ctrl+Shift+R untuk memuat ulang tanpa cache; bila tetap muncul, kirim pesan ini ke admin.';
+  document.body.insertBefore(d, document.body.firstChild);
+});
+</script>
+<script type="module">
+import { pasangKerangka, isiKerangka } from './kerangka.js?v=2026-11-17-fe8393';
 
-const JENIS = [
-  ['dosen', 'Dosen'], ['publikasi', 'Publikasi'], ['penelitian', 'Penelitian'],
-  ['pkm', 'Pengabdian'], ['prestasi', 'Prestasi mahasiswa'], ['mitra', 'Mitra kerja sama'],
-];
-const pilih = (() => {
-  const j = new URLSearchParams(location.search).get('jenis');
-  return JENIS.some(([k]) => k === j) && j !== 'mitra' ? j : 'publikasi';
-})();
+const SINTA = window.PROFIL_SINTA || 'https://sinta.kemdiktisaintek.go.id/authors/profile/';
+const SCOPUS = window.PROFIL_SCOPUS || 'https://www.scopus.com/pages/authors/';
+const ORCID = window.PROFIL_ORCID || 'https://orcid.org/';
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const rapi = s => { const t = String(s || '').replace(/_/g, ' '); return t.charAt(0).toUpperCase() + t.slice(1); };
+const $ = id => document.getElementById(id);
+const inisial = n => String(n).replace(/,.*$/, '').split(/\s+/).filter(w => /^[A-Z]/.test(w)).slice(0, 2).map(w => w[0]).join('') || String(n).slice(0, 1);
+// Nama penulis menuju halaman dosen statis (dosen/<slug>.html); bukan dosen prodi: teks biasa.
+const penulis = a => (a || []).map(x => x.slug ? `<a href="dosen/${encodeURIComponent(x.slug)}.html">${esc(x.nama)}</a>` : esc(x.nama)).join(' · ');
+
+const JENIS = [['dosen', 'Dosen', 'dosen'], ['publikasi', 'Publikasi', 'riset'], ['penelitian', 'Penelitian', 'riset'],
+  ['pkm', 'Pengabdian', 'riset'], ['prestasi', 'Prestasi mahasiswa', 'mahasiswa'], ['mitra', 'Kerja sama', 'profil']];
+const pilih = (() => { const j = new URLSearchParams(location.search).get('jenis'); return JENIS.some(([k]) => k === j) ? j : 'publikasi'; })();
+// Prestasi dan mitra punya halaman sendiri yang lebih lengkap.
+if (pilih === 'prestasi') location.replace('prestasi.html');
+if (pilih === 'mitra') location.replace('kerja-sama.html');
+pasangKerangka({ aktif: JENIS.find(([k]) => k === pilih)[2] });
+
+// Mutu publikasi: label pendek dan tingkat warna (sama dengan kinerja.html, gelap = tertinggi).
+const MUTU = { scopus_q1: ['Scopus Q1', 'o1'], scopus_q2: ['Scopus Q2', 'o1'], scopus_q3: ['Scopus Q3', 'o2'], scopus_q4: ['Scopus Q4', 'o2'],
+  sinta_1_2: ['SINTA 1–2', 'o3'], sinta_3_4: ['SINTA 3–4', 'o3'], sinta_5_6: ['SINTA 5–6', 'o4'], tidak_terindeks: ['Tidak terindeks', 'o4'] };
+const lencanaMutu = p => { const [l, k] = MUTU[p.indeksasi] || [rapi(p.tingkat) || 'Publikasi', 'o4'];
+  return `<span class="lencana ${k}${k === 'o4' ? ' terang' : ''}">${esc(l)}</span>`; };
+
 let D = null;
 
 fetch('data.json?v=' + Date.now())
-  .then(r => { if(!r.ok) throw new Error(r.status); return r.json(); })
-  .then(d => { D = d; render(); })
-  .catch(() => {
-    $('hJudul').textContent = 'Data belum tersedia';
-    $('isi').innerHTML = `<p class="kosong">Data sedang diperbarui. Silakan muat ulang beberapa saat lagi.</p>`;
-  });
+  .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
+  .then(d => { D = d; isiKerangka(d); render(); })
+  .catch(() => { $('hJudul').textContent = 'Data belum tersedia'; $('isi').innerHTML = '<p class="kosong">Data sedang diperbarui. Silakan muat ulang beberapa saat lagi.</p>'; });
 
 function render(){
   const judul = JENIS.find(([k]) => k === pilih)[1];
-  const inst = [D.prodi && 'Program Studi ' + D.prodi, D.institusi].filter(Boolean).join(' · ');
-  $('hInst').textContent = inst;
-  if (D.institusi) $('hLogo').alt = D.institusi;
+  $('hInst').textContent = [D.prodi && 'Program Studi ' + D.prodi, D.institusi].filter(Boolean).join(' · ');
   $('hJudul').textContent = judul;
-  document.title = [judul, [D.prodi, D.institusi].filter(Boolean).join(' ')].filter(Boolean).join(' — ');
-  $('nav').innerHTML = JENIS.map(([k, l]) => `<a href="${k === 'mitra' ? 'kerja-sama.html' : 'daftar.html?jenis=' + k}"${
+  document.title = [judul, [D.prodi && 'Program Studi ' + D.prodi, D.institusi].filter(Boolean).join(', ')].filter(Boolean).join(' — ');
+  $('nav').innerHTML = JENIS.map(([k, l]) => `<a href="${k === 'mitra' ? 'kerja-sama.html' : k === 'prestasi' ? 'prestasi.html' : 'daftar.html?jenis=' + k}"${
     k === pilih ? ' aria-current="page"' : ''}>${l}</a>`).join('');
-  ({ dosen, publikasi, penelitian: () => kegiatan('penelitian'), pkm: () => kegiatan('pkm'), prestasi })[pilih]();
+  ({ dosen, publikasi, penelitian: () => kegiatan('penelitian'), pkm: () => kegiatan('pkm') })[pilih]?.();
   // ?q= dari pencarian menyeluruh (cari.js): isi kotak cari lalu saring.
   const q0 = new URLSearchParams(location.search).get('q');
   if (q0 && $('fCari')) { $('fCari').value = q0; $('fCari').dispatchEvent(new Event('input')); }
-  $('isi').insertAdjacentHTML('beforeend', `<footer>Data terverifikasi program studi · diperbarui ${esc(D.diperbarui)}.</footer>`);
+  $('isi').insertAdjacentHTML('beforeend', `<p class="catatan">Data terverifikasi program studi · diperbarui ${esc(D.diperbarui || '')}.</p>`);
 }
 
 function dosen(){
-  $('isi').innerHTML = `<div class="bar"><span class="jml">${D.dosen.length} dosen</span></div>
-    <div class="list"><div class="dsn">${D.dosen.map(d => `<div>
-      <b><a href="dosen/${encodeURIComponent(d.slug)}.html">${esc(d.nama)}</a></b>
-      <span>${[d.sinta_id && `<a href="${SINTA}${esc(d.sinta_id)}" rel="noopener">SINTA</a>`,
-               d.scopus_id && `<a href="${SCOPUS}${esc(d.scopus_id)}" rel="noopener">Scopus</a>`,
-               d.orcid && `<a href="${ORCID}${esc(d.orcid)}" rel="noopener">ORCID</a>`]
-               .filter(Boolean).join('')}</span></div>`).join('')}</div></div>`;
+  const kb = D.keahlian_baku, namaTopik = kb ? Object.fromEntries(kb.topik.map(t => [t.kode, t.nama])) : {};
+  const milik = (xs, slug) => (xs || []).filter(x => (x.penulis || []).some(p => p.slug === slug)).length;
+  const semua = [...D.dosen].sort((a, b) => a.nama.localeCompare(b.nama, 'id'));
+  $('hKet').textContent = `${semua.length} dosen tetap, dengan bidang keahlian dan karya yang tercatat di program studi.`;
+  $('isi').innerHTML = `<div class="saring"><input type="search" id="fCari" placeholder="Cari nama, bidang, atau topik keahlian" aria-label="Cari dosen">
+    <span class="jml" id="jml"></span></div><div class="dsn" id="lst"></div>`;
+  const kartu = d => {
+    const topik = (d.topik_keahlian || []).map(k => namaTopik[k]).filter(Boolean);
+    const profil = [d.sinta_id && `<a href="${SINTA}${esc(d.sinta_id)}" rel="noopener">SINTA</a>`,
+      d.scopus_id && `<a href="${SCOPUS}${esc(d.scopus_id)}" rel="noopener">Scopus</a>`,
+      d.orcid && `<a href="${ORCID}${esc(d.orcid)}" rel="noopener">ORCID</a>`].filter(Boolean).join('');
+    const nPub = milik(D.publikasi, d.slug), nPen = milik(D.kegiatan.filter(k => k.kategori === 'penelitian'), d.slug),
+          nPkm = milik(D.kegiatan.filter(k => k.kategori === 'pkm'), d.slug);
+    return `<article class="k">${d.foto ? `<img class="foto" src="${esc(d.foto)}" alt="" loading="lazy">`
+        : `<span class="foto inisial" aria-hidden="true">${esc(inisial(d.nama))}</span>`}
+      <div><h3><a href="dosen/${encodeURIComponent(d.slug)}.html">${esc(d.nama)}</a></h3>
+        ${d.bidang_keahlian ? `<div class="bidang">${esc(d.bidang_keahlian)}</div>` : ''}
+        ${topik.length ? `<div class="topik">${topik.slice(0, 3).map(t => `<span>${esc(t)}</span>`).join('')}${topik.length > 3 ? `<span>+${topik.length - 3}</span>` : ''}</div>` : ''}
+        <div class="hitung"><span><b>${nPub}</b>publikasi</span><span><b>${nPen}</b>penelitian</span><span><b>${nPkm}</b>pengabdian</span></div>
+        ${profil ? `<div class="profil">${profil}</div>` : ''}</div></article>`;
+  };
+  const isi = () => {
+    const q = $('fCari').value.trim().toLowerCase();
+    const d = semua.filter(x => !q || [x.nama, x.bidang_keahlian, ...(x.topik_keahlian || []).map(k => namaTopik[k])]
+      .some(v => String(v || '').toLowerCase().includes(q)));
+    $('jml').textContent = `${d.length} dosen`;
+    $('lst').innerHTML = d.map(kartu).join('') || '<p class="kosong">Tidak ada dosen yang cocok.</p>';
+  };
+  $('fCari').addEventListener('input', isi);
+  isi();
+}
+
+// Karya per tahun (terbaru dulu) dengan penyaring; judul tanpa tautan (daftar publik tidak membuka tautan karya maupun bukti).
+function perTahun(xs, baris){
+  const tahun = [...new Set(xs.map(x => x.tahun))].sort((a, b) => b - a);
+  return tahun.map(t => { const ys = xs.filter(x => x.tahun === t);
+    return `<h2 class="tahun">${t}<span>${ys.length}</span></h2><div class="karya">${ys.map(baris).join('')}</div>`; }).join('');
 }
 
 function publikasi(){
   const tahun = [...new Set(D.publikasi.map(p => p.tahun))].sort((a, b) => b - a);
-  $('isi').innerHTML = `<div class="bar"><span class="jml" id="jml"></span>
-      <select id="fTahun"><option value="">Semua tahun</option>
-        ${tahun.map(t => `<option>${t}</option>`).join('')}</select>
-      <select id="fTingkat"><option value="">Semua tingkat</option>
-        <option value="internasional">Internasional</option>
-        <option value="nasional">Nasional</option>
-        <option value="wilayah_lokal">Wilayah / lokal</option></select>
-      <input type="search" id="fCari" placeholder="Cari judul atau penulis"></div>
-    <div class="list" id="lst"></div>`;
+  $('hKet').textContent = 'Artikel jurnal dan prosiding dosen, dengan mutu terbitan (Scopus menurut kuartil, SINTA menurut peringkat).';
+  $('isi').innerHTML = `<div class="saring">
+      <select id="fTahun" aria-label="Tahun"><option value="">Semua tahun</option>${tahun.map(t => `<option>${t}</option>`).join('')}</select>
+      <select id="fMutu" aria-label="Mutu"><option value="">Semua mutu</option><option value="scopus">Terindeks Scopus</option>
+        <option value="sinta">Terindeks SINTA</option><option value="internasional">Tingkat internasional</option></select>
+      <input type="search" id="fCari" placeholder="Cari judul, penulis, atau terbitan" aria-label="Cari publikasi">
+      <span class="jml" id="jml"></span></div><div id="lst"></div>`;
   const isi = () => {
-    const t = $('fTahun').value, g = $('fTingkat').value, q = $('fCari').value.trim().toLowerCase();
-    const d = D.publikasi.filter(p => (!t || String(p.tahun) === t) && (!g || p.tingkat === g) &&
-      (!q || (p.judul + ' ' + p.penulis.map(a => a.nama).join(' ')).toLowerCase().includes(q)));
+    const t = $('fTahun').value, m = $('fMutu').value, q = $('fCari').value.trim().toLowerCase();
+    const d = D.publikasi.filter(p => (!t || String(p.tahun) === t)
+      && (!m || (m === 'internasional' ? p.tingkat === 'internasional' : String(p.indeksasi || '').startsWith(m)))
+      && (!q || [p.judul, p.terbitan, ...(p.penulis || []).map(a => a.nama)].join(' ').toLowerCase().includes(q)));
     $('jml').textContent = `${d.length} publikasi`;
-    // Judul tanpa tautan: daftar publik tidak membuka tautan karya maupun bukti.
-    $('lst').innerHTML = d.length ? d.map(p => `<div class="e">
-        <div class="thn">${p.tahun}</div>
-        <div class="e-b"><div class="e-j">${esc(p.judul)}</div>
-          <div class="e-m">${[rapi(p.jenis), p.terbitan, [p.volume && 'Vol. ' + p.volume, p.nomor && 'No. ' + p.nomor, p.halaman && 'hlm. ' + p.halaman].filter(Boolean).join(' '), p.doi && ('DOI ' + p.doi)]
-            .filter(Boolean).map(esc).join(' · ')}</div>
-          ${p.penulis.length ? `<div class="e-p">${tautanPenulis(p.penulis)}</div>` : ''}</div>
-        <span class="pill">${esc(rapi(p.indeksasi || p.tingkat))}</span></div>`).join('')
-      : `<p class="kosong">Tidak ada publikasi yang cocok dengan penyaring ini.</p>`;
+    $('lst').innerHTML = d.length ? perTahun(d, p => `<div class="e"><div class="e-b"><div class="e-j">${esc(p.judul)}</div>
+        <div class="e-m">${[rapi(p.jenis), p.terbitan, [p.volume && 'Vol. ' + p.volume, p.nomor && 'No. ' + p.nomor, p.halaman && 'hlm. ' + p.halaman].filter(Boolean).join(' '),
+          p.doi && 'DOI ' + String(p.doi).replace(/^https?:\/\/(dx\.)?doi\.org\//i, '')].filter(Boolean).map(esc).join(' · ')}</div>
+        ${(p.penulis || []).length ? `<div class="e-p">${penulis(p.penulis)}</div>` : ''}</div>${lencanaMutu(p)}</div>`)
+      : '<p class="kosong">Tidak ada publikasi yang cocok dengan penyaring ini.</p>';
   };
-  ['fTahun', 'fTingkat'].forEach(id => $(id).addEventListener('change', isi));
+  ['fTahun', 'fMutu'].forEach(id => $(id).addEventListener('change', isi));
   $('fCari').addEventListener('input', isi);
   isi();
 }
@@ -186,44 +208,29 @@ function kegiatan(kat){
   const semua = D.kegiatan.filter(x => x.kategori === kat);
   const tahun = [...new Set(semua.map(x => x.tahun))].sort((a, b) => b - a);
   const kelompok = [...new Set(semua.map(x => x.kelompok).filter(Boolean))].sort();
-  $('isi').innerHTML = `<div class="bar"><span class="jml" id="jml"></span>
-      <select id="kTahun"><option value="">Semua tahun</option>
-        ${tahun.map(t => `<option>${t}</option>`).join('')}</select>
-      <select id="kKel"><option value="">Semua sumber dana</option>
-        ${kelompok.map(k => `<option>${esc(k)}</option>`).join('')}</select>
-      <input type="search" id="fCari" placeholder="Cari judul, penulis, atau mitra"></div>
-    <div class="list" id="lst"></div>`;
+  $('hKet').textContent = kat === 'pkm' ? 'Pengabdian kepada masyarakat oleh dosen dan mahasiswa, dengan skema pendanaan dan mitranya.'
+    : 'Penelitian dosen dan mahasiswa, dengan skema pendanaan dan mitranya.';
+  $('isi').innerHTML = `<div class="saring">
+      <select id="kTahun" aria-label="Tahun"><option value="">Semua tahun</option>${tahun.map(t => `<option>${t}</option>`).join('')}</select>
+      <select id="kKel" aria-label="Sumber dana"><option value="">Semua sumber dana</option>${kelompok.map(k => `<option>${esc(k)}</option>`).join('')}</select>
+      <input type="search" id="fCari" placeholder="Cari judul, dosen, atau mitra" aria-label="Cari kegiatan">
+      <span class="jml" id="jml"></span></div><div id="lst"></div>`;
   const isi = () => {
     const t = $('kTahun').value, kl = $('kKel').value, q = $('fCari').value.trim().toLowerCase();
-    // Cari teks (pemilik 2026-11-12): judul, penulis, mitra.
     const cocok = x => !q || [x.judul, ...(x.penulis || []).map(p => p.nama), ...(x.mitra || []).map(m => m.nama || m)]
       .some(v => String(v || '').toLowerCase().includes(q));
     const d = semua.filter(x => (!t || String(x.tahun) === t) && (!kl || x.kelompok === kl) && cocok(x));
     $('jml').textContent = `${d.length} kegiatan`;
-    $('lst').innerHTML = d.length ? d.map(x => `<div class="e">
-        <div class="thn">${x.tahun}</div>
-        <div class="e-b"><div class="e-j">${esc(x.judul)}</div>
-          <div class="e-m">${[rapi(x.tingkat), x.skema,
-            (x.mitra || []).length && ('mitra: ' + x.mitra.map(m => m.nama).join(', '))]
-            .filter(Boolean).map(esc).join(' · ')}</div>
-          ${x.penulis.length ? `<div class="e-p">${tautanPenulis(x.penulis)}</div>` : ''}</div>
-        <span class="pill ${kat === 'pkm' ? 'pkm' : ''}">${kat === 'pkm' ? 'Pengabdian' : 'Penelitian'}</span>
-      </div>`).join('')
-      : `<p class="kosong">Belum ada kegiatan terverifikasi.</p>`;
+    $('lst').innerHTML = d.length ? perTahun(d, x => `<div class="e"><div class="e-b"><div class="e-j">${esc(x.judul)}</div>
+        <div class="e-m">${[x.skema, rapi(x.tingkat), (x.mitra || []).length && 'Mitra: ' + x.mitra.map(m => m.nama).join(', '),
+          x.mahasiswa ? `${x.mahasiswa} mahasiswa terlibat` : ''].filter(Boolean).map(esc).join(' · ')}</div>
+        ${(x.penulis || []).length ? `<div class="e-p">${penulis(x.penulis)}</div>` : ''}</div>
+        <span class="lencana ${kat === 'pkm' ? 's2' : 'o2'}">${kat === 'pkm' ? 'Pengabdian' : 'Penelitian'}</span></div>`)
+      : '<p class="kosong">Belum ada kegiatan terverifikasi yang cocok.</p>';
   };
   ['kTahun', 'kKel'].forEach(id => $(id).addEventListener('change', isi));
   $('fCari').addEventListener('input', isi);
   isi();
-}
-
-function prestasi(){
-  const a = D.prestasi_agregat || [];
-  $('isi').innerHTML = `<div class="bar"><span class="jml">${a.reduce((s, r) => s + r.jumlah, 0)} capaian</span></div>
-    <div class="list">${a.length ? `<table><thead><tr>
-      <th>Tahun</th><th>Tingkat</th><th>Bidang</th><th class="num">Jumlah</th>
-    </tr></thead><tbody>${a.map(r => `<tr><td>${r.tahun}</td><td>${esc(rapi(r.tingkat))}</td>
-      <td>${esc(rapi(r.bidang))}</td><td class="num">${r.jumlah}</td></tr>`).join('')}</tbody></table>`
-      : `<p class="kosong">Belum ada data prestasi.</p>`}</div>`;
 }
 </script>
 </body>
