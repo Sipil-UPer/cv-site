@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-17-fe8393">
+<link rel="stylesheet" href="tema.css?v=2026-11-17-471254">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
@@ -34,6 +34,10 @@
   .fld.penuh{grid-column:1/-1}
   .fld small{display:block;color:var(--muted);font-size:11.5px;margin-top:2px}
   .aksi{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:14px}
+  /* Foto profil (85-patch-foto-dosen.sql) */
+  .foto-profil{display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-top:6px}
+  .foto-profil img, .foto-profil .inisial{width:96px;height:96px;border-radius:50%;object-fit:cover;background:var(--biru-m10)}
+  .foto-profil .inisial{display:grid;place-items:center;font-size:30px;font-weight:600;color:var(--biru)}
   button.btn{font:inherit;font-size:13px;padding:7px 14px;border:1px solid var(--biru);
     background:var(--biru);color:#fff;cursor:pointer;border-radius:2px}
   button.btn.ghost{background:#fff;color:var(--biru)}
@@ -56,7 +60,7 @@
   /* .fld input melebarkan semua input; kotak centang topik tetap kecil dan di kiri teksnya */
   .fld label.pilih-topik input[type=checkbox]{width:auto;padding:0;margin:0;flex:none}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-17-fe8393">
+<link rel="stylesheet" href="kepala.css?v=2026-11-17-471254">
 </head>
 <body>
 
@@ -70,7 +74,7 @@
 
 <main class="wrap" id="isi"></main>
 
-<script src="config.js?v=2026-11-17-fe8393"></script>
+<script src="config.js?v=2026-11-17-471254"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -87,16 +91,16 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { pasangMenu } from './menu.js?v=2026-11-17-fe8393';
-import { dosenLogin } from './dosen-login.js?v=2026-11-17-fe8393';
-import { unduhCV, htmlTombolCV, mkDiampu } from './cv-dosen.js?v=2026-11-17-fe8393';
-import { keBase64 } from './pustaka-dokumen.js?v=2026-11-17-fe8393';
-import { tautanBerkas, temuanPakai } from './tautan-privat.js?v=2026-11-17-fe8393';
-import { periksaBerkas, sidikBerkas } from './sidik-berkas.js?v=2026-11-17-fe8393';
-import { buangBuktiLepas } from './hapus-berkas.js?v=2026-11-17-fe8393';
+import { pasangMenu } from './menu.js?v=2026-11-17-471254';
+import { dosenLogin } from './dosen-login.js?v=2026-11-17-471254';
+import { unduhCV, htmlTombolCV, mkDiampu } from './cv-dosen.js?v=2026-11-17-471254';
+import { keBase64 } from './pustaka-dokumen.js?v=2026-11-17-471254';
+import { tautanBerkas, temuanPakai } from './tautan-privat.js?v=2026-11-17-471254';
+import { periksaBerkas, sidikBerkas } from './sidik-berkas.js?v=2026-11-17-471254';
+import { buangBuktiLepas } from './hapus-berkas.js?v=2026-11-17-471254';
 import { ISIAN_PROFIL, KOLOM_PROFIL, tampil as tampilIsian, sama, formLKPS, bacaFormLKPS, pasangEditor, bacaKataKunci,
   setelNamaTopik, htmlPilihTopik, bacaPilihTopik, MAKS_TOPIK, urlBukti, berkasLepas }
-  from './profil-dosen.js?v=2026-11-17-fe8393';
+  from './profil-dosen.js?v=2026-11-17-471254';
 
 /* =====================================================================
    PROFIL SAYA — dosen mengajukan perubahan profilnya sendiri (keputusan
@@ -134,7 +138,7 @@ const POLA = {
 // Kolom yang boleh diajukan, berurutan seperti form; label untuk tabel.
 const ISIAN = ISIAN_PROFIL;
 
-let SAYA = null, ADA_LKPS = true, ADA_ALT = false, MK_PRODI = null;
+let SAYA = null, ADA_LKPS = true, ADA_ALT = false, ADA_FOTO = false, MK_PRODI = null;
 let BAKU = null;   // daftar keahlian baku aktif (61-patch-keahlian-baku.sql); null bila belum ada
 // CV dosen otomatis (pemilik 2026-11-11): tombol di kartu "CV saya".
 document.addEventListener('click', async e => {
@@ -220,6 +224,10 @@ async function mulai(){
   const { data: alt, error: eAlt } = await sb.from('dosen').select('email_alternatif').eq('id', saya.id).maybeSingle();
   ADA_ALT = !eAlt;
   if (ADA_ALT) SAYA.email_alternatif = alt?.email_alternatif ?? null;
+  // Foto profil (patch 85); kueri terpisah: gagal = belum ada patch, kartu foto tidak tampil.
+  const { data: fp, error: eFp } = await sb.from('dosen').select('foto_url').eq('id', saya.id).maybeSingle();
+  ADA_FOTO = !eFp && !!String(window.UPLOAD_URL || '').trim();
+  if (!eFp) SAYA.foto_url = fp?.foto_url ?? null;
   // Daftar keahlian baku (patch 61): dibaca pengguna terdaftar; gagal = belum ada patch, pemilih tidak tampil.
   const [rb, rt] = await Promise.all([
     sb.from('ref_bidang_keahlian').select('kode,nama,nama_en,urutan,aktif').order('urutan'),
@@ -251,6 +259,7 @@ async function gambar(){
         <div><span>NIDN / kode</span>${esc(SAYA.nidn)}</div>
         <div><span>Peran</span>${esc(PERAN[SAYA.peran] || SAYA.peran)}</div>
       </div></div>
+    ${ADA_FOTO ? htmlFoto() : ''}
     <div class="b"><h2>CV saya</h2>
       <p class="ket">CV akademik dalam Word (.docx), disusun dari profil ini dan karya Anda yang sudah diverifikasi prodi.
         Bisa disunting sebelum dipakai untuk hibah, SISTER, atau kenaikan jabatan.</p>
@@ -324,6 +333,58 @@ async function gambar(){
   if (tolak) $('tutup').onclick = () => hapusAjuan(tolak, null);
   if (tunggu) $('batalAjuan').onclick = () => hapusAjuan(tunggu, 'Batalkan ajuan perubahan profil?');
   if (!tunggu && !error) $('kirim').onclick = kirim;
+  if (ADA_FOTO) pasangFoto();
+}
+
+// Foto profil (pemilik 2026-11-16; 85-patch-foto-dosen.sql): diunggah dosen sendiri ke Drive prodi (Apps Script,
+// kind 'karya', dibagikan baca-saja), tautannya disimpan lewat rpc atur_foto_profil tanpa ajuan admin.
+// Mengunggah = setuju fotonya tampil di situs publik; versi kecilnya disalin bangun.py tiap jam.
+const idDrive = u => (String(u || '').match(/\/d\/([A-Za-z0-9_-]{20,})|[?&]id=([A-Za-z0-9_-]{20,})/) || []).slice(1).find(Boolean) || '';
+function htmlFoto(){
+  const id = idDrive(SAYA.foto_url);
+  const inisial = String(SAYA.nama || '').split(/\s+/).filter(w => /^[A-Z]/.test(w)).slice(0, 2).map(w => w[0]).join('');
+  return `<div class="b"><h2>Foto profil</h2>
+    <p class="ket">Tampil di daftar dosen, halaman dosen, dan profil program studi, paling lambat sejam setelah diunggah.
+      Gunakan foto formal dengan wajah jelas, sebaiknya persegi (JPG/PNG). Dengan mengunggah, Anda setuju foto ini
+      ditampilkan di situs publik; hapus kapan saja dengan tombol Hapus foto.</p>
+    <div class="foto-profil">${id ? `<img src="https://drive.google.com/thumbnail?id=${esc(id)}&sz=w200" alt="Foto profil saat ini">`
+      : `<span class="inisial">${esc(inisial || '?')}</span>`}
+      <div><input type="file" id="fotoBerkas" accept=".jpg,.jpeg,.png">
+        <div class="aksi"><button class="btn" type="button" id="fotoUnggah">Unggah foto</button>
+          ${id ? '<button class="btn ghost" type="button" id="fotoHapus">Hapus foto</button>' : ''}
+          <span class="msg" id="fotoMsg"></span></div></div></div></div>`;
+}
+function pasangFoto(){
+  const msg = (k, t) => { const m = $('fotoMsg'); m.className = 'msg ' + k; m.textContent = t; };
+  const simpan = async url => {
+    const { error } = await sb.rpc('atur_foto_profil', { u: url });
+    if (error) throw error;
+    SAYA.foto_url = url;
+  };
+  $('fotoUnggah').onclick = async () => {
+    const f = $('fotoBerkas').files[0];
+    if (!f) return msg('err', 'Pilih berkas foto dulu.');
+    const e = ((f.name.match(/\.([^.]+)$/) || [])[1] || '').toLowerCase();
+    if (!['jpg', 'jpeg', 'png'].includes(e)) return msg('err', 'Unggah foto JPG atau PNG.');
+    if (f.size > 5 * 1024 * 1024) return msg('err', 'Ukuran foto paling besar 5 MB.');
+    $('fotoUnggah').disabled = true; msg('', 'Mengunggah…');
+    try {
+      const { data: { session } } = await sb.auth.getSession();
+      if (!session) throw new Error('Sesi login habis; muat ulang halaman.');
+      const res = await fetch(window.UPLOAD_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ token: session.access_token, kind: 'karya', year: String(new Date().getFullYear()),
+                               group: 'Foto profil', filename: `Foto profil - ${f.name}`, data: await keBase64(f) }) });
+      const out = await res.json();
+      if (!out.ok) throw new Error(out.error || 'Unggah gagal.');
+      await simpan(out.url);
+      await gambar(); msg('ok', 'Foto tersimpan; tampil di situs publik paling lambat sejam lagi.');
+    } catch (err) { msg('err', 'Gagal: ' + (err.message || err)); $('fotoUnggah').disabled = false; }
+  };
+  if ($('fotoHapus')) $('fotoHapus').onclick = async () => {
+    if (!confirm('Hapus foto profil dari situs publik? Berkas di Drive tidak ikut terhapus.')) return;
+    try { await simpan(null); await gambar(); msg('ok', 'Foto dihapus dari situs publik (paling lambat sejam lagi).'); }
+    catch (err) { msg('err', 'Gagal: ' + (err.message || err)); }
+  };
 }
 
 async function hapusAjuan(aj, tanya){

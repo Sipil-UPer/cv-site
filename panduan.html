@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-17-fe8393">
+<link rel="stylesheet" href="tema.css?v=2026-11-17-471254">
 <style>
   /* Panduan pengguna ruang kerja (pemilik 2026-11-04). Bagian admin hanya
      tampil untuk peran admin. Perbarui bila tombol atau halaman berubah. */
@@ -40,7 +40,7 @@
   @media(max-width:640px){nav.isi ol{columns:1}.wrap{padding:18px 16px 60px}}
   @media print{nav.isi{display:none}section{break-inside:avoid}}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-17-fe8393">
+<link rel="stylesheet" href="kepala.css?v=2026-11-17-471254">
 </head>
 <body>
 
@@ -254,6 +254,7 @@
     <p><b>Berkas untuk mahasiswa.</b> Centang kolom <b>Mahasiswa</b> di tab Dokumen untuk menampilkan dokumen itu di halaman publik <a href="berkas-mahasiswa.html">Berkas mahasiswa</a> (tanpa login; tautannya juga ada di beranda). Pengumuman seperti jadwal sidang TA diunggah dengan jenis <b>Pengumuman untuk mahasiswa</b>; isi <b>berlaku sampai</b> (tombol Nomor/tanggal) supaya pengumuman hilang sendiri setelah tanggal itu. Berkas privat tidak bisa dicentang. Pengumuman singkat tanpa berkas, tanya-jawab (pertanyaan yang sering ditanya), dan kotak masuk pertanyaan/masukan mahasiswa dikelola di menu <a href="kelola-mahasiswa.html">Layanan mahasiswa</a> (Operasional). Pengumuman yang berlaku juga tampil di pita atas beranda. Kiriman mahasiswa hanya dibaca admin; pertanyaan yang sering muncul bisa dijadikan tanya-jawab publik (tombol <b>Jadikan Tanya-jawab</b>) setelah nama atau data pribadinya dibuang.</p>
     <p><b>Beranda dan halaman dosen.</b> <a href="index.html">Beranda</a> adalah wajah program studi: menu, angka, bidang keahlian, kegiatan dan publikasi terbaru, dosen, dan layanan mahasiswa. Dasbor kinerja (angka dan grafik) ada di <a href="kinerja.html">Kinerja program studi</a>. Setiap jam pembangunan situs menulis satu halaman per dosen (<code>dosen/nama-dosen.html</code>, teksnya terbaca mesin pencari) dan <code>sitemap.xml</code>. Kalimat ciri khas prodi, alamat dan kontak, media sosial, dan tautan pendaftaran diisi di <code>config.yaml</code> bagian <code>public_site</code>; bagian yang kosong tidak ditampilkan.</p>
     <p><b>Kabar kegiatan.</b> Kuliah tamu, kunjungan lapangan, seminar, pengabdian, kompetisi, dan kerja sama diajukan dosen atau admin di <a href="kabar-kegiatan.html">Operasional › Kabar kegiatan</a>, lengkap dengan foto. Setelah admin menekan <b>Terbitkan</b>, kabar tampil di beranda dan halaman Kabar kegiatan paling lambat sejam kemudian; <b>Tarik dari situs</b> menurunkannya. Status akreditasi di beranda diambil dari Data prodi › Prodi di UPPS (baris "prodi ini") dan hanya tampil selama masih berlaku.</p>
+    <p><b>Foto profil dosen.</b> Setiap dosen dapat mengunggah fotonya sendiri di <a href="profil.html">Profil saya</a> (kartu Foto profil), tanpa persetujuan admin. Foto tampil di daftar dosen, halaman dosen, pengelola, dan koordinator laboratorium paling lambat sejam kemudian, dan bisa dihapus dosen kapan saja. Foto yang dipasang admin di <code>site/foto-dosen/</code> tetap dipakai untuk dosen yang belum mengunggah.</p>
     <p><b>Laboratorium.</b> Admin mengisi profil tiap laboratorium di <a href="kelola-laboratorium.html">Operasional › Laboratorium</a>: ringkasan, koordinator, mata kuliah praktikum, layanan pengujian untuk pihak luar, penelitian terkait yang sudah terverifikasi, dan foto. Daftar alat tidak diisi di sana, tetapi diambil dari Data prodi › Prasarana &amp; alat (LKPS 5.a) untuk prasarana yang dipilih, sehingga alat cukup diisi sekali. Halaman publik Laboratorium diperbarui paling lambat sejam kemudian; yang tampil dari LKPS hanya nama alat dan jumlahnya.</p>
     <p><b>Profil program studi.</b> Halaman publik <a href="profil-prodi.html">Profil program studi</a> memuat sambutan, visi-misi-tujuan (Data prodi › VMTS), profil lulusan kurikulum terbaru (Kurikulum › Profil lulusan), status akreditasi yang masih berlaku (Data prodi › Prodi di UPPS), pengelola, dan sejarah. Sambutan, sejarah, dan pengelola diisi admin di <a href="kelola-profil.html">Operasional › Profil prodi</a>; bagian yang belum diisi tidak tampil.</p>
     <p><b>Kerja sama di situs.</b> Setiap kerja sama di Data prodi › Kerja sama tampil di halaman publik <a href="kerja-sama.html">Kerja sama</a> (mitra, jenis, tingkat, judul kegiatan, manfaat, masa berlaku, dan status berlaku/berakhir), bersama mitra yang tercatat di publikasi, penelitian, dan PkM. Tautan bukti tidak pernah tampil. Kerja sama yang dirahasiakan dicentang <b>Sembunyikan dari situs publik</b>.</p>
@@ -350,7 +351,7 @@
   </div>
 </main>
 
-<script src="config.js?v=2026-11-17-fe8393"></script>
+<script src="config.js?v=2026-11-17-471254"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -367,7 +368,7 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-17-fe8393';
+import { gerbang } from './menu.js?v=2026-11-17-471254';
 
 // Bagian admin hanya untuk peran admin (isinya bukan rahasia; disembunyikan
 // supaya panduan dosen tetap ringkas).
