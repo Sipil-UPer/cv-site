@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-16-5b08f1">
+<link rel="stylesheet" href="tema.css?v=2026-11-16-27019e">
 <style>
   /* Daftar publik (pemilik 2026-11-04): beranda hanya grafik; tiap angka
      rekap membuka daftarnya di sini. Masyarakat umum melihat daftar saja —
@@ -132,7 +132,7 @@ function render(){
   if (D.institusi) $('hLogo').alt = D.institusi;
   $('hJudul').textContent = judul;
   document.title = [judul, [D.prodi, D.institusi].filter(Boolean).join(' ')].filter(Boolean).join(' — ');
-  $('nav').innerHTML = JENIS.map(([k, l]) => `<a href="${k === 'mitra' ? 'mitra.html' : 'daftar.html?jenis=' + k}"${
+  $('nav').innerHTML = JENIS.map(([k, l]) => `<a href="${k === 'mitra' ? 'kerja-sama.html' : 'daftar.html?jenis=' + k}"${
     k === pilih ? ' aria-current="page"' : ''}>${l}</a>`).join('');
   ({ dosen, publikasi, penelitian: () => kegiatan('penelitian'), pkm: () => kegiatan('pkm'), prestasi })[pilih]();
   // ?q= dari pencarian menyeluruh (cari.js): isi kotak cari lalu saring.

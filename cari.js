@@ -81,7 +81,7 @@ export function indeksPublik(D, aktif = () => true){
     ['daftar.html?jenis=penelitian', 'Daftar penelitian', 'penelitian dosen', 'riset'],
     ['daftar.html?jenis=pkm', 'Daftar pengabdian', 'pengabdian kepada masyarakat', 'pkm'],
     ['prestasi.html', 'Prestasi mahasiswa', 'lomba dan kompetisi', 'juara'],
-    ['mitra.html', 'Mitra kerja sama', 'mitra karya dan kerja sama', 'mou'],
+    ['kerja-sama.html', 'Kerja sama', 'mitra karya dan kerja sama resmi', 'mou'],
     ['hasil-survei.html', 'Hasil survei kepuasan', 'rekap survei', 'kepuasan'],
   ];
   if (aktif('sdgs')) umum.push(['sdgs.html', 'Rekap SDGs', 'karya per tujuan pembangunan berkelanjutan', 'sdg']);
@@ -113,7 +113,7 @@ export function indeksPublik(D, aktif = () => true){
     const ds = daftarNama([].concat(r.dosen || []));
     xs.push(entri('karya', r.nama_kegiatan, ['Rekognisi', r.tahun, ds.join(', ')].filter(Boolean).join(' · '), keDosen(ds[0])));
   }
-  for (const [m, n] of mitra) xs.push(entri('mitra', m, `${n} karya bersama`, 'mitra.html'));
+  for (const [m, n] of mitra) xs.push(entri('mitra', m, `${n} karya bersama`, 'kerja-sama.html'));
   return xs;
 }
 

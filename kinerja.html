@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-16-5b08f1">
+<link rel="stylesheet" href="tema.css?v=2026-11-16-27019e">
 <style>
   /* =================================================================
      PALET — sesuaikan dengan pedoman identitas resmi institusi bila ada.
@@ -87,7 +87,7 @@
   .angka>*{flex:1 1 148px;padding:18px 20px 20px;
            border-right:1px solid rgba(255,255,255,.12)}
   .angka>*:last-child{border-right:0}
-  /* kotak yang bisa diklik (Mitra -> mitra.html, pemilik 2026-11-04) */
+  /* kotak yang bisa diklik (Mitra -> kerja-sama.html; dulu mitra.html, pemilik 2026-11-04) */
   .angka a{text-decoration:none;transition:background .15s}
   .angka a:hover{background:rgba(255,255,255,.08)}
   .angka a span::after{content:' \2192'}
@@ -227,7 +227,7 @@
 
 <main class="wrap" id="isi"></main>
 
-<script src="config.js?v=2026-11-16-5b08f1"></script>
+<script src="config.js?v=2026-11-16-27019e"></script>
 <script>
 const N = n => new Intl.NumberFormat('id-ID').format(n);
 const esc = s => String(s ?? '').replace(/[&<>"']/g,c=>
@@ -412,7 +412,7 @@ function bangunGrafik(){
 }
 
 // Mitra unik dari publikasi, penelitian, dan PkM; aturan sama dengan
-// kumpulkan() di mitra.html (nama tanpa beda huruf besar-kecil).
+// halaman_publik.mitra_karya (kerja-sama.html; nama tanpa beda huruf besar-kecil).
 function jumlahMitra(){
   const nama = new Set();
   [...D.publikasi, ...D.kegiatan].forEach(x => (x.mitra || []).forEach(m => {
@@ -436,7 +436,7 @@ function render(){
     [D.kegiatan.filter(k=>k.kategori==='penelitian').length, 'Penelitian', 'daftar.html?jenis=penelitian'],
     [D.kegiatan.filter(k=>k.kategori==='pkm').length,        'Pengabdian', 'daftar.html?jenis=pkm'],
     [totalPrestasi,      'Prestasi mahasiswa', 'daftar.html?jenis=prestasi'],
-    [jumlahMitra(),      'Mitra kerja sama',   'mitra.html'],
+    [jumlahMitra(),      'Mitra kerja sama',   'kerja-sama.html'],
     // SDGs (pemilik 2026-11-11): karya terkait SDGs -> sdgs.html. Kartu ini dan Topik keahlian
     // tidak tampil bila modulnya dimatikan (config.js FITUR_MATI, site/fitur.js).
     [[...D.publikasi, ...D.kegiatan, ...(D.luaran_dosen||[])].filter(k => (k.sdgs||[]).length).length,
@@ -447,7 +447,7 @@ function render(){
   ].filter(([, , href]) => !(window.FITUR_MATI || []).includes({ 'sdgs.html': 'sdgs', 'keahlian.html?tab=peta': 'kepakaran' }[href]))
    .map(([v,l,href])=>`<a href="${href}"><b>${N(v)}</b><span>${l}</span></a>`).join('');
   // Jumlah topik persis sama dengan keahlian.html (petaTopik, termasuk bidang keahlian).
-  import('./keahlian.js?v=2026-11-16-5b08f1').then(m => {
+  import('./keahlian.js?v=2026-11-16-27019e').then(m => {
     const b = document.querySelector('#angka a[href^="keahlian.html"] b');
     // Dengan daftar baku (patch 61): topik baku yang sudah punya dosen (memilih atau berkarya).
     const B = m.daftarBaku(D), P = m.profilKeahlian(D);
@@ -455,7 +455,7 @@ function render(){
   }).catch(() => {});
 
   // Cari data publik (pemilik 2026-11-12): dosen, karya, mitra, halaman umum dari data.json.
-  import('./cari.js?v=2026-11-16-5b08f1').then(m => {
+  import('./cari.js?v=2026-11-16-27019e').then(m => {
     const idx = m.indeksPublik(D, k => !(window.FITUR_MATI || []).includes(k));
     const kotak = document.getElementById('cariUmum'), panel = document.getElementById('hasilUmum');
     const e = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -483,7 +483,7 @@ function render(){
   }).catch(() => { document.querySelector('.cari-umum')?.remove(); });
 
   // Beranda hanya grafik; daftarnya dibuka lewat angka rekap di atas
-  // (daftar.html, mitra.html), pemilik 2026-11-04.
+  // (daftar.html, kerja-sama.html), pemilik 2026-11-04.
   document.getElementById('isi').innerHTML = `
     ${bangunGrafik()}
 

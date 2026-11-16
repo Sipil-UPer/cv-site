@@ -1,17 +1,17 @@
 // Kerangka halaman publik (pemilik 2026-11-16): kepala bergaya situs universitas (deret logo di bilah
 // biru, nama prodi, menu turun) dan kaki halaman yang sama di halaman publik. Pemakaian:
-//   import { pasangKerangka, isiKerangka } from './kerangka.js?v=2026-11-16-5b08f1';
+//   import { pasangKerangka, isiKerangka } from './kerangka.js?v=2026-11-16-27019e';
 //   pasangKerangka({ aktif: 'akademik' });   // segera, sebelum data.json
 //   isiKerangka(D);                           // setelah data.json: nama prodi, kontak, media sosial
 // Logo: window.LOGO_KEPALA di config.js; tanpa itu logo.png. Menu hanya memuat halaman yang ada
 // dan modul yang menyala (fitur.js). Tautan relatif (situs akan pindah ke subdomain kampus).
-import { halamanAktif } from './fitur.js?v=2026-11-16-5b08f1';
+import { halamanAktif } from './fitur.js?v=2026-11-16-27019e';
 
 export const MENU = [
   { id: 'profil', judul: 'Profil', isi: [
     { judul: 'Visi dan misi', href: 'kurikulum.html#visi' },
     { judul: 'Kinerja program studi', href: 'kinerja.html', ket: 'angka dan grafik kinerja' },
-    { judul: 'Mitra kerja sama', href: 'mitra.html' },
+    { judul: 'Kerja sama', href: 'kerja-sama.html' },
   ] },
   { id: 'akademik', judul: 'Akademik', isi: [
     { judul: 'Kurikulum', href: 'kurikulum.html' },
@@ -161,7 +161,7 @@ export function pasangKerangka({ aktif = '' } = {}){
       <li><a href="prestasi.html">Prestasi mahasiswa</a></li></ul></div>
     <div><h4>Riset</h4><ul>
       <li><a href="daftar.html?jenis=dosen">Dosen</a></li><li><a href="daftar.html?jenis=publikasi">Publikasi</a></li>
-      <li><a href="mitra.html">Mitra kerja sama</a></li><li><a href="kinerja.html">Kinerja program studi</a></li></ul></div>
+      <li><a href="kerja-sama.html">Kerja sama</a></li><li><a href="kinerja.html">Kinerja program studi</a></li></ul></div>
     <div><div data-kr="sosial" hidden></div><h4>Tautan</h4><ul>
       <li><a href="ruang-kerja.html">Ruang kerja dosen</a></li><li><a href="privasi.html">Kebijakan privasi</a></li><li><a href="peta-situs.html">Peta situs</a></li></ul></div>
   </div>
