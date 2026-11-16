@@ -5,516 +5,332 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Kinerja Program Studi Teknik Sipil</title>
 <meta name="description" content="Publikasi, penelitian, pengabdian kepada masyarakat, dan prestasi mahasiswa Program Studi Teknik Sipil.">
+<meta property="og:title" content="Kinerja program studi">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-16-e72bee">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tema.css?v=2026-11-16-890867">
 <style>
-  /* =================================================================
-     PALET — sesuaikan dengan pedoman identitas resmi institusi bila ada.
-     Nilai di bawah adalah pendekatan warna korporat Pertamina
-     (biru tua, merah, hijau) dan belum diverifikasi ke brand guideline.
-     Cukup ubah enam baris ini untuk mengganti seluruh tema.
-     ================================================================= */
+  /* Kinerja program studi (pemilik 2026-11-16): kerangka publik yang sama dengan halaman lain, angka per
+     kelompok, dan grafik SVG tanpa pustaka luar. Warna grafik divalidasi (skill dataviz): dua kategori
+     biru-3 + oranye; data berurutan satu rona biru, gelap = tingkat tertinggi. */
   *{box-sizing:border-box}
-  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
-       font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
-  .wrap{max-width:1040px;margin:0 auto;padding:0 20px 90px}
-  a{color:var(--biru-2)}
-
-  /* ---------- kop: biru tua dengan motif rangka batang ----------
-     Motif diagonal di latar mengacu pada rangka batang jembatan —
-     penanda bidang teknik sipil tanpa perlu gambar dekoratif. */
-  .hero{position:relative;background:var(--biru);color:#fff;overflow:hidden;
-        border-bottom:4px solid var(--merah)}
-  .hero::before{content:'';position:absolute;inset:0;opacity:.13;
-    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='70' viewBox='0 0 140 70'%3E%3Cg fill='none' stroke='%23ffffff' stroke-width='1'%3E%3Cpath d='M0 69.5H140M0 .5H140'/%3E%3Cpath d='M0 70L35 0L70 70L105 0L140 70'/%3E%3Cpath d='M35 0V70M105 0V70'/%3E%3C/g%3E%3C/svg%3E");
-    background-size:140px 70px}
-  .hero-in{position:relative;max-width:1040px;margin:0 auto;padding:46px 20px 0}
-  .hero-atas{display:flex;gap:28px;align-items:flex-start;flex-wrap:wrap}
-  .hero-teks{flex:1;min-width:270px}
-  .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.16em;
-           text-transform:uppercase;color:var(--biru-m2)}
-  h1{font-family:var(--serif);font-size:clamp(27px,4.6vw,40px);font-weight:600;
-     letter-spacing:-.018em;margin:10px 0 0;line-height:1.12;color:#fff}
-  .inst{color:var(--biru-m4);font-size:15px;margin-top:7px}
-  .logo-kampus{display:inline-block;background:#fff;border-radius:6px;padding:8px 12px;
-               line-height:0;margin-bottom:16px}
-  .logo-kampus img{height:64px}
-  .garis-aksen{width:52px;height:3px;background:var(--merah);margin:18px 0 0}
-
-  .cta{display:inline-flex;align-items:center;gap:9px;text-decoration:none;
-       background:var(--merah);color:#fff;font-weight:600;font-size:14.5px;
-       padding:12px 22px;border-radius:2px;border:1px solid var(--merah);
-       white-space:nowrap;transition:filter .15s}
-  .cta:hover{filter:brightness(1.12)}
-  .cta span{font-family:var(--mono);font-size:16px;line-height:1}
-  .cta2{display:inline-flex;align-items:center;gap:9px;text-decoration:none;
-        background:none;color:#fff;font-weight:500;font-size:14.5px;
-        padding:12px 22px;border-radius:2px;border:1px solid rgba(255,255,255,.45);
-        white-space:nowrap;margin-top:9px;transition:background .15s}
-  .cta2:hover{background:rgba(255,255,255,.12)}
-  .cta2 span{font-family:var(--mono);font-size:16px;line-height:1}
-  .cta-cat{font-size:12.5px;color:var(--biru-m3);margin-top:9px;max-width:236px;line-height:1.45}
-  /* Layanan mahasiswa + pita pengumuman (pemilik 2026-11-16; patch 76-78) */
-  .cta-mhs{display:flex;align-items:center;gap:12px;margin-top:16px;text-decoration:none;
-           background:#fff;color:var(--biru);border:1px solid #fff;border-left:4px solid var(--merah);
-           border-radius:2px;padding:11px 16px 11px 14px;max-width:300px;transition:transform .15s, box-shadow .15s}
-  .cta-mhs:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(0,0,0,.22)}
-  .cta-mhs:focus-visible{outline:2px solid #fff;outline-offset:3px}
-  .cta-mhs svg{flex:none;color:var(--merah)}
-  .cta-mhs .t{flex:1;min-width:0}
-  .cta-mhs b{display:block;font-size:15px;font-weight:700}
-  .cta-mhs small{display:block;font-size:12px;color:var(--muted);margin-top:1px;line-height:1.35}
-  .cta-mhs .p{font-family:var(--mono);font-size:17px;line-height:1}
-  @media(prefers-reduced-motion:reduce){.cta-mhs{transition:none}.cta-mhs:hover{transform:none}}
-  .pita{background:var(--panel);border-bottom:1px solid var(--line)}
-  .pita[hidden]{display:none}
-  .pita-in{max-width:1040px;margin:0 auto;padding:9px 20px;display:flex;gap:6px 14px;align-items:baseline;flex-wrap:wrap;font-size:14px}
-  .pita .lbl{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#fff;
-             background:var(--merah);padding:2px 8px;border-radius:2px;flex:none}
-  .pita ul{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:4px 18px;flex:1;min-width:0}
-  .pita li{min-width:0;overflow-wrap:anywhere}
-  .pita a{color:var(--ink);text-decoration:none}
-  .pita a:hover{text-decoration:underline}
-  .pita .tgl{color:var(--muted);font-size:12.5px;margin-left:5px}
-  .pita .semua{color:var(--biru);font-weight:600;white-space:nowrap}
-  @media(max-width:600px){.pita li:nth-child(n+2){display:none}}   /* ponsel: hanya yang terbaru */
-
-  /* angka utama — satu pita data, bukan kartu terpisah */
-  .angka{display:flex;flex-wrap:wrap;margin-top:36px;
-         border-top:1px solid rgba(255,255,255,.18)}
-  .angka>*{flex:1 1 148px;padding:18px 20px 20px;
-           border-right:1px solid rgba(255,255,255,.12)}
-  .angka>*:last-child{border-right:0}
-  /* kotak yang bisa diklik (Mitra -> kerja-sama.html; dulu mitra.html, pemilik 2026-11-04) */
-  .angka a{text-decoration:none;transition:background .15s}
-  .angka a:hover{background:rgba(255,255,255,.08)}
-  .angka a span::after{content:' \2192'}
-  .angka b{display:block;font-family:var(--mono);font-size:32px;font-weight:400;
-           letter-spacing:-.02em;line-height:1;color:#fff}
-  .angka span{font-family:var(--mono);font-size:10px;letter-spacing:.12em;
-              text-transform:uppercase;color:var(--biru-m2);display:block;margin-top:8px}
-
-  /* ---------- kendali ---------- */
-  .bar{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin:38px 0 4px}
-  .bar h2{font-family:var(--serif);font-size:20px;font-weight:600;margin:0;flex:1;
-          color:var(--biru)}
-  select,input[type=search]{font-family:var(--sans);font-size:13.5px;padding:7px 10px;
-    border:1px solid var(--line);border-radius:2px;background:#fff;color:var(--ink)}
-  input[type=search]{min-width:200px}
-  :focus-visible{outline:2px solid var(--biru-2);outline-offset:1px}
-
-  /* ---------- grafik ---------- */
-  .grafik{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));
-          gap:16px;margin-top:14px}
-  .kartu{background:var(--panel);border:1px solid var(--line);border-radius:2px;
-         padding:18px 20px 16px;border-top:3px solid var(--biru)}
-  .kartu h3{font-family:var(--mono);font-size:10.5px;letter-spacing:.11em;
-            text-transform:uppercase;color:var(--muted);font-weight:400;margin:0 0 3px}
-  .kartu p.ket{font-size:12.5px;color:var(--muted);margin:0 0 14px}
-  .kartu svg{display:block;width:100%;height:auto}
-  .legenda{display:flex;gap:16px;flex-wrap:wrap;margin-top:12px;
-           font-family:var(--mono);font-size:10.5px;letter-spacing:.05em;color:var(--muted)}
-  .legenda i{display:inline-block;width:9px;height:9px;border-radius:1px;margin-right:6px}
-  .gsumbu{font-family:var(--mono);font-size:10.5px;fill:var(--muted)}
-  .ggaris{stroke:var(--line-soft);stroke-width:1}
-  .gnol{stroke:var(--line);stroke-width:1}
-  .gnilai{font-family:var(--mono);font-size:10px;fill:var(--muted)}
-  .gtotal{font-family:var(--mono);font-size:11px;fill:var(--ink)}
-  .batang{transform-origin:center bottom}
-  @media(prefers-reduced-motion:no-preference){
-    .batang{animation:tumbuh .5s cubic-bezier(.22,.8,.3,1) both}
-  }
-  @keyframes tumbuh{from{transform:scaleY(0)}to{transform:scaleY(1)}}
-
-  .mendatar{display:flex;align-items:center;gap:11px;margin-bottom:10px}
-  .mendatar .nm{flex:0 0 36%;font-size:12.5px;color:var(--muted);line-height:1.3}
-  .mendatar .tr{flex:1;background:var(--line-soft);height:17px;border-radius:1px;overflow:hidden}
-  .mendatar .is{height:100%;background:var(--biru-2);border-radius:1px}
-  .mendatar .an{font-family:var(--mono);font-size:12px;width:22px;text-align:right}
-
-  /* ---------- entri ---------- */
-  .list{background:var(--panel);border:1px solid var(--line);border-radius:2px;
-        padding:4px 22px;margin-top:14px}
-  .e{display:flex;gap:16px;padding:15px 0;border-top:1px solid var(--line-soft)}
-  .e:first-child{border-top:0}
-  .thn{font-family:var(--mono);font-size:13px;color:var(--muted);flex:none;width:42px;padding-top:1px}
-  .e-b{flex:1;min-width:0}
-  .e-j{font-weight:500;line-height:1.4}
-  .e-m{font-size:13px;color:var(--muted);margin-top:3px}
-  .e-p{font-family:var(--mono);font-size:11.5px;color:var(--muted);margin-top:5px}
-  .e-p a{color:var(--muted);text-decoration:none;border-bottom:1px dotted var(--line)}
-  .e-p a:hover{color:var(--biru-2);border-bottom-color:var(--biru-3)}
-  .pill{font-family:var(--mono);font-size:9.5px;letter-spacing:.09em;text-transform:uppercase;
-        padding:3px 8px;border-radius:2px;background:var(--biru-m8);color:var(--biru);
-        white-space:nowrap;align-self:flex-start;margin-top:2px}
-  .pill.pkm{background:#E6F3EC;color:var(--hijau)}
-  .kosong{color:var(--muted);font-size:13.5px;padding:22px 0}
-
-  table{width:100%;border-collapse:collapse;font-size:13.5px}
-  th{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
-     color:var(--muted);text-align:left;font-weight:400;padding:12px 10px 10px 0;
-     border-bottom:1px solid var(--line)}
-  td{padding:10px 10px 10px 0;border-bottom:1px solid var(--line-soft)}
-  td.num,th.num{text-align:right;font-family:var(--mono);padding-right:0}
-  .dsn{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:0}
-  .dsn div{padding:13px 16px 13px 0}
-  .dsn b{font-weight:500;display:block}
-  .dsn a{font-family:var(--mono);font-size:11px;margin-right:10px;text-decoration:none}
-  .dsn a:hover{text-decoration:underline}
-
-  footer{margin-top:54px;padding-top:22px;border-top:3px solid var(--biru);
-         font-size:12.5px;color:var(--muted)}
-  footer a{font-weight:500}
-  @media(max-width:560px){.angka>*{flex-basis:50%}}
-  /* Cari data publik (pemilik 2026-11-12; cari.js) */
-  .cari-umum{position:relative;margin-top:22px;max-width:620px}
-  .cari-umum input{width:100%;font:inherit;font-size:15px;padding:10px 14px;border-radius:4px;border:1px solid rgba(255,255,255,.35);
-    background:rgba(255,255,255,.1);color:#fff}
-  .cari-umum input::placeholder{color:rgba(255,255,255,.65)}
-  .cari-umum input:focus{outline:none;background:#fff;color:var(--ink)}
-  .hasil-umum{position:absolute;left:0;right:0;top:calc(100% + 6px);z-index:30;max-height:60vh;overflow:auto;background:#fff;
-    color:var(--ink);border:1px solid var(--line);border-radius:4px;box-shadow:0 8px 24px rgba(0,0,0,.2);padding:6px}
-  .hasil-umum h4{margin:8px 8px 2px;font:600 11px/1.4 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
-  .hasil-umum a{display:block;padding:6px 8px;border-radius:3px;color:var(--ink);text-decoration:none}
-  .hasil-umum a b{display:block;font-weight:600;color:var(--biru-2)}
-  .hasil-umum a span{display:block;font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .hasil-umum a:hover,.hasil-umum a.aktif{background:var(--line-soft)}
-  .hasil-umum p{margin:8px;color:var(--muted);font-size:13px}
-
-  /* ---------- polesan ---------- */
-  .kartu{transition:box-shadow .18s, transform .18s}
-  .kartu:hover{box-shadow:0 3px 14px rgba(var(--biru-rgb),.08);transform:translateY(-1px)}
-  table.rin tbody tr:nth-child(even) td,
-  table.sp  tbody tr:nth-child(even) td,
-  table.mx  tbody tr:nth-child(even) td{background:rgba(var(--biru-rgb),.022)}
-  table.rin tbody tr:hover td, table.sp tbody tr:hover td{background:rgba(var(--biru-rgb),.055)}
-  :focus-visible{outline:2px solid var(--biru-2);outline-offset:1px}
-  @media(prefers-reduced-motion:reduce){.kartu{transition:none}.kartu:hover{transform:none}}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15.5px;line-height:1.6}
+  .s1{--w:var(--biru-3)} .s2{--w:#eb6834}
+  .o1{--w:var(--biru-gelap)} .o2{--w:var(--biru-3)} .o3{--w:#4F86C6} .o4{--w:#8FB2DD}
+  .kepala{background:var(--biru);color:#fff}
+  .kepala-in{max-width:1120px;margin:0 auto;padding:38px 20px 30px;display:flex;flex-wrap:wrap;gap:16px 30px;align-items:flex-end;justify-content:space-between}
+  .eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--biru-m2)}
+  h1{font-family:var(--serif);font-size:clamp(30px,4.6vw,48px);margin:8px 0 6px;line-height:1.08}
+  .kepala p{margin:0;color:var(--biru-m4);max-width:620px}
+  .periode{display:inline-flex;border:1px solid rgba(255,255,255,.45)}
+  .periode button{font:inherit;font-size:14px;background:transparent;color:#fff;border:0;padding:7px 14px;cursor:pointer}
+  .periode button[aria-pressed="true"]{background:#fff;color:var(--biru);font-weight:600}
+  .ringkas{max-width:1120px;margin:0 auto;padding:0 20px;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+  .ringkas a{background:var(--biru-gelap);color:#fff;text-decoration:none;padding:14px 18px;border-left:1px solid rgba(255,255,255,.15)}
+  .ringkas a:hover{background:var(--biru)}
+  .ringkas b{display:block;font-family:var(--serif);font-size:30px;line-height:1.1}
+  .ringkas span{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--biru-m4)}
+  .ringkas small{display:block;font-size:12.5px;color:var(--biru-m2);margin-top:2px}
+  .isi{max-width:1120px;margin:0 auto;padding:8px 20px 50px}
+  .bag{margin-top:34px}
+  .bag-kepala{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:6px 16px;margin-bottom:12px}
+  h2{font-family:var(--serif);font-size:28px;color:var(--biru);margin:0;padding-bottom:4px;border-bottom:3px solid var(--aksen)}
+  .lagi{font-weight:600;color:var(--biru-2);text-decoration:none}
+  .grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,440px),1fr));gap:16px}
+  .kartu{background:#fff;border:1px solid var(--line);padding:16px 18px}
+  .kartu h3{margin:0;font-size:16px}
+  .kartu .ket{margin:2px 0 10px;color:var(--muted);font-size:13.5px}
+  .kosong{color:var(--muted);font-size:14px;margin:6px 0}
+  .angka-k{display:flex;flex-wrap:wrap;gap:18px 30px;margin:4px 0 6px}
+  .angka-k div b{display:block;font-family:var(--serif);font-size:32px;color:var(--ink);line-height:1.05}
+  .angka-k div span{font-size:13px;color:var(--muted)}
+  .legenda{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12.5px;color:var(--muted);margin:0 0 4px}
+  .legenda i{display:inline-block;width:10px;height:10px;background:var(--w);margin-right:5px;border-radius:2px;vertical-align:-1px}
+  svg.grafik{width:100%;height:auto;display:block;overflow:visible}
+  svg.grafik text{font-family:var(--mono);font-size:11px;fill:var(--muted)}
+  svg.grafik text.total{fill:var(--ink);font-weight:500}
+  svg.grafik .bantu{stroke:var(--line);stroke-width:1}
+  svg.grafik .dasar{stroke:var(--muted);stroke-width:1}
+  svg.grafik rect.m{fill:var(--w)}
+  svg.grafik .kena{fill:transparent;cursor:default}
+  svg.grafik g.th:hover rect.m{opacity:.85}
+  .mendatar{display:grid;grid-template-columns:minmax(120px,40%) 1fr 34px;gap:10px;align-items:center;font-size:14px;margin:7px 0}
+  .mendatar .tr{height:12px;background:var(--line-soft);border-radius:0 3px 3px 0}
+  .mendatar .is{height:100%;background:var(--w);border-radius:0 3px 3px 0}
+  .mendatar .an{font-family:var(--mono);text-align:right}
+  details.tabel{margin-top:8px;font-size:13px}
+  details.tabel summary{cursor:pointer;color:var(--muted)}
+  details.tabel table{border-collapse:collapse;margin-top:6px;width:100%}
+  details.tabel th, details.tabel td{border-bottom:1px solid var(--line-soft);padding:3px 6px;text-align:right}
+  details.tabel th:first-child, details.tabel td:first-child{text-align:left}
+  .daftar-r{list-style:none;margin:0;padding:0}
+  .daftar-r li{padding:7px 0;border-bottom:1px solid var(--line-soft);font-size:14px}
+  .daftar-r li:last-child{border-bottom:0}
+  .daftar-r small{display:block;color:var(--muted);font-size:12.5px}
+  .proporsi{display:flex;height:14px;margin:8px 0 6px;gap:2px}
+  .proporsi div{background:var(--w)}
+  .proporsi div:first-child{border-radius:3px 0 0 3px} .proporsi div:last-child{border-radius:0 3px 3px 0}
+  #tip{position:fixed;pointer-events:none;background:var(--ink);color:#fff;font-size:12.5px;line-height:1.45;padding:7px 10px;
+    border-radius:4px;max-width:240px;z-index:50;box-shadow:0 6px 18px rgba(0,0,0,.2)}
+  #tip b{display:block;font-family:var(--mono);font-weight:500;margin-bottom:2px}
+  #tip i{display:inline-block;width:8px;height:8px;background:var(--w);margin-right:6px;border-radius:2px}
+  .catatan{margin-top:30px;color:var(--muted);font-size:13px}
 </style>
 </head>
 <body>
-
-<div class="pita" id="pita" hidden></div>
-
-<header class="hero">
-  <div class="hero-in">
-    <div class="hero-atas">
-      <div class="hero-teks">
-        <a href="index.html" style="display:inline-block;margin-bottom:16px;font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--biru-m2);text-decoration:none">&larr; Beranda program studi</a>
-        <div class="logo-deret"><img src="logo-up.webp" alt="Universitas Pertamina" id="hLogo" width="271" height="200"><img src="logo-dekade.webp" alt="1 Dekade Universitas Pertamina" width="271" height="200"><img src="logo-diktisaintek.webp" alt="Diktisaintek Berdampak" width="397" height="136"></div>
-        <div class="eyebrow">Kinerja program studi</div>
-        <h1 id="hProdi">Memuat…</h1>
-        <div class="inst" id="hInst"></div>
-        <div class="garis-aksen"></div>
-      </div>
-      <div>
-        <a class="cta" href="ruang-kerja.html">Masuk ruang kerja <span>&rarr;</span></a>
-        <a class="cta-mhs" href="berkas-mahasiswa.html">
-          <svg viewBox="0 0 24 24" width="30" height="30" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7"
-            stroke-linecap="round" stroke-linejoin="round"><path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c0 1.7 2.7 3 6 3s6-1.3 6-3v-5"/><path d="M22 9v6"/></svg>
-          <span class="t"><b>Layanan mahasiswa</b><small>Pengumuman · berkas · tanya-jawab · masukan</small></span>
-          <span class="p">&rarr;</span></a>
-        <a class="cta2" href="kurikulum.html">Kurikulum <span>&rarr;</span></a>
-      </div>
+<main id="utama">
+  <header class="kepala"><div class="kepala-in">
+    <div><div class="eyebrow" id="hProdi">Program studi</div>
+      <h1>Kinerja program studi</h1>
+      <p>Dosen, publikasi, penelitian dan pengabdian, prestasi mahasiswa, serta kerja sama, dari data terverifikasi.</p></div>
+    <div class="periode" role="group" aria-label="Periode">
+      <button type="button" data-p="semua" aria-pressed="true">Semua tahun</button>
+      <button type="button" data-p="3ts" aria-pressed="false">3 TS terakhir</button>
     </div>
-    <div class="angka" id="angka"></div>
-    <div class="cari-umum"><input type="search" id="cariUmum" autocomplete="off" aria-label="Cari data publik"
-      placeholder="Cari dosen, publikasi, penelitian, pengabdian, mitra…"><div class="hasil-umum" id="hasilUmum" hidden></div></div>
-  </div>
-</header>
-
-<main class="wrap" id="isi"></main>
-
-<script src="config.js?v=2026-11-16-e72bee"></script>
+  </div></header>
+  <nav class="ringkas" id="ringkas" aria-label="Angka utama"></nav>
+  <div class="isi" id="isi"><p class="kosong">Memuat…</p></div>
+</main>
+<div id="tip" hidden></div>
+<script src="config.js?v=2026-11-16-890867"></script>
 <script>
+// Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
+// halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
+addEventListener('error', function (e) {
+  if (document.getElementById('galat-muat')) return;
+  var d = document.createElement('div');
+  d.id = 'galat-muat';
+  d.style.cssText = 'margin:16px;padding:12px 14px;border:1px solid var(--merah);' +
+    'background:var(--merah-m3);color:var(--ink);font:14px/1.5 system-ui,sans-serif';
+  d.textContent = 'Halaman gagal dimuat: ' + (e.message || 'galat skrip') +
+    '. Tekan Ctrl+Shift+R untuk memuat ulang tanpa cache; bila tetap muncul, kirim pesan ini ke admin.';
+  document.body.insertBefore(d, document.body.firstChild);
+});
+</script>
+<script type="module">
+import { pasangKerangka, isiKerangka } from './kerangka.js?v=2026-11-16-890867';
+pasangKerangka({ aktif: 'profil' });
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const N = n => new Intl.NumberFormat('id-ID').format(n);
-const esc = s => String(s ?? '').replace(/[&<>"']/g,c=>
-  ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const rapi = s => s ? String(s).replace(/_/g,' ') : '';
-const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const rapi = s => { const t = String(s || '').replace(/_/g, ' '); return t.charAt(0).toUpperCase() + t.slice(1); };
+const mati = k => (window.FITUR_MATI || []).includes(k);
 
-let D = null;
+// Mutu publikasi dalam 4 tingkat berurutan (8 kelas indeksasi terlalu banyak untuk satu rona).
+const MUTU = [['o1', 'Scopus Q1–Q2', ['scopus_q1', 'scopus_q2']], ['o2', 'Scopus Q3–Q4', ['scopus_q3', 'scopus_q4']],
+  ['o3', 'SINTA 1–4', ['sinta_1_2', 'sinta_3_4']], ['o4', 'SINTA 5–6 / lainnya', null]];
+const mutu = p => (MUTU.find(m => m[2] && m[2].includes(p.indeksasi)) || MUTU[3])[0];
+const TINGKAT = [['o1', 'Internasional', 'internasional'], ['o2', 'Nasional', 'nasional'], ['o4', 'Wilayah/lokal', 'wilayah_lokal']];
+const JABATAN = [['guru_besar', 'Guru Besar'], ['lektor_kepala', 'Lektor Kepala'], ['lektor', 'Lektor'],
+  ['asisten_ahli', 'Asisten Ahli'], ['tanpa_jabatan', 'Belum berjabatan fungsional']];
+const BENTUK = { invited_speaker: 'Pembicara undangan', keynote_speaker: 'Pembicara kunci', visiting_lecturer: 'Dosen tamu',
+  editor: 'Editor', reviewer: 'Penelaah (reviewer)', juri: 'Juri', penghargaan: 'Penghargaan', tenaga_ahli: 'Tenaga ahli' };
 
-// Pita pengumuman (pemilik 2026-11-16): 3 pengumuman terbaru yang masih berlaku, teks (77) dan berkas
-// berjenis pengumuman (76). REST RPC langsung dengan kunci publik (header apikey, diuji 2026-11-16),
-// tanpa memuat pustaka Supabase di beranda. Gagal atau kosong -> pita tetap tersembunyi.
-function muatPita(){
-  if (!window.SB_URL || !window.SB_KEY) return;
-  const rpc = f => fetch(window.SB_URL + '/rest/v1/rpc/' + f, { method: 'POST',
-    headers: { apikey: window.SB_KEY, 'Content-Type': 'application/json' }, body: '{}' })
-    .then(r => r.ok ? r.json() : []).catch(() => []);
-  Promise.all([rpc('pengumuman_mahasiswa_aktif'), rpc('dokumen_mahasiswa')]).then(([teks, dok]) => {
-    const xs = [...(Array.isArray(teks) ? teks : []),
-                ...(Array.isArray(dok) ? dok : []).filter(d => d.jenis === 'pengumuman')]
-      .sort((a, b) => String(b.diperbarui).localeCompare(String(a.diperbarui)));
-    if (!xs.length) return;
-    const tgl = s => String(s || '').slice(0, 10).split('-').reverse().join('/');
-    const el = document.getElementById('pita');
-    el.innerHTML = `<div class="pita-in"><span class="lbl">Pengumuman</span><ul>${xs.slice(0, 3).map(x =>
-      `<li><a href="berkas-mahasiswa.html#pengumuman">${esc(x.judul || 'Pengumuman')}</a>${x.berlaku_sampai
-        ? `<span class="tgl">s.d. ${esc(tgl(x.berlaku_sampai))}</span>` : ''}</li>`).join('')}</ul>
-      <a class="semua" href="berkas-mahasiswa.html#pengumuman">${xs.length > 1 ? `Semua (${xs.length})` : 'Lihat'} &rarr;</a></div>`;
-    el.hidden = false;
-  });
-}
-muatPita();
+let D = null, PERIODE = 'semua';
 
-fetch('data.json?v=' + Date.now())
-  .then(r => { if(!r.ok) throw new Error(r.status); return r.json(); })
-  .then(d => { D = d; render(); })
-  .catch(() => {
-    document.getElementById('hProdi').textContent = 'Data belum tersedia';
-    document.getElementById('isi').innerHTML =
-      `<p class="kosong">Data sedang diperbarui. Silakan muat ulang beberapa saat lagi.</p>`;
-  });
-
-// =====================================================================
-//  Grafik batang, digambar langsung sebagai SVG.
-//  Tanpa pustaka luar supaya halaman tetap satu berkas dan tidak
-//  bergantung pada CDN yang bisa berubah atau hilang.
-//
-//  mode 'tumpuk'   — batang bertumpuk, untuk komposisi dalam satu total
-//  mode 'kelompok' — batang berdampingan, untuk membandingkan dua hal
-// =====================================================================
-function skalaRapi(maks){
-  if(maks <= 4) return {atas:4, langkah:1};
-  const kasar = maks/4;
-  const p = Math.pow(10, Math.floor(Math.log10(kasar)));
-  const langkah = [1,2,2.5,5,10].map(x=>x*p).find(x=>x>=kasar) || 10*p;
-  return {atas: Math.ceil(maks/langkah)*langkah, langkah};
+// Periode: semua tahun, atau 3 TS terakhir (tahun_ts >= TS terbaru - 2), sama dengan Rekap SDGs.
+function saring(xs){
+  if (PERIODE === 'semua') return xs || [];
+  const maks = Math.max(0, ...[...D.publikasi, ...D.kegiatan, ...(D.prestasi_agregat || [])].map(x => +x.tahun_ts || 0));
+  return (xs || []).filter(x => +x.tahun_ts >= maks - 2);
 }
 
-function chartBatang(label, seri, mode='tumpuk'){
-  const W=580, H=250, ml=40, mr=12, mt=22, mb=38;
-  const iw=W-ml-mr, ih=H-mt-mb;
-
-  const total = label.map((_,i)=> seri.reduce((a,s)=>a+(s.nilai[i]||0),0));
-  const puncak = mode==='tumpuk'
-    ? Math.max(...total, 0)
-    : Math.max(0, ...seri.flatMap(s=>s.nilai));
-  if(!puncak) return '';
-
-  const {atas, langkah} = skalaRapi(puncak);
-  const y = v => mt + ih - (v/atas)*ih;
-  const pita = iw/label.length;
-
-  let g = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Grafik batang">`;
-
-  for(let v=0; v<=atas; v+=langkah){
-    g += `<line class="${v?'ggaris':'gnol'}" x1="${ml}" y1="${y(v)}" x2="${W-mr}" y2="${y(v)}"/>`
-       + `<text class="gnilai" x="${ml-9}" y="${y(v)+3.5}" text-anchor="end">${v}</text>`;
-  }
-
-  const aktif = seri.filter(s=>s.nilai.some(v=>v>0));
-  const lebarTumpuk = Math.min(54, pita*0.46);
-  const nSeri = Math.max(aktif.length,1);
-  const lebarKel = Math.min(22, (pita*0.62)/nSeri);
-  let tunda = 0;
-
-  label.forEach((l,i)=>{
-    const cx = ml + pita*i + pita/2;
-
-    if(mode==='tumpuk'){
+// ---------------------------------------------------------------- grafik batang per tahun (SVG)
+// seri: [{kelas, nama, nilai:[per tahun]}]; mode 'tumpuk' atau 'kelompok'. Total di atas batang tumpuk
+// (label selektif), legenda bila >= 2 seri, tooltip per tahun, dan tabel data untuk pembaca layar/cetak.
+function batang(tahun, seri, mode){
+  const W = 520, H = 210, kiri = 26, bawah = 22, atas = 16, lebar = W - kiri - 4, tinggi = H - bawah - atas;
+  const totals = tahun.map((_, i) => seri.reduce((a, s) => a + s.nilai[i], 0));
+  const maks = Math.max(1, ...(mode === 'tumpuk' ? totals : seri.flatMap(s => s.nilai)));
+  const langkah = Math.max(1, Math.ceil(maks / 4)), puncak = langkah * Math.ceil(maks / langkah);
+  const y = v => atas + tinggi - (v / puncak) * tinggi;
+  const slot = lebar / tahun.length, bw = Math.min(46, slot * (mode === 'tumpuk' ? .55 : .7));
+  let g = '';
+  for (let v = 0; v <= puncak; v += langkah)
+    g += `<line class="${v ? 'bantu' : 'dasar'}" x1="${kiri}" x2="${W - 4}" y1="${y(v)}" y2="${y(v)}"/><text x="${kiri - 6}" y="${y(v) + 4}" text-anchor="end">${v}</text>`;
+  tahun.forEach((t, i) => {
+    const x0 = kiri + slot * i + (slot - bw) / 2;
+    let isi = '';
+    if (mode === 'tumpuk') {
       let dasar = 0;
-      seri.forEach(s=>{
-        const v = s.nilai[i]||0; if(!v) return;
-        const t=y(dasar+v), b=y(dasar);
-        g += `<rect class="batang" x="${cx-lebarTumpuk/2}" y="${t}" width="${lebarTumpuk}"
-              height="${Math.max(b-t,1)}" fill="${s.warna}" rx="1"
-              style="animation-delay:${(tunda++)*28}ms"
-              ><title>${esc(s.nama)} ${l}: ${v}</title></rect>`;
+      seri.forEach(s => {
+        const v = s.nilai[i]; if (!v) return;
+        const y1 = y(dasar + v), h = y(dasar) - y1 - (dasar ? 2 : 0);   // celah 2px antarsegmen
+        isi += `<rect class="m ${s.kelas}" x="${x0}" y="${y1}" width="${bw}" height="${Math.max(h, 1)}" rx="2"/>`;
         dasar += v;
       });
-      if(total[i]) g += `<text class="gtotal" x="${cx}" y="${y(total[i])-7}"
-                         text-anchor="middle">${total[i]}</text>`;
+      if (totals[i]) isi += `<text class="total" x="${x0 + bw / 2}" y="${y(totals[i]) - 5}" text-anchor="middle">${totals[i]}</text>`;
     } else {
-      const lbrTotal = lebarKel*nSeri + 3*(nSeri-1);
-      aktif.forEach((s,j)=>{
-        const v = s.nilai[i]||0;
-        const x = cx - lbrTotal/2 + j*(lebarKel+3);
-        if(v){
-          g += `<rect class="batang" x="${x}" y="${y(v)}" width="${lebarKel}"
-                height="${Math.max(y(0)-y(v),1)}" fill="${s.warna}" rx="1"
-                style="animation-delay:${(tunda++)*28}ms"
-                ><title>${esc(s.nama)} ${l}: ${v}</title></rect>`
-             + `<text class="gnilai" x="${x+lebarKel/2}" y="${y(v)-5}"
-                text-anchor="middle">${v}</text>`;
-        }
+      const lb = (bw - 2 * (seri.length - 1)) / seri.length;
+      seri.forEach((s, j) => {
+        const v = s.nilai[i]; if (!v) return;
+        isi += `<rect class="m ${s.kelas}" x="${x0 + j * (lb + 2)}" y="${y(v)}" width="${lb}" height="${y(0) - y(v)}" rx="2"/>`;
       });
     }
-    g += `<text class="gsumbu" x="${cx}" y="${H-13}" text-anchor="middle">${esc(l)}</text>`;
+    const rinci = seri.map(s => `${s.kelas}|${s.nama}|${s.nilai[i]}`).join(';');
+    g += `<g class="th" data-t="${t}" data-r="${esc(rinci)}">${isi}<rect class="kena" x="${kiri + slot * i}" y="${atas}" width="${slot}" height="${tinggi}"/>
+      <text x="${x0 + bw / 2}" y="${H - 6}" text-anchor="middle">${t}</text></g>`;
   });
-
-  g += `</svg>`;
-  const legenda = aktif.map(s=>
-    `<span><i style="background:${s.warna}"></i>${esc(s.nama)}</span>`).join('');
-  return g + `<div class="legenda">${legenda}</div>`;
+  const legenda = seri.length > 1 ? `<div class="legenda">${seri.map(s => `<span class="${s.kelas}"><i></i>${esc(s.nama)}</span>`).join('')}</div>` : '';
+  const tabel = `<details class="tabel"><summary>Tabel data</summary><table><thead><tr><th>Tahun</th>${seri.map(s => `<th>${esc(s.nama)}</th>`).join('')}${
+    seri.length > 1 ? '<th>Jumlah</th>' : ''}</tr></thead><tbody>${tahun.map((t, i) => `<tr><td>${t}</td>${seri.map(s => `<td>${s.nilai[i]}</td>`).join('')}${
+    seri.length > 1 ? `<td>${totals[i]}</td>` : ''}</tr>`).join('')}</tbody></table></details>`;
+  return `${legenda}<svg class="grafik" viewBox="0 0 ${W} ${H}" role="img" aria-label="Grafik per tahun">${g}</svg>${tabel}`;
 }
 
-function kartu(judul, ket, isi){
-  return `<div class="kartu"><h3>${esc(judul)}</h3><p class="ket">${esc(ket)}</p>${
-    isi || '<p class="kosong" style="padding:6px 0">Belum ada data terverifikasi.</p>'}</div>`;
+function mendatar(baris, kelas = 's1'){
+  const maks = Math.max(1, ...baris.map(b => b[1]));
+  return baris.map(([nama, n]) => `<div class="mendatar ${kelas}"><div>${esc(nama)}</div>
+    <div class="tr"><div class="is" style="width:${(n / maks) * 100}%"></div></div><div class="an">${n}</div></div>`).join('');
 }
 
-function bangunGrafik(){
-  const tahun = [...new Set([
-    ...D.publikasi.map(p=>p.tahun),
-    ...D.kegiatan.map(k=>k.tahun),
-    ...(D.prestasi_agregat||[]).map(p=>p.tahun),
-  ])].sort((a,b)=>a-b).slice(-6).map(String);
-  if(!tahun.length) return '';
+const kartu = (judul, ket, isi) => `<div class="kartu"><h3>${esc(judul)}</h3>${ket ? `<p class="ket">${esc(ket)}</p>` : ''}${
+  isi || '<p class="kosong">Belum ada data terverifikasi untuk periode ini.</p>'}</div>`;
+const bagian = (id, judul, tautan, isi) => `<section class="bag" id="${id}"><div class="bag-kepala"><h2>${judul}</h2>${
+  tautan ? `<a class="lagi" href="${tautan[0]}">${tautan[1]} &rarr;</a>` : ''}</div>${isi}</section>`;
 
-  const C1=css('--biru'), C2=css('--biru-3'), C3=css('--emas'),
-        CM=css('--merah'), CH=css('--hijau');
+// Tahun pada sumbu: tahun berurutan (tanpa lompatan, supaya tren tidak menyesatkan), paling banyak 6
+// tahun yang berakhir di tahun terbaru yang punya data, dan tidak lebih awal dari tahun data pertama.
+function sumbu(...kumpulan){
+  const ada = kumpulan.flat().map(x => +x.tahun).filter(Boolean);
+  if (!ada.length) return [];
+  const akhir = Math.max(...ada), awal = Math.max(Math.min(...ada), akhir - 5);
+  return Array.from({ length: akhir - awal + 1 }, (_, i) => awal + i);
+}
 
-  const hit = (arr,f) => tahun.map(t => arr.filter(x=>String(x.tahun)===t && f(x)).length);
+// Mitra dari karya: nama tanpa beda huruf besar-kecil (sama dengan halaman Kerja sama).
+function mitra(xs){
+  const m = new Map();
+  xs.forEach(x => (x.mitra || []).forEach(t => { const k = (t.nama || '').trim().toLowerCase(); if (k && !m.has(k)) m.set(k, t.tingkat || ''); }));
+  (D.kerja_sama || []).forEach(k => { const n = (k.mitra || '').trim().toLowerCase(); if (n && !m.has(n)) m.set(n, k.tingkat === 'wilayah' ? 'wilayah_lokal' : k.tingkat || ''); });
+  return m;
+}
 
-  const gPub = chartBatang(tahun, [
-    {nama:'Internasional', warna:C1, nilai:hit(D.publikasi,p=>p.tingkat==='internasional')},
-    {nama:'Nasional',      warna:C2, nilai:hit(D.publikasi,p=>p.tingkat==='nasional')},
-    {nama:'Wilayah/lokal', warna:C3, nilai:hit(D.publikasi,p=>p.tingkat==='wilayah_lokal')},
-  ], 'tumpuk');
+function gambar(){
+  const pub = saring(D.publikasi), keg = saring(D.kegiatan), pres = saring(D.prestasi_agregat), rek = saring(D.rekognisi),
+        lua = saring(D.luaran_dosen), mhs = saring(D.mahasiswa_agregat);
+  const pen = keg.filter(k => k.kategori === 'penelitian'), pkm = keg.filter(k => k.kategori === 'pkm');
+  const dt = D.dtps || {}, nDosen = dt.jumlah || (D.dosen || []).length;
+  const nPres = pres.reduce((a, b) => a + (b.jumlah || 0), 0);
+  const M = mitra([...pub, ...keg]);
+  const nIntl = [...M.values()].filter(t => t === 'internasional').length;
+  const sdgSet = new Set([...pub, ...keg, ...lua].flatMap(k => k.sdgs || []));
+  const scopus = pub.filter(p => /^scopus_/.test(p.indeksasi || '')).length;
 
-  const gKeg = chartBatang(tahun, [
-    {nama:'Penelitian', warna:C1, nilai:hit(D.kegiatan,k=>k.kategori==='penelitian')},
-    {nama:'Pengabdian', warna:CH, nilai:hit(D.kegiatan,k=>k.kategori==='pkm')},
-  ], 'kelompok');
+  // Angka utama, masing-masing menaut ke rinciannya.
+  $('ringkas').innerHTML = [
+    [nDosen, 'Dosen tetap', dt.doktor != null && nDosen ? `${Math.round(100 * dt.doktor / nDosen)}% bergelar doktor` : '', '#dosen'],
+    [pub.length, 'Publikasi', `${scopus} terindeks Scopus`, '#publikasi'],
+    [pen.length, 'Penelitian', '', '#riset'],
+    [pkm.length, 'Pengabdian', '', '#riset'],
+    [nPres, 'Prestasi mahasiswa', '', '#mahasiswa'],
+    [M.size, 'Institusi mitra', nIntl ? `${nIntl} internasional` : '', '#dampak'],
+    ...(mati('sdgs') ? [] : [[sdgSet.size, 'SDG tersentuh', 'dari 17 SDG', '#dampak']]),
+  ].map(([v, l, k, h]) => `<a href="${h}"><b>${N(v)}</b><span>${esc(l)}</span>${k ? `<small>${esc(k)}</small>` : ''}</a>`).join('');
 
-  const pres = D.prestasi_agregat || [];
-  const jml = (t,g) => pres.filter(p=>String(p.tahun)===t && p.tingkat===g)
-                           .reduce((a,b)=>a+b.jumlah,0);
-  const gPres = chartBatang(tahun, [
-    {nama:'Internasional', warna:CM, nilai:tahun.map(t=>jml(t,'internasional'))},
-    {nama:'Nasional',      warna:C2, nilai:tahun.map(t=>jml(t,'nasional'))},
-    {nama:'Wilayah/lokal', warna:C3, nilai:tahun.map(t=>jml(t,'wilayah_lokal'))},
-  ], 'tumpuk');
+  // 1. Dosen
+  const jab = dt.jabatan || {};
+  const barisJab = JABATAN.map(([k, l]) => [l, jab[k] || 0]).filter(b => b[1]);
+  const daftarRek = [...rek].sort((a, b) => (b.tahun || 0) - (a.tahun || 0)).slice(0, 6).map(r =>
+    `<li>${esc((r.nama_kegiatan || '').trim())}<small>${esc(r.dosen || '')} · ${esc(BENTUK[r.bentuk] || rapi(r.bentuk))} · ${esc(rapi(r.tingkat))} · ${esc(r.tahun || '')}</small></li>`).join('');
+  const sDosen = bagian('dosen', 'Dosen', ['daftar.html?jenis=dosen', 'Daftar dosen'], `<div class="grid2">
+    ${kartu('Kualifikasi dan jabatan fungsional', 'Dosen tetap program studi', `<div class="angka-k">
+      <div><b>${N(nDosen)}</b><span>dosen tetap</span></div>
+      ${dt.doktor != null ? `<div><b>${N(dt.doktor)}</b><span>bergelar doktor</span></div>` : ''}
+      ${jab.guru_besar ? `<div><b>${N(jab.guru_besar)}</b><span>guru besar</span></div>` : ''}</div>${mendatar(barisJab)}`)}
+    ${kartu('Rekognisi dosen', 'Pembicara undangan, editor, penelaah, penghargaan', daftarRek ? `<ul class="daftar-r">${daftarRek}</ul>` : '')}
+  </div>`);
 
+  // 2. Publikasi per tahun menurut mutu
+  const tPub = sumbu(pub);
+  const sPub = bagian('publikasi', 'Publikasi', ['daftar.html?jenis=publikasi', 'Semua publikasi'], `<div class="grid2">
+    ${kartu('Publikasi per tahun menurut mutu', 'Scopus menurut kuartil, SINTA menurut peringkat',
+      tPub.length ? batang(tPub, MUTU.map(([k, l]) => ({ kelas: k, nama: l, nilai: tPub.map(t => pub.filter(p => +p.tahun === t && mutu(p) === k).length) })), 'tumpuk') : '')}
+    ${kartu('Sebaran mutu', 'Seluruh publikasi pada periode ini', pub.length ? `<div class="angka-k">
+      <div><b>${N(pub.length)}</b><span>publikasi</span></div><div><b>${N(scopus)}</b><span>terindeks Scopus</span></div>
+      <div><b>${N(pub.filter(p => p.tingkat === 'internasional').length)}</b><span>tingkat internasional</span></div></div>
+      ${MUTU.map(([k, l]) => [l, pub.filter(p => mutu(p) === k).length, k]).map(([l, n, k]) => mendatar([[l, n]], k)).join('')}` : '')}
+  </div>`);
+
+  // 3. Penelitian dan pengabdian
+  const tKeg = sumbu(keg);
   const kel = {};
-  D.kegiatan.forEach(k=>{ if(k.kelompok) kel[k.kelompok]=(kel[k.kelompok]||0)+1; });
-  const urut = Object.entries(kel).sort((a,b)=>b[1]-a[1]).slice(0,6);
-  const gDana = urut.length ? urut.map(([nama,n])=>{
-    const maks = Math.max(...urut.map(x=>x[1]));
-    return `<div class="mendatar"><div class="nm">${esc(nama)}</div>
-      <div class="tr"><div class="is" style="width:${(n/maks)*100}%"></div></div>
-      <div class="an">${n}</div></div>`;
-  }).join('') : '';
+  keg.forEach(k => { if (k.kelompok) kel[k.kelompok] = (kel[k.kelompok] || 0) + 1; });
+  const sumMhs = kat => mhs.filter(m => m.kategori === kat).reduce((a, b) => a + (b.keterlibatan || 0), 0);
+  const sRiset = bagian('riset', 'Penelitian dan pengabdian', ['daftar.html?jenis=penelitian', 'Daftar penelitian'], `<div class="grid2">
+    ${kartu('Kegiatan per tahun', 'Penelitian dan pengabdian kepada masyarakat yang terverifikasi',
+      tKeg.length ? batang(tKeg, [{ kelas: 's1', nama: 'Penelitian', nilai: tKeg.map(t => pen.filter(k => +k.tahun === t).length) },
+                                  { kelas: 's2', nama: 'Pengabdian', nilai: tKeg.map(t => pkm.filter(k => +k.tahun === t).length) }], 'kelompok') : '')}
+    ${kartu('Sumber pendanaan dan keterlibatan mahasiswa', 'Jumlah kegiatan menurut asal dana', Object.keys(kel).length ? `${
+      mendatar(Object.entries(kel).sort((a, b) => b[1] - a[1]).slice(0, 6))}
+      <div class="angka-k" style="margin-top:14px"><div><b>${N(sumMhs('penelitian'))}</b><span>keterlibatan mahasiswa dalam penelitian</span></div>
+      <div><b>${N(sumMhs('pkm'))}</b><span>keterlibatan mahasiswa dalam pengabdian</span></div></div>` : '')}
+  </div>`);
 
-  return `
-    <div class="bar"><h2>Tren kinerja</h2></div>
-    <div class="grafik">
-      ${kartu('Publikasi', 'Jumlah per tahun menurut tingkat terbitan', gPub)}
-      ${kartu('Penelitian & pengabdian', 'Perbandingan jumlah kegiatan per tahun', gKeg)}
-      ${kartu('Prestasi mahasiswa', 'Jumlah capaian per tahun menurut tingkat', gPres)}
-      ${kartu('Sumber pendanaan', 'Sebaran kegiatan menurut asal dana', gDana)}
-    </div>`;
+  // 4. Mahasiswa
+  const tPres = sumbu(pres);
+  const jPres = (t, g) => pres.filter(p => +p.tahun === t && p.tingkat === g).reduce((a, b) => a + b.jumlah, 0);
+  const akad = pres.filter(p => p.bidang === 'akademik').reduce((a, b) => a + b.jumlah, 0), non = nPres - akad;
+  const sMhs = bagian('mahasiswa', 'Prestasi mahasiswa', ['prestasi.html', 'Semua prestasi'], `<div class="grid2">
+    ${kartu('Prestasi per tahun menurut tingkat', 'Capaian mahasiswa yang terverifikasi',
+      tPres.length ? batang(tPres, TINGKAT.map(([k, l, g]) => ({ kelas: k, nama: l, nilai: tPres.map(t => jPres(t, g)) })), 'tumpuk') : '')}
+    ${kartu('Bidang prestasi', 'Akademik dibanding nonakademik', nPres ? `<div class="angka-k">
+      <div><b>${N(akad)}</b><span>akademik</span></div><div><b>${N(non)}</b><span>nonakademik</span></div></div>
+      <div class="proporsi" role="img" aria-label="${akad} akademik, ${non} nonakademik">${akad ? `<div class="s1" style="flex:${akad}"></div>` : ''}${
+        non ? `<div class="s2" style="flex:${non}"></div>` : ''}</div>
+      <div class="legenda"><span class="s1"><i></i>Akademik</span><span class="s2"><i></i>Nonakademik</span></div>` : '')}
+  </div>`);
+
+  // 5. Kerja sama dan dampak
+  const perT = g => [...M.values()].filter(t => t === g).length;
+  const resmi = (D.kerja_sama || []).filter(k => k.aktif).length;
+  const jenisLuaran = {};
+  lua.forEach(l => { const n = l.nama_bagian || rapi(l.jenis); jenisLuaran[n] = (jenisLuaran[n] || 0) + 1; });
+  const sDampak = bagian('dampak', 'Kerja sama dan dampak', ['kerja-sama.html', 'Kerja sama'], `<div class="grid2">
+    ${kartu('Mitra', 'Lembaga mitra pada karya dan kerja sama resmi', M.size ? `<div class="angka-k">
+      <div><b>${N(M.size)}</b><span>institusi mitra</span></div>${resmi ? `<div><b>${N(resmi)}</b><span>kerja sama resmi berlaku</span></div>` : ''}</div>
+      ${TINGKAT.map(([k, l, g]) => mendatar([[l, perT(g)]], k)).join('')}` : '')}
+    ${kartu('SDGs dan luaran', 'Kontribusi pada Tujuan Pembangunan Berkelanjutan dan luaran dosen', `<div class="angka-k">
+      ${mati('sdgs') ? '' : `<div><b>${N(sdgSet.size)}</b><span>dari 17 SDG tersentuh · <a href="sdgs.html">Rekap SDGs</a></span></div>`}
+      <div><b>${N(lua.length)}</b><span>luaran dosen (buku, HKI, dll.)</span></div></div>
+      ${Object.keys(jenisLuaran).length ? mendatar(Object.entries(jenisLuaran).sort((a, b) => b[1] - a[1])) : ''}`)}
+  </div>`);
+
+  $('isi').innerHTML = sDosen + sPub + sRiset + sMhs + sDampak +
+    `<p class="catatan">Data terverifikasi program studi · diperbarui ${esc(D.diperbarui || '')}. Grafik per tahun memuat paling banyak 6 tahun terakhir; angka di atas
+    menghitung seluruh periode terpilih. TS = tahun akademik penuh terakhir (istilah LKPS).</p>`;
 }
 
-// Mitra unik dari publikasi, penelitian, dan PkM; aturan sama dengan
-// halaman_publik.mitra_karya (kerja-sama.html; nama tanpa beda huruf besar-kecil).
-function jumlahMitra(){
-  const nama = new Set();
-  [...D.publikasi, ...D.kegiatan].forEach(x => (x.mitra || []).forEach(m => {
-    const n = (m.nama || '').trim().toLowerCase();
-    if (n) nama.add(n);
-  }));
-  return nama.size;
-}
+// Tooltip per tahun pada grafik batang (hover/fokus), isi dari data-r.
+const tip = $('tip');
+document.addEventListener('pointermove', ev => {
+  const g = ev.target.closest?.('g.th');
+  if (!g) { tip.hidden = true; return; }
+  tip.innerHTML = `<b>${esc(g.dataset.t)}</b>` + g.dataset.r.split(';').map(x => { const [k, n, v] = x.split('|');
+    return `<div class="${k}"><i></i>${esc(n)}: ${esc(v)}</div>`; }).join('');
+  tip.hidden = false;
+  const x = Math.min(ev.clientX + 14, innerWidth - tip.offsetWidth - 8), y = Math.min(ev.clientY + 14, innerHeight - tip.offsetHeight - 8);
+  tip.style.left = x + 'px'; tip.style.top = y + 'px';
+});
 
-// =====================================================================
-function render(){
-  document.getElementById('hProdi').textContent = 'Program Studi ' + D.prodi;
-  document.getElementById('hInst').textContent = D.institusi || '';
-  if (D.institusi) document.getElementById('hLogo').alt = D.institusi;
-  document.title = ['Kinerja Program Studi ' + D.prodi, D.institusi].filter(Boolean).join(' — ');
+document.querySelectorAll('.periode button').forEach(b => b.onclick = () => {
+  PERIODE = b.dataset.p;
+  document.querySelectorAll('.periode button').forEach(x => x.setAttribute('aria-pressed', x === b));
+  gambar();
+});
 
-  const totalPrestasi = (D.prestasi_agregat||[]).reduce((a,b)=>a+b.jumlah,0);
-  document.getElementById('angka').innerHTML = [
-    [D.dosen.length,     'Dosen',              'daftar.html?jenis=dosen'],
-    [D.publikasi.length, 'Publikasi',          'daftar.html?jenis=publikasi'],
-    [D.kegiatan.filter(k=>k.kategori==='penelitian').length, 'Penelitian', 'daftar.html?jenis=penelitian'],
-    [D.kegiatan.filter(k=>k.kategori==='pkm').length,        'Pengabdian', 'daftar.html?jenis=pkm'],
-    [totalPrestasi,      'Prestasi mahasiswa', 'daftar.html?jenis=prestasi'],
-    [jumlahMitra(),      'Mitra kerja sama',   'kerja-sama.html'],
-    // SDGs (pemilik 2026-11-11): karya terkait SDGs -> sdgs.html. Kartu ini dan Topik keahlian
-    // tidak tampil bila modulnya dimatikan (config.js FITUR_MATI, site/fitur.js).
-    [[...D.publikasi, ...D.kegiatan, ...(D.luaran_dosen||[])].filter(k => (k.sdgs||[]).length).length,
-                         'Karya ber-SDGs',     'sdgs.html'],
-    // Peta keahlian (pemilik 2026-11-11): kata kunci dosen + topik publikasi -> keahlian.html.
-    [new Set([...D.dosen.flatMap(d => d.kata_kunci || []), ...D.publikasi.flatMap(k => (k.topik || []).map(t => t.t))]
-       .map(x => String(x).toLowerCase())).size, 'Topik keahlian', 'keahlian.html?tab=peta'],
-  ].filter(([, , href]) => !(window.FITUR_MATI || []).includes({ 'sdgs.html': 'sdgs', 'keahlian.html?tab=peta': 'kepakaran' }[href]))
-   .map(([v,l,href])=>`<a href="${href}"><b>${N(v)}</b><span>${l}</span></a>`).join('');
-  // Jumlah topik persis sama dengan keahlian.html (petaTopik, termasuk bidang keahlian).
-  import('./keahlian.js?v=2026-11-16-e72bee').then(m => {
-    const b = document.querySelector('#angka a[href^="keahlian.html"] b');
-    // Dengan daftar baku (patch 61): topik baku yang sudah punya dosen (memilih atau berkarya).
-    const B = m.daftarBaku(D), P = m.profilKeahlian(D);
-    if (b) b.textContent = N(B ? m.petaBaku(P, B).baris.filter(r => !r.kosong).length : m.petaTopik(P).length);
-  }).catch(() => {});
-
-  // Cari data publik (pemilik 2026-11-12): dosen, karya, mitra, halaman umum dari data.json.
-  import('./cari.js?v=2026-11-16-e72bee').then(m => {
-    const idx = m.indeksPublik(D, k => !(window.FITUR_MATI || []).includes(k));
-    const kotak = document.getElementById('cariUmum'), panel = document.getElementById('hasilUmum');
-    const e = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-    let aktif = -1;
-    const tampil = () => {
-      const q = kotak.value.trim();
-      if (!q) { panel.hidden = true; return; }
-      const g = m.kelompokkan(m.cari(idx, q));
-      panel.innerHTML = g.length ? g.map(x => `<h4>${e(x.label)}</h4>` + x.entri.map(r =>
-        `<a href="${e(r.href)}"><b>${e(r.judul)}</b>${r.ket ? `<span>${e(r.ket)}</span>` : ''}</a>`).join('')).join('')
-        : `<p>Tidak ada yang cocok dengan "${e(q)}".</p>`;
-      panel.hidden = false; aktif = -1;
-    };
-    const tandai = i => { const xs = [...panel.querySelectorAll('a')]; aktif = Math.max(-1, Math.min(i, xs.length - 1));
-      xs.forEach((a, j) => a.classList.toggle('aktif', j === aktif)); xs[aktif]?.scrollIntoView({ block: 'nearest' }); };
-    kotak.addEventListener('input', tampil);
-    kotak.addEventListener('focus', tampil);
-    kotak.addEventListener('keydown', ev => {
-      if (ev.key === 'ArrowDown') { ev.preventDefault(); tandai(aktif + 1); }
-      else if (ev.key === 'ArrowUp') { ev.preventDefault(); tandai(aktif - 1); }
-      else if (ev.key === 'Enter') { const a = panel.querySelectorAll('a')[Math.max(aktif, 0)]; if (a) location.href = a.getAttribute('href'); }
-      else if (ev.key === 'Escape') { panel.hidden = true; kotak.blur(); }
-    });
-    document.addEventListener('click', ev => { if (!kotak.parentElement.contains(ev.target)) panel.hidden = true; });
-  }).catch(() => { document.querySelector('.cari-umum')?.remove(); });
-
-  // Beranda hanya grafik; daftarnya dibuka lewat angka rekap di atas
-  // (daftar.html, kerja-sama.html), pemilik 2026-11-04.
-  document.getElementById('isi').innerHTML = `
-    ${bangunGrafik()}
-
-    <footer>
-      Data terverifikasi program studi · diperbarui ${esc(D.diperbarui)}.
-      <br><br><a href="kurikulum.html">Kurikulum</a> · <a href="berkas-mahasiswa.html">Layanan mahasiswa</a>
-      · <a href="privasi.html">Kebijakan privasi</a>
-    </footer>`;
-}
-
-// Angka pita/ringkasan naik perlahan saat pertama tampil (hormati
-// preferensi reduced-motion; teks non-angka dibiarkan apa adanya).
-function angkaNaik(sel){
-  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  document.querySelectorAll(sel).forEach(el => {
-    if (el.dataset.naik) return; el.dataset.naik = '1';
-    const asli = el.textContent.trim();
-    const t = parseFloat(asli.replace(',', '.'));
-    if (!isFinite(t) || /[^0-9.,]/.test(asli)) return;
-    const des = (asli.split(/[.,]/)[1] || '').length;
-    const m0 = performance.now();
-    const tik = n => {
-      const q = Math.min(1, (n - m0) / 600), e = 1 - Math.pow(1 - q, 3);
-      el.textContent = (t * e).toFixed(des).replace('.', asli.includes(',') ? ',' : '.');
-      if (q < 1) requestAnimationFrame(tik); else el.textContent = asli;
-    };
-    requestAnimationFrame(tik);
-  });
-}
-
-angkaNaik('.angka b');
+fetch('data.json?v=' + Date.now())
+  .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
+  .then(d => {
+    D = d;
+    isiKerangka(d);
+    $('hProdi').textContent = ['Program Studi ' + (d.prodi || ''), d.institusi].filter(Boolean).join(' · ');
+    document.title = ['Kinerja Program Studi ' + (d.prodi || ''), d.institusi].filter(Boolean).join(' — ');
+    gambar();
+  })
+  .catch(() => { $('isi').innerHTML = '<p class="kosong">Data sedang diperbarui. Silakan muat ulang beberapa saat lagi.</p>'; });
 </script>
 </body>
 </html>
