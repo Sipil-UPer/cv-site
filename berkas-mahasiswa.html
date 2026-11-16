@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-16-0cbdb5">
+<link rel="stylesheet" href="tema.css?v=2026-11-16-28e857">
 <style>
   /* Layanan mahasiswa, publik (pemilik 2026-11-16; patch 76, 77, 78). Warna dari tema.css. */
   *{box-sizing:border-box}
@@ -22,7 +22,7 @@
   .hero a.balik:hover{text-decoration:underline}
   h1{font-family:var(--serif);font-size:clamp(22px,4.2vw,30px);font-weight:600;margin:6px 0 0;line-height:1.2;color:#fff}
   .prodi{color:var(--biru-m4);font-size:14px;margin-top:6px}
-  .pintu{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:16px}
+  .pintu{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:16px}
   .pintu a{display:block;text-decoration:none;color:#fff;border:1px solid rgba(255,255,255,.4);border-radius:8px;
     padding:9px 12px;font-weight:600;font-size:14px;transition:background .15s}
   .pintu a small{display:block;font-weight:400;font-size:12px;color:var(--biru-m4);margin-top:1px}
@@ -75,6 +75,17 @@
   .jebakan{position:absolute;left:-10000px;width:1px;height:1px;overflow:hidden}
   button.kirim{font:inherit;font-weight:600;color:#fff;background:var(--biru);border:0;border-radius:7px;padding:10px 20px;cursor:pointer}
   button.kirim:disabled{opacity:.6;cursor:default}
+  /* Calon pembimbing TA (pemilik 2026-11-16) */
+  #pbIsi textarea{width:100%}
+  .pb-daftar{margin:14px 0 8px;padding-left:22px}
+  .pb-daftar>li{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--biru);border-radius:8px;
+    padding:10px 14px;margin:0 0 10px}
+  .pb-daftar>li::marker{font-family:var(--mono);color:var(--biru);font-weight:600}
+  .pb-nama a{font-weight:600;font-size:16px;color:var(--biru);text-decoration:none}
+  .pb-nama a:hover{text-decoration:underline}
+  .pb-nama span{display:block;font-size:13px;color:var(--muted)}
+  .pb-daftar ul{margin:6px 0 0;padding-left:18px;font-size:14px}
+  .pb-daftar ul li{margin:2px 0;overflow-wrap:anywhere}
   button.kirim:focus-visible{outline:2px solid var(--biru);outline-offset:2px}
   .hitung{font-family:var(--mono);font-size:12px;color:var(--muted);text-align:right}
   .msg{font-size:14px} .msg.buruk{color:var(--merah)} .msg.ok{color:var(--hijau)}
@@ -89,6 +100,7 @@
   <nav class="pintu" aria-label="Bagian halaman">
     <a href="#pengumuman">Pengumuman<small>jadwal, batas waktu</small></a>
     <a href="#berkas">Berkas<small>pedoman, panduan</small></a>
+    <a href="#pembimbing">Calon pembimbing TA<small>cocokkan judul dan keahlian</small></a>
     <a href="#tanya-jawab">Tanya-jawab<small>yang sering ditanya</small></a>
     <a href="#kirim">Tanya / masukan<small>kirim ke prodi</small></a>
   </nav>
@@ -96,6 +108,14 @@
 <main class="wrap">
   <div class="cari"><input id="cari" type="search" placeholder="Cari pengumuman, pedoman, tanya-jawab…" aria-label="Cari" autocomplete="off"></div>
   <div id="isi"><p class="kosong">Memuat…</p></div>
+
+  <!-- Cari calon pembimbing TA (pemilik 2026-11-16; pembimbing.js). -->
+  <section id="pembimbing">
+    <h2 class="besar">Cari calon pembimbing Tugas Akhir</h2>
+    <p class="ket">Tulis judul atau topik TA. Dosen tetap diurutkan menurut kecocokan dengan topik keahlian, publikasi,
+      serta penelitian dan pengabdiannya. Judul yang ditulis tidak dikirim atau disimpan.</p>
+    <div id="pbIsi"><p class="kosong">Memuat…</p></div>
+  </section>
 
   <section id="tanya-jawab">
     <h2 class="besar">Tanya-jawab</h2>
@@ -127,7 +147,7 @@
   <footer>Pertanyaan tentang isi berkas: hubungi sekretariat program studi.
     · <a href="kurikulum.html">Kurikulum</a> · <a href="privasi.html">Kebijakan privasi</a></footer>
 </main>
-<script src="config.js?v=2026-11-16-0cbdb5"></script>
+<script src="config.js?v=2026-11-16-28e857"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -149,7 +169,8 @@ addEventListener('error', function (e) {
 //   Tanya-jawab: tanya_jawab_publik() (78), disusun admin di kelola-mahasiswa.html.
 //   Kiriman: kirim_masukan_mahasiswa() (78) ke kotak masuk tertutup; kolom k_situs adalah jebakan bot.
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { infoJenis } from './rencana-bukti.js?v=2026-11-16-0cbdb5';
+import { infoJenis } from './rencana-bukti.js?v=2026-11-16-28e857';
+import { pasangPembimbing } from './pembimbing.js?v=2026-11-16-28e857';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
@@ -161,6 +182,7 @@ fetch('data.json?v=' + Date.now()).then(r => r.ok ? r.json() : {}).catch(() => (
     const p = [d.prodi, d.institusi].filter(Boolean).join(' · ');
     $('hProdi').textContent = p;
     if (d.prodi) document.title = 'Layanan mahasiswa — ' + d.prodi;
+    pasangPembimbing($('pbIsi'), d);
   });
 
 let DOK = [], FAQ = [], GAGAL_FAQ = false;
