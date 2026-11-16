@@ -1,7 +1,7 @@
 // Definisi formulir karya dosen (FORM) dan isiannya. Dipindah dari input.html
 // supaya verifikasi.html memakai label isian yang sama (pemilik 2026-11-08).
 
-import { htmlContoh, JENIS_BUKTI_KS } from './manfaat-kerjasama.js?v=2026-11-16-114bad';
+import { htmlContoh, JENIS_BUKTI_KS } from './manfaat-kerjasama.js?v=2026-11-16-3676b5';
 
 const rapi = s => s ? String(s).replace(/_/g,' ') : '';
 
@@ -221,6 +221,9 @@ export const F_SDGS = {n:'sdgs', l:'Terkait SDGs', t:'sdgs', full:1,
   sub:'Centang bila karya ini mendukung Tujuan Pembangunan Berkelanjutan, lalu pilih SDG-nya (boleh lebih dari satu).'};
 for (const k of ['publikasi', 'kegiatan', 'luaran']) if (FORM[k]) FORM[k].f.push(F_SDGS);
 export const teksSDGs = v => (v || []).map(n => `SDG ${n}`).join(', ');
+// Warna resmi SDG 1-17 (panduan visual PBB); dipakai sdgs.html dan sdgs-bukti.html.
+export const WARNA_SDG = ['#E5243B','#DDA63A','#4C9F38','#C5192D','#FF3A21','#26BDE2','#FCC30B','#A21942','#FD6925',
+  '#DD1367','#FD9D24','#BF8B2E','#3F7E44','#0A97D9','#56C02B','#00689D','#19486A'];
 
 export function labelKolom(c){
   const khusus = { kategori: 'Jenis kegiatan', skema_kode: 'Skema', judul: 'Judul' };
