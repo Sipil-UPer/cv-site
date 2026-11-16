@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-16-d97c97">
+<link rel="stylesheet" href="tema.css?v=2026-11-16-bded51">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
@@ -96,7 +96,7 @@
 
 <header class="hero">
   <div class="hero-in">
-    <a class="balik" href="index.html">&larr; Kembali ke dashboard</a>
+    <a class="balik" href="index.html">&larr; Beranda</a>
     <h1>Mitra kerja sama</h1>
     <div class="prodi" id="hProdi"></div>
     <div class="saring">
@@ -216,17 +216,12 @@ function render(){
     </div>
 
     <h2>Daftar mitra</h2>
-    <p class="ket">Klik nama mitra untuk melihat karya yang dihasilkan bersamanya.
-    Diurutkan menurut jumlah kegiatan.</p>
+    <p class="ket">Diurutkan menurut jumlah kegiatan bersama.</p>
     <div class="kartu">${ mitra.length ? mitra.map(baris).join('')
-      : `<p class="kosong">Belum ada mitra yang cocok dengan penyaring ini.
-         Isi kolom institusi mitra saat menambahkan publikasi, penelitian, atau
-         pengabdian di halaman input.</p>` }</div>
+      : `<p class="kosong">Belum ada mitra yang cocok dengan penyaring ini.</p>` }</div>
 
     <footer>
-      Diperbarui ${esc(D.diperbarui)}. Hanya menghitung entri yang telah
-      diverifikasi program studi. Mitra dikelompokkan berdasarkan nama yang
-      diinput; ejaan yang berbeda akan terhitung sebagai mitra terpisah.
+      Data terverifikasi program studi · diperbarui ${esc(D.diperbarui)}.
     </footer>`;
 
   document.querySelectorAll('.m-kepala').forEach(h=>{

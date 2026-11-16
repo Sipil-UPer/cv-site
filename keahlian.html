@@ -3,11 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Kepakaran dosen — Kinerja Program Studi</title>
+<title>Kepakaran dosen — Program Studi</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-16-d97c97">
+<link rel="stylesheet" href="tema.css?v=2026-11-16-bded51">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
@@ -58,14 +58,14 @@
 <body>
 <header class="hero">
   <div class="hero-in">
-    <a class="balik" href="index.html">&larr; Kembali ke dashboard</a>
+    <a class="balik" href="index.html">&larr; Beranda</a>
     <h1>Kepakaran dosen</h1>
     <div class="prodi" id="hProdi"></div>
     <div class="angka" id="angka"></div>
   </div>
 </header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-16-d97c97"></script>
+<script src="config.js?v=2026-11-16-bded51"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -83,9 +83,9 @@ addEventListener('error', function (e) {
 // Peta keahlian dosen (pemilik 2026-11-11; 60-patch-keahlian.sql). Publik, hanya data.json:
 // kata kunci dan bidang keahlian dari profil dosen (disetujui admin), topik OpenAlex
 // publikasi, dan judul karya terverifikasi.
-import { jagaHalaman } from './fitur.js?v=2026-11-16-d97c97';
+import { jagaHalaman } from './fitur.js?v=2026-11-16-bded51';
 if (!jagaHalaman()) await new Promise(() => {});   // modul dimatikan (config.js FITUR_MATI)
-import { profilKeahlian, cariPakar, petaTopik, usulanTA, normal, daftarBaku, petaBaku, matriksBaku } from './keahlian.js?v=2026-11-16-d97c97';
+import { profilKeahlian, cariPakar, petaTopik, usulanTA, normal, daftarBaku, petaBaku, matriksBaku } from './keahlian.js?v=2026-11-16-bded51';
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
 // B = daftar keahlian baku (61-patch-keahlian-baku.sql); null sebelum patch dijalankan.
@@ -219,8 +219,7 @@ function gambar(){
   const isi = { cari: htmlCari, dosen: htmlDosen, peta: htmlPeta, ta: htmlTA }[TAB] || htmlCari;
   $('isi').innerHTML = `<div class="tab">${Object.entries(TABS).map(([k, l]) => `<button type="button" data-tab="${k}" aria-pressed="${k === TAB}">${l}</button>`).join('')}</div>
     <h2>${TABS[TAB]}</h2>${isi()}
-    <footer>Diperbarui ${esc(D.diperbarui || '')} · ${B ? `Daftar keahlian prodi: ${B.bidang.length} bidang, ${B.topik.length} topik. ` : ''}Topik dan kata kunci dipilih dosen dan disetujui admin prodi;
-      topik publikasi dari <a href="https://openalex.org" target="_blank" rel="noopener">OpenAlex</a>; hanya karya terverifikasi.</footer>`;
+    <footer>Diperbarui ${esc(D.diperbarui || '')} · ${B ? `Daftar keahlian prodi: ${B.bidang.length} bidang, ${B.topik.length} topik. ` : ''}Topik publikasi dari <a href="https://openalex.org" target="_blank" rel="noopener">OpenAlex</a>.</footer>`;
   document.querySelectorAll('[data-tab]').forEach(b => b.onclick = () => { TAB = b.dataset.tab; history.replaceState(null, '', `?tab=${TAB}`); gambar(); });
   if (TAB === 'cari') { $('fCari').onsubmit = e => { e.preventDefault(); gambarCari(); }; gambarCari(); }
   if (TAB === 'peta' && B) {
@@ -250,7 +249,7 @@ fetch('data.json?v=' + Date.now())
     }
     gambar();
   })
-  .catch(() => { $('isi').innerHTML = '<p class="kosong">Data belum tersedia. Hubungi admin prodi.</p>'; });
+  .catch(() => { $('isi').innerHTML = '<p class="kosong">Data sedang diperbarui. Silakan muat ulang beberapa saat lagi.</p>'; });
 </script>
 </body>
 </html>

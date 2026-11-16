@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-16-d97c97">
+<link rel="stylesheet" href="tema.css?v=2026-11-16-bded51">
 <style>
   *{box-sizing:border-box}
   html{scroll-behavior:smooth}
@@ -84,7 +84,7 @@
   </div>
 </header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-16-d97c97"></script>
+<script src="config.js?v=2026-11-16-bded51"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -205,7 +205,7 @@ function gambar(){
         ${K.cpl.length ? `<select id="fCpl" aria-label="Saring menurut CPL"><option value="">Semua CPL</option>
           ${K.cpl.map(c => `<option value="${esc(c.kode)}"${c.kode === CPL_PILIH ? ' selected' : ''}>MK pendukung CPL ${esc(c.kode)}</option>`).join('')}</select>` : ''}
       </div><div id="struktur"></div>` : ''}
-    <footer>Data kurikulum diperbarui ${esc(D.diperbarui || '')}.
+    <footer>Diperbarui ${esc(D.diperbarui || '')}.
       <div style="margin-top:8px"><a href="berkas-mahasiswa.html">Wilayah mahasiswa</a><a href="privasi.html">Kebijakan privasi</a><a href="index.html">Beranda</a></div></footer>`;
   gambarStruktur();
   document.querySelectorAll('.pilih button').forEach(b => b.onclick = () => {
@@ -226,12 +226,12 @@ fetch('data.json?v=' + Date.now())
     $('hProdi').textContent = [d.prodi, d.institusi].filter(Boolean).join(' · ');
     if (d.prodi) document.title = `Kurikulum — ${d.prodi}`;
     const kur = d.kurikulum || [];
-    if (!kur.length) { $('isi').innerHTML = '<p class="kosong">Kurikulum belum diterbitkan. Hubungi admin prodi.</p>'; return; }
+    if (!kur.length) { $('isi').innerHTML = '<p class="kosong">Kurikulum sedang disiapkan.</p>'; return; }
     const minta = new URLSearchParams(location.search).get('k');
     K = kur.find(k => k.kode === String(minta || '').toUpperCase()) || kur[0];
     gambar();
   })
-  .catch(() => { $('isi').innerHTML = '<p class="kosong">Data belum tersedia. Hubungi admin prodi.</p>'; });
+  .catch(() => { $('isi').innerHTML = '<p class="kosong">Data sedang diperbarui. Silakan muat ulang beberapa saat lagi.</p>'; });
 </script>
 </body>
 </html>

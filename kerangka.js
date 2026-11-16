@@ -1,11 +1,11 @@
 // Kerangka halaman publik (pemilik 2026-11-16): kepala bergaya situs universitas (deret logo di bilah
 // biru, nama prodi, menu turun) dan kaki halaman yang sama di halaman publik. Pemakaian:
-//   import { pasangKerangka, isiKerangka } from './kerangka.js?v=2026-11-16-d97c97';
+//   import { pasangKerangka, isiKerangka } from './kerangka.js?v=2026-11-16-bded51';
 //   pasangKerangka({ aktif: 'akademik' });   // segera, sebelum data.json
 //   isiKerangka(D);                           // setelah data.json: nama prodi, kontak, media sosial
 // Logo: window.LOGO_KEPALA di config.js; tanpa itu logo.png. Menu hanya memuat halaman yang ada
 // dan modul yang menyala (fitur.js). Tautan relatif (situs akan pindah ke subdomain kampus).
-import { halamanAktif } from './fitur.js?v=2026-11-16-d97c97';
+import { halamanAktif } from './fitur.js?v=2026-11-16-bded51';
 
 export const MENU = [
   { id: 'profil', judul: 'Profil', isi: [
@@ -33,6 +33,8 @@ export const MENU = [
     { judul: 'Tanya-jawab', href: 'berkas-mahasiswa.html#tanya-jawab' },
     { judul: 'Kirim pertanyaan / masukan', href: 'berkas-mahasiswa.html#kirim' },
   ] },
+  // Berita: tautan ke halaman berita prodi (config.yaml public_site.news_url), muncul setelah data dimuat.
+  { id: 'berita', judul: 'Berita', href: '#', isi: [] },
   { id: 'kontak', judul: 'Kontak', href: '#kontak', isi: [] },
 ];
 
@@ -56,6 +58,8 @@ const CSS = `
 .kr-tautan a{color:#fff;text-decoration:none}
 .kr-tautan a:hover{color:var(--aksen,#fff)}
 .kr-tautan .kr-masuk{border:1px solid rgba(255,255,255,.45);padding:3px 10px;border-radius:2px}
+.kr-tautan .kr-daftar{background:var(--aksen);color:var(--biru-gelap);font-weight:600;padding:3px 10px;border-radius:2px}
+.kr-tautan .kr-daftar:hover{color:var(--biru-gelap);filter:brightness(1.06)}
 .kr-nav{align-self:flex-end}
 .kr-nav>ul{list-style:none;margin:0;padding:0;display:flex}
 .kr-nav>ul>li{position:relative}
@@ -110,14 +114,15 @@ const CSS = `
 @media (max-width:520px){.kr-kaki-in{grid-template-columns:1fr}}
 `;
 
-const SOSIAL = { instagram: 'Instagram', youtube: 'YouTube', linkedin: 'LinkedIn', facebook: 'Facebook', tiktok: 'TikTok', x: 'X' };
+const SOSIAL = { instagram: 'Instagram', instagram_himpunan: 'Instagram HMTS (himpunan mahasiswa)', youtube: 'YouTube',
+  linkedin: 'LinkedIn', facebook: 'Facebook', tiktok: 'TikTok', x: 'X' };
 
 function menuAtas(aktif){
   return MENU.map(m => ({ ...m, isi: m.isi.filter(x => halamanAktif(x.href)) }))
     .filter(m => m.isi.length || m.href)
     .map(m => {
       const kls = m.id === aktif ? ' class="aktif"' : '';
-      if (!m.isi.length) return `<li${kls} data-kr-menu="${m.id}"${m.id === 'kontak' ? ' hidden' : ''}><a href="${esc(m.href)}">${esc(m.judul)}</a></li>`;
+      if (!m.isi.length) return `<li${kls} data-kr-menu="${m.id}"${m.id === 'kontak' || m.id === 'berita' ? ' hidden' : ''}><a href="${esc(m.href)}">${esc(m.judul)}</a></li>`;
       return `<li${kls}><button type="button" aria-expanded="false" aria-controls="kr-sub-${m.id}">${esc(m.judul)}</button>
         <ul class="kr-sub" id="kr-sub-${m.id}">${m.isi.map(x =>
           `<li><a href="${esc(x.href)}">${esc(x.judul)}${x.ket ? `<small>${esc(x.ket)}</small>` : ''}</a></li>`).join('')}</ul></li>`;
@@ -136,7 +141,7 @@ export function pasangKerangka({ aktif = '' } = {}){
       `<img src="${esc(l.src)}" alt="${esc(l.alt)}"${l.w ? ` width="${l.w}" height="${l.h}"` : ''}>`).join('')}</a>
     <div class="kr-kanan">
       <div class="kr-baris1"><a class="kr-merek" href="index.html">Program Studi<b data-kr="prodi"></b></a>
-        <span class="kr-tautan"><a href="berkas-mahasiswa.html">Mahasiswa</a><a href="ruang-kerja.html" class="kr-masuk">Masuk ruang kerja</a></span></div>
+        <span class="kr-tautan"><a href="#" data-kr="daftar" class="kr-daftar" hidden>Pendaftaran</a><a href="berkas-mahasiswa.html">Mahasiswa</a><a href="ruang-kerja.html" class="kr-masuk">Masuk ruang kerja</a></span></div>
       <nav class="kr-nav" id="krNav" aria-label="Menu utama"><ul>${menuAtas(aktif)}<li class="kr-hp"><a href="ruang-kerja.html">Masuk ruang kerja &rarr;</a></li></ul></nav>
     </div>
     <button class="kr-burger" type="button" aria-expanded="false" aria-controls="krNav">Menu</button>
@@ -156,7 +161,7 @@ export function pasangKerangka({ aktif = '' } = {}){
       <li><a href="daftar.html?jenis=dosen">Dosen</a></li><li><a href="daftar.html?jenis=publikasi">Publikasi</a></li>
       <li><a href="mitra.html">Mitra kerja sama</a></li><li><a href="kinerja.html">Kinerja program studi</a></li></ul></div>
     <div><div data-kr="sosial" hidden></div><h4>Tautan</h4><ul>
-      <li><a href="ruang-kerja.html">Ruang kerja dosen</a></li><li><a href="privasi.html">Kebijakan privasi</a></li></ul></div>
+      <li><a href="ruang-kerja.html">Ruang kerja dosen</a></li><li><a href="privasi.html">Kebijakan privasi</a></li><li><a href="peta-situs.html">Peta situs</a></li></ul></div>
   </div>
   <div class="kr-kaki-bawah"><div><span>© ${new Date().getFullYear()} Program Studi <span data-kr="prodi"></span><span data-kr="koma-institusi"></span></span>
     <span><a href="privasi.html">Kebijakan privasi</a></span></div></div>`;
@@ -196,6 +201,16 @@ export function isiKerangka(D){
   document.querySelectorAll('[data-kr="kontak"]').forEach(el => { el.innerHTML = baris.join('<br>'); el.hidden = !baris.length; });
   // Menu Kontak hanya bila kontak diisi (config.yaml public_site.contact).
   document.querySelectorAll('[data-kr-menu="kontak"]').forEach(el => { el.hidden = !baris.length; });
+  // Berita prodi dan pendaftaran: tautan luar dari config.yaml public_site (news_url, admission_url).
+  const berita = D.situs?.berita, daftar = D.situs?.pendaftaran;
+  document.querySelectorAll('[data-kr-menu="berita"]').forEach(el => {
+    el.hidden = !berita;
+    if (berita) Object.assign(el.querySelector('a'), { href: berita, rel: 'noopener' });
+  });
+  document.querySelectorAll('[data-kr="daftar"]').forEach(el => {
+    el.hidden = !daftar;
+    if (daftar) Object.assign(el, { href: daftar, rel: 'noopener' });
+  });
   const s = Object.entries(D.situs?.sosial || {});
   document.querySelectorAll('[data-kr="sosial"]').forEach(el => {
     el.innerHTML = s.length ? `<h4>Ikuti kami</h4><ul>${s.map(([n, u]) =>

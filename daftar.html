@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Daftar — Kinerja Program Studi</title>
+<title>Daftar — Program Studi</title>
 <meta name="description" content="Daftar dosen, publikasi, penelitian, pengabdian, dan prestasi mahasiswa program studi.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-16-d97c97">
+<link rel="stylesheet" href="tema.css?v=2026-11-16-bded51">
 <style>
   /* Daftar publik (pemilik 2026-11-04): beranda hanya grafik; tiap angka
      rekap membuka daftarnya di sini. Masyarakat umum melihat daftar saja —
@@ -122,7 +122,7 @@ fetch('data.json?v=' + Date.now())
   .then(d => { D = d; render(); })
   .catch(() => {
     $('hJudul').textContent = 'Data belum tersedia';
-    $('isi').innerHTML = `<p class="kosong">Data belum tersedia. Hubungi admin prodi.</p>`;
+    $('isi').innerHTML = `<p class="kosong">Data sedang diperbarui. Silakan muat ulang beberapa saat lagi.</p>`;
   });
 
 function render(){
@@ -138,9 +138,7 @@ function render(){
   // ?q= dari pencarian menyeluruh (cari.js): isi kotak cari lalu saring.
   const q0 = new URLSearchParams(location.search).get('q');
   if (q0 && $('fCari')) { $('fCari').value = q0; $('fCari').dispatchEvent(new Event('input')); }
-  $('isi').insertAdjacentHTML('beforeend', `<footer>Diperbarui ${esc(D.diperbarui)}. Daftar ini
-    hanya memuat data yang telah diverifikasi program studi. Berkas bukti, beban kerja dosen,
-    nominal pendanaan, dan identitas mahasiswa tidak dipublikasikan.</footer>`);
+  $('isi').insertAdjacentHTML('beforeend', `<footer>Data terverifikasi program studi · diperbarui ${esc(D.diperbarui)}.</footer>`);
 }
 
 function dosen(){

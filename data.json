@@ -7007,7 +7007,48 @@
    "rapat_peserta": 5
   }
  },
- "situs": {},
+ "situs": {
+  "tagline": "Rekayasa teknik sipil yang inovatif untuk infrastruktur berkelanjutan, khususnya di bidang energi.",
+  "tentang": "Program Studi Teknik Sipil mempelajari perencanaan, perancangan, pembangunan, operasi, dan perawatan infrastruktur serta bangunan yang menopang kegiatan sehari-hari, sekaligus mengembangkan ilmu teknologi infrastruktur.",
+  "sosial": {
+   "instagram_himpunan": "https://www.instagram.com/hmts.uper/"
+  },
+  "pendaftaran": "https://pmb.universitaspertamina.ac.id/?ps=10",
+  "konsultasi": "https://wa.me/6281211499919",
+  "berita": "https://universitaspertamina.ac.id/prodi/teknik-sipil/berita",
+  "keunggulan": [
+   {
+    "judul": "Rekayasawan infrastruktur energi",
+    "teks": "Lulusan mampu merancang dan membangun infrastruktur di bidang energi secara profesional dan beretika."
+   },
+   {
+    "judul": "Technopreneur",
+    "teks": "Lulusan siap menjadi pengusaha atau technopreneur yang mampu memimpin tim, profesional, dan berintegritas."
+   },
+   {
+    "judul": "Siap studi lanjut",
+    "teks": "Lulusan dapat melanjutkan ke jenjang lebih tinggi dan mengembangkan penelitian secara kreatif, inovatif, dan mandiri."
+   }
+  ],
+  "peminatan": [
+   "Pengembangan Energi Terbarukan",
+   "Teknologi Bahan Berkelanjutan",
+   "Rekayasa Struktur Khusus",
+   "Manajemen Bencana dan Infrastruktur Tanggap Bencana"
+  ],
+  "karier": [
+   "Industri infrastruktur",
+   "Konsultan konstruksi",
+   "Analis kontrol kualitas",
+   "Pengawas dan penyedia properti pemerintah",
+   "Manajer kontrol kualitas sistem"
+  ],
+  "laboratorium": [
+   "Laboratorium Transportasi dan Rekayasa Jalan",
+   "Laboratorium Mekanika Tanah",
+   "Laboratorium Struktur (Bahan dan Konstruksi)"
+  ]
+ },
  "prestasi_agregat": [
   {
    "tahun": 2026,

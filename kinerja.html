@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-16-d97c97">
+<link rel="stylesheet" href="tema.css?v=2026-11-16-bded51">
 <style>
   /* =================================================================
      PALET — sesuaikan dengan pedoman identitas resmi institusi bila ada.
@@ -211,15 +211,12 @@
       </div>
       <div>
         <a class="cta" href="ruang-kerja.html">Masuk ruang kerja <span>&rarr;</span></a>
-        <div class="cta-cat">Ruang kerja (input data, monitoring, akreditasi)
-          khusus email yang didaftarkan prodi, sesuai perannya.</div>
         <a class="cta-mhs" href="berkas-mahasiswa.html">
           <svg viewBox="0 0 24 24" width="30" height="30" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7"
             stroke-linecap="round" stroke-linejoin="round"><path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c0 1.7 2.7 3 6 3s6-1.3 6-3v-5"/><path d="M22 9v6"/></svg>
           <span class="t"><b>Wilayah mahasiswa</b><small>Pengumuman · berkas · tanya-jawab · masukan</small></span>
           <span class="p">&rarr;</span></a>
         <a class="cta2" href="kurikulum.html">Kurikulum &amp; CPL <span>&rarr;</span></a>
-        <div class="cta-cat">Untuk mahasiswa dan umum, tanpa login.</div>
       </div>
     </div>
     <div class="angka" id="angka"></div>
@@ -230,7 +227,7 @@
 
 <main class="wrap" id="isi"></main>
 
-<script src="config.js?v=2026-11-16-d97c97"></script>
+<script src="config.js?v=2026-11-16-bded51"></script>
 <script>
 const N = n => new Intl.NumberFormat('id-ID').format(n);
 const esc = s => String(s ?? '').replace(/[&<>"']/g,c=>
@@ -270,7 +267,7 @@ fetch('data.json?v=' + Date.now())
   .catch(() => {
     document.getElementById('hProdi').textContent = 'Data belum tersedia';
     document.getElementById('isi').innerHTML =
-      `<p class="kosong">Data belum tersedia. Hubungi admin prodi.</p>`;
+      `<p class="kosong">Data sedang diperbarui. Silakan muat ulang beberapa saat lagi.</p>`;
   });
 
 // =====================================================================
@@ -450,7 +447,7 @@ function render(){
   ].filter(([, , href]) => !(window.FITUR_MATI || []).includes({ 'sdgs.html': 'sdgs', 'keahlian.html?tab=peta': 'kepakaran' }[href]))
    .map(([v,l,href])=>`<a href="${href}"><b>${N(v)}</b><span>${l}</span></a>`).join('');
   // Jumlah topik persis sama dengan keahlian.html (petaTopik, termasuk bidang keahlian).
-  import('./keahlian.js?v=2026-11-16-d97c97').then(m => {
+  import('./keahlian.js?v=2026-11-16-bded51').then(m => {
     const b = document.querySelector('#angka a[href^="keahlian.html"] b');
     // Dengan daftar baku (patch 61): topik baku yang sudah punya dosen (memilih atau berkarya).
     const B = m.daftarBaku(D), P = m.profilKeahlian(D);
@@ -458,7 +455,7 @@ function render(){
   }).catch(() => {});
 
   // Cari data publik (pemilik 2026-11-12): dosen, karya, mitra, halaman umum dari data.json.
-  import('./cari.js?v=2026-11-16-d97c97').then(m => {
+  import('./cari.js?v=2026-11-16-bded51').then(m => {
     const idx = m.indeksPublik(D, k => !(window.FITUR_MATI || []).includes(k));
     const kotak = document.getElementById('cariUmum'), panel = document.getElementById('hasilUmum');
     const e = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -491,12 +488,7 @@ function render(){
     ${bangunGrafik()}
 
     <footer>
-      Diperbarui ${esc(D.diperbarui)}. Halaman ini hanya menampilkan data yang
-      telah diverifikasi program studi. Klik angka di atas untuk melihat daftarnya.
-      Berkas bukti, beban kerja dosen, nominal pendanaan, dan identitas mahasiswa
-      tidak dipublikasikan.
-      <br><br>Dosen dan pengelola prodi mengisi data, memantau kinerja, dan menyiapkan
-      akreditasi di <a href="ruang-kerja.html">ruang kerja</a>.
+      Data terverifikasi program studi · diperbarui ${esc(D.diperbarui)}.
       <br><br><a href="kurikulum.html">Kurikulum</a> · <a href="berkas-mahasiswa.html">Wilayah mahasiswa</a>
       · <a href="privasi.html">Kebijakan privasi</a>
     </footer>`;

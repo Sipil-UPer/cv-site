@@ -3,11 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Rekap SDGs — Kinerja Program Studi</title>
+<title>Kontribusi SDGs — Program Studi</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-16-d97c97">
+<link rel="stylesheet" href="tema.css?v=2026-11-16-bded51">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
@@ -98,8 +98,8 @@
 
 <header class="hero">
   <div class="hero-in">
-    <a class="balik" href="index.html">&larr; Kembali ke dashboard</a>
-    <h1>Rekap SDGs</h1>
+    <a class="balik" href="index.html">&larr; Beranda</a>
+    <h1>Kontribusi SDGs</h1>
     <div class="prodi" id="hProdi"></div>
     <div class="angka" id="angka"></div>
   </div>
@@ -107,7 +107,7 @@
 
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
 
-<script src="config.js?v=2026-11-16-d97c97"></script>
+<script src="config.js?v=2026-11-16-bded51"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -125,9 +125,9 @@ addEventListener('error', function (e) {
 <script type="module">
 // Rekap karya per Tujuan Pembangunan Berkelanjutan (SDGs). SDG dipilih dosen
 // pada isian karya (47-patch-sdgs.sql); data dari data.json publik.
-import { jagaHalaman } from './fitur.js?v=2026-11-16-d97c97';
+import { jagaHalaman } from './fitur.js?v=2026-11-16-bded51';
 if (!jagaHalaman()) await new Promise(() => {});   // modul dimatikan (config.js FITUR_MATI)
-import { SDGS } from './form-karya.js?v=2026-11-16-d97c97';
+import { SDGS } from './form-karya.js?v=2026-11-16-bded51';
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 // Warna resmi SDG 1-17 (panduan visual PBB).
 const WARNA = ['#E5243B','#DDA63A','#4C9F38','#C5192D','#FF3A21','#26BDE2','#FCC30B','#A21942','#FD6925',
@@ -167,14 +167,14 @@ function gambar(){
     return `<h2>SDG ${PILIH}: ${esc(nama)} (${ys.length})</h2>${ys.length ? `<ol class="daftar">${ys.map(k =>
       `<li><b>${esc(k.judul)}</b> <span class="ket">· ${KAT[k.kat] || k.kat} ${k.tahun || ''}${k.siapa ? ' · ' + esc(k.siapa) : ''}</span></li>`).join('')}</ol>`
       : '<p class="kosong">Belum ada karya untuk SDG ini.</p>'}`;
-  })() : '<p class="ket">Klik salah satu SDG untuk melihat daftar karyanya.</p>';
+  })() : '<p class="ket">Pilih salah satu SDG untuk melihat karyanya.</p>';
   document.getElementById('isi').innerHTML = `
     <div class="saring"><label>Jendela waktu <select id="jendela">
       <option value="semua"${jendela === 'semua' ? ' selected' : ''}>Semua tahun</option>
       <option value="3ts"${jendela === '3ts' ? ' selected' : ''}>3 TS terakhir</option></select></label>
-      <span class="ket">SDG dipilih dosen saat mengisi karya; satu karya bisa mendukung beberapa SDG.</span></div>
+      <span class="ket">Satu karya dapat mendukung beberapa SDG.</span></div>
     <div class="sdg-kisi">${kotak}</div>${daftar}
-    <footer>Diperbarui ${esc(D.diperbarui || '')} · Data dari karya terverifikasi (publikasi, penelitian, PkM, luaran).</footer>`;
+    <footer>Data terverifikasi program studi · diperbarui ${esc(D.diperbarui || '')}.</footer>`;
   document.getElementById('jendela').onchange = gambar;
   document.querySelectorAll('[data-sdg]').forEach(b => { b.onclick = () => { PILIH = PILIH === +b.dataset.sdg ? null : +b.dataset.sdg; gambar(); }; });
 }
@@ -182,7 +182,7 @@ function gambar(){
 fetch('data.json?v=' + Date.now())
   .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
   .then(d => { D = d; document.getElementById('hProdi').textContent = [d.prodi, d.institusi].filter(Boolean).join(' · '); gambar(); })
-  .catch(() => { document.getElementById('isi').innerHTML = '<p class="kosong">Data belum tersedia. Hubungi admin prodi.</p>'; });
+  .catch(() => { document.getElementById('isi').innerHTML = '<p class="kosong">Data sedang diperbarui. Silakan muat ulang beberapa saat lagi.</p>'; });
 </script>
 </body>
 </html>
