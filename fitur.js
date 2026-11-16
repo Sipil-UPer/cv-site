@@ -16,7 +16,7 @@ export const PAKET = {
 };
 const HALAMAN = {
   'rapat.html': 'rapat', 'hadir.html': 'rapat', 'hibah.html': 'hibah', 'kalender.html': 'kalender',
-  'pengingat.html': 'pengingat', 'keahlian.html': 'kepakaran', 'sdgs.html': 'sdgs', 'sdgs-bukti.html': 'sdgs',
+  'pengingat.html': 'pengingat', 'keahlian.html': 'kepakaran', 'sdgs.html': 'sdgs',
 };
 
 const berkas = href => String(href ?? '').split(/[?#]/)[0].split('/').pop() || 'index.html';
