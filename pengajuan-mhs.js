@@ -7,13 +7,19 @@ export const JENIS = {
         berkas: ['surat_permohonan', 'surat_balasan', 'laporan_kp', 'surat_selesai', 'logbook', 'nilai_lapangan', 'foto', 'lainnya'] },
   lomba: { label: 'Laporan lomba', singkat: 'Lomba', wajib: 'laporan_lomba',
            berkas: ['laporan_lomba', 'sertifikat', 'surat_tugas', 'foto', 'lainnya'] },
+  // Surat ditandatangani Kaprodi (93-patch-pengajuan-surat.sql): tanpa pembimbing, tanpa berkas wajib.
+  surat: { label: 'Permohonan surat', singkat: 'Surat', wajib: null, tanpaPembimbing: true, berkas: ['lainnya'] },
 };
+
+export const JENIS_SURAT = [['aktif_kuliah', 'Surat keterangan aktif kuliah'], ['izin_penelitian', 'Surat izin penelitian/survei'],
+                            ['rekomendasi', 'Surat rekomendasi']];
+export const NAMA_TAHAP_SURAT = ['Isi permohonan', 'Dikirim ke prodi', 'Diproses admin prodi', 'Surat terbit'];
 
 export const LABEL_BERKAS = {
   surat_permohonan: 'Surat permohonan KP', surat_balasan: 'Surat balasan instansi', laporan_kp: 'Laporan KP',
   surat_selesai: 'Surat keterangan selesai', logbook: 'Logbook', nilai_lapangan: 'Nilai pembimbing lapangan',
   laporan_lomba: 'Laporan lomba', sertifikat: 'Sertifikat/piagam', surat_tugas: 'SK/surat tugas', foto: 'Foto kegiatan',
-  lainnya: 'Lainnya', surat_pengantar: 'Surat pengantar dari prodi',
+  lainnya: 'Lainnya', surat_pengantar: 'Surat pengantar dari prodi', surat_jadi: 'Surat dari prodi (bertanda tangan)',
 };
 
 export const LABEL_STATUS = {
@@ -34,6 +40,7 @@ export const BERKAS_SELESAI = ['laporan_kp', 'surat_selesai', 'logbook', 'nilai_
 
 // Status untuk dibaca manusia, dengan tahap KP.
 export function labelStatus(p){
+  if (p.jenis === 'surat') return { admin: 'Diproses admin prodi', disetujui: 'Surat terbit' }[p.status] || LABEL_STATUS[p.status] || p.status;
   if (p.jenis === 'kp' && p.tahap === 'selesai') return { pembimbing: 'Laporan selesai: diperiksa dosen pembimbing',
     admin: 'Laporan selesai: diperiksa admin prodi', disetujui: 'KP selesai', dikembalikan: 'Laporan selesai dikembalikan untuk diperbaiki',
     ditolak: 'Laporan selesai ditolak' }[p.status] || p.status;
@@ -44,7 +51,7 @@ export function labelStatus(p){
 // Jalur satu tahap KP (atau lomba): status dan riwayat tahap itu saja. Riwayat tanpa tahap = pengajuan (patch 90).
 export function jalurTahap(p, tahap = 'pengajuan'){
   const r = (p.riwayat || p.pengajuan_riwayat || []).filter(x => (x.tahap || 'pengajuan') === tahap);
-  if (tahap === 'pengajuan') return jalur(p.tahap === 'selesai' ? 'disetujui' : p.status, r);
+  if (tahap === 'pengajuan') return jalur(p.tahap === 'selesai' ? 'disetujui' : p.status, r, p.jenis === 'surat' ? NAMA_TAHAP_SURAT : null);
   return jalur(p.tahap === 'selesai' ? p.status : 'draf', r, NAMA_TAHAP_SELESAI);
 }
 
@@ -92,7 +99,7 @@ export function periksaIsian(jenis, { nim, nama, pembimbing, data = {} }){
   const g = [];
   if (nim !== undefined && !/^\d{6,15}$/.test(String(nim).trim())) g.push('NIM harus angka 6–15 digit.');
   if (String(nama || '').trim().length < 2) g.push('Isi nama lengkap.');
-  if (!pembimbing) g.push('Pilih dosen pembimbing.');
+  if (!pembimbing && jenis !== 'surat') g.push('Pilih dosen pembimbing.');
   if (jenis === 'kp' && !String(data.instansi || '').trim()) g.push('Isi nama instansi tujuan KP.');
   if (jenis === 'lomba') {
     if (!String(data.nama_kegiatan || '').trim()) g.push('Isi nama kegiatan/lomba.');
@@ -100,10 +107,17 @@ export function periksaIsian(jenis, { nim, nama, pembimbing, data = {} }){
     if (!data.bidang) g.push('Pilih bidang lomba.');
     if (!/^\d{4}-\d{2}-\d{2}$/.test(String(data.tanggal || ''))) g.push('Isi tanggal lomba.');
   }
+  if (jenis === 'surat') {
+    if (!data.jenis_surat) g.push('Pilih jenis surat.');
+    if (String(data.keperluan || '').trim().length < 5) g.push('Tulis keperluan surat.');
+    if (['izin_penelitian', 'rekomendasi'].includes(data.jenis_surat) && !String(data.tujuan_surat || '').trim()) g.push('Tulis tujuan surat (kepada siapa).');
+    if (data.jenis_surat === 'izin_penelitian' && !String(data.judul_penelitian || '').trim()) g.push('Tulis judul penelitian.');
+  }
   return g;
 }
 
-export const judulPengajuan = p => p.jenis === 'kp' ? (p.data?.instansi || 'KP') : (p.data?.nama_kegiatan || 'Lomba');
+export const judulPengajuan = p => p.jenis === 'kp' ? (p.data?.instansi || 'KP')
+  : p.jenis === 'surat' ? ((JENIS_SURAT.find(x => x[0] === p.data?.jenis_surat) || [, 'Surat'])[1]) : (p.data?.nama_kegiatan || 'Lomba');
 
 export const keB64 = f => new Promise((ok, gagal) => {
   const r = new FileReader();

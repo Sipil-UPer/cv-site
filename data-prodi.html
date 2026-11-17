@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-17-a5130e">
+<link rel="stylesheet" href="tema.css?v=2026-11-17-4a7e0c">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
@@ -101,7 +101,7 @@
   .masuk{max-width:420px;margin:40px auto;background:#fff;border:1px solid var(--line);padding:20px}
   .masuk input{width:100%;padding:8px 10px;margin:8px 0;font:inherit}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-17-a5130e">
+<link rel="stylesheet" href="kepala.css?v=2026-11-17-4a7e0c">
 </head>
 <body>
 
@@ -115,7 +115,7 @@
 
 <main class="wrap" id="isi"></main>
 
-<script src="config.js?v=2026-11-17-a5130e"></script>
+<script src="config.js?v=2026-11-17-4a7e0c"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -132,25 +132,25 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-17-a5130e';
-import { pasangMenu } from './menu.js?v=2026-11-17-a5130e';
-import { dosenLogin } from './dosen-login.js?v=2026-11-17-a5130e';
-import { unggahKePustaka, opsiPustaka, opsiJenis, labelDokumen, cariDokumen } from './pustaka-dokumen.js?v=2026-11-17-a5130e';
-import { pasangRapikan } from './rapikan-berkas.js?v=2026-11-17-a5130e';
-import { UNSUR, skorUnsur, pihakUnsur } from './unsur-butir.js?v=2026-11-17-a5130e';
-import { OPSI_SUMBER } from './iku-otomatis.js?v=2026-11-17-a5130e';
-import { denganOtomatis as otomatisDari, tsTersedia, tsAwal, htmlCapaianIKU, KET_CAPAIAN, muatTambahan, denganTambahan } from './capaian-iku.js?v=2026-11-17-a5130e';
-import { KATEGORI_TEMUAN, STATUS_TEMUAN, PIHAK_TEMUAN, ringkasTemuan, htmlRingkasTemuan } from './temuan-ami.js?v=2026-11-17-a5130e';
-import { bacaRekapSPM, rencanaImporSPM, tsDariTanggal, labelTS, ringkasLembar, picProdi } from './standar-spmi.js?v=2026-11-17-a5130e';
-import { SHEETJS } from './nilai-cpl.js?v=2026-11-17-a5130e';
-import { bacaCSV, normKur, normCpl, KOLOM_IMPOR, CONTOH_IMPOR, rencanaImpor, sebaranCPL, htmlSebaran } from './kurikulum-cpl.js?v=2026-11-17-a5130e';
-import { htmlContoh, pasangContoh, JENIS_BUKTI_KS } from './manfaat-kerjasama.js?v=2026-11-17-a5130e';
-import { infoJenis } from './rencana-bukti.js?v=2026-11-17-a5130e';
-import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-17-a5130e';
-import { nomorButir, htmlTautanButir } from './tautan-butir.js?v=2026-11-17-a5130e';
-import { htmlSaran } from './saran-bukti.js?v=2026-11-17-a5130e';
-import { tautanBerkas, privatkanLama, adalahPrivat } from './tautan-privat.js?v=2026-11-17-a5130e';
-import { unggahLKD, buangLKD, bukaLKD, pendidikanTotal, pendidikanPS } from './bkd.js?v=2026-11-17-a5130e';
+import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-17-4a7e0c';
+import { pasangMenu } from './menu.js?v=2026-11-17-4a7e0c';
+import { dosenLogin } from './dosen-login.js?v=2026-11-17-4a7e0c';
+import { unggahKePustaka, opsiPustaka, opsiJenis, labelDokumen, cariDokumen } from './pustaka-dokumen.js?v=2026-11-17-4a7e0c';
+import { pasangRapikan } from './rapikan-berkas.js?v=2026-11-17-4a7e0c';
+import { UNSUR, skorUnsur, pihakUnsur } from './unsur-butir.js?v=2026-11-17-4a7e0c';
+import { OPSI_SUMBER } from './iku-otomatis.js?v=2026-11-17-4a7e0c';
+import { denganOtomatis as otomatisDari, tsTersedia, tsAwal, htmlCapaianIKU, KET_CAPAIAN, muatTambahan, denganTambahan } from './capaian-iku.js?v=2026-11-17-4a7e0c';
+import { KATEGORI_TEMUAN, STATUS_TEMUAN, PIHAK_TEMUAN, ringkasTemuan, htmlRingkasTemuan } from './temuan-ami.js?v=2026-11-17-4a7e0c';
+import { bacaRekapSPM, rencanaImporSPM, tsDariTanggal, labelTS, ringkasLembar, picProdi } from './standar-spmi.js?v=2026-11-17-4a7e0c';
+import { SHEETJS } from './nilai-cpl.js?v=2026-11-17-4a7e0c';
+import { bacaCSV, normKur, normCpl, KOLOM_IMPOR, CONTOH_IMPOR, rencanaImpor, sebaranCPL, htmlSebaran } from './kurikulum-cpl.js?v=2026-11-17-4a7e0c';
+import { htmlContoh, pasangContoh, JENIS_BUKTI_KS } from './manfaat-kerjasama.js?v=2026-11-17-4a7e0c';
+import { infoJenis } from './rencana-bukti.js?v=2026-11-17-4a7e0c';
+import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-17-4a7e0c';
+import { nomorButir, htmlTautanButir } from './tautan-butir.js?v=2026-11-17-4a7e0c';
+import { htmlSaran } from './saran-bukti.js?v=2026-11-17-4a7e0c';
+import { tautanBerkas, privatkanLama, adalahPrivat } from './tautan-privat.js?v=2026-11-17-4a7e0c';
+import { unggahLKD, buangLKD, bukaLKD, pendidikanTotal, pendidikanPS } from './bkd.js?v=2026-11-17-4a7e0c';
 
 /* =====================================================================
    DATA PRODI — data kuantitatif LKPS diisi admin di situs (keputusan
@@ -1000,22 +1000,30 @@ async function mulai(){
   pilihTab(AKTIF);
 }
 
-// Blok bukti formulir: pustaka (tautkan / unggah ke pustaka) + tautan luar.
+// Jenis bukti prestasi (lkps_bukti_jenis_check, patch 38).
+const JENIS_BUKTI_PRESTASI = [['sertifikat', 'Sertifikat/piagam'], ['foto', 'Foto kegiatan (tampil di situs)'],
+  ['surat_tugas', 'SK/surat tugas'], ['lainnya', 'Lainnya']];
+// Blok bukti formulir: unggah langsung + pustaka (tautkan / unggah ke pustaka) + tautan luar.
 function blokBukti(T){
   const pustaka = ADA29 ? `
         <div class="unggah-baris"><select id="bk_pustaka">${opsiPustaka(DOK, T.dok)}</select>
           <button type="button" class="btn ghost kecil" data-tautkan="1">Tautkan dari pustaka</button></div>
-        ${UNGGAH ? `<details class="unggah-dok"><summary>Unggah dokumen baru (masuk pustaka)</summary>
+        ${UNGGAH ? `<details class="unggah-dok"><summary>Unggah dokumen resmi baru ke pustaka (SK, pedoman, laporan; bisa dipakai baris lain)</summary>
           <div class="unggah-baris"><select id="bk_jenis">${opsiJenis(T.dok, T.dok[0])}</select>
             <input type="number" id="bk_tahun" min="1990" max="2100" placeholder="Tahun dokumen">
             <input type="text" id="bk_dj" maxlength="120" placeholder="Judul/nomor dokumen"></div>
-          <div class="unggah-baris"><input type="file" id="bk_berkas" accept="${esc(UNGGAH.accept)}" multiple>
-            <button type="button" class="btn ghost kecil" data-unggah="1">Unggah ke pustaka</button></div>
+          <div class="unggah-baris"><input type="file" id="bk_pustaka_berkas" accept="${esc(UNGGAH.accept)}" multiple>
+            <button type="button" class="btn ghost kecil" data-unggah-ke-pustaka="1">Unggah ke pustaka</button></div>
           <p class="ket" id="bk_ket"></p></details>` : ''}`
-    : (UNGGAH ? `<div class="unggah-baris"><input type="file" id="bk_berkas" accept="${esc(UNGGAH.accept)}" multiple>
-          <button type="button" class="btn ghost kecil" data-unggah="1">Unggah berkas</button></div>` : '');
+    : '';
+  // Unggah langsung untuk baris ini (pemilik 2026-11-17: tadinya hanya lewat pustaka, terlipat). Prestasi memilih
+  // jenis bukti: lkps_bukti.jenis 'foto' tampil di halaman Prestasi (halaman_publik.prestasi_publik).
+  const langsung = UNGGAH ? `<div class="unggah-baris">${T.tabel === 'lkps_prestasi_mahasiswa'
+      ? `<select id="bk_jb" aria-label="Jenis bukti">${JENIS_BUKTI_PRESTASI.map(([k, l]) => `<option value="${k}">${l}</option>`).join('')}</select>` : ''}
+        <input type="file" id="bk_berkas" accept="${esc(UNGGAH.accept)}" multiple>
+        <button type="button" class="btn kecil" data-unggah="1">Unggah berkas bukti</button></div>` : '';
   return `<div class="fld lebar"><label>Bukti baris ini (boleh lebih dari satu)</label>
-        ${blokUnsur(T)}<ul class="bukti-l" id="bukti-l"></ul>${pustaka}
+        ${blokUnsur(T)}<ul class="bukti-l" id="bukti-l"></ul>${langsung}${pustaka}
         <div class="unggah-baris"><input type="text" id="bk_judul" placeholder="Judul tautan luar (mis. DOI artikel)">
           <input type="url" id="bk_url" placeholder="https://…">
           <button type="button" class="btn ghost kecil" data-tautan="1">Tambah tautan luar</button></div></div>`;
@@ -1904,7 +1912,7 @@ async function muatBaris(){
     isiJamak(c, r ? r[c.k] : [...($('f_' + c.k)?.querySelectorAll('input:checked') || [])].map(x => x.value));
   });
   const lb = await sb.from('lkps_bukti').select((ADA29 ? 'id,baris_id,judul,url,dokumen_id' : 'id,baris_id,judul,url')
-      + (ADA43 ? ',unsur' : ''))
+      + (ADA43 ? ',unsur' : '') + ',jenis')   // jenis: patch 38 (foto prestasi tampil di situs)
     .eq('tabel', T.tabel).order('id');
   LB_GAGAL = lb.error ? lb.error.message : '';
   LB = new Map();
@@ -2098,7 +2106,9 @@ async function klikPanel(e){
     return muatBaris();
   }
   const g = e.target.closest('[data-unggah]');
-  if (g) return ADA29 ? unggahPustaka(g) : unggah(g);
+  if (g) return unggah(g);
+  const gp = e.target.closest('[data-unggah-ke-pustaka]');
+  if (gp) return unggahPustaka(gp);
   const tk = e.target.closest('[data-tautkan]');
   if (tk) {
     const id = +$('bk_pustaka').value;
@@ -2151,7 +2161,7 @@ function buktiBaris(r){
 // Baris lkps_bukti dari satu bukti (tautan pustaka atau tautan luar).
 const barisBukti = (b, barisId) => ({ ...(b.dokumen_id
   ? { tabel: AKTIF.tabel, baris_id: barisId, dokumen_id: b.dokumen_id, judul: '', oleh: SAYA.email }
-  : { tabel: AKTIF.tabel, baris_id: barisId, judul: b.judul, url: b.url, oleh: SAYA.email }),
+  : { tabel: AKTIF.tabel, baris_id: barisId, judul: b.judul, url: b.url, oleh: SAYA.email, ...(b.jenis ? { jenis: b.jenis } : {}) }),
   ...(b.unsur ? { unsur: b.unsur } : {}) });
 
 // Bukti di form: baris yang diubah (tersimpan) atau baris baru (antrean).
@@ -2167,7 +2177,8 @@ function gambarBukti(){
                    judul: labelDokumen(dokPer(x.dokumen_id)) } : {}), hapus: `data-hapus-antrean="${i}"` }));
   gambarUnsur(xs);
   ul.innerHTML = xs.length ? xs.map(x => `<li>${x.unsur ? `<span class="tag-unsur">unsur ${x.unsur}</span> ` : ''}${
-    x.pustaka ? '<span class="tag-pustaka">pustaka</span> ' : ''}<a href="${esc(x.url)}"
+    x.pustaka ? '<span class="tag-pustaka">pustaka</span> ' : ''}${
+    x.jenis ? `<span class="tag-pustaka">${esc((JENIS_BUKTI_PRESTASI.find(j => j[0] === x.jenis) || [, x.jenis])[1].replace(/ \(.*\)$/, ''))}</span> ` : ''}<a href="${esc(x.url)}"
     target="_blank" rel="noopener nofollow">${esc(x.judul)}</a>
     ${x.hapus ? `<button type="button" class="btn bahaya kecil" ${x.hapus} title="${x.pustaka ? 'Lepas dari baris' : 'Hapus'}">×</button>` : ''}</li>`).join('')
     : `<li class="kosong">${r ? 'Belum ada bukti.' : 'Belum ada bukti; yang diunggah akan tersimpan bersama baris ini.'}</li>`;
@@ -2243,7 +2254,7 @@ async function unggah(tombol){
             filename: f.name, data: await keB64(f) }) });
         const out = await res.json();
         if (!out.ok) throw new Error(out.error || 'Unggah gagal.');
-        items.push({ judul: f.name, url: tautanBerkas(out) });
+        items.push({ judul: f.name, url: tautanBerkas(out), ...($('bk_jb') ? { jenis: $('bk_jb').value } : {}) });
       } catch (err) {
         gagal.push(`${f.name}: ${err.message || err}`);
         if (/Sesi login/.test(err.message || '')) break;
@@ -2277,13 +2288,13 @@ const pesanPustaka = (d, akhir) => d._ada === 'pustaka'
 
 // Unggah dari bukti baris: berkas masuk pustaka (kunci sama = mengganti), lalu ditautkan.
 async function unggahPustaka(tombol){
-  const berkas = [...($('bk_berkas').files || [])];
+  const berkas = [...($('bk_pustaka_berkas').files || [])];
   tombol.disabled = true;
   try {
     const d = await unggahKePustaka(sb, UNGGAH, { jenis: $('bk_jenis').value, tahun: $('bk_tahun').value,
       judul: $('bk_dj').value, berkas, oleh: SAYA.email, progres: s => tulis('', s) });
     await muatPustaka();
-    $('bk_berkas').value = '';
+    $('bk_pustaka_berkas').value = '';
     $('bk_pustaka').innerHTML = opsiPustaka(DOK, AKTIF.dok);
     ketUnggah();
     await tambahBukti([{ dokumen_id: d.id }]);

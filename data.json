@@ -98,7 +98,8 @@
    "sinta_id": "6926173",
    "scopus_id": "58902592000",
    "orcid": "0000-0002-3831-107X",
-   "kelompok": "TRN"
+   "kelompok": "TRN",
+   "foto": "foto-profil/1ehPvswX9P8KA6chANwk40tvaKdQflJFL.jpg"
   },
   {
    "nama": "Wirman Hidayat",
@@ -7085,8 +7086,17 @@
    "tahun": 2026,
    "bulan": 5,
    "cerita": "",
-   "mahasiswa": [],
-   "pembimbing": []
+   "mahasiswa": [
+    "Fikri Andika Ramdani",
+    "Dimas Agim Jamiat",
+    "Fasha Al Ihsan"
+   ],
+   "pembimbing": [
+    {
+     "nama": "Vani Arliani",
+     "slug": "vani-arliani"
+    }
+   ]
   },
   {
    "id": 6,
@@ -7327,7 +7337,15 @@
    "jumlah": 1
   }
  ],
- "prestasi_pembimbing": [],
+ "prestasi_pembimbing": [
+  {
+   "slug": "vani-arliani",
+   "nama": "Vani Arliani",
+   "tahun": 2026,
+   "tingkat": "nasional",
+   "jumlah": 1
+  }
+ ],
  "mahasiswa_agregat": [
   {
    "tahun": 2026,

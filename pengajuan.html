@@ -4,15 +4,16 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
-<title>Pengajuan KP dan lomba — Program Studi</title>
+<title>Pengajuan KP, lomba, dan surat — Program Studi</title>
 <meta name="description" content="Pengajuan Kerja Praktik dan laporan lomba mahasiswa: isi, unggah berkas, dan pantau prosesnya.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-17-a5130e">
+<link rel="stylesheet" href="tema.css?v=2026-11-17-4a7e0c">
 <style>
   /* Pengajuan mahasiswa, publik tanpa login (pemilik 2026-11-17; patch 90). Warna dari tema.css. */
   *{box-sizing:border-box}
+  [hidden]{display:none !important}   /* .dua/.fld berdisplay grid/block mengalahkan hidden */
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15.5px;line-height:1.55;-webkit-font-smoothing:antialiased}
   .wrap{max-width:860px;margin:0 auto;padding:0 16px 80px}
   .hero{background:var(--biru);color:#fff;border-bottom:4px solid var(--merah)}
@@ -70,10 +71,10 @@
 <body>
 <header class="hero"><div class="hero-in">
   <a class="balik" href="berkas-mahasiswa.html">&larr; Layanan mahasiswa</a>
-  <h1>Pengajuan KP dan laporan lomba</h1><div class="prodi" id="hProdi"></div>
+  <h1>Pengajuan KP, laporan lomba, dan surat</h1><div class="prodi" id="hProdi"></div>
 </div></header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-17-a5130e"></script>
+<script src="config.js?v=2026-11-17-4a7e0c"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -94,7 +95,7 @@ addEventListener('error', function (e) {
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
 import { JENIS, LABEL_BERKAS, LABEL_STATUS, TINGKAT, BIDANG, jalur, bolehUbah, bacaAnggota, teksAnggota,
          periksaIsian, judulPengajuan, keB64, bukaIsi, appsScript, labelStatus, jalurTahap, BERKAS_SELESAI,
-         periksaSelesai } from './pengajuan-mhs.js?v=2026-11-17-a5130e';
+         periksaSelesai, JENIS_SURAT } from './pengajuan-mhs.js?v=2026-11-17-4a7e0c';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
@@ -112,6 +113,17 @@ function htmlIsian(jenis, d = {}, nama = '', pembimbing = ''){
     <select id="f_pb"><option value="">(pilih)</option>${DOSEN.map(x => `<option value="${x.id}"${x.id === pembimbing ? ' selected' : ''}>${esc(x.nama)}</option>`).join('')}</select>
     <small>Dosen ini memeriksa pengajuan Anda lebih dulu, lalu admin prodi.</small></div>`;
   const nm = `<div class="fld"><label for="f_nama">Nama lengkap</label><input id="f_nama" maxlength="120" autocomplete="name" value="${esc(nama)}"></div>`;
+  if (jenis === 'surat') return `${nm}
+    <div class="fld"><label for="f_js">Jenis surat</label><select id="f_js"><option value="">(pilih)</option>${opsi(JENIS_SURAT, d.jenis_surat)}</select>
+      <small>Ditandatangani Kaprodi. Diproses admin prodi; surat yang sudah ditandatangani diunduh lewat tautan pribadi Anda.</small></div>
+    <div class="fld"><label for="f_kep">Keperluan</label><textarea id="f_kep" maxlength="600" placeholder="mis. syarat beasiswa, pengambilan data Tugas Akhir">${esc(d.keperluan)}</textarea></div>
+    <div class="fld" data-surat="izin_penelitian rekomendasi"><label for="f_tuj">Tujuan surat (kepada)</label><input id="f_tuj" maxlength="300" value="${esc(d.tujuan_surat)}" placeholder="mis. Kepala Dinas PUPR Kota …"></div>
+    <div class="fld" data-surat="izin_penelitian rekomendasi"><label for="f_alt">Alamat tujuan <span>(opsional)</span></label><input id="f_alt" maxlength="300" value="${esc(d.alamat_tujuan)}"></div>
+    <div class="fld" data-surat="izin_penelitian"><label for="f_jdl">Judul penelitian</label><input id="f_jdl" maxlength="300" value="${esc(d.judul_penelitian)}"></div>
+    <div class="dua" data-surat="izin_penelitian">
+      <div class="fld"><label for="f_lok">Lokasi <span>(opsional)</span></label><input id="f_lok" maxlength="300" value="${esc(d.lokasi)}"></div>
+      <div class="fld"><label for="f_wkt">Waktu pelaksanaan <span>(opsional)</span></label><input id="f_wkt" maxlength="300" value="${esc(d.waktu_pelaksanaan)}" placeholder="mis. Desember 2026 – Januari 2027"></div>
+    </div>`;
   if (jenis === 'kp') return `${nm}${pb}
     <div class="fld"><label for="f_instansi">Instansi tujuan KP</label><input id="f_instansi" maxlength="300" value="${esc(d.instansi)}"></div>
     <div class="fld"><label for="f_alamat">Alamat instansi <span>(opsional)</span></label><input id="f_alamat" maxlength="300" value="${esc(d.alamat_instansi)}"></div>
@@ -138,8 +150,16 @@ function htmlIsian(jenis, d = {}, nama = '', pembimbing = ''){
       ditampilkan di situs prodi bila prestasi ini disetujui (tanpa NIM). Tanpa centang: ditulis "Tim mahasiswa".</label>`;
 }
 
+function pasangSurat(){
+  const js = $('f_js'); if (!js) return;
+  const atur = () => document.querySelectorAll('[data-surat]').forEach(el => { el.hidden = !el.dataset.surat.split(' ').includes(js.value); });
+  js.onchange = atur; atur();
+}
+
 function bacaIsian(jenis){
   const v = id => ($(id)?.value || '').trim();
+  if (jenis === 'surat') return { nama: v('f_nama'), pembimbing: '', data: { jenis_surat: v('f_js'), keperluan: v('f_kep'),
+    tujuan_surat: v('f_tuj'), alamat_tujuan: v('f_alt'), judul_penelitian: v('f_jdl'), lokasi: v('f_lok'), waktu_pelaksanaan: v('f_wkt') } };
   const data = jenis === 'kp'
     ? { instansi: v('f_instansi'), alamat_instansi: v('f_alamat'), bidang_kerja: v('f_bidang'), kontak_instansi: v('f_kontak'),
         rencana_mulai: v('f_mulai'), rencana_selesai: v('f_selesai') }
@@ -152,14 +172,16 @@ function bacaIsian(jenis){
 function halamanBaru(){
   $('isi').innerHTML = `
     <p class="ket">Isi data, lalu tautan pribadi dikirim ke <b>email kampus Anda</b> (NIM@domain mahasiswa). Lewat tautan itu
-      Anda mengunggah berkas, memeriksa isian, menekan <b>Kirim untuk diperiksa</b>, dan memantau prosesnya: dosen pembimbing,
-      lalu admin prodi. Berkas tidak tampil di situs. <a href="privasi.html">Kebijakan privasi</a>.</p>
+      Anda mengunggah berkas, memeriksa isian, menekan <b>Kirim untuk diperiksa</b>, dan memantau prosesnya: dosen pembimbing
+      (KP dan lomba), lalu admin prodi. Berkas tidak tampil di situs. <a href="privasi.html">Kebijakan privasi</a>.</p>
     <form class="kotak" id="frm" novalidate>
       <div class="pilih" role="radiogroup" aria-label="Jenis pengajuan">
         <label><input type="radio" name="jenis" value="kp" checked><span>Kerja Praktik (KP)<small>pengajuan KP dan surat
           pengantar; laporan dan surat selesai menyusul lewat tautan yang sama</small></span></label>
         <label><input type="radio" name="jenis" value="lomba"><span>Laporan lomba<small>lomba atau kompetisi yang sudah diikuti;
           setelah disetujui tercatat sebagai prestasi mahasiswa</small></span></label>
+        <label><input type="radio" name="jenis" value="surat"><span>Permohonan surat<small>keterangan aktif kuliah, izin penelitian,
+          atau rekomendasi; ditandatangani Kaprodi</small></span></label>
       </div>
       <div class="fld"><label for="f_nim">NIM</label><input id="f_nim" inputmode="numeric" maxlength="15" autocomplete="off"></div>
       <div id="isian"></div>
@@ -175,7 +197,7 @@ function halamanBaru(){
       <button type="submit" class="b" id="b_ulang">Kirim tautan baru</button><span class="msg" id="m_ulang" role="status"></span>
     </form>`;
   const jenis = () => document.querySelector('[name=jenis]:checked').value;
-  const gambar = () => { $('isian').innerHTML = htmlIsian(jenis()); };
+  const gambar = () => { $('isian').innerHTML = htmlIsian(jenis()); pasangSurat(); };
   document.querySelectorAll('[name=jenis]').forEach(r => { r.onchange = gambar; });
   gambar();
   $('frm').onsubmit = async e => {
@@ -242,7 +264,10 @@ function halamanSaya(){
   const jendelaSelesai = !!p.jendela_selesai, adaSelesai = p.jenis === 'kp' && (jendelaSelesai || p.tahap === 'selesai');
   const jenisUnggah = ubahPengajuan ? J.berkas : BERKAS_SELESAI;
   const bisaBuang = b => ubah && b.oleh !== 'prodi' && !(p.status === 'disetujui' && b.jenis === 'surat_permohonan');
-  const ringkas = p.jenis === 'kp'
+  const ringkas = p.jenis === 'surat'
+    ? [['Jenis surat', judulPengajuan(p)], ['Keperluan', d.keperluan], ['Tujuan', [d.tujuan_surat, d.alamat_tujuan].filter(Boolean).join(', ')],
+       ['Judul penelitian', d.judul_penelitian], ['Lokasi', d.lokasi], ['Waktu', d.waktu_pelaksanaan]]
+    : p.jenis === 'kp'
     ? [['Instansi', d.instansi], ['Alamat', d.alamat_instansi], ['Bidang/divisi', d.bidang_kerja], ['Kontak', d.kontak_instansi],
        ['Rencana', [d.rencana_mulai, d.rencana_selesai].filter(Boolean).join(' s.d. ')]]
     : [['Kegiatan', d.nama_kegiatan], ['Penyelenggara', d.penyelenggara], ['Tanggal', d.tanggal],
@@ -251,22 +276,22 @@ function halamanSaya(){
   const ringkasSelesai = [['Tanggal', [ds.tanggal_mulai, ds.tanggal_selesai].filter(Boolean).join(' s.d. ')], ['Pembimbing lapangan',
     [ds.pembimbing_lapangan, ds.jabatan_lapangan].filter(Boolean).join(', ')], ['Kontak', ds.kontak_lapangan], ['Bagian/proyek', ds.divisi],
     ['Ringkasan', ds.ringkasan]];
-  const pengantar = p.berkas.filter(b => b.jenis === 'surat_pengantar');
+  const pengantar = p.berkas.filter(b => b.jenis === 'surat_pengantar' || b.jenis === 'surat_jadi');
   const semua = [{ id: p.id, jenis: p.jenis, status: p.status, tahap: p.tahap, judul: judulPengajuan(p), ini: true }, ...(p.lain || [])];
   $('isi').innerHTML = `
     <p class="ket">Halaman ini terbuka dengan tautan pribadi dari email kampus Anda. Jangan bagikan alamatnya.</p>
     <h2>${esc(J.label)}: ${esc(judulPengajuan(p))}</h2>
     <div>Status: <span class="status">${esc(labelStatus(p))}</span> · ${esc(p.nama)} (${esc(p.nim)})
-      · pembimbing ${esc(p.pembimbing || '—')}</div>
+      ${p.jenis === 'surat' ? '' : '· pembimbing ' + esc(p.pembimbing || '—')}</div>
     ${p.jenis === 'kp' ? '<h3 class="sub-h">Pengajuan KP</h3>' : ''}${htmlJalur(jalurTahap(p, 'pengajuan'))}
     ${adaSelesai ? `<h3 class="sub-h">Laporan selesai KP</h3>${htmlJalur(jalurTahap(p, 'selesai'))}` : ''}
-    ${pengantar.length ? `<div class="kotak"><b>Surat pengantar dari prodi sudah tersedia.</b>
+    ${pengantar.length ? `<div class="kotak"><b>${p.jenis === 'surat' ? 'Surat dari prodi sudah terbit.' : 'Surat pengantar dari prodi sudah tersedia.'}</b>
       ${pengantar.map(b => `<button class="b" data-buka="${b.id}" style="margin-left:8px">Buka ${esc(b.nama || 'surat')}</button>`).join('')}</div>` : ''}
     ${jendelaSelesai ? `<div class="kotak"><b>Sudah selesai KP?</b> Isi laporan selesai di bawah, unggah <b>laporan KP</b> dan
       <b>surat keterangan selesai</b> (wajib), serta logbook, nilai pembimbing lapangan, dan foto bila ada, lalu tekan
       <b>Kirim laporan selesai</b>. Pemeriksaannya sama: dosen pembimbing, lalu admin prodi.</div>` : ''}
     <h2>Berkas</h2>
-    <p class="ket">${ubahPengajuan ? `Wajib sebelum dikirim: <b>${esc(LABEL_BERKAS[J.wajib])}</b>. ` : ''}${jendelaSelesai
+    <p class="ket">${ubahPengajuan && J.wajib ? `Wajib sebelum dikirim: <b>${esc(LABEL_BERKAS[J.wajib])}</b>. ` : ''}${p.jenis === 'surat' ? 'Lampiran pendukung (mis. proposal) boleh diunggah, tidak wajib. ' : ''}${jendelaSelesai
       ? 'Wajib untuk laporan selesai: <b>Laporan KP</b> dan <b>Surat keterangan selesai</b>. ' : ''}Boleh lebih dari satu berkas per jenis; maks. 20 berkas.</p>
     <ul class="daftar">${p.berkas.map(b => `<li class="${b.oleh === 'prodi' ? 'prodi-berkas' : ''}"><div class="isi">${esc(LABEL_BERKAS[b.jenis] || b.jenis)}
       <div class="meta">${esc(b.nama)} · ${esc(tglWaktu(b.dibuat))}${b.oleh === 'prodi' ? ' · dari prodi' : ''}</div></div>
@@ -281,7 +306,7 @@ function halamanSaya(){
         <p><button type="button" class="b utama" id="b_kirimS">Kirim laporan selesai</button><span class="msg" id="m_kirimS" role="status"></span></p></form>`
       : `<dl class="kotak ringkas">${ringkasSelesai.filter(([, v]) => v).map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join('')}</dl>`}` : ''}
     <h2>Isian pengajuan</h2>
-    ${ubahPengajuan ? `<form class="kotak" id="frmUbah" novalidate>${htmlIsian(p.jenis, d, p.nama, p.pembimbing_id)}
+    ${ubahPengajuan ? `<form class="kotak" id="frmUbah" novalidate>${htmlIsian(p.jenis, d, p.nama, p.pembimbing_id || '')}
       <p><button type="submit" class="b" id="b_simpan">Simpan isian</button><span class="msg" id="m_simpan" role="status"></span></p></form>
       <div class="kotak"><b>Sudah lengkap?</b> Setelah dikirim, isian dan berkas terkunci sampai pemeriksaan selesai atau dikembalikan.
         <p><button class="b utama" id="b_kirim">Kirim untuk diperiksa</button><span class="msg" id="m_kirim" role="status"></span></p></div>`
@@ -296,6 +321,7 @@ function halamanSaya(){
   document.querySelectorAll('[data-buang]').forEach(b => { b.onclick = () => buang(+b.dataset.buang, b); });
   if (ubah) $('b_unggah').onclick = unggah;
   if (ubahPengajuan) {
+    pasangSurat();
     $('frmUbah').onsubmit = async e => { e.preventDefault(); await simpan(); };
     $('b_kirim').onclick = kirim;
   }
