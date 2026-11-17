@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-17-b8759d">
+<link rel="stylesheet" href="tema.css?v=2026-11-17-09db23">
 <style>
   /* Pengajuan mahasiswa, publik tanpa login (pemilik 2026-11-17; patch 90). Warna dari tema.css. */
   *{box-sizing:border-box}
@@ -75,7 +75,7 @@
   <h1>Pengajuan KP, seminar/sidang TA, lomba, publikasi/luaran, dan surat</h1><div class="prodi" id="hProdi"></div>
 </div></header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-17-b8759d"></script>
+<script src="config.js?v=2026-11-17-09db23"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -95,8 +95,8 @@ addEventListener('error', function (e) {
 // jalur proses, berkas, perbaikan isian, dan Kirim untuk diperiksa (fungsi mhs_* di patch 90).
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
 import { JENIS, LABEL_BERKAS, LABEL_STATUS, TINGKAT, BIDANG, jalur, bolehUbah, bacaAnggota, teksAnggota,
-         periksaIsian, judulPengajuan, keB64, bukaIsi, appsScript, labelStatus, jalurTahap, BERKAS_SELESAI,
-         periksaSelesai, JENIS_SURAT, TAHAP_TA, JENIS_PUB, TINGKAT_PUB, INDEKSASI, JENIS_LUARAN } from './pengajuan-mhs.js?v=2026-11-17-b8759d';
+         periksaIsian, judulPengajuan, keB64, bukaIsi, appsScript, labelStatus, jalurTahap, BERKAS_SELESAI, PROGRAM_KP, labelProgram,
+         periksaSelesai, JENIS_SURAT, TAHAP_TA, JENIS_PUB, TINGKAT_PUB, INDEKSASI, JENIS_LUARAN } from './pengajuan-mhs.js?v=2026-11-17-09db23';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
@@ -161,7 +161,9 @@ function htmlIsian(jenis, d = {}, nama = '', pembimbing = ''){
       <div class="fld"><label for="f_wkt">Waktu pelaksanaan <span>(opsional)</span></label><input id="f_wkt" maxlength="300" value="${esc(d.waktu_pelaksanaan)}" placeholder="mis. Desember 2026 – Januari 2027"></div>
     </div>`;
   if (jenis === 'kp') return `${nm}${pb}
-    <div class="fld"><label for="f_instansi">Instansi tujuan KP</label><input id="f_instansi" maxlength="300" value="${esc(d.instansi)}"></div>
+    <div class="fld"><label for="f_program">Program</label><select id="f_program">${PROGRAM_KP.map(([k, l]) =>
+      `<option value="${k}"${(d.program || 'kp') === k ? ' selected' : ''}>${esc(l)}</option>`).join('')}</select></div>
+    <div class="fld"><label for="f_instansi">Instansi tujuan KP/magang</label><input id="f_instansi" maxlength="300" value="${esc(d.instansi)}"></div>
     <div class="fld"><label for="f_alamat">Alamat instansi <span>(opsional)</span></label><input id="f_alamat" maxlength="300" value="${esc(d.alamat_instansi)}"></div>
     <div class="dua">
       <div class="fld"><label for="f_bidang">Bidang/divisi <span>(opsional)</span></label><input id="f_bidang" maxlength="300" value="${esc(d.bidang_kerja)}"></div>
@@ -215,7 +217,7 @@ function bacaIsian(jenis){
   if (jenis === 'surat') return { nama: v('f_nama'), pembimbing: '', data: { jenis_surat: v('f_js'), keperluan: v('f_kep'),
     tujuan_surat: v('f_tuj'), alamat_tujuan: v('f_alt'), judul_penelitian: v('f_jdl'), lokasi: v('f_lok'), waktu_pelaksanaan: v('f_wkt') } };
   const data = jenis === 'kp'
-    ? { instansi: v('f_instansi'), alamat_instansi: v('f_alamat'), bidang_kerja: v('f_bidang'), kontak_instansi: v('f_kontak'),
+    ? { program: v('f_program'), instansi: v('f_instansi'), alamat_instansi: v('f_alamat'), bidang_kerja: v('f_bidang'), kontak_instansi: v('f_kontak'),
         rencana_mulai: v('f_mulai'), rencana_selesai: v('f_selesai') }
     : { nama_kegiatan: v('f_keg'), penyelenggara: v('f_peny'), tanggal: v('f_tgl'), tingkat: v('f_tingkat'), bidang: v('f_bid'),
         capaian: v('f_capaian'), anggota: bacaAnggota($('f_anggota').value), cerita: v('f_cerita'), tampil_nama: $('f_tampil').checked };
@@ -340,7 +342,8 @@ function halamanSaya(){
     ? [['Jenis surat', judulPengajuan(p)], ['Keperluan', d.keperluan], ['Tujuan', [d.tujuan_surat, d.alamat_tujuan].filter(Boolean).join(', ')],
        ['Judul penelitian', d.judul_penelitian], ['Lokasi', d.lokasi], ['Waktu', d.waktu_pelaksanaan]]
     : p.jenis === 'kp'
-    ? [['Instansi', d.instansi], ['Alamat', d.alamat_instansi], ['Bidang/divisi', d.bidang_kerja], ['Kontak', d.kontak_instansi],
+    ? [['Program', labelProgram(d.program)], ['Instansi', d.instansi], ['Alamat', d.alamat_instansi], ['Bidang/divisi', d.bidang_kerja],
+       ['Kontak', d.kontak_instansi],
        ['Rencana', [d.rencana_mulai, d.rencana_selesai].filter(Boolean).join(' s.d. ')]]
     : [['Kegiatan', d.nama_kegiatan], ['Penyelenggara', d.penyelenggara], ['Tanggal', d.tanggal],
        ['Tingkat', (TINGKAT.find(t => t[0] === d.tingkat) || [, ''])[1]], ['Bidang', (BIDANG.find(t => t[0] === d.bidang) || [, ''])[1]],

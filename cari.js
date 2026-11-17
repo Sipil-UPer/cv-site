@@ -82,6 +82,8 @@ export function indeksPublik(D, aktif = () => true){
     ['daftar.html?jenis=pkm', 'Daftar pengabdian', 'pengabdian kepada masyarakat', 'pkm'],
     ['prestasi.html', 'Prestasi mahasiswa', 'lomba dan kompetisi', 'juara'],
     ['kerja-sama.html', 'Kerja sama', 'mitra karya dan kerja sama resmi', 'mou'],
+    ['kerja-sama.html#tempat-kp', 'Tempat KP dan magang', 'instansi tempat kerja praktik dan magang mahasiswa', 'kerja praktik magang mbkm'],
+    ['alumni.html', 'Alumni dan tracer study', 'waktu tunggu, kesesuaian bidang, tempat kerja lulusan', 'tracer lulusan alumni'],
     ['hasil-survei.html', 'Hasil survei kepuasan', 'rekap survei', 'kepuasan'],
   ];
   if (aktif('sdgs')) umum.push(['sdgs.html', 'Rekap SDGs', 'karya per tujuan pembangunan berkelanjutan', 'sdg']);

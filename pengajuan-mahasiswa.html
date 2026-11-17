@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-17-b8759d">
-<link rel="stylesheet" href="kepala.css?v=2026-11-17-b8759d">
+<link rel="stylesheet" href="tema.css?v=2026-11-17-09db23">
+<link rel="stylesheet" href="kepala.css?v=2026-11-17-09db23">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
@@ -72,7 +72,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-17-b8759d"></script>
+<script src="config.js?v=2026-11-17-09db23"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -92,13 +92,13 @@ addEventListener('error', function (e) {
 // Berkas privat dibuka lewat Apps Script (mhs_buka_prodi); surat pengantar KP diunggah admin (mhs_unggah_prodi);
 // mahasiswa dikabari email saat dikembalikan, ditolak, atau disetujui (mhs_kabari).
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-17-b8759d';
-import { bolehPengajuan, punya, labelJabatan } from './koordinator.js?v=2026-11-17-b8759d';
-import { JENIS, LABEL_BERKAS, LABEL_STATUS, TINGKAT, BIDANG, teksAnggota, judulPengajuan, keB64, bukaIsi, appsScript, labelStatus, JENIS_SURAT, TAHAP_TA, JENIS_PUB, TINGKAT_PUB, INDEKSASI, JENIS_LUARAN, waktuPengajuan, rekapPengajuan, lembarPengajuan } from './pengajuan-mhs.js?v=2026-11-17-b8759d';
-import { opsiPeriode, cocokPeriode, labelPeriode, taTeks, tsKarya } from './sdgs-unduh.js?v=2026-11-17-b8759d';
-import { SHEETJS } from './nilai-cpl.js?v=2026-11-17-b8759d';
-import { siapkan } from './pembimbing.js?v=2026-11-17-b8759d';
-import { usulPenguji, bebanUji, tsDari } from './usulan-penguji.js?v=2026-11-17-b8759d';
+import { gerbang } from './menu.js?v=2026-11-17-09db23';
+import { bolehPengajuan, punya, labelJabatan } from './koordinator.js?v=2026-11-17-09db23';
+import { JENIS, LABEL_BERKAS, LABEL_STATUS, TINGKAT, BIDANG, teksAnggota, judulPengajuan, keB64, bukaIsi, appsScript, labelStatus, JENIS_SURAT, TAHAP_TA, JENIS_PUB, TINGKAT_PUB, INDEKSASI, JENIS_LUARAN, waktuPengajuan, rekapPengajuan, lembarPengajuan, labelProgram } from './pengajuan-mhs.js?v=2026-11-17-09db23';
+import { opsiPeriode, cocokPeriode, labelPeriode, taTeks, tsKarya } from './sdgs-unduh.js?v=2026-11-17-09db23';
+import { SHEETJS } from './nilai-cpl.js?v=2026-11-17-09db23';
+import { siapkan } from './pembimbing.js?v=2026-11-17-09db23';
+import { usulPenguji, bebanUji, tsDari } from './usulan-penguji.js?v=2026-11-17-09db23';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
@@ -158,7 +158,8 @@ function ringkas(p){
     ? [['Jenis surat', judulPengajuan(p)], ['Keperluan', d.keperluan], ['Tujuan', [d.tujuan_surat, d.alamat_tujuan].filter(Boolean).join(', ')],
        ['Judul penelitian', d.judul_penelitian], ['Lokasi', d.lokasi], ['Waktu', d.waktu_pelaksanaan]]
     : p.jenis === 'kp'
-    ? [['Instansi', d.instansi], ['Alamat', d.alamat_instansi], ['Bidang/divisi', d.bidang_kerja], ['Kontak', d.kontak_instansi],
+    ? [['Program', labelProgram(d.program)], ['Instansi', d.instansi], ['Alamat', d.alamat_instansi], ['Bidang/divisi', d.bidang_kerja],
+       ['Kontak', d.kontak_instansi],
        ['Rencana', [d.rencana_mulai, d.rencana_selesai].filter(Boolean).join(' s.d. ')]]
     : [['Kegiatan', d.nama_kegiatan], ['Penyelenggara', d.penyelenggara], ['Tanggal', d.tanggal],
        ['Tingkat', (TINGKAT.find(t => t[0] === d.tingkat) || [, ''])[1]], ['Bidang', (BIDANG.find(t => t[0] === d.bidang) || [, ''])[1]],
@@ -170,6 +171,11 @@ function ringkas(p){
     ['Bagian/proyek', s.divisi], ['Ringkasan kegiatan', s.ringkasan]] : [];
   return [['Mahasiswa', `${p.nama} (${p.nim})`], ['Email', p.email], ['Pembimbing', p.dosen?.nama || '—'], ...xs, ...selesai].filter(([, v]) => v);
 }
+
+// Nilai pembimbing lapangan (99-patch-kp-magang.sql, pemilik 2026-11-17): diunggah dosen pembimbing pengajuan itu,
+// koordinator KP, atau admin, setelah pengajuan KP disetujui (atau pada laporan selesai).
+const bolehNilai = p => p.jenis === 'kp' && (p.status === 'disetujui' || p.tahap === 'selesai')
+  && (boleh(p) || p.pembimbing_id === SAYA.id);
 
 function kartu(p){
   const saya = menungguSaya(p), berkas = [...(p.pengajuan_berkas || [])].sort((a, b) => a.id - b.id);
@@ -191,6 +197,11 @@ function kartu(p){
           ? `<div class="baris" style="margin-top:8px"><input type="file" id="sp_${p.id}" accept=".pdf,.docx,.jpg,.jpeg,.png">
           <button class="b" data-pengantar="${p.id}" data-jenis="${p.jenis === 'surat' ? 'surat_jadi' : 'surat_pengantar'}">${p.jenis === 'surat'
             ? 'Unggah surat bertanda tangan' : 'Unggah surat pengantar'}</button></div>` : ''}
+        ${bolehNilai(p) ? `<div class="baris" style="margin-top:8px"><input type="file" id="nl_${p.id}" accept=".pdf,.docx,.jpg,.jpeg,.png"
+          aria-label="Berkas nilai pembimbing lapangan"><button class="b" data-pengantar="${p.id}" data-jenis="nilai_lapangan" data-input="nl_${p.id}">
+          Unggah nilai pembimbing lapangan</button></div>
+          <p class="ket">${berkas.some(b => b.jenis === 'nilai_lapangan') ? 'Nilai pembimbing lapangan sudah ada; unggah lagi bila ada perbaikan.'
+            : 'Nilai dari pembimbing lapangan (instansi) diunggah dosen pembimbing, koordinator KP, atau admin prodi.'}</p>` : ''}
         <h3>Jalur proses</h3><ul class="polos riwayat">${riwayat.map(r => `<li><b>${r.tahap === 'selesai' ? 'Laporan selesai: ' : ''}${esc(LABEL_STATUS[r.status] || r.status)}</b>
           <span class="ket"> · ${esc(r.oleh)} · ${esc(tgl(r.waktu))}</span>${r.catatan ? `<div class="cat">${esc(r.catatan)}</div>` : ''}</li>`).join('')}</ul></div>
       ${saya ? `<div class="aksi"><label class="ket" for="c_${p.id}">Catatan untuk mahasiswa (wajib bila dikembalikan${bolehTolak ? ' atau ditolak' : ''};
@@ -283,7 +294,7 @@ function gambar(){
     const pilih = new Set(b.dataset.nidn.split(','));
     document.querySelectorAll(`[data-uji="${b.dataset.usul}"]`).forEach(c => { if (pilih.has(c.value)) c.checked = true; });
   }; });
-  document.querySelectorAll('[data-pengantar]').forEach(b => { b.onclick = () => pengantar(+b.dataset.pengantar, b, b.dataset.jenis); });
+  document.querySelectorAll('[data-pengantar]').forEach(b => { b.onclick = () => pengantar(+b.dataset.pengantar, b, b.dataset.jenis, b.dataset.input || undefined); });
 }
 
 const atas = teks => { const m = $('mAtas'); if (m) m.textContent = teks; };
@@ -321,16 +332,17 @@ async function putuskan(id, aksi, b){
   }
 }
 
-async function pengantar(id, b, jenis = 'surat_pengantar'){
-  const f = $('sp_' + id).files[0];
-  if (!f) return pesan(id, 'buruk', 'Pilih berkas surat pengantar dulu.');
+async function pengantar(id, b, jenis = 'surat_pengantar', input = 'sp_' + id){
+  const f = $(input).files[0];
+  if (!f) return pesan(id, 'buruk', jenis === 'nilai_lapangan' ? 'Pilih berkas nilai dulu.' : 'Pilih berkas surat pengantar dulu.');
   b.disabled = true; pesan(id, '', 'Mengunggah…');
   try {
     await appsScript({ kind: 'mhs_unggah_prodi', token: await sesi(), pengajuan_id: id, jenis_berkas: jenis,
                        filename: f.name, data: await keB64(f) });
     BUKA.add(id);
     await muat(); gambar();
-    pesan(id, 'ok', (jenis === 'surat_jadi' ? 'Surat terunggah; tekan Sahkan supaya mahasiswa dikabari.'
+    pesan(id, 'ok', (jenis === 'nilai_lapangan' ? 'Nilai pembimbing lapangan terunggah.'
+      : jenis === 'surat_jadi' ? 'Surat terunggah; tekan Sahkan supaya mahasiswa dikabari.'
       : 'Surat pengantar terunggah; mahasiswa bisa membukanya di tautannya.'));
   } catch (e) { pesan(id, 'buruk', e.message); b.disabled = false; }
 }

@@ -4,7 +4,7 @@
 
 export const JENIS = {
   kp: { label: 'Kerja Praktik (KP)', singkat: 'KP', wajib: 'surat_permohonan',
-        berkas: ['surat_permohonan', 'surat_balasan', 'laporan_kp', 'surat_selesai', 'logbook', 'nilai_lapangan', 'foto', 'lainnya'] },
+        berkas: ['surat_permohonan', 'surat_balasan', 'laporan_kp', 'surat_selesai', 'logbook', 'foto', 'lainnya'] },
   lomba: { label: 'Laporan lomba', singkat: 'Lomba', wajib: 'laporan_lomba',
            berkas: ['laporan_lomba', 'sertifikat', 'surat_tugas', 'foto', 'lainnya'] },
   // Surat ditandatangani Kaprodi (93-patch-pengajuan-surat.sql): tanpa pembimbing, tanpa berkas wajib.
@@ -53,7 +53,12 @@ const TAHAP = [['draf', 'Isi dan unggah berkas'], ['pembimbing', 'Diperiksa dose
                ['admin', 'Diperiksa admin prodi'], ['disetujui', 'Disetujui']];
 // Laporan selesai KP (91-patch-laporan-selesai-kp.sql): label tahap dan berkasnya.
 export const NAMA_TAHAP_SELESAI = ['Isi laporan selesai', 'Diperiksa dosen pembimbing', 'Diperiksa admin prodi', 'KP selesai'];
-export const BERKAS_SELESAI = ['laporan_kp', 'surat_selesai', 'logbook', 'nilai_lapangan', 'surat_balasan', 'foto', 'lainnya'];
+// nilai_lapangan tidak di sini: diunggah dosen pembimbing, koordinator KP, atau admin (99-patch-kp-magang.sql).
+export const BERKAS_SELESAI = ['laporan_kp', 'surat_selesai', 'logbook', 'surat_balasan', 'foto', 'lainnya'];
+
+// Program pengajuan KP (99-patch-kp-magang.sql, pemilik 2026-11-17): kosong = Kerja Praktik.
+export const PROGRAM_KP = [['kp', 'Kerja Praktik (KP)'], ['magang', 'Magang (MBKM)']];
+export const labelProgram = v => (PROGRAM_KP.find(x => x[0] === (v || 'kp')) || PROGRAM_KP[0])[1];
 
 // Status untuk dibaca manusia, dengan tahap KP.
 export function labelStatus(p){
@@ -226,14 +231,14 @@ export function lembarPengajuan(xs, tsTeks = () => ''){
   const kp = xs.filter(p => p.jenis === 'kp' && p.status !== 'draf'), lomba = xs.filter(p => p.jenis === 'lomba' && p.status !== 'draf');
   const pemb = p => p.dosen?.nama || p.pembimbing || '';
   const L = {
-    KP: [['No', 'NIM', 'Nama', 'Instansi', 'Pembimbing', 'Mulai', 'Selesai', 'Pembimbing lapangan', 'TS', 'Keadaan', 'Berkas']],
+    KP: [['No', 'NIM', 'Nama', 'Program', 'Instansi', 'Pembimbing', 'Mulai', 'Selesai', 'Pembimbing lapangan', 'TS', 'Keadaan', 'Berkas']],
     Lomba: [['No', 'NIM', 'Nama', 'Kegiatan', 'Penyelenggara', 'Tingkat', 'Bidang', 'Capaian', 'Tanggal', 'Anggota lain', 'Pembimbing', 'TS', 'Status']],
     'Instansi KP': [['Instansi', 'Mahasiswa', 'KP selesai', 'KP berjalan']],
     Berkas: [['NIM', 'Nama', 'Jenis pengajuan', 'Jenis berkas', 'Nama berkas', 'Tautan']],
   };
   kp.forEach((p, i) => {
     const s = p.data_selesai || {};
-    L.KP.push([i + 1, p.nim, p.nama, p.data?.instansi || '', pemb(p), s.tanggal_mulai || p.data?.rencana_mulai || '',
+    L.KP.push([i + 1, p.nim, p.nama, labelProgram(p.data?.program), p.data?.instansi || '', pemb(p), s.tanggal_mulai || p.data?.rencana_mulai || '',
       s.tanggal_selesai || p.data?.rencana_selesai || '', [s.pembimbing_lapangan, s.jabatan_lapangan].filter(Boolean).join(', '),
       tsTeks(p), LABEL_KEADAAN[keadaanKP(p)], (p.pengajuan_berkas || []).length]);
   });
