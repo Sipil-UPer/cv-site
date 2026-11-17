@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Portofolio mata kuliah — Kinerja Program Studi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tema.css?v=2026-11-17-395d5b">
+<link rel="stylesheet" href="kepala.css?v=2026-11-17-395d5b">
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
+  .wrap{max-width:1240px;margin:0 auto;padding:18px 20px 80px}
+  .kosong, .ket{color:var(--muted)}
+  .ket{font-size:13px}
+  .kartu{background:var(--panel);border:1px solid var(--line);padding:14px 18px;margin-bottom:16px}
+  .kartu h2{font-size:17px;margin:0 0 6px;color:var(--biru)}
+  .kartu h3{font-size:14.5px;margin:14px 0 6px}
+  .alat{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+  .b{font:12.5px/1.4 var(--sans);padding:5px 12px;border:1px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer}
+  .b:hover{border-color:var(--biru);color:var(--biru)}
+  .b.utama{background:var(--biru);color:#fff;border-color:var(--biru)}
+  .b.kecil{padding:2px 8px;font-size:12px}
+  .b.awas{color:var(--merah)}
+  .b:disabled{opacity:.5;cursor:default}
+  select, input{font:inherit;font-size:14px;padding:4px 6px;border:1px solid var(--line);background:var(--panel);color:var(--ink)}
+  .gulir{overflow-x:auto}
+  table.ds{width:100%;border-collapse:collapse;font-size:13.5px}
+  table.ds th{text-align:left;font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--line);padding:5px 8px;vertical-align:bottom}
+  table.ds td{padding:6px 8px;border-bottom:1px solid var(--line-soft);vertical-align:top}
+  .kode{font-family:var(--mono);font-size:12.5px;white-space:nowrap}
+  .bar{display:inline-block;width:120px;height:8px;background:var(--line-soft);vertical-align:middle;margin-right:6px}
+  .bar i{display:block;height:100%;background:var(--biru)}
+  .ok{color:var(--hijau);font-weight:600} .belum{color:var(--merah);font-weight:600}
+  .msg{font-size:13px;margin-left:8px} .msg.buruk{color:var(--merah)} .msg.ok{color:var(--hijau)}
+  .periksa{list-style:none;margin:0;padding:0;font-size:13.5px}
+  .periksa li{display:grid;grid-template-columns:22px 1fr;gap:4px;padding:3px 0;border-bottom:1px solid var(--line-soft)}
+  .berkas{margin:2px 0 0;font-size:13px}
+  .berkas span{display:inline-flex;gap:4px;align-items:center;margin:2px 10px 2px 0}
+  .unggah{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:10px 0 2px;padding-top:8px;border-top:1px dashed var(--line)}
+  .kelas{border-left:3px solid var(--biru);padding:4px 0 4px 12px;margin:12px 0}
+  .pita{background:var(--biru-m10, #E8EEF8);border:1px solid var(--line);padding:8px 12px;margin-bottom:14px;font-size:13.5px}
+  @media(max-width:700px){.wrap{padding-left:16px;padding-right:16px}}
+</style>
+</head>
+<body>
+<header class="hero"><div class="hero-in">
+  <div class="hero-inst" data-identitas></div>
+  <h1>Portofolio mata kuliah</h1>
+  <div class="sub" id="hSub">Memuat…</div>
+</div></header>
+<main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
+<script src="config.js?v=2026-11-17-395d5b"></script>
+<script>
+// Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
+addEventListener('error', function (e) {
+  if (document.getElementById('galat-muat')) return;
+  var d = document.createElement('div');
+  d.id = 'galat-muat';
+  d.style.cssText = 'margin:16px;padding:12px 14px;border:1px solid var(--merah);' +
+    'background:var(--merah-m3);color:var(--ink);font:14px/1.5 system-ui,sans-serif';
+  d.textContent = 'Halaman gagal dimuat: ' + (e.message || 'galat skrip') +
+    '. Tekan Ctrl+Shift+R untuk memuat ulang tanpa cache; bila tetap muncul, kirim pesan ini ke admin.';
+  document.body.insertBefore(d, document.body.firstChild);
+});
+</script>
+<script type="module">
+// Portofolio mata kuliah (103-patch-portofolio-mk.sql, pemilik 2026-11-17, OBE tahap O3).
+// Internal (login): koordinator MK, pengampu kelas, GKM, admin, pimpinan, asesor aktif. Auditor AMI: ?ami=<token>, hanya baca.
+// Berkas selalu privat; dibuka lewat Apps Script (portofolio_buka / ami_portofolio_buka) sesudah izin diperiksa basis data.
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
+import { gerbang } from './menu.js?v=2026-11-17-395d5b';
+import { bolehMutu } from './koordinator.js?v=2026-11-17-395d5b';
+import { keB64 } from './pengajuan-mhs.js?v=2026-11-17-395d5b';
+import { semesterKini } from './evaluasi-pembelajaran.js?v=2026-11-17-395d5b';
+import { periksaStruktur } from './templat-cpl.js?v=2026-11-17-395d5b';
+import { cplMK, dataTemplat, statusStruktur } from './cpmk.js?v=2026-11-17-395d5b';
+import { judul, teks, tabel, tautan, run, buatDocx } from './docx-dasar.js?v=2026-11-17-395d5b';
+import { KOMPONEN, komponenUntuk, daftarSemester, mkSemester, kelengkapan, persen, labelBerkas } from './portofolio.js?v=2026-11-17-395d5b';
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const sb = createClient(window.SB_URL, window.SB_KEY);
+const baca = q => q.then(r => r.error ? [] : (r.data || []), () => []);
+const tulis = (id, kelas, t) => { const e = $(id); if (e) { e.className = 'msg ' + kelas; e.textContent = t; } };
+const PARAM = new URLSearchParams(location.search);
+const AMI = PARAM.get('ami');
+
+let SAYA = null, KELOLA = false, MK = [], CPL = [], PETA = [], STR = new Map(), BOLEH = new Set(), KELAS = [], EVAL = [], BERKAS = [];
+let SEM = null, PILIH = null, F = { saya: false };
+
+async function muat(){
+  if (AMI) {
+    const { data, error } = await sb.rpc('ami_portofolio', { p_token: AMI });
+    if (error || !data) throw new Error('Tautan AMI ini tidak berlaku (lewat tanggal, dicabut, atau tidak lengkap).');
+    MK = data.mk.map(m => ({ ...m, aktif: true })); KELAS = data.kelas; EVAL = data.evaluasi; BERKAS = data.berkas;
+    STR = new Map(data.mk.filter(m => m.struktur).map(m => [`${m.kurikulum}|${m.kode}`, { data: m.struktur }]));
+  } else {
+    const [mk, cpl, peta, str, boleh, ringkas, berkas] = await Promise.all([
+      baca(sb.from('ref_mata_kuliah').select('kurikulum,kode,nama,rps_url,rps_9_komponen,aktif,pengampu')),
+      baca(sb.from('ref_cpl').select('kurikulum,kode,rumusan,indikator,urutan')),
+      baca(sb.from('ref_mk_cpl').select('kurikulum,kode_mk,cpl,indikator')),
+      baca(sb.from('mk_struktur').select('kurikulum,kode_mk,data')),
+      baca(sb.rpc('mk_boleh_saya')),
+      sb.rpc('portofolio_ringkas').then(r => r.data || { kelas: [], evaluasi: [] }, () => ({ kelas: [], evaluasi: [] })),
+      baca(sb.from('portofolio_berkas').select('*').order('id'))]);
+    MK = mk; CPL = cpl; PETA = peta; KELAS = ringkas.kelas || []; EVAL = ringkas.evaluasi || []; BERKAS = berkas;
+    STR = new Map(str.map(s => [`${s.kurikulum}|${s.kode_mk}`, s]));
+    BOLEH = new Set(KELOLA ? MK.map(m => `${m.kurikulum}|${m.kode}`) : boleh.map(b => `${b.kurikulum}|${b.kode_mk}`));
+  }
+  const sem = daftarSemester([...KELAS, ...BERKAS], AMI ? null : semesterKini());
+  if (!SEM || !sem.some(s => s.ta === SEM.ta && s.sm === SEM.sm)) {
+    const minta = PARAM.get('ta') && { ta: PARAM.get('ta'), sm: PARAM.get('sm') };
+    SEM = sem.find(s => minta && s.ta === minta.ta && s.sm === minta.sm) || sem.find(s => KELAS.some(k => k.tahun_akademik === s.ta && k.semester === s.sm)) || sem[0] || null;
+  }
+  if (!PILIH && PARAM.get('kode') && SEM) {
+    const m = mkSemester(KELAS, BERKAS, MK, SEM.ta, SEM.sm).find(x => x.kode.toUpperCase() === PARAM.get('kode').toUpperCase());
+    if (m) PILIH = `${m.kurikulum}|${m.kode}`;
+  }
+  gambar();
+  if (PARAM.get('berkas')) tawarBuka(+PARAM.get('berkas'));
+}
+
+// ---------- kelengkapan ----------
+function cpmkLengkap(m){
+  const s = STR.get(`${m.kurikulum}|${m.kode}`)?.data;
+  if (!s) return false;
+  // Mode AMI tidak membaca data kurikulum: indikator dianggap sah bila dipakai struktur itu sendiri.
+  const ci = AMI ? { cpl: [], indikator: [...new Set(s.cpmk.flatMap(c => Object.keys(c.indikator || {})))].map(k => ({ kode: k, cpl: '', teks: '' })) }
+    : cplMK(CPL, PETA, m.kurikulum, m.kode);
+  return statusStruktur(s, periksaStruktur(dataTemplat(s, ci))) === 'lengkap';
+}
+function info(x){
+  const ref = MK.find(m => m.kurikulum === x.kurikulum && m.kode === x.kode) || {};
+  const s = STR.get(`${x.kurikulum}|${x.kode}`)?.data;
+  const berkas = BERKAS.filter(b => b.tahun_akademik === SEM.ta && b.semester === SEM.sm && b.kurikulum === x.kurikulum && b.kode_mk === x.kode);
+  const refleksi = EVAL.some(e => e.tahun_akademik === SEM.ta && e.semester === SEM.sm && e.kode_mk.toUpperCase() === x.kode.toUpperCase() && e.refleksi);
+  const k = kelengkapan({ rps: !!ref.rps_url, cpmkLengkap: cpmkLengkap(x), asesmen: (s?.asesmen || []).map(a => a.nama), berkas,
+    kelas: x.kelas.map(c => ({ kelas: c.kelas, nilai: !!c.nilai })), refleksi });
+  return { ref, s, berkas, k };
+}
+const daftarMK = () => SEM ? mkSemester(KELAS, BERKAS, MK, SEM.ta, SEM.sm) : [];
+const bolehMK = x => !AMI && BOLEH.has(`${x.kurikulum}|${x.kode}`);
+// Kelas: admin/GKM, koordinator MK yang ditetapkan, atau pengampu kelas itu sendiri (boleh_portofolio_tulis di basis data).
+const koordinatorMK = x => (MK.find(m => m.kurikulum === x.kurikulum && m.kode === x.kode)?.pengampu || []).includes(SAYA?.nidn);
+const bolehKelas = (x, kelas) => !AMI && (KELOLA || koordinatorMK(x)
+  || x.kelas.some(c => c.kelas === kelas && String(c.dosen_email || '').toLowerCase() === String(SAYA?.email || '').toLowerCase()));
+const bolehUnggahMK = x => bolehMK(x) || (!AMI && x.kelas.some(c => String(c.dosen_email || '').toLowerCase() === String(SAYA?.email || '').toLowerCase()));
+
+// ---------- tampilan ----------
+function htmlDaftar(){
+  const sem = daftarSemester([...KELAS, ...BERKAS], AMI ? null : semesterKini());
+  let xs = daftarMK();
+  if (F.saya) xs = xs.filter(x => bolehUnggahMK(x) || x.kelas.some(c => bolehKelas(x, c.kelas)));
+  const rows = xs.map(x => ({ x, ...info(x) }));
+  const rata = rows.length ? Math.round(rows.reduce((a, r) => a + persen(r.k), 0) / rows.length) : 0;
+  return `${AMI ? '<div class="pita">Tampilan auditor AMI: hanya baca. Berkas dibuka lewat tautan AMI ini selama masih berlaku.</div>' : ''}
+    <section class="kartu"><h2>Portofolio ${SEM ? `${esc(SEM.ta)} ${esc(SEM.sm)}` : ''}</h2>
+    <p class="ket">Per mata kuliah: RPS, CPMK, refleksi evaluasi, materi, soal dan kunci/rubrik tiap butir asesmen; per kelas: contoh jawaban
+      tinggi/sedang/rendah, presensi, BAP, dan berkas nilai CPL. Semua berkas privat (contoh jawaban memuat NIM).</p>
+    <div class="alat">${sem.length ? `<label>Semester <select id="fSem">${sem.map(s => `<option value="${esc(s.ta)}|${s.sm}"${SEM && s.ta === SEM.ta && s.sm === SEM.sm ? ' selected' : ''}>${esc(s.ta)} ${s.sm}</option>`).join('')}</select></label>` : ''}
+      ${AMI ? '' : `<label><input type="checkbox" id="fSaya"${F.saya ? ' checked' : ''}> hanya MK/kelas saya</label>`}
+      <span class="ket">${rows.length} MK · rata-rata kelengkapan ${rata}%</span>
+      ${rows.length ? '<button class="b" id="indeksSemester" style="margin-left:auto">Unduh indeks semester (DOCX)</button><span class="msg" id="mIndeksSem"></span>' : ''}</div>
+    <div class="gulir"><table class="ds"><thead><tr><th>Kode</th><th>Mata kuliah</th><th>Kelas</th><th>Kelengkapan</th><th></th></tr></thead><tbody>
+    ${rows.map(({ x, k }) => `<tr><td class="kode">${esc(x.kode)}</td><td>${esc(x.nama)}<div class="ket">${esc(x.kurikulum)}</div></td>
+      <td>${esc(x.kelas.map(c => c.kelas).join(', ')) || '—'}</td>
+      <td><span class="bar"><i style="width:${persen(k)}%"></i></span>${persen(k)}% <span class="ket">(${k.ada}/${k.total})</span></td>
+      <td><button class="b" data-buka="${esc(`${x.kurikulum}|${x.kode}`)}">${bolehUnggahMK(x) || x.kelas.some(c => bolehKelas(x, c.kelas)) ? 'Lengkapi' : 'Lihat'}</button></td></tr>`).join('')
+      || `<tr><td colspan="5" class="kosong">Belum ada kelas atau berkas portofolio untuk semester ini${AMI ? '' : ' (daftar kelas dari Berkas nilai CPL)'}.</td></tr>`}
+    </tbody></table></div></section>`;
+}
+
+const ikon = ada => ada ? '<span class="ok" title="ada">✓</span>' : '<span class="belum" title="belum">✗</span>';
+function htmlBerkas(xs, boleh){
+  return xs.length ? `<div class="berkas">${xs.map(b => `<span><button class="b kecil" data-buka-berkas="${b.id}" title="${esc(labelBerkas(b))}">${esc(b.nama_berkas || 'berkas')}</button>
+    ${boleh ? `<button class="b kecil awas" data-buang="${b.id}" title="Keluarkan dari portofolio">×</button>` : ''}</span>`).join('')}</div>` : '';
+}
+function htmlUnggah(x, kelas, asesmen){
+  const kom = komponenUntuk(kelas ? 'kelas' : 'mk');
+  const id = kelas ? `k_${kelas}` : 'mk';
+  return `<div class="unggah" data-unggah-wadah="${esc(id)}">
+    <select data-u-komponen>${kom.map(c => `<option value="${c}">${esc(KOMPONEN[c].label)}</option>`).join('')}</select>
+    <select data-u-asesmen><option value="">— butir asesmen —</option>${asesmen.map(a => `<option>${esc(a)}</option>`).join('')}</select>
+    <input type="file" multiple data-u-berkas>
+    <button class="b utama" data-unggah="${esc(kelas || '')}">Unggah</button><span class="msg" data-u-msg></span></div>`;
+}
+
+function htmlDetail(){
+  const x = daftarMK().find(m => `${m.kurikulum}|${m.kode}` === PILIH);
+  if (!x) { PILIH = null; return htmlDaftar(); }
+  const { ref, s, berkas, k } = info(x), asesmen = (s?.asesmen || []).map(a => a.nama);
+  const bMK = berkas.filter(b => !b.kelas);
+  const item = (it, xs, boleh) => `<li>${ikon(it.ada)}<div>${esc(it.label)}${htmlBerkas(xs, boleh)}</div></li>`;
+  const pilihBerkas = (it, kelas) => it.komponen ? berkas.filter(b => (b.kelas || null) === kelas
+    && (it.komponen === 'kunci' ? ['kunci', 'rubrik'].includes(b.komponen) : b.komponen === it.komponen) && (it.asesmen === undefined || b.asesmen === it.asesmen)) : [];
+  // Berkas yang tidak masuk baris periksa mana pun (komponen Lainnya, atau butir asesmen yang sudah tidak ada di CPMK) tetap tampil.
+  const lain = kelas => { const pakai = new Set((kelas ? k.kelas.find(c => c.kelas === kelas)?.item || [] : k.mk).flatMap(it => pilihBerkas(it, kelas)).map(b => b.id));
+    return berkas.filter(b => (b.kelas || null) === kelas && !pakai.has(b.id)); };
+  return `<div class="alat"><button class="b" id="kembali">← Daftar MK</button>
+      <button class="b" id="indeksMK">Unduh indeks MK (DOCX)</button><span class="msg" id="mIndeks"></span></div>
+    <section class="kartu"><h2><span class="kode">${esc(x.kode)}</span> ${esc(x.nama)} <span class="ket">${esc(x.kurikulum)} · ${esc(SEM.ta)} ${esc(SEM.sm)}</span></h2>
+      <p><span class="bar"><i style="width:${persen(k)}%"></i></span><b>${persen(k)}%</b> <span class="ket">(${k.ada} dari ${k.total} komponen)</span></p>
+      <h3>Tingkat mata kuliah</h3>
+      <ul class="periksa">
+        <li>${ikon(!!ref.rps_url)}<div>RPS ${ref.rps_url ? `<a href="${esc(ref.rps_url)}" target="_blank" rel="noopener">buka</a>${ref.rps_9_komponen ? ' · 9 komponen' : ''}` : ''}
+          ${AMI ? '' : '<span class="ket">· diisi di <a href="cpmk.html?kode=' + encodeURIComponent(x.kode) + '">CPMK dan RPS</a></span>'}</div></li>
+        ${k.mk.slice(1).map(it => item(it, pilihBerkas(it, null), bolehUnggahMK(x))).join('')}
+        ${lain(null).length ? item({ label: 'Berkas lain (Lainnya, atau butir asesmen yang tidak ada di CPMK)', ada: true }, lain(null), bolehUnggahMK(x)) : ''}
+      </ul>
+      ${!asesmen.length ? `<p class="ket">Butir asesmen belum ada; isi dulu di ${AMI ? 'halaman CPMK dan RPS' : `<a href="cpmk.html?kode=${encodeURIComponent(x.kode)}">CPMK dan RPS</a>`} supaya soal dan kunci/rubrik per butir bisa dicentang.</p>` : ''}
+      ${bolehUnggahMK(x) ? htmlUnggah(x, null, asesmen) : ''}
+      <h3>Per kelas</h3>
+      ${k.kelas.map(c => `<div class="kelas"><b>Kelas ${esc(c.kelas)}</b>
+        <ul class="periksa">${c.item.map(it => item(it, pilihBerkas(it, c.kelas), bolehKelas(x, c.kelas))).join('')}
+          ${lain(c.kelas).length ? item({ label: 'Berkas lain', ada: true }, lain(c.kelas), bolehKelas(x, c.kelas)) : ''}</ul>
+        ${bolehKelas(x, c.kelas) ? htmlUnggah(x, c.kelas, asesmen) : ''}</div>`).join('') || '<p class="kosong">Belum ada kelas di daftar kelas CPL untuk semester ini.</p>'}
+    </section>`;
+}
+
+function gambar(){
+  $('isi').innerHTML = PILIH ? htmlDetail() : htmlDaftar();
+  if ($('fSem')) $('fSem').onchange = () => { const [ta, sm] = $('fSem').value.split('|'); SEM = { ta, sm }; PILIH = null; gambar(); };
+  if ($('fSaya')) $('fSaya').onchange = () => { F.saya = $('fSaya').checked; gambar(); };
+  document.querySelectorAll('[data-buka]').forEach(b => { b.onclick = () => { PILIH = b.dataset.buka; gambar(); scrollTo(0, 0); }; });
+  if ($('kembali')) $('kembali').onclick = () => { PILIH = null; gambar(); };
+  document.querySelectorAll('[data-buka-berkas]').forEach(b => { b.onclick = () => bukaBerkas(+b.dataset.bukaBerkas, b); });
+  document.querySelectorAll('[data-buang]').forEach(b => { b.onclick = () => buang(+b.dataset.buang); });
+  document.querySelectorAll('[data-unggah]').forEach(b => { b.onclick = () => unggah(b); });
+  document.querySelectorAll('[data-u-komponen]').forEach(s => { const a = s.parentElement.querySelector('[data-u-asesmen]');
+    const atur = () => { a.hidden = !KOMPONEN[s.value].asesmen; }; s.onchange = atur; atur(); });
+  if ($('indeksMK')) $('indeksMK').onclick = () => unduhIndeks([daftarMK().find(m => `${m.kurikulum}|${m.kode}` === PILIH)], 'mIndeks');
+  if ($('indeksSemester')) $('indeksSemester').onclick = () => unduhIndeks(daftarMK(), 'mIndeksSem');
+}
+
+// ---------- berkas ----------
+async function apps(isi){
+  if (!window.UPLOAD_URL) throw new Error('Unggahan belum diatur (UPLOAD_URL di config.js).');
+  const res = await fetch(window.UPLOAD_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(isi) });
+  const out = await res.json();
+  if (!out.ok) throw new Error(out.error || 'Permintaan gagal.');
+  return out;
+}
+const token = async () => (await sb.auth.getSession()).data.session?.access_token;
+
+async function bukaBerkas(id, tombol){
+  if (tombol) tombol.disabled = true;
+  try {
+    const out = await apps(AMI ? { kind: 'ami_portofolio_buka', ami: AMI, id } : { kind: 'portofolio_buka', token: await token(), id });
+    const byte = Uint8Array.from(atob(out.data), c => c.charCodeAt(0));
+    const url = URL.createObjectURL(new Blob([byte], { type: out.mime || 'application/octet-stream' }));
+    const tampil = /^(application\/pdf|image\/)/.test(out.mime || '');
+    const a = Object.assign(document.createElement('a'), { href: url, ...(tampil ? { target: '_blank', rel: 'noopener' } : { download: out.name }) });
+    document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 60000);
+  } catch (e) { alert('Berkas tidak bisa dibuka: ' + e.message); }
+  if (tombol) tombol.disabled = false;
+}
+
+// Tautan indeks (?berkas=id): pengguna menekan tombol, supaya peramban tidak memblokir jendela baru.
+function tawarBuka(id){
+  const b = BERKAS.find(x => x.id === id);
+  if (!b) return;
+  $('isi').insertAdjacentHTML('afterbegin', `<div class="pita">Berkas dari indeks: <b>${esc(b.kode_mk)}${b.kelas ? ` kelas ${esc(b.kelas)}` : ''}</b> ·
+    ${esc(labelBerkas(b))} · ${esc(b.nama_berkas || '')} <button class="b utama" id="bukaDariIndeks">Buka berkas</button></div>`);
+  $('bukaDariIndeks').onclick = () => bukaBerkas(id, $('bukaDariIndeks'));
+}
+
+async function unggah(tombol){
+  const w = tombol.closest('[data-unggah-wadah]'), msg = w.querySelector('[data-u-msg]');
+  const say = (k, t) => { msg.className = 'msg ' + k; msg.textContent = t; };
+  const komponen = w.querySelector('[data-u-komponen]').value, asesmen = KOMPONEN[komponen].asesmen ? w.querySelector('[data-u-asesmen]').value : '';
+  const files = [...w.querySelector('[data-u-berkas]').files];
+  if (!files.length) return say('buruk', 'Pilih berkas dulu.');
+  if (KOMPONEN[komponen].asesmen && !asesmen) return say('buruk', 'Pilih butir asesmennya.');
+  const [kurikulum, kode_mk] = PILIH.split('|'), kelas = tombol.dataset.unggah || null;
+  tombol.disabled = true;
+  try {
+    for (let i = 0; i < files.length; i++) {
+      const f = files[i];
+      say('', `Mengunggah ${i + 1} dari ${files.length}: ${f.name}…`);
+      const out = await apps({ token: await token(), kind: 'portofolio', tahun_akademik: SEM.ta, semester: SEM.sm, kurikulum, kode_mk,
+        kelas, komponen, filename: f.name, data: await keB64(f) });
+      const { data, error } = await sb.from('portofolio_berkas').insert({ tahun_akademik: SEM.ta, semester: SEM.sm, kurikulum, kode_mk, kelas,
+        komponen, asesmen: asesmen || null, nama_berkas: f.name.slice(0, 200), url: out.url }).select('*');
+      if (error) throw new Error(error.message);
+      BERKAS.push(data[0]);
+    }
+    gambar();
+  } catch (e) { say('buruk', e.message); tombol.disabled = false; }
+}
+
+async function buang(id){
+  const b = BERKAS.find(x => x.id === id);
+  if (!confirm(`Keluarkan "${b?.nama_berkas || 'berkas'}" dari portofolio? Berkasnya tetap tersimpan privat di Drive prodi.`)) return;
+  const { error } = await sb.from('portofolio_berkas').delete().eq('id', id);
+  if (error) return alert('Gagal: ' + error.message);
+  BERKAS = BERKAS.filter(x => x.id !== id);
+  gambar();
+}
+
+// ---------- indeks DOCX ----------
+async function unduhIndeks(xs, msgId){
+  tulis(msgId, '', 'Menyusun indeks…');
+  try {
+    const dasar = location.href.split('?')[0];
+    const tautanBerkas = b => `${dasar}?${AMI ? `ami=${encodeURIComponent(AMI)}&` : ''}ta=${encodeURIComponent(SEM.ta)}&sm=${SEM.sm}&kode=${encodeURIComponent(b.kode_mk)}&berkas=${b.id}`;
+    const sel = (it, xsB) => xsB.length ? { teks: xsB.map(b => b.nama_berkas).join(', '),
+      xml: xsB.map((b, i) => (i ? run('; ', { sz: 18 }) : '') + tautan(tautanBerkas(b), b.nama_berkas || 'berkas', { sz: 18 })).join('') } : '';
+    let isi = judul(`Indeks portofolio mata kuliah ${SEM.ta} ${SEM.sm}`, 1)
+      + teks(`Disusun ${new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })} dari situs kinerja program studi.
+        Tautan berkas membuka halaman portofolio; berkas privat hanya terbuka bagi yang berhak${AMI ? ' atau lewat tautan AMI yang masih berlaku' : ''}.`);
+    isi += tabel([['Kode', 'Mata kuliah', 'Kelas', 'Kelengkapan'], ...xs.map(x => { const { k } = info(x);
+      return [x.kode, x.nama, x.kelas.map(c => c.kelas).join(', '), `${persen(k)}% (${k.ada}/${k.total})`]; })]);
+    for (const x of xs) {
+      const { ref, berkas, k } = info(x);
+      const cari = (it, kelas) => it.komponen ? berkas.filter(b => (b.kelas || null) === kelas
+        && (it.komponen === 'kunci' ? ['kunci', 'rubrik'].includes(b.komponen) : b.komponen === it.komponen) && (it.asesmen === undefined || b.asesmen === it.asesmen)) : [];
+      isi += judul(`${x.kode} ${x.nama} (${x.kurikulum})`, 2);
+      isi += tabel([['Komponen', 'Status', 'Berkas'],
+        ['RPS', ref.rps_url ? 'ada' : 'belum', ref.rps_url ? { teks: 'RPS', xml: tautan(ref.rps_url, 'RPS', { sz: 18 }) } : ''],
+        ...k.mk.slice(1).map(it => [it.label, it.ada ? 'ada' : 'belum', sel(it, cari(it, null))]),
+        ...k.kelas.flatMap(c => c.item.map(it => [`Kelas ${c.kelas}: ${it.label}`, it.ada ? 'ada' : 'belum', sel(it, cari(it, c.kelas))])),
+        ...[null, ...k.kelas.map(c => c.kelas)].flatMap(kl => { const pakai = new Set((kl ? k.kelas.find(c => c.kelas === kl).item : k.mk).flatMap(it => cari(it, kl)).map(b => b.id));
+          const sisa = berkas.filter(b => (b.kelas || null) === kl && !pakai.has(b.id));
+          return sisa.length ? [[`${kl ? `Kelas ${kl}: ` : ''}Berkas lain`, '—', sel({}, sisa)]] : []; })]);
+    }
+    const blob = await buatDocx(isi);
+    const a = Object.assign(document.createElement('a'), { href: URL.createObjectURL(blob),
+      download: `Indeks_portofolio_${SEM.ta.replace('/', '-')}_${SEM.sm}${xs.length === 1 ? '_' + xs[0].kode : ''}.docx` });
+    document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+    tulis(msgId, 'ok', `${a.download} diunduh.`);
+  } catch (e) { tulis(msgId, 'buruk', e.message); }
+}
+
+async function mulai(){
+  if (AMI) { $('hSub').textContent = 'Tautan AMI (hanya baca)'; await muat(); return; }
+  SAYA = await gerbang(sb);
+  if (!SAYA) return;
+  KELOLA = bolehMutu(SAYA);
+  $('hSub').textContent = `Masuk sebagai ${SAYA.nama}`;
+  await muat();
+}
+mulai().catch(e => { $('isi').innerHTML = `<p class="kosong">${esc(e.message || String(e))}</p>`; });
+</script>
+</body>
+</html>

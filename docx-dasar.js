@@ -15,11 +15,17 @@ export const para = (isi, o = {}) => `<w:p><w:pPr>${o.gaya ? `<w:pStyle w:val="$
   `<w:spacing w:before="${o.before ?? 40}" w:after="${o.after ?? 100}"/><w:jc w:val="${o.jc || 'both'}"/></w:pPr>${isi}</w:p>`;
 export const judul = (t, n) => para(run(t), { gaya: `Heading${n}`, keep: true, jc: 'left' });
 export const teks = (t, o) => para(run(t), o);
+// Tautan (pemilik 2026-11-17, indeks portofolio MK): kolom HYPERLINK Word, tanpa relasi tambahan di document.xml.rels.
+export const tautan = (url, t, o = {}) => `<w:r><w:fldChar w:fldCharType="begin"/></w:r><w:r><w:instrText xml:space="preserve"> HYPERLINK "${xe(url)}" </w:instrText></w:r>` +
+  `<w:r><w:fldChar w:fldCharType="separate"/></w:r><w:r><w:rPr><w:color w:val="0563C1"/><w:u w:val="single"/>${o.sz ? `<w:sz w:val="${o.sz}"/><w:szCs w:val="${o.sz}"/>` : ''}</w:rPr>` +
+  `<w:t xml:space="preserve">${xe(t)}</w:t></w:r><w:r><w:fldChar w:fldCharType="end"/></w:r>`;
+// Sel tabel berisi XML jadi (mis. beberapa tautan): { xml, teks } dengan teks untuk menaksir lebar kolom.
+const selTeks = c => (c && typeof c === 'object') ? String(c.teks ?? '') : String(c ?? '');
 
 export function tabel(baris){
   const n = Math.max(...baris.map(r => r.length));
   const pj = Array(n).fill(10);   // kolom sempit tidak memotong kata seperti "Penelitian"
-  baris.forEach(r => r.forEach((c, k) => { pj[k] = Math.max(pj[k], Math.min(45, String(c ?? '').length)); }));
+  baris.forEach(r => r.forEach((c, k) => { pj[k] = Math.max(pj[k], Math.min(45, selTeks(c).length)); }));
   const tot = pj.reduce((a, b) => a + b, 0);
   const w = pj.map(x => Math.floor(LEBAR * x / tot));
   w[n - 1] += LEBAR - w.reduce((a, b) => a + b, 0);
@@ -28,7 +34,7 @@ export function tabel(baris){
   const rows = baris.map((r, i) => `<w:tr>${i === 0 ? '<w:trPr><w:tblHeader/></w:trPr>' : ''}${
     Array.from({ length: n }, (_, k) => `<w:tc><w:tcPr><w:tcW w:w="${w[k]}" w:type="dxa"/>${
       i === 0 ? '<w:shd w:val="clear" w:color="auto" w:fill="DCE6F1"/>' : ''}</w:tcPr><w:p><w:pPr><w:spacing w:before="0" w:after="0"/></w:pPr>${
-      run(r[k] ?? '', { b: i === 0, sz: 18 })}</w:p></w:tc>`).join('')}</w:tr>`).join('');
+      r[k] && typeof r[k] === 'object' ? r[k].xml : run(r[k] ?? '', { b: i === 0, sz: 18 })}</w:p></w:tc>`).join('')}</w:tr>`).join('');
   return `<w:tbl><w:tblPr><w:tblW w:w="${LEBAR}" w:type="dxa"/><w:tblBorders>${garis}</w:tblBorders>` +
     `<w:tblLayout w:type="fixed"/><w:tblCellMar><w:left w:w="80" w:type="dxa"/><w:right w:w="80" w:type="dxa"/></w:tblCellMar></w:tblPr>` +
     `<w:tblGrid>${w.map(x => `<w:gridCol w:w="${x}"/>`).join('')}</w:tblGrid>${rows}</w:tbl>` + para('', { before: 0, after: 80 });

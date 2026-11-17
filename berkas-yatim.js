@@ -15,7 +15,7 @@
    Pemakaian: pasangYatim(sb, elemenWadah)
    ===================================================================== */
 
-import { buangBerkas, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-17-367525';
+import { buangBerkas, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-17-395d5b';
 
 // Tabel yang bisa memuat tautan Drive. Tambahkan tabel baru yang
 // menyimpan tautan bukti di sini, kalau tidak berkasnya tampak tak terpakai.
@@ -28,6 +28,8 @@ export const TABEL_RUJUKAN = ['karya', 'karya_bukti', 'butir_bukti', 'dokumen', 
   'lkps_fasilitas_k3l', 'lkps_spmi_ppepp', 'lkps_target_kinerja', 'lkps_peta_jalan',
   // Berkas nilai CPL (57-patch-cpl-unggah.sql, pemilik 2026-11-11).
   'cpl_berkas',
+  // Portofolio MK (103-patch-portofolio-mk.sql, pemilik 2026-11-17): berkas privat per MK/kelas.
+  'portofolio_berkas',
   // Bukti sertifikat/ijazah di profil dosen (riwayat dalam kolom dosen), tautan panggilan hibah,
   // kegiatan kalender, dan bukti capaian standar SPMI (2026-11-13: tadinya tidak terdaftar,
   // sehingga berkasnya tampak tak terpakai).

@@ -2,8 +2,8 @@
 // peramban: jenis rapat dan unsur butir yang disarankan, tindak lanjut (Pengingat,
 // Monitoring), isi notulen Word, token daftar hadir. Dipakai rapat.html, hadir.html,
 // pengingat.html, monitoring.html.
-import { selisihHari, tglID } from './masa-berlaku.js?v=2026-11-17-367525';
-import { para, run, judul, teks, tabel, buatDocx } from './docx-dasar.js?v=2026-11-17-367525';
+import { selisihHari, tglID } from './masa-berlaku.js?v=2026-11-17-395d5b';
+import { para, run, judul, teks, tabel, buatDocx } from './docx-dasar.js?v=2026-11-17-395d5b';
 
 // Unsur butir yang meminta notulen/berita acara rapat (label dari unsur-butir.js UNSUR_BUTIR,
 // diperiksa 2026-11-12). Saran saja: admin memilih saat menautkan notulen sebagai bukti.
