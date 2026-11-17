@@ -2,7 +2,9 @@
 // Aturan sebenarnya di basis data (boleh_pengajuan, boleh_tabel); di sini hanya untuk menampilkan tombol dan menu yang tepat.
 
 export const JABATAN = [['koordinator_ta', 'Koordinator TA'], ['koordinator_kp', 'Koordinator KP/Magang'],
-  ['pembina_kemahasiswaan', 'Pembina kemahasiswaan'], ['kepala_lab', 'Kepala laboratorium'], ['gkm', 'Gugus kendali mutu (GKM)']];
+  ['pembina_kemahasiswaan', 'Pembina kemahasiswaan'], ['kepala_lab', 'Kepala laboratorium'], ['gkm', 'Gugus kendali mutu (GKM)'],
+  // 100-patch-koordinator-capstone.sql (pemilik 2026-11-17): jabatan saja dulu, tanpa wewenang tambahan.
+  ['koordinator_capstone', 'Koordinator capstone design']];
 export const labelJabatan = j => (JABATAN.find(x => x[0] === j) || [, j])[1];
 
 // Jenis pengajuan mahasiswa -> jabatan yang menggantikan admin (surat: admin saja).

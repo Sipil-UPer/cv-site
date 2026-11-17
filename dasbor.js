@@ -1,6 +1,6 @@
 // Dasbor operasional koordinator prodi (pemilik 2026-11-17, tahap 3 koordinator): per bidang, siapa penanggung jawabnya
 // (koordinator aktif) dan antrean/keterlambatan, dengan tautan ke halaman kerjanya. Dipakai dasbor.html.
-import { aktifPada, labelJabatan } from './koordinator.js?v=2026-11-17-09db23';
+import { aktifPada, labelJabatan } from './koordinator.js?v=2026-11-17-3404ab';
 
 export const HARI_ANTRE = 7;     // pengajuan yang menunggu lebih dari ini = terlambat
 export const HARI_SK = 30;       // penugasan berakhir dalam sekian hari = perlu diperpanjang
@@ -20,7 +20,8 @@ export function penanggungJawab(koordinator, jabatan, kini = new Date()){
   return { nama: xs.map(k => k.dosen?.nama).filter(Boolean), peringatan };
 }
 
-// d = { koordinator, pengajuan, jadwal, temuan, tindak, karya, kabar } (baris yang terbaca admin).
+// d = { koordinator, pengajuan, jadwal, temuan, tindak, karya, kabar, perluTL, tanpaBaris, tindakEval } (baris yang terbaca admin).
+// perluTL/tanpaBaris: evaluasi_perlu_tl() dan cpl_belum_tanpa_evaluasi() (101); tindakEval: evaluasi_tindak {status, tenggat}.
 // Hasil: [{ bidang, jabatan, pj, item: [{ label, n, lewat, href }] }]; lewat > 0 = perlu perhatian.
 export function ringkasDasbor(d, kini = new Date()){
   const hari = tgl(kini);
@@ -50,7 +51,15 @@ export function ringkasDasbor(d, kini = new Date()){
       { label: 'Publikasi/luaran menunggu', ...antre(p => p.jenis === 'luaran' && ['pembimbing', 'admin'].includes(p.status), 'pengajuan-mahasiswa.html') }] },
     { bidang: 'Mutu dan akreditasi', jabatan: 'gkm', item: [
       { label: 'Temuan AMI belum selesai', n: (d.temuan || []).filter(t => !['selesai', 'ditutup'].includes(t.status)).length,
-        lewat: (d.temuan || []).filter(t => !['selesai', 'ditutup'].includes(t.status) && t.tenggat && t.tenggat < hari).length, href: 'siklus-ppepp.html' }] },
+        lewat: (d.temuan || []).filter(t => !['selesai', 'ditutup'].includes(t.status) && t.tenggat && t.tenggat < hari).length, href: 'siklus-ppepp.html' },
+      // OBE O1 (pemilik 2026-11-17): evaluasi pembelajaran dipantau GKM.
+      { label: 'Evaluasi pembelajaran perlu tindak lanjut (belum ditangani)', n: (d.perluTL || []).length,
+        lewat: (d.perluTL || []).length, href: 'evaluasi-pembelajaran.html' },
+      { label: 'MK dengan CPL belum tercapai tanpa baris evaluasi', n: (d.tanpaBaris || []).length,
+        lewat: 0, href: 'evaluasi-pembelajaran.html' },
+      { label: 'Tindak lanjut evaluasi pembelajaran terbuka', n: (d.tindakEval || []).filter(t => t.status !== 'selesai').length,
+        lewat: (d.tindakEval || []).filter(t => t.status !== 'selesai' && t.tenggat && t.tenggat < hari).length,
+        href: 'evaluasi-pembelajaran.html' }] },
     { bidang: 'Laboratorium', jabatan: 'kepala_lab', item: [] },
     { bidang: 'Administrasi prodi', jabatan: null, item: [
       { label: 'Permohonan surat mahasiswa', ...antre(tunggu('surat', 'admin'), 'pengajuan-mahasiswa.html') },

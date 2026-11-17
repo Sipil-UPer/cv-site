@@ -2,11 +2,11 @@
 // tindak lanjut RTM sebelumnya, hasil AMI, capaian standar SPMI (Siklus PPEPP), IKU/IKT, evaluasi
 // pembelajaran, tindak lanjut lain yang masih terbuka, revisi standar, dan tabel usulan keputusan.
 // Keputusan RTM dicatat di Rapat dan notulen (jenis RTM); revisi standar di Data prodi › Revisi standar.
-import { run, para, judul, teks, tabel, buatDocx } from './docx-dasar.js?v=2026-11-17-09db23';
-import { siklusPPEPP, TAHAP, tsDariTanggal, labelTS } from './standar-spmi.js?v=2026-11-17-09db23';
-import { nilaiCapaian } from './capaian-iku.js?v=2026-11-17-09db23';
-import { labelKategori, labelStatus, KATEGORI_TEMUAN } from './temuan-ami.js?v=2026-11-17-09db23';
-import { rekapSurvei, aspekTindakLanjut, labelKelompok } from './survei-kepuasan.js?v=2026-11-17-09db23';
+import { run, para, judul, teks, tabel, buatDocx } from './docx-dasar.js?v=2026-11-17-3404ab';
+import { siklusPPEPP, TAHAP, tsDariTanggal, labelTS } from './standar-spmi.js?v=2026-11-17-3404ab';
+import { nilaiCapaian } from './capaian-iku.js?v=2026-11-17-3404ab';
+import { labelKategori, labelStatus, KATEGORI_TEMUAN } from './temuan-ami.js?v=2026-11-17-3404ab';
+import { rekapSurvei, aspekTindakLanjut, labelKelompok } from './survei-kepuasan.js?v=2026-11-17-3404ab';
 
 const tgl = d => d ? String(d).slice(0, 10).split('-').reverse().join('/') : '';
 const pendek = (s, n) => { s = String(s ?? '').replace(/\s+/g, ' ').trim(); return s.length > n ? s.slice(0, n - 1) + '…' : s; };

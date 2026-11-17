@@ -1,12 +1,12 @@
 // "Tugas saya" di Ruang kerja (pemilik 2026-11-12): hal yang menunggu tindakan dosen yang
 // sedang masuk, dari data yang sudah boleh ia baca (RLS). Aturan tenggat sama dengan halaman
 // Pengingat: rapat.js, hibah.js, temuan-ami.js, pengingat-dosen.js.
-import { kurangProfil } from './pengingat-dosen.js?v=2026-11-17-09db23';
-import { tindakTerbuka, tglID } from './rapat.js?v=2026-11-17-09db23';
-import { tenggatBerikut, teksHari, HARI_LEWAT } from './hibah.js?v=2026-11-17-09db23';
-import { hariKeTenggat, labelStatus, HARI_DEKAT } from './temuan-ami.js?v=2026-11-17-09db23';
-import { tugasEvaluasi } from './evaluasi-pembelajaran.js?v=2026-11-17-09db23';
-import { bolehPengajuan } from './koordinator.js?v=2026-11-17-09db23';
+import { kurangProfil } from './pengingat-dosen.js?v=2026-11-17-3404ab';
+import { tindakTerbuka, tglID } from './rapat.js?v=2026-11-17-3404ab';
+import { tenggatBerikut, teksHari, HARI_LEWAT } from './hibah.js?v=2026-11-17-3404ab';
+import { hariKeTenggat, labelStatus, HARI_DEKAT } from './temuan-ami.js?v=2026-11-17-3404ab';
+import { tugasEvaluasi } from './evaluasi-pembelajaran.js?v=2026-11-17-3404ab';
+import { bolehPengajuan } from './koordinator.js?v=2026-11-17-3404ab';
 
 const SELESAI_AMI = new Set(['selesai', 'ditutup']);
 const tingkat = h => h == null ? 'biasa' : h < 0 ? 'lewat' : h <= HARI_DEKAT ? 'dekat' : 'biasa';
@@ -83,7 +83,7 @@ export function tugasSaya(d, kini = new Date()){
     tambah('cpl', `Unggah berkas nilai CPL ${k.kode_mk} kelas ${k.kelas}`, `${k.nama_mk || k.kode_mk}, ${k.tahun_akademik} ${k.semester}`, 'nilai-cpl.html');
 
   // Evaluasi pembelajaran (68-patch-evaluasi-pembelajaran.sql): refleksi semester terbaru dan tindak lanjut ber-PJ saya.
-  for (const x of tugasEvaluasi({ saya: s, evaluasi: d.evaluasi, tindakEval: d.tindakEval }, kini))
+  for (const x of tugasEvaluasi({ saya: s, evaluasi: d.evaluasi, tindakEval: d.tindakEval, perluTL: d.perluTL, tanpaBaris: d.tanpaBaris }, kini))
     tambah(x.jenis, x.judul, x.rinci, x.href, x.hari);
 
   // Target kinerja tahun berjalan (66-patch-target-dosen.sql): satu butir ringkas bila ada yang belum tercapai.

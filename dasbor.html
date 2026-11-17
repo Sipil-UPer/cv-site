@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-17-09db23">
-<link rel="stylesheet" href="kepala.css?v=2026-11-17-09db23">
+<link rel="stylesheet" href="tema.css?v=2026-11-17-3404ab">
+<link rel="stylesheet" href="kepala.css?v=2026-11-17-3404ab">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
@@ -39,7 +39,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-17-09db23"></script>
+<script src="config.js?v=2026-11-17-3404ab"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -57,9 +57,9 @@ addEventListener('error', function (e) {
 // Dasbor operasional (pemilik 2026-11-17): koordinator prodi melihat per bidang siapa penanggung jawabnya dan antrean yang
 // menunggu/terlambat. Hanya membaca; tindakan dilakukan di halaman kerja masing-masing (tautan di tiap baris).
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-17-09db23';
-import { ringkasDasbor, HARI_ANTRE } from './dasbor.js?v=2026-11-17-09db23';
-import { labelPeran } from './koordinator.js?v=2026-11-17-09db23';
+import { gerbang } from './menu.js?v=2026-11-17-3404ab';
+import { ringkasDasbor, HARI_ANTRE } from './dasbor.js?v=2026-11-17-3404ab';
+import { labelPeran } from './koordinator.js?v=2026-11-17-3404ab';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
@@ -78,7 +78,10 @@ async function mulai(){
     baca(sb.from('rapat_tindak').select('status,tenggat')),
     baca(sb.from('karya').select('status').eq('status', 'diajukan').limit(2000)),
     baca(sb.from('kabar_kegiatan').select('status').eq('status', 'diajukan'))]);
-  const B = ringkasDasbor({ koordinator, pengajuan, jadwal, temuan, tindak, karya, kabar });
+  // OBE O1 (101-patch-evaluasi-cpl-gkm.sql); tanpa patch = kosong.
+  const [perluTL, tanpaBaris, tindakEval] = await Promise.all([baca(sb.rpc('evaluasi_perlu_tl')), baca(sb.rpc('cpl_belum_tanpa_evaluasi')),
+    baca(sb.from('evaluasi_tindak').select('status,tenggat'))]);
+  const B = ringkasDasbor({ koordinator, pengajuan, jadwal, temuan, tindak, karya, kabar, perluTL, tanpaBaris, tindakEval });
   const semua = B.flatMap(b => b.item), lewat = semua.reduce((a, i) => a + i.lewat, 0);
   const antre = semua.reduce((a, i) => a + i.n, 0), peringatan = B.reduce((a, b) => a + b.pj.peringatan.length, 0);
   $('isi').innerHTML = `

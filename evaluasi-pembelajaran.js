@@ -113,7 +113,9 @@ export function rekapSemester(rows, cplMap, ambang, tindakPer){
 
 /**
  * Butir Tugas saya dari evaluasi pembelajaran. d = { saya, evaluasi: baris evaluasi_mk milik sendiri,
- * tindakEval: evaluasi_tindak dengan evaluasi_mk {kode_mk, tahun_akademik, semester} }, kini.
+ * tindakEval: evaluasi_tindak dengan evaluasi_mk {kode_mk, tahun_akademik, semester},
+ * perluTL: evaluasi_perlu_tl() (101; milik sendiri, atau semua bagi GKM/admin/pimpinan),
+ * tanpaBaris: cpl_belum_tanpa_evaluasi() (101; GKM/admin/pimpinan) }, kini.
  * Hasil [{ jenis, judul, rinci, href, hari }] (hari = ke tenggat; negatif = lewat).
  */
 export function tugasEvaluasi(d, kini = new Date()){
@@ -126,6 +128,19 @@ export function tugasEvaluasi(d, kini = new Date()){
       rinci: `${kosong.map(e => e.kode_mk).join(', ')}: kesesuaian dengan RPS dan catatan metode.`,
       href: `evaluasi-pembelajaran.html?ta=${encodeURIComponent(terbaru.ta)}&sm=${terbaru.sm}`, hari: null });
   }
+  // OBE O1 (101-patch-evaluasi-cpl-gkm.sql, pemilik 2026-11-17): mata kuliah saya yang perlu tindak lanjut tetapi belum punya.
+  const perlu = d.perluTL || [];
+  for (const r of perlu.filter(r => r.dosen_id === d.saya?.id))
+    out.push({ jenis: 'evaluasi', judul: `Tindak lanjut evaluasi ${r.kode_mk}${r.nama_mk ? ' ' + r.nama_mk : ''} (${r.tahun_akademik} ${r.semester})`,
+      rinci: `${(r.alasan || []).join('; ')}. Isi masalah, penyebab, dan rencana perbaikan.`,
+      href: `evaluasi-pembelajaran.html?ta=${encodeURIComponent(r.tahun_akademik)}&sm=${r.semester}`, hari: null });
+  // GKM/admin/pimpinan: satu butir ringkas untuk mata kuliah dosen lain dan MK tanpa baris evaluasi.
+  const lain = perlu.filter(r => r.dosen_id !== d.saya?.id), tanpa = d.tanpaBaris || [];
+  if (lain.length || tanpa.length) out.push({ jenis: 'evaluasi', judul: 'Pantau evaluasi pembelajaran',
+    rinci: [lain.length ? `${lain.length} mata kuliah × dosen perlu tindak lanjut tetapi belum punya` : '',
+            tanpa.length ? `${tanpa.length} mata kuliah dengan CPL belum tercapai belum punya baris evaluasi (${tanpa.slice(0, 5).map(x => x.kode_mk).join(', ')}${tanpa.length > 5 ? ', …' : ''}); jalankan "Siapkan baris"` : '']
+      .filter(Boolean).join('; ') + '.',
+    href: 'evaluasi-pembelajaran.html', hari: null });
   const hariIni = Date.UTC(kini.getFullYear(), kini.getMonth(), kini.getDate());
   for (const t of (d.tindakEval || []).filter(t => t.pj_id === d.saya?.id && t.status !== 'selesai')) {
     const [y, m, h] = String(t.tenggat || '').split('-').map(Number);
