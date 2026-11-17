@@ -7,9 +7,9 @@
 // ikut tampil pada publikasi/luaran/integrasi turunannya tanpa disalin.
 // st = { KB: karya_id -> [karya_bukti], INDUK: id -> karya } dari muatBuktiKarya.
 
-import { namaJenisBukti } from './rencana-bukti.js?v=2026-11-17-25af69';
-import { buangBerkas, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-17-25af69';
-import { htmlTautanButir, butirKarya, tsBaris } from './tautan-butir.js?v=2026-11-17-25af69';
+import { namaJenisBukti } from './rencana-bukti.js?v=2026-11-17-b8759d';
+import { buangBerkas, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-17-b8759d';
+import { htmlTautanButir, butirKarya, tsBaris } from './tautan-butir.js?v=2026-11-17-b8759d';
 
 export const esc = s => String(s ?? '').replace(/[&<>"']/g, c =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -40,7 +40,9 @@ export const daftarPenulis = kp => (kp || []).map(p => {
 export function barisKarya(k, aksi = '', ekstra = '', namaSkema = () => ''){
   const nama = daftarPenulis(k.karya_penulis);
   const nMhs = (k.karya_mahasiswa || []).length;
-  const mitra = (k.karya_mitra || []).map(m => m.institusi).filter(Boolean);
+  // Negara selain Indonesia ikut ditulis (pemilik 2026-11-17: ejaan negara mudah diperiksa, mis. Japan vs Jepang).
+  const mitra = (k.karya_mitra || []).filter(m => m.institusi).map(m =>
+    m.institusi + (m.negara && m.negara.trim().toLowerCase() !== 'indonesia' ? ` (${m.negara.trim()})` : ''));
   const meta = [k.tahun, rapi(k.kategori), rapi(k.tingkat),
                 k.nama_terbitan, namaSkema(k.skema_kode),
                 mitra.length ? 'mitra: ' + mitra.join(', ') : null,
