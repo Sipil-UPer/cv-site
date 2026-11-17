@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-17-1c2aa1">
-<link rel="stylesheet" href="kepala.css?v=2026-11-17-1c2aa1">
+<link rel="stylesheet" href="tema.css?v=2026-11-17-f000e4">
+<link rel="stylesheet" href="kepala.css?v=2026-11-17-f000e4">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
@@ -31,6 +31,8 @@
   .saring{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;margin:4px 0 12px;font-size:13.5px}
   .saring select, .saring input[type=search]{font:inherit;font-size:14px;padding:5px 7px;border:1px solid var(--line);background:var(--panel);color:var(--ink)}
   .saring input[type=search]{min-width:240px}
+  .unduh{font:inherit;font-size:13.5px;padding:6px 12px;border:1px solid var(--biru);background:var(--biru);color:#fff;cursor:pointer;margin-left:auto}
+  .unduh:disabled{opacity:.5;cursor:default}
   table{width:100%;border-collapse:collapse;background:var(--panel);border:1px solid var(--line);font-size:14px}
   th{text-align:left;font-size:12px;color:var(--muted);font-weight:500;border-bottom:1px solid var(--line);padding:7px 10px;background:var(--bg)}
   td{border-bottom:1px solid var(--line-soft);padding:8px 10px;vertical-align:top}
@@ -52,7 +54,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-17-1c2aa1"></script>
+<script src="config.js?v=2026-11-17-f000e4"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -71,9 +73,11 @@ addEventListener('error', function (e) {
 // (karya.sdgs, 47-patch-sdgs.sql) beserta berkas bukti (karya_bukti) dan DOI/tautannya, langsung dari
 // Supabase, jadi SDG yang baru disetujui segera terlihat. Halaman publik sdgs.html hanya daftar, tanpa bukti.
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-17-1c2aa1';
-import { jagaHalaman } from './fitur.js?v=2026-11-17-1c2aa1';
-import { SDGS, WARNA_SDG } from './form-karya.js?v=2026-11-17-1c2aa1';
+import { gerbang } from './menu.js?v=2026-11-17-f000e4';
+import { jagaHalaman } from './fitur.js?v=2026-11-17-f000e4';
+import { SDGS, WARNA_SDG } from './form-karya.js?v=2026-11-17-f000e4';
+import { opsiPeriode, cocokPeriode, labelPeriode, namaBerkas, lembarUnduh, tsKarya, taTeks } from './sdgs-unduh.js?v=2026-11-17-f000e4';
+import { SHEETJS } from './nilai-cpl.js?v=2026-11-17-f000e4';
 if (!jagaHalaman()) await new Promise(() => {});   // modul SDGs dimatikan (config.js FITUR_MATI)
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -84,7 +88,35 @@ const JENIS_BUKTI = { naskah: 'Naskah', sk: 'SK', korespondensi: 'Korespondensi'
   foto: 'Foto', lainnya: 'Bukti' };
 const nomorSDG = v => (Array.isArray(v) ? v : String(v || '').replace(/[{}]/g, '').split(',')).map(Number).filter(n => n >= 1 && n <= 17);
 
-let SEMUA = [], PILIH = null;
+let SEMUA = [], PILIH = null, TAMPIL = [];
+
+// Unduhan Excel (pemilik 2026-11-17): mengikuti saringan yang tampil; lembar Daftar, Bukti (tautan bisa diklik), Rekap SDG.
+async function unduh(){
+  const b = $('fUnduh'); b.disabled = true;
+  try {
+    const X = await import(SHEETJS);
+    const wb = X.utils.book_new();
+    const isi = lembarUnduh(TAMPIL.map(k => ({ ...k, tautan: tautanKarya(k) })), { sdgs: SDGS, kat: KAT, jenisBukti: JENIS_BUKTI });
+    const lebar = { Daftar: [5, 60, 11, 7, 7, 11, 34, 10, 40, 40, 18, 8], Bukti: [8, 60, 11, 14, 30, 60], 'Rekap SDG': [6, 44, 13, 17, 17] };
+    for (const [nama, baris] of Object.entries(isi)) {
+      const ws = X.utils.aoa_to_sheet(baris.map(r => r.map(c => c && typeof c === 'object' ? c.t : c)));
+      baris.forEach((r, i) => r.forEach((c, j) => {
+        if (c && typeof c === 'object' && c.l) ws[X.utils.encode_cell({ r: i, c: j })].l = { Target: c.l };
+      }));
+      ws['!cols'] = lebar[nama].map(w => ({ wch: w }));
+      X.utils.book_append_sheet(wb, ws, nama);
+    }
+    const info = [['Rekap SDGs dan bukti'], ['Periode', labelPeriode($('fPeriode').value)],
+      ['SDG', PILIH ? `SDG ${PILIH}` : 'Semua'], ['Pencarian', $('fCari').value.trim() || '-'],
+      ['Status', $('fTunggu').checked ? 'terverifikasi + menunggu verifikasi' : 'terverifikasi'],
+      ['Diunduh', new Date().toLocaleString('id-ID')],
+      ['Catatan', 'TS = 1 September s.d. 31 Agustus; karya bulan September-Desember masuk TS berikutnya, bulan kosong = tahun karya.']];
+    const wi = X.utils.aoa_to_sheet(info); wi['!cols'] = [{ wch: 12 }, { wch: 90 }];
+    X.utils.book_append_sheet(wb, wi, 'Keterangan');
+    X.writeFile(wb, namaBerkas($('fPeriode').value, PILIH));
+  } catch (e) { alert('Unduh gagal: ' + (e.message || e)); }
+  finally { b.disabled = !TAMPIL.length; }
+}
 
 function tautanKarya(k){
   if (k.doi) return `https://doi.org/${String(k.doi).replace(/^https?:\/\/(dx\.)?doi\.org\//i, '')}`;
@@ -92,10 +124,13 @@ function tautanKarya(k){
 }
 
 function gambar(){
-  const tahun = $('fTahun').value, cari = $('fCari').value.trim().toLowerCase(), tunggu = $('fTunggu').checked;
-  const dasar = SEMUA.filter(k => (tunggu || k.status === 'terverifikasi') && (!tahun || String(k.tahun) === tahun)
+  const periode = $('fPeriode').value, cari = $('fCari').value.trim().toLowerCase(), tunggu = $('fTunggu').checked;
+  const dasar = SEMUA.filter(k => (tunggu || k.status === 'terverifikasi') && cocokPeriode(k, periode)
     && (!cari || (k.judul + ' ' + k.dosen.join(' ')).toLowerCase().includes(cari)));
   const xs = dasar.filter(k => !PILIH || k.sdgs.includes(PILIH));
+  TAMPIL = xs;
+  $('fUnduh').disabled = !xs.length;
+  $('fUnduh').textContent = `Unduh Excel (${xs.length} karya + bukti)`;
   const tanpaBukti = xs.filter(k => !k.bukti.length).length;
   $('ringkas').innerHTML = `<div><b>${xs.length}</b><span>karya terkait SDGs${PILIH ? ' ' + PILIH : ''}</span></div>
     <div><b>${new Set(dasar.flatMap(k => k.sdgs)).size}</b><span>dari 17 SDG tersentuh</span></div>
@@ -109,7 +144,7 @@ function gambar(){
     xs.map(k => {
       const t = tautanKarya(k);
       return `<tr><td><div class="judul">${t ? `<a href="${esc(t)}" target="_blank" rel="noopener">${esc(k.judul)}</a>` : esc(k.judul)}</div>
-        <div class="sub">${KAT[k.kategori] || esc(k.kategori)} · ${esc(k.tahun || '')}${k.doi ? ' · DOI ' + esc(k.doi) : ''}
+        <div class="sub">${KAT[k.kategori] || esc(k.kategori)} · ${esc(k.tahun || '')}${tsKarya(k) ? ' · TS ' + taTeks(tsKarya(k)) : ''}${k.doi ? ' · DOI ' + esc(k.doi) : ''}
         ${k.status !== 'terverifikasi' ? ' <span class="tunggu">menunggu verifikasi</span>' : ''}</div></td>
         <td>${esc(k.dosen.join(', '))}</td>
         <td>${k.sdgs.map(n => `<span class="lencana" style="--w:${WARNA_SDG[n - 1]}" title="${esc((SDGS.find(x => x[0] === n) || [, ''])[1])}">SDG ${n}</span>`).join('')}</td>
@@ -125,14 +160,14 @@ async function mulai(){
   if (!saya) return;
   $('hSub').textContent = `Masuk sebagai ${saya.nama}`;
   const { data, error } = await sb.from('karya')
-    .select('id,judul,kategori,tahun,status,doi,url,sdgs,karya_penulis(dosen(nama)),karya_bukti(jenis,judul,url)')
+    .select('id,judul,kategori,tahun,bulan,status,doi,url,sdgs,karya_penulis(dosen(nama)),karya_bukti(jenis,judul,url)')
     .neq('status', 'draf').order('tahun', { ascending: false });
   if (error) throw new Error(/sdgs/.test(error.message) ? 'Kolom SDGs belum ada: jalankan supabase/47-patch-sdgs.sql.' : error.message);
   SEMUA = (data || []).map(k => ({ ...k, sdgs: nomorSDG(k.sdgs),
     dosen: [...new Set((k.karya_penulis || []).map(p => p.dosen?.nama).filter(Boolean))],
     bukti: (k.karya_bukti || []).filter(b => b.url) })).filter(k => k.sdgs.length)
     .sort((a, b) => (b.tahun || 0) - (a.tahun || 0) || a.judul.localeCompare(b.judul));
-  const tahunAda = [...new Set(SEMUA.map(k => k.tahun).filter(Boolean))].sort((a, b) => b - a);
+  const opsi = opsiPeriode(SEMUA).filter(g => g.opsi.length);
   $('isi').innerHTML = `
     <p class="ket">Karya dosen yang dikaitkan ke SDG, dengan berkas bukti (dari isian karya) dan DOI/tautannya, untuk pemantauan
       dan akreditasi. Halaman publik <a href="sdgs.html">Rekap SDGs</a> menampilkan daftar yang sama tanpa bukti.
@@ -140,12 +175,17 @@ async function mulai(){
     <div class="ringkas" id="ringkas"></div>
     <div class="sdg-kisi" id="kisi"></div>
     <div class="saring">
-      <label>Tahun <select id="fTahun"><option value="">Semua</option>${tahunAda.map(t => `<option>${t}</option>`).join('')}</select></label>
+      <label>Periode <select id="fPeriode"><option value="">Semua</option>${opsi.map(g => `<optgroup label="${esc(g.grup)}">${
+        g.opsi.map(([v, l]) => `<option value="${v}">${esc(l)}</option>`).join('')}</optgroup>`).join('')}</select></label>
       <input id="fCari" type="search" placeholder="Cari judul atau nama dosen" aria-label="Cari">
       <label><input id="fTunggu" type="checkbox"> Termasuk yang menunggu verifikasi</label>
+      <button type="button" class="unduh" id="fUnduh">Unduh Excel</button>
     </div>
+    <p class="ket">TS = 1 September s.d. 31 Agustus: karya bulan September–Desember masuk TS berikutnya; karya tanpa bulan dihitung
+      pada TS tahun karyanya. Unduhan mengikuti saringan di atas (periode, SDG, pencarian, status).</p>
     <div id="daftar"></div>`;
-  ['fTahun', 'fTunggu'].forEach(id => { $(id).onchange = gambar; });
+  ['fPeriode', 'fTunggu'].forEach(id => { $(id).onchange = gambar; });
+  $('fUnduh').onclick = unduh;
   $('fCari').oninput = gambar;
   gambar();
 }

@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-17-1c2aa1">
+<link rel="stylesheet" href="tema.css?v=2026-11-17-f000e4">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
@@ -95,7 +95,7 @@
 
 <main class="wrap" id="isi"></main>
 
-<script src="config.js?v=2026-11-17-1c2aa1"></script>
+<script src="config.js?v=2026-11-17-f000e4"></script>
 <script>
 // Alamat dasar profil luar; dapat diubah lewat config.js tanpa
 // menyentuh berkas ini. Nilai cadangan dipakai bila config.js lama.
@@ -157,7 +157,7 @@ function render(D){
     .filter(Boolean).join(' — ');
   document.getElementById('hNama').textContent = dosen.nama;
   document.getElementById('hProdi').textContent =
-    [D.prodi, D.institusi].filter(Boolean).join(' · ');
+    [dosen.nip && `NIP ${dosen.nip}`, D.prodi, D.institusi].filter(Boolean).join(' · ');   // NIP: patch 89
 
   const punya = (a=[]) => a.some(x => x.slug === pilih);
   const pub = (D.publikasi||[]).filter(p => punya(p.penulis));
