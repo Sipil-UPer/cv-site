@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-17-349420">
-<link rel="stylesheet" href="kepala.css?v=2026-11-17-349420">
+<link rel="stylesheet" href="tema.css?v=2026-11-17-796e64">
+<link rel="stylesheet" href="kepala.css?v=2026-11-17-796e64">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
@@ -41,7 +41,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-17-349420"></script>
+<script src="config.js?v=2026-11-17-796e64"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -61,15 +61,18 @@ addEventListener('error', function (e) {
 // di Drive prodi lewat Apps Script. Admin mengimpor daftar kelas, memantau yang belum,
 // dan mengirim pengingat. run_cpl.py mengunduh berkas dengan kunci CPL_KUNCI.
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-17-349420';
-import { tautanBerkas } from './tautan-privat.js?v=2026-11-17-349420';
-import { SHEETJS, VERSI_TEMPLAT, bacaLembar, periksaBerkas, bacaCSVKelas, statusKelas, periodeKelas, penerimaBelumUnggah } from './nilai-cpl.js?v=2026-11-17-349420';
+import { gerbang } from './menu.js?v=2026-11-17-796e64';
+import { bolehMutu } from './koordinator.js?v=2026-11-17-796e64';
+import { tautanBerkas } from './tautan-privat.js?v=2026-11-17-796e64';
+import { SHEETJS, VERSI_TEMPLAT, bacaLembar, periksaBerkas, bacaCSVKelas, statusKelas, periodeKelas, penerimaBelumUnggah } from './nilai-cpl.js?v=2026-11-17-796e64';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
 const sb = createClient(window.SB_URL, window.SB_KEY);
 const tgl = s => String(s || '').slice(0, 16).replace('T', ' ');
 let SAYA = null, ADMIN = false, KELAS = [], BERKAS = [], DOSEN = new Map(), PILIH = '', SIAP = null;
+// Hitung CPL otomatis (pemilik 2026-11-17, OBE O4): admin dan GKM melihat ringkasan terakhir dan bisa memicu hitung ulang.
+let HITUNG = false, RINGKAS_AKHIR = null;
 
 const keB64 = buf => { let s = ''; const b = new Uint8Array(buf); for (let i = 0; i < b.length; i += 0x8000) s += String.fromCharCode(...b.subarray(i, i + 0x8000)); return btoa(s); };
 const sha256 = async buf => [...new Uint8Array(await crypto.subtle.digest('SHA-256', buf))].map(x => x.toString(16).padStart(2, '0')).join('');
@@ -79,6 +82,8 @@ async function muat(){
   if (k.error) throw new Error(/does not exist|schema cache/i.test(k.error.message) ? 'Tabel daftar kelas belum ada: jalankan supabase/57-patch-cpl-unggah.sql.' : k.error.message);
   KELAS = k.data || []; BERKAS = b.data || [];
   if (ADMIN) { const d = await sb.from('dosen').select('nama,email'); DOSEN = new Map((d.data || []).map(x => [String(x.email).toLowerCase(), x.nama])); }
+  if (HITUNG) { const r = await sb.from('cpl_ringkasan').select('diunggah,catatan,oleh').order('diunggah', { ascending: false }).limit(1);
+    RINGKAS_AKHIR = r.data?.[0] || null; }
   const ps = periodeKelas(KELAS);
   if (!ps.includes(PILIH)) PILIH = ps[0] || '';
 }
@@ -112,10 +117,41 @@ function gambar(){
             <div class="msg" id="m-${k.id}"></div>` : ''}${ADMIN ? ` <button class="b" data-hapus-kelas="${k.id}" title="Hapus kelas dari daftar">Hapus kelas</button>` : ''}</td></tr>`; }).join('')}
       </tbody></table></div>` : `<p class="kosong">${ADMIN ? 'Belum ada kelas untuk periode ini. Impor daftar kelas di bawah.'
         : 'Tidak ada kelas Anda di daftar. Bila Anda mengampu kelas ber-CPL semester ini, minta admin menambahkannya dengan email login Anda.'}</p>`}</div>
+    ${HITUNG ? htmlHitung() : ''}
     ${ADMIN ? htmlAdmin(st) : ''}`;
   if ($('periode')) $('periode').onchange = e => { PILIH = e.target.value; gambar(); };
   document.querySelectorAll('[data-unggah]').forEach(b => b.onclick = () => unggah(+b.dataset.unggah, b));
   if (ADMIN) pasangAdmin(st);
+  if ($('hitungUlang')) $('hitungUlang').onclick = hitungUlang;
+}
+
+function htmlHitung(){
+  const r = RINGKAS_AKHIR, terakhir = BERKAS.map(b => b.diunggah).sort().pop();
+  const baru = terakhir && (!r || terakhir > r.diunggah);
+  return `<div class="kartu"><h2>Hitung CPL otomatis</h2>
+    <p class="ket">Capaian CPL dihitung otomatis tiap malam (01.30 WIB) bila ada berkas nilai baru, dengan kode yang sama dengan run_cpl.py.
+      Ringkasan tanpa NIM langsung tampil di Monitoring › Capaian CPL; laporan ber-NIM (Excel, radar per mahasiswa, perwalian) disimpan
+      di Drive privat prodi, folder <code>berkas-privat/cpl-laporan</code>.</p>
+    <p>Ringkasan terakhir: ${r ? `<b>${esc(tgl(r.diunggah))}</b> (${esc(r.catatan || r.oleh || 'unggah admin')})` : '<span class="belum">belum ada</span>'}
+      ${baru ? '<br><span class="belum">Ada berkas nilai yang lebih baru dari ringkasan ini.</span>' : ''}</p>
+    <p><button class="b utama" id="hitungUlang">Hitung ulang sekarang</button><span class="msg" id="hitungMsg"></span></p>
+    <p class="ket">Masukan tambahan (opsional, memuat NIM) ditaruh di Drive privat prodi, folder <code>berkas-privat/cpl-masukan</code>:
+      subfolder <code>nilai_akhir</code> (nilai akhir kampus untuk estimasi semester lama), <code>course_removals.csv</code>,
+      <code>student_info.csv</code>, <code>advisors.csv</code>, <code>student_activities.csv</code>, dan subfolder <code>foto</code>.</p></div>`;
+}
+
+async function hitungUlang(){
+  const msg = (id, c, t) => { const m = $(id); m.className = 'msg ' + c; m.textContent = t; };   // pesan untuk admin dan GKM
+  $('hitungUlang').disabled = true;
+  msg('hitungMsg', '', 'Memulai…');
+  try {
+    const { data: { session } } = await sb.auth.getSession();
+    const res = await fetch(window.UPLOAD_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ token: session.access_token, kind: 'cpl_hitung' }) });
+    const out = await res.json();
+    if (!out.ok) throw new Error(out.error || 'Gagal memulai.');
+    msg('hitungMsg', 'ok', 'Dimulai. Ringkasan baru tampil di Monitoring › Capaian CPL sekitar 3–5 menit lagi.');
+  } catch (e) { msg('hitungMsg', 'buruk', e.message || String(e)); $('hitungUlang').disabled = false; }
 }
 
 async function unggah(id, tombol){
@@ -213,6 +249,7 @@ async function mulai(){
   SAYA = await gerbang(sb);
   if (!SAYA) return;
   ADMIN = SAYA.peran === 'admin';
+  HITUNG = bolehMutu(SAYA);
   $('hSub').textContent = `Masuk sebagai ${SAYA.nama}`;
   await muat();
   gambar();
