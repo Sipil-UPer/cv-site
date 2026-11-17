@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-17-2eacc4">
-<link rel="stylesheet" href="kepala.css?v=2026-11-17-2eacc4">
+<link rel="stylesheet" href="tema.css?v=2026-11-17-25af69">
+<link rel="stylesheet" href="kepala.css?v=2026-11-17-25af69">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
@@ -50,7 +50,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-17-2eacc4"></script>
+<script src="config.js?v=2026-11-17-25af69"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -70,7 +70,7 @@ addEventListener('error', function (e) {
 // Data prodi > Prasarana & alat (LKPS 5.a) dengan nama prasarana yang dipilih di sini; penelitian terkait hanya
 // yang terverifikasi.
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-17-2eacc4';
+import { gerbang } from './menu.js?v=2026-11-17-25af69';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
@@ -79,7 +79,7 @@ const FOTO_EXT = ['jpg', 'jpeg', 'png'];
 const MAKS_FOTO = 6;
 const JENIS_KARYA = { penelitian: 'Penelitian', pkm: 'PkM' };
 
-let SAYA = null, DATA = [], SUNTING = null, FOTO = [];
+let SAYA = null, DATA = [], SUNTING = null, FOTO = [], KEPALA = null;   // KEPALA: id lab milik kepala lab (98)
 let DOSEN = [], MK = [], KARYA = [], RUANG = [], ALAT = [];
 
 const keB64 = f => new Promise((ok, gagal) => {
@@ -236,7 +236,7 @@ function htmlItem(r){
       <span>${(r.layanan || []).length} layanan</span><span>${(r.penelitian || []).length} penelitian</span><span>${(r.foto || []).length} foto</span></div>
     <div class="judul">${esc(r.nama)}</div>${kepala ? `<div class="ket">Koordinator: ${esc(kepala)}</div>` : ''}
     <div class="isi">${esc(r.ringkasan)}</div>
-    <div class="aksi"><button class="b" data-ubah="${r.id}">Ubah</button><button class="b bahaya" data-hapus="${r.id}">Hapus</button></div></div>`;
+    <div class="aksi"><button class="b" data-ubah="${r.id}">Ubah</button>${KEPALA ? '' : `<button class="b bahaya" data-hapus="${r.id}">Hapus</button>`}</div></div>`;
 }
 
 async function muatPilihan(){
@@ -257,7 +257,7 @@ async function muatPilihan(){
 async function muat(){
   const { data, error } = await sb.from('laboratorium').select('*').order('urutan').order('nama');
   if (error) throw new Error(/laboratorium/.test(error.message) ? 'Tabel laboratorium belum ada: jalankan supabase/82-patch-laboratorium.sql.' : error.message);
-  DATA = data || [];
+  DATA = (data || []).filter(r => !KEPALA || KEPALA.includes(r.id));
   $('daftar').innerHTML = DATA.map(htmlItem).join('') || '<p class="kosong">Belum ada laboratorium.</p>';
 }
 
@@ -265,10 +265,15 @@ async function mulai(){
   SAYA = await gerbang(sb);
   if (!SAYA) return;
   $('hSub').textContent = `Masuk sebagai ${SAYA.nama}`;
-  if (SAYA.peran !== 'admin') { $('isi').innerHTML = '<p class="kosong">Halaman ini khusus admin program studi.</p>'; return; }
+  // Kepala lab (98-patch-koordinator-mutu-lab.sql): hanya lab miliknya, tanpa membuat atau menghapus lab.
+  if (SAYA.peran !== 'admin') {
+    KEPALA = SAYA.koordinatorLab || [];
+    if (!KEPALA.length) { $('isi').innerHTML = '<p class="kosong">Halaman ini khusus admin program studi dan kepala laboratorium.</p>'; return; }
+  }
   await muatPilihan();
   kerangka();
   await muat();
+  if (KEPALA && DATA[0]) isiForm(DATA[0]);   // kepala lab langsung menyunting lab miliknya
 }
 mulai().catch(e => { $('isi').innerHTML = `<p class="kosong">Gagal memuat: ${esc(e.message)}</p>`; });
 </script>
