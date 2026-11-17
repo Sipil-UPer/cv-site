@@ -1,4 +1,5 @@
-import { dosenLogin } from './dosen-login.js?v=2026-11-17-b30e65';
+import { dosenLogin } from './dosen-login.js?v=2026-11-17-2eacc4';
+import { aktifPada } from './koordinator.js?v=2026-11-17-2eacc4';
 // Menu bersama ruang kerja (pemilik 2026-11-04).
 //
 // Situs dibagi dua:
@@ -14,12 +15,14 @@ import { dosenLogin } from './dosen-login.js?v=2026-11-17-b30e65';
 // ruang-kerja.html, dan gerbang ikut membacanya.
 
 const admin = s => s.peran === 'admin';
+// Koordinator prodi (97-patch-koordinator.sql): Data prodi untuk tab bidangnya.
+const dataProdi = s => admin(s) || (s.koordinator || []).some(j => ['koordinator_ta', 'pembina_kemahasiswaan'].includes(j));
 // Sama dengan boleh_narasi() di supabase/36-patch-tim-penyusun.sql.
 const penyusun = s => admin(s) || (!!s.tim_penyusun && s.peran !== 'asesor');
 // Asesor, dan pimpinan yang bukan DTPS prodi ini (aktif=false), tidak mengisi karya.
 const isiKarya = s => s.peran !== 'asesor' && !(s.peran === 'pimpinan' && !s.aktif);
 
-import { halamanAktif } from './fitur.js?v=2026-11-17-b30e65';
+import { halamanAktif } from './fitur.js?v=2026-11-17-2eacc4';
 
 export const MODUL = [
   // Susunan modul (pemilik 2026-11-12): isian dosen, operasional prodi, dan fungsi admin dipisah.
@@ -74,8 +77,10 @@ export const MODUL = [
   { judul: 'Admin prodi', ket: 'Verifikasi, data prodi, dosen, dan mutu data (khusus admin).', halaman: [
     { href: 'verifikasi.html', judul: 'Verifikasi', boleh: admin,
       ket: 'Karya dosen, profil dosen, BKD, dan prestasi mahasiswa yang menunggu keputusan admin.' },
-    { href: 'data-prodi.html', judul: 'Data prodi', boleh: admin,
+    { href: 'data-prodi.html', judul: 'Data prodi', boleh: dataProdi,
       ket: 'Mahasiswa, lulusan, tracer, kerja sama, BKD, prestasi mahasiswa.' },
+    { href: 'koordinator.html', judul: 'Koordinator prodi', boleh: admin,
+      ket: 'Penugasan koordinator TA, KP/magang, kemahasiswaan, kepala lab, GKM: periode dan SK; wewenang per bidang.' },
     { href: 'kelola-dosen.html', judul: 'Kelola dosen', boleh: admin,
       ket: 'Email yang terdaftar dan perannya.' },
     // Jejak perubahan (65-patch-jejak.sql, pemilik 2026-11-12): khusus admin, termasuk paket akreditasi.
@@ -158,7 +163,14 @@ export function pengguna(sb, segar = false){
     if (!session) return null;
     // Semua kolom: kolom yang belum ada (patch belum dijalankan) tidak menggagalkan menu.
     const { data } = await dosenLogin(sb, session, '*');
-    return { email: session.user.email, saya: data || null };
+    // Jabatan koordinator yang aktif hari ini (97); tabel belum ada = tanpa jabatan.
+    let koor = [];
+    if (data?.id) {
+      const r = await sb.from('koordinator').select('jabatan,laboratorium_id,mulai,selesai').eq('dosen_id', data.id);
+      koor = r.error ? [] : aktifPada(r.data);
+    }
+    return { email: session.user.email, saya: data ? { ...data, koordinator: koor.map(k => k.jabatan),
+      koordinatorLab: koor.filter(k => k.jabatan === 'kepala_lab').map(k => k.laboratorium_id) } : null };
   })();
   return PENGGUNA;
 }
@@ -278,7 +290,7 @@ export async function pasangMenu(sb){
   // Pencarian menyeluruh (pemilik 2026-11-12; cari-ui.js, cari.js): dimuat saat pertama dipakai.
   const kotak = nav.querySelector('.rk-cari input');
   let siapCari = null;
-  const muatCari = () => siapCari || (siapCari = import('./cari-ui.js?v=2026-11-17-b30e65').then(m =>
+  const muatCari = () => siapCari || (siapCari = import('./cari-ui.js?v=2026-11-17-2eacc4').then(m =>
     m.pasangCari(kotak, { sb, saya: u.saya, modul: halamanBoleh(u.saya), boleh: h => bolehBuka(u.saya, h) !== false })));
   kotak.addEventListener('focus', muatCari);
   document.addEventListener('keydown', e => {

@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-17-b30e65">
-<link rel="stylesheet" href="kepala.css?v=2026-11-17-b30e65">
+<link rel="stylesheet" href="tema.css?v=2026-11-17-2eacc4">
+<link rel="stylesheet" href="kepala.css?v=2026-11-17-2eacc4">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
@@ -72,7 +72,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-17-b30e65"></script>
+<script src="config.js?v=2026-11-17-2eacc4"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -92,23 +92,26 @@ addEventListener('error', function (e) {
 // Berkas privat dibuka lewat Apps Script (mhs_buka_prodi); surat pengantar KP diunggah admin (mhs_unggah_prodi);
 // mahasiswa dikabari email saat dikembalikan, ditolak, atau disetujui (mhs_kabari).
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-17-b30e65';
-import { JENIS, LABEL_BERKAS, LABEL_STATUS, TINGKAT, BIDANG, teksAnggota, judulPengajuan, keB64, bukaIsi, appsScript, labelStatus, JENIS_SURAT, TAHAP_TA, JENIS_PUB, TINGKAT_PUB, INDEKSASI, JENIS_LUARAN, waktuPengajuan, rekapPengajuan, lembarPengajuan } from './pengajuan-mhs.js?v=2026-11-17-b30e65';
-import { opsiPeriode, cocokPeriode, labelPeriode, taTeks, tsKarya } from './sdgs-unduh.js?v=2026-11-17-b30e65';
-import { SHEETJS } from './nilai-cpl.js?v=2026-11-17-b30e65';
-import { siapkan } from './pembimbing.js?v=2026-11-17-b30e65';
-import { usulPenguji, bebanUji, tsDari } from './usulan-penguji.js?v=2026-11-17-b30e65';
+import { gerbang } from './menu.js?v=2026-11-17-2eacc4';
+import { bolehPengajuan, punya, labelJabatan } from './koordinator.js?v=2026-11-17-2eacc4';
+import { JENIS, LABEL_BERKAS, LABEL_STATUS, TINGKAT, BIDANG, teksAnggota, judulPengajuan, keB64, bukaIsi, appsScript, labelStatus, JENIS_SURAT, TAHAP_TA, JENIS_PUB, TINGKAT_PUB, INDEKSASI, JENIS_LUARAN, waktuPengajuan, rekapPengajuan, lembarPengajuan } from './pengajuan-mhs.js?v=2026-11-17-2eacc4';
+import { opsiPeriode, cocokPeriode, labelPeriode, taTeks, tsKarya } from './sdgs-unduh.js?v=2026-11-17-2eacc4';
+import { SHEETJS } from './nilai-cpl.js?v=2026-11-17-2eacc4';
+import { siapkan } from './pembimbing.js?v=2026-11-17-2eacc4';
+import { usulPenguji, bebanUji, tsDari } from './usulan-penguji.js?v=2026-11-17-2eacc4';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
 const sb = createClient(window.SB_URL, window.SB_KEY);
 const tgl = s => s ? new Date(s).toLocaleString('id-ID', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '';
 const KABARI = new Set(['dikembalikan', 'ditolak', 'disetujui']);   // status yang dikabarkan ke email mahasiswa
-let SAYA = null, ADMIN = false, DATA = [], TAB = 'tunggu', BUKA = new Set();
+let SAYA = null, ADMIN = false, UNDUH = false, DATA = [], TAB = 'tunggu', BUKA = new Set();
 // Seminar/sidang TA (94): daftar dosen (NIDN, nama) untuk penguji; jadwal per pengajuan.
 let DOSEN = [], JADWAL = new Map(), SEMUA_JADWAL = [], MODEL = null;   // MODEL: mesin Cari pembimbing (usulan penguji)
 
-const menungguSaya = p => (p.status === 'pembimbing' && (p.pembimbing_id === SAYA.id || ADMIN)) || (p.status === 'admin' && ADMIN);
+// Koordinator bidangnya menggantikan admin (97); surat tetap admin.
+const boleh = p => bolehPengajuan(SAYA, p.jenis);
+const menungguSaya = p => (p.status === 'pembimbing' && (p.pembimbing_id === SAYA.id || boleh(p))) || (p.status === 'admin' && boleh(p));
 const sesi = async () => (await sb.auth.getSession()).data.session?.access_token;
 
 async function muat(){
@@ -172,7 +175,7 @@ function kartu(p){
   const saya = menungguSaya(p), berkas = [...(p.pengajuan_berkas || [])].sort((a, b) => a.id - b.id);
   const riwayat = [...(p.pengajuan_riwayat || [])].sort((a, b) => String(a.waktu).localeCompare(String(b.waktu)));
   const kelas = ['pembimbing', 'admin'].includes(p.status) ? 'tunggu' : p.status;
-  const bolehTolak = ADMIN;
+  const bolehTolak = boleh(p);
   return `<details class="kartu ${kelas}" data-id="${p.id}"${BUKA.has(p.id) ? ' open' : ''}>
     <summary><span class="lencana">${esc(JENIS[p.jenis]?.singkat || p.jenis)}</span>
       <span class="judul">${esc(judulPengajuan(p))}</span><span class="meta">${esc(p.nama)} · ${esc(p.nim)} · ${p.jenis === 'surat' ? 'tanpa pembimbing' : esc(p.dosen?.nama || '—')}</span>
@@ -184,7 +187,7 @@ function kartu(p){
       <div><h3>Berkas</h3><ul class="polos">${berkas.map(b => `<li><div class="isi">${esc(LABEL_BERKAS[b.jenis] || b.jenis)}
           <span class="ket"> · ${esc(b.nama)}${b.oleh !== 'mahasiswa' ? ' · dari prodi' : ''}</span></div>
           <button class="b" data-buka="${b.id}">Buka</button></li>`).join('') || '<li class="kosong">Belum ada berkas.</li>'}</ul>
-        ${ADMIN && ((p.jenis === 'kp' && (p.tahap || 'pengajuan') === 'pengajuan') || p.jenis === 'surat') && ['admin', 'disetujui'].includes(p.status)
+        ${((p.jenis === 'kp' && (p.tahap || 'pengajuan') === 'pengajuan' && boleh(p)) || (p.jenis === 'surat' && ADMIN)) && ['admin', 'disetujui'].includes(p.status)
           ? `<div class="baris" style="margin-top:8px"><input type="file" id="sp_${p.id}" accept=".pdf,.docx,.jpg,.jpeg,.png">
           <button class="b" data-pengantar="${p.id}" data-jenis="${p.jenis === 'surat' ? 'surat_jadi' : 'surat_pengantar'}">${p.jenis === 'surat'
             ? 'Unggah surat bertanda tangan' : 'Unggah surat pengantar'}</button></div>` : ''}
@@ -193,7 +196,7 @@ function kartu(p){
       ${saya ? `<div class="aksi"><label class="ket" for="c_${p.id}">Catatan untuk mahasiswa (wajib bila dikembalikan${bolehTolak ? ' atau ditolak' : ''};
           terkirim lewat email dan tampil di halaman mahasiswa)</label>
         <textarea id="c_${p.id}" maxlength="2000"></textarea>
-        ${p.jenis === 'ta' && p.status === 'admin' && ADMIN ? htmlJadwal(p) : ''}
+        ${p.jenis === 'ta' && p.status === 'admin' && boleh(p) ? htmlJadwal(p) : ''}
         <div class="baris">${p.jenis === 'ta' && p.status === 'admin' ? '' : `<button class="b utama" data-aksi="setujui" data-p="${p.id}">${p.status === 'pembimbing' ? 'Setujui, teruskan ke admin' : 'Sahkan'}</button>`}
           <button class="b" data-aksi="kembalikan" data-p="${p.id}">Kembalikan untuk diperbaiki</button>
           ${bolehTolak ? `<button class="b awas" data-aksi="tolak" data-p="${p.id}">Tolak</button>` : ''}
@@ -343,7 +346,7 @@ function gambarRekap(){
   $('rekapIsi').innerHTML = `
     <div class="saring" style="margin-top:8px"><label>Periode <select id="rPeriode"><option value="">Semua</option>${opsi.map(g =>
       `<optgroup label="${esc(g.grup)}">${g.opsi.map(([v, l]) => `<option value="${v}"${v === PERIODE ? ' selected' : ''}>${esc(l)}</option>`).join('')}</optgroup>`).join('')}</select></label>
-      ${ADMIN ? `<button type="button" class="b utama" id="rUnduh"${xs.length ? '' : ' disabled'}>Unduh Excel (${xs.length} pengajuan + berkas)</button>` : ''}
+      ${UNDUH ? `<button type="button" class="b utama" id="rUnduh"${xs.length ? '' : ' disabled'}>Unduh Excel (${xs.length} pengajuan + berkas)</button>` : ''}
       <span class="msg" id="rMsg" role="status"></span></div>
     <div class="ringkas-angka">
       <div><b>${r.kp.selesai}</b><span>KP selesai</span></div><div><b>${r.kp.berjalan}</b><span>KP berjalan</span></div>
@@ -355,9 +358,9 @@ function gambarRekap(){
       <tbody>${r.instansi.map(x => `<tr><td>${esc(x.instansi)}</td><td>${x.mahasiswa}</td><td>${x.selesai}</td><td>${x.berjalan}</td></tr>`).join('')}</tbody></table>`
       : '<p class="kosong">Belum ada KP pada periode ini.</p>'}
     <p class="ket">Periode KP mengikuti tanggal mulai KP (atau rencana mulai bila laporan selesai belum masuk); lomba mengikuti tanggal lomba.
-      TS = 1 September s.d. 31 Agustus. Draf tidak dihitung.${ADMIN ? ' Unduhan memuat NIM: simpan di tempat yang aman.' : ''}</p>`;
+      TS = 1 September s.d. 31 Agustus. Draf tidak dihitung.${UNDUH ? ' Unduhan memuat NIM: simpan di tempat yang aman.' : ''}</p>`;
   $('rPeriode').onchange = e => { PERIODE = e.target.value; gambarRekap(); };
-  if (ADMIN) $('rUnduh').onclick = () => unduhRekap(xs);
+  if (UNDUH) $('rUnduh').onclick = () => unduhRekap(xs);
 }
 async function unduhRekap(xs){
   const b = $('rUnduh'); b.disabled = true;
@@ -383,12 +386,15 @@ async function mulai(){
   SAYA = await gerbang(sb);
   if (!SAYA) return;
   ADMIN = SAYA.peran === 'admin';
+  UNDUH = ADMIN || punya(SAYA, 'koordinator_kp') || punya(SAYA, 'pembina_kemahasiswaan');
+  const jab = (SAYA.koordinator || []).filter(j => ['koordinator_ta', 'koordinator_kp', 'pembina_kemahasiswaan'].includes(j));
   $('hSub').textContent = `Masuk sebagai ${SAYA.nama}`;
   await muat();
   $('isi').innerHTML = `
     <p class="ket">Pengajuan Kerja Praktik, seminar/sidang TA, laporan lomba, dan permohonan surat yang dikirim mahasiswa lewat <a href="pengajuan.html">halaman pengajuan</a>
       (tanpa login; tautan pribadi ke email kampus). Urutan pemeriksaan: dosen pembimbing, lalu admin prodi; permohonan surat langsung ke admin (ditandatangani Kaprodi).
-      ${ADMIN ? 'Admin melihat semua pengajuan dan boleh memutuskan tahap pembimbing bila pembimbing berhalangan.' : 'Anda melihat pengajuan yang memilih Anda sebagai pembimbing.'}
+      ${ADMIN ? 'Admin melihat semua pengajuan dan boleh memutuskan tahap pembimbing bila pembimbing berhalangan.'
+        : jab.length ? `Anda ${jab.map(labelJabatan).join(', ')}: memegang tahap admin pengajuan bidang Anda dan boleh menggantikan pembimbing yang berhalangan.` : 'Anda melihat pengajuan yang memilih Anda sebagai pembimbing.'}
       ${ADMIN ? 'Draf yang belum dikirim mahasiswa tampil di "Semua".' : 'Draf yang belum dikirim mahasiswa tidak tampil.'}</p>
     <details class="kotak-rekap" id="rekap"><summary>Rekap dan unduhan per periode</summary><div id="rekapIsi"></div></details>
     <div class="tab" id="tab" role="group" aria-label="Kelompok"></div>

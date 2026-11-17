@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-17-b30e65">
+<link rel="stylesheet" href="tema.css?v=2026-11-17-2eacc4">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
@@ -101,7 +101,7 @@
   .masuk{max-width:420px;margin:40px auto;background:#fff;border:1px solid var(--line);padding:20px}
   .masuk input{width:100%;padding:8px 10px;margin:8px 0;font:inherit}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-17-b30e65">
+<link rel="stylesheet" href="kepala.css?v=2026-11-17-2eacc4">
 </head>
 <body>
 
@@ -115,7 +115,7 @@
 
 <main class="wrap" id="isi"></main>
 
-<script src="config.js?v=2026-11-17-b30e65"></script>
+<script src="config.js?v=2026-11-17-2eacc4"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -132,25 +132,26 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-17-b30e65';
-import { pasangMenu } from './menu.js?v=2026-11-17-b30e65';
-import { dosenLogin } from './dosen-login.js?v=2026-11-17-b30e65';
-import { unggahKePustaka, opsiPustaka, opsiJenis, labelDokumen, cariDokumen } from './pustaka-dokumen.js?v=2026-11-17-b30e65';
-import { pasangRapikan } from './rapikan-berkas.js?v=2026-11-17-b30e65';
-import { UNSUR, skorUnsur, pihakUnsur } from './unsur-butir.js?v=2026-11-17-b30e65';
-import { OPSI_SUMBER } from './iku-otomatis.js?v=2026-11-17-b30e65';
-import { denganOtomatis as otomatisDari, tsTersedia, tsAwal, htmlCapaianIKU, KET_CAPAIAN, muatTambahan, denganTambahan } from './capaian-iku.js?v=2026-11-17-b30e65';
-import { KATEGORI_TEMUAN, STATUS_TEMUAN, PIHAK_TEMUAN, ringkasTemuan, htmlRingkasTemuan } from './temuan-ami.js?v=2026-11-17-b30e65';
-import { bacaRekapSPM, rencanaImporSPM, tsDariTanggal, labelTS, ringkasLembar, picProdi } from './standar-spmi.js?v=2026-11-17-b30e65';
-import { SHEETJS } from './nilai-cpl.js?v=2026-11-17-b30e65';
-import { bacaCSV, normKur, normCpl, KOLOM_IMPOR, CONTOH_IMPOR, rencanaImpor, sebaranCPL, htmlSebaran } from './kurikulum-cpl.js?v=2026-11-17-b30e65';
-import { htmlContoh, pasangContoh, JENIS_BUKTI_KS } from './manfaat-kerjasama.js?v=2026-11-17-b30e65';
-import { infoJenis } from './rencana-bukti.js?v=2026-11-17-b30e65';
-import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-17-b30e65';
-import { nomorButir, htmlTautanButir } from './tautan-butir.js?v=2026-11-17-b30e65';
-import { htmlSaran } from './saran-bukti.js?v=2026-11-17-b30e65';
-import { tautanBerkas, privatkanLama, adalahPrivat } from './tautan-privat.js?v=2026-11-17-b30e65';
-import { unggahLKD, buangLKD, bukaLKD, pendidikanTotal, pendidikanPS } from './bkd.js?v=2026-11-17-b30e65';
+import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-17-2eacc4';
+import { pasangMenu } from './menu.js?v=2026-11-17-2eacc4';
+import { dosenLogin } from './dosen-login.js?v=2026-11-17-2eacc4';
+import { aktifPada, tabBoleh, labelJabatan } from './koordinator.js?v=2026-11-17-2eacc4';
+import { unggahKePustaka, opsiPustaka, opsiJenis, labelDokumen, cariDokumen } from './pustaka-dokumen.js?v=2026-11-17-2eacc4';
+import { pasangRapikan } from './rapikan-berkas.js?v=2026-11-17-2eacc4';
+import { UNSUR, skorUnsur, pihakUnsur } from './unsur-butir.js?v=2026-11-17-2eacc4';
+import { OPSI_SUMBER } from './iku-otomatis.js?v=2026-11-17-2eacc4';
+import { denganOtomatis as otomatisDari, tsTersedia, tsAwal, htmlCapaianIKU, KET_CAPAIAN, muatTambahan, denganTambahan } from './capaian-iku.js?v=2026-11-17-2eacc4';
+import { KATEGORI_TEMUAN, STATUS_TEMUAN, PIHAK_TEMUAN, ringkasTemuan, htmlRingkasTemuan } from './temuan-ami.js?v=2026-11-17-2eacc4';
+import { bacaRekapSPM, rencanaImporSPM, tsDariTanggal, labelTS, ringkasLembar, picProdi } from './standar-spmi.js?v=2026-11-17-2eacc4';
+import { SHEETJS } from './nilai-cpl.js?v=2026-11-17-2eacc4';
+import { bacaCSV, normKur, normCpl, KOLOM_IMPOR, CONTOH_IMPOR, rencanaImpor, sebaranCPL, htmlSebaran } from './kurikulum-cpl.js?v=2026-11-17-2eacc4';
+import { htmlContoh, pasangContoh, JENIS_BUKTI_KS } from './manfaat-kerjasama.js?v=2026-11-17-2eacc4';
+import { infoJenis } from './rencana-bukti.js?v=2026-11-17-2eacc4';
+import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-17-2eacc4';
+import { nomorButir, htmlTautanButir } from './tautan-butir.js?v=2026-11-17-2eacc4';
+import { htmlSaran } from './saran-bukti.js?v=2026-11-17-2eacc4';
+import { tautanBerkas, privatkanLama, adalahPrivat } from './tautan-privat.js?v=2026-11-17-2eacc4';
+import { unggahLKD, buangLKD, bukaLKD, pendidikanTotal, pendidikanPS } from './bkd.js?v=2026-11-17-2eacc4';
 
 /* =====================================================================
    DATA PRODI — data kuantitatif LKPS diisi admin di situs (keputusan
@@ -985,16 +986,24 @@ async function muatDaftarSPMI(){
 async function mulai(){
   const { data: { session } } = await sb.auth.getSession();
   if (!session) return layarMasuk();
-  const { data: saya } = await dosenLogin(sb, session, 'nama,email,peran');
+  const { data: saya } = await dosenLogin(sb, session, 'id,nama,email,peran');
   if (!saya) { $('hSub').textContent = 'Tidak terdaftar'; $('isi').innerHTML = '<p class="kosong">Email belum terdaftar.</p>'; return; }
   SAYA = saya;
   pasangMenu(sb);
+  // Koordinator (97-patch-koordinator.sql): tab bidangnya saja (koordinator TA: Jadwal TA; pembina: prestasi, publikasi, luaran).
   if (saya.peran !== 'admin') {
-    $('hSub').textContent = `Masuk sebagai ${saya.nama}`;
-    $('isi').innerHTML = '<p class="kosong">Halaman ini khusus admin prodi.</p>';
-    return;
-  }
-  $('hSub').textContent = `Masuk sebagai ${saya.nama} (admin)`;
+    const r = await sb.from('koordinator').select('jabatan,mulai,selesai').eq('dosen_id', saya.id);
+    saya.koordinator = r.error ? [] : aktifPada(r.data).map(k => k.jabatan);
+    const izin = tabBoleh(saya);
+    if (!izin.size) {
+      $('hSub').textContent = `Masuk sebagai ${saya.nama}`;
+      $('isi').innerHTML = '<p class="kosong">Halaman ini khusus admin prodi dan koordinator bidangnya.</p>';
+      return;
+    }
+    TABEL.splice(0, TABEL.length, ...TABEL.filter(t => izin.has(t.id)));
+    AKTIF = TABEL[0];
+    $('hSub').textContent = `Masuk sebagai ${saya.nama} (${saya.koordinator.map(labelJabatan).join(', ')})`;
+  } else $('hSub').textContent = `Masuk sebagai ${saya.nama} (admin)`;
   // Pilihan dosen (BKD, pembimbing): tanpa admin/asesor yang bukan DTPS
   // (admin staf/tendik bukan dosen).
   const { data: ds } = await sb.from('dosen').select('nidn,nama,peran,dtps').order('nama');
@@ -1741,7 +1750,7 @@ function pilihTab(T){
   AKTIF = T || TABEL[0];
   history.replaceState(null, '', '?tab=' + AKTIF.id);
   const g = grupTab(AKTIF);
-  const grup = [...GRUP_TAB.map(([n]) => n), ...(TABEL.some(t => grupTab(t) === 'Lainnya') ? ['Lainnya'] : [])];
+  const grup = [...GRUP_TAB.map(([n]) => n), 'Lainnya'].filter(n => TABEL.some(t => grupTab(t) === n));   // koordinator: grup bidangnya saja
   $('grup').innerHTML = grup.map(n => `<button data-grup="${esc(n)}" aria-selected="${n === g}">${esc(n)}</button>`).join('');
   const urut = (GRUP_TAB.find(([n]) => n === g) || [, []])[1];
   const isi = TABEL.filter(t => grupTab(t) === g)

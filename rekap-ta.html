@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-17-b30e65">
-<link rel="stylesheet" href="kepala.css?v=2026-11-17-b30e65">
+<link rel="stylesheet" href="tema.css?v=2026-11-17-2eacc4">
+<link rel="stylesheet" href="kepala.css?v=2026-11-17-2eacc4">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
@@ -40,7 +40,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-17-b30e65"></script>
+<script src="config.js?v=2026-11-17-2eacc4"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -59,10 +59,11 @@ addEventListener('error', function (e) {
 // dan beban membimbing/menguji per dosen pada periode terpilih (TS, 3 TS, tahun). Sumber: jadwal_ta (semua pengguna login
 // membaca). Unduh Excel khusus admin (memuat NIM).
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-17-b30e65';
-import { TAHAP, STATUS, waktuJadwal, rekapTA, lembarTA, revisiBerjalan } from './rekap-ta.js?v=2026-11-17-b30e65';
-import { opsiPeriode, cocokPeriode, labelPeriode, taTeks, tsKarya } from './sdgs-unduh.js?v=2026-11-17-b30e65';
-import { SHEETJS } from './nilai-cpl.js?v=2026-11-17-b30e65';
+import { gerbang } from './menu.js?v=2026-11-17-2eacc4';
+import { punya } from './koordinator.js?v=2026-11-17-2eacc4';
+import { TAHAP, STATUS, waktuJadwal, rekapTA, lembarTA, revisiBerjalan } from './rekap-ta.js?v=2026-11-17-2eacc4';
+import { opsiPeriode, cocokPeriode, labelPeriode, taTeks, tsKarya } from './sdgs-unduh.js?v=2026-11-17-2eacc4';
+import { SHEETJS } from './nilai-cpl.js?v=2026-11-17-2eacc4';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
@@ -135,7 +136,7 @@ async function unduh(xs){
 async function mulai(){
   SAYA = await gerbang(sb);
   if (!SAYA) return;
-  ADMIN = SAYA.peran === 'admin';
+  ADMIN = SAYA.peran === 'admin' || punya(SAYA, 'koordinator_ta');   // koordinator TA (97): unduh dan tandai revisi
   $('hSub').textContent = `Masuk sebagai ${SAYA.nama}`;
   const [jq, dq] = await Promise.all([sb.from('jadwal_ta').select('*').order('tanggal'), sb.from('dosen').select('nidn,nama')]);
   if (jq.error) throw new Error(/jadwal_ta/.test(jq.error.message) ? 'Tabel belum ada: jalankan supabase/94-patch-jadwal-ta.sql.' : jq.error.message);
