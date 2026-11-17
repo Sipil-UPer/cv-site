@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-17-4ebbac">
-<link rel="stylesheet" href="kepala.css?v=2026-11-17-4ebbac">
+<link rel="stylesheet" href="tema.css?v=2026-11-17-0fea5d">
+<link rel="stylesheet" href="kepala.css?v=2026-11-17-0fea5d">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
@@ -60,6 +60,7 @@
   .jadwal-form{border:1px solid var(--line);background:var(--bg);padding:8px 10px;margin-bottom:8px}
   .jadwal-form label{font-size:13.5px}
   .jadwal-form input{font:inherit;font-size:13.5px;padding:3px 6px;border:1px solid var(--line);background:var(--panel);color:var(--ink)}
+  .usulan ol{margin:2px 0 6px;padding-left:20px;font-size:13.5px}
   .penguji{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:2px 12px;font-size:13.5px}
   .msg{font-size:13.5px} .msg.buruk{color:var(--merah)} .msg.ok{color:var(--hijau)}
 </style>
@@ -71,7 +72,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-17-4ebbac"></script>
+<script src="config.js?v=2026-11-17-0fea5d"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -91,10 +92,12 @@ addEventListener('error', function (e) {
 // Berkas privat dibuka lewat Apps Script (mhs_buka_prodi); surat pengantar KP diunggah admin (mhs_unggah_prodi);
 // mahasiswa dikabari email saat dikembalikan, ditolak, atau disetujui (mhs_kabari).
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-17-4ebbac';
-import { JENIS, LABEL_BERKAS, LABEL_STATUS, TINGKAT, BIDANG, teksAnggota, judulPengajuan, keB64, bukaIsi, appsScript, labelStatus, JENIS_SURAT, TAHAP_TA, waktuPengajuan, rekapPengajuan, lembarPengajuan } from './pengajuan-mhs.js?v=2026-11-17-4ebbac';
-import { opsiPeriode, cocokPeriode, labelPeriode, taTeks, tsKarya } from './sdgs-unduh.js?v=2026-11-17-4ebbac';
-import { SHEETJS } from './nilai-cpl.js?v=2026-11-17-4ebbac';
+import { gerbang } from './menu.js?v=2026-11-17-0fea5d';
+import { JENIS, LABEL_BERKAS, LABEL_STATUS, TINGKAT, BIDANG, teksAnggota, judulPengajuan, keB64, bukaIsi, appsScript, labelStatus, JENIS_SURAT, TAHAP_TA, waktuPengajuan, rekapPengajuan, lembarPengajuan } from './pengajuan-mhs.js?v=2026-11-17-0fea5d';
+import { opsiPeriode, cocokPeriode, labelPeriode, taTeks, tsKarya } from './sdgs-unduh.js?v=2026-11-17-0fea5d';
+import { SHEETJS } from './nilai-cpl.js?v=2026-11-17-0fea5d';
+import { siapkan } from './pembimbing.js?v=2026-11-17-0fea5d';
+import { usulPenguji, bebanUji, tsDari } from './usulan-penguji.js?v=2026-11-17-0fea5d';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
@@ -103,7 +106,7 @@ const tgl = s => s ? new Date(s).toLocaleString('id-ID', { day: 'numeric', month
 const KABARI = new Set(['dikembalikan', 'ditolak', 'disetujui']);   // status yang dikabarkan ke email mahasiswa
 let SAYA = null, ADMIN = false, DATA = [], TAB = 'tunggu', BUKA = new Set();
 // Seminar/sidang TA (94): daftar dosen (NIDN, nama) untuk penguji; jadwal per pengajuan.
-let DOSEN = [], JADWAL = new Map();
+let DOSEN = [], JADWAL = new Map(), SEMUA_JADWAL = [], MODEL = null;   // MODEL: mesin Cari pembimbing (usulan penguji)
 
 const menungguSaya = p => (p.status === 'pembimbing' && (p.pembimbing_id === SAYA.id || ADMIN)) || (p.status === 'admin' && ADMIN);
 const sesi = async () => (await sb.auth.getSession()).data.session?.access_token;
@@ -119,10 +122,12 @@ async function muat(){
   if (error) throw new Error(/pengajuan_mahasiswa/.test(error.message) ? 'Tabel belum ada: jalankan supabase/90-patch-pengajuan-mahasiswa.sql.' : error.message);
   DATA = data || [];
   const [dq, jq] = await Promise.all([sb.from('dosen').select('id,nidn,nama,aktif,peran,dtps').order('nama'),
-    sb.from('jadwal_ta').select('pengajuan_id,tanggal,jam,ruang,tautan_daring,status,penguji,penguji_luar').not('pengajuan_id', 'is', null)]);
+    sb.from('jadwal_ta').select('pengajuan_id,tanggal,jam,ruang,tautan_daring,status,penguji,penguji_luar')]);
   // Calon penguji = aturan daftar dosen Data prodi: DTPS atau berperan dosen/pimpinan; staf admin non-dosen tidak.
   DOSEN = (dq.data || []).filter(d => d.aktif && d.nidn && (d.dtps || ['dosen', 'pimpinan'].includes(d.peran)));
-  JADWAL = new Map((jq.error ? [] : jq.data || []).map(j => [j.pengajuan_id, j]));
+  SEMUA_JADWAL = jq.error ? [] : jq.data || [];
+  JADWAL = new Map(SEMUA_JADWAL.filter(j => j.pengajuan_id).map(j => [j.pengajuan_id, j]));
+  if (!MODEL) MODEL = await fetch('data.json?v=' + Date.now()).then(r => r.ok ? r.json() : null).then(d => d ? siapkan(d) : null).catch(() => null);
 }
 
 function ringkas(p){
@@ -191,11 +196,25 @@ function kartu(p){
 }
 
 // Jadwal seminar/sidang (94): admin menetapkan tanggal, jam, ruang/daring, penguji; Jadwalkan = setujui.
+// Usulan penguji (pemilik 2026-11-17): cocok dengan judul (Cari calon pembimbing TA), tanpa pembimbing; beban TS berjalan.
+function htmlUsulan(p, pbId){
+  const kecuali = new Set(DOSEN.filter(x => pbId.includes(x.id)).map(x => x.nidn));
+  const ts = tsDari(new Date().toISOString().slice(0, 10));
+  const xs = usulPenguji(p.data?.judul, MODEL, DOSEN, { kecuali, beban: bebanUji(SEMUA_JADWAL, ts) });
+  if (!xs.length) return `<p class="ket">Usulan penguji: ${MODEL ? 'tidak ada dosen yang cocok dengan judul ini; pilih manual.' : 'data keahlian belum termuat.'}</p>`;
+  const JN = { topik: 'topik keahlian', bidang: 'bidang', publikasi: 'publikasi', kegiatan: 'penelitian/PkM' };
+  return `<div class="usulan"><div class="ket" style="margin-top:6px">Usulan penguji (cocok dengan judul; beban menguji TS ${ts - 1}/${ts}):</div>
+    <ol>${xs.map(x => `<li><b>${esc(x.nama)}</b> <span class="ket">· beban ${x.beban}${x.alasan?.length ? ' · ' + esc(x.alasan.slice(0, 2)
+      .map(a => `${JN[a.jenis] || a.jenis}: ${String(a.label).slice(0, 70)}`).join('; ')) : ''}</span></li>`).join('')}</ol>
+    <button class="b" type="button" data-usul="${p.id}" data-nidn="${esc(xs.slice(0, 2).map(x => x.nidn).join(','))}">Centang ${Math.min(2, xs.length)} usulan teratas</button></div>`;
+}
+
 function htmlJadwal(p){
   const pb = [p.pembimbing_id, p.data?.pembimbing_2].filter(Boolean);
   return `<div class="jadwal-form"><b>Jadwal ${esc(((TAHAP_TA.find(t => t[0] === p.data?.tahap_ta) || [, 'seminar/sidang'])[1]).toLowerCase())}</b>
     <div class="baris"><label>Tanggal <input type="date" id="jt_${p.id}"></label><label>Jam <input id="jj_${p.id}" placeholder="09.00–10.30" size="12"></label>
       <label>Ruang <input id="jr_${p.id}" size="14"></label><label>Tautan daring <input id="jd_${p.id}" type="url" placeholder="https://… (opsional)" size="24"></label></div>
+    ${htmlUsulan(p, pb)}
     <div class="ket" style="margin-top:6px">Penguji (prodi):</div>
     <div class="penguji">${DOSEN.filter(x => !pb.includes(x.id)).map(x => `<label><input type="checkbox" data-uji="${p.id}" value="${esc(x.nidn)}"> ${esc(x.nama)}</label>`).join('')}</div>
     <div class="baris"><label>Penguji luar prodi <input id="jl_${p.id}" placeholder="nama, instansi (opsional)" size="30"></label>
@@ -243,6 +262,10 @@ function gambar(){
   document.querySelectorAll('[data-buka]').forEach(b => { b.onclick = () => buka(b); });
   document.querySelectorAll('[data-aksi]').forEach(b => { b.onclick = () => putuskan(+b.dataset.p, b.dataset.aksi, b); });
   document.querySelectorAll('[data-jadwalkan]').forEach(b => { b.onclick = () => jadwalkan(+b.dataset.jadwalkan, b); });
+  document.querySelectorAll('[data-usul]').forEach(b => { b.onclick = () => {
+    const pilih = new Set(b.dataset.nidn.split(','));
+    document.querySelectorAll(`[data-uji="${b.dataset.usul}"]`).forEach(c => { if (pilih.has(c.value)) c.checked = true; });
+  }; });
   document.querySelectorAll('[data-pengantar]').forEach(b => { b.onclick = () => pengantar(+b.dataset.pengantar, b, b.dataset.jenis); });
 }
 
