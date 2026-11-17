@@ -4,12 +4,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
-<title>Pengajuan KP, TA, lomba, dan surat — Program Studi</title>
+<title>Pengajuan KP, TA, lomba, luaran, dan surat — Program Studi</title>
 <meta name="description" content="Pengajuan Kerja Praktik dan laporan lomba mahasiswa: isi, unggah berkas, dan pantau prosesnya.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-17-c9b6c2">
+<link rel="stylesheet" href="tema.css?v=2026-11-17-b30e65">
 <style>
   /* Pengajuan mahasiswa, publik tanpa login (pemilik 2026-11-17; patch 90). Warna dari tema.css. */
   *{box-sizing:border-box}
@@ -72,10 +72,10 @@
 <body>
 <header class="hero"><div class="hero-in">
   <a class="balik" href="berkas-mahasiswa.html">&larr; Layanan mahasiswa</a>
-  <h1>Pengajuan KP, seminar/sidang TA, laporan lomba, dan surat</h1><div class="prodi" id="hProdi"></div>
+  <h1>Pengajuan KP, seminar/sidang TA, lomba, publikasi/luaran, dan surat</h1><div class="prodi" id="hProdi"></div>
 </div></header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-17-c9b6c2"></script>
+<script src="config.js?v=2026-11-17-b30e65"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -96,7 +96,7 @@ addEventListener('error', function (e) {
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
 import { JENIS, LABEL_BERKAS, LABEL_STATUS, TINGKAT, BIDANG, jalur, bolehUbah, bacaAnggota, teksAnggota,
          periksaIsian, judulPengajuan, keB64, bukaIsi, appsScript, labelStatus, jalurTahap, BERKAS_SELESAI,
-         periksaSelesai, JENIS_SURAT, TAHAP_TA } from './pengajuan-mhs.js?v=2026-11-17-c9b6c2';
+         periksaSelesai, JENIS_SURAT, TAHAP_TA, JENIS_PUB, TINGKAT_PUB, INDEKSASI, JENIS_LUARAN } from './pengajuan-mhs.js?v=2026-11-17-b30e65';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
@@ -114,6 +114,29 @@ function htmlIsian(jenis, d = {}, nama = '', pembimbing = ''){
     <select id="f_pb"><option value="">(pilih)</option>${DOSEN.map(x => `<option value="${x.id}"${x.id === pembimbing ? ' selected' : ''}>${esc(x.nama)}</option>`).join('')}</select>
     <small>Dosen ini memeriksa pengajuan Anda lebih dulu, lalu admin prodi.</small></div>`;
   const nm = `<div class="fld"><label for="f_nama">Nama lengkap</label><input id="f_nama" maxlength="120" autocomplete="name" value="${esc(nama)}"></div>`;
+  if (jenis === 'luaran') return `${nm}${pb.replace('Dosen pembimbing lomba', 'Dosen pemeriksa (pembimbing/dosen terkait)')}
+    <div class="pilih" role="radiogroup" aria-label="Kategori">
+      <label><input type="radio" name="f_kat" value="publikasi"${d.kategori !== 'luaran' ? ' checked' : ''}><span>Publikasi<small>jurnal, prosiding, buku</small></span></label>
+      <label><input type="radio" name="f_kat" value="luaran"${d.kategori === 'luaran' ? ' checked' : ''}><span>Luaran<small>paten, hak cipta, desain industri,
+        merek, TTG, produk, buku ber-ISBN, book chapter</small></span></label></div>
+    <div class="fld"><label for="f_judul">Judul</label><textarea id="f_judul" maxlength="400" style="min-height:60px">${esc(d.judul)}</textarea></div>
+    <div class="dua">
+      <div class="fld" data-kat="publikasi"><label for="f_jp">Jenis publikasi</label><select id="f_jp"><option value="">(pilih)</option>${opsi(JENIS_PUB, d.jenis_pub)}</select></div>
+      <div class="fld" data-kat="luaran"><label for="f_jl">Jenis luaran</label><select id="f_jl"><option value="">(pilih)</option>${opsi(JENIS_LUARAN, d.jenis_luaran)}</select></div>
+      <div class="fld"><label for="f_th">Tahun terbit/terdaftar</label><input id="f_th" inputmode="numeric" maxlength="4" value="${esc(d.tahun)}"></div>
+      <div class="fld"><label for="f_bl">Bulan <span>(1–12, dianjurkan)</span></label><input id="f_bl" inputmode="numeric" maxlength="2" value="${esc(d.bulan)}"></div>
+      <div class="fld" data-kat="publikasi"><label for="f_tk">Tingkat</label><select id="f_tk"><option value="">(pilih)</option>${opsi(TINGKAT_PUB, d.tingkat)}</select></div>
+      <div class="fld" data-kat="publikasi"><label for="f_ix">Indeksasi</label><select id="f_ix"><option value="">(pilih)</option>${opsi(INDEKSASI, d.indeksasi)}</select></div>
+      <div class="fld" data-kat="publikasi"><label for="f_tb">Nama jurnal/prosiding/penerbit</label><input id="f_tb" maxlength="300" value="${esc(d.terbitan)}"></div>
+      <div class="fld" data-kat="luaran"><label for="f_no">Nomor (pendaftaran/HKI/sertifikat TKT/ISBN)</label><input id="f_no" maxlength="300" value="${esc(d.nomor)}"></div>
+      <div class="fld" data-kat="luaran"><label for="f_sh">Status paten <span>(paten saja)</span></label><select id="f_sh"><option value="">—</option>${opsi([['registered', 'Terdaftar'], ['granted', 'Diberikan (granted)'], ['komersial', 'Dikomersialkan']], d.status_hki)}</select></div>
+      <div class="fld" data-kat="luaran"><label for="f_tkt">TKT <span>(TTG/produk, 1–9)</span></label><input id="f_tkt" inputmode="numeric" maxlength="1" value="${esc(d.tkt)}"></div>
+    </div>
+    <div class="fld"><label for="f_doi">DOI atau URL <span>(opsional)</span></label><input id="f_doi" type="url" maxlength="300" value="${esc(d.doi_url)}" placeholder="https://doi.org/…"></div>
+    <div class="fld"><label for="f_anggota">Mahasiswa lain penulis/pencipta <span>(opsional; satu per baris: NIM - Nama)</span></label>
+      <textarea id="f_anggota">${esc(teksAnggota(d.anggota))}</textarea></div>
+    <label class="cek"><input type="checkbox" id="f_bd"${d.bersama_dosen ? ' checked' : ''}> Ditulis/dibuat bersama dosen prodi. Bila dicentang, karya ini
+      dicatat lewat karya dosen (dosen memasukkannya dengan Anda sebagai penulis), bukan sebagai karya mandiri mahasiswa.</label>`;
   if (jenis === 'ta') return `${nm}
     <div class="dua">
       <div class="fld"><label for="f_tahap">Tahap</label><select id="f_tahap"><option value="">(pilih)</option>${opsi(TAHAP_TA, d.tahap_ta)}</select></div>
@@ -163,6 +186,14 @@ function htmlIsian(jenis, d = {}, nama = '', pembimbing = ''){
       ditampilkan di situs prodi bila prestasi ini disetujui (tanpa NIM). Tanpa centang: ditulis "Tim mahasiswa".</label>`;
 }
 
+// Kolom publikasi/luaran mengikuti kategori (96).
+function pasangLuaran(){
+  const rs = document.querySelectorAll('[name=f_kat]'); if (!rs.length) return;
+  const atur = () => { const k = document.querySelector('[name=f_kat]:checked')?.value;
+    document.querySelectorAll('[data-kat]').forEach(el => { el.hidden = el.dataset.kat !== k; }); };
+  rs.forEach(r => { r.onchange = atur; }); atur();
+}
+
 function pasangSurat(){
   const js = $('f_js'); if (!js) return;
   const atur = () => document.querySelectorAll('[data-surat]').forEach(el => { el.hidden = !el.dataset.surat.split(' ').includes(js.value); });
@@ -171,6 +202,14 @@ function pasangSurat(){
 
 function bacaIsian(jenis){
   const v = id => ($(id)?.value || '').trim();
+  if (jenis === 'luaran') {
+    const kat = document.querySelector('[name=f_kat]:checked')?.value || '';
+    const umum = { kategori: kat, judul: v('f_judul'), tahun: v('f_th'), bulan: v('f_bl'), doi_url: v('f_doi'),
+                   anggota: bacaAnggota($('f_anggota').value), bersama_dosen: $('f_bd').checked };
+    return { nama: v('f_nama'), pembimbing: v('f_pb'), data: kat === 'luaran'
+      ? { ...umum, jenis_luaran: v('f_jl'), nomor: v('f_no'), status_hki: v('f_sh'), tkt: v('f_tkt') }
+      : { ...umum, jenis_pub: v('f_jp'), tingkat: v('f_tk'), indeksasi: v('f_ix'), terbitan: v('f_tb') } };
+  }
   if (jenis === 'ta') return { nama: v('f_nama'), pembimbing: v('f_pb'), data: { tahap_ta: v('f_tahap'), judul: v('f_judul'),
     pembimbing_2: v('f_pb2'), tampil_nama: $('f_tampil').checked } };
   if (jenis === 'surat') return { nama: v('f_nama'), pembimbing: '', data: { jenis_surat: v('f_js'), keperluan: v('f_kep'),
@@ -197,6 +236,8 @@ function halamanBaru(){
           setelah disetujui tercatat sebagai prestasi mahasiswa</small></span></label>
         <label><input type="radio" name="jenis" value="ta"><span>Seminar/sidang TA<small>seminar proposal, seminar kemajuan,
           atau sidang akhir; jadwal dan penguji ditetapkan prodi, lalu diinput ke SIUP</small></span></label>
+        <label><input type="radio" name="jenis" value="luaran"><span>Publikasi/luaran<small>artikel, prosiding, HKI, produk, buku;
+          karya mandiri tercatat untuk akreditasi</small></span></label>
         <label><input type="radio" name="jenis" value="surat"><span>Permohonan surat<small>keterangan aktif kuliah, izin penelitian,
           atau rekomendasi; ditandatangani Kaprodi</small></span></label>
       </div>
@@ -214,7 +255,7 @@ function halamanBaru(){
       <button type="submit" class="b" id="b_ulang">Kirim tautan baru</button><span class="msg" id="m_ulang" role="status"></span>
     </form>`;
   const jenis = () => document.querySelector('[name=jenis]:checked').value;
-  const gambar = () => { $('isian').innerHTML = htmlIsian(jenis()); pasangSurat(); };
+  const gambar = () => { $('isian').innerHTML = htmlIsian(jenis()); pasangSurat(); pasangLuaran(); };
   document.querySelectorAll('[name=jenis]').forEach(r => { r.onchange = gambar; });
   gambar();
   $('frm').onsubmit = async e => {
@@ -274,6 +315,16 @@ const bacaSelesai = () => { const v = id => ($(id)?.value || '').trim();
   return { tanggal_mulai: v('s_mulai'), tanggal_selesai: v('s_selesai'), pembimbing_lapangan: v('s_pl'), jabatan_lapangan: v('s_jab'),
            kontak_lapangan: v('s_kon'), divisi: v('s_div'), ringkasan: v('s_ring') }; };
 
+const lbl = (xs, k) => (xs.find(t => t[0] === k) || [, ''])[1];
+function ringkasLuaran(d){
+  return [['Kategori', d.kategori === 'luaran' ? 'Luaran (HKI, produk, buku)' : 'Publikasi'], ['Judul', d.judul],
+    ['Jenis', d.kategori === 'luaran' ? lbl(JENIS_LUARAN, d.jenis_luaran) : lbl(JENIS_PUB, d.jenis_pub)],
+    ['Tingkat / indeksasi', [lbl(TINGKAT_PUB, d.tingkat), lbl(INDEKSASI, d.indeksasi)].filter(Boolean).join(' · ')],
+    ['Terbitan', d.terbitan], ['Nomor', d.nomor], ['Status paten', d.status_hki], ['TKT', d.tkt],
+    ['Tahun', [d.bulan, d.tahun].filter(Boolean).join('/')], ['DOI/URL', d.doi_url], ['Anggota lain', teksAnggota(d.anggota)],
+    ['Bersama dosen prodi', d.bersama_dosen ? 'ya (dicatat lewat karya dosen)' : 'tidak (mandiri)']];
+}
+
 function halamanSaya(){
   const p = P, J = JENIS[p.jenis], d = p.data || {}, ds = p.data_selesai || {};
   const ubah = p.boleh_ubah ?? bolehUbah(p.status);                         // sebelum patch 91: status saja
@@ -281,7 +332,8 @@ function halamanSaya(){
   const jendelaSelesai = !!p.jendela_selesai, adaSelesai = p.jenis === 'kp' && (jendelaSelesai || p.tahap === 'selesai');
   const jenisUnggah = ubahPengajuan ? J.berkas : BERKAS_SELESAI;
   const bisaBuang = b => ubah && b.oleh !== 'prodi' && !(p.status === 'disetujui' && b.jenis === 'surat_permohonan');
-  const ringkas = p.jenis === 'ta'
+  const ringkas = p.jenis === 'luaran' ? ringkasLuaran(d)
+    : p.jenis === 'ta'
     ? [['Tahap', (TAHAP_TA.find(t => t[0] === d.tahap_ta) || [, ''])[1]], ['Judul', d.judul],
        ['Pembimbing', [p.pembimbing, p.pembimbing_2].filter(Boolean).join(', ')], ['Nama di jadwal publik', d.tampil_nama ? 'boleh ditampilkan' : 'tidak']]
     : p.jenis === 'surat'
@@ -352,7 +404,7 @@ function halamanSaya(){
   document.querySelectorAll('[data-buang]').forEach(b => { b.onclick = () => buang(+b.dataset.buang, b); });
   if (ubah) $('b_unggah').onclick = unggah;
   if (ubahPengajuan) {
-    pasangSurat();
+    pasangSurat(); pasangLuaran();
     $('frmUbah').onsubmit = async e => { e.preventDefault(); await simpan(); };
     $('b_kirim').onclick = kirim;
   }

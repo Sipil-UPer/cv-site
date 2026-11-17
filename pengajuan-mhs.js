@@ -11,7 +11,17 @@ export const JENIS = {
   surat: { label: 'Permohonan surat', singkat: 'Surat', wajib: null, tanpaPembimbing: true, berkas: ['lainnya'] },
   // Seminar/sidang TA (94-patch-jadwal-ta.sql): pembimbing 1 memeriksa kesiapan, admin menjadwalkan.
   ta: { label: 'Seminar/sidang TA', singkat: 'TA', wajib: 'naskah_ta', berkas: ['naskah_ta', 'lainnya'] },
+  // Publikasi/luaran mahasiswa (96-patch-luaran-mahasiswa.sql): mandiri -> tabel LKPS 6.e.1 / 6.e.3.
+  luaran: { label: 'Publikasi/luaran', singkat: 'Luaran', wajib: 'bukti_luaran', berkas: ['bukti_luaran', 'lainnya'] },
 };
+
+export const JENIS_PUB = [['jurnal', 'Jurnal'], ['prosiding', 'Prosiding'], ['buku', 'Buku'], ['lainnya', 'Lainnya']];
+export const TINGKAT_PUB = [['internasional', 'Internasional'], ['nasional', 'Nasional'], ['wilayah', 'Wilayah']];
+export const INDEKSASI = [['scopus', 'Scopus'], ['wos', 'Web of Science'], ['bereputasi', 'Internasional bereputasi lain'],
+                          ['sinta', 'SINTA'], ['tidak_terindeks', 'Tidak terindeks']];
+export const JENIS_LUARAN = [['paten', 'Paten'], ['paten_sederhana', 'Paten sederhana'], ['hak_cipta', 'Hak cipta'],
+  ['desain_industri', 'Desain industri'], ['merek', 'Merek'], ['ttg', 'Teknologi tepat guna'], ['produk', 'Produk'],
+  ['buku_isbn', 'Buku ber-ISBN'], ['book_chapter', 'Book chapter']];
 
 export const TAHAP_TA = [['seminar_proposal', 'Seminar proposal'], ['seminar_kemajuan', 'Seminar kemajuan'], ['sidang_akhir', 'Sidang akhir']];
 export const NAMA_TAHAP_TA = ['Isi dan unggah naskah', 'Diperiksa pembimbing 1', 'Dijadwalkan admin prodi', 'Terjadwal'];
@@ -26,6 +36,7 @@ export const LABEL_BERKAS = {
   laporan_lomba: 'Laporan lomba', sertifikat: 'Sertifikat/piagam', surat_tugas: 'SK/surat tugas', foto: 'Foto kegiatan',
   lainnya: 'Lainnya', surat_pengantar: 'Surat pengantar dari prodi', surat_jadi: 'Surat dari prodi (bertanda tangan)',
   naskah_ta: 'Naskah TA (proposal / laporan kemajuan / laporan akhir)',
+  bukti_luaran: 'Bukti publikasi/luaran (naskah, LoA, sertifikat HKI, halaman ISBN)',
 };
 
 export const LABEL_STATUS = {
@@ -115,6 +126,14 @@ export function periksaIsian(jenis, { nim, nama, pembimbing, data = {} }){
     if (!data.bidang) g.push('Pilih bidang lomba.');
     if (!/^\d{4}-\d{2}-\d{2}$/.test(String(data.tanggal || ''))) g.push('Isi tanggal lomba.');
   }
+  if (jenis === 'luaran') {
+    if (!data.kategori) g.push('Pilih kategori: publikasi atau luaran.');
+    if (String(data.judul || '').trim().length < 3) g.push('Tulis judul.');
+    if (!/^\d{4}$/.test(String(data.tahun || ''))) g.push('Isi tahun terbit/terdaftar.');
+    if (data.kategori === 'publikasi' && !data.jenis_pub) g.push('Pilih jenis publikasi.');
+    if (data.kategori === 'luaran' && !data.jenis_luaran) g.push('Pilih jenis luaran.');
+    if (data.doi_url && !/^https?:\/\/\S+$/i.test(data.doi_url)) g.push('DOI/URL harus diawali https://');
+  }
   if (jenis === 'ta') {
     if (!data.tahap_ta) g.push('Pilih tahap TA.');
     if (String(data.judul || '').trim().length < 3) g.push('Tulis judul TA.');
@@ -130,6 +149,7 @@ export function periksaIsian(jenis, { nim, nama, pembimbing, data = {} }){
 }
 
 export const judulPengajuan = p => p.jenis === 'kp' ? (p.data?.instansi || 'KP') : p.jenis === 'ta' ? (p.data?.judul || 'Tugas Akhir')
+  : p.jenis === 'luaran' ? (p.data?.judul || 'Publikasi/luaran')
   : p.jenis === 'surat' ? ((JENIS_SURAT.find(x => x[0] === p.data?.jenis_surat) || [, 'Surat'])[1]) : (p.data?.nama_kegiatan || 'Lomba');
 
 export const keB64 = f => new Promise((ok, gagal) => {
