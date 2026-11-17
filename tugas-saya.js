@@ -1,11 +1,11 @@
 // "Tugas saya" di Ruang kerja (pemilik 2026-11-12): hal yang menunggu tindakan dosen yang
 // sedang masuk, dari data yang sudah boleh ia baca (RLS). Aturan tenggat sama dengan halaman
 // Pengingat: rapat.js, hibah.js, temuan-ami.js, pengingat-dosen.js.
-import { kurangProfil } from './pengingat-dosen.js?v=2026-11-17-f000e4';
-import { tindakTerbuka, tglID } from './rapat.js?v=2026-11-17-f000e4';
-import { tenggatBerikut, teksHari, HARI_LEWAT } from './hibah.js?v=2026-11-17-f000e4';
-import { hariKeTenggat, labelStatus, HARI_DEKAT } from './temuan-ami.js?v=2026-11-17-f000e4';
-import { tugasEvaluasi } from './evaluasi-pembelajaran.js?v=2026-11-17-f000e4';
+import { kurangProfil } from './pengingat-dosen.js?v=2026-11-17-767e44';
+import { tindakTerbuka, tglID } from './rapat.js?v=2026-11-17-767e44';
+import { tenggatBerikut, teksHari, HARI_LEWAT } from './hibah.js?v=2026-11-17-767e44';
+import { hariKeTenggat, labelStatus, HARI_DEKAT } from './temuan-ami.js?v=2026-11-17-767e44';
+import { tugasEvaluasi } from './evaluasi-pembelajaran.js?v=2026-11-17-767e44';
 
 const SELESAI_AMI = new Set(['selesai', 'ditutup']);
 const tingkat = h => h == null ? 'biasa' : h < 0 ? 'lewat' : h <= HARI_DEKAT ? 'dekat' : 'biasa';
@@ -20,7 +20,8 @@ const tgl10 = s => String(s || '').slice(0, 10);
  *   bkd: baris lkps_bkd milik sendiri, tindak: rapat_tindak dengan rapat {judul, tanggal},
  *   hibah: hibah_ajuan dengan hibah_tim [{dosen_id, peran}], temuan: ami_temuan,
  *   kelasCpl: cpl_kelas milik sendiri, berkasCpl: cpl_berkas [{kelas_id}],
- *   target: baris target-kinerja.js barisDosen tahun berjalan, tahunTarget }
+ *   target: baris target-kinerja.js barisDosen tahun berjalan, tahunTarget,
+ *   pengajuanMhs: pengajuan_mahasiswa yang terbaca [{nama, jenis, status, pembimbing_id, diperbarui}] }
  * Hasil [{ jenis, judul, rinci, href, hari, tingkat }], lewat tenggat dulu.
  * Asesor tidak punya tugas.
  */
@@ -88,6 +89,17 @@ export function tugasSaya(d, kini = new Date()){
   if (kurang.length) tambah('target', `Target kinerja ${d.tahunTarget || kini.getFullYear()}: ${kurang.length} indikator belum tercapai`,
     kurang.map(b => `${b.label} ${b.sah} dari ${String(+b.target).replace('.', ',')}${b.menunggu ? ` (+${b.menunggu} menunggu verifikasi)` : ''}`).join('; '),
     'target.html');
+
+  // Pengajuan mahasiswa KP/lomba (90-patch-pengajuan-mahasiswa.sql): tahap pembimbing untuk pembimbingnya, tahap admin untuk admin.
+  // Umur dihitung sejak pengajuan terakhir berubah; lebih dari 7 hari = lewat (tidak ada tenggat resmi).
+  const mhs = (d.pengajuanMhs || []).filter(p => (p.status === 'pembimbing' && p.pembimbing_id === s.id)
+    || (p.status === 'admin' && s.peran === 'admin'));
+  if (mhs.length) {
+    const tertua = Math.min(...mhs.map(p => +new Date(p.diperbarui)));
+    tambah('pengajuan_mhs', `Periksa ${mhs.length} pengajuan mahasiswa (KP/lomba)`,
+      mhs.slice(0, 3).map(p => `${p.nama} (${p.jenis === 'kp' ? 'KP' : 'lomba'})`).join(', ') + (mhs.length > 3 ? ', …' : ''),
+      'pengajuan-mahasiswa.html', 7 - Math.floor((+kini - tertua) / 864e5));
+  }
 
   return out.map((x, i) => [x, i]).sort(([a, i], [b, j]) => URUT[a.tingkat] - URUT[b.tingkat]
     || (a.hari ?? 1e9) - (b.hari ?? 1e9) || i - j).map(([x]) => x);

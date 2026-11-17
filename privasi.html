@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-17-f000e4">
+<link rel="stylesheet" href="tema.css?v=2026-11-17-767e44">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
@@ -51,7 +51,7 @@
     <b>Ringkasnya</b>
     <ul>
       <li>Membaca situs ini tidak memerlukan akun, dan situs ini tidak memasang cookie pelacak atau iklan.</li>
-      <li>Data pribadi hanya dikumpulkan bila Anda sendiri mengisinya: pertanyaan/masukan, survei, daftar hadir rapat, atau akun dosen.</li>
+      <li>Data pribadi hanya dikumpulkan bila Anda sendiri mengisinya: pertanyaan/masukan, pengajuan KP/lomba, survei, daftar hadir rapat, atau akun dosen.</li>
       <li>NIM mahasiswa tidak pernah ditampilkan. Nama mahasiswa hanya tampil pada prestasinya, bila mahasiswa setuju.</li>
       <li>Data pribadi dihapus dari basis data setelah masa simpannya lewat (<a href="#masa">tabel di bawah</a>). Anda boleh meminta salinan, perbaikan, atau penghapusannya.</li>
     </ul>
@@ -74,6 +74,13 @@
     serta nama dan email <b>bila Anda mengisinya</b> (keduanya boleh kosong). Tujuannya menjawab pertanyaan dan memperbaiki
     layanan program studi. Kiriman hanya dibaca admin program studi. Pertanyaan yang sering muncul dapat dijadikan
     tanya-jawab publik, ditulis ulang tanpa nama, NIM, atau email.</p>
+
+  <h3>Pengajuan KP dan laporan lomba</h3>
+  <p><a href="pengajuan.html">Pengajuan</a> menyimpan NIM, nama, email kampus (dibentuk dari NIM), dosen pembimbing yang dipilih,
+    isian KP atau lomba, dan berkas yang Anda unggah (surat, laporan, sertifikat, foto). Tujuannya mengurus KP dan mencatat prestasi
+    mahasiswa untuk laporan akreditasi. Tautan pribadi hanya dikirim ke email kampus Anda; jangan meneruskannya. Pengajuan dan
+    berkasnya hanya dilihat dosen pembimbing yang Anda pilih dan admin program studi. Berkas disimpan privat, kecuali foto lomba:
+    foto itu dapat dibuka dengan tautannya supaya bisa tampil di halaman Prestasi bila prestasi disetujui.</p>
 
   <h3>Survei kepuasan</h3>
   <p>Jawaban survei dipakai untuk penjaminan mutu dan akreditasi, dan diolah secara gabungan. Survei hanya meminta nama,
@@ -114,7 +121,7 @@
     <li>Berkas bukti: Google Drive milik program studi.</li>
     <li>Cadangan bulanan dan arsip tahunan basis data: repositori privat program studi di GitHub, yang hanya dapat dibuka
       pengelola teknis situs.</li>
-    <li>Email pengingat untuk dosen dikirim lewat Google Apps Script milik program studi.</li>
+    <li>Email pengingat untuk dosen, serta tautan dan kabar pengajuan untuk mahasiswa, dikirim lewat Google Apps Script milik program studi.</li>
   </ul>
 
   <h2>Siapa yang dapat melihat</h2>
@@ -143,7 +150,7 @@
   <h2>Perubahan kebijakan</h2>
   <p>Kebijakan ini dapat diperbarui bila cara situs mengumpulkan data berubah. Tanggal di bawah menunjukkan perubahan terakhir.</p>
 
-  <footer>Diperbarui 16 November 2026.
+  <footer>Diperbarui 17 November 2026.
     <div style="margin-top:8px"><a href="index.html">Beranda</a><a href="kurikulum.html">Kurikulum</a><a href="berkas-mahasiswa.html">Layanan mahasiswa</a></div>
   </footer>
 </main>
@@ -154,6 +161,7 @@
 (function () {
   var NAMA = {
     masukan_mahasiswa: 'Pertanyaan dan masukan mahasiswa (isi, nama, email)',
+    pengajuan_mahasiswa: 'Pengajuan KP dan laporan lomba (NIM, nama, email kampus, isian, tautan berkas)',
     survei_jawaban: 'Jawaban survei yang memuat nama, NIM, atau email',
     rapat_peserta: 'Nama dan instansi tamu rapat',
     karya_mahasiswa: 'NIM dan nama mahasiswa dalam karya dosen'
