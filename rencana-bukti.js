@@ -10,7 +10,7 @@
    2026-11-03).
    ===================================================================== */
 
-import { pihakBukti, UNSUR_BUTIR } from './unsur-butir.js?v=2026-11-17-4a7e0c';
+import { pihakBukti, UNSUR_BUTIR } from './unsur-butir.js?v=2026-11-17-4ebbac';
 
 export const RENCANA_BUKTI = {
  "1": {
@@ -812,7 +812,8 @@ export const JENIS_DOKUMEN = [
  'berkas_pribadi', 'data_mahasiswa', 'data_survei_mentah', 'daftar_hadir', 'kontrak_hibah']
   .forEach(id => { JENIS_DOKUMEN.find(j => j.id === id).privat = true; });
 // Bukti baris Data prodi yang privat.
-export const TABEL_PRIVAT = ['lkps_mahasiswa_ta', 'lkps_kohort_lulusan', 'lkps_tendik', 'lkps_penggunaan_dana', 'lkps_kerjasama'];
+export const TABEL_PRIVAT = ['lkps_mahasiswa_ta', 'lkps_kohort_lulusan', 'lkps_tendik', 'lkps_penggunaan_dana', 'lkps_kerjasama',
+  'jadwal_ta'];   // 94: berita acara seminar/sidang (nama, nilai)
 const JENIS = Object.fromEntries(JENIS_DOKUMEN.map(j => [j.id, j]));
 export const infoJenis = id => JENIS[id] || { id, nama: id, tunggal: false, butir: [] };
 // Butir sebuah baris dokumen: yang diisi saat unggah, atau bawaan jenisnya.

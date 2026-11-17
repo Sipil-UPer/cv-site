@@ -9,7 +9,12 @@ export const JENIS = {
            berkas: ['laporan_lomba', 'sertifikat', 'surat_tugas', 'foto', 'lainnya'] },
   // Surat ditandatangani Kaprodi (93-patch-pengajuan-surat.sql): tanpa pembimbing, tanpa berkas wajib.
   surat: { label: 'Permohonan surat', singkat: 'Surat', wajib: null, tanpaPembimbing: true, berkas: ['lainnya'] },
+  // Seminar/sidang TA (94-patch-jadwal-ta.sql): pembimbing 1 memeriksa kesiapan, admin menjadwalkan.
+  ta: { label: 'Seminar/sidang TA', singkat: 'TA', wajib: 'naskah_ta', berkas: ['naskah_ta', 'lainnya'] },
 };
+
+export const TAHAP_TA = [['seminar_proposal', 'Seminar proposal'], ['seminar_kemajuan', 'Seminar kemajuan'], ['sidang_akhir', 'Sidang akhir']];
+export const NAMA_TAHAP_TA = ['Isi dan unggah naskah', 'Diperiksa pembimbing 1', 'Dijadwalkan admin prodi', 'Terjadwal'];
 
 export const JENIS_SURAT = [['aktif_kuliah', 'Surat keterangan aktif kuliah'], ['izin_penelitian', 'Surat izin penelitian/survei'],
                             ['rekomendasi', 'Surat rekomendasi']];
@@ -20,6 +25,7 @@ export const LABEL_BERKAS = {
   surat_selesai: 'Surat keterangan selesai', logbook: 'Logbook', nilai_lapangan: 'Nilai pembimbing lapangan',
   laporan_lomba: 'Laporan lomba', sertifikat: 'Sertifikat/piagam', surat_tugas: 'SK/surat tugas', foto: 'Foto kegiatan',
   lainnya: 'Lainnya', surat_pengantar: 'Surat pengantar dari prodi', surat_jadi: 'Surat dari prodi (bertanda tangan)',
+  naskah_ta: 'Naskah TA (proposal / laporan kemajuan / laporan akhir)',
 };
 
 export const LABEL_STATUS = {
@@ -41,6 +47,8 @@ export const BERKAS_SELESAI = ['laporan_kp', 'surat_selesai', 'logbook', 'nilai_
 // Status untuk dibaca manusia, dengan tahap KP.
 export function labelStatus(p){
   if (p.jenis === 'surat') return { admin: 'Diproses admin prodi', disetujui: 'Surat terbit' }[p.status] || LABEL_STATUS[p.status] || p.status;
+  if (p.jenis === 'ta') return { pembimbing: 'Diperiksa pembimbing 1', admin: 'Menunggu jadwal dari admin prodi', disetujui: 'Terjadwal' }[p.status]
+    || LABEL_STATUS[p.status] || p.status;
   if (p.jenis === 'kp' && p.tahap === 'selesai') return { pembimbing: 'Laporan selesai: diperiksa dosen pembimbing',
     admin: 'Laporan selesai: diperiksa admin prodi', disetujui: 'KP selesai', dikembalikan: 'Laporan selesai dikembalikan untuk diperbaiki',
     ditolak: 'Laporan selesai ditolak' }[p.status] || p.status;
@@ -51,7 +59,7 @@ export function labelStatus(p){
 // Jalur satu tahap KP (atau lomba): status dan riwayat tahap itu saja. Riwayat tanpa tahap = pengajuan (patch 90).
 export function jalurTahap(p, tahap = 'pengajuan'){
   const r = (p.riwayat || p.pengajuan_riwayat || []).filter(x => (x.tahap || 'pengajuan') === tahap);
-  if (tahap === 'pengajuan') return jalur(p.tahap === 'selesai' ? 'disetujui' : p.status, r, p.jenis === 'surat' ? NAMA_TAHAP_SURAT : null);
+  if (tahap === 'pengajuan') return jalur(p.tahap === 'selesai' ? 'disetujui' : p.status, r, p.jenis === 'surat' ? NAMA_TAHAP_SURAT : p.jenis === 'ta' ? NAMA_TAHAP_TA : null);
   return jalur(p.tahap === 'selesai' ? p.status : 'draf', r, NAMA_TAHAP_SELESAI);
 }
 
@@ -107,6 +115,11 @@ export function periksaIsian(jenis, { nim, nama, pembimbing, data = {} }){
     if (!data.bidang) g.push('Pilih bidang lomba.');
     if (!/^\d{4}-\d{2}-\d{2}$/.test(String(data.tanggal || ''))) g.push('Isi tanggal lomba.');
   }
+  if (jenis === 'ta') {
+    if (!data.tahap_ta) g.push('Pilih tahap TA.');
+    if (String(data.judul || '').trim().length < 3) g.push('Tulis judul TA.');
+    if (data.pembimbing_2 && data.pembimbing_2 === pembimbing) g.push('Pembimbing 2 harus berbeda dari pembimbing 1.');
+  }
   if (jenis === 'surat') {
     if (!data.jenis_surat) g.push('Pilih jenis surat.');
     if (String(data.keperluan || '').trim().length < 5) g.push('Tulis keperluan surat.');
@@ -116,7 +129,7 @@ export function periksaIsian(jenis, { nim, nama, pembimbing, data = {} }){
   return g;
 }
 
-export const judulPengajuan = p => p.jenis === 'kp' ? (p.data?.instansi || 'KP')
+export const judulPengajuan = p => p.jenis === 'kp' ? (p.data?.instansi || 'KP') : p.jenis === 'ta' ? (p.data?.judul || 'Tugas Akhir')
   : p.jenis === 'surat' ? ((JENIS_SURAT.find(x => x[0] === p.data?.jenis_surat) || [, 'Surat'])[1]) : (p.data?.nama_kegiatan || 'Lomba');
 
 export const keB64 = f => new Promise((ok, gagal) => {

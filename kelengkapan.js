@@ -2,14 +2,14 @@
 // kelengkapan.html mengambil data, modul ini menghitung. Aturan terisi sama
 // dengan halaman sumbernya: kotak narasi seperti narasi-led.html, bukti butir
 // seperti rekap bukti di skor.html.
-import { BUTIR_MANUAL } from './butir-manual.js?v=2026-11-17-4a7e0c';
-import { UNSUR_BUTIR, pihakUnsur, PIHAK, PJ_UNSUR } from './unsur-butir.js?v=2026-11-17-4a7e0c';
-import { BUTIR_DATA } from './butir-data.js?v=2026-11-17-4a7e0c';
-import { faktaNarasi, anggotaTim } from './led-isi.js?v=2026-11-17-4a7e0c';
-import { pisahKalimat } from './led-narasi.js?v=2026-11-17-4a7e0c';
-import { masihKerangka } from './led-saran.js?v=2026-11-17-4a7e0c';
-import { JENIS_DOKUMEN, buktiButir } from './rencana-bukti.js?v=2026-11-17-4a7e0c';
-import { nilaiCapaian, perluAnalisis } from './capaian-iku.js?v=2026-11-17-4a7e0c';
+import { BUTIR_MANUAL } from './butir-manual.js?v=2026-11-17-4ebbac';
+import { UNSUR_BUTIR, pihakUnsur, PIHAK, PJ_UNSUR } from './unsur-butir.js?v=2026-11-17-4ebbac';
+import { BUTIR_DATA } from './butir-data.js?v=2026-11-17-4ebbac';
+import { faktaNarasi, anggotaTim } from './led-isi.js?v=2026-11-17-4ebbac';
+import { pisahKalimat } from './led-narasi.js?v=2026-11-17-4ebbac';
+import { masihKerangka } from './led-saran.js?v=2026-11-17-4ebbac';
+import { JENIS_DOKUMEN, buktiButir } from './rencana-bukti.js?v=2026-11-17-4ebbac';
+import { nilaiCapaian, perluAnalisis } from './capaian-iku.js?v=2026-11-17-4ebbac';
 
 // Tab Data prodi: [id tab, tabel, judul, butir]; sama dengan TABEL di data-prodi.html.
 export const TAB_DATA = [
@@ -20,6 +20,7 @@ export const TAB_DATA = [
   ['tendik', 'lkps_tendik', 'Tenaga kependidikan', '29'], ['bkd', 'lkps_bkd', 'Beban kerja dosen', '30'],
   ['prasarana', 'lkps_prasarana', 'Prasarana & alat', '38'], ['dok_k3l', 'lkps_dokumen_k3l', 'Dokumen K3L', '39'],
   ['fas_k3l', 'lkps_fasilitas_k3l', 'Fasilitas K3L', '39'], ['mahasiswa', 'lkps_mahasiswa_ta', 'Mahasiswa per TS', '40–45'],
+  ['jadwal_ta', 'jadwal_ta', 'Jadwal seminar/sidang TA', '—'],
   ['prestasi', 'lkps_prestasi_mahasiswa', 'Prestasi mahasiswa', '43'], ['kohort', 'lkps_kohort_lulusan', 'Kohort lulusan', '44–45'],
   ['publikasi', 'lkps_publikasi_mahasiswa', 'Publikasi mahasiswa', '46'], ['luaran', 'lkps_luaran_mahasiswa', 'Luaran mahasiswa', '47'],
   ['tracer', 'lkps_tracer_lulusan', 'Tracer study', '48–51'], ['kepuasan', 'lkps_kepuasan_pengguna', 'Kepuasan pengguna', '52'],

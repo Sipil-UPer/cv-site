@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-17-4a7e0c">
+<link rel="stylesheet" href="tema.css?v=2026-11-17-4ebbac">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
@@ -101,7 +101,7 @@
   .masuk{max-width:420px;margin:40px auto;background:#fff;border:1px solid var(--line);padding:20px}
   .masuk input{width:100%;padding:8px 10px;margin:8px 0;font:inherit}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-17-4a7e0c">
+<link rel="stylesheet" href="kepala.css?v=2026-11-17-4ebbac">
 </head>
 <body>
 
@@ -115,7 +115,7 @@
 
 <main class="wrap" id="isi"></main>
 
-<script src="config.js?v=2026-11-17-4a7e0c"></script>
+<script src="config.js?v=2026-11-17-4ebbac"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -132,25 +132,25 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-17-4a7e0c';
-import { pasangMenu } from './menu.js?v=2026-11-17-4a7e0c';
-import { dosenLogin } from './dosen-login.js?v=2026-11-17-4a7e0c';
-import { unggahKePustaka, opsiPustaka, opsiJenis, labelDokumen, cariDokumen } from './pustaka-dokumen.js?v=2026-11-17-4a7e0c';
-import { pasangRapikan } from './rapikan-berkas.js?v=2026-11-17-4a7e0c';
-import { UNSUR, skorUnsur, pihakUnsur } from './unsur-butir.js?v=2026-11-17-4a7e0c';
-import { OPSI_SUMBER } from './iku-otomatis.js?v=2026-11-17-4a7e0c';
-import { denganOtomatis as otomatisDari, tsTersedia, tsAwal, htmlCapaianIKU, KET_CAPAIAN, muatTambahan, denganTambahan } from './capaian-iku.js?v=2026-11-17-4a7e0c';
-import { KATEGORI_TEMUAN, STATUS_TEMUAN, PIHAK_TEMUAN, ringkasTemuan, htmlRingkasTemuan } from './temuan-ami.js?v=2026-11-17-4a7e0c';
-import { bacaRekapSPM, rencanaImporSPM, tsDariTanggal, labelTS, ringkasLembar, picProdi } from './standar-spmi.js?v=2026-11-17-4a7e0c';
-import { SHEETJS } from './nilai-cpl.js?v=2026-11-17-4a7e0c';
-import { bacaCSV, normKur, normCpl, KOLOM_IMPOR, CONTOH_IMPOR, rencanaImpor, sebaranCPL, htmlSebaran } from './kurikulum-cpl.js?v=2026-11-17-4a7e0c';
-import { htmlContoh, pasangContoh, JENIS_BUKTI_KS } from './manfaat-kerjasama.js?v=2026-11-17-4a7e0c';
-import { infoJenis } from './rencana-bukti.js?v=2026-11-17-4a7e0c';
-import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-17-4a7e0c';
-import { nomorButir, htmlTautanButir } from './tautan-butir.js?v=2026-11-17-4a7e0c';
-import { htmlSaran } from './saran-bukti.js?v=2026-11-17-4a7e0c';
-import { tautanBerkas, privatkanLama, adalahPrivat } from './tautan-privat.js?v=2026-11-17-4a7e0c';
-import { unggahLKD, buangLKD, bukaLKD, pendidikanTotal, pendidikanPS } from './bkd.js?v=2026-11-17-4a7e0c';
+import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-17-4ebbac';
+import { pasangMenu } from './menu.js?v=2026-11-17-4ebbac';
+import { dosenLogin } from './dosen-login.js?v=2026-11-17-4ebbac';
+import { unggahKePustaka, opsiPustaka, opsiJenis, labelDokumen, cariDokumen } from './pustaka-dokumen.js?v=2026-11-17-4ebbac';
+import { pasangRapikan } from './rapikan-berkas.js?v=2026-11-17-4ebbac';
+import { UNSUR, skorUnsur, pihakUnsur } from './unsur-butir.js?v=2026-11-17-4ebbac';
+import { OPSI_SUMBER } from './iku-otomatis.js?v=2026-11-17-4ebbac';
+import { denganOtomatis as otomatisDari, tsTersedia, tsAwal, htmlCapaianIKU, KET_CAPAIAN, muatTambahan, denganTambahan } from './capaian-iku.js?v=2026-11-17-4ebbac';
+import { KATEGORI_TEMUAN, STATUS_TEMUAN, PIHAK_TEMUAN, ringkasTemuan, htmlRingkasTemuan } from './temuan-ami.js?v=2026-11-17-4ebbac';
+import { bacaRekapSPM, rencanaImporSPM, tsDariTanggal, labelTS, ringkasLembar, picProdi } from './standar-spmi.js?v=2026-11-17-4ebbac';
+import { SHEETJS } from './nilai-cpl.js?v=2026-11-17-4ebbac';
+import { bacaCSV, normKur, normCpl, KOLOM_IMPOR, CONTOH_IMPOR, rencanaImpor, sebaranCPL, htmlSebaran } from './kurikulum-cpl.js?v=2026-11-17-4ebbac';
+import { htmlContoh, pasangContoh, JENIS_BUKTI_KS } from './manfaat-kerjasama.js?v=2026-11-17-4ebbac';
+import { infoJenis } from './rencana-bukti.js?v=2026-11-17-4ebbac';
+import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-17-4ebbac';
+import { nomorButir, htmlTautanButir } from './tautan-butir.js?v=2026-11-17-4ebbac';
+import { htmlSaran } from './saran-bukti.js?v=2026-11-17-4ebbac';
+import { tautanBerkas, privatkanLama, adalahPrivat } from './tautan-privat.js?v=2026-11-17-4ebbac';
+import { unggahLKD, buangLKD, bukaLKD, pendidikanTotal, pendidikanPS } from './bkd.js?v=2026-11-17-4ebbac';
 
 /* =====================================================================
    DATA PRODI — data kuantitatif LKPS diisi admin di situs (keputusan
@@ -857,6 +857,34 @@ const TABEL = [
       { k: 'sembunyikan_publik', l: 'Sembunyikan dari situs publik', t: 'cek' },
     ],
     cek: r => r.cerita && r.cerita.length > 600 ? 'Cerita untuk situs paling banyak 600 huruf.' : '' },
+  // Jadwal seminar dan sidang TA (94-patch-jadwal-ta.sql, pemilik 2026-11-17): pendaftaran resmi di SIUP; di sini
+  // jadwal saja (tampil di Layanan mahasiswa) dan bahan rekap/beban dosen (rekap-ta.html).
+  { id: 'jadwal_ta', tabel: 'jadwal_ta', judul: 'Jadwal seminar/sidang TA',
+    ket: 'Satu baris per seminar proposal, seminar kemajuan, atau sidang akhir. Pendaftaran resmi tetap di SIUP; di sini '
+       + 'jadwalnya saja: tampil di halaman Layanan mahasiswa (tanpa NIM; nama hanya bila dicentang setuju) dan menjadi bahan '
+       + 'Rekap TA (beban membimbing dan menguji per dosen). Berita acara/daftar hadir boleh dilampirkan sebagai bukti (privat).',
+    label: r => `${({ seminar_proposal: 'Seminar proposal', seminar_kemajuan: 'Seminar kemajuan', sidang_akhir: 'Sidang akhir' })[r.tahap] || 'TA'} ${r.nama_mahasiswa || ''}`.trim(),
+    tahun: r => r.tanggal ? +String(r.tanggal).slice(0, 4) : null,
+    kolom: [
+      { k: 'tahap', l: 'Tahap', t: 'pilihan', wajib: true,
+        o: [['seminar_proposal', 'Seminar proposal'], ['seminar_kemajuan', 'Seminar kemajuan'], ['sidang_akhir', 'Sidang akhir']] },
+      { k: 'tanggal', l: 'Tanggal', t: 'tanggal', wajib: true },
+      { k: 'jam', l: 'Jam (mis. 09.00–10.30)', t: 'teks' },
+      { k: 'ruang', l: 'Ruang', t: 'teks', ingat: true },
+      { k: 'tautan_daring', l: 'Tautan daring (bila ada)', t: 'url' },
+      { k: 'nama_mahasiswa', l: 'Mahasiswa (nama dan NIM)', t: 'mhs', nim: 'nim' },
+      { k: 'judul', l: 'Judul TA', t: 'teks', wajib: true, lebar: true },
+      { k: 'pembimbing', l: 'Dosen pembimbing', t: 'jamak', kosong: 'Daftar dosen kosong.', o: () => DOSEN.map(d => [d.nidn, d.nama]) },
+      { k: 'penguji', l: 'Dosen penguji (prodi)', t: 'jamak', kosong: 'Daftar dosen kosong.', o: () => DOSEN.map(d => [d.nidn, d.nama]) },
+      { k: 'penguji_luar', l: 'Penguji dari luar prodi (nama, instansi)', t: 'teks' },
+      { k: 'status', l: 'Status', t: 'pilihan', wajib: true,
+        o: [['terjadwal', 'Terjadwal'], ['selesai', 'Selesai'], ['ditunda', 'Ditunda'], ['batal', 'Batal']] },
+      { k: 'hasil', l: 'Hasil (setelah selesai)', t: 'pilihan',
+        o: [['lulus', 'Lulus'], ['lulus_revisi', 'Lulus dengan revisi'], ['mengulang', 'Mengulang']] },
+      { k: 'tampil_nama', l: 'Mahasiswa setuju namanya tampil di jadwal publik', t: 'cek' },
+      { k: 'sembunyikan_publik', l: 'Sembunyikan dari jadwal publik', t: 'cek' },
+    ],
+    cek: r => !String(r.nama_mahasiswa || '').trim() ? 'Isi nama mahasiswa.' : '' },
   { id: 'publikasi', tabel: 'lkps_publikasi_mahasiswa', judul: 'Publikasi mahasiswa', butir: '46',
     ket: 'Publikasi MANDIRI mahasiswa tanpa dosen (Tabel 6.e.1). Publikasi bersama dosen sudah masuk lewat '
        + 'form karya dosen. Indeksasi dipakai butir 46.',
@@ -906,7 +934,7 @@ const SARAN_DOK = { target: ['dokumen_iku_ikt', 'laporan_kinerja'], tracer: ['la
   mk: ['rps', 'kurikulum'], tema: ['peta_jalan_penelitian', 'peta_jalan_pkm'], peta_dok: ['peta_jalan_penelitian', 'peta_jalan_pkm'], vmts: ['sk_vmts', 'statuta', 'renstra_pt', 'renstra_upps'],
   prodi_upps: ['sk_akreditasi_prodi'], dana: ['laporan_keuangan', 'laporan_audit_keuangan'], tendik: ['berkas_pribadi', 'sertifikat'], prasarana: ['pedoman_sarpras'],
   dok_k3l: ['dokumen_k3l', 'kebijakan_k3l'], fas_k3l: ['kebijakan_k3l'], spmi: ['kebijakan_spmi', 'laporan_ami', 'laporan_rtm'], temuan: ['laporan_ami', 'dokumen_peningkatan_mutu', 'laporan_rtm'], bkd: ['rekap_bkd'], prestasi: ['sertifikat'],
-  luaran: ['sertifikat'], kohort: ['data_mahasiswa'], mahasiswa: ['data_mahasiswa'], publikasi: ['lainnya'] };
+  luaran: ['sertifikat'], jadwal_ta: ['daftar_hadir'], kohort: ['data_mahasiswa'], mahasiswa: ['data_mahasiswa'], publikasi: ['lainnya'] };
 TABEL.forEach(T => { T.dok = SARAN_DOK[T.id] || ['lainnya']; });
 // Kunci saran-bukti.js: publikasi dan luaran di sana milik form karya dosen.
 const saranTab = T => htmlSaran(({ publikasi: 'publikasi_mhs', luaran: 'luaran_mhs' })[T.id] || T.id);
@@ -1698,7 +1726,7 @@ const GRUP_TAB = [
   ['Dosen & SDM', ['bkd', 'tendik', 'bidang_keahlian', 'topik_keahlian']],
   ['Kurikulum & CPL', ['mk', 'cpl', 'mk_cpl', 'korelasi_cpl', 'profil_lulusan']],
   ['Penelitian & kerja sama', ['tema', 'peta_dok', 'kerjasama']],
-  ['Mahasiswa & lulusan', ['mahasiswa', 'kohort', 'prestasi', 'publikasi', 'luaran', 'tracer', 'kepuasan']],
+  ['Mahasiswa & lulusan', ['mahasiswa', 'jadwal_ta', 'kohort', 'prestasi', 'publikasi', 'luaran', 'tracer', 'kepuasan']],
   ['Institusi & keuangan', ['vmts', 'prodi_upps', 'dana']],
   ['Sarana & K3L', ['prasarana', 'dok_k3l', 'fas_k3l']],
   ['SPMI', ['standar', 'revisi', 'spmi', 'target', 'temuan']],

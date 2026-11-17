@@ -4,12 +4,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
-<title>Pengajuan KP, lomba, dan surat — Program Studi</title>
+<title>Pengajuan KP, TA, lomba, dan surat — Program Studi</title>
 <meta name="description" content="Pengajuan Kerja Praktik dan laporan lomba mahasiswa: isi, unggah berkas, dan pantau prosesnya.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-17-4a7e0c">
+<link rel="stylesheet" href="tema.css?v=2026-11-17-4ebbac">
 <style>
   /* Pengajuan mahasiswa, publik tanpa login (pemilik 2026-11-17; patch 90). Warna dari tema.css. */
   *{box-sizing:border-box}
@@ -64,6 +64,7 @@
   .unggah{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:10px}
   .unggah select{font:inherit;padding:7px 9px;border:1px solid var(--line);border-radius:7px;background:var(--bg);color:var(--ink)}
   .ringkas{display:grid;grid-template-columns:max-content 1fr;gap:3px 14px;font-size:14px}
+  .jadwal-kotak{border-left:4px solid var(--hijau)}
   .ringkas dt{color:var(--muted)} .ringkas dd{margin:0;overflow-wrap:anywhere;white-space:pre-line}
   footer{margin-top:32px;font-size:13px;color:var(--muted)} footer a{color:var(--muted)}
 </style>
@@ -71,10 +72,10 @@
 <body>
 <header class="hero"><div class="hero-in">
   <a class="balik" href="berkas-mahasiswa.html">&larr; Layanan mahasiswa</a>
-  <h1>Pengajuan KP, laporan lomba, dan surat</h1><div class="prodi" id="hProdi"></div>
+  <h1>Pengajuan KP, seminar/sidang TA, laporan lomba, dan surat</h1><div class="prodi" id="hProdi"></div>
 </div></header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-17-4a7e0c"></script>
+<script src="config.js?v=2026-11-17-4ebbac"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -95,7 +96,7 @@ addEventListener('error', function (e) {
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
 import { JENIS, LABEL_BERKAS, LABEL_STATUS, TINGKAT, BIDANG, jalur, bolehUbah, bacaAnggota, teksAnggota,
          periksaIsian, judulPengajuan, keB64, bukaIsi, appsScript, labelStatus, jalurTahap, BERKAS_SELESAI,
-         periksaSelesai, JENIS_SURAT } from './pengajuan-mhs.js?v=2026-11-17-4a7e0c';
+         periksaSelesai, JENIS_SURAT, TAHAP_TA } from './pengajuan-mhs.js?v=2026-11-17-4ebbac';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
@@ -109,10 +110,22 @@ function tulis(id, kelas, teks){ const m = $(id); m.className = 'msg ' + kelas; 
 
 // Isian per jenis (dipakai formulir baru dan perbaikan).
 function htmlIsian(jenis, d = {}, nama = '', pembimbing = ''){
-  const pb = `<div class="fld"><label for="f_pb">Dosen pembimbing ${jenis === 'kp' ? 'KP' : 'lomba'}</label>
+  const pb = `<div class="fld"><label for="f_pb">Dosen pembimbing ${jenis === 'kp' ? 'KP' : jenis === 'ta' ? 'TA' : 'lomba'}</label>
     <select id="f_pb"><option value="">(pilih)</option>${DOSEN.map(x => `<option value="${x.id}"${x.id === pembimbing ? ' selected' : ''}>${esc(x.nama)}</option>`).join('')}</select>
     <small>Dosen ini memeriksa pengajuan Anda lebih dulu, lalu admin prodi.</small></div>`;
   const nm = `<div class="fld"><label for="f_nama">Nama lengkap</label><input id="f_nama" maxlength="120" autocomplete="name" value="${esc(nama)}"></div>`;
+  if (jenis === 'ta') return `${nm}
+    <div class="dua">
+      <div class="fld"><label for="f_tahap">Tahap</label><select id="f_tahap"><option value="">(pilih)</option>${opsi(TAHAP_TA, d.tahap_ta)}</select></div>
+      ${pb.replace('Dosen pembimbing TA', 'Pembimbing 1')}
+    </div>
+    <div class="fld"><label for="f_pb2">Pembimbing 2 <span>(opsional)</span></label>
+      <select id="f_pb2"><option value="">(tidak ada)</option>${DOSEN.map(x => `<option value="${x.id}"${x.id === d.pembimbing_2 ? ' selected' : ''}>${esc(x.nama)}</option>`).join('')}</select>
+      <small>Belum punya pembimbing? <a href="berkas-mahasiswa.html#pembimbing" target="_blank" rel="noopener">Cari calon pembimbing TA</a>
+        menurut judul. Pembimbing 1 memeriksa kesiapan Anda, lalu admin prodi menetapkan jadwal dan penguji.</small></div>
+    <div class="fld"><label for="f_judul">Judul TA</label><textarea id="f_judul" maxlength="400" style="min-height:60px">${esc(d.judul)}</textarea></div>
+    <label class="cek"><input type="checkbox" id="f_tampil"${d.tampil_nama ? ' checked' : ''}> Saya setuju nama saya ditampilkan
+      di jadwal seminar/sidang di situs prodi (tanpa NIM). Tanpa centang: ditulis "Mahasiswa TA".</label>`;
   if (jenis === 'surat') return `${nm}
     <div class="fld"><label for="f_js">Jenis surat</label><select id="f_js"><option value="">(pilih)</option>${opsi(JENIS_SURAT, d.jenis_surat)}</select>
       <small>Ditandatangani Kaprodi. Diproses admin prodi; surat yang sudah ditandatangani diunduh lewat tautan pribadi Anda.</small></div>
@@ -158,6 +171,8 @@ function pasangSurat(){
 
 function bacaIsian(jenis){
   const v = id => ($(id)?.value || '').trim();
+  if (jenis === 'ta') return { nama: v('f_nama'), pembimbing: v('f_pb'), data: { tahap_ta: v('f_tahap'), judul: v('f_judul'),
+    pembimbing_2: v('f_pb2'), tampil_nama: $('f_tampil').checked } };
   if (jenis === 'surat') return { nama: v('f_nama'), pembimbing: '', data: { jenis_surat: v('f_js'), keperluan: v('f_kep'),
     tujuan_surat: v('f_tuj'), alamat_tujuan: v('f_alt'), judul_penelitian: v('f_jdl'), lokasi: v('f_lok'), waktu_pelaksanaan: v('f_wkt') } };
   const data = jenis === 'kp'
@@ -180,6 +195,8 @@ function halamanBaru(){
           pengantar; laporan dan surat selesai menyusul lewat tautan yang sama</small></span></label>
         <label><input type="radio" name="jenis" value="lomba"><span>Laporan lomba<small>lomba atau kompetisi yang sudah diikuti;
           setelah disetujui tercatat sebagai prestasi mahasiswa</small></span></label>
+        <label><input type="radio" name="jenis" value="ta"><span>Seminar/sidang TA<small>seminar proposal, seminar kemajuan,
+          atau sidang akhir; jadwal dan penguji ditetapkan prodi, lalu diinput ke SIUP</small></span></label>
         <label><input type="radio" name="jenis" value="surat"><span>Permohonan surat<small>keterangan aktif kuliah, izin penelitian,
           atau rekomendasi; ditandatangani Kaprodi</small></span></label>
       </div>
@@ -264,7 +281,10 @@ function halamanSaya(){
   const jendelaSelesai = !!p.jendela_selesai, adaSelesai = p.jenis === 'kp' && (jendelaSelesai || p.tahap === 'selesai');
   const jenisUnggah = ubahPengajuan ? J.berkas : BERKAS_SELESAI;
   const bisaBuang = b => ubah && b.oleh !== 'prodi' && !(p.status === 'disetujui' && b.jenis === 'surat_permohonan');
-  const ringkas = p.jenis === 'surat'
+  const ringkas = p.jenis === 'ta'
+    ? [['Tahap', (TAHAP_TA.find(t => t[0] === d.tahap_ta) || [, ''])[1]], ['Judul', d.judul],
+       ['Pembimbing', [p.pembimbing, p.pembimbing_2].filter(Boolean).join(', ')], ['Nama di jadwal publik', d.tampil_nama ? 'boleh ditampilkan' : 'tidak']]
+    : p.jenis === 'surat'
     ? [['Jenis surat', judulPengajuan(p)], ['Keperluan', d.keperluan], ['Tujuan', [d.tujuan_surat, d.alamat_tujuan].filter(Boolean).join(', ')],
        ['Judul penelitian', d.judul_penelitian], ['Lokasi', d.lokasi], ['Waktu', d.waktu_pelaksanaan]]
     : p.jenis === 'kp'
@@ -282,9 +302,16 @@ function halamanSaya(){
     <p class="ket">Halaman ini terbuka dengan tautan pribadi dari email kampus Anda. Jangan bagikan alamatnya.</p>
     <h2>${esc(J.label)}: ${esc(judulPengajuan(p))}</h2>
     <div>Status: <span class="status">${esc(labelStatus(p))}</span> · ${esc(p.nama)} (${esc(p.nim)})
-      ${p.jenis === 'surat' ? '' : '· pembimbing ' + esc(p.pembimbing || '—')}</div>
+      ${p.jenis === 'surat' ? '' : '· pembimbing ' + esc([p.pembimbing, p.pembimbing_2].filter(Boolean).join(', ') || '—')}</div>
     ${p.jenis === 'kp' ? '<h3 class="sub-h">Pengajuan KP</h3>' : ''}${htmlJalur(jalurTahap(p, 'pengajuan'))}
     ${adaSelesai ? `<h3 class="sub-h">Laporan selesai KP</h3>${htmlJalur(jalurTahap(p, 'selesai'))}` : ''}
+    ${p.jadwal ? `<div class="kotak jadwal-kotak"><b>Jadwal ${esc((TAHAP_TA.find(t => t[0] === d.tahap_ta) || [, 'seminar/sidang'])[1].toLowerCase())}
+      Anda${p.jadwal.status === 'ditunda' ? ' (DITUNDA)' : p.jadwal.status === 'batal' ? ' (DIBATALKAN)' : ''}</b>
+      <dl class="ringkas">${[['Tanggal', p.jadwal.tanggal ? new Date(p.jadwal.tanggal + 'T00:00').toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) : ''],
+        ['Jam', p.jadwal.jam], ['Ruang', p.jadwal.ruang], ['Tautan daring', p.jadwal.tautan_daring],
+        ['Penguji', [...(p.jadwal.penguji || []), p.jadwal.penguji_luar].filter(Boolean).join(', ')]]
+        .filter(([, v]) => v).map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join('')}</dl>
+      <p class="ket">Langkah berikutnya: input jadwal ini ke SIUP sesuai ketentuan universitas.</p></div>` : ''}
     ${pengantar.length ? `<div class="kotak"><b>${p.jenis === 'surat' ? 'Surat dari prodi sudah terbit.' : 'Surat pengantar dari prodi sudah tersedia.'}</b>
       ${pengantar.map(b => `<button class="b" data-buka="${b.id}" style="margin-left:8px">Buka ${esc(b.nama || 'surat')}</button>`).join('')}</div>` : ''}
     ${jendelaSelesai ? `<div class="kotak"><b>Sudah selesai KP?</b> Isi laporan selesai di bawah, unggah <b>laporan KP</b> dan

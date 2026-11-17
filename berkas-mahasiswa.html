@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-17-4a7e0c">
+<link rel="stylesheet" href="tema.css?v=2026-11-17-4ebbac">
 <style>
   /* Layanan mahasiswa, publik (pemilik 2026-11-16; patch 76, 77, 78). Warna dari tema.css. */
   *{box-sizing:border-box}
@@ -89,6 +89,8 @@
   button.kirim:focus-visible{outline:2px solid var(--biru);outline-offset:2px}
   .hitung{font-family:var(--mono);font-size:12px;color:var(--muted);text-align:right}
   .msg{font-size:14px} .msg.buruk{color:var(--merah)} .msg.ok{color:var(--hijau)}
+  h3.sub-j{font-size:14px;font-weight:600;color:var(--muted);margin:14px 0 6px;text-transform:uppercase;letter-spacing:.04em}
+  .daftar .meta a{color:var(--biru)}
   footer{margin-top:32px;font-size:13px;color:var(--muted)}
   footer a{color:var(--muted)}
 </style>
@@ -103,12 +105,21 @@
     <a href="#pembimbing">Calon pembimbing TA<small>cocokkan judul dan keahlian</small></a>
     <a href="#tanya-jawab">Tanya-jawab<small>yang sering ditanya</small></a>
     <a href="#kirim">Tanya / masukan<small>kirim ke prodi</small></a>
-    <a href="pengajuan.html">Pengajuan KP, lomba, surat<small>unggah berkas, pantau proses</small></a>
+    <a href="#jadwal-ta">Jadwal seminar/sidang<small>TA: proposal, kemajuan, akhir</small></a>
+    <a href="pengajuan.html">Pengajuan KP, TA, lomba, surat<small>unggah berkas, pantau proses</small></a>
   </nav>
 </div></header>
 <main class="wrap">
   <div class="cari"><input id="cari" type="search" placeholder="Cari pengumuman, pedoman, tanya-jawab…" aria-label="Cari" autocomplete="off"></div>
   <div id="isi"><p class="kosong">Memuat…</p></div>
+
+  <!-- Jadwal seminar dan sidang TA (94-patch-jadwal-ta.sql, pemilik 2026-11-17): dari data.json jadwal_ta. -->
+  <section id="jadwal-ta" hidden>
+    <h2 class="besar">Jadwal seminar dan sidang TA</h2>
+    <p class="ket">Seminar proposal, seminar kemajuan, dan sidang akhir yang terbuka untuk dihadiri. Pendaftaran tetap lewat SIUP.
+      Nama mahasiswa hanya ditampilkan bila yang bersangkutan setuju.</p>
+    <div id="jadwalIsi"></div>
+  </section>
 
   <!-- Cari calon pembimbing TA (pemilik 2026-11-16; pembimbing.js). -->
   <section id="pembimbing">
@@ -148,7 +159,7 @@
   <footer>Pertanyaan tentang isi berkas: hubungi sekretariat program studi.
     · <a href="kurikulum.html">Kurikulum</a> · <a href="privasi.html">Kebijakan privasi</a></footer>
 </main>
-<script src="config.js?v=2026-11-17-4a7e0c"></script>
+<script src="config.js?v=2026-11-17-4ebbac"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -170,13 +181,32 @@ addEventListener('error', function (e) {
 //   Tanya-jawab: tanya_jawab_publik() (78), disusun admin di kelola-mahasiswa.html.
 //   Kiriman: kirim_masukan_mahasiswa() (78) ke kotak masuk tertutup; kolom k_situs adalah jebakan bot.
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { infoJenis } from './rencana-bukti.js?v=2026-11-17-4a7e0c';
-import { pasangPembimbing } from './pembimbing.js?v=2026-11-17-4a7e0c';
+import { infoJenis } from './rencana-bukti.js?v=2026-11-17-4ebbac';
+import { pasangPembimbing } from './pembimbing.js?v=2026-11-17-4ebbac';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
 const tgl = s => String(s || '').slice(0, 10).split('-').reverse().join('/');
 const sb = createClient(window.SB_URL, window.SB_KEY, { auth: { persistSession: false } });
+
+// Jadwal seminar/sidang TA (bangun.py jadwal_ta_publik): akan datang dulu, lalu yang baru lewat (14 hari).
+function gambarJadwal(xs){
+  if (!xs.length) return;
+  const kini = new Date().toISOString().slice(0, 10);
+  const tgl = s => new Date(s + 'T00:00').toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  const nama = x => !x.mahasiswa?.length ? 'Mahasiswa TA' : x.mahasiswa.join(', ');
+  const dosen = xs => (xs || []).map(o => o.slug ? `<a href="dosen/${encodeURIComponent(o.slug)}.html">${esc(o.nama)}</a>` : esc(o.nama)).join(', ');
+  const li = x => `<li><div class="isi"><div class="judul">${esc(x.judul)}</div>
+    <div class="meta"><b>${esc(x.tahap_label)}</b> · ${esc(nama(x))} · ${esc(tgl(x.tanggal))}${x.jam ? ' · ' + esc(x.jam) : ''}${
+      x.ruang ? ' · ' + esc(x.ruang) : ''}${x.daring ? ' · daring' : ''}${x.status === 'ditunda' ? ' · <b>ditunda</b>' : ''}</div>
+    ${x.pembimbing?.length ? `<div class="meta">Pembimbing: ${dosen(x.pembimbing)}</div>` : ''}
+    ${x.penguji?.length ? `<div class="meta">Penguji: ${dosen(x.penguji)}</div>` : ''}</div></li>`;
+  const akan = xs.filter(x => x.tanggal >= kini), lewat = xs.filter(x => x.tanggal < kini).reverse();
+  $('jadwalIsi').innerHTML = (akan.length ? `<h3 class="sub-j">Akan datang</h3><ul class="daftar">${akan.map(li).join('')}</ul>`
+      : '<p class="kosong">Belum ada jadwal mendatang.</p>')
+    + (lewat.length ? `<h3 class="sub-j">Baru lewat</h3><ul class="daftar">${lewat.map(li).join('')}</ul>` : '');
+  $('jadwal-ta').hidden = false;
+}
 
 fetch('data.json?v=' + Date.now()).then(r => r.ok ? r.json() : {}).catch(() => ({}))
   .then(d => {
@@ -184,6 +214,7 @@ fetch('data.json?v=' + Date.now()).then(r => r.ok ? r.json() : {}).catch(() => (
     $('hProdi').textContent = p;
     if (d.prodi) document.title = 'Layanan mahasiswa — ' + d.prodi;
     pasangPembimbing($('pbIsi'), d);
+    gambarJadwal(d.jadwal_ta || []);
   });
 
 let DOK = [], FAQ = [], GAGAL_FAQ = false;

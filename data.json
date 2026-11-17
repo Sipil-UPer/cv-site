@@ -7029,6 +7029,7 @@
    "karya_mahasiswa": 8,
    "masukan_mahasiswa": 5,
    "pengajuan_mahasiswa": 5,
+   "jadwal_ta": 5,
    "survei_jawaban": 5,
    "rapat_peserta": 5
   }
@@ -7269,6 +7270,7 @@
   }
  ],
  "kabar": [],
+ "jadwal_ta": [],
  "akreditasi_prodi": {},
  "kerja_sama": [],
  "profil": {},

@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Rekap seminar/sidang TA — Kinerja Program Studi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tema.css?v=2026-11-17-4ebbac">
+<link rel="stylesheet" href="kepala.css?v=2026-11-17-4ebbac">
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
+  .wrap{max-width:1120px;margin:0 auto;padding:18px 20px 80px}
+  .kosong, .ket{color:var(--muted)} .ket{font-size:13px}
+  h2{font-family:var(--serif);font-size:19px;font-weight:600;margin:22px 0 8px}
+  .saring{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;margin:4px 0 12px;font-size:13.5px}
+  .saring select{font:inherit;font-size:14px;padding:5px 7px;border:1px solid var(--line);background:var(--panel);color:var(--ink)}
+  .ringkas{display:flex;flex-wrap:wrap;gap:10px;margin:4px 0 14px}
+  .ringkas div{background:var(--panel);border:1px solid var(--line);padding:8px 14px}
+  .ringkas b{font-family:var(--mono);font-size:20px;display:block}
+  .ringkas span{font-size:12.5px;color:var(--muted)}
+  table{width:100%;border-collapse:collapse;background:var(--panel);border:1px solid var(--line);font-size:14px}
+  th{text-align:left;font-size:12px;color:var(--muted);font-weight:500;border-bottom:1px solid var(--line);padding:7px 10px;background:var(--bg)}
+  td{border-bottom:1px solid var(--line-soft);padding:7px 10px;vertical-align:top}
+  td.n, th.n{text-align:right;font-family:var(--mono)}
+  button.b{font:inherit;font-size:13.5px;padding:6px 12px;border:1px solid var(--biru);background:var(--biru);color:#fff;cursor:pointer;margin-left:auto}
+  button.b:disabled{opacity:.5;cursor:default}
+  @media(max-width:760px){.lebar-tabel{overflow-x:auto}}
+</style>
+</head>
+<body>
+<header class="hero"><div class="hero-in">
+  <div class="hero-inst" data-identitas></div>
+  <h1>Rekap seminar/sidang TA</h1>
+  <div class="sub" id="hSub">Memuat…</div>
+</div></header>
+<main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
+<script src="config.js?v=2026-11-17-4ebbac"></script>
+<script>
+// Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
+addEventListener('error', function (e) {
+  if (document.getElementById('galat-muat')) return;
+  var d = document.createElement('div');
+  d.id = 'galat-muat';
+  d.style.cssText = 'margin:16px;padding:12px 14px;border:1px solid var(--merah);' +
+    'background:var(--merah-m3);color:var(--ink);font:14px/1.5 system-ui,sans-serif';
+  d.textContent = 'Halaman gagal dimuat: ' + (e.message || 'galat skrip') +
+    '. Tekan Ctrl+Shift+R untuk memuat ulang tanpa cache; bila tetap muncul, kirim pesan ini ke admin.';
+  document.body.insertBefore(d, document.body.firstChild);
+});
+</script>
+<script type="module">
+// Rekap seminar proposal, seminar kemajuan, dan sidang akhir (94-patch-jadwal-ta.sql, pemilik 2026-11-17): jumlah per tahap
+// dan beban membimbing/menguji per dosen pada periode terpilih (TS, 3 TS, tahun). Sumber: jadwal_ta (semua pengguna login
+// membaca). Unduh Excel khusus admin (memuat NIM).
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
+import { gerbang } from './menu.js?v=2026-11-17-4ebbac';
+import { TAHAP, STATUS, waktuJadwal, rekapTA, lembarTA } from './rekap-ta.js?v=2026-11-17-4ebbac';
+import { opsiPeriode, cocokPeriode, labelPeriode, taTeks, tsKarya } from './sdgs-unduh.js?v=2026-11-17-4ebbac';
+import { SHEETJS } from './nilai-cpl.js?v=2026-11-17-4ebbac';
+
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const $ = id => document.getElementById(id);
+const sb = createClient(window.SB_URL, window.SB_KEY);
+let SAYA = null, ADMIN = false, BARIS = [], DOSEN = {}, PERIODE = '';
+const dgWaktu = r => ({ ...r, ...waktuJadwal(r) });
+const tsTeks = r => { const t = tsKarya(waktuJadwal(r)); return t ? taTeks(t) : ''; };
+
+function gambar(){
+  const xs = BARIS.map(dgWaktu).filter(r => cocokPeriode(r, PERIODE));
+  const r = rekapTA(xs, DOSEN), kini = new Date().toISOString().slice(0, 10);
+  const akan = xs.filter(x => x.tanggal >= kini && x.status !== 'batal').sort((a, b) => String(a.tanggal).localeCompare(String(b.tanggal)));
+  const nm = v => (Array.isArray(v) ? v : []).map(n => DOSEN[n] || n).join(', ');
+  $('ringkas').innerHTML = TAHAP.map(([k, l]) => `<div><b>${r.tahap[k].selesai} / ${r.tahap[k].semua}</b><span>${esc(l)}: selesai / semua</span></div>`).join('')
+    + `<div><b>${r.dosen.length}</b><span>dosen terlibat</span></div>`;
+  $('beban').innerHTML = r.dosen.length ? `<div class="lebar-tabel"><table><thead><tr><th>Dosen</th><th class="n">Membimbing</th>${TAHAP.map(([, l]) =>
+      `<th class="n">${esc(l)}</th>`).join('')}<th class="n">Menguji</th>${TAHAP.map(([, l]) => `<th class="n">${esc(l)}</th>`).join('')}</tr></thead>
+    <tbody>${r.dosen.map(d => `<tr><td>${esc(d.nama)}</td><td class="n">${d.bimbing}</td>${TAHAP.map(([k]) => `<td class="n">${d['bimbing_' + k]}</td>`).join('')}
+      <td class="n">${d.uji}</td>${TAHAP.map(([k]) => `<td class="n">${d['uji_' + k]}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`
+    : '<p class="kosong">Belum ada jadwal pada periode ini.</p>';
+  $('akan').innerHTML = akan.length ? `<div class="lebar-tabel"><table><thead><tr><th>Tanggal</th><th>Tahap</th><th>Mahasiswa</th><th>Judul</th><th>Pembimbing</th><th>Penguji</th><th>Ruang</th></tr></thead>
+    <tbody>${akan.map(x => `<tr><td>${esc(x.tanggal)}${x.jam ? '<br>' + esc(x.jam) : ''}</td><td>${esc((TAHAP.find(t => t[0] === x.tahap) || [, ''])[1])}${
+      x.status !== 'terjadwal' ? `<br><b>${esc(STATUS[x.status] || x.status)}</b>` : ''}</td><td>${esc(x.nama_mahasiswa)}</td><td>${esc(x.judul)}</td>
+      <td>${esc(nm(x.pembimbing))}</td><td>${esc([nm(x.penguji), x.penguji_luar].filter(Boolean).join(', '))}</td><td>${esc(x.ruang || (x.tautan_daring ? 'daring' : ''))}</td></tr>`).join('')}</tbody></table></div>`
+    : '<p class="kosong">Tidak ada jadwal mendatang pada periode ini.</p>';
+  if (ADMIN) { $('unduh').disabled = !xs.length; $('unduh').onclick = () => unduh(xs); }
+}
+
+async function unduh(xs){
+  const b = $('unduh'); b.disabled = true;
+  try {
+    const X = await import(SHEETJS), wb = X.utils.book_new(), L = lembarTA(xs, DOSEN, tsTeks);
+    for (const [nama, baris] of Object.entries(L)) {
+      const ws = X.utils.aoa_to_sheet(baris);
+      ws['!cols'] = baris[0].map((_, j) => ({ wch: Math.min(60, Math.max(8, ...baris.slice(0, 200).map(r => String(r[j] ?? '').length))) }));
+      X.utils.book_append_sheet(wb, ws, nama);
+    }
+    const ket = X.utils.aoa_to_sheet([['Rekap seminar/sidang TA'], ['Periode', labelPeriode(PERIODE)], ['Diunduh', new Date().toLocaleString('id-ID')],
+      ['Catatan', 'Beban dihitung dari semua jadwal yang tidak batal (terjadwal dan selesai). Memuat NIM: untuk keperluan internal.']]);
+    ket['!cols'] = [{ wch: 12 }, { wch: 90 }];
+    X.utils.book_append_sheet(wb, ket, 'Keterangan');
+    const [j, n] = (PERIODE || '').split(':');
+    X.writeFile(wb, `rekap-ta-${!PERIODE ? 'semua' : j === 'th' ? n : j === 'ts' ? `TS${n - 1}-${n}` : `TS${n - 3}-${n}`}.xlsx`);
+  } catch (e) { alert('Unduh gagal: ' + (e.message || e)); }
+  finally { b.disabled = false; }
+}
+
+async function mulai(){
+  SAYA = await gerbang(sb);
+  if (!SAYA) return;
+  ADMIN = SAYA.peran === 'admin';
+  $('hSub').textContent = `Masuk sebagai ${SAYA.nama}`;
+  const [jq, dq] = await Promise.all([sb.from('jadwal_ta').select('*').order('tanggal'), sb.from('dosen').select('nidn,nama')]);
+  if (jq.error) throw new Error(/jadwal_ta/.test(jq.error.message) ? 'Tabel belum ada: jalankan supabase/94-patch-jadwal-ta.sql.' : jq.error.message);
+  BARIS = jq.data || [];
+  DOSEN = Object.fromEntries((dq.data || []).map(d => [d.nidn, d.nama]));
+  const opsi = opsiPeriode(BARIS.map(waktuJadwal)).filter(g => g.opsi.length);
+  $('isi').innerHTML = `
+    <p class="ket">Seminar proposal, seminar kemajuan, dan sidang akhir dari jadwal yang ditetapkan prodi (pengajuan mahasiswa atau
+      Data prodi › Jadwal seminar/sidang TA). Beban dosen menghitung semua jadwal yang tidak batal.</p>
+    <div class="saring"><label>Periode <select id="fPeriode"><option value="">Semua</option>${opsi.map(g => `<optgroup label="${esc(g.grup)}">${
+      g.opsi.map(([v, l]) => `<option value="${v}">${esc(l)}</option>`).join('')}</optgroup>`).join('')}</select></label>
+      ${ADMIN ? '<button type="button" class="b" id="unduh">Unduh Excel</button>' : ''}</div>
+    <div class="ringkas" id="ringkas"></div>
+    <h2>Beban membimbing dan menguji per dosen</h2><div id="beban"></div>
+    <h2>Jadwal mendatang</h2><div id="akan"></div>`;
+  $('fPeriode').onchange = e => { PERIODE = e.target.value; gambar(); };
+  gambar();
+}
+mulai().catch(e => { $('isi').innerHTML = `<p class="kosong">Gagal memuat: ${esc(e.message)}</p>`; });
+</script>
+</body>
+</html>

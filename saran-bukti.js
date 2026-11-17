@@ -46,6 +46,8 @@ export const SARAN_BUKTI = {
     catatan: 'Kolom mahasiswa asing wajib diisi walaupun nol.' },
   kohort: { tabel: '6.d', isi: [R('Ekspor SIAKAD')] },
   prestasi: { tabel: '6.c', isi: [U('Sertifikat atau piagam'), U('Berita kegiatan')] },
+  // Jadwal seminar/sidang TA (94): bukti privat; bahan rekap TA, bukan tabel LKPS tersendiri.
+  jadwal_ta: { tabel: '—', isi: [PR('Berita acara seminar/sidang'), PR('Daftar hadir')] },
   publikasi_mhs: { tabel: '6.e.1', isi: [U('DOI atau URL artikel')] },
   luaran_mhs: { tabel: '6.e.3', isi: [P('Surat Kemenkum, sertifikat HKI, sertifikat TKT, atau ISBN')] },
   tracer: { tabel: '6.f, 6.g.1', isi: TRACER },

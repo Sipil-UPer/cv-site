@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-17-4a7e0c">
-<link rel="stylesheet" href="kepala.css?v=2026-11-17-4a7e0c">
+<link rel="stylesheet" href="tema.css?v=2026-11-17-4ebbac">
+<link rel="stylesheet" href="kepala.css?v=2026-11-17-4ebbac">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
@@ -57,6 +57,10 @@
   .t-rekap th{text-align:left;font-size:12px;color:var(--muted);font-weight:500;border-bottom:1px solid var(--line);padding:4px 10px}
   .t-rekap td{border-bottom:1px solid var(--line-soft);padding:4px 10px}
   .t-rekap td+td, .t-rekap th+th{text-align:right;font-family:var(--mono)}
+  .jadwal-form{border:1px solid var(--line);background:var(--bg);padding:8px 10px;margin-bottom:8px}
+  .jadwal-form label{font-size:13.5px}
+  .jadwal-form input{font:inherit;font-size:13.5px;padding:3px 6px;border:1px solid var(--line);background:var(--panel);color:var(--ink)}
+  .penguji{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:2px 12px;font-size:13.5px}
   .msg{font-size:13.5px} .msg.buruk{color:var(--merah)} .msg.ok{color:var(--hijau)}
 </style>
 </head>
@@ -67,7 +71,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-17-4a7e0c"></script>
+<script src="config.js?v=2026-11-17-4ebbac"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -87,10 +91,10 @@ addEventListener('error', function (e) {
 // Berkas privat dibuka lewat Apps Script (mhs_buka_prodi); surat pengantar KP diunggah admin (mhs_unggah_prodi);
 // mahasiswa dikabari email saat dikembalikan, ditolak, atau disetujui (mhs_kabari).
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-17-4a7e0c';
-import { JENIS, LABEL_BERKAS, LABEL_STATUS, TINGKAT, BIDANG, teksAnggota, judulPengajuan, keB64, bukaIsi, appsScript, labelStatus, JENIS_SURAT, waktuPengajuan, rekapPengajuan, lembarPengajuan } from './pengajuan-mhs.js?v=2026-11-17-4a7e0c';
-import { opsiPeriode, cocokPeriode, labelPeriode, taTeks, tsKarya } from './sdgs-unduh.js?v=2026-11-17-4a7e0c';
-import { SHEETJS } from './nilai-cpl.js?v=2026-11-17-4a7e0c';
+import { gerbang } from './menu.js?v=2026-11-17-4ebbac';
+import { JENIS, LABEL_BERKAS, LABEL_STATUS, TINGKAT, BIDANG, teksAnggota, judulPengajuan, keB64, bukaIsi, appsScript, labelStatus, JENIS_SURAT, TAHAP_TA, waktuPengajuan, rekapPengajuan, lembarPengajuan } from './pengajuan-mhs.js?v=2026-11-17-4ebbac';
+import { opsiPeriode, cocokPeriode, labelPeriode, taTeks, tsKarya } from './sdgs-unduh.js?v=2026-11-17-4ebbac';
+import { SHEETJS } from './nilai-cpl.js?v=2026-11-17-4ebbac';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
@@ -98,6 +102,8 @@ const sb = createClient(window.SB_URL, window.SB_KEY);
 const tgl = s => s ? new Date(s).toLocaleString('id-ID', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '';
 const KABARI = new Set(['dikembalikan', 'ditolak', 'disetujui']);   // status yang dikabarkan ke email mahasiswa
 let SAYA = null, ADMIN = false, DATA = [], TAB = 'tunggu', BUKA = new Set();
+// Seminar/sidang TA (94): daftar dosen (NIDN, nama) untuk penguji; jadwal per pengajuan.
+let DOSEN = [], JADWAL = new Map();
 
 const menungguSaya = p => (p.status === 'pembimbing' && (p.pembimbing_id === SAYA.id || ADMIN)) || (p.status === 'admin' && ADMIN);
 const sesi = async () => (await sb.auth.getSession()).data.session?.access_token;
@@ -112,11 +118,24 @@ async function muat(){
   if (error && /tahap|data_selesai/.test(error.message)) ({ data, error } = await baca('', ''));
   if (error) throw new Error(/pengajuan_mahasiswa/.test(error.message) ? 'Tabel belum ada: jalankan supabase/90-patch-pengajuan-mahasiswa.sql.' : error.message);
   DATA = data || [];
+  const [dq, jq] = await Promise.all([sb.from('dosen').select('id,nidn,nama,aktif,peran,dtps').order('nama'),
+    sb.from('jadwal_ta').select('pengajuan_id,tanggal,jam,ruang,tautan_daring,status,penguji,penguji_luar').not('pengajuan_id', 'is', null)]);
+  // Calon penguji = aturan daftar dosen Data prodi: DTPS atau berperan dosen/pimpinan; staf admin non-dosen tidak.
+  DOSEN = (dq.data || []).filter(d => d.aktif && d.nidn && (d.dtps || ['dosen', 'pimpinan'].includes(d.peran)));
+  JADWAL = new Map((jq.error ? [] : jq.data || []).map(j => [j.pengajuan_id, j]));
 }
 
 function ringkas(p){
   const d = p.data || {};
-  const xs = p.jenis === 'surat'
+  const nmDosen = id => DOSEN.find(x => x.id === id)?.nama || '';
+  const nmNidn = n => DOSEN.find(x => x.nidn === n)?.nama || n;
+  const j = JADWAL.get(p.id);
+  const xs = p.jenis === 'ta'
+    ? [['Tahap', (TAHAP_TA.find(t => t[0] === d.tahap_ta) || [, ''])[1]], ['Judul', d.judul], ['Pembimbing 2', nmDosen(d.pembimbing_2)],
+       ['Nama di jadwal publik', d.tampil_nama ? 'disetujui mahasiswa' : 'tidak'],
+       ...(j ? [['Jadwal', [j.tanggal, j.jam, j.ruang, j.tautan_daring ? 'daring' : ''].filter(Boolean).join(' · ') + (j.status !== 'terjadwal' ? ` (${j.status})` : '')],
+                ['Penguji', [...(j.penguji || []).map(nmNidn), j.penguji_luar].filter(Boolean).join(', ')]] : [])]
+    : p.jenis === 'surat'
     ? [['Jenis surat', judulPengajuan(p)], ['Keperluan', d.keperluan], ['Tujuan', [d.tujuan_surat, d.alamat_tujuan].filter(Boolean).join(', ')],
        ['Judul penelitian', d.judul_penelitian], ['Lokasi', d.lokasi], ['Waktu', d.waktu_pelaksanaan]]
     : p.jenis === 'kp'
@@ -158,7 +177,8 @@ function kartu(p){
       ${saya ? `<div class="aksi"><label class="ket" for="c_${p.id}">Catatan untuk mahasiswa (wajib bila dikembalikan${bolehTolak ? ' atau ditolak' : ''};
           terkirim lewat email dan tampil di halaman mahasiswa)</label>
         <textarea id="c_${p.id}" maxlength="2000"></textarea>
-        <div class="baris"><button class="b utama" data-aksi="setujui" data-p="${p.id}">${p.status === 'pembimbing' ? 'Setujui, teruskan ke admin' : 'Sahkan'}</button>
+        ${p.jenis === 'ta' && p.status === 'admin' && ADMIN ? htmlJadwal(p) : ''}
+        <div class="baris">${p.jenis === 'ta' && p.status === 'admin' ? '' : `<button class="b utama" data-aksi="setujui" data-p="${p.id}">${p.status === 'pembimbing' ? 'Setujui, teruskan ke admin' : 'Sahkan'}</button>`}
           <button class="b" data-aksi="kembalikan" data-p="${p.id}">Kembalikan untuk diperbaiki</button>
           ${bolehTolak ? `<button class="b awas" data-aksi="tolak" data-p="${p.id}">Tolak</button>` : ''}
           <span class="msg" id="m_${p.id}" role="status"></span></div>
@@ -168,6 +188,41 @@ function kartu(p){
         ${p.status === 'admin' && p.tahap === 'selesai' ? '<p class="ket">Sahkan = KP mahasiswa ini dinyatakan selesai.</p>' : ''}</div>`
         : `<span class="msg" id="m_${p.id}" role="status"></span>`}
     </div></details>`;
+}
+
+// Jadwal seminar/sidang (94): admin menetapkan tanggal, jam, ruang/daring, penguji; Jadwalkan = setujui.
+function htmlJadwal(p){
+  const pb = [p.pembimbing_id, p.data?.pembimbing_2].filter(Boolean);
+  return `<div class="jadwal-form"><b>Jadwal ${esc(((TAHAP_TA.find(t => t[0] === p.data?.tahap_ta) || [, 'seminar/sidang'])[1]).toLowerCase())}</b>
+    <div class="baris"><label>Tanggal <input type="date" id="jt_${p.id}"></label><label>Jam <input id="jj_${p.id}" placeholder="09.00–10.30" size="12"></label>
+      <label>Ruang <input id="jr_${p.id}" size="14"></label><label>Tautan daring <input id="jd_${p.id}" type="url" placeholder="https://… (opsional)" size="24"></label></div>
+    <div class="ket" style="margin-top:6px">Penguji (prodi):</div>
+    <div class="penguji">${DOSEN.filter(x => !pb.includes(x.id)).map(x => `<label><input type="checkbox" data-uji="${p.id}" value="${esc(x.nidn)}"> ${esc(x.nama)}</label>`).join('')}</div>
+    <div class="baris"><label>Penguji luar prodi <input id="jl_${p.id}" placeholder="nama, instansi (opsional)" size="30"></label>
+      <button class="b utama" data-jadwalkan="${p.id}">Jadwalkan</button></div>
+    <p class="ket">Jadwalkan = pengajuan disetujui; mahasiswa dikabari jadwalnya lewat email lalu menginput ke SIUP. Jadwal tampil di
+      Layanan mahasiswa dan bisa diubah kemudian di Data prodi › Jadwal seminar/sidang TA.</p></div>`;
+}
+
+async function jadwalkan(id, b){
+  const v = k => ($(k + id)?.value || '').trim();
+  const penguji = [...document.querySelectorAll(`[data-uji="${id}"]:checked`)].map(c => c.value);
+  if (!v('jt_')) return pesan(id, 'buruk', 'Isi tanggal.');
+  if (!penguji.length && !v('jl_')) return pesan(id, 'buruk', 'Pilih minimal satu penguji.');
+  b.disabled = true;
+  try {
+    const { error } = await sb.rpc('pengajuan_jadwalkan', { p_id: id, p_tanggal: v('jt_'), p_jam: v('jj_'), p_ruang: v('jr_'),
+      p_tautan: v('jd_') || null, p_penguji: penguji, p_penguji_luar: v('jl_') || null });
+    if (error) throw new Error(error.message);
+    let kabar = '';
+    try { await appsScript({ kind: 'mhs_kabari', token: await sesi(), pengajuan_id: id, catatan: $('c_' + id)?.value.trim() || '' });
+          kabar = ' Mahasiswa dikabari lewat email.'; }
+    catch (e) { kabar = ' Email ke mahasiswa gagal (' + e.message + '); jadwal tetap terlihat di tautannya.'; }
+    BUKA.add(id);
+    await muat(); gambar(); gambarRekap();
+    const p = DATA.find(x => x.id === id);
+    atas(`${p ? p.nama + ' — ' + judulPengajuan(p) + ': ' : ''}Terjadwal.${kabar}`);
+  } catch (e) { pesan(id, 'buruk', e.message); b.disabled = false; }
 }
 
 function gambar(){
@@ -187,6 +242,7 @@ function gambar(){
   document.querySelectorAll('details.kartu').forEach(d => { d.ontoggle = () => { d.open ? BUKA.add(+d.dataset.id) : BUKA.delete(+d.dataset.id); }; });
   document.querySelectorAll('[data-buka]').forEach(b => { b.onclick = () => buka(b); });
   document.querySelectorAll('[data-aksi]').forEach(b => { b.onclick = () => putuskan(+b.dataset.p, b.dataset.aksi, b); });
+  document.querySelectorAll('[data-jadwalkan]').forEach(b => { b.onclick = () => jadwalkan(+b.dataset.jadwalkan, b); });
   document.querySelectorAll('[data-pengantar]').forEach(b => { b.onclick = () => pengantar(+b.dataset.pengantar, b, b.dataset.jenis); });
 }
 
@@ -293,14 +349,14 @@ async function mulai(){
   $('hSub').textContent = `Masuk sebagai ${SAYA.nama}`;
   await muat();
   $('isi').innerHTML = `
-    <p class="ket">Pengajuan Kerja Praktik, laporan lomba, dan permohonan surat yang dikirim mahasiswa lewat <a href="pengajuan.html">halaman pengajuan</a>
+    <p class="ket">Pengajuan Kerja Praktik, seminar/sidang TA, laporan lomba, dan permohonan surat yang dikirim mahasiswa lewat <a href="pengajuan.html">halaman pengajuan</a>
       (tanpa login; tautan pribadi ke email kampus). Urutan pemeriksaan: dosen pembimbing, lalu admin prodi; permohonan surat langsung ke admin (ditandatangani Kaprodi).
       ${ADMIN ? 'Admin melihat semua pengajuan dan boleh memutuskan tahap pembimbing bila pembimbing berhalangan.' : 'Anda melihat pengajuan yang memilih Anda sebagai pembimbing.'}
       ${ADMIN ? 'Draf yang belum dikirim mahasiswa tampil di "Semua".' : 'Draf yang belum dikirim mahasiswa tidak tampil.'}</p>
     <details class="kotak-rekap" id="rekap"><summary>Rekap dan unduhan per periode</summary><div id="rekapIsi"></div></details>
     <div class="tab" id="tab" role="group" aria-label="Kelompok"></div>
     <div class="saring">
-      <label>Jenis <select id="fJenis"><option value="">Semua</option><option value="kp">KP</option><option value="lomba">Lomba</option><option value="surat">Surat</option></select></label>
+      <label>Jenis <select id="fJenis"><option value="">Semua</option><option value="kp">KP</option><option value="lomba">Lomba</option><option value="ta">Seminar/sidang TA</option><option value="surat">Surat</option></select></label>
       <input id="fCari" type="search" placeholder="Cari nama, NIM, instansi, lomba" aria-label="Cari">
     </div>
     <p class="msg ok" id="mAtas" role="status"></p>
