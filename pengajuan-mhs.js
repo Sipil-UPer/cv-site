@@ -131,3 +131,73 @@ export async function appsScript(isi){
   if (!out.ok) throw new Error(out.error || 'Gagal.');
   return out;
 }
+
+// ---------- Rekap dan unduhan per periode (pemilik 2026-11-17) ----------
+// Waktu satu pengajuan untuk saringan TS/tahun (sdgs-unduh.js cocokPeriode memakai {tahun, bulan}):
+// KP = tanggal mulai di laporan selesai, lalu rencana mulai, lalu tanggal dibuat; lomba = tanggal lomba, lalu dibuat.
+export function waktuPengajuan(p){
+  const d = p.data || {}, s = p.data_selesai || {};
+  const t = String((p.jenis === 'kp' ? s.tanggal_mulai || d.rencana_mulai : d.tanggal) || p.dibuat || '');
+  const m = t.match(/^(\d{4})-(\d{2})/);
+  return m ? { tahun: +m[1], bulan: +m[2] } : { tahun: 0, bulan: 0 };
+}
+
+// Keadaan KP untuk rekap: 'selesai' (laporan selesai disahkan), 'berjalan' (pengajuan disetujui atau laporan
+// sedang diperiksa), 'proses' (pengajuan belum disetujui), 'ditolak', 'draf'.
+export function keadaanKP(p){
+  if (p.status === 'draf') return 'draf';
+  if (p.status === 'ditolak') return 'ditolak';
+  if (p.tahap === 'selesai') return p.status === 'disetujui' ? 'selesai' : 'berjalan';
+  return p.status === 'disetujui' ? 'berjalan' : 'proses';
+}
+
+// Ringkasan: angka KP dan lomba, serta KP per instansi (nama instansi disatukan tanpa beda huruf besar/spasi).
+export function rekapPengajuan(xs){
+  const kp = xs.filter(p => p.jenis === 'kp' && p.status !== 'draf'), lomba = xs.filter(p => p.jenis === 'lomba' && p.status !== 'draf');
+  const hit = (ys, f) => ys.filter(f).length;
+  const per = new Map();
+  for (const p of kp) {
+    const nama = String(p.data?.instansi || '').trim().replace(/\s+/g, ' ');
+    if (!nama) continue;
+    const k = nama.toLowerCase(), x = per.get(k) || { instansi: nama, mahasiswa: 0, selesai: 0, berjalan: 0 };
+    x.mahasiswa++; const e = keadaanKP(p);
+    if (e === 'selesai') x.selesai++; else if (e === 'berjalan') x.berjalan++;
+    per.set(k, x);
+  }
+  return {
+    kp: { semua: kp.length, selesai: hit(kp, p => keadaanKP(p) === 'selesai'), berjalan: hit(kp, p => keadaanKP(p) === 'berjalan'),
+          proses: hit(kp, p => keadaanKP(p) === 'proses') },
+    lomba: { semua: lomba.length, disetujui: hit(lomba, p => p.status === 'disetujui'),
+             tingkat: Object.fromEntries(TINGKAT.map(([k]) => [k, hit(lomba, p => p.status === 'disetujui' && p.data?.tingkat === k)])) },
+    instansi: [...per.values()].sort((a, b) => b.mahasiswa - a.mahasiswa || a.instansi.localeCompare(b.instansi)),
+  };
+}
+
+// Isi lembar Excel (untuk admin; memuat NIM). Sel tautan berbentuk {t, l}.
+const LABEL_KEADAAN = { selesai: 'KP selesai', berjalan: 'KP berjalan', proses: 'Pengajuan diperiksa', ditolak: 'Ditolak', draf: 'Draf' };
+export function lembarPengajuan(xs, tsTeks = () => ''){
+  const kp = xs.filter(p => p.jenis === 'kp' && p.status !== 'draf'), lomba = xs.filter(p => p.jenis === 'lomba' && p.status !== 'draf');
+  const pemb = p => p.dosen?.nama || p.pembimbing || '';
+  const L = {
+    KP: [['No', 'NIM', 'Nama', 'Instansi', 'Pembimbing', 'Mulai', 'Selesai', 'Pembimbing lapangan', 'TS', 'Keadaan', 'Berkas']],
+    Lomba: [['No', 'NIM', 'Nama', 'Kegiatan', 'Penyelenggara', 'Tingkat', 'Bidang', 'Capaian', 'Tanggal', 'Anggota lain', 'Pembimbing', 'TS', 'Status']],
+    'Instansi KP': [['Instansi', 'Mahasiswa', 'KP selesai', 'KP berjalan']],
+    Berkas: [['NIM', 'Nama', 'Jenis pengajuan', 'Jenis berkas', 'Nama berkas', 'Tautan']],
+  };
+  kp.forEach((p, i) => {
+    const s = p.data_selesai || {};
+    L.KP.push([i + 1, p.nim, p.nama, p.data?.instansi || '', pemb(p), s.tanggal_mulai || p.data?.rencana_mulai || '',
+      s.tanggal_selesai || p.data?.rencana_selesai || '', [s.pembimbing_lapangan, s.jabatan_lapangan].filter(Boolean).join(', '),
+      tsTeks(p), LABEL_KEADAAN[keadaanKP(p)], (p.pengajuan_berkas || []).length]);
+  });
+  lomba.forEach((p, i) => {
+    const d = p.data || {};
+    L.Lomba.push([i + 1, p.nim, p.nama, d.nama_kegiatan || '', d.penyelenggara || '', (TINGKAT.find(t => t[0] === d.tingkat) || [, ''])[1],
+      (BIDANG.find(t => t[0] === d.bidang) || [, ''])[1], d.capaian || '', d.tanggal || '', teksAnggota(d.anggota).replace(/\n/g, '; '),
+      pemb(p), tsTeks(p), labelStatus(p)]);
+  });
+  rekapPengajuan(xs).instansi.forEach(x => L['Instansi KP'].push([x.instansi, x.mahasiswa, x.selesai, x.berjalan]));
+  [...kp, ...lomba].forEach(p => (p.pengajuan_berkas || []).forEach(b => L.Berkas.push([p.nim, p.nama, JENIS[p.jenis]?.singkat || p.jenis,
+    LABEL_BERKAS[b.jenis] || b.jenis, b.nama || '', b.url ? { t: b.url, l: b.url } : ''])));
+  return L;
+}

@@ -15,7 +15,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-17-6522d9">
+<link rel="stylesheet" href="tema.css?v=2026-11-17-a5130e">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:#fff;color:var(--ink);font-family:var(--sans);font-size:15.5px;line-height:1.6;-webkit-font-smoothing:antialiased}
@@ -158,9 +158,9 @@
   .pres .kartu{padding:0;overflow:hidden;display:flex;flex-direction:column}
   .pres img{width:100%;aspect-ratio:16/10;object-fit:cover;display:block;background:var(--biru-m10)}
   /* Tanpa foto: pita tipis, bukan kotak kosong (pemilik 2026-11-16). */
-  .pres .tanpa-foto{display:flex;align-items:center;gap:10px;padding:12px 18px;background:var(--biru);color:#fff;
+  .pres .tanpa-foto, .kabar .tanpa-foto{display:flex;align-items:center;gap:10px;padding:12px 18px;background:var(--biru);color:#fff;
     border-bottom:3px solid var(--aksen);font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase}
-  .pres .tanpa-foto span{font-size:22px;letter-spacing:0}
+  .pres .tanpa-foto span, .kabar .tanpa-foto span{font-size:22px;letter-spacing:0}
   .pres .isi{padding:16px 18px 18px}
   .pres .isi h3{font-size:20px;margin:6px 0 2px}
   .pres .lomba{font-weight:600;color:var(--ink);font-size:14.5px}
@@ -213,11 +213,12 @@
     </section>
   </div>
 
-  <!-- Kabar kegiatan terbit (pemilik 2026-11-16). -->
+  <!-- Kegiatan prodi terbaru dengan foto (pemilik 2026-11-17): kabar kegiatan terbit (kuliah tamu, kuliah lapangan,
+       seminar, penelitian, pengabdian, ...). Penelitian/PkM dosen tetap di bagian "Riset dan pengabdian" di bawah. -->
   <div class="kotak">
     <section aria-labelledby="jKabar" id="bKabar" hidden>
-      <div class="kepala-bag"><div><div class="eyebrow">Kabar kegiatan</div><h2 id="jKabar">Kabar terbaru</h2></div>
-        <a class="lagi" href="kabar.html">Semua kabar &rarr;</a></div>
+      <div class="kepala-bag"><div><div class="eyebrow">Kegiatan program studi</div><h2 id="jKabar">Kegiatan prodi terbaru</h2></div>
+        <a class="lagi" href="kabar.html">Semua kegiatan &rarr;</a></div>
       <div class="grid g3 kabar" id="kabar"></div>
     </section>
   </div>
@@ -226,7 +227,7 @@
   <div class="latar" id="bRiset" hidden>
     <div class="kotak dua">
       <section aria-labelledby="jRiset">
-        <div class="kepala-bag"><div><div class="eyebrow">Riset dan pengabdian</div><h2 id="jRiset">Kegiatan terbaru</h2></div>
+        <div class="kepala-bag"><div><div class="eyebrow">Riset dan pengabdian</div><h2 id="jRiset">Penelitian dan pengabdian terbaru</h2></div>
           <a class="lagi" href="daftar.html?jenis=penelitian">Semua &rarr;</a></div>
         <div class="grid grid2" id="riset"></div>
       </section>
@@ -273,7 +274,7 @@
 
 </main>
 
-<script src="config.js?v=2026-11-17-6522d9"></script>
+<script src="config.js?v=2026-11-17-a5130e"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -291,8 +292,8 @@ addEventListener('error', function (e) {
 // Beranda program studi (pemilik 2026-11-16). Data dari data.json (bangun.py); pita dari RPC publik.
 // Isi yang belum ada (config.yaml public_site: tagline, kontak, media sosial, PMB) tidak ditampilkan.
 // Dasbor kinerja yang dulu di sini pindah ke kinerja.html.
-import { pasangKerangka, isiKerangka } from './kerangka.js?v=2026-11-17-6522d9';
-import { halamanAktif } from './fitur.js?v=2026-11-17-6522d9';
+import { pasangKerangka, isiKerangka } from './kerangka.js?v=2026-11-17-a5130e';
+import { halamanAktif } from './fitur.js?v=2026-11-17-a5130e';
 pasangKerangka({ aktif: '' });
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -359,14 +360,16 @@ function gambar(d){
     $('hLencana').hidden = false;
   }
 
-  // Kabar kegiatan terbit terbaru, paling banyak 3.
+  // Kegiatan prodi terbaru dengan foto (pemilik 2026-11-17): kabar kegiatan terbit, terbaru dulu, 6 kartu.
   const JENIS_KABAR = { kuliah_tamu: 'Kuliah tamu', kunjungan_lapangan: 'Kuliah/kunjungan lapangan', seminar: 'Seminar',
-    pengabdian: 'Pengabdian', kerja_praktik: 'Kerja praktik', kompetisi: 'Kompetisi', kerja_sama: 'Kerja sama', lainnya: 'Kegiatan' };
-  const kabar = (d.kabar || []).slice(0, 3);
+    penelitian: 'Penelitian', pengabdian: 'Pengabdian', kerja_praktik: 'Kerja praktik', kompetisi: 'Kompetisi', kerja_sama: 'Kerja sama',
+    lainnya: 'Kegiatan' };
+  const kabar = [...(d.kabar || [])].sort((a, b) => String(b.tanggal || '').localeCompare(String(a.tanggal || ''))).slice(0, 6);
   if (kabar.length) {
     $('kabar').innerHTML = kabar.map(x => `<a class="kartu" href="kabar.html#kabar-${esc(x.id)}">
-      ${x.foto?.length ? `<img src="${esc(x.foto[0])}" alt="${esc(x.judul)}" loading="lazy">` : ''}
-      <div class="isi"><div class="meta"><span class="tag">${esc(JENIS_KABAR[x.jenis] || 'Kegiatan')}</span>${esc(String(x.tanggal || '').split('-').reverse().join('/'))}</div>
+      ${x.foto?.length ? `<img src="${esc(x.foto[0])}" alt="${esc(x.judul)}" loading="lazy">`
+        : `<div class="tanpa-foto"><span aria-hidden="true">&#128247;</span>${esc(JENIS_KABAR[x.jenis] || 'Kegiatan')}</div>`}
+      <div class="isi"><div class="meta"><span class="tag${x.jenis === 'pengabdian' ? ' pkm' : ''}">${esc(JENIS_KABAR[x.jenis] || 'Kegiatan')}</span>${esc(String(x.tanggal || '').split('-').reverse().join('/'))}</div>
       <h3>${esc(x.judul)}</h3><p>${esc(x.ringkasan)}</p></div></a>`).join('');
     $('bKabar').hidden = false;
   }
@@ -450,7 +453,7 @@ function gambar(d){
 }
 
 function pasangCari(D){
-  import('./cari.js?v=2026-11-17-6522d9').then(m => {
+  import('./cari.js?v=2026-11-17-a5130e').then(m => {
     const idx = m.indeksPublik(D, k => !(window.FITUR_MATI || []).includes(k));
     const kotak = $('cariUmum'), panel = $('hasilUmum');
     let aktif = -1;

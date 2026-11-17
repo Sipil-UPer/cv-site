@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-17-6522d9">
+<link rel="stylesheet" href="tema.css?v=2026-11-17-a5130e">
 <style>
   /* Pengajuan mahasiswa, publik tanpa login (pemilik 2026-11-17; patch 90). Warna dari tema.css. */
   *{box-sizing:border-box}
@@ -73,7 +73,7 @@
   <h1>Pengajuan KP dan laporan lomba</h1><div class="prodi" id="hProdi"></div>
 </div></header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-17-6522d9"></script>
+<script src="config.js?v=2026-11-17-a5130e"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -94,7 +94,7 @@ addEventListener('error', function (e) {
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
 import { JENIS, LABEL_BERKAS, LABEL_STATUS, TINGKAT, BIDANG, jalur, bolehUbah, bacaAnggota, teksAnggota,
          periksaIsian, judulPengajuan, keB64, bukaIsi, appsScript, labelStatus, jalurTahap, BERKAS_SELESAI,
-         periksaSelesai } from './pengajuan-mhs.js?v=2026-11-17-6522d9';
+         periksaSelesai } from './pengajuan-mhs.js?v=2026-11-17-a5130e';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
