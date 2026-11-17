@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-17-7af87a">
-<link rel="stylesheet" href="kepala.css?v=2026-11-17-7af87a">
+<link rel="stylesheet" href="tema.css?v=2026-11-17-1c2aa1">
+<link rel="stylesheet" href="kepala.css?v=2026-11-17-1c2aa1">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
@@ -60,7 +60,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-17-7af87a"></script>
+<script src="config.js?v=2026-11-17-1c2aa1"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -79,7 +79,7 @@ addEventListener('error', function (e) {
 // Dosen dan admin mengajukan kabar beserta foto; admin menerbitkan. Kabar terbit tampil di
 // beranda dan kabar.html (dibangun bangun.py tiap jam, foto disalin dari Drive).
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-17-7af87a';
+import { gerbang } from './menu.js?v=2026-11-17-1c2aa1';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
@@ -173,7 +173,7 @@ function isiForm(r){
   $('fJ').value = r?.judul || ''; $('fT').value = r?.tanggal || new Date().toLocaleDateString('sv');
   $('fJn').value = r?.jenis || 'kuliah_tamu'; $('fTp').value = r?.tempat || '';
   $('fR').value = r?.ringkasan || ''; $('fU').value = r?.tautan || '';
-  $('fSimpan').textContent = r ? 'Simpan' : 'Ajukan';
+  $('fSimpan').textContent = r ? 'Simpan' : admin() ? 'Terbitkan' : 'Ajukan';
   $('fBatal').hidden = !r; tulis('', ''); gambarFoto();
   if (ADA88) {
     BUKTI = r ? [...(r.bukti || [])] : [];
@@ -266,14 +266,15 @@ async function simpan(){
   $('fSimpan').disabled = true;
   try {
     let q;
-    if (!SUNTING) q = sb.from('kabar_kegiatan').insert({ ...isi, status: 'diajukan', dilaporkan_oleh: SAYA.id });
+    // Kabar baru dari admin langsung terbit (pemilik 2026-11-17); dosen mengajukan lalu diverifikasi admin.
+    if (!SUNTING) q = sb.from('kabar_kegiatan').insert({ ...isi, status: admin() ? 'terbit' : 'diajukan', dilaporkan_oleh: SAYA.id });
     else if (admin()) q = sb.from('kabar_kegiatan').update(isi).eq('id', SUNTING.id);
     else q = sb.from('kabar_kegiatan').update({ ...isi, status: 'diajukan', catatan: null }).eq('id', SUNTING.id);
     const { error } = await q;
     if (error) throw error;
     const baru = !SUNTING;
     await muat(); isiForm(null);
-    tulis('ok', baru && !admin() ? 'Terkirim; admin akan menerbitkannya.' : 'Tersimpan.');
+    tulis('ok', baru ? (admin() ? 'Terbit; tampil di situs paling lambat sejam lagi.' : 'Terkirim; admin akan menerbitkannya.') : 'Tersimpan.');
   } catch (e) { tulis('buruk', 'Gagal: ' + (e.message || e)); }
   finally { $('fSimpan').disabled = false; }
 }
