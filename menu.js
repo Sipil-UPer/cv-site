@@ -1,5 +1,5 @@
-import { dosenLogin } from './dosen-login.js?v=2026-11-17-3404ab';
-import { aktifPada } from './koordinator.js?v=2026-11-17-3404ab';
+import { dosenLogin } from './dosen-login.js?v=2026-11-17-367525';
+import { aktifPada } from './koordinator.js?v=2026-11-17-367525';
 // Menu bersama ruang kerja (pemilik 2026-11-04).
 //
 // Situs dibagi dua:
@@ -25,7 +25,7 @@ const penyusun = s => admin(s) || (!!s.tim_penyusun && s.peran !== 'asesor');
 // Asesor, dan pimpinan yang bukan DTPS prodi ini (aktif=false), tidak mengisi karya.
 const isiKarya = s => s.peran !== 'asesor' && !(s.peran === 'pimpinan' && !s.aktif);
 
-import { halamanAktif } from './fitur.js?v=2026-11-17-3404ab';
+import { halamanAktif } from './fitur.js?v=2026-11-17-367525';
 
 export const MODUL = [
   // Susunan modul (pemilik 2026-11-17): mengikuti pembagian tugas koordinator prodi (kemahasiswaan,
@@ -39,6 +39,9 @@ export const MODUL = [
   { judul: 'Pembelajaran & CPL', ket: 'Berkas nilai CPL, capaian CPL, evaluasi pembelajaran, dan data kurikulum.', halaman: [
     { href: 'nilai-cpl.html', judul: 'Berkas nilai CPL', boleh: isiKarya,
       ket: 'Unggah Template_Input_Data_CPL per kelas (diperiksa sebelum dikirim, disimpan privat); admin: daftar kelas dan pengingat.' },
+    // CPMK dan RPS per MK (102-patch-cpmk-rps.sql, pemilik 2026-11-17, OBE O2): templat nilai CPL terisi per kelas.
+    { href: 'cpmk.html', judul: 'CPMK dan RPS', boleh: isiKarya,
+      ket: 'CPMK, Sub-CPMK, butir asesmen, bobot, dan RPS per mata kuliah; unduh templat nilai CPL yang sudah terisi per kelas.' },
     { href: 'monitoring.html#cpl', judul: 'Capaian CPL',
       ket: 'Ketercapaian CPL: grafik per angkatan, progres per semester, peta MK × CPL, kelas yang belum tercapai.' },
     // Evaluasi pembelajaran (68-patch-evaluasi-pembelajaran.sql): dosen miliknya, admin/pimpinan semua, asesor rekap prodi.
@@ -300,7 +303,7 @@ export async function pasangMenu(sb){
   // Pencarian menyeluruh (pemilik 2026-11-12; cari-ui.js, cari.js): dimuat saat pertama dipakai.
   const kotak = nav.querySelector('.rk-cari input');
   let siapCari = null;
-  const muatCari = () => siapCari || (siapCari = import('./cari-ui.js?v=2026-11-17-3404ab').then(m =>
+  const muatCari = () => siapCari || (siapCari = import('./cari-ui.js?v=2026-11-17-367525').then(m =>
     m.pasangCari(kotak, { sb, saya: u.saya, modul: halamanBoleh(u.saya), boleh: h => bolehBuka(u.saya, h) !== false })));
   kotak.addEventListener('focus', muatCari);
   document.addEventListener('keydown', e => {

@@ -621,7 +621,7 @@
    "judul": "Utilization of realtime GSMaP satellite data for flood early warning in Bekasi watershed using UPerRRM",
    "tahun": 2026,
    "tahun_ts": 2026,
-   "dari_kegiatan": null,
+   "dari_kegiatan": "Integrasi Data Satelit, Pemodelan Hidrologi, dan Machine Learning untuk Peringatan Dini Banjir JABODETABEK",
    "jenis": "jurnal",
    "terbitan": "International Journal of Disaster Management",
    "tingkat": "nasional",
@@ -1932,7 +1932,7 @@
     {
      "nama": "Tohoku University",
      "tingkat": "internasional",
-     "negara": "Japan"
+     "negara": "Jepang"
     },
     {
      "nama": "Toyama Prefectural University",
@@ -7588,7 +7588,7 @@
    {
     "tahun": 2026,
     "internasional": 0,
-    "nasional": 13,
+    "nasional": 11,
     "wilayah": 1,
     "tanpa_tingkat": 0,
     "pendidikan": 0

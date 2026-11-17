@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-17-3404ab">
-<link rel="stylesheet" href="kepala.css?v=2026-11-17-3404ab">
+<link rel="stylesheet" href="tema.css?v=2026-11-17-367525">
+<link rel="stylesheet" href="kepala.css?v=2026-11-17-367525">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
@@ -41,7 +41,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-17-3404ab"></script>
+<script src="config.js?v=2026-11-17-367525"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -61,9 +61,9 @@ addEventListener('error', function (e) {
 // di Drive prodi lewat Apps Script. Admin mengimpor daftar kelas, memantau yang belum,
 // dan mengirim pengingat. run_cpl.py mengunduh berkas dengan kunci CPL_KUNCI.
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-17-3404ab';
-import { tautanBerkas } from './tautan-privat.js?v=2026-11-17-3404ab';
-import { SHEETJS, VERSI_TEMPLAT, bacaLembar, periksaBerkas, bacaCSVKelas, statusKelas, periodeKelas, penerimaBelumUnggah } from './nilai-cpl.js?v=2026-11-17-3404ab';
+import { gerbang } from './menu.js?v=2026-11-17-367525';
+import { tautanBerkas } from './tautan-privat.js?v=2026-11-17-367525';
+import { SHEETJS, VERSI_TEMPLAT, bacaLembar, periksaBerkas, bacaCSVKelas, statusKelas, periodeKelas, penerimaBelumUnggah } from './nilai-cpl.js?v=2026-11-17-367525';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
@@ -96,13 +96,15 @@ function gambar(){
       privat di Drive prodi dan hanya admin yang bisa membukanya. Unggah ulang menggantikan versi sebelumnya (versi lama tetap tersimpan).</p>
     <p><a class="b" href="Template_Input_Data_CPL.xlsx" download>Unduh templat kosong (Template_Input_Data_CPL.xlsx, versi ${esc(VERSI_TEMPLAT.join(', '))})</a>
       <span class="ket">Hapus tiga baris contoh berwarna oranye di lembar Nilai, isi Info (termasuk Kelas), lalu simpan di Excel.</span></p>
+    <p class="ket">Lebih cepat: <b>templat terisi</b> per kelas (tautan di kolom MK) sudah memuat CPL, CPMK, butir asesmen, dan bobot dari halaman
+      <a href="cpmk.html">CPMK dan RPS</a>; tinggal isi NIM dan nilai.</p>
     ${ps.length ? `<div class="periode"><label class="ket">Periode <select id="periode">${ps.map(p => { const [a, s] = p.split('|');
       return `<option value="${esc(p)}"${p === PILIH ? ' selected' : ''}>${esc(a)} ${esc(s)}</option>`; }).join('')}</select></label>
       <span class="ket">${sudah} dari ${tampil.length} kelas sudah mengunggah.</span></div>` : ''}
     <div class="kartu"><h2>${ADMIN ? 'Semua kelas' : 'Kelas saya'}</h2>
       ${tampil.length ? `<div class="gulir"><table class="ds"><thead><tr><th>MK</th><th>Kelas</th>${ADMIN ? '<th>Dosen</th>' : ''}<th>Status</th><th>Unggah</th></tr></thead><tbody>
       ${tampil.map(k => { const boleh = ADMIN || milik.includes(k);
-        return `<tr><td><b>${esc(k.kode_mk)}</b> ${esc(k.nama_mk || '')}</td><td>${esc(k.kelas)}</td>
+        return `<tr><td><b>${esc(k.kode_mk)}</b> ${esc(k.nama_mk || '')}<br><a class="ket" href="cpmk.html?kode=${encodeURIComponent(k.kode_mk)}&kelas=${k.id}">templat terisi</a></td><td>${esc(k.kelas)}</td>
           ${ADMIN ? `<td>${esc(DOSEN.get(k.dosen_email.toLowerCase()) || k.dosen_email)}<br><small class="ket">${esc(k.dosen_email)}</small></td>` : ''}
           <td>${k.terakhir ? `<span class="sudah">sudah</span><br><small class="ket">${esc(tgl(k.terakhir.diunggah))} · versi ${k.versi}${ADMIN && k.terakhir.oleh ? ` · ${esc(k.terakhir.oleh)}` : ''}</small>
             ${ADMIN ? `<br><a href="${esc(k.terakhir.url)}" target="_blank" rel="noopener">buka berkas</a>` : ''}` : '<span class="belum">belum</span>'}</td>
