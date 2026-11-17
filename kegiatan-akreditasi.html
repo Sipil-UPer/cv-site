@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Kegiatan untuk akreditasi — Kinerja Program Studi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tema.css?v=2026-11-17-7af87a">
+<link rel="stylesheet" href="kepala.css?v=2026-11-17-7af87a">
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
+  .wrap{max-width:1120px;margin:0 auto;padding:18px 20px 80px}
+  .kosong, .ket{color:var(--muted)}
+  .ket{font-size:13px}
+  h2{font-size:17px;color:var(--biru);margin:22px 0 8px}
+  .ringkas{display:flex;flex-wrap:wrap;gap:10px;margin:6px 0 4px}
+  .ringkas button{font:inherit;text-align:left;background:var(--panel);border:1px solid var(--line);padding:8px 14px;cursor:pointer}
+  .ringkas button[aria-pressed="true"]{border-color:var(--biru);box-shadow:0 0 0 1px var(--biru)}
+  .ringkas b{font-family:var(--mono);font-size:20px;display:block}
+  .ringkas span{font-size:12.5px;color:var(--muted)}
+  .bulan{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:4px}
+  .bulan div{background:var(--panel);border:1px solid var(--line);text-align:center;padding:6px 2px}
+  .bulan div.ada{background:var(--biru-m10);border-color:var(--biru-m2)}
+  .bulan div.nol{border-color:var(--merah)}
+  .bulan b{display:block;font-family:var(--mono);font-size:18px}
+  .bulan small{font-size:11px;color:var(--muted)}
+  .catatan{font-size:13.5px;margin:6px 0 0}
+  .catatan.buruk{color:var(--merah)} .catatan.ok{color:var(--hijau)}
+  .saring{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:8px 0 10px;font-size:13.5px}
+  .saring select{font:inherit;font-size:14px;padding:5px 7px;border:1px solid var(--line);background:var(--panel);color:var(--ink)}
+  table{width:100%;border-collapse:collapse;background:var(--panel);border:1px solid var(--line);font-size:14px}
+  th{text-align:left;font-size:12px;color:var(--muted);font-weight:500;border-bottom:1px solid var(--line);padding:7px 10px;background:var(--bg)}
+  td{border-bottom:1px solid var(--line-soft);padding:8px 10px;vertical-align:top}
+  td .judul{font-weight:600}
+  td .sub{font-size:12.5px;color:var(--muted)}
+  .lbl{display:inline-block;font-size:11.5px;background:var(--biru-m10);color:var(--biru);padding:1px 6px;margin:0 3px 3px 0}
+  .bukti{margin:0;padding-left:16px;font-size:13px}
+  .bukti a{color:var(--biru-2)}
+  .tanpa{color:var(--merah);font-size:13px}
+  .internal{font-family:var(--mono);font-size:10.5px;text-transform:uppercase;color:var(--muted)}
+  @media(max-width:760px){.bulan{grid-template-columns:repeat(6,1fr)}thead{display:none}tr{display:block;border-bottom:1px solid var(--line)}td{display:block;border:0;padding:4px 10px}}
+</style>
+</head>
+<body>
+<header class="hero"><div class="hero-in">
+  <div class="hero-inst" data-identitas></div>
+  <h1>Kegiatan untuk akreditasi</h1>
+  <div class="sub" id="hSub">Memuat…</div>
+</div></header>
+<main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
+<script src="config.js?v=2026-11-17-7af87a"></script>
+<script>
+// Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
+addEventListener('error', function (e) {
+  if (document.getElementById('galat-muat')) return;
+  var d = document.createElement('div');
+  d.id = 'galat-muat';
+  d.style.cssText = 'margin:16px;padding:12px 14px;border:1px solid var(--merah);' +
+    'background:var(--merah-m3);color:var(--ink);font:14px/1.5 system-ui,sans-serif';
+  d.textContent = 'Halaman gagal dimuat: ' + (e.message || 'galat skrip') +
+    '. Tekan Ctrl+Shift+R untuk memuat ulang tanpa cache; bila tetap muncul, kirim pesan ini ke admin.';
+  document.body.insertBefore(d, document.body.firstChild);
+});
+</script>
+<script type="module">
+// Kegiatan prodi sebagai bukti pendukung akreditasi (pemilik 2026-11-17; 88-patch-kegiatan-akreditasi.sql):
+// kabar kegiatan yang sudah diterbitkan admin, dengan label keterkaitan butir, MK, narasumber, mitra, peserta,
+// dan berkas bukti. Bukti pendukung, bukan dasar skor. Agenda suasana akademik per bulan untuk butir 21
+// (skor 4 meminta mimbar akademik terjadwal setiap 1-2 bulan).
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
+import { gerbang } from './menu.js?v=2026-11-17-7af87a';
+
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const $ = id => document.getElementById(id);
+const sb = createClient(window.SB_URL, window.SB_KEY);
+const KAIT = [['suasana_akademik', 'Suasana akademik', 'butir 21'], ['pembelajaran', 'Pembelajaran / praktik lapangan', 'butir 16, 18'],
+  ['kerja_sama', 'Pelaksanaan kerja sama', 'butir 6–7'], ['pemangku', 'Pemangku eksternal', 'butir 13–14']];
+const JENIS = { kuliah_tamu: 'Kuliah tamu', kunjungan_lapangan: 'Kuliah/kunjungan lapangan', seminar: 'Seminar / lokakarya',
+  pengabdian: 'Pengabdian', kerja_praktik: 'Kerja praktik', kompetisi: 'Kompetisi', kerja_sama: 'Kerja sama', lainnya: 'Lainnya' };
+const BLN = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+const tgl = s => String(s || '').slice(0, 10).split('-').reverse().join('/');
+
+let SEMUA = [], KS = {}, PILIH = '';
+
+// 12 bulan terakhir (sampai bulan ini) dengan jumlah kegiatan suasana akademik, dan jeda terpanjang tanpa kegiatan.
+function agendaBulanan(xs){
+  const kini = new Date(), bulan = [];
+  for (let i = 11; i >= 0; i--) { const d = new Date(kini.getFullYear(), kini.getMonth() - i, 1);
+    bulan.push({ y: d.getFullYear(), m: d.getMonth(), n: 0 }); }
+  xs.filter(k => (k.keterkaitan || []).includes('suasana_akademik')).forEach(k => {
+    const [y, m] = String(k.tanggal).split('-').map(Number);
+    const b = bulan.find(b => b.y === y && b.m === m - 1); if (b) b.n++;
+  });
+  let jeda = 0, j = 0;
+  bulan.forEach(b => { j = b.n ? 0 : j + 1; jeda = Math.max(jeda, j); });
+  return { bulan, jeda };
+}
+
+function gambar(){
+  const th = $('fTahun').value;
+  const dasar = SEMUA.filter(k => !th || String(k.tanggal).startsWith(th));
+  const xs = dasar.filter(k => !PILIH || (k.keterkaitan || []).includes(PILIH));
+  $('ringkas').innerHTML = [['', 'Semua kegiatan terverifikasi', dasar.length],
+    ...KAIT.map(([k, l, b]) => [k, `${l} (${b})`, dasar.filter(x => (x.keterkaitan || []).includes(k)).length])]
+    .map(([k, l, n]) => `<button type="button" data-kait="${k}" aria-pressed="${PILIH === k}"><b>${n}</b><span>${esc(l)}</span></button>`).join('');
+  const { bulan, jeda } = agendaBulanan(SEMUA);
+  $('bulan').innerHTML = bulan.map(b => `<div class="${b.n ? 'ada' : 'nol'}"><b>${b.n}</b><small>${BLN[b.m]} ${String(b.y).slice(2)}</small></div>`).join('');
+  $('catatanBulan').className = 'catatan ' + (jeda <= 1 ? 'ok' : 'buruk');
+  $('catatanBulan').textContent = jeda <= 1 ? 'Agenda akademik terjadwal setidaknya tiap 1–2 bulan dalam 12 bulan terakhir.'
+    : `Ada ${jeda} bulan berturut-turut tanpa kegiatan suasana akademik; butir 21 meminta agenda terjadwal tiap 1–2 bulan.`;
+  $('daftar').innerHTML = xs.length ? `<table><thead><tr><th>Kegiatan</th><th>Keterkaitan</th><th>Rincian</th><th>Bukti</th></tr></thead><tbody>${
+    xs.map(k => `<tr><td><div class="judul">${esc(k.judul)}</div>
+        <div class="sub">${tgl(k.tanggal)} · ${esc(JENIS[k.jenis] || k.jenis)}${k.tempat ? ' · ' + esc(k.tempat) : ''}</div>
+        ${k.tampil_publik === false ? '<div class="internal">tidak tampil di situs</div>' : ''}</td>
+      <td>${(k.keterkaitan || []).map(x => `<span class="lbl">${esc((KAIT.find(y => y[0] === x) || [, x])[1])}</span>`).join('') || '<span class="ket">—</span>'}</td>
+      <td class="sub">${[k.narasumber && 'Narasumber: ' + k.narasumber, k.kerjasama_id && KS[k.kerjasama_id] && 'Mitra: ' + KS[k.kerjasama_id],
+        (k.mata_kuliah || []).length && 'MK: ' + k.mata_kuliah.join(', '), k.jumlah_mahasiswa != null && k.jumlah_mahasiswa + ' mahasiswa']
+        .filter(Boolean).map(esc).join('<br>') || '—'}</td>
+      <td>${(k.bukti || []).length ? `<ul class="bukti">${k.bukti.map((u, i) => `<li><a href="${esc(u)}" target="_blank" rel="noopener">Bukti ${i + 1}</a></li>`).join('')}</ul>`
+        : '<span class="tanpa">Belum ada bukti</span>'}${(k.foto || []).length ? `<div class="sub">${k.foto.length} foto</div>` : ''}</td></tr>`).join('')
+  }</tbody></table>` : '<p class="kosong">Belum ada kegiatan terverifikasi untuk saringan ini.</p>';
+  document.querySelectorAll('[data-kait]').forEach(b => { b.onclick = () => { PILIH = b.dataset.kait; gambar(); }; });
+}
+
+async function mulai(){
+  const saya = await gerbang(sb);
+  if (!saya) return;
+  $('hSub').textContent = `Masuk sebagai ${saya.nama}`;
+  const { data, error } = await sb.from('kabar_kegiatan')
+    .select('id,judul,tanggal,jenis,tempat,foto,status,keterkaitan,mata_kuliah,narasumber,kerjasama_id,jumlah_mahasiswa,bukti,tampil_publik')
+    .eq('status', 'terbit').order('tanggal', { ascending: false });
+  if (error) throw new Error(/keterkaitan|bukti/.test(error.message) ? 'Kolom akreditasi belum ada: jalankan supabase/88-patch-kegiatan-akreditasi.sql.' : error.message);
+  SEMUA = data || [];
+  const ks = await sb.from('lkps_kerjasama').select('id,mitra');
+  KS = Object.fromEntries((ks.data || []).map(k => [k.id, k.mitra]));
+  const tahun = [...new Set(SEMUA.map(k => String(k.tanggal).slice(0, 4)))].sort().reverse();
+  $('isi').innerHTML = `
+    <p class="ket">Kabar kegiatan yang sudah diterbitkan admin, dengan keterkaitan butir akreditasi dan berkas bukti. Ini <b>bukti
+      pendukung</b>, bukan dasar skor. Dosen mengajukan dan melengkapinya di <a href="kabar-kegiatan.html">Operasional › Kabar kegiatan</a>.</p>
+    <div class="ringkas" id="ringkas"></div>
+    <h2>Agenda suasana akademik, 12 bulan terakhir (butir 21)</h2>
+    <div class="bulan" id="bulan"></div><p class="catatan" id="catatanBulan"></p>
+    <h2>Daftar kegiatan</h2>
+    <div class="saring"><label>Tahun <select id="fTahun"><option value="">Semua</option>${tahun.map(t => `<option>${t}</option>`).join('')}</select></label>
+      <span class="ket">Klik angka di atas untuk menyaring menurut keterkaitan.</span></div>
+    <div id="daftar"></div>`;
+  $('fTahun').onchange = gambar;
+  gambar();
+}
+mulai().catch(e => { $('isi').innerHTML = `<p class="kosong">Gagal memuat: ${esc(e.message)}</p>`; });
+</script>
+</body>
+</html>

@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-17-3e2c29">
-<link rel="stylesheet" href="kepala.css?v=2026-11-17-3e2c29">
+<link rel="stylesheet" href="tema.css?v=2026-11-17-7af87a">
+<link rel="stylesheet" href="kepala.css?v=2026-11-17-7af87a">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
@@ -40,6 +40,17 @@
   .item .judul{font-weight:600;color:var(--ink);font-size:15px}
   .item .isi{white-space:pre-line;margin:6px 0;overflow-wrap:anywhere}
   .status{font-weight:600;text-transform:uppercase;letter-spacing:.05em;font-size:11px}
+  /* Bagian akreditasi (88-patch-kegiatan-akreditasi.sql) */
+  .akr{border:1px dashed var(--line);background:var(--bg);padding:10px 12px}
+  .akr-judul{font-weight:600;font-size:13.5px;color:var(--biru);margin-bottom:6px}
+  .lbl{font-size:13px;color:var(--muted);margin:8px 0 3px}
+  .cek-baris{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:2px 12px;font-size:13.5px}
+  .cek-baris label, .cek-satu{display:flex;gap:6px;align-items:flex-start;color:var(--ink);font-size:13.5px}
+  .cek-satu{margin-top:10px}
+  .pilih-mk{max-height:160px;overflow:auto;border:1px solid var(--line);background:var(--panel);padding:4px 8px;
+    display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1px 12px;font-size:13px}
+  .pilih-mk label{display:flex;gap:6px;align-items:flex-start}
+  .pilih-mk label[hidden]{display:none}
 </style>
 </head>
 <body>
@@ -49,7 +60,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-17-3e2c29"></script>
+<script src="config.js?v=2026-11-17-7af87a"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -68,20 +79,24 @@ addEventListener('error', function (e) {
 // Dosen dan admin mengajukan kabar beserta foto; admin menerbitkan. Kabar terbit tampil di
 // beranda dan kabar.html (dibangun bangun.py tiap jam, foto disalin dari Drive).
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-17-3e2c29';
+import { gerbang } from './menu.js?v=2026-11-17-7af87a';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
 const sb = createClient(window.SB_URL, window.SB_KEY);
 const tgl = s => String(s || '').slice(0, 10).split('-').reverse().join('/');
-const JENIS = [['kuliah_tamu', 'Kuliah tamu'], ['kunjungan_lapangan', 'Kunjungan lapangan'], ['seminar', 'Seminar / lokakarya'],
+const JENIS = [['kuliah_tamu', 'Kuliah tamu'], ['kunjungan_lapangan', 'Kuliah/kunjungan lapangan'], ['seminar', 'Seminar / lokakarya'],
   ['pengabdian', 'Pengabdian kepada masyarakat'], ['kerja_praktik', 'Kerja praktik'], ['kompetisi', 'Kompetisi'],
   ['kerja_sama', 'Kerja sama'], ['lainnya', 'Lainnya']];
 const STATUS = { diajukan: 'Menunggu terbit', terbit: 'Terbit', ditolak: 'Ditolak' };
 const FOTO_EXT = ['jpg', 'jpeg', 'png'];
 const MAKS_FOTO = 6;
 
-let SAYA = null, DATA = [], SUNTING = null, FOTO = [];
+let SAYA = null, DATA = [], SUNTING = null, FOTO = [], BUKTI = [];
+// Bukti pendukung akreditasi (88-patch-kegiatan-akreditasi.sql); ADA88 = patch sudah dijalankan.
+let ADA88 = false, MK = [], KS = [];
+const KAIT = [['suasana_akademik', 'Suasana akademik (butir 21)'], ['pembelajaran', 'Proses pembelajaran / praktik lapangan (butir 16, 18)'],
+  ['kerja_sama', 'Pelaksanaan kerja sama (butir 6–7)'], ['pemangku', 'Keterlibatan pemangku eksternal (butir 13–14)']];
 const admin = () => SAYA?.peran === 'admin';
 const milik = r => r.dilaporkan_oleh === SAYA.id;
 
@@ -128,6 +143,7 @@ function kerangka(){
         <label class="lebar">Ringkasan (20–1200 huruf)<textarea id="fR" maxlength="1200"
           placeholder="Apa kegiatannya, siapa yang terlibat, dan apa hasilnya."></textarea></label>
         <label class="lebar">Tautan (opsional)<input id="fU" type="url" placeholder="https://"></label>
+        ${ADA88 ? htmlAkreditasi() : ''}
         <div class="lebar"><label style="font-size:13px;color:var(--muted)">Foto (JPG/PNG, maks. ${MAKS_FOTO})</label>
           <div class="aksi" style="margin-top:4px"><input id="fF" type="file" accept=".jpg,.jpeg,.png" multiple>
             <button class="b" type="button" id="fUnggah">Unggah foto</button></div>
@@ -139,6 +155,7 @@ function kerangka(){
     ${admin() ? `<div class="kartu"><h2>Menunggu terbit</h2><div id="antre"></div></div>` : ''}
     <div class="kartu"><h2>${admin() ? 'Semua kabar' : 'Kabar saya'}</h2><div id="daftar"></div></div>`;
   $('fUnggah').onclick = unggah;
+  if (ADA88) { $('fBUnggah').onclick = unggahBukti; $('fMkCari').oninput = saringMk; }
   $('fSimpan').onclick = simpan;
   $('fBatal').onclick = () => isiForm(null);
   $('isi').addEventListener('click', klik);
@@ -158,6 +175,67 @@ function isiForm(r){
   $('fR').value = r?.ringkasan || ''; $('fU').value = r?.tautan || '';
   $('fSimpan').textContent = r ? 'Simpan' : 'Ajukan';
   $('fBatal').hidden = !r; tulis('', ''); gambarFoto();
+  if (ADA88) {
+    BUKTI = r ? [...(r.bukti || [])] : [];
+    document.querySelectorAll('[data-kait]').forEach(c => { c.checked = (r?.keterkaitan || []).includes(c.dataset.kait); });
+    document.querySelectorAll('#fMk input').forEach(c => { c.checked = (r?.mata_kuliah || []).includes(c.value); });
+    $('fNs').value = r?.narasumber || ''; $('fKs').value = r?.kerjasama_id ?? ''; $('fJm').value = r?.jumlah_mahasiswa ?? '';
+    $('fTampil').checked = r ? r.tampil_publik !== false : true;
+    $('fMkCari').value = ''; saringMk(); gambarBukti();
+  }
+}
+
+// Bagian akreditasi (pemilik 2026-11-17): opsional, sebagai bukti pendukung (bukan dasar skor).
+function htmlAkreditasi(){
+  return `<div class="lebar akr"><div class="akr-judul">Untuk akreditasi (opsional) · bukti pendukung, bukan dasar skor</div>
+    <div class="lbl">Keterkaitan</div>
+    <div class="cek-baris">${KAIT.map(([k, l]) => `<label><input type="checkbox" data-kait="${k}"> ${l}</label>`).join('')}</div>
+    <div class="grid">
+      <label>Narasumber dan instansinya<input id="fNs" maxlength="300" placeholder="Ir. Nama, M.T. — PT Contoh"></label>
+      <label>Kerja sama induk<select id="fKs"><option value="">(tidak ada)</option>${KS.map(k =>
+        `<option value="${k.id}">${esc(k.mitra)}${k.kegiatan ? ' — ' + esc(k.kegiatan) : ''}</option>`).join('')}</select></label>
+      <label>Jumlah mahasiswa peserta<input id="fJm" type="number" min="0" max="5000"></label>
+    </div>
+    <div class="lbl">Mata kuliah terkait <input id="fMkCari" type="search" placeholder="cari kode/nama" style="margin-left:6px"></div>
+    <div class="pilih-mk" id="fMk">${MK.map(m => `<label data-cari="${esc((m.kode + ' ' + m.nama).toLowerCase())}">
+      <input type="checkbox" value="${esc(m.kode)}"> ${esc(m.kode)} — ${esc(m.nama)}</label>`).join('') || '<span class="ket">Daftar MK kosong.</span>'}</div>
+    <div class="lbl">Bukti pendukung (daftar hadir, laporan, materi; PDF/JPG/PNG/DOCX, maks. 10; tidak tampil di situs)</div>
+    <div class="aksi" style="margin-top:2px"><input id="fBBerkas" type="file" multiple>
+      <button class="b" type="button" id="fBUnggah">Unggah bukti</button></div>
+    <div class="foto" id="fBukti"></div>
+    <label class="cek-satu"><input type="checkbox" id="fTampil" checked> Tampil di situs publik (beranda dan Kabar kegiatan)</label>
+  </div>`;
+}
+function saringMk(){
+  const q = ($('fMkCari')?.value || '').trim().toLowerCase();
+  document.querySelectorAll('#fMk label').forEach(l => { l.hidden = !!q && !l.dataset.cari.includes(q) && !l.querySelector('input').checked; });
+}
+function gambarBukti(){
+  $('fBukti').innerHTML = BUKTI.map((u, i) => `<span><a href="${esc(u)}" target="_blank" rel="noopener">Bukti ${i + 1}</a>
+    <button class="b" type="button" data-buang-bukti="${i}">×</button></span>`).join('');
+}
+// Bukti ke Drive lewat Apps Script (privat: daftar hadir memuat nama); kelompok "Kabar - <judul>".
+async function unggahBukti(){
+  const f = [...$('fBBerkas').files], judul = $('fJ').value.trim(), tanggal = $('fT').value;
+  if (!f.length) return tulis('buruk', 'Pilih berkas bukti dulu.');
+  if (!judul || !tanggal) return tulis('buruk', 'Isi judul dan tanggal dulu; keduanya menjadi nama folder bukti.');
+  if (BUKTI.length + f.length > 10) return tulis('buruk', 'Paling banyak 10 bukti.');
+  $('fBUnggah').disabled = true;
+  try {
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) throw new Error('Sesi login habis. Muat ulang halaman.');
+    for (let i = 0; i < f.length; i++) {
+      tulis('', `Mengunggah bukti ${i + 1}/${f.length}: ${f[i].name}…`);
+      const res = await fetch(window.UPLOAD_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ token: session.access_token, kind: 'karya', year: tanggal.slice(0, 4), group: `Kabar - ${judul}`,
+                               privat: true, filename: `Bukti - ${f[i].name}`, data: await keB64(f[i]) }) });
+      const out = await res.json();
+      if (!out.ok) throw new Error(out.error || 'Unggah gagal.');
+      BUKTI.push(out.url);
+    }
+    $('fBBerkas').value = ''; gambarBukti(); tulis('ok', 'Bukti terunggah; tekan Simpan/Ajukan.');
+  } catch (e) { tulis('buruk', e.message || String(e)); }
+  finally { $('fBUnggah').disabled = false; }
 }
 
 async function unggah(){
@@ -175,6 +253,12 @@ async function simpan(){
   const isi = { judul: $('fJ').value.trim(), tanggal: $('fT').value, jenis: $('fJn').value,
     tempat: $('fTp').value.trim() || null, ringkasan: $('fR').value.trim(), tautan: $('fU').value.trim() || null,
     foto: FOTO, oleh: SAYA.email, diperbarui: new Date().toISOString() };
+  if (ADA88) Object.assign(isi, {
+    keterkaitan: [...document.querySelectorAll('[data-kait]:checked')].map(c => c.dataset.kait),
+    mata_kuliah: [...document.querySelectorAll('#fMk input:checked')].map(c => c.value).slice(0, 10),
+    narasumber: $('fNs').value.trim() || null, kerjasama_id: $('fKs').value ? +$('fKs').value : null,
+    jumlah_mahasiswa: $('fJm').value === '' ? null : Math.max(0, Math.round(+$('fJm').value)),
+    bukti: BUKTI, tampil_publik: $('fTampil').checked });
   if (isi.judul.length < 3) return tulis('buruk', 'Judul minimal 3 huruf.');
   if (!isi.tanggal) return tulis('buruk', 'Isi tanggal kegiatan.');
   if (isi.ringkasan.length < 20) return tulis('buruk', 'Ringkasan minimal 20 huruf.');
@@ -203,6 +287,7 @@ async function ubahStatus(id, status, catatan){
 async function klik(ev){
   const t = ev.target.closest('button'); if (!t) return;
   if (t.dataset.buangFoto != null) { FOTO.splice(+t.dataset.buangFoto, 1); gambarFoto(); return; }
+  if (t.dataset.buangBukti != null) { BUKTI.splice(+t.dataset.buangBukti, 1); gambarBukti(); return; }
   const r = DATA.find(x => String(x.id) === (t.dataset.ubah || t.dataset.hapus || t.dataset.terbit || t.dataset.tolak || t.dataset.tarik));
   if (!r) return;
   if (t.dataset.ubah) { isiForm(r); $('fJudul').scrollIntoView({ behavior: 'smooth' }); }
@@ -221,7 +306,9 @@ function htmlItem(r){
   const jenis = (JENIS.find(j => j[0] === r.jenis) || [, r.jenis])[1];
   const bolehUbah = admin() || (milik(r) && r.status !== 'terbit');
   return `<div class="item ${esc(r.status)}"><div class="kepala"><span class="status">${STATUS[r.status] || esc(r.status)}</span>
-      <span>${tgl(r.tanggal)} · ${esc(jenis)}${r.tempat ? ' · ' + esc(r.tempat) : ''}</span><span>${(r.foto || []).length} foto</span></div>
+      <span>${tgl(r.tanggal)} · ${esc(jenis)}${r.tempat ? ' · ' + esc(r.tempat) : ''}</span><span>${(r.foto || []).length} foto</span>${ADA88 ? `<span>${(r.bukti || []).length} bukti</span>${
+      r.tampil_publik === false ? '<span class="status">tidak tampil di situs</span>' : ''}` : ''}</div>
+    ${ADA88 && (r.keterkaitan || []).length ? `<div class="ket">Akreditasi: ${(r.keterkaitan || []).map(k => esc((KAIT.find(x => x[0] === k) || [, k])[1])).join(' · ')}</div>` : ''}
     <div class="judul">${esc(r.judul)}</div><div class="isi">${esc(r.ringkasan)}</div>
     ${r.catatan ? `<div class="ket">Catatan admin: ${esc(r.catatan)}</div>` : ''}
     <div class="aksi">${bolehUbah ? `<button class="b" data-ubah="${r.id}">Ubah</button><button class="b bahaya" data-hapus="${r.id}">Hapus</button>` : ''}
@@ -243,6 +330,13 @@ async function mulai(){
   SAYA = await gerbang(sb);
   if (!SAYA) return;
   $('hSub').textContent = `Masuk sebagai ${SAYA.nama}`;
+  ADA88 = !(await sb.from('kabar_kegiatan').select('keterkaitan').limit(1)).error;
+  if (ADA88) {
+    const [m, k] = await Promise.all([sb.from('ref_mata_kuliah').select('kode,nama,kurikulum').order('kode'),
+                                      sb.from('lkps_kerjasama').select('id,mitra,kegiatan').order('mitra')]);
+    MK = [...new Map((m.data || []).map(x => [x.kode, x])).values()];
+    KS = k.data || [];
+  }
   kerangka();
   await muat();
 }
