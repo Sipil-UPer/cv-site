@@ -41,3 +41,34 @@ export function lembarTA(rows, dosen = {}, tsTeks = () => ''){
     d.uji, ...TAHAP.map(([k]) => d[`uji_${k}`])]));
   return L;
 }
+
+// ---------- Revisi setelah seminar/sidang (95-patch-revisi-ta.sql) ----------
+export const HARI_REVISI = 14;   // pengingat mulai 14 hari sebelum batas (sama dengan HARI_DEKAT temuan AMI)
+const hariKe = (tgl, kini) => Math.round((Date.parse(tgl + 'T00:00:00Z') - Date.parse(kini.toISOString().slice(0, 10) + 'T00:00:00Z')) / 864e5);
+
+// Revisi yang belum selesai: hasil lulus_revisi, revisi_selesai kosong. hari = sisa hari ke batas (negatif = lewat; null = tanpa batas).
+export function revisiBerjalan(rows, kini = new Date()){
+  return (rows || []).filter(r => r.hasil === 'lulus_revisi' && !r.revisi_selesai && r.status !== 'batal')
+    .map(r => ({ ...r, hari: r.batas_revisi ? hariKe(r.batas_revisi, kini) : null }))
+    .sort((a, b) => (a.hari ?? 1e9) - (b.hari ?? 1e9));
+}
+
+// Penerima email pengingat: mahasiswa (email kampus dari pengajuan) dan pembimbing (dikumpulkan per dosen).
+// Hanya revisi yang batasnya sudah lewat atau tinggal <= hariDekat. dosen = NIDN -> {nama, email}; email = jadwal id -> email mahasiswa.
+export function penerimaRevisi(rows, dosen = {}, email = new Map(), kini = new Date(), hariDekat = HARI_REVISI){
+  const xs = revisiBerjalan(rows, kini).filter(r => r.hari != null && r.hari <= hariDekat);
+  const lbl = k => (TAHAP.find(t => t[0] === k) || [, 'TA'])[1].toLowerCase();
+  const teks = r => `- ${r.nama_mahasiswa}: revisi ${lbl(r.tahap)} "${r.judul}", batas ${r.batas_revisi}`
+    + (r.hari < 0 ? ` (lewat ${-r.hari} hari)` : r.hari === 0 ? ' (hari ini)' : ` (${r.hari} hari lagi)`);
+  const out = [], tanpaEmail = [], per = new Map();
+  for (const r of xs) {
+    const e = email.get(r.id);
+    if (e) out.push({ nama: r.nama_mahasiswa, email: e, rinci: teks(r) }); else tanpaEmail.push(r);
+    for (const n of r.pembimbing || []) {
+      const d = dosen[n]; if (!d?.email) continue;
+      if (!per.has(d.email)) per.set(d.email, { nama: d.nama, email: d.email, baris: [] });
+      per.get(d.email).baris.push(teks(r));
+    }
+  }
+  return { penerima: [...out, ...[...per.values()].map(p => ({ nama: p.nama, email: p.email, rinci: p.baris.join('\n') }))], tanpaEmail };
+}

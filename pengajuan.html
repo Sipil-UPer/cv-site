@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-17-0fea5d">
+<link rel="stylesheet" href="tema.css?v=2026-11-17-c9b6c2">
 <style>
   /* Pengajuan mahasiswa, publik tanpa login (pemilik 2026-11-17; patch 90). Warna dari tema.css. */
   *{box-sizing:border-box}
@@ -75,7 +75,7 @@
   <h1>Pengajuan KP, seminar/sidang TA, laporan lomba, dan surat</h1><div class="prodi" id="hProdi"></div>
 </div></header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-17-0fea5d"></script>
+<script src="config.js?v=2026-11-17-c9b6c2"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -96,7 +96,7 @@ addEventListener('error', function (e) {
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
 import { JENIS, LABEL_BERKAS, LABEL_STATUS, TINGKAT, BIDANG, jalur, bolehUbah, bacaAnggota, teksAnggota,
          periksaIsian, judulPengajuan, keB64, bukaIsi, appsScript, labelStatus, jalurTahap, BERKAS_SELESAI,
-         periksaSelesai, JENIS_SURAT, TAHAP_TA } from './pengajuan-mhs.js?v=2026-11-17-0fea5d';
+         periksaSelesai, JENIS_SURAT, TAHAP_TA } from './pengajuan-mhs.js?v=2026-11-17-c9b6c2';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
@@ -311,7 +311,11 @@ function halamanSaya(){
         ['Jam', p.jadwal.jam], ['Ruang', p.jadwal.ruang], ['Tautan daring', p.jadwal.tautan_daring],
         ['Penguji', [...(p.jadwal.penguji || []), p.jadwal.penguji_luar].filter(Boolean).join(', ')]]
         .filter(([, v]) => v).map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join('')}</dl>
-      <p class="ket">Langkah berikutnya: input jadwal ini ke SIUP sesuai ketentuan universitas.</p></div>` : ''}
+      ${p.jadwal.hasil ? `<p><b>Hasil: ${esc({ lulus: 'Lulus', lulus_revisi: 'Lulus dengan revisi', mengulang: 'Mengulang' }[p.jadwal.hasil] || p.jadwal.hasil)}</b>${
+        p.jadwal.hasil === 'lulus_revisi' ? (p.jadwal.revisi_selesai ? ` · revisi selesai ${esc(p.jadwal.revisi_selesai)}`
+          : ` · batas revisi ${esc(p.jadwal.batas_revisi || '(belum ditetapkan)')}`) : ''}</p>
+        ${p.jadwal.catatan_revisi && !p.jadwal.revisi_selesai ? `<p class="ket" style="white-space:pre-line">Catatan revisi: ${esc(p.jadwal.catatan_revisi)}</p>` : ''}`
+      : '<p class="ket">Langkah berikutnya: input jadwal ini ke SIUP sesuai ketentuan universitas.</p>'}</div>` : ''}
     ${pengantar.length ? `<div class="kotak"><b>${p.jenis === 'surat' ? 'Surat dari prodi sudah terbit.' : 'Surat pengantar dari prodi sudah tersedia.'}</b>
       ${pengantar.map(b => `<button class="b" data-buka="${b.id}" style="margin-left:8px">Buka ${esc(b.nama || 'surat')}</button>`).join('')}</div>` : ''}
     ${jendelaSelesai ? `<div class="kotak"><b>Sudah selesai KP?</b> Isi laporan selesai di bawah, unggah <b>laporan KP</b> dan

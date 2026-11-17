@@ -1,11 +1,11 @@
 // "Tugas saya" di Ruang kerja (pemilik 2026-11-12): hal yang menunggu tindakan dosen yang
 // sedang masuk, dari data yang sudah boleh ia baca (RLS). Aturan tenggat sama dengan halaman
 // Pengingat: rapat.js, hibah.js, temuan-ami.js, pengingat-dosen.js.
-import { kurangProfil } from './pengingat-dosen.js?v=2026-11-17-0fea5d';
-import { tindakTerbuka, tglID } from './rapat.js?v=2026-11-17-0fea5d';
-import { tenggatBerikut, teksHari, HARI_LEWAT } from './hibah.js?v=2026-11-17-0fea5d';
-import { hariKeTenggat, labelStatus, HARI_DEKAT } from './temuan-ami.js?v=2026-11-17-0fea5d';
-import { tugasEvaluasi } from './evaluasi-pembelajaran.js?v=2026-11-17-0fea5d';
+import { kurangProfil } from './pengingat-dosen.js?v=2026-11-17-c9b6c2';
+import { tindakTerbuka, tglID } from './rapat.js?v=2026-11-17-c9b6c2';
+import { tenggatBerikut, teksHari, HARI_LEWAT } from './hibah.js?v=2026-11-17-c9b6c2';
+import { hariKeTenggat, labelStatus, HARI_DEKAT } from './temuan-ami.js?v=2026-11-17-c9b6c2';
+import { tugasEvaluasi } from './evaluasi-pembelajaran.js?v=2026-11-17-c9b6c2';
 
 const SELESAI_AMI = new Set(['selesai', 'ditutup']);
 const tingkat = h => h == null ? 'biasa' : h < 0 ? 'lewat' : h <= HARI_DEKAT ? 'dekat' : 'biasa';
@@ -21,7 +21,8 @@ const tgl10 = s => String(s || '').slice(0, 10);
  *   hibah: hibah_ajuan dengan hibah_tim [{dosen_id, peran}], temuan: ami_temuan,
  *   kelasCpl: cpl_kelas milik sendiri, berkasCpl: cpl_berkas [{kelas_id}],
  *   target: baris target-kinerja.js barisDosen tahun berjalan, tahunTarget,
- *   pengajuanMhs: pengajuan_mahasiswa yang terbaca [{nama, jenis, status, pembimbing_id, diperbarui}] }
+ *   pengajuanMhs: pengajuan_mahasiswa yang terbaca [{nama, jenis, status, pembimbing_id, diperbarui}],
+ *   revisiTa: jadwal_ta lulus_revisi belum selesai [{nama_mahasiswa, judul, pembimbing, hasil, batas_revisi, revisi_selesai}] }
  * Hasil [{ jenis, judul, rinci, href, hari, tingkat }], lewat tenggat dulu.
  * Asesor tidak punya tugas.
  */
@@ -99,6 +100,13 @@ export function tugasSaya(d, kini = new Date()){
     tambah('pengajuan_mhs', `Periksa ${mhs.length} pengajuan mahasiswa (KP/lomba)`,
       mhs.slice(0, 3).map(p => `${p.nama} (${p.jenis === 'kp' ? 'KP' : 'lomba'})`).join(', ') + (mhs.length > 3 ? ', …' : ''),
       'pengajuan-mahasiswa.html', 7 - Math.floor((+kini - tertua) / 864e5));
+  }
+
+  // Revisi setelah seminar/sidang TA (95-patch-revisi-ta.sql): untuk pembimbing mahasiswa itu; tenggat = batas revisi.
+  for (const r of d.revisiTa || []) {
+    if (!s.nidn || !(r.pembimbing || []).includes(s.nidn) || r.revisi_selesai || r.hasil !== 'lulus_revisi') continue;
+    const hari = r.batas_revisi ? Math.round((Date.parse(r.batas_revisi + 'T00:00:00Z') - Date.parse(kini.toISOString().slice(0, 10) + 'T00:00:00Z')) / 864e5) : null;
+    tambah('revisi_ta', `Revisi TA ${r.nama_mahasiswa}`, `${r.judul}${r.batas_revisi ? `; batas ${r.batas_revisi}` : '; batas belum diisi'}`, 'rekap-ta.html#revisi', hari);
   }
 
   return out.map((x, i) => [x, i]).sort(([a, i], [b, j]) => URUT[a.tingkat] - URUT[b.tingkat]

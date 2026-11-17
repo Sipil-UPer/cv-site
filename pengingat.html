@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-17-0fea5d">
-<link rel="stylesheet" href="kepala.css?v=2026-11-17-0fea5d">
+<link rel="stylesheet" href="tema.css?v=2026-11-17-c9b6c2">
+<link rel="stylesheet" href="kepala.css?v=2026-11-17-c9b6c2">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
@@ -72,7 +72,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-17-0fea5d"></script>
+<script src="config.js?v=2026-11-17-c9b6c2"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -93,16 +93,17 @@ addEventListener('error', function (e) {
 // Script (Code.gs kind 'kirim_pengingat', maks. 30 per kirim). Tidak ada yang
 // terkirim tanpa tombol Kirim.
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-17-0fea5d';
-import { tugasPerPihak } from './kelengkapan.js?v=2026-11-17-0fea5d';
-import { PIHAK } from './unsur-butir.js?v=2026-11-17-0fea5d';
-import { penerimaTemuan, HARI_DEKAT } from './temuan-ami.js?v=2026-11-17-0fea5d';
-import { daftarBerlaku, penerimaBerlaku, htmlBerlaku, HARI_SEGERA } from './masa-berlaku.js?v=2026-11-17-0fea5d';
-import { penerimaKarya, penerimaProfil, isiPola } from './pengingat-dosen.js?v=2026-11-17-0fea5d';
-import { penerimaTindak, HARI_TINDAK } from './rapat.js?v=2026-11-17-0fea5d';
-import { penerimaHibah, penerimaPanggilan, HARI_PENGINGAT } from './hibah.js?v=2026-11-17-0fea5d';
-import { penerimaRefleksi, penerimaTindakEval, HARI_TINDAK_EVAL } from './evaluasi-pembelajaran.js?v=2026-11-17-0fea5d';
-import { penerimaTarget } from './target-kinerja.js?v=2026-11-17-0fea5d';
+import { gerbang } from './menu.js?v=2026-11-17-c9b6c2';
+import { tugasPerPihak } from './kelengkapan.js?v=2026-11-17-c9b6c2';
+import { PIHAK } from './unsur-butir.js?v=2026-11-17-c9b6c2';
+import { penerimaTemuan, HARI_DEKAT } from './temuan-ami.js?v=2026-11-17-c9b6c2';
+import { daftarBerlaku, penerimaBerlaku, htmlBerlaku, HARI_SEGERA } from './masa-berlaku.js?v=2026-11-17-c9b6c2';
+import { penerimaKarya, penerimaProfil, isiPola } from './pengingat-dosen.js?v=2026-11-17-c9b6c2';
+import { penerimaTindak, HARI_TINDAK } from './rapat.js?v=2026-11-17-c9b6c2';
+import { penerimaHibah, penerimaPanggilan, HARI_PENGINGAT } from './hibah.js?v=2026-11-17-c9b6c2';
+import { penerimaRefleksi, penerimaTindakEval, HARI_TINDAK_EVAL } from './evaluasi-pembelajaran.js?v=2026-11-17-c9b6c2';
+import { penerimaRevisi, HARI_REVISI } from './rekap-ta.js?v=2026-11-17-c9b6c2';
+import { penerimaTarget } from './target-kinerja.js?v=2026-11-17-c9b6c2';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
@@ -187,13 +188,16 @@ function gambar(){
   const tanpa = xs => xs.length ? ` <b>${xs.length} proposal tanpa email ketua/tim</b> (${xs.map(a => esc(String(a.judul).slice(0, 40))).join(', ')}).` : '';
   // 7. Tindak lanjut rapat (62-patch-rapat.sql, rapat.js): ke PJ dosen.
   const tRapat = penerimaTindak(DATA.tindak);
+  // Revisi TA (95): mahasiswa dan pembimbing.
+  const perNidn = Object.fromEntries(dosen.filter(x => x.nidn).map(x => [x.nidn, { nama: x.nama, email: x.email }]));
+  const rTa = penerimaRevisi(DATA.revisi, perNidn, new Map(DATA.revisi.filter(r => r.pengajuan_mahasiswa?.email).map(r => [r.id, r.pengajuan_mahasiswa.email])));
   // 8. Pembaruan karya dan profil (pengingat-dosen.js, pemilik 2026-11-12): manual.
   const pKarya = penerimaKarya(dosen, DATA.karya, DATA.berBukti), pProfil = penerimaProfil(dosen);
   // 9. Evaluasi pembelajaran (68-patch) dan target kinerja (66-patch), pemilik 2026-11-12.
   const eRef = penerimaRefleksi(dosen, DATA.evaluasi), eTindak = penerimaTindakEval(dosen, DATA.tindakEval);
   const pTarget = penerimaTarget(dosen, DATA.tahunTarget, DATA.target);
   const J = { karya: pKarya, profil: pProfil, bkd: bkdBelum, tolak, pihak, ami, berlaku, hibah_ajuan: hAjuan.penerima, hibah_laporan: hLapor.penerima, panggilan: hPanggil.penerima,
-    rapat: tRapat.penerima, eval_refleksi: eRef.penerima, eval_tindak: eTindak.penerima, target: pTarget };
+    rapat: tRapat.penerima, revisi_ta: rTa.penerima, eval_refleksi: eRef.penerima, eval_tindak: eTindak.penerima, target: pTarget };
   const SETELAH = { panggilan: async () => {
     const ids = hPanggil.panggilan.map(p => p.id);
     if (ids.length) await sb.from('hibah_panggilan').update({ diumumkan: new Date().toISOString() }).in('id', ids);
@@ -247,6 +251,11 @@ function gambar(){
         (${hPanggil.panggilan.length} panggilan). Panggilan dicatat di <a href="hibah.html">Pengajuan hibah</a>; setelah terkirim ditandai "diumumkan".`,
         hPanggil.penerima, 'Info panggilan hibah penelitian dan PkM',
         `Yth. {nama},\n\nBerikut panggilan hibah yang sedang dibuka:\n{rinci}\n\nBila berminat, catat rencana proposal dan tim Anda di situs kinerja prodi agar tenggatnya ikut diingatkan:\n${situs}hibah.html\n\nTerima kasih.\n${PRODI}`))
+    + htmlJenis('revisi_ta', 'Revisi TA', `Hasil "lulus dengan revisi" yang belum dinyatakan selesai dan batasnya sudah lewat atau tinggal
+        ≤ ${HARI_REVISI} hari; ke mahasiswa (email kampus dari pendaftarannya) dan pembimbing.${rTa.tanpaEmail.length
+        ? ` <b>${rTa.tanpaEmail.length} mahasiswa tanpa email</b> (jadwal diisi manual di Data prodi): ingatkan langsung.` : ''}`, rTa.penerima,
+        'Pengingat batas revisi Tugas Akhir',
+        `Yth. {nama},\n\nRevisi Tugas Akhir berikut mendekati atau melewati batas:\n{rinci}\n\nMahasiswa: serahkan revisi kepada pembimbing. Pembimbing: setelah revisi diterima, tandai selesai di Rekap seminar/sidang TA:\n${situs}rekap-ta.html#revisi\n\nTerima kasih.\n${PRODI}`)
     + htmlJenis('rapat', 'Tindak lanjut rapat', `Keputusan rapat berstatus terbuka/proses yang tenggatnya sudah lewat (setahun terakhir) atau
         tinggal ≤ ${HARI_TINDAK} hari; dikirim ke PJ dosen.${tRapat.tanpaEmail.length ? ` <b>${tRapat.tanpaEmail.length} tindak lanjut tanpa PJ dosen</b>
         (PJ berupa nama/unit): ingatkan langsung.` : ''}${DATA.tindakGalat ? ` (${esc(DATA.tindakGalat)})` : ''}`, tRapat.penerima,
@@ -347,6 +356,9 @@ async function mulai(){
     sb.from('templat_email').select('*')]);
   ADA_TEMPLAT = !te.error;
   TEMPLAT = Object.fromEntries((te.data || []).map(t => [t.kunci, t]));
+  // Revisi TA (95-patch-revisi-ta.sql): email mahasiswa dari pengajuannya; tabel/kolom belum ada = kosong.
+  const rv = await sb.from('jadwal_ta').select('id,tahap,nama_mahasiswa,judul,pembimbing,hasil,status,batas_revisi,revisi_selesai,pengajuan_mahasiswa(email)')
+    .eq('hasil', 'lulus_revisi').is('revisi_selesai', null);
   const tr = await sb.from('rapat_tindak').select('id,keputusan,tenggat,status,pj_dosen_id,pj_nama,rapat(judul,tanggal)');
   // Evaluasi pembelajaran (68-patch) dan target kinerja tahun berjalan (66-patch); tabel belum ada = kosong.
   const th = new Date().getFullYear();
@@ -363,7 +375,7 @@ async function mulai(){
   const tindak = (tr.data || []).map(t => ({ ...t, pj: t.pj_dosen_id ? perId.get(t.pj_dosen_id) : { nama: t.pj_nama } }));
   DATA = { dosen: ds.data || [], bkd: bk.data || [], ditolak: kt.data || [], butirBukti: bb.data || [],
            berlaku, temuan: tm.data || [], temuanGalat: tm.error && !/does not exist|schema cache/i.test(tm.error.message) ? tm.error.message : '',
-           hibah: hb.data || [], panggilan: hp.data || [], tindak, saya: saya.email,
+           hibah: hb.data || [], panggilan: hp.data || [], tindak, saya: saya.email, revisi: rv.error ? [] : rv.data || [],
            karya: kr.data || [], berBukti: new Set((kb.data || []).map(x => x.karya_id)),
            tindakGalat: tr.error && !/does not exist|schema cache/i.test(tr.error.message) ? tr.error.message : '',
            evaluasiAda: !ev.error, evaluasi: ev.data || [], tindakEval: et.data || [], tahunTarget: th,
