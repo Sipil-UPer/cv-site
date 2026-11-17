@@ -1,12 +1,13 @@
 // "Tugas saya" di Ruang kerja (pemilik 2026-11-12): hal yang menunggu tindakan dosen yang
 // sedang masuk, dari data yang sudah boleh ia baca (RLS). Aturan tenggat sama dengan halaman
 // Pengingat: rapat.js, hibah.js, temuan-ami.js, pengingat-dosen.js.
-import { kurangProfil } from './pengingat-dosen.js?v=2026-11-17-395d5b';
-import { tindakTerbuka, tglID } from './rapat.js?v=2026-11-17-395d5b';
-import { tenggatBerikut, teksHari, HARI_LEWAT } from './hibah.js?v=2026-11-17-395d5b';
-import { hariKeTenggat, labelStatus, HARI_DEKAT } from './temuan-ami.js?v=2026-11-17-395d5b';
-import { tugasEvaluasi } from './evaluasi-pembelajaran.js?v=2026-11-17-395d5b';
-import { bolehPengajuan } from './koordinator.js?v=2026-11-17-395d5b';
+import { kurangProfil } from './pengingat-dosen.js?v=2026-11-17-349420';
+import { tindakTerbuka, tglID } from './rapat.js?v=2026-11-17-349420';
+import { tenggatBerikut, teksHari, HARI_LEWAT } from './hibah.js?v=2026-11-17-349420';
+import { hariKeTenggat, labelStatus, HARI_DEKAT } from './temuan-ami.js?v=2026-11-17-349420';
+import { tugasEvaluasi } from './evaluasi-pembelajaran.js?v=2026-11-17-349420';
+import { bolehPengajuan } from './koordinator.js?v=2026-11-17-349420';
+import { tugasMK } from './tugas-mk.js?v=2026-11-17-349420';
 
 const SELESAI_AMI = new Set(['selesai', 'ditutup']);
 const tingkat = h => h == null ? 'biasa' : h < 0 ? 'lewat' : h <= HARI_DEKAT ? 'dekat' : 'biasa';
@@ -23,7 +24,8 @@ const tgl10 = s => String(s || '').slice(0, 10);
  *   kelasCpl: cpl_kelas milik sendiri, berkasCpl: cpl_berkas [{kelas_id}],
  *   target: baris target-kinerja.js barisDosen tahun berjalan, tahunTarget,
  *   pengajuanMhs: pengajuan_mahasiswa yang terbaca [{nama, jenis, status, pembimbing_id, diperbarui}],
- *   revisiTa: jadwal_ta lulus_revisi belum selesai [{nama_mahasiswa, judul, pembimbing, hasil, batas_revisi, revisi_selesai}] }
+ *   revisiTa: jadwal_ta lulus_revisi belum selesai [{nama_mahasiswa, judul, pembimbing, hasil, batas_revisi, revisi_selesai}],
+ *   dataMK: data koordinator MK/pengampu untuk tugas-mk.js (null bila bukan keduanya) }
  * Hasil [{ jenis, judul, rinci, href, hari, tingkat }], lewat tenggat dulu.
  * Asesor tidak punya tugas.
  */
@@ -85,6 +87,9 @@ export function tugasSaya(d, kini = new Date()){
   // Evaluasi pembelajaran (68-patch-evaluasi-pembelajaran.sql): refleksi semester terbaru dan tindak lanjut ber-PJ saya.
   for (const x of tugasEvaluasi({ saya: s, evaluasi: d.evaluasi, tindakEval: d.tindakEval, perluTL: d.perluTL, tanpaBaris: d.tanpaBaris }, kini))
     tambah(x.jenis, x.judul, x.rinci, x.href, x.hari);
+
+  // Koordinator MK dan pengampu (pemilik 2026-11-17; tugas-mk.js): CPMK/RPS dan portofolio semester terbaru.
+  if (d.dataMK) for (const x of tugasMK({ saya: s, ...d.dataMK })) tambah(x.jenis, x.judul, x.rinci, x.href);
 
   // Target kinerja tahun berjalan (66-patch-target-dosen.sql): satu butir ringkas bila ada yang belum tercapai.
   const kurang = (d.target || []).filter(b => b.status !== 'tercapai');
