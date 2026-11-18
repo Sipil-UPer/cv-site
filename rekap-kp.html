@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-18-e8ee03">
-<link rel="stylesheet" href="kepala.css?v=2026-11-18-e8ee03">
+<link rel="stylesheet" href="tema.css?v=2026-11-18-aead89">
+<link rel="stylesheet" href="kepala.css?v=2026-11-18-aead89">
 <style>
   *{box-sizing:border-box}
   [hidden]{display:none !important}   /* .ubah berdisplay flex mengalahkan hidden */
@@ -48,7 +48,7 @@
 </div></header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
 <datalist id="daftarNama"></datalist>
-<script src="config.js?v=2026-11-18-e8ee03"></script>
+<script src="config.js?v=2026-11-18-aead89"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -69,11 +69,11 @@ addEventListener('error', function (e) {
 //   koordinator KP / admin : bakukan nama instansi, usulkan menjadi mitra atau tidak, bukti KP selesai + tautan asesor;
 //   asesor (akun)   : bukti KP selesai (laporan KP, surat selesai).
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-18-e8ee03';
-import { punya } from './koordinator.js?v=2026-11-18-e8ee03';
-import { appsScript, bukaIsi, waktuPengajuan } from './pengajuan-mhs.js?v=2026-11-18-e8ee03';
-import { rekapKP, buktiSelesai, dariRekap, rapiNama } from './rekap-kp.js?v=2026-11-18-e8ee03';
-import { opsiPeriode, cocokPeriode } from './sdgs-unduh.js?v=2026-11-18-e8ee03';
+import { gerbang } from './menu.js?v=2026-11-18-aead89';
+import { punya } from './koordinator.js?v=2026-11-18-aead89';
+import { appsScript, bukaIsi, waktuPengajuan } from './pengajuan-mhs.js?v=2026-11-18-aead89';
+import { rekapKP, buktiSelesai, dariRekap, rapiNama } from './rekap-kp.js?v=2026-11-18-aead89';
+import { opsiPeriode, cocokPeriode } from './sdgs-unduh.js?v=2026-11-18-aead89';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
@@ -82,7 +82,7 @@ const sesi = async () => (await sb.auth.getSession()).data.session?.access_token
 const STATUS = { mitra: 'Mitra kerja sama', usul: 'Diusulkan menjadi mitra', tidak: 'Tidak dimasukkan', belum: 'Belum diputuskan' };
 const JUDUL_BERKAS = { laporan_kp: 'Laporan KP', surat_selesai: 'Surat selesai' };
 let SAYA = null, KELOLA = false, ASESOR = false, PERIODE = '';
-let BARIS = [], RINCI = [], BERKAS = [], DOSEN = [], KS = [], PUTUS = [];
+let BARIS = [], RINCI = [], BERKAS = [], DOSEN = [], KS = [], PUTUS = [], TOLAK = [];
 const waktu = p => ({ ...p, ...waktuPengajuan({ ...p, jenis: 'kp' }) });
 
 async function muat(){
@@ -96,6 +96,8 @@ async function muat(){
   // Dosen yang dihitung bebannya = yang bisa dipilih menjadi pembimbing (sama dengan pembimbing_pilihan(), patch 90).
   DOSEN = (d.data || []).filter(x => x.aktif && x.peran !== 'asesor' && (x.dtps || x.kategori) && !x.tugas_belajar);
   KS = k.data || []; PUTUS = p.data || [];
+  // Surat pengantar ditolak instansi (106); sebelum patch 106 dijalankan: bagian ini kosong.
+  if (!ASESOR) { const t = await sb.rpc('kp_tolak_rekap'); TOLAK = t.error ? [] : (t.data || []); }
   if (KELOLA || ASESOR) {
     const [q, b] = await Promise.all([
       sb.from('pengajuan_mahasiswa').select('id,nim,nama,jenis,status,tahap,data,data_selesai,dibuat,pembimbing_id').eq('jenis', 'kp'),
@@ -129,6 +131,10 @@ function gambar(){
       ${d.tinggi ? ' <span class="tag tinggi">tinggi</span>' : ''}</td><td class="n">${d.selesai}</td></tr>`).join('')}</tbody></table></div>`
     : '<p class="kosong">Belum ada dosen.</p>';
   if (KELOLA || ASESOR) gambarBukti();
+  if ($('tolak')) $('tolak').innerHTML = TOLAK.length ? `<div class="lebar-tabel"><table><thead><tr><th>Instansi</th>
+      <th class="n">Ditolak</th><th>Terakhir</th></tr></thead><tbody>${TOLAK.map(x => `<tr><td>${esc(x.instansi)}</td>
+      <td class="n">${x.n}</td><td>${esc(new Date(x.terakhir).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }))}</td></tr>`).join('')}
+    </tbody></table></div>` : '<p class="kosong">Belum ada surat pengantar yang ditolak instansi.</p>';
 }
 
 function gambarInstansi(xs){
@@ -220,6 +226,9 @@ async function mulai(){
     <h2>Per tahun</h2><div id="perTahun"></div>
     <h2>Per instansi</h2><div id="instansi"></div>
     <h2>Beban bimbingan KP per dosen</h2><div id="beban"></div>
+    ${ASESOR ? '' : `<h2>Surat pengantar ditolak instansi</h2>
+      <p class="ket">Dicatat mahasiswa lewat tautannya sebelum mengganti instansi (semua periode, tanpa nama mahasiswa).
+        Membantu koordinator menyarankan instansi.</p><div id="tolak"></div>`}
     ${KELOLA || ASESOR ? `<h2>Bukti KP selesai</h2>
       <p class="ket">Laporan KP dan surat keterangan selesai bersifat privat. ${KELOLA ? `Tombol <b>tautan asesor</b> menyalin tautan yang bisa dibuka
         asesor tanpa login selama <b>Akses asesor</b> dibuka admin; cantumkan di LED atau daftar bukti.` : ''}</p><div id="bukti"></div>` : ''}`;
