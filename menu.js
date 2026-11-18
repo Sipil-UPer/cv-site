@@ -1,5 +1,5 @@
-import { dosenLogin } from './dosen-login.js?v=2026-11-19-51ccc8';
-import { aktifPada } from './koordinator.js?v=2026-11-19-51ccc8';
+import { dosenLogin } from './dosen-login.js?v=2026-11-19-c0ec55';
+import { aktifPada } from './koordinator.js?v=2026-11-19-c0ec55';
 // Menu bersama ruang kerja (pemilik 2026-11-04).
 //
 // Situs dibagi dua:
@@ -25,7 +25,7 @@ const penyusun = s => admin(s) || (!!s.tim_penyusun && s.peran !== 'asesor');
 // Asesor, dan pimpinan yang bukan DTPS prodi ini (aktif=false), tidak mengisi karya.
 const isiKarya = s => s.peran !== 'asesor' && !(s.peran === 'pimpinan' && !s.aktif);
 
-import { halamanAktif } from './fitur.js?v=2026-11-19-51ccc8';
+import { halamanAktif } from './fitur.js?v=2026-11-19-c0ec55';
 
 export const MODUL = [
   // Susunan modul (pemilik 2026-11-17): mengikuti pembagian tugas koordinator prodi (kemahasiswaan,
@@ -45,6 +45,9 @@ export const MODUL = [
     // RPS K26 (111-patch-rps-k26.sql, pemilik 2026-11-18): dosen mengisi RPS di situs, unduh Word Formulir RPS K26.
     { href: 'rps.html', judul: 'RPS', boleh: isiKarya,
       ket: 'Susun RPS per mata kuliah dan kurikulum (K21, K26, …; bagian B dari CPMK dan RPS), periksa otomatis menurut Panduan, unduh Word formulir RPS.' },
+    // Tinjauan RPS (115-patch-tinjauan-rps.sql, pemilik 2026-11-19): butir 15 unsur 5-8 setelah nilai akhir keluar.
+    { href: 'tinjauan-rps.html', judul: 'Tinjauan RPS', boleh: isiKarya,
+      ket: 'Tinjau RPS tiap MK setelah nilai akhir keluar: analisis CPL, materi dan metode, penilaian, pembaruan materi; disetujui Kaprodi, revisi jadi tindak lanjut.' },
     // Simulasi PJP butir 18 (pemilik 2026-11-19): sks praktikum/praktik/penugasan per MK, di peramban saja.
     { href: 'pjp.html', judul: 'Simulasi PJP', boleh: s => mutu(s) || s.peran === 'pimpinan' || (s.koordinator || []).includes('kaprodi'),
       ket: 'Butir 18 LAM Teknik: PJP sekarang dan simulasi bila sks praktikum/praktik/penugasan beberapa MK diubah; unduh CSV untuk rapat kurikulum.' },
@@ -318,7 +321,7 @@ export async function pasangMenu(sb){
   // Pencarian menyeluruh (pemilik 2026-11-12; cari-ui.js, cari.js): dimuat saat pertama dipakai.
   const kotak = nav.querySelector('.rk-cari input');
   let siapCari = null;
-  const muatCari = () => siapCari || (siapCari = import('./cari-ui.js?v=2026-11-19-51ccc8').then(m =>
+  const muatCari = () => siapCari || (siapCari = import('./cari-ui.js?v=2026-11-19-c0ec55').then(m =>
     m.pasangCari(kotak, { sb, saya: u.saya, modul: halamanBoleh(u.saya), boleh: h => bolehBuka(u.saya, h) !== false })));
   kotak.addEventListener('focus', muatCari);
   document.addEventListener('keydown', e => {

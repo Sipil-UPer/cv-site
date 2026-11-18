@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-19-51ccc8">
-<link rel="stylesheet" href="kepala.css?v=2026-11-19-51ccc8">
+<link rel="stylesheet" href="tema.css?v=2026-11-19-c0ec55">
+<link rel="stylesheet" href="kepala.css?v=2026-11-19-c0ec55">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
@@ -61,7 +61,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-19-51ccc8"></script>
+<script src="config.js?v=2026-11-19-c0ec55"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -81,14 +81,14 @@ addEventListener('error', function (e) {
 // Penyusun = koordinator MK atau pengampu kelas MK semester terakhir (boleh_rps, 112); GKM dan admin hanya melihat.
 // Pengesahan (112): dosen mengajukan -> Kaprodi aktif mengesahkan atau mengembalikan; daftar revisi (bagian F) otomatis.
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-19-51ccc8';
-import { bolehMutu, aktifPada, punya } from './koordinator.js?v=2026-11-19-51ccc8';
-import { cplMK } from './cpmk.js?v=2026-11-19-51ccc8';
+import { gerbang } from './menu.js?v=2026-11-19-c0ec55';
+import { bolehMutu, aktifPada, punya } from './koordinator.js?v=2026-11-19-c0ec55';
+import { cplMK } from './cpmk.js?v=2026-11-19-c0ec55';
 import { JENIS_ASESMEN, JENIS_MK, DIREKTORI, jenisAsesmen, bloom, hots, rapikanRps, kerangkaPekan, barisPekan, periksaRps, modelRps,
-  namaBerkasRps, penyusunMK, revisiDariLog, tanggalLokal, waktuLokal, evaluasiDariData, BENTUK, SCL, rekapRps, BENTUK_INTEGRASI } from './rps.js?v=2026-11-19-51ccc8';
-import { JENIS_PETA, relasiPeta, petaSvg } from './rps-peta.js?v=2026-11-19-51ccc8';
-import { keB64 } from './pengajuan-mhs.js?v=2026-11-19-51ccc8';
-import { buatRpsDocx } from './rps-docx.js?v=2026-11-19-51ccc8';
+  namaBerkasRps, penyusunMK, revisiDariLog, tanggalLokal, waktuLokal, evaluasiDariData, BENTUK, SCL, rekapRps, BENTUK_INTEGRASI } from './rps.js?v=2026-11-19-c0ec55';
+import { JENIS_PETA, relasiPeta, petaSvg } from './rps-peta.js?v=2026-11-19-c0ec55';
+import { keB64 } from './pengajuan-mhs.js?v=2026-11-19-c0ec55';
+import { buatRpsDocx } from './rps-docx.js?v=2026-11-19-c0ec55';
 
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));

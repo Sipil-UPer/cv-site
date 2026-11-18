@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-19-51ccc8">
+<link rel="stylesheet" href="tema.css?v=2026-11-19-c0ec55">
 <style>
   /* Panduan pengguna ruang kerja (pemilik 2026-11-04). Bagian admin hanya
      tampil untuk peran admin. Perbarui bila tombol atau halaman berubah. */
@@ -40,7 +40,7 @@
   @media(max-width:640px){nav.isi ol{columns:1}.wrap{padding:18px 16px 60px}}
   @media print{nav.isi{display:none}section{break-inside:avoid}}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-19-51ccc8">
+<link rel="stylesheet" href="kepala.css?v=2026-11-19-c0ec55">
 </head>
 <body>
 
@@ -258,8 +258,14 @@
       Kaprodi dan GKM dapat menghitungnya di <b>Simulasi PJP › Kalkulator per mata kuliah</b>.</p>
     <p><b>Kaprodi:</b> buka <b>RPS</b>, centang <i>Hanya yang menunggu pemeriksaan Anda</i> (jumlahnya juga tampil di Dasbor operasional),
       klik <b>Periksa</b>, baca RPS dan daftar periksanya, lalu <b>Sahkan</b> atau <b>Kembalikan</b> dengan catatan untuk dosen.</p>
+    <p><b>Tinjauan RPS tiap semester</b> (butir 15 unsur 5-8): setelah nilai akhir keluar, buka <b>Pembelajaran &amp; CPL ▾ › Tinjauan RPS</b>,
+      pilih semester dan mata kuliah. Capaian CPL per kelas tampil otomatis; isi analisis CPL, kesesuaian materi dan metode, metode penilaian,
+      dan pembaruan materi, lalu pilih keputusan: RPS tetap atau direvisi (dengan rencana dan tenggat). Ajukan ke Kaprodi. Bila revisi disetujui,
+      RPS mata kuliahnya kembali menjadi draf; perbaiki dan ajukan lagi, dan tindak lanjut selesai saat RPS revisi disahkan. MK kurikulum lama
+      (mis. K21) ditinjau oleh koordinator MK padanannya di kurikulum baru.</p>
     <p class="adm-p" hidden><b>Admin:</b> tetapkan Kaprodi di <b>Penugasan koordinator</b> (jabatan Ketua Program Studi), koordinator MK di halaman
-      CPMK dan RPS (bagian Koordinator MK / pengampu), dan lengkapi NIP dosen di Kelola dosen.</p>
+      CPMK dan RPS (bagian Koordinator MK / pengampu), dan lengkapi NIP dosen di Kelola dosen. Di halaman Tinjauan RPS, admin mengatur
+      semester mulai ditinjau dan mengimpor CSV padanan MK kurikulum lama ke baru.</p>
   </section>
 
   <div id="bagian-admin" hidden>
@@ -414,7 +420,7 @@
   </div>
 </main>
 
-<script src="config.js?v=2026-11-19-51ccc8"></script>
+<script src="config.js?v=2026-11-19-c0ec55"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -431,7 +437,7 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-19-51ccc8';
+import { gerbang } from './menu.js?v=2026-11-19-c0ec55';
 
 // Bagian admin hanya untuk peran admin (isinya bukan rahasia; disembunyikan
 // supaya panduan dosen tetap ringkas).
