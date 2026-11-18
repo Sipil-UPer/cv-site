@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>RPS K26 — Kinerja Program Studi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tema.css?v=2026-11-18-968a5d">
+<link rel="stylesheet" href="kepala.css?v=2026-11-18-968a5d">
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
+  .wrap{max-width:1240px;margin:0 auto;padding:18px 20px 80px}
+  .kosong, .ket{color:var(--muted)}
+  .ket{font-size:13px}
+  .kartu{background:var(--panel);border:1px solid var(--line);padding:14px 18px;margin-bottom:16px}
+  .kartu h2{font-size:17px;margin:0 0 6px;color:var(--biru)}
+  .kartu h3{font-size:14.5px;margin:14px 0 6px}
+  .alat{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:8px 0}
+  .b{font:12.5px/1.4 var(--sans);padding:5px 12px;border:1px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer}
+  .b:hover{border-color:var(--biru);color:var(--biru)}
+  .b.utama{background:var(--biru);color:#fff;border-color:var(--biru)}
+  .b.awas{color:var(--merah)}
+  .b:disabled{opacity:.5;cursor:default}
+  select, input, textarea{font:inherit;font-size:14px;padding:4px 6px;border:1px solid var(--line);background:var(--panel);color:var(--ink);max-width:100%}
+  textarea{width:100%;min-height:52px;resize:vertical}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px 14px;margin:6px 0}
+  .fld{display:flex;flex-direction:column;font-size:12.5px;gap:2px;margin:6px 0}
+  .fld > span{color:var(--muted)}
+  .sks{display:flex;gap:6px;flex-wrap:wrap} .sks label{display:flex;align-items:center;gap:3px;font-size:13px} .sks input{width:56px}
+  .gulir{overflow-x:auto}
+  table.ds{width:100%;border-collapse:collapse;font-size:13.5px}
+  table.ds th{text-align:left;font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--line);padding:5px 8px;vertical-align:bottom}
+  table.ds td{padding:6px 8px;border-bottom:1px solid var(--line-soft);vertical-align:top}
+  .kode{font-family:var(--mono);font-size:12.5px;white-space:nowrap}
+  .chip{display:inline-block;font-size:11.5px;padding:1px 7px;border:1px solid var(--line);white-space:nowrap}
+  .chip.ok{color:var(--hijau);border-color:var(--hijau)} .chip.galat{color:var(--merah);border-color:var(--merah)} .chip.saran{color:#8A5A00;border-color:#8A5A00}
+  .msg{font-size:13px;margin-left:8px} .msg.buruk{color:var(--merah)} .msg.ok{color:var(--hijau)}
+  .periksa{border:1px solid var(--line);padding:8px 12px;font-size:13.5px}
+  .periksa.ok{border-color:var(--hijau)}
+  .periksa ul{margin:4px 0 0;padding-left:18px}
+  .periksa li.galat::marker{color:var(--merah)} .periksa li.saran{color:#6b5300}
+  .pekan{border-left:3px solid var(--biru);padding:8px 0 8px 12px;margin:12px 0}
+  .pekan.ujian{border-left-color:var(--muted)}
+  .pekan-kepala{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .pekan-kepala input{width:80px}
+  .centang{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:13px;margin:4px 0}
+  .dua{display:grid;grid-template-columns:1fr 1fr;gap:8px 14px}
+  .pustaka{display:grid;grid-template-columns:110px 1fr auto;gap:6px;align-items:start;margin:4px 0}
+  .lengket{position:sticky;top:0;z-index:5;background:var(--panel)}
+  @media(max-width:700px){.wrap{padding-left:16px;padding-right:16px}.dua,.pustaka{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header class="hero"><div class="hero-in">
+  <div class="hero-inst" data-identitas></div>
+  <h1>Rencana Pembelajaran Semester (RPS K26)</h1>
+  <div class="sub" id="hSub">Memuat…</div>
+</div></header>
+<main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
+<script src="config.js?v=2026-11-18-968a5d"></script>
+<script>
+// Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
+addEventListener('error', function (e) {
+  if (document.getElementById('galat-muat')) return;
+  var d = document.createElement('div');
+  d.id = 'galat-muat';
+  d.style.cssText = 'margin:16px;padding:12px 14px;border:1px solid var(--merah);' +
+    'background:var(--merah-m3);color:var(--ink);font:14px/1.5 system-ui,sans-serif';
+  d.textContent = 'Halaman gagal dimuat: ' + (e.message || 'galat skrip') +
+    '. Tekan Ctrl+Shift+R untuk memuat ulang tanpa cache; bila tetap muncul, kirim pesan ini ke admin.';
+  document.body.insertBefore(d, document.body.firstChild);
+});
+</script>
+<script type="module">
+// RPS K26 (111-patch-rps-k26.sql, pemilik 2026-11-18): dosen mengisi RPS di situs; data tersimpan (mk_rps), bisa diubah,
+// dan bagian B langsung dari struktur CPMK (mk_struktur, halaman CPMK). Ekspor Word mengikuti Formulir RPS K26.
+// Yang boleh mengisi = boleh_mk (koordinator MK/pengampu, pengampu kelas semester terakhir, GKM, admin).
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
+import { gerbang } from './menu.js?v=2026-11-18-968a5d';
+import { bolehMutu, aktifPada } from './koordinator.js?v=2026-11-18-968a5d';
+import { cplMK } from './cpmk.js?v=2026-11-18-968a5d';
+import { JENIS_ASESMEN, JENIS_MK, DIREKTORI, jenisAsesmen, bloom, hots, rapikanRps, kerangkaPekan, barisPekan, periksaRps, modelRps,
+  namaBerkasRps } from './rps.js?v=2026-11-18-968a5d';
+import { buatRpsDocx } from './rps-docx.js?v=2026-11-18-968a5d';
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const sb = createClient(window.SB_URL, window.SB_KEY);
+const baca = q => q.then(r => r.error ? [] : (r.data || []), () => []);
+const tulis = (id, kelas, teks) => { const e = $(id); if (e) { e.className = 'msg ' + kelas; e.textContent = teks; } };
+const kunci = (kur, kode) => `${kur}|${kode}`;
+const opsi = (xs, v) => xs.map(([k, l]) => `<option value="${esc(k)}"${String(v ?? '') === String(k) ? ' selected' : ''}>${esc(l)}</option>`).join('');
+const JSZIP = 'https://cdn.jsdelivr.net/npm/jszip@3.10.1/+esm';
+
+let SAYA = null, KELOLA = false, MK = [], REF_CPL = [], PETA = [], DOSEN = [], BOLEH = new Set(), STR = new Map(), RPS = new Map();
+let KAPRODI = null, SITUS = {}, PILIH = null, R = null, KOTOR = false;
+const URL_AWAL = new URLSearchParams(location.search);
+addEventListener('beforeunload', e => { if (KOTOR) { e.preventDefault(); e.returnValue = ''; } });
+
+async function muat(){
+  const kolomDosen = 'id,nama,nidn,peran,aktif,nip,nama_gelar';
+  let dq = await sb.from('dosen').select(kolomDosen).order('nama');
+  if (dq.error) dq = await sb.from('dosen').select('id,nama,nidn,peran,aktif,nip').order('nama');   // sebelum patch 111
+  const [mk, cpl, peta, str, rps, boleh, koor, situs] = await Promise.all([
+    baca(sb.from('ref_mata_kuliah').select('kurikulum,kode,nama,sks,sks_kuliah,sks_praktikum,semester,sifat,capstone,aktif,pengampu')
+      .order('kurikulum').order('semester').order('kode')),
+    baca(sb.from('ref_cpl').select('kurikulum,kode,rumusan,indikator,urutan')),
+    baca(sb.from('ref_mk_cpl').select('kurikulum,kode_mk,cpl,indikator')),
+    baca(sb.from('mk_struktur').select('kurikulum,kode_mk,data')),
+    baca(sb.from('mk_rps').select('kurikulum,kode_mk,data,status,oleh,diperbarui')),
+    baca(sb.rpc('mk_boleh_saya')),
+    baca(sb.from('koordinator').select('jabatan,mulai,selesai,dosen(id,nama,nama_gelar,nip)').eq('jabatan', 'kaprodi')),
+    fetch('data.json?v=' + Date.now()).then(r => (r.ok ? r.json() : {})).catch(() => ({}))]);
+  MK = mk; REF_CPL = cpl; PETA = peta; SITUS = situs || {};
+  DOSEN = (dq.data || []).filter(d => d.aktif !== false && d.nidn && d.peran !== 'asesor');
+  STR = new Map(str.map(s => [kunci(s.kurikulum, s.kode_mk), s.data]));
+  RPS = new Map(rps.map(r => [kunci(r.kurikulum, r.kode_mk), r]));
+  BOLEH = new Set(KELOLA ? MK.map(m => kunci(m.kurikulum, m.kode)) : boleh.map(b => kunci(b.kurikulum, b.kode_mk)));
+  KAPRODI = aktifPada(koor, new Date())[0]?.dosen || null;
+  const kode = URL_AWAL.get('kode'), kur = URL_AWAL.get('kur');
+  if (kode && !PILIH) {
+    const m = [...MK].reverse().find(x => x.kode.toUpperCase() === kode.toUpperCase() && (!kur || x.kurikulum === kur));
+    if (m) buka(m.kurikulum, m.kode, false);
+  }
+  gambar();
+}
+
+const mkDari = k => MK.find(m => kunci(m.kurikulum, m.kode) === k);
+const ro = () => !BOLEH.has(PILIH);
+const dis = () => (ro() ? ' disabled' : '');
+const namaDosen = id => DOSEN.find(d => d.id === id);
+const pengampuAwal = m => (m.pengampu || []).map(n => DOSEN.find(d => d.nidn === n)).filter(Boolean);
+function ctx(k = PILIH, r = R){
+  const m = mkDari(k), S = STR.get(k) || null;
+  return { mk: m, struktur: S, rps: r, cpl: cplMK(REF_CPL, PETA, m.kurikulum, m.kode).cpl, pengembang: namaDosen(r?.pengembang) || null, kaprodi: KAPRODI };
+}
+
+function buka(kur, kode, gambarUlang = true){
+  if (KOTOR && !confirm('Perubahan belum disimpan. Tinggalkan?')) return;
+  PILIH = kunci(kur, kode);
+  const m = mkDari(PILIH), ada = RPS.get(PILIH)?.data;
+  R = rapikanRps(ada ? JSON.parse(JSON.stringify(ada)) : null, m, SITUS);
+  if (!ada) {
+    const p = pengampuAwal(m);
+    R.pengampu = p.map(d => d.nama_gelar || d.nama).join('\n');
+    R.pengembang = p[0]?.id || (BOLEH.has(PILIH) && !KELOLA ? SAYA.id : '');
+  }
+  KOTOR = false;
+  history.replaceState(null, '', `?kur=${encodeURIComponent(kur)}&kode=${encodeURIComponent(kode)}`);
+  if (gambarUlang) { gambar(); scrollTo(0, 0); }
+}
+
+// ---------- daftar ----------
+function htmlDaftar(){
+  const kurs = [...new Set(MK.map(m => m.kurikulum))].sort(), kur = kurs[kurs.length - 1];
+  const xs = MK.filter(m => m.kurikulum === kur && m.aktif !== false);
+  return `<section class="kartu"><h2>RPS mata kuliah ${esc(kur || '')}</h2>
+    <p class="ket">Isi RPS sekali per mata kuliah; bagian B (CPL, CPMK, Sub-CPMK, asesmen, bobot) diambil dari halaman
+      <a href="cpmk.html">CPMK dan RPS</a>, jadi RPS dan nilai CPL selalu memakai bobot yang sama. Unduh Word mengikuti Formulir RPS K26.</p>
+    <div class="gulir"><table class="ds"><thead><tr><th>Kode</th><th>Mata kuliah</th><th>Smt</th><th>RPS</th><th>Pemeriksaan</th><th></th></tr></thead>
+    <tbody>${xs.map(m => { const k = kunci(m.kurikulum, m.kode), r = RPS.get(k);
+      const temuan = r ? periksaRps(ctx(k, rapikanRps(r.data, m, SITUS))) : null, galat = temuan ? temuan.filter(t => t.tingkat === 'galat').length : null;
+      return `<tr><td class="kode">${esc(m.kode)}</td><td>${esc(m.nama)}</td><td>${esc(m.semester ?? '')}</td>
+        <td>${r ? `<span class="chip">draf</span> <span class="ket">${esc(String(r.diperbarui || '').slice(0, 10))}</span>` : '<span class="kosong">belum</span>'}</td>
+        <td>${temuan == null ? '' : galat ? `<span class="chip galat">${galat} perlu dilengkapi</span>` : '<span class="chip ok">lengkap</span>'}</td>
+        <td><a class="b" href="?kur=${encodeURIComponent(m.kurikulum)}&kode=${encodeURIComponent(m.kode)}">${BOLEH.has(k) ? 'Isi' : 'Lihat'}</a></td></tr>`; }).join('')}
+    </tbody></table></div></section>`;
+}
+
+// ---------- satu MK ----------
+function htmlPeriksa(){
+  const xs = periksaRps(ctx()), galat = xs.filter(t => t.tingkat === 'galat').length;
+  if (!xs.length) return '<div class="periksa ok">Semua butir daftar periksa Panduan Pengisian RPS terpenuhi.</div>';
+  const per = ['A', 'B', 'C', 'D', 'E'].map(b => [b, xs.filter(t => t.bagian === b)]).filter(([, t]) => t.length);
+  return `<div class="periksa"><b>${galat ? `${galat} butir perlu dilengkapi` : 'Wajib sudah lengkap'}</b>${xs.length - galat ? `, ${xs.length - galat} saran` : ''}.
+    ${per.map(([b, t]) => `<div><b>Bagian ${b}</b><ul>${t.map(x => `<li class="${x.tingkat}">${esc(x.pesan)}</li>`).join('')}</ul></div>`).join('')}</div>`;
+}
+
+function htmlA(m){
+  const I = R.identitas;
+  return `<section class="kartu"><h2>A. Identitas mata kuliah dan pengesahan</h2>
+    <div class="grid">
+      <label class="fld"><span>Jenis MK</span><select data-p="identitas.jenis_mk"${dis()}><option value="">(pilih)</option>${opsi(JENIS_MK, I.jenis_mk)}</select></label>
+      <div class="fld"><span>Bobot sks (jumlah = ${esc(m.sks ?? '—')} sks)</span><div class="sks">${['t', 'p', 'pl', 's'].map(k => `<label>${k.toUpperCase()}
+        <input inputmode="numeric" data-p="identitas.sks.${k}" value="${esc(I.sks?.[k] ?? 0)}"${dis()}></label>`).join('')}</div></div>
+      <label class="fld"><span>Semester (1-8; MKP: Ganjil/Genap)</span><input data-p="identitas.semester" value="${esc(I.semester)}"${dis()}></label>
+      <label class="fld"><span>Tanggal penyusunan</span><input type="date" data-p="identitas.tanggal" value="${esc(I.tanggal)}"${dis()}></label>
+    </div>
+    <label class="fld"><span>Penyelenggara (MKPT/MKU: Universitas Pertamina; MKPS/MKP: Program Studi dan Fakultas)</span>
+      <input data-p="identitas.penyelenggara" value="${esc(I.penyelenggara)}"${dis()}></label>
+    <div class="dua">
+      <label class="fld"><span>Disiapkan oleh dosen pengembang RPS</span><select data-p="pengembang"${dis()}><option value="">(pilih)</option>
+        ${opsi(DOSEN.map(d => [d.id, d.nama]), R.pengembang)}</select></label>
+      <div class="fld"><span>Diperiksa oleh Ketua Program Studi</span><div>${KAPRODI ? esc(KAPRODI.nama_gelar || KAPRODI.nama) : '<span class="kosong">belum ditetapkan (Admin › Penugasan koordinator › Kaprodi)</span>'}</div></div>
+    </div>
+    <p class="ket">Nama dan NIP di lembar pengesahan memakai "Nama dengan gelar" (Profil) dan NIP (Kelola dosen). Dekan menandatangani di luar situs.</p>
+  </section>`;
+}
+
+function htmlB(m){
+  const S = STR.get(PILIH), c = cplMK(REF_CPL, PETA, m.kurikulum, m.kode).cpl;
+  const lnk = `<a href="cpmk.html?kode=${encodeURIComponent(m.kode)}">halaman CPMK</a>`;
+  if (!S?.cpmk?.length) return `<section class="kartu"><h2>B. Capaian pembelajaran</h2><p class="kosong">CPMK, Sub-CPMK, asesmen, dan bobot belum diisi; isi di ${lnk}.</p></section>`;
+  const H = hots(S, R.identitas.semester || m.semester), bobot = k => Object.values(S.bobot?.[k] || {}).reduce((a, v) => a + +v, 0);
+  return `<section class="kartu"><h2>B. Capaian pembelajaran</h2>
+    <p class="ket">Diambil dari ${lnk} (sumber yang sama dengan templat nilai CPL); ubah di sana. HOTS = bobot Sub-CPMK berkode C4-C6:
+      <b>${H.persen}%</b>${H.target != null ? ` (disarankan ≥ ${H.target}% untuk MK tahun ke-${H.tahun})` : ''}.</p>
+    <h3>CPL yang dibebankan</h3>${c.map(x => `<div><span class="kode">CPL-${esc(x.kode)}</span> ${esc(x.rumusan)}</div>`).join('') || '<p class="kosong">Belum dipetakan.</p>'}
+    <h3>CPMK</h3>${S.cpmk.map(x => `<div><span class="kode">${esc(x.kode)}</span> ${esc(x.rumusan)}</div>`).join('')}
+    <div class="gulir"><table class="ds" style="margin-top:8px"><thead><tr><th>Sub-CPMK</th><th>CPMK</th><th>CPL</th><th>Rumusan</th><th>Bloom</th><th>Asesmen</th><th>Bobot</th></tr></thead>
+    <tbody>${S.sub.map(x => `<tr><td class="kode">${esc(x.kode)}</td><td class="kode">${esc(x.cpmk)}</td><td class="kode">${x.cpl ? 'CPL-' + esc(x.cpl) : '<span class="chip galat">pilih</span>'}</td>
+      <td>${esc(x.rumusan)}</td><td class="kode">${esc(bloom(x.rumusan).kode.join(', ') || '—')}</td>
+      <td>${esc(S.asesmen.filter(a => +(S.bobot?.[x.kode]?.[a.nama] || 0)).map(a => `${a.nama} (${(JENIS_ASESMEN.find(j => j[0] === jenisAsesmen(a)) || [, ''])[1]})`).join(', '))}</td>
+      <td class="kode">${bobot(x.kode)}%</td></tr>`).join('')}</tbody></table></div>
+  </section>`;
+}
+
+function htmlAda(path, nilai){
+  return `<span class="centang"><label><input type="radio" name="${path}" data-pb="${path}" value="1"${nilai === true ? ' checked' : ''}${dis()}> Ada</label>
+    <label><input type="radio" name="${path}" data-pb="${path}" value="0"${nilai === false ? ' checked' : ''}${dis()}> Tidak ada</label></span>`;
+}
+
+function htmlC(){
+  return `<section class="kartu"><h2>C. Tujuan dan deskripsi mata kuliah</h2>
+    <label class="fld"><span>Tujuan MK (3-5 poin, sesuai silabus K26; satu poin per baris)</span><textarea data-p="tujuan"${dis()}>${esc(R.tujuan)}</textarea></label>
+    <label class="fld"><span>Deskripsi dan bahan kajian (sesuai silabus K26)</span><textarea data-p="deskripsi" style="min-height:90px"${dis()}>${esc(R.deskripsi)}</textarea></label>
+    <div class="dua">
+      <label class="fld"><span>Dosen pengampu (team teaching/kelas paralel/praktisi; satu per baris)</span><textarea data-p="pengampu"${dis()}>${esc(R.pengampu)}</textarea></label>
+      <div><label class="fld"><span>MK prasyarat</span><input data-p="syarat.prasyarat" value="${esc(R.syarat.prasyarat)}" placeholder="-"${dis()}></label>
+        <label class="fld"><span>MK bersamaan</span><input data-p="syarat.bersamaan" value="${esc(R.syarat.bersamaan)}" placeholder="-"${dis()}></label></div>
+    </div>
+    <h3>Pustaka</h3><p class="ket">Kode singkat dipakai di rencana pekanan, mis. [BREW Bab 2]. Dianjurkan menyertakan luaran penelitian/PkM dosen pengampu.</p>
+    ${R.pustaka.map((p, i) => `<div class="pustaka"><input data-p="pustaka.${i}.kode" value="${esc(p.kode)}" placeholder="KODE"${dis()}>
+      <input data-p="pustaka.${i}.teks" value="${esc(p.teks)}" placeholder="Penulis (tahun). Judul. Penerbit."${dis()}>
+      ${ro() ? '' : `<button class="b awas" data-hapus-pustaka="${i}">×</button>`}</div>`).join('') || '<p class="kosong">Belum ada pustaka.</p>'}
+    ${ro() ? '' : '<p><button class="b" id="tambahPustaka">+ Pustaka</button></p>'}
+    <label class="fld"><span>Kriteria ketercapaian CPMK dan sistem penilaian</span><textarea data-p="kriteria"${dis()}>${esc(R.kriteria)}</textarea></label>
+    <div class="dua">
+      <div class="fld"><span>Metode SCL ${htmlAda('scl.ada', R.scl.ada)}</span><textarea data-p="scl.teks" placeholder="mis. Case Method pekan 9-10; Project Based Learning pekan 14-15"${dis()}>${esc(R.scl.teks)}</textarea></div>
+      <div class="fld"><span>Integrasi penelitian/PkM ${htmlAda('integrasi.ada', R.integrasi.ada)}</span><textarea data-p="integrasi.teks" placeholder="judul, pelaksana, tahun, bentuk integrasi"${dis()}>${esc(R.integrasi.teks)}</textarea></div>
+    </div>
+    <div class="dua">
+      <label class="fld"><span>Direktori Kompetensi Teknis Pertamina</span><select data-p="direktori.status"${dis()}><option value="">(pilih)</option>${opsi(DIREKTORI, R.direktori.status)}</select></label>
+      <label class="fld"><span>Butir dan proficiency level (sesuai pemetaan dokumen K26)</span><input data-p="direktori.teks" value="${esc(R.direktori.teks)}" placeholder="butir […] (Proficiency: Basic)"${dis()}></label>
+    </div>
+  </section>`;
+}
+
+function htmlD(){
+  const S = STR.get(PILIH) || { sub: [], asesmen: [] };
+  const sumatif = S.asesmen.filter(a => !['uts', 'uas'].includes(jenisAsesmen(a)));
+  return `<section class="kartu"><h2>D. Rencana pembelajaran (16 pekan)</h2>
+    <p class="ket">Pekan boleh digabung (mis. 5-7). UTS pekan 8 dan UAS pekan 16. Sub-CPMK dan asesmen sumatif dipilih dari bagian B supaya selaras.
+      Kolom luring/daring: kegiatan dan estimasi waktu PB/PT/KM (mis. "Kuliah + Case Method; PB 2×50′, PT 2×60′, KM 2×60′").</p>
+    ${R.pekan.map((p, i) => (p.jenis !== 'kuliah'
+      ? `<div class="pekan ujian"><div class="pekan-kepala"><b>Pekan</b><input data-p="pekan.${i}.pekan" value="${esc(p.pekan)}"${dis()}>
+          <select data-p="pekan.${i}.jenis" data-gambar="1"${dis()}>${opsi([['kuliah', 'Perkuliahan'], ['uts', 'UTS'], ['uas', 'UAS']], p.jenis)}</select>
+          <b>${p.jenis === 'uts' ? 'Ujian Tengah Semester' : 'Ujian Akhir Semester'}</b>${ro() ? '' : ` <button class="b awas" data-hapus-pekan="${i}">Hapus</button>`}</div></div>`
+      : `<div class="pekan"><div class="pekan-kepala"><b>Pekan</b><input data-p="pekan.${i}.pekan" value="${esc(p.pekan)}"${dis()}>
+          <select data-p="pekan.${i}.jenis" data-gambar="1"${dis()}>${opsi([['kuliah', 'Perkuliahan'], ['uts', 'UTS'], ['uas', 'UAS']], p.jenis)}</select>
+          ${ro() ? '' : `<button class="b" data-sisip-pekan="${i}">+ baris di bawah</button><button class="b awas" data-hapus-pekan="${i}">Hapus</button>`}</div>
+        <div class="centang"><b>Sub-CPMK:</b>${S.sub.map(x => `<label title="${esc(x.rumusan)}"><input type="checkbox" data-pl="pekan.${i}.sub" value="${esc(x.kode)}"${(p.sub || []).includes(x.kode) ? ' checked' : ''}${dis()}> ${esc(x.kode)}</label>`).join('') || '<span class="kosong">isi di halaman CPMK</span>'}</div>
+        <div class="dua">
+          <label class="fld"><span>Materi pembelajaran</span><textarea data-p="pekan.${i}.materi"${dis()}>${esc(p.materi)}</textarea></label>
+          <label class="fld"><span>Pustaka (mis. BREW Bab 2)</span><input data-p="pekan.${i}.pustaka" value="${esc(p.pustaka)}"${dis()}></label>
+          <label class="fld"><span>Indikator (dengan ambang terukur)</span><textarea data-p="pekan.${i}.indikator"${dis()}>${esc(p.indikator)}</textarea></label>
+          <label class="fld"><span>Bentuk dan kriteria asesmen (formatif, teknik, rubrik/kunci)</span><textarea data-p="pekan.${i}.bentuk"${dis()}>${esc(p.bentuk)}</textarea></label>
+          <label class="fld"><span>Luring</span><textarea data-p="pekan.${i}.luring"${dis()}>${esc(p.luring)}</textarea></label>
+          <label class="fld"><span>Daring</span><textarea data-p="pekan.${i}.daring"${dis()}>${esc(p.daring)}</textarea></label>
+        </div>
+        <div class="centang"><b>Asesmen sumatif:</b>${sumatif.map(a => `<label><input type="checkbox" data-pl="pekan.${i}.asesmen" value="${esc(a.nama)}"${(p.asesmen || []).includes(a.nama) ? ' checked' : ''}${dis()}> ${esc(a.nama)}</label>`).join('') || '<span class="kosong">—</span>'}</div></div>`)).join('')}
+    ${ro() ? '' : `<div class="alat"><button class="b" id="tambahPekan">+ Pekan</button><button class="b" id="kerangka">Ganti dengan kerangka 16 pekan</button></div>`}
+  </section>`;
+}
+
+function htmlE(){
+  const E = R.evaluasi;
+  return `<section class="kartu"><h2>E. Evaluasi pelaksanaan pada penyelenggaraan sebelumnya</h2>
+    <label class="centang"><input type="checkbox" data-pc="evaluasi.baru"${E.baru ? ' checked' : ''}${dis()}> Mata kuliah ini belum pernah diselenggarakan</label>
+    ${E.baru ? '' : `<div class="grid">
+      <label class="fld"><span>Nama MK (atau MK ekuivalen K21)</span><input data-p="evaluasi.mk" value="${esc(E.mk)}"${dis()}></label>
+      <label class="fld"><span>Kode</span><input data-p="evaluasi.kode" value="${esc(E.kode)}"${dis()}></label>
+      <label class="fld"><span>Semester/Tahun akademik</span><input data-p="evaluasi.semester" value="${esc(E.semester)}" placeholder="Ganjil 2025/2026"${dis()}></label>
+      <label class="fld"><span>Jumlah mahasiswa dan persentase lulus</span><input data-p="evaluasi.jumlah" value="${esc(E.jumlah)}" placeholder="38 dari 40 lulus (95%)"${dis()}></label>
+      <label class="fld"><span>Rerata nilai akhir</span><input data-p="evaluasi.rerata" value="${esc(E.rerata)}" placeholder="74,5 (B+)"${dis()}></label></div>
+      <label class="fld"><span>Rekomendasi/tindak lanjut dari portofolio sebelumnya</span><textarea data-p="evaluasi.rekomendasi"${dis()}>${esc(E.rekomendasi)}</textarea></label>`}
+  </section>`;
+}
+
+function gambar(){
+  if (!PILIH) { $('isi').innerHTML = htmlDaftar(); return; }
+  const m = mkDari(PILIH), simpanan = RPS.get(PILIH);
+  $('isi').innerHTML = `
+    <p><a class="b" href="rps.html" id="kembali">← Semua mata kuliah</a></p>
+    <section class="kartu lengket"><h2><span class="kode">${esc(m.kode)}</span> ${esc(m.nama)} <span class="ket">(${esc(m.kurikulum)}, ${esc(m.sks ?? '—')} sks)</span></h2>
+      <div class="alat">${ro() ? '<span class="ket">Anda hanya bisa melihat; yang mengisi koordinator MK/pengampu, GKM, atau admin.</span>'
+        : '<button class="b utama" id="simpan">Simpan</button>'}<button class="b" id="unduh">Unduh Word (Formulir RPS K26)</button>
+        <span class="msg" id="mSimpan">${simpanan ? `Tersimpan ${esc(String(simpanan.diperbarui || '').slice(0, 16).replace('T', ' '))} oleh ${esc(simpanan.oleh || '')}` : 'Belum pernah disimpan.'}</span></div>
+      <details><summary class="ket">Daftar periksa (Panduan Pengisian RPS bagian 6)</summary><div id="periksa">${htmlPeriksa()}</div></details>
+    </section>
+    ${htmlA(m)}${htmlB(m)}${htmlC()}${htmlD()}${htmlE()}
+    <p class="ket">Bagian F (daftar revisi) dan pengesahan Kaprodi menyusul pada tahap berikutnya; Word sekarang memuat "Belum ada revisi".</p>`;
+  pasang();
+}
+
+// Ubah R menurut alamat "a.b.0.c".
+function atur(path, nilai){
+  const ks = path.split('.'), akhir = ks.pop();
+  let o = R;
+  for (const k of ks) o = o[/^\d+$/.test(k) ? +k : k];
+  o[/^\d+$/.test(akhir) ? +akhir : akhir] = nilai;
+}
+function ambil(path){ return path.split('.').reduce((o, k) => o?.[/^\d+$/.test(k) ? +k : k], R); }
+const segarkanPeriksa = () => { const e = $('periksa'); if (e) e.innerHTML = htmlPeriksa(); };
+function ubahBesar(f){ f(); KOTOR = true; gambar(); }
+
+function pasang(){
+  if ($('simpan')) $('simpan').onclick = simpan;
+  $('unduh').onclick = unduh;
+  if ($('tambahPustaka')) $('tambahPustaka').onclick = () => ubahBesar(() => R.pustaka.push({ kode: '', teks: '' }));
+  document.querySelectorAll('[data-hapus-pustaka]').forEach(b => { b.onclick = () => ubahBesar(() => R.pustaka.splice(+b.dataset.hapusPustaka, 1)); });
+  if ($('tambahPekan')) $('tambahPekan').onclick = () => ubahBesar(() => R.pekan.push(barisPekan('')));
+  if ($('kerangka')) $('kerangka').onclick = () => { if (confirm('Ganti seluruh rencana pekanan dengan kerangka kosong 16 pekan?')) ubahBesar(() => { R.pekan = kerangkaPekan(); }); };
+  document.querySelectorAll('[data-sisip-pekan]').forEach(b => { b.onclick = () => ubahBesar(() => R.pekan.splice(+b.dataset.sisipPekan + 1, 0, barisPekan(''))); });
+  document.querySelectorAll('[data-hapus-pekan]').forEach(b => { b.onclick = () => { if (confirm('Hapus baris pekan ini?')) ubahBesar(() => R.pekan.splice(+b.dataset.hapusPekan, 1)); }; });
+}
+
+$('isi').addEventListener('input', e => {
+  const t = e.target;
+  if (!R || ro()) return;
+  if (t.dataset.p) atur(t.dataset.p, t.value);
+  else if (t.dataset.pl) { const xs = new Set(ambil(t.dataset.pl) || []); t.checked ? xs.add(t.value) : xs.delete(t.value); atur(t.dataset.pl, [...xs]); }
+  else if (t.dataset.pb) atur(t.dataset.pb, t.value === '1');
+  else if (t.dataset.pc) atur(t.dataset.pc, t.checked);
+  else return;
+  KOTOR = true; tulis('mSimpan', '', 'Ada perubahan yang belum disimpan.');
+  if (t.dataset.gambar || t.dataset.pc) gambar(); else segarkanPeriksa();
+});
+
+async function simpan(){
+  const [kur, kode] = PILIH.split('|');
+  $('simpan').disabled = true; tulis('mSimpan', '', 'Menyimpan…');
+  const { data, error } = await sb.from('mk_rps').upsert({ kurikulum: kur, kode_mk: kode, data: R, status: 'draf' }, { onConflict: 'kurikulum,kode_mk' })
+    .select('kurikulum,kode_mk,data,status,oleh,diperbarui');
+  $('simpan').disabled = false;
+  if (error) return tulis('mSimpan', 'buruk', /mk_rps/.test(error.message) ? 'Tabel RPS belum ada: jalankan supabase/111-patch-rps-k26.sql.' : error.message);
+  RPS.set(PILIH, data[0]); KOTOR = false;
+  tulis('mSimpan', 'ok', 'Tersimpan.');
+}
+
+async function unduh(){
+  const b = $('unduh'); b.disabled = true; tulis('mSimpan', '', 'Menyiapkan Word…');
+  try {
+    const { default: JSZip } = await import(JSZIP);
+    const logo = await fetch('logo-uper.png').then(r => (r.ok ? r.arrayBuffer() : null)).catch(() => null);
+    const blob = await buatRpsDocx(modelRps(ctx()), { JSZip, logo });
+    const a = Object.assign(document.createElement('a'), { href: URL.createObjectURL(blob), download: namaBerkasRps(mkDari(PILIH)) });
+    document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+    tulis('mSimpan', 'ok', KOTOR ? 'Word diunduh (berisi perubahan yang belum disimpan).' : 'Word diunduh.');
+  } catch (e) { tulis('mSimpan', 'buruk', 'Gagal membuat Word: ' + e.message); }
+  b.disabled = false;
+}
+
+async function mulai(){
+  SAYA = await gerbang(sb);
+  if (!SAYA) return;
+  KELOLA = bolehMutu(SAYA);
+  $('hSub').textContent = `Masuk sebagai ${SAYA.nama}`;
+  await muat();
+}
+mulai().catch(e => { $('isi').innerHTML = `<p class="kosong">Gagal memuat: ${esc(e.message)}</p>`; });
+</script>
+</body>
+</html>

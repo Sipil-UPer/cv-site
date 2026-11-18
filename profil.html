@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-18-1d3d05">
+<link rel="stylesheet" href="tema.css?v=2026-11-18-968a5d">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
@@ -60,7 +60,7 @@
   /* .fld input melebarkan semua input; kotak centang topik tetap kecil dan di kiri teksnya */
   .fld label.pilih-topik input[type=checkbox]{width:auto;padding:0;margin:0;flex:none}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-18-1d3d05">
+<link rel="stylesheet" href="kepala.css?v=2026-11-18-968a5d">
 </head>
 <body>
 
@@ -74,7 +74,7 @@
 
 <main class="wrap" id="isi"></main>
 
-<script src="config.js?v=2026-11-18-1d3d05"></script>
+<script src="config.js?v=2026-11-18-968a5d"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -91,16 +91,16 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { pasangMenu } from './menu.js?v=2026-11-18-1d3d05';
-import { dosenLogin } from './dosen-login.js?v=2026-11-18-1d3d05';
-import { unduhCV, htmlTombolCV, mkDiampu } from './cv-dosen.js?v=2026-11-18-1d3d05';
-import { keBase64 } from './pustaka-dokumen.js?v=2026-11-18-1d3d05';
-import { tautanBerkas, temuanPakai } from './tautan-privat.js?v=2026-11-18-1d3d05';
-import { periksaBerkas, sidikBerkas } from './sidik-berkas.js?v=2026-11-18-1d3d05';
-import { buangBuktiLepas } from './hapus-berkas.js?v=2026-11-18-1d3d05';
+import { pasangMenu } from './menu.js?v=2026-11-18-968a5d';
+import { dosenLogin } from './dosen-login.js?v=2026-11-18-968a5d';
+import { unduhCV, htmlTombolCV, mkDiampu } from './cv-dosen.js?v=2026-11-18-968a5d';
+import { keBase64 } from './pustaka-dokumen.js?v=2026-11-18-968a5d';
+import { tautanBerkas, temuanPakai } from './tautan-privat.js?v=2026-11-18-968a5d';
+import { periksaBerkas, sidikBerkas } from './sidik-berkas.js?v=2026-11-18-968a5d';
+import { buangBuktiLepas } from './hapus-berkas.js?v=2026-11-18-968a5d';
 import { ISIAN_PROFIL, KOLOM_PROFIL, tampil as tampilIsian, sama, formLKPS, bacaFormLKPS, pasangEditor, bacaKataKunci,
   setelNamaTopik, htmlPilihTopik, bacaPilihTopik, MAKS_TOPIK, urlBukti, berkasLepas }
-  from './profil-dosen.js?v=2026-11-18-1d3d05';
+  from './profil-dosen.js?v=2026-11-18-968a5d';
 
 /* =====================================================================
    PROFIL SAYA — dosen mengajukan perubahan profilnya sendiri (keputusan
@@ -138,7 +138,7 @@ const POLA = {
 // Kolom yang boleh diajukan, berurutan seperti form; label untuk tabel.
 const ISIAN = ISIAN_PROFIL;
 
-let SAYA = null, ADA_LKPS = true, ADA_ALT = false, ADA_FOTO = false, MK_PRODI = null;
+let SAYA = null, ADA_LKPS = true, ADA_ALT = false, ADA_FOTO = false, ADA_GELAR = false, MK_PRODI = null;
 let BAKU = null;   // daftar keahlian baku aktif (61-patch-keahlian-baku.sql); null bila belum ada
 // CV dosen otomatis (pemilik 2026-11-11): tombol di kartu "CV saya".
 document.addEventListener('click', async e => {
@@ -228,6 +228,10 @@ async function mulai(){
   const { data: fp, error: eFp } = await sb.from('dosen').select('foto_url').eq('id', saya.id).maybeSingle();
   ADA_FOTO = !eFp && !!String(window.UPLOAD_URL || '').trim();
   if (!eFp) SAYA.foto_url = fp?.foto_url ?? null;
+  // Nama dengan gelar (patch 111, RPS K26 dan dokumen resmi); kueri terpisah: gagal = belum ada patch.
+  const { data: ng, error: eNg } = await sb.from('dosen').select('nama_gelar').eq('id', saya.id).maybeSingle();
+  ADA_GELAR = !eNg;
+  if (ADA_GELAR) SAYA.nama_gelar = ng?.nama_gelar ?? null;
   // Daftar keahlian baku (patch 61): dibaca pengguna terdaftar; gagal = belum ada patch, pemilih tidak tampil.
   const [rb, rt] = await Promise.all([
     sb.from('ref_bidang_keahlian').select('kode,nama,nama_en,urutan,aktif').order('urutan'),
@@ -260,6 +264,10 @@ async function gambar(){
         <div><span>Peran</span>${esc(PERAN[SAYA.peran] || SAYA.peran)}</div>
       </div></div>
     ${ADA_FOTO ? htmlFoto() : ''}
+    ${ADA_GELAR ? `<div class="b"><h2>Nama dengan gelar</h2>
+      <p class="ket">Dipakai di lembar pengesahan RPS dan dokumen resmi lain, mis. "Dr. Nama Lengkap, S.T., M.T.". Kosong = nama biasa.</p>
+      <div class="aksi"><input id="namaGelar" maxlength="200" style="flex:1;min-width:240px" value="${esc(SAYA.nama_gelar || '')}">
+        <button class="btn" type="button" id="simpanGelar">Simpan</button><span class="msg" id="gelarMsg"></span></div></div>` : ''}
     <div class="b"><h2>CV saya</h2>
       <p class="ket">CV akademik dalam Word (.docx), disusun dari profil ini dan karya Anda yang sudah diverifikasi prodi.
         Bisa disunting sebelum dipakai untuk hibah, SISTER, atau kenaikan jabatan.</p>
@@ -334,6 +342,13 @@ async function gambar(){
   if (tunggu) $('batalAjuan').onclick = () => hapusAjuan(tunggu, 'Batalkan ajuan perubahan profil?');
   if (!tunggu && !error) $('kirim').onclick = kirim;
   if (ADA_FOTO) pasangFoto();
+  if (ADA_GELAR) $('simpanGelar').onclick = async () => {
+    const m = $('gelarMsg'), v = $('namaGelar').value.trim().replace(/\s+/g, ' ');
+    if (v && v.length < 3) { m.className = 'msg err'; m.textContent = 'Paling sedikit 3 huruf.'; return; }
+    const { error } = await sb.rpc('atur_nama_gelar', { p: v || null });
+    m.className = 'msg ' + (error ? 'err' : 'ok'); m.textContent = error ? error.message : 'Tersimpan.';
+    if (!error) SAYA.nama_gelar = v || null;
+  };
 }
 
 // Foto profil (pemilik 2026-11-16; 85-patch-foto-dosen.sql): diunggah dosen sendiri ke Drive prodi (Apps Script,

@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-18-1d3d05">
+<link rel="stylesheet" href="tema.css?v=2026-11-18-968a5d">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
@@ -54,7 +54,7 @@
   .masuk{max-width:420px;margin:40px auto;background:#fff;border:1px solid var(--line);padding:20px}
   .masuk input{width:100%;padding:8px 10px;margin:8px 0;font:inherit}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-18-1d3d05">
+<link rel="stylesheet" href="kepala.css?v=2026-11-18-968a5d">
 </head>
 <body>
 
@@ -68,7 +68,7 @@
 
 <main class="wrap" id="isi"></main>
 
-<script src="config.js?v=2026-11-18-1d3d05"></script>
+<script src="config.js?v=2026-11-18-968a5d"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -85,13 +85,13 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { pasangMenu } from './menu.js?v=2026-11-18-1d3d05';
-import { dosenLogin } from './dosen-login.js?v=2026-11-18-1d3d05';
-import { htmlSaran } from './saran-bukti.js?v=2026-11-18-1d3d05';
-import { unduhCV } from './cv-dosen.js?v=2026-11-18-1d3d05';
+import { pasangMenu } from './menu.js?v=2026-11-18-968a5d';
+import { dosenLogin } from './dosen-login.js?v=2026-11-18-968a5d';
+import { htmlSaran } from './saran-bukti.js?v=2026-11-18-968a5d';
+import { unduhCV } from './cv-dosen.js?v=2026-11-18-968a5d';
 import { KOLOM_PROFIL, KATEGORI, JABATAN,
-  formLKPS, bacaFormLKPS, pasangEditor } from './profil-dosen.js?v=2026-11-18-1d3d05';
-import { hitungVerifikasi } from './verifikasi-hitung.js?v=2026-11-18-1d3d05';
+  formLKPS, bacaFormLKPS, pasangEditor } from './profil-dosen.js?v=2026-11-18-968a5d';
+import { hitungVerifikasi } from './verifikasi-hitung.js?v=2026-11-18-968a5d';
 
 /* =====================================================================
    KELOLA DOSEN — daftar dosen prodi diisi admin di situs (keputusan
@@ -146,7 +146,7 @@ const POLA = {
 const KOLOM = 'id,nidn,nama,email,peran,pendidikan,jabatan,sinta_id,scopus_id,orcid,aktif,dtps';
 
 // ADA_LKPS: kolom profil LKPS 4.a ada (supabase/22-patch-profil-dosen.sql).
-let SAYA = null, DOSEN = [], SUNTING = null, ADA_LKPS = true, ADA_ALT = false, ADA_KK = false, KK = null, ADA_TB = false, ADA_NIP = false;
+let SAYA = null, DOSEN = [], SUNTING = null, ADA_LKPS = true, ADA_ALT = false, ADA_KK = false, KK = null, ADA_TB = false, ADA_NIP = false, ADA_GELAR = false;
 
 const nama = (daftar, v) => (daftar.find(x => x[0] === (v || '')) || [, v || '—'])[1];
 const opsi = (daftar, v) => daftar.map(([k, l]) =>
@@ -229,6 +229,10 @@ async function muat(){
   const nq = await sb.from('dosen').select('id,nip');
   ADA_NIP = !nq.error;
   if (ADA_NIP) { const m = new Map((nq.data || []).map(x => [x.id, x.nip])); DOSEN.forEach(d => { d.nip = m.get(d.id) ?? null; }); }
+  // Nama dengan gelar (patch 111): lembar pengesahan RPS; kolom dibaca terpisah.
+  const gq = await sb.from('dosen').select('id,nama_gelar');
+  ADA_GELAR = !gq.error;
+  if (ADA_GELAR) { const m = new Map((gq.data || []).map(x => [x.id, x.nama_gelar])); DOSEN.forEach(d => { d.nama_gelar = m.get(d.id) ?? null; }); }
   if (KK === null) KK = await fetch('data.json?v=' + Date.now()).then(r => r.ok ? r.json() : {}).then(d => d.situs?.kelompok_keahlian || []).catch(() => []);
   gambarDaftar();
   isiForm(SUNTING ? DOSEN.find(d => d.id === SUNTING) : null);
@@ -277,6 +281,8 @@ function isiForm(d){
       <div class="fld"><label>Nama lengkap <span class="wj">*</span></label><input id="f_nama" value="${esc(r.nama)}"></div>
       <div class="fld"><label>NIDN <span class="wj">*</span></label><input id="f_nidn" value="${esc(r.nidn)}">
         <small>Admin staf tanpa NIDN: NIP/NUP, atau kode STAF-001.</small></div>
+      ${ADA_GELAR ? `<div class="fld"><label>Nama dengan gelar</label><input id="f_gelar" maxlength="200" value="${esc(r.nama_gelar || '')}">
+        <small>Lembar pengesahan RPS, mis. "Dr. Nama, S.T., M.T.". Dosen juga bisa mengisinya sendiri di Profil.</small></div>` : ''}
       ${ADA_NIP ? `<div class="fld"><label>NIP</label><input id="f_nip" maxlength="40" value="${esc(r.nip || '')}">
         <small>Tampil di situs (daftar dan halaman dosen) untuk keperluan mahasiswa. Kosong = tidak tampil.</small></div>` : ''}
       <div class="fld"><label>Email kampus <span class="wj">*</span></label><input id="f_email" type="email" value="${esc(r.email)}">
@@ -351,6 +357,10 @@ async function simpan(){
     aktif: $('f_aktif').checked, dtps: ADA_LKPS ? false : $('f_dtps').checked,
   };
   if (ADA_KK && $('f_kk')) isi.kelompok_keahlian = $('f_kk').value || null;
+  if (ADA_GELAR && $('f_gelar')) {
+    isi.nama_gelar = $('f_gelar').value.trim().replace(/\s+/g, ' ') || null;
+    if (isi.nama_gelar && isi.nama_gelar.length < 3) return tulis('buruk', 'Nama dengan gelar paling sedikit 3 huruf.');
+  }
   if (ADA_NIP && $('f_nip')) {
     isi.nip = $('f_nip').value.trim().replace(/\s+/g, ' ') || null;
     if (isi.nip && !/^[0-9A-Za-z][0-9A-Za-z ./-]{1,38}[0-9A-Za-z]$/.test(isi.nip))

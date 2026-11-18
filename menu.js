@@ -1,5 +1,5 @@
-import { dosenLogin } from './dosen-login.js?v=2026-11-18-1d3d05';
-import { aktifPada } from './koordinator.js?v=2026-11-18-1d3d05';
+import { dosenLogin } from './dosen-login.js?v=2026-11-18-968a5d';
+import { aktifPada } from './koordinator.js?v=2026-11-18-968a5d';
 // Menu bersama ruang kerja (pemilik 2026-11-04).
 //
 // Situs dibagi dua:
@@ -25,7 +25,7 @@ const penyusun = s => admin(s) || (!!s.tim_penyusun && s.peran !== 'asesor');
 // Asesor, dan pimpinan yang bukan DTPS prodi ini (aktif=false), tidak mengisi karya.
 const isiKarya = s => s.peran !== 'asesor' && !(s.peran === 'pimpinan' && !s.aktif);
 
-import { halamanAktif } from './fitur.js?v=2026-11-18-1d3d05';
+import { halamanAktif } from './fitur.js?v=2026-11-18-968a5d';
 
 export const MODUL = [
   // Susunan modul (pemilik 2026-11-17): mengikuti pembagian tugas koordinator prodi (kemahasiswaan,
@@ -42,6 +42,9 @@ export const MODUL = [
     // CPMK dan RPS per MK (102-patch-cpmk-rps.sql, pemilik 2026-11-17, OBE O2): templat nilai CPL terisi per kelas.
     { href: 'cpmk.html', judul: 'CPMK dan RPS', boleh: isiKarya,
       ket: 'CPMK, Sub-CPMK, butir asesmen, bobot, dan RPS per mata kuliah; unduh templat nilai CPL yang sudah terisi per kelas.' },
+    // RPS K26 (111-patch-rps-k26.sql, pemilik 2026-11-18): dosen mengisi RPS di situs, unduh Word Formulir RPS K26.
+    { href: 'rps.html', judul: 'RPS K26', boleh: isiKarya,
+      ket: 'Susun RPS per mata kuliah (bagian B dari CPMK dan RPS), periksa otomatis menurut Panduan, unduh Word Formulir RPS K26.' },
     // Portofolio MK (103-patch-portofolio-mk.sql, pemilik 2026-11-17, OBE O3): isi disaring basis data (koordinator MK, pengampu,
     // GKM, admin, pimpinan, asesor aktif).
     { href: 'portofolio.html', judul: 'Portofolio mata kuliah',
@@ -312,7 +315,7 @@ export async function pasangMenu(sb){
   // Pencarian menyeluruh (pemilik 2026-11-12; cari-ui.js, cari.js): dimuat saat pertama dipakai.
   const kotak = nav.querySelector('.rk-cari input');
   let siapCari = null;
-  const muatCari = () => siapCari || (siapCari = import('./cari-ui.js?v=2026-11-18-1d3d05').then(m =>
+  const muatCari = () => siapCari || (siapCari = import('./cari-ui.js?v=2026-11-18-968a5d').then(m =>
     m.pasangCari(kotak, { sb, saya: u.saya, modul: halamanBoleh(u.saya), boleh: h => bolehBuka(u.saya, h) !== false })));
   kotak.addEventListener('focus', muatCari);
   document.addEventListener('keydown', e => {

@@ -8,7 +8,7 @@
 // Kode indikator di templat: <kode CPL><nomor>, mis. A1, A2, a5 (kolom B templat = CPL induk).
 
 // Versi bentuk data mk_struktur.data; constraint 102 mewajibkan '1'. Sengaja BUKAN bernama VERSI: stamp_versions.py
-// mengganti setiap "const VERSI = '2026-11-18-1d3d05'" dengan cap versi situs, sehingga simpan ditolak database (galat 2026-11-17 s.d. 11-18).
+// menimpa konstanta bernama VERSI dengan cap versi situs, sehingga simpan ditolak database (galat 2026-11-17 s.d. 11-18).
 export const VERSI_DATA = '1';
 export const strukturKosong = () => ({ versi: VERSI_DATA, cpmk: [], sub: [], asesmen: [], bobot: {} });
 
