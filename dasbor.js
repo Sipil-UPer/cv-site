@@ -1,6 +1,6 @@
 // Dasbor operasional koordinator prodi (pemilik 2026-11-17, tahap 3 koordinator): per bidang, siapa penanggung jawabnya
 // (koordinator aktif) dan antrean/keterlambatan, dengan tautan ke halaman kerjanya. Dipakai dasbor.html.
-import { aktifPada, labelJabatan } from './koordinator.js?v=2026-11-18-f65a5e';
+import { aktifPada, labelJabatan } from './koordinator.js?v=2026-11-18-d82702';
 
 export const HARI_ANTRE = 7;     // pengajuan yang menunggu lebih dari ini = terlambat
 export const HARI_SK = 30;       // penugasan berakhir dalam sekian hari = perlu diperpanjang
@@ -35,8 +35,11 @@ export function ringkasDasbor(d, kini = new Date()){
   const revisi = J.filter(j => j.hasil === 'lulus_revisi' && !j.revisi_selesai && j.status !== 'batal');
   const bidang = [
     { bidang: 'Tugas Akhir', jabatan: 'koordinator_ta', item: [
-      { label: 'Menunggu pembimbing', ...antre(tunggu('ta', 'pembimbing'), 'pengajuan-mahasiswa.html') },
-      { label: 'Menunggu jadwal', ...antre(tunggu('ta', 'admin'), 'pengajuan-mahasiswa.html') },
+      // 110: pengajuan pembimbing TA (tahap_ta penetapan_pembimbing) diperiksa koordinator TA.
+      { label: 'Pengajuan pembimbing TA menunggu koordinator', ...antre(p => p.jenis === 'ta' && p.tahap_ta === 'penetapan_pembimbing'
+          && ['pembimbing', 'admin'].includes(p.status), 'pengajuan-mahasiswa.html') },
+      { label: 'Menunggu pembimbing', ...antre(p => tunggu('ta', 'pembimbing')(p) && p.tahap_ta !== 'penetapan_pembimbing', 'pengajuan-mahasiswa.html') },
+      { label: 'Menunggu jadwal', ...antre(p => tunggu('ta', 'admin')(p) && p.tahap_ta !== 'penetapan_pembimbing', 'pengajuan-mahasiswa.html') },
       { label: 'Seminar/sidang 14 hari ke depan', n: J.filter(j => j.status === 'terjadwal' && j.tanggal >= hari && j.tanggal <= tambahHari(kini, 14)).length,
         lewat: 0, href: 'rekap-ta.html' },
       { label: 'Revisi belum selesai', n: revisi.length, lewat: revisi.filter(j => j.batas_revisi && j.batas_revisi < hari).length,

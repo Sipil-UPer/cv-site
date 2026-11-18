@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-18-f65a5e">
-<link rel="stylesheet" href="kepala.css?v=2026-11-18-f65a5e">
+<link rel="stylesheet" href="tema.css?v=2026-11-18-d82702">
+<link rel="stylesheet" href="kepala.css?v=2026-11-18-d82702">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
@@ -53,7 +53,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-18-f65a5e"></script>
+<script src="config.js?v=2026-11-18-d82702"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -71,10 +71,10 @@ addEventListener('error', function (e) {
 // Dasbor operasional (pemilik 2026-11-17): koordinator prodi melihat per bidang siapa penanggung jawabnya dan antrean yang
 // menunggu/terlambat. Hanya membaca; tindakan dilakukan di halaman kerja masing-masing (tautan di tiap baris).
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-18-f65a5e';
-import { ringkasDasbor, HARI_ANTRE, ringkasBeban } from './dasbor.js?v=2026-11-18-f65a5e';
-import { tsBerjalan } from './sdgs-unduh.js?v=2026-11-18-f65a5e';
-import { labelPeran } from './koordinator.js?v=2026-11-18-f65a5e';
+import { gerbang } from './menu.js?v=2026-11-18-d82702';
+import { ringkasDasbor, HARI_ANTRE, ringkasBeban } from './dasbor.js?v=2026-11-18-d82702';
+import { tsBerjalan } from './sdgs-unduh.js?v=2026-11-18-d82702';
+import { labelPeran } from './koordinator.js?v=2026-11-18-d82702';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
@@ -87,7 +87,7 @@ async function mulai(){
   $('hSub').textContent = `Masuk sebagai ${saya.nama} (${labelPeran(saya)})`;
   const [koordinator, pengajuan, jadwal, temuan, tindak, karya, kabar] = await Promise.all([
     baca(sb.from('koordinator').select('jabatan,mulai,selesai,nomor_sk,dokumen_id,dosen(nama)')),
-    baca(sb.from('pengajuan_mahasiswa').select('jenis,status,tahap,dibuat,diperbarui').in('status', ['pembimbing', 'admin', 'disetujui']).limit(3000)),
+    baca(sb.from('pengajuan_mahasiswa').select('jenis,status,tahap,dibuat,diperbarui,tahap_ta:data->>tahap_ta').in('status', ['pembimbing', 'admin', 'disetujui']).limit(3000)),
     baca(sb.from('jadwal_ta').select('tanggal,status,hasil,batas_revisi,revisi_selesai').limit(3000)),
     baca(sb.from('ami_temuan').select('status,tenggat')),
     baca(sb.from('rapat_tindak').select('status,tenggat')),

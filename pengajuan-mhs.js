@@ -25,6 +25,26 @@ export const JENIS_LUARAN = [['paten', 'Paten'], ['paten_sederhana', 'Paten sede
 
 export const TAHAP_TA = [['seminar_proposal', 'Seminar proposal'], ['seminar_kemajuan', 'Seminar kemajuan'], ['sidang_akhir', 'Sidang akhir']];
 export const NAMA_TAHAP_TA = ['Isi dan unggah naskah', 'Diperiksa pembimbing 1', 'Dijadwalkan admin prodi', 'Terjadwal'];
+// Pengajuan pembimbing TA (110, pemilik 2026-11-18): sekali di awal; koordinator TA menetapkan pembimbing menurut
+// kelompok keahlian (KK) dan kuota. Pembimbing 1 harus KK sama atau berdekatan; seminar/sidang memakai penetapan ini.
+export const TAHAP_PEMBIMBING_TA = 'penetapan_pembimbing';
+export const TAHAP_TA_AJU = [[TAHAP_PEMBIMBING_TA, 'Pengajuan pembimbing TA'], ...TAHAP_TA];
+export const NAMA_TAHAP_PEMBIMBING_TA = ['Isi KK, judul awal, dan usulan pembimbing', 'Dikirim ke koordinator TA',
+                                         'Diperiksa koordinator TA; pembimbing ditetapkan', 'Pembimbing TA ditetapkan'];
+export const penetapanTA = p => p?.jenis === 'ta' && p?.data?.tahap_ta === TAHAP_PEMBIMBING_TA;
+// Dosen yang boleh jadi pembimbing 1 untuk KK topik TA (pembimbing_pilihan_ta(): kk_cocok = KK sendiri + berdekatan).
+export const pembimbingCocok = (dosen, kk) => (dosen || []).filter(d => !!kk && (d.kk_cocok || []).includes(kk));
+// Sama dengan public.ta_kk_cocok (110): KK sama, atau pasangan ta_kk_dekat {kk_a, kk_b} (dua arah).
+export const kkCocok = (kkTa, kkDosen, dekat = []) => !!kkTa && !!kkDosen && (kkTa === kkDosen
+  || dekat.some(k => (k.kk_a === kkTa && k.kk_b === kkDosen) || (k.kk_b === kkTa && k.kk_a === kkDosen)));
+// Pilihan pembimbing 1 untuk koordinator TA: baris ta_beban(ts) -> cocok KK dulu, lalu abjad; teks "Nama - KK - 2/5".
+export function pilihanPembimbingTA(rows = [], kkTa = '', dekat = []){
+  return rows.map(r => {
+    const cocok = kkCocok(kkTa, r.kk, dekat), lebih = r.kuota != null && r.beban >= r.kuota;
+    return { ...r, cocok, lebih, teks: `${r.nama} — ${r.kk || 'KK belum diisi'} — ${r.beban}${r.kuota == null ? '' : '/' + r.kuota}`
+      + `${lebih ? ' (kuota penuh)' : ''}${cocok ? '' : ' (di luar KK)'}` };
+  }).sort((a, b) => (b.cocok - a.cocok) || String(a.nama).localeCompare(String(b.nama), 'id'));
+}
 
 export const JENIS_SURAT = [['aktif_kuliah', 'Surat keterangan aktif kuliah'], ['izin_penelitian', 'Surat izin penelitian/survei'],
                             ['rekomendasi', 'Surat rekomendasi']];
@@ -69,6 +89,8 @@ export const labelProgram = v => (PROGRAM_KP.find(x => x[0] === (v || 'kp')) || 
 // Status untuk dibaca manusia, dengan tahap KP.
 export function labelStatus(p){
   if (p.jenis === 'surat') return { admin: 'Diproses admin prodi', disetujui: 'Surat terbit' }[p.status] || LABEL_STATUS[p.status] || p.status;
+  if (penetapanTA(p)) return { pembimbing: 'Diperiksa koordinator TA', admin: 'Diperiksa koordinator TA',
+    disetujui: 'Pembimbing TA ditetapkan' }[p.status] || LABEL_STATUS[p.status] || p.status;
   if (p.jenis === 'ta') return { pembimbing: 'Diperiksa pembimbing 1', admin: 'Menunggu jadwal dari admin prodi', disetujui: 'Terjadwal' }[p.status]
     || LABEL_STATUS[p.status] || p.status;
   if (p.jenis === 'lomba') return { pembimbing: 'Diperiksa dosen pembimbing atau pembina kemahasiswaan', admin: 'Diperiksa pembina kemahasiswaan/admin',
@@ -87,7 +109,7 @@ export function labelStatus(p){
 // Jalur satu tahap KP (atau lomba): status dan riwayat tahap itu saja. Riwayat tanpa tahap = pengajuan (patch 90).
 export function jalurTahap(p, tahap = 'pengajuan'){
   const r = (p.riwayat || p.pengajuan_riwayat || []).filter(x => (x.tahap || 'pengajuan') === tahap);
-  if (tahap === 'pengajuan') return jalur(p.tahap === 'selesai' ? 'disetujui' : p.status, r, p.jenis === 'surat' ? NAMA_TAHAP_SURAT : p.jenis === 'ta' ? NAMA_TAHAP_TA : p.jenis === 'kp' ? NAMA_TAHAP_KP : p.jenis === 'lomba' ? NAMA_TAHAP_LOMBA : null);
+  if (tahap === 'pengajuan') return jalur(p.tahap === 'selesai' ? 'disetujui' : p.status, r, p.jenis === 'surat' ? NAMA_TAHAP_SURAT : p.jenis === 'ta' ? (penetapanTA(p) ? NAMA_TAHAP_PEMBIMBING_TA : NAMA_TAHAP_TA) : p.jenis === 'kp' ? NAMA_TAHAP_KP : p.jenis === 'lomba' ? NAMA_TAHAP_LOMBA : null);
   return jalur(p.tahap === 'selesai' ? p.status : 'draf', r, NAMA_TAHAP_SELESAI);
 }
 
@@ -153,7 +175,8 @@ export function periksaIsian(jenis, { nim, nama, pembimbing, data = {} }){
   }
   if (jenis === 'ta') {
     if (!data.tahap_ta) g.push('Pilih tahap TA.');
-    if (String(data.judul || '').trim().length < 3) g.push('Tulis judul TA.');
+    if (data.tahap_ta === TAHAP_PEMBIMBING_TA && !data.kk_ta) g.push('Pilih kelompok keahlian topik TA.');
+    if (String(data.judul || '').trim().length < 3) g.push(data.tahap_ta === TAHAP_PEMBIMBING_TA ? 'Tulis judul awal TA.' : 'Tulis judul TA.');
     if (data.pembimbing_2 && data.pembimbing_2 === pembimbing) g.push('Pembimbing 2 harus berbeda dari pembimbing 1.');
   }
   if (jenis === 'surat') {
