@@ -111,6 +111,38 @@ export function rpsKosong(mk = {}, situs = {}, kini = new Date()){
   };
 }
 
+/**
+ * Penyusun RPS (112, pemilik 2026-11-18): koordinator MK (ref_mata_kuliah.pengampu, NIDN) dan pengampu kelas MK itu pada
+ * semester terakhir di cpl_kelas (email). Sama dengan public.boleh_rps; GKM dan admin hanya melihat. Hasil: dosen [{id, nama, ...}].
+ */
+export function penyusunMK(mk = {}, dosen = [], kelas = []){
+  const urut = k => `${k.tahun_akademik}|${k.semester === 'Genap' ? 2 : 1}`;
+  const akhir = kelas.reduce((a, k) => (urut(k) > a ? urut(k) : a), '');
+  const email = new Set(kelas.filter(k => urut(k) === akhir && String(k.kode_mk).toUpperCase() === String(mk.kode).toUpperCase())
+    .map(k => String(k.dosen_email || '').toLowerCase()));
+  return dosen.filter(d => (mk.pengampu || []).includes(d.nidn) || email.has(String(d.email || '').toLowerCase()));
+}
+
+/**
+ * Daftar revisi (bagian F) dari mk_rps_pengesahan [{aksi, oleh_nama, catatan, waktu}] urut waktu: pengesahan pertama =
+ * "Belum ada revisi" (Panduan 3.6); tiap pengesahan berikutnya satu baris: tanggal dan pengusul dari pengajuan sebelumnya,
+ * deskripsi = ringkasan perubahan, validasi = tanggal pengesahan dan catatan Kaprodi.
+ */
+export function revisiDariLog(log = []){
+  const out = [];
+  let aju = null, sah = 0;
+  for (const r of [...log].sort((a, b) => String(a.waktu).localeCompare(String(b.waktu)))) {
+    if (r.aksi === 'ajukan') aju = r;
+    else if (r.aksi === 'sahkan') {
+      sah++;
+      if (sah > 1) out.push({ tanggal: String(aju?.waktu || '').slice(0, 10), pengusul: aju?.oleh_nama || '', deskripsi: aju?.catatan || '',
+                              validasi: String(r.waktu).slice(0, 10), catatan: [r.oleh_nama, r.catatan].filter(Boolean).join(': ') });
+      aju = null;
+    }
+  }
+  return out;
+}
+
 /** Lengkapi RPS tersimpan dengan kunci yang belum ada (data lama tetap). */
 export function rapikanRps(d, mk, situs){
   const k = rpsKosong(mk, situs);
@@ -125,7 +157,7 @@ export function rapikanRps(d, mk, situs){
  * Pemeriksaan otomatis (Panduan bagian 6). ctx: { mk, struktur, rps, cpl: [{kode, rumusan}], pengembang: {nama, nama_gelar, nip},
  * kaprodi: {...}|null }. Hasil [{ bagian, tingkat: 'galat'|'saran', pesan }]; kosong = lengkap.
  */
-export function periksaRps({ mk = {}, struktur, rps, cpl = [], pengembang = null, kaprodi = null } = {}){
+export function periksaRps({ mk = {}, struktur, rps, cpl = [], pengembang = null, kaprodi = null, penyusun = null } = {}){
   const out = [], g = (bagian, pesan) => out.push({ bagian, tingkat: 'galat', pesan }), s = (bagian, pesan) => out.push({ bagian, tingkat: 'saran', pesan });
   const S = struktur || { cpmk: [], sub: [], asesmen: [], bobot: {} }, R = rps || rpsKosong(mk);
   const I = R.identitas || {};
@@ -136,6 +168,7 @@ export function periksaRps({ mk = {}, struktur, rps, cpl = [], pengembang = null
   if (!teks(I.semester)) g('A', 'Isi semester (angka 1-8, atau Ganjil/Genap untuk MKP).');
   if (!teks(I.penyelenggara)) g('A', 'Isi penyelenggara.');
   if (!R.pengembang) g('A', 'Pilih dosen pengembang RPS.');
+  else if (penyusun && !penyusun.some(d => d.id === R.pengembang)) g('A', 'Dosen pengembang harus koordinator MK atau dosen pengampu MK ini.');
   else if (pengembang && (!teks(pengembang.nama_gelar) || !teks(pengembang.nip))) s('A', 'Nama dengan gelar atau NIP dosen pengembang belum diisi (Profil / Kelola dosen).');
   if (!kaprodi) s('A', 'Kaprodi belum ditetapkan di Penugasan koordinator; kolom pemeriksa di Word dibiarkan kosong.');
   // B
@@ -207,7 +240,7 @@ export function periksaRps({ mk = {}, struktur, rps, cpl = [], pengembang = null
  * Model siap cetak untuk rps-docx.js. ctx seperti periksaRps + situs {prodi}. Kolom asesmen = jenis yang dipakai
  * (urutan Kuis, Tugas, UTS, UAS, Lainnya); sel = nama butir yang berbobot pada Sub-CPMK itu.
  */
-export function modelRps({ mk = {}, struktur, rps, cpl = [], pengembang = null, kaprodi = null } = {}){
+export function modelRps({ mk = {}, struktur, rps, cpl = [], pengembang = null, kaprodi = null, revisi = [] } = {}){
   const S = struktur || { cpmk: [], sub: [], asesmen: [], bobot: {} }, R = rps || rpsKosong(mk);
   const kolom = JENIS_ASESMEN.filter(([j]) => S.asesmen.some(a => jenisAsesmen(a) === j));
   const isi = x => Object.fromEntries(kolom.map(([j]) => [j, S.asesmen.filter(a => jenisAsesmen(a) === j && angka(S.bobot?.[x.kode]?.[a.nama])).map(a => a.nama)]));
@@ -225,7 +258,7 @@ export function modelRps({ mk = {}, struktur, rps, cpl = [], pengembang = null, 
     total: bulat(S.sub.reduce((a, x) => a + bobotSub(S, x.kode), 0)), hots: H,
     tujuan: teks(R.tujuan), deskripsi: teks(R.deskripsi), pengampu: teks(R.pengampu), kriteria: teks(R.kriteria),
     pustaka: (R.pustaka || []).filter(p => teks(p.teks)), syarat: R.syarat || {}, scl: R.scl || {}, integrasi: R.integrasi || {},
-    direktori: R.direktori || {}, pekan: R.pekan || [], evaluasi: R.evaluasi || {},
+    direktori: R.direktori || {}, pekan: R.pekan || [], evaluasi: R.evaluasi || {}, revisi,
   };
 }
 

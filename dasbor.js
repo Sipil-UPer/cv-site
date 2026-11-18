@@ -1,6 +1,6 @@
 // Dasbor operasional koordinator prodi (pemilik 2026-11-17, tahap 3 koordinator): per bidang, siapa penanggung jawabnya
 // (koordinator aktif) dan antrean/keterlambatan, dengan tautan ke halaman kerjanya. Dipakai dasbor.html.
-import { aktifPada, labelJabatan } from './koordinator.js?v=2026-11-18-968a5d';
+import { aktifPada, labelJabatan } from './koordinator.js?v=2026-11-18-394409';
 
 export const HARI_ANTRE = 7;     // pengajuan yang menunggu lebih dari ini = terlambat
 export const HARI_SK = 30;       // penugasan berakhir dalam sekian hari = perlu diperpanjang
@@ -66,6 +66,8 @@ export function ringkasDasbor(d, kini = new Date()){
     { bidang: 'Laboratorium', jabatan: 'kepala_lab', item: [] },
     { bidang: 'Administrasi prodi', jabatan: null, item: [
       { label: 'Permohonan surat mahasiswa', ...antre(tunggu('surat', 'admin'), 'pengajuan-mahasiswa.html') },
+      // RPS K26 (112, pemilik 2026-11-18): diajukan dosen, menunggu pengesahan Kaprodi.
+      { label: 'RPS menunggu pengesahan Kaprodi', n: (d.rps || []).filter(r => r.status === 'diajukan').length, lewat: 0, href: 'rps.html' },
       { label: 'Karya dosen menunggu verifikasi', n: (d.karya || []).filter(k => k.status === 'diajukan').length, lewat: 0, href: 'verifikasi.html' },
       { label: 'Kabar kegiatan menunggu terbit', n: (d.kabar || []).filter(k => k.status === 'diajukan').length, lewat: 0, href: 'kabar-kegiatan.html' },
       { label: 'Tindak lanjut rapat terbuka', n: (d.tindak || []).filter(t => ['terbuka', 'proses'].includes(t.status)).length,
