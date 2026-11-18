@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-18-e23e71">
-<link rel="stylesheet" href="kepala.css?v=2026-11-18-e23e71">
+<link rel="stylesheet" href="tema.css?v=2026-11-18-f65a5e">
+<link rel="stylesheet" href="kepala.css?v=2026-11-18-f65a5e">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
@@ -30,6 +30,20 @@
   .baris a{flex:1;color:var(--ink);text-decoration:none} .baris a:hover{text-decoration:underline}
   .baris .n{font-family:var(--mono);font-weight:600}
   .baris .lewat{font-family:var(--mono);font-size:12px;color:var(--merah);font-weight:600}
+  /* Beban bimbingan (109) */
+  .beban{background:var(--panel);border:1px solid var(--line);padding:12px 14px;margin-top:16px}
+  .beban h2{font-family:var(--serif);font-size:17px;margin:0 0 4px}
+  .beban .atas{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:4px 0 8px}
+  .gulir{overflow-x:auto}
+  .beban table{border-collapse:collapse;width:100%;font-size:13.5px}
+  .beban th, .beban td{padding:5px 8px;border-top:1px solid var(--line-soft);text-align:right;white-space:nowrap}
+  .beban th:first-child, .beban td:first-child{text-align:left;white-space:normal}
+  .beban thead th{font-weight:600;color:var(--muted);font-size:12.5px;border-top:0}
+  .beban td{font-family:var(--mono)} .beban td:first-child{font-family:var(--sans)}
+  .beban tr.kk td{background:var(--line-soft);font-family:var(--sans);font-weight:600;font-size:12.5px}
+  .beban tfoot td{color:var(--muted);border-top:2px solid var(--line)}
+  .beban .tinggi{color:var(--merah);font-weight:600}
+  .beban .penuh{color:var(--emas);font-weight:600}
 </style>
 </head>
 <body>
@@ -39,7 +53,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-18-e23e71"></script>
+<script src="config.js?v=2026-11-18-f65a5e"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -57,9 +71,10 @@ addEventListener('error', function (e) {
 // Dasbor operasional (pemilik 2026-11-17): koordinator prodi melihat per bidang siapa penanggung jawabnya dan antrean yang
 // menunggu/terlambat. Hanya membaca; tindakan dilakukan di halaman kerja masing-masing (tautan di tiap baris).
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-18-e23e71';
-import { ringkasDasbor, HARI_ANTRE } from './dasbor.js?v=2026-11-18-e23e71';
-import { labelPeran } from './koordinator.js?v=2026-11-18-e23e71';
+import { gerbang } from './menu.js?v=2026-11-18-f65a5e';
+import { ringkasDasbor, HARI_ANTRE, ringkasBeban } from './dasbor.js?v=2026-11-18-f65a5e';
+import { tsBerjalan } from './sdgs-unduh.js?v=2026-11-18-f65a5e';
+import { labelPeran } from './koordinator.js?v=2026-11-18-f65a5e';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
@@ -98,7 +113,54 @@ async function mulai(){
         ${b.item.map(i => `<div class="baris"><a href="${esc(i.href)}">${esc(i.label)}</a><span class="n">${i.n}</span>${
           i.lewat ? `<span class="lewat">${i.lewat} terlambat</span>` : ''}</div>`).join('')
           || '<div class="ket">Profil dan alat laboratorium dikelola kepala lab di halaman Laboratorium.</div>'}</section>`;
-    }).join('')}</div>`;
+    }).join('')}</div>
+    <section class="beban" id="beban"><h2>Beban bimbingan per dosen</h2><p class="kosong">Memuat…</p></section>`;
+  await siapkanBeban();
+}
+
+// Beban bimbingan per dosen (109-patch-beban-bimbingan.sql, pemilik 2026-11-18): hanya angka, per TS.
+// TA dibandingkan dengan dosen se-KK (pembimbing TA sebidang/mendekati); KP, menguji, lomba dengan semua dosen.
+const labelTS = ts => `${ts - 1}/${ts}`;
+const angka = v => String(v).replace('.', ',');   // desimal Indonesia
+let KK = [];
+async function siapkanBeban(){
+  const D = await fetch('data.json?v=' + Date.now()).then(r => (r.ok ? r.json() : null)).catch(() => null);
+  KK = D?.situs?.kelompok_keahlian || [];
+  const kini = tsBerjalan();
+  $('beban').innerHTML = `<h2>Beban bimbingan per dosen</h2>
+    <div class="atas"><label>Tahun akademik <select id="bTS">${[0, 1, 2, 3, 4].map(i => kini - i)
+      .map(t => `<option value="${t}">${labelTS(t)}${t === kini ? ' (berjalan)' : ''}</option>`).join('')}</select></label></div>
+    <div id="bIsi"><p class="kosong">Memuat…</p></div>`;
+  $('bTS').onchange = () => gambarBeban(+$('bTS').value);
+  await gambarBeban(kini);
+}
+async function gambarBeban(ts){
+  const { data, error } = await sb.rpc('beban_bimbingan', { p_ts: ts });
+  if (error) {
+    $('bIsi').innerHTML = `<p class="kosong">${/beban_bimbingan|function/i.test(error.message)
+      ? 'Belum tersedia: jalankan patch 109 di Supabase.' : 'Gagal memuat: ' + esc(error.message)}</p>`;
+    return;
+  }
+  const B = ringkasBeban(data || [], KK);
+  if (!B.baris.length) { $('bIsi').innerHTML = '<p class="kosong">Belum ada dosen pembimbing.</p>'; return; }
+  const sel = (r, k, teks) => `<td class="${r.tinggi[k] ? 'tinggi' : ''}">${teks}${r.tinggi[k] ? ' ▲' : ''}</td>`;
+  const kp = r => `<td class="${r.tinggi.kp ? 'tinggi' : r.kuota ? 'penuh' : ''}">${r.kp}${r.kp_kuota == null ? '' : '/' + r.kp_kuota}${
+    r.tinggi.kp ? ' ▲' : ''}${r.kuota === 'lebih' ? ' (lebih kuota)' : r.kuota === 'penuh' ? ' (penuh)' : ''}</td>`;
+  const tinggi = B.baris.filter(r => Object.values(r.tinggi).some(Boolean)).length;
+  $('bIsi').innerHTML = `
+    <p class="ket">Angka TS ${labelTS(ts)} dari pengajuan mahasiswa, jadwal seminar/sidang, dan prestasi mahasiswa di situs ini.
+      ▲ = jauh di atas rata-rata (lebih dari 2 dan lebih dari 1,5 × rata-rata). TA dibandingkan dengan dosen
+      sekelompok keahlian, karena pembimbing TA harus sebidang atau mendekati; KP, menguji, dan lomba dibandingkan
+      dengan semua dosen. KP = pembimbing KP (beban/kuota, dasar kuota KP); TA = mahasiswa berbeda sebagai pembimbing 1 atau 2.
+      ${tinggi ? `<b>${tinggi} dosen</b> bertanda ▲.` : 'Tidak ada dosen yang jauh di atas rata-rata.'}</p>
+    <div class="gulir"><table>
+      <thead><tr><th>Dosen</th><th>KP</th><th>KP selesai</th><th>TA dibimbing</th><th>TA lulus</th><th>Menguji</th><th>Lomba</th></tr></thead>
+      <tbody>${B.kelompok.map(g => `<tr class="kk"><td colspan="7">${esc(g.nama)} · ${g.n} dosen · rata-rata TA ${g.kode ? '' : 'semua dosen '}${angka(g.rata_ta)}</td></tr>
+        ${B.baris.filter(r => r.kk === g.kode).map(r => `<tr><td>${esc(r.nama)}</td>${kp(r)}<td>${r.kp_selesai}</td>${sel(r, 'ta', r.ta)}
+          <td>${r.ta_lulus}</td>${sel(r, 'uji', r.uji)}${sel(r, 'lomba', r.lomba)}</tr>`).join('')}`).join('')}</tbody>
+      <tfoot><tr><td>Rata-rata semua dosen</td><td>${angka(B.rata.kp)}</td><td></td><td>${angka(B.rata.ta)}</td><td></td><td>${angka(B.rata.uji)}</td><td>${angka(B.rata.lomba)}</td></tr></tfoot>
+    </table></div>
+    <p class="ket">Kuota KP diatur di Rekap KP. Kelompok keahlian dosen diisi admin di Kelola dosen.</p>`;
 }
 mulai().catch(e => { $('isi').innerHTML = `<p class="kosong">Gagal memuat: ${esc(e.message)}</p>`; });
 </script>

@@ -1,6 +1,6 @@
 // Dasbor operasional koordinator prodi (pemilik 2026-11-17, tahap 3 koordinator): per bidang, siapa penanggung jawabnya
 // (koordinator aktif) dan antrean/keterlambatan, dengan tautan ke halaman kerjanya. Dipakai dasbor.html.
-import { aktifPada, labelJabatan } from './koordinator.js?v=2026-11-18-e23e71';
+import { aktifPada, labelJabatan } from './koordinator.js?v=2026-11-18-f65a5e';
 
 export const HARI_ANTRE = 7;     // pengajuan yang menunggu lebih dari ini = terlambat
 export const HARI_SK = 30;       // penugasan berakhir dalam sekian hari = perlu diperpanjang
@@ -44,7 +44,7 @@ export function ringkasDasbor(d, kini = new Date()){
     { bidang: 'Kerja Praktik/Magang', jabatan: 'koordinator_kp', item: [
       { label: 'Pengajuan menunggu koordinator', ...antre(tunggu('kp', 'admin'), 'pengajuan-mahasiswa.html') },
       { label: 'Menunggu pembimbing', ...antre(tunggu('kp', 'pembimbing'), 'pengajuan-mahasiswa.html') },
-      { label: 'KP berjalan (laporan selesai belum masuk)', n: P.filter(p => p.jenis === 'kp' && p.status === 'disetujui' && (p.tahap || 'pengajuan') === 'pengajuan').length,
+      { label: 'KP dilaksanakan (pelaporan selesai belum masuk)', n: P.filter(p => p.jenis === 'kp' && p.status === 'disetujui' && (p.tahap || 'pengajuan') === 'pengajuan').length,
         lewat: 0, href: 'pengajuan-mahasiswa.html' }] },
     { bidang: 'Kemahasiswaan', jabatan: 'pembina_kemahasiswaan', item: [
       { label: 'Laporan lomba menunggu', ...antre(p => p.jenis === 'lomba' && ['pembimbing', 'admin'].includes(p.status), 'pengajuan-mahasiswa.html') },
@@ -69,4 +69,33 @@ export function ringkasDasbor(d, kini = new Date()){
         lewat: (d.tindak || []).filter(t => ['terbuka', 'proses'].includes(t.status) && t.tenggat && t.tenggat < hari).length, href: 'rapat.html' }] },
   ];
   return bidang.map(b => ({ ...b, pj: b.jabatan ? penanggungJawab(d.koordinator, b.jabatan, kini) : { nama: [], peringatan: [] } }));
+}
+
+// Beban bimbingan per dosen (109-patch-beban-bimbingan.sql, pemilik 2026-11-18): baris beban_bimbingan(ts) ->
+// { baris, rata, kelompok }. Ditandai tinggi = di atas max(2, 1,5 x rata-rata), sama dengan rekap KP (rekap-kp.js).
+// KP, menguji, dan lomba dibandingkan dengan semua dosen; TA dibandingkan dengan dosen se-KK (pembimbing TA harus
+// sebidang atau mendekati, KP tidak harus), dosen tanpa KK dengan semua dosen.
+// kk = [{kode, nama}] urutan tampil (data.json situs.kelompok_keahlian).
+export const KOLOM_BEBAN = ['kp', 'ta', 'uji', 'lomba'];
+const rataDari = xs => (xs.length ? xs.reduce((a, v) => a + v, 0) / xs.length : 0);
+const bulat = v => Math.round(v * 10) / 10;
+const tinggiDari = (v, rata) => v > Math.max(2, 1.5 * rata);
+export function ringkasBeban(rows = [], kk = []){
+  const xs = rows.map(r => ({ ...r, kp: +r.kp || 0, kp_selesai: +r.kp_selesai || 0, ta: +r.ta || 0, ta_lulus: +r.ta_lulus || 0,
+    uji: +r.uji || 0, lomba: +r.lomba || 0, kp_kuota: r.kp_kuota == null ? null : +r.kp_kuota }));
+  const rata = Object.fromEntries(KOLOM_BEBAN.map(k => [k, rataDari(xs.map(r => r[k]))]));
+  const urut = new Map(kk.map((x, i) => [x.kode, i])), nama = new Map(kk.map(x => [x.kode, x.nama]));
+  const kodeKK = r => (urut.has(r.kk) ? r.kk : '');
+  const rataTA = new Map();
+  for (const k of new Set(xs.map(kodeKK))) if (k) rataTA.set(k, rataDari(xs.filter(r => kodeKK(r) === k).map(r => r.ta)));
+  const baris = xs.map(r => {
+    const k = kodeKK(r), pembanding = k ? rataTA.get(k) : rata.ta;
+    return { ...r, kk: k, kk_nama: nama.get(k) || '',
+      tinggi: { kp: tinggiDari(r.kp, rata.kp), ta: tinggiDari(r.ta, pembanding), uji: tinggiDari(r.uji, rata.uji),
+                lomba: tinggiDari(r.lomba, rata.lomba) },
+      kuota: r.kp_kuota == null ? '' : r.kp > r.kp_kuota ? 'lebih' : r.kp === r.kp_kuota ? 'penuh' : '' };
+  }).sort((a, b) => (a.kk ? urut.get(a.kk) : 1e9) - (b.kk ? urut.get(b.kk) : 1e9) || String(a.nama).localeCompare(String(b.nama), 'id'));
+  const kelompok = [...new Set(baris.map(r => r.kk))].map(k => ({ kode: k, nama: nama.get(k) || 'Kelompok keahlian belum diisi',
+    n: baris.filter(r => r.kk === k).length, rata_ta: bulat(k ? rataTA.get(k) : rata.ta) }));
+  return { baris, kelompok, rata: Object.fromEntries(KOLOM_BEBAN.map(k => [k, bulat(rata[k])])) };
 }
