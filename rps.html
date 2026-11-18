@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-19-505d63">
-<link rel="stylesheet" href="kepala.css?v=2026-11-19-505d63">
+<link rel="stylesheet" href="tema.css?v=2026-11-19-51ccc8">
+<link rel="stylesheet" href="kepala.css?v=2026-11-19-51ccc8">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
@@ -61,7 +61,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-19-505d63"></script>
+<script src="config.js?v=2026-11-19-51ccc8"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -81,14 +81,14 @@ addEventListener('error', function (e) {
 // Penyusun = koordinator MK atau pengampu kelas MK semester terakhir (boleh_rps, 112); GKM dan admin hanya melihat.
 // Pengesahan (112): dosen mengajukan -> Kaprodi aktif mengesahkan atau mengembalikan; daftar revisi (bagian F) otomatis.
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-19-505d63';
-import { bolehMutu, aktifPada, punya } from './koordinator.js?v=2026-11-19-505d63';
-import { cplMK } from './cpmk.js?v=2026-11-19-505d63';
+import { gerbang } from './menu.js?v=2026-11-19-51ccc8';
+import { bolehMutu, aktifPada, punya } from './koordinator.js?v=2026-11-19-51ccc8';
+import { cplMK } from './cpmk.js?v=2026-11-19-51ccc8';
 import { JENIS_ASESMEN, JENIS_MK, DIREKTORI, jenisAsesmen, bloom, hots, rapikanRps, kerangkaPekan, barisPekan, periksaRps, modelRps,
-  namaBerkasRps, penyusunMK, revisiDariLog, tanggalLokal, waktuLokal, evaluasiDariData, BENTUK, SCL, rekapRps, BENTUK_INTEGRASI } from './rps.js?v=2026-11-19-505d63';
-import { JENIS_PETA, relasiPeta, petaSvg } from './rps-peta.js?v=2026-11-19-505d63';
-import { keB64 } from './pengajuan-mhs.js?v=2026-11-19-505d63';
-import { buatRpsDocx } from './rps-docx.js?v=2026-11-19-505d63';
+  namaBerkasRps, penyusunMK, revisiDariLog, tanggalLokal, waktuLokal, evaluasiDariData, BENTUK, SCL, rekapRps, BENTUK_INTEGRASI } from './rps.js?v=2026-11-19-51ccc8';
+import { JENIS_PETA, relasiPeta, petaSvg } from './rps-peta.js?v=2026-11-19-51ccc8';
+import { keB64 } from './pengajuan-mhs.js?v=2026-11-19-51ccc8';
+import { buatRpsDocx } from './rps-docx.js?v=2026-11-19-51ccc8';
 
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -127,7 +127,7 @@ async function muat(){
     baca(sb.rpc('rps_boleh_saya')),
     baca(sb.from('koordinator').select('jabatan,mulai,selesai,dosen(id,nama,nama_gelar,nip)').eq('jabatan', 'kaprodi')),
     fetch('data.json?v=' + Date.now()).then(r => (r.ok ? r.json() : {})).catch(() => ({})),
-    baca(sb.from('mk_rps_pengesahan').select('kurikulum,kode_mk,aksi,oleh_id,oleh_nama,catatan,revisi,waktu').order('waktu')),
+    baca(sb.from('mk_rps_pengesahan').select('*').order('waktu')),   // * : penyusun_sendiri (114) bila patch sudah dijalankan
     baca(sb.from('cpl_kelas').select('tahun_akademik,semester,kode_mk,dosen_email'))]);
   TTD = await baca(sb.from('mk_rps_ttd').select('kurikulum,kode_mk,url,nama,revisi,oleh,waktu').order('waktu'));
   [KARYA, PENULIS] = await Promise.all([
@@ -268,16 +268,18 @@ function htmlSah(){
     : r.revisi ? `Draf perubahan sejak pengesahan terakhir (${esc(tanggalLokal(r.sah_pada || ''))}); ajukan lagi bila sudah selesai.` : 'Draf.';
   const bisaAju = r && BOLEH.has(PILIH) && ['draf', 'dikembalikan'].includes(r.status);
   return `<div class="periksa${r?.status === 'disahkan' ? ' ok' : ''}" style="margin:8px 0"><b>Pengesahan:</b> ${st}
-    ${bBerubah ? '<div style="color:#8A5A00">Bagian B (halaman CPMK) berubah sejak RPS disahkan; ajukan ulang supaya versi yang disahkan mutakhir.</div>' : ''}
+    ${bBerubah ? '<div style="color:#8A5A00">Bagian B (halaman CPMK) berubah sejak RPS disahkan; RPS kembali menjadi draf. Ajukan ulang dengan ringkasan perubahan; sampai disahkan lagi, versi disahkan yang lama tetap berlaku.</div>' : ''}
+    ${r?.sah?.kaprodi_penyusun ? '<div class="ket">Pengesahan terakhir oleh Kaprodi yang juga penyusun mata kuliah ini (ditandai di riwayat dan di Word).</div>' : ''}
     ${bisaAju ? `<div class="alat">${r.revisi ? '<input id="catAju" maxlength="2000" style="flex:1;min-width:260px" placeholder="Ringkasan perubahan (masuk daftar revisi RPS)">' : ''}
         <button class="b utama" id="ajukan"${galat ? ' disabled' : ''}>Ajukan ke Kaprodi</button>
         <span class="ket">${galat ? `Lengkapi dulu ${galat} butir daftar periksa.` : KOTOR ? 'Simpan perubahan dulu.' : ''}</span></div>` : ''}
     ${SAYA_KAPRODI && r?.status === 'diajukan' ? `<div class="alat"><input id="catSah" maxlength="2000" style="flex:1;min-width:260px" placeholder="Catatan untuk dosen (wajib bila dikembalikan)">
         <button class="b utama" id="sahkan">Sahkan</button><button class="b awas" id="kembalikan">Kembalikan</button></div>
         <div class="ket">${galat ? `Daftar periksa masih ${galat} butir belum lengkap.` : 'Daftar periksa lengkap.'} Sahkan = RPS dan bagian B saat ini disimpan sebagai
-          versi resmi; tautan RPS di data MK terisi.</div>` : ''}
+          versi resmi dan mata kuliah terhitung RPS ada di penilaian; bukti untuk asesor = RPS bertanda tangan Dekan yang diunggah.</div>
+        ${BOLEH.has(PILIH) ? '<div style="color:#8A5A00">Anda juga penyusun mata kuliah ini (koordinator/pengampu); pengesahan Anda akan ditandai di riwayat dan di Word.</div>' : ''}` : ''}
     ${log.length ? `<details><summary class="ket">Riwayat pengesahan (${log.length})</summary><ul>${log.map(l => `<li>${esc(waktuLokal(l.waktu))}
-      · ${esc({ ajukan: 'diajukan', kembalikan: 'dikembalikan', sahkan: 'disahkan' }[l.aksi])} oleh ${esc(l.oleh_nama || '')}${l.catatan ? `: ${esc(l.catatan)}` : ''}</li>`).join('')}</ul></details>` : ''}
+      · ${esc({ ajukan: 'diajukan', kembalikan: 'dikembalikan', sahkan: 'disahkan' }[l.aksi])} oleh ${esc(l.oleh_nama || '')}${l.penyusun_sendiri ? ' <b>(Kaprodi sekaligus penyusun)</b>' : ''}${l.catatan ? `: ${esc(l.catatan)}` : ''}</li>`).join('')}</ul></details>` : ''}
     <span class="msg" id="mSah"></span></div>`;
 }
 
@@ -587,7 +589,7 @@ async function segarkan(){
   const [kur, kode] = PILIH.split('|');
   const [{ data: r }, { data: log }] = await Promise.all([
     sb.from('mk_rps').select('kurikulum,kode_mk,data,status,oleh,diperbarui,revisi,sah,sah_pada,sah_oleh').eq('kurikulum', kur).eq('kode_mk', kode).maybeSingle(),
-    sb.from('mk_rps_pengesahan').select('kurikulum,kode_mk,aksi,oleh_id,oleh_nama,catatan,revisi,waktu').eq('kurikulum', kur).eq('kode_mk', kode).order('waktu')]);
+    sb.from('mk_rps_pengesahan').select('*').eq('kurikulum', kur).eq('kode_mk', kode).order('waktu')]);
   if (r) RPS.set(PILIH, r);
   LOG = [...LOG.filter(l => kunci(l.kurikulum, l.kode_mk) !== PILIH), ...(log || [])];
   gambar();
@@ -623,7 +625,8 @@ async function ajukan(){
 async function putuskan(aksi){
   const [kur, kode] = PILIH.split('|'), cat = $('catSah').value.trim() || null;
   if (aksi === 'kembalikan' && !cat) return tulis('mSah', 'buruk', 'Tulis catatan untuk dosen.');
-  if (aksi === 'sahkan' && !confirm('Sahkan RPS ini? RPS dan bagian B saat ini disimpan sebagai versi resmi.')) return;
+  if (aksi === 'sahkan' && !confirm('Sahkan RPS ini? RPS dan bagian B saat ini disimpan sebagai versi resmi.'
+    + (BOLEH.has(PILIH) ? ' Anda juga penyusun mata kuliah ini; pengesahan akan ditandai.' : ''))) return;
   const url = new URL(`rps.html?kur=${encodeURIComponent(kur)}&kode=${encodeURIComponent(kode)}`, location.href).href;
   const { error } = await sb.rpc('rps_putuskan', { p_kurikulum: kur, p_kode: kode, p_aksi: aksi, p_catatan: cat,
     p_url: url.startsWith('https://') ? url : null });
@@ -651,6 +654,7 @@ async function unduh(versiSah){
     const r = RPS.get(PILIH), c = ctx();
     if (versiSah) Object.assign(c, { rps: rapikanRps(r.sah.rps, c.mk, SITUS), struktur: r.sah.struktur, kaprodi: namaDosen(r.sah_oleh) || KAPRODI });
     else if (r?.status === 'disahkan') c.kaprodi = namaDosen(r.sah_oleh) || KAPRODI;
+    if (versiSah || r?.status === 'disahkan') c.kaprodi_penyusun = !!r?.sah?.kaprodi_penyusun;   // 114
     const peta = c.struktur?.sub?.length ? await pngPeta(c.struktur, c.rps.peta, entryPeta(c.rps)) : null;
     const blob = await buatRpsDocx(modelRps(c), { JSZip, logo, peta });
     const a = Object.assign(document.createElement('a'), { href: URL.createObjectURL(blob), download: namaBerkasRps(mkDari(PILIH)) });

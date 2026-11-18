@@ -315,7 +315,7 @@ export function periksaRps({ mk = {}, struktur, rps, cpl = [], pengembang = null
  * Model siap cetak untuk rps-docx.js. ctx seperti periksaRps + situs {prodi}. Kolom asesmen = jenis yang dipakai
  * (urutan Kuis, Tugas, UTS, UAS, Lainnya); sel = nama butir yang berbobot pada Sub-CPMK itu.
  */
-export function modelRps({ mk = {}, struktur, rps, cpl = [], pengembang = null, kaprodi = null, revisi = [] } = {}){
+export function modelRps({ mk = {}, struktur, rps, cpl = [], pengembang = null, kaprodi = null, revisi = [], kaprodi_penyusun = false } = {}){
   const S = struktur || { cpmk: [], sub: [], asesmen: [], bobot: {} }, R = rps || rpsKosong(mk);
   const kolom = JENIS_ASESMEN.filter(([j]) => S.asesmen.some(a => jenisAsesmen(a) === j));
   const isi = x => Object.fromEntries(kolom.map(([j]) => [j, S.asesmen.filter(a => jenisAsesmen(a) === j && angka(S.bobot?.[x.kode]?.[a.nama])).map(a => a.nama)]));
@@ -325,7 +325,7 @@ export function modelRps({ mk = {}, struktur, rps, cpl = [], pengembang = null, 
   const orang = o => (o ? { nama: teks(o.nama_gelar) || teks(o.nama), nip: teks(o.nip) } : { nama: '', nip: '' });
   return {
     mk: { kode: teks(mk.kode), nama: teks(mk.nama), kurikulum: teks(mk.kurikulum) },
-    identitas: R.identitas, pengembang: orang(pengembang), kaprodi: orang(kaprodi),
+    identitas: R.identitas, pengembang: orang(pengembang), kaprodi: orang(kaprodi), kaprodi_penyusun: !!kaprodi_penyusun,   // 114
     cpl: cpl.filter(c => S.sub.some(x => x.cpl === c.kode) || !S.sub.some(x => x.cpl)),
     cpmk: S.cpmk.map(c => ({ kode: c.kode, rumusan: teks(c.rumusan) })),
     kolom: kolom.map(([j, l]) => ({ jenis: j, label: l, total: totalJenis[j] })),

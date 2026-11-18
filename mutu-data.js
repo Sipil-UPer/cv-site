@@ -1,6 +1,6 @@
 // Pemeriksa mutu data (pemilik 2026-11-11): menandai data yang perlu diperbaiki
 // sebelum asesor atau auditor melihatnya. Hanya membaca; tidak mengubah apa pun.
-// Masukan M = { karya, karyaBukti, karyaPenulis, dosen, mk, kerjasama, tracer }.
+// Masukan M = { karya, karyaBukti, karyaPenulis, dosen, mk, kerjasama, tracer, rps, rpsTtd }.
 // Tiap pemeriksaan -> { id, judul, tingkat: 'penting'|'periksa'|'info', ket, ke, temuan: [{teks}] }.
 
 const BATAS_MIRIP = 0.85;     // kemiripan kata judul (Jaccard) untuk dugaan entri ganda
@@ -102,6 +102,15 @@ export function periksaMutu(M, kini = new Date()){
   tambah('mk_rps_ttd', 'RPS disahkan, bukti bertanda tangan Dekan belum diunggah', 'periksa',
     'Butir 15: asesor hanya melihat RPS bertanda tangan Dekan sebagai bukti (unggah di halaman RPS).', 'rps.html',
     mk.filter(m => m.rps_ada && !m.rps_url).map(m => ({ teks: labelMK(m) })));
+  // 114: RPS disahkan ulang, bukti bertanda tangan terakhir masih untuk pengesahan sebelumnya (rpsTtd urut id; terakhir = rps_url).
+  const kMK = (kur, kode) => `${kur}|${kode}`;
+  const revRps = new Map((M.rps || []).map(r => [kMK(r.kurikulum, r.kode_mk), +r.revisi || 0]));
+  const ttdAkhir = new Map((M.rpsTtd || []).map(t => [kMK(t.kurikulum, t.kode_mk), t]));
+  tambah('mk_rps_ttd_lama', 'Bukti RPS bertanda tangan Dekan masih untuk versi lama', 'periksa',
+    'Butir 15: RPS sudah disahkan ulang Kaprodi; unggah versi terbaru yang bertanda tangan Dekan di halaman RPS.', 'rps.html',
+    mk.filter(m => { const t = ttdAkhir.get(kMK(m.kurikulum, m.kode));
+      return m.rps_url && t && t.revisi != null && t.revisi < (revRps.get(kMK(m.kurikulum, m.kode)) || 0); })
+      .map(m => ({ teks: labelMK(m) })));
   tambah('mk_rps_9', 'RPS belum memuat 9 komponen', 'periksa', 'Butir 15 unsur 4: RPS memuat 9 komponen.', 'data-prodi.html?tab=mk',
     mk.filter(m => (m.rps_ada || m.rps_url) && m.rps_9_komponen === false).map(m => ({ teks: labelMK(m) })));
   tambah('mk_sks', 'SKS tidak sama dengan jumlah rinciannya', 'periksa',

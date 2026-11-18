@@ -85,6 +85,9 @@ export function dokumenRps(M, o = {}){
     [sel('', { vm: 'lanjut' }), sel(`NIP ${M.pengembang.nip}`.trim(), { span: 2, jc: 'center' }), sel(`NIP ${M.kaprodi.nip}`.trim(), { span: 4, jc: 'center' }),
      sel('NIP', { span: 2, jc: 'center' })],
   ]));
+  // 114 (pemilik 2026-11-19): Kaprodi pemeriksa sekaligus penyusun RPS -> boleh, ditandai.
+  if (M.kaprodi_penyusun) out.push(pg(rn('Catatan: Ketua Program Studi yang memeriksa juga penyusun RPS ini (koordinator/pengampu mata kuliah); '
+    + 'ditandai oleh sistem.', { i: true, sz: 16 }), { before: 40, after: 60 }));
   // B. Capaian pembelajaran.
   out.push(judulBagian('B', 'Capaian Pembelajaran'));
   out.push(tabelK([2205, 11829], [
