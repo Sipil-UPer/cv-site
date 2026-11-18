@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-18-aead89">
+<link rel="stylesheet" href="tema.css?v=2026-11-18-54409d">
 <style>
   /* Pengajuan mahasiswa, publik tanpa login (pemilik 2026-11-17; patch 90). Warna dari tema.css. */
   *{box-sizing:border-box}
@@ -75,7 +75,7 @@
   <h1>Pengajuan KP, seminar/sidang TA, lomba, publikasi/luaran, dan surat</h1><div class="prodi" id="hProdi"></div>
 </div></header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-18-aead89"></script>
+<script src="config.js?v=2026-11-18-54409d"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -96,8 +96,8 @@ addEventListener('error', function (e) {
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
 import { JENIS, LABEL_BERKAS, LABEL_STATUS, TINGKAT, BIDANG, jalur, bolehUbah, bacaAnggota, teksAnggota,
          periksaIsian, judulPengajuan, keB64, bukaIsi, appsScript, labelStatus, jalurTahap, BERKAS_SELESAI, PROGRAM_KP, labelProgram,
-         periksaSelesai, JENIS_SURAT, TAHAP_TA, JENIS_PUB, TINGKAT_PUB, INDEKSASI, JENIS_LUARAN } from './pengajuan-mhs.js?v=2026-11-18-aead89';
-import { saranInstansi } from './rekap-kp.js?v=2026-11-18-aead89';
+         periksaSelesai, JENIS_SURAT, TAHAP_TA, JENIS_PUB, TINGKAT_PUB, INDEKSASI, JENIS_LUARAN } from './pengajuan-mhs.js?v=2026-11-18-54409d';
+import { saranInstansi } from './rekap-kp.js?v=2026-11-18-54409d';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
@@ -433,7 +433,9 @@ function halamanSaya(){
   const bisaTolak = p.jenis === 'kp' && (p.tahap || 'pengajuan') === 'pengajuan' && p.status === 'disetujui';
   const unggahan = !ubahPengajuan ? jenisUnggah : sus === 'selesai' ? BERKAS_SELESAI
     : sus === 'berjalan' ? ['surat_balasan', ...J.berkas.filter(k => k !== 'surat_permohonan' && k !== 'surat_balasan')] : jenisUnggah;
-  const bisaBuang = b => ubah && b.oleh !== 'prodi' && !(p.status === 'disetujui' && b.jenis === 'surat_permohonan');
+  // Berkas bertanda "[ditolak …]" (106) adalah catatan surat ke instansi yang menolak: tidak bisa dibuang mahasiswa.
+  const bisaBuang = b => ubah && b.oleh !== 'prodi' && !(p.status === 'disetujui' && b.jenis === 'surat_permohonan')
+    && !String(b.nama || '').startsWith('[ditolak ');
   const ringkas = p.jenis === 'luaran' ? ringkasLuaran(d)
     : p.jenis === 'ta'
     ? [['Tahap', (TAHAP_TA.find(t => t[0] === d.tahap_ta) || [, ''])[1]], ['Judul', d.judul],
