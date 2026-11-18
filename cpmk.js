@@ -7,7 +7,7 @@
 //   keduanya kosong -> satu indikator per CPL bernomor 1 dengan teks rumusan CPL.
 // Kode indikator di templat: <kode CPL><nomor>, mis. A1, A2, a5 (kolom B templat = CPL induk).
 
-export const VERSI = '2026-11-18-2796a9';
+export const VERSI = '2026-11-18-ff5f6c';
 export const strukturKosong = () => ({ versi: VERSI, cpmk: [], sub: [], asesmen: [], bobot: {} });
 
 /** "1. Menunjukkan ... 2. Menentukan ..." -> ['Menunjukkan ...', 'Menentukan ...']; teks tanpa nomor -> [teks]. */

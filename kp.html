@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Kerja Praktik dan Magang — Program Studi</title>
+<meta name="description" content="Ruang Kerja Praktik dan magang: alur, syarat dan berkas, dokumen, tempat KP kakak tingkat, dan pengajuan.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tema.css?v=2026-11-18-ff5f6c">
+<style>
+  /* Ruang KP, publik tanpa login (pemilik 2026-11-18; patch 105). Warna dari tema.css. */
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15.5px;line-height:1.55;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:860px;margin:0 auto;padding:0 16px 80px}
+  .hero{background:var(--biru);color:#fff;border-bottom:4px solid var(--merah)}
+  .hero-in{max-width:860px;margin:0 auto;padding:22px 16px 18px}
+  .hero a.balik{color:var(--biru-m4);font-size:13px;text-decoration:none}
+  .hero a.balik:hover{text-decoration:underline}
+  h1{font-family:var(--serif);font-size:clamp(22px,4.2vw,30px);font-weight:600;margin:6px 0 0;line-height:1.2;color:#fff}
+  .prodi{color:var(--biru-m4);font-size:14px;margin-top:6px}
+  h2{font-family:var(--serif);font-size:19px;font-weight:600;margin:28px 0 8px}
+  h3{font-size:14px;font-weight:600;color:var(--muted);margin:16px 0 4px;text-transform:uppercase;letter-spacing:.04em}
+  .ket, .kosong{color:var(--muted)} .ket{font-size:13.5px}
+  .kotak{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px;margin-top:10px}
+  .aksi{display:flex;flex-wrap:wrap;gap:10px;margin:14px 0 4px}
+  a.b{display:inline-block;font-weight:600;font-size:14px;border-radius:7px;padding:10px 18px;border:1px solid var(--biru);
+      background:var(--panel);color:var(--biru);text-decoration:none}
+  a.b.utama{background:var(--biru);color:#fff}
+  a.b:focus-visible{outline:2px solid var(--biru);outline-offset:2px}
+  .jalur{list-style:none;margin:8px 0 0;padding:0;display:grid;grid-template-columns:repeat(4,1fr);gap:6px;counter-reset:l}
+  @media (max-width:640px){.jalur{grid-template-columns:1fr}}
+  .jalur li{border:1px solid var(--line);border-top:4px solid var(--biru);border-radius:8px;padding:8px 10px;background:var(--panel);font-size:13.5px;counter-increment:l}
+  .jalur li::before{content:counter(l);font-family:var(--mono);font-size:11px;color:var(--muted);display:block}
+  .jalur li b{display:block;font-size:14px}
+  .jalur li.wajib{border-top-color:var(--merah)}
+  ul.syarat{margin:6px 0 0;padding-left:20px} ul.syarat li{margin:3px 0}
+  .daftar{list-style:none;margin:6px 0 0;padding:0;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--panel)}
+  .daftar li{padding:9px 12px;border-bottom:1px solid var(--line-soft);font-size:14px}
+  .daftar li:last-child{border-bottom:0}
+  .daftar a{color:var(--biru);font-weight:600}
+  .daftar .meta{font-size:12.5px;color:var(--muted)}
+  table{width:100%;border-collapse:collapse;background:var(--panel);border:1px solid var(--line);font-size:14px}
+  th{text-align:left;font-size:12px;color:var(--muted);font-weight:500;border-bottom:1px solid var(--line);padding:7px 10px;background:var(--bg)}
+  td{border-bottom:1px solid var(--line-soft);padding:7px 10px;vertical-align:top}
+  td.n, th.n{text-align:right;font-family:var(--mono)}
+  .gulir{overflow-x:auto}
+  footer{margin-top:32px;font-size:13px;color:var(--muted)} footer a{color:var(--muted)}
+</style>
+</head>
+<body>
+<header class="hero"><div class="hero-in">
+  <a class="balik" href="berkas-mahasiswa.html">&larr; Layanan mahasiswa</a>
+  <h1>Kerja Praktik dan Magang</h1><div class="prodi" id="hProdi"></div>
+</div></header>
+<main class="wrap">
+  <p>Semua urusan KP dan magang ada di sini: alur dan syarat, dokumen, tempat KP kakak tingkat, pengajuan surat pengantar,
+    dan laporan selesai KP. Pengajuan dibuat tanpa akun; tautan pribadi dikirim ke <b>email kampus</b> Anda.</p>
+  <div class="aksi">
+    <a class="b utama" href="pengajuan.html?jenis=kp">Ajukan KP atau magang</a>
+    <a class="b" href="pengajuan.html?jenis=kp">Sudah mengajukan? Minta tautan baru</a>
+  </div>
+  <p class="ket">Laporan selesai KP diisi lewat <b>tautan pribadi yang sama</b> setelah pengajuan Anda disetujui. Email kampus
+    bermasalah? Daftarkan email alternatif di bagian bawah <a href="pengajuan.html?jenis=kp">halaman pengajuan</a>.</p>
+
+  <h2>Alur</h2>
+  <h3>Tahap 1 · Pengajuan dan surat pengantar</h3>
+  <ol class="jalur">
+    <li><b>Isi pengajuan</b>instansi tujuan (pilih dari usulan bila sudah ada), rencana mulai, dosen pembimbing; unggah surat permohonan</li>
+    <li><b>Diperiksa dosen pembimbing</b>disetujui atau dikembalikan dengan catatan</li>
+    <li><b>Diperiksa koordinator KP</b>atau admin prodi</li>
+    <li><b>Surat pengantar terbit</b>unduh lewat tautan pribadi Anda</li>
+  </ol>
+  <h3>Tahap 2 · Selesai KP</h3>
+  <ol class="jalur">
+    <li><b>Isi laporan selesai</b>tanggal mulai dan selesai, pembimbing lapangan, ringkasan kegiatan; unggah berkas</li>
+    <li class="wajib"><b>Disetujui dosen pembimbing</b>wajib; tanpa persetujuan ini KP belum selesai</li>
+    <li><b>Diperiksa koordinator KP</b>atau admin prodi</li>
+    <li><b>KP selesai</b>tercatat sebagai pelaksanaan KP prodi</li>
+  </ol>
+
+  <h2>Syarat dan berkas</h2>
+  <div class="kotak">
+    <b>Tahap 1</b>
+    <ul class="syarat">
+      <li>Surat permohonan KP (wajib); surat balasan instansi bila sudah ada.</li>
+      <li>Nama instansi ditulis lengkap dan baku. Bila instansinya sudah pernah dipakai atau menjadi mitra prodi, pilih dari usulan nama
+        yang muncul saat mengetik.</li>
+      <li>Pilih program: Kerja Praktik atau Magang (MBKM).</li>
+    </ul>
+    <b>Tahap 2</b>
+    <ul class="syarat">
+      <li>Laporan KP, surat keterangan selesai dari instansi, dan logbook.</li>
+      <li>Nilai dari pembimbing lapangan <b>tidak</b> diunggah mahasiswa; diunggah dosen pembimbing, koordinator KP, atau admin prodi.</li>
+      <li>Laporan KP dan surat selesai bersifat privat: hanya dosen pembimbing, koordinator KP, admin prodi, dan asesor akreditasi yang bisa
+        membukanya.</li>
+    </ul>
+  </div>
+
+  <h2>Dokumen KP</h2>
+  <div id="dok"><p class="kosong">Memuat…</p></div>
+
+  <h2>Tempat KP dan magang kakak tingkat</h2>
+  <p class="ket">Dari KP yang sudah disetujui prodi; tanpa nama mahasiswa. Lihat juga <a href="kerja-sama.html">mitra kerja sama prodi</a>.</p>
+  <div id="tempat"><p class="kosong">Memuat…</p></div>
+
+  <footer><a href="privasi.html">Kebijakan privasi</a></footer>
+</main>
+<script src="config.js?v=2026-11-18-ff5f6c"></script>
+<script>
+// Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
+addEventListener('error', function (e) {
+  if (document.getElementById('galat-muat')) return;
+  var d = document.createElement('div');
+  d.id = 'galat-muat';
+  d.style.cssText = 'margin:16px;padding:12px 14px;border:1px solid var(--merah);' +
+    'background:var(--merah-m3);color:var(--ink);font:14px/1.5 system-ui,sans-serif';
+  d.textContent = 'Halaman gagal dimuat: ' + (e.message || 'galat skrip') +
+    '. Tekan Ctrl+Shift+R untuk memuat ulang tanpa cache; bila tetap muncul, kirim pesan ini ke admin.';
+  document.body.insertBefore(d, document.body.firstChild);
+});
+</script>
+<script type="module">
+// Ruang KP (pemilik 2026-11-18): info publik. Dokumen = dokumen untuk mahasiswa (Data prodi › Dokumen, centang Mahasiswa;
+// dokumen_mahasiswa(), patch 76) yang judulnya memuat KP, Kerja Praktik, atau Magang. Tempat KP = data.json tempat_kp.
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
+
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const $ = id => document.getElementById(id);
+const sb = createClient(window.SB_URL, window.SB_KEY, { auth: { persistSession: false } });
+const DOK_KP = /\b(kp|kerja\s+praktik|kerja\s+praktek|magang)\b/i;
+
+fetch('data.json?v=' + Date.now()).then(r => r.ok ? r.json() : {}).catch(() => ({})).then(D => {
+  $('hProdi').textContent = [D.prodi, D.institusi].filter(Boolean).join(' · ');
+  const xs = D.tempat_kp || [];
+  $('tempat').innerHTML = xs.length ? `<div class="gulir"><table><thead><tr><th>Instansi</th><th class="n">KP</th><th class="n">Magang</th>
+      <th>Bidang</th><th>Tahun</th></tr></thead><tbody>${xs.map(x => `<tr><td>${esc(x.instansi)}</td><td class="n">${x.kp || 0}</td>
+      <td class="n">${x.magang || 0}</td><td>${esc((x.bidang || []).join('; '))}</td>
+      <td>${x.tahun_awal ? esc(x.tahun_awal === x.tahun_akhir ? x.tahun_awal : `${x.tahun_awal}–${x.tahun_akhir}`) : ''}</td></tr>`).join('')}</tbody></table></div>`
+    : '<p class="kosong">Belum ada data tempat KP.</p>';
+});
+
+sb.rpc('dokumen_mahasiswa').then(({ data, error }) => {
+  const xs = (data || []).filter(d => DOK_KP.test(`${d.judul || ''} ${d.nomor || ''}`));
+  $('dok').innerHTML = error ? '<p class="kosong">Dokumen belum bisa dimuat.</p>'
+    : xs.length ? `<ul class="daftar">${xs.map(d => `<li><a href="${esc(d.url)}" target="_blank" rel="noopener">${esc(d.judul || d.nomor || 'Dokumen')}</a>
+        <div class="meta">${esc([d.nomor, d.tahun].filter(Boolean).join(' · '))}</div></li>`).join('')}</ul>`
+    : '<p class="kosong">Belum ada dokumen KP. Pedoman dan formulir umum ada di <a href="berkas-mahasiswa.html">Layanan mahasiswa</a>.</p>';
+});
+</script>
+</body>
+</html>

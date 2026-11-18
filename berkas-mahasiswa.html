@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-18-2796a9">
+<link rel="stylesheet" href="tema.css?v=2026-11-18-ff5f6c">
 <style>
   /* Layanan mahasiswa, publik (pemilik 2026-11-16; patch 76, 77, 78). Warna dari tema.css. */
   *{box-sizing:border-box}
@@ -106,6 +106,7 @@
     <a href="#tanya-jawab">Tanya-jawab<small>yang sering ditanya</small></a>
     <a href="#kirim">Tanya / masukan<small>kirim ke prodi</small></a>
     <a href="#jadwal-ta">Jadwal seminar/sidang<small>TA: proposal, kemajuan, akhir</small></a>
+    <a href="kp.html">Kerja Praktik dan Magang<small>alur, dokumen, tempat KP, pengajuan</small></a>
     <a href="pengajuan.html">Pengajuan KP, TA, lomba, luaran, surat<small>unggah berkas, pantau proses</small></a>
   </nav>
 </div></header>
@@ -159,7 +160,7 @@
   <footer>Pertanyaan tentang isi berkas: hubungi sekretariat program studi.
     · <a href="kurikulum.html">Kurikulum</a> · <a href="privasi.html">Kebijakan privasi</a></footer>
 </main>
-<script src="config.js?v=2026-11-18-2796a9"></script>
+<script src="config.js?v=2026-11-18-ff5f6c"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -181,8 +182,8 @@ addEventListener('error', function (e) {
 //   Tanya-jawab: tanya_jawab_publik() (78), disusun admin di kelola-mahasiswa.html.
 //   Kiriman: kirim_masukan_mahasiswa() (78) ke kotak masuk tertutup; kolom k_situs adalah jebakan bot.
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { infoJenis } from './rencana-bukti.js?v=2026-11-18-2796a9';
-import { pasangPembimbing } from './pembimbing.js?v=2026-11-18-2796a9';
+import { infoJenis } from './rencana-bukti.js?v=2026-11-18-ff5f6c';
+import { pasangPembimbing } from './pembimbing.js?v=2026-11-18-ff5f6c';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);

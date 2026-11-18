@@ -83,6 +83,8 @@ export function indeksPublik(D, aktif = () => true){
     ['prestasi.html', 'Prestasi mahasiswa', 'lomba dan kompetisi', 'juara'],
     ['kerja-sama.html', 'Kerja sama', 'mitra karya dan kerja sama resmi', 'mou'],
     ['kerja-sama.html#tempat-kp', 'Tempat KP dan magang', 'instansi tempat kerja praktik dan magang mahasiswa', 'kerja praktik magang mbkm'],
+    ['kp.html', 'Kerja Praktik dan Magang', 'alur, syarat, dokumen, tempat KP, pengajuan surat pengantar dan selesai KP',
+     'kp kerja praktik magang surat pengantar laporan selesai'],
     ['alumni.html', 'Alumni dan tracer study', 'waktu tunggu, kesesuaian bidang, tempat kerja lulusan', 'tracer lulusan alumni'],
     ['hasil-survei.html', 'Hasil survei kepuasan', 'rekap survei', 'kepuasan'],
   ];

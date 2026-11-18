@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Rekap KP dan magang — Kinerja Program Studi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tema.css?v=2026-11-18-ff5f6c">
+<link rel="stylesheet" href="kepala.css?v=2026-11-18-ff5f6c">
+<style>
+  *{box-sizing:border-box}
+  [hidden]{display:none !important}   /* .ubah berdisplay flex mengalahkan hidden */
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
+  .wrap{max-width:1120px;margin:0 auto;padding:18px 20px 80px}
+  .kosong, .ket{color:var(--muted)} .ket{font-size:13px}
+  h2{font-family:var(--serif);font-size:19px;font-weight:600;margin:24px 0 8px}
+  .saring{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;margin:4px 0 12px;font-size:13.5px}
+  .saring select{font:inherit;font-size:14px;padding:5px 7px;border:1px solid var(--line);background:var(--panel);color:var(--ink)}
+  .ringkas{display:flex;flex-wrap:wrap;gap:10px;margin:4px 0 14px}
+  .ringkas div{background:var(--panel);border:1px solid var(--line);padding:8px 14px;min-width:120px}
+  .ringkas b{font-family:var(--mono);font-size:20px;display:block}
+  .ringkas span{font-size:12.5px;color:var(--muted)}
+  table{width:100%;border-collapse:collapse;background:var(--panel);border:1px solid var(--line);font-size:14px}
+  th{text-align:left;font-size:12px;color:var(--muted);font-weight:500;border-bottom:1px solid var(--line);padding:7px 10px;background:var(--bg)}
+  td{border-bottom:1px solid var(--line-soft);padding:7px 10px;vertical-align:top}
+  td.n, th.n{text-align:right;font-family:var(--mono)}
+  .lebar-tabel{overflow-x:auto}
+  button.b{font:inherit;font-size:12.5px;padding:3px 9px;border:1px solid var(--biru);background:var(--panel);color:var(--biru);cursor:pointer;margin:2px 4px 2px 0}
+  button.b.utama{background:var(--biru);color:#fff}
+  button.b:disabled{opacity:.5;cursor:default}
+  .tag{display:inline-block;font-size:12px;padding:1px 8px;border:1px solid var(--line);background:var(--bg);white-space:nowrap}
+  .tag.mitra{border-color:var(--hijau);color:var(--hijau)} .tag.usul{border-color:var(--biru);color:var(--biru)}
+  .tag.tinggi{border-color:var(--merah);color:var(--merah)}
+  .batang{display:inline-block;height:9px;background:var(--biru);vertical-align:middle;margin-left:6px}
+  .ubah{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+  .ubah input{font:inherit;font-size:13.5px;padding:4px 7px;border:1px solid var(--line);min-width:240px;flex:1}
+  .msg{font-size:13px;margin-left:6px} .msg.ok{color:var(--hijau)} .msg.err{color:var(--merah)}
+</style>
+</head>
+<body>
+<header class="hero"><div class="hero-in">
+  <div class="hero-inst" data-identitas></div>
+  <h1>Rekap KP dan magang</h1>
+  <div class="sub" id="hSub">Memuat…</div>
+</div></header>
+<main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
+<datalist id="daftarNama"></datalist>
+<script src="config.js?v=2026-11-18-ff5f6c"></script>
+<script>
+// Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
+addEventListener('error', function (e) {
+  if (document.getElementById('galat-muat')) return;
+  var d = document.createElement('div');
+  d.id = 'galat-muat';
+  d.style.cssText = 'margin:16px;padding:12px 14px;border:1px solid var(--merah);' +
+    'background:var(--merah-m3);color:var(--ink);font:14px/1.5 system-ui,sans-serif';
+  d.textContent = 'Halaman gagal dimuat: ' + (e.message || 'galat skrip') +
+    '. Tekan Ctrl+Shift+R untuk memuat ulang tanpa cache; bila tetap muncul, kirim pesan ini ke admin.';
+  document.body.insertBefore(d, document.body.firstChild);
+});
+</script>
+<script type="module">
+// Rekap KP dan magang (105-patch-ruang-kp.sql, pemilik 2026-11-18).
+//   semua staf      : angka per tahun, per instansi (status mitra kerja sama), beban bimbingan per dosen (kp_rekap_baris,
+//                     tanpa NIM/nama mahasiswa);
+//   koordinator KP / admin : bakukan nama instansi, usulkan menjadi mitra atau tidak, bukti KP selesai + tautan asesor;
+//   asesor (akun)   : bukti KP selesai (laporan KP, surat selesai).
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
+import { gerbang } from './menu.js?v=2026-11-18-ff5f6c';
+import { punya } from './koordinator.js?v=2026-11-18-ff5f6c';
+import { appsScript, bukaIsi, waktuPengajuan } from './pengajuan-mhs.js?v=2026-11-18-ff5f6c';
+import { rekapKP, buktiSelesai, dariRekap, rapiNama } from './rekap-kp.js?v=2026-11-18-ff5f6c';
+import { opsiPeriode, cocokPeriode } from './sdgs-unduh.js?v=2026-11-18-ff5f6c';
+
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const $ = id => document.getElementById(id);
+const sb = createClient(window.SB_URL, window.SB_KEY);
+const sesi = async () => (await sb.auth.getSession()).data.session?.access_token;
+const STATUS = { mitra: 'Mitra kerja sama', usul: 'Diusulkan menjadi mitra', tidak: 'Tidak dimasukkan', belum: 'Belum diputuskan' };
+const JUDUL_BERKAS = { laporan_kp: 'Laporan KP', surat_selesai: 'Surat selesai' };
+let SAYA = null, KELOLA = false, ASESOR = false, PERIODE = '';
+let BARIS = [], RINCI = [], BERKAS = [], DOSEN = [], KS = [], PUTUS = [];
+const waktu = p => ({ ...p, ...waktuPengajuan({ ...p, jenis: 'kp' }) });
+
+async function muat(){
+  const [r, d, k, p] = await Promise.all([
+    sb.rpc('kp_rekap_baris'),
+    sb.from('dosen').select('id,nama,aktif,peran,dtps,kategori,tugas_belajar'),
+    sb.from('lkps_kerjasama').select('id,mitra,jenis,tingkat,tahun_mulai,tahun_selesai'),
+    sb.from('kp_instansi_keputusan').select('*')]);
+  if (r.error) throw new Error(/kp_rekap_baris/.test(r.error.message) ? 'Fungsi belum ada: jalankan supabase/105-patch-ruang-kp.sql.' : r.error.message);
+  BARIS = (r.data || []).map(dariRekap);
+  // Dosen yang dihitung bebannya = yang bisa dipilih menjadi pembimbing (sama dengan pembimbing_pilihan(), patch 90).
+  DOSEN = (d.data || []).filter(x => x.aktif && x.peran !== 'asesor' && (x.dtps || x.kategori) && !x.tugas_belajar);
+  KS = k.data || []; PUTUS = p.data || [];
+  if (KELOLA || ASESOR) {
+    const [q, b] = await Promise.all([
+      sb.from('pengajuan_mahasiswa').select('id,nim,nama,jenis,status,tahap,data,data_selesai,dibuat,pembimbing_id').eq('jenis', 'kp'),
+      sb.from('pengajuan_berkas').select('id,pengajuan_id,jenis,url').in('jenis', ['laporan_kp', 'surat_selesai'])]);
+    RINCI = q.data || []; BERKAS = b.data || [];
+  }
+  $('daftarNama').innerHTML = [...new Set([...KS.map(x => rapiNama(x.mitra)), ...BARIS.map(x => rapiNama(x.data.instansi))].filter(Boolean))]
+    .sort((a, b) => a.localeCompare(b, 'id')).map(n => `<option value="${esc(n)}">`).join('');
+}
+
+function gambar(){
+  const xs = BARIS.map(waktu).filter(p => cocokPeriode(p, PERIODE));
+  const r = rekapKP({ kp: xs, dosen: DOSEN, kerjasama: KS, keputusan: PUTUS });
+  const t = r.tahun.reduce((a, x) => ({ semua: a.semua + x.semua, berjalan: a.berjalan + x.berjalan, selesai: a.selesai + x.selesai,
+    magang: a.magang + x.magang }), { semua: 0, berjalan: 0, selesai: 0, magang: 0 });
+  $('ringkas').innerHTML = [[t.semua, 'diajukan (tanpa draf)'], [t.berjalan, 'sedang berjalan'], [t.selesai, 'selesai'],
+    [t.magang, 'di antaranya magang'], [r.instansi.length, 'instansi'], [r.instansi.filter(x => x.status === 'mitra').length, 'instansi mitra kerja sama']]
+    .map(([n, l]) => `<div><b>${n}</b><span>${esc(l)}</span></div>`).join('');
+  $('perTahun').innerHTML = r.tahun.length ? `<div class="lebar-tabel"><table><thead><tr><th>Tahun mulai</th><th class="n">Diajukan</th>
+      <th class="n">Diperiksa</th><th class="n">Berjalan</th><th class="n">Selesai</th><th class="n">Ditolak</th><th class="n">Magang</th></tr></thead>
+    <tbody>${r.tahun.map(x => `<tr><td>${x.tahun || '—'}</td><td class="n">${x.semua}</td><td class="n">${x.proses}</td><td class="n">${x.berjalan}</td>
+      <td class="n">${x.selesai}</td><td class="n">${x.ditolak}</td><td class="n">${x.magang}</td></tr>`).join('')}</tbody></table></div>`
+    : '<p class="kosong">Belum ada pengajuan KP pada periode ini.</p>';
+  gambarInstansi(r.instansi);
+  const maks = Math.max(1, ...r.dosen.map(d => d.aktif));
+  $('beban').innerHTML = r.dosen.length ? `<p class="ket">Rata-rata ${String(r.rata).replace('.', ',')} mahasiswa aktif per dosen (diperiksa + berjalan).
+      Tanda <span class="tag tinggi">tinggi</span> = lebih dari 1,5 × rata-rata dan lebih dari 2.</p>
+    <div class="lebar-tabel"><table><thead><tr><th>Dosen</th><th class="n">Diperiksa</th><th class="n">Berjalan</th><th>Aktif</th>
+      <th class="n">Selesai</th></tr></thead><tbody>${r.dosen.map(d => `<tr><td>${esc(d.nama)}</td><td class="n">${d.proses}</td>
+      <td class="n">${d.berjalan}</td><td><span style="font-family:var(--mono)">${d.aktif}</span><span class="batang" style="width:${Math.round(80 * d.aktif / maks)}px"></span>
+      ${d.tinggi ? ' <span class="tag tinggi">tinggi</span>' : ''}</td><td class="n">${d.selesai}</td></tr>`).join('')}</tbody></table></div>`
+    : '<p class="kosong">Belum ada dosen.</p>';
+  if (KELOLA || ASESOR) gambarBukti();
+}
+
+function gambarInstansi(xs){
+  const usul = xs.filter(x => x.status === 'usul');
+  $('instansi').innerHTML = (xs.length ? `<div class="lebar-tabel"><table><thead><tr><th>Instansi</th><th class="n">Mahasiswa</th>
+      <th class="n">Selesai</th><th class="n">Berjalan</th><th>Kerja sama</th></tr></thead><tbody>${xs.map(x => `<tr data-kunci="${esc(x.kunci)}">
+      <td><b>${esc(x.nama)}</b>${x.varian.length > 1 || (x.varian[0] && x.varian[0] !== x.nama)
+        ? `<div class="ket">ditulis: ${x.varian.map(esc).join('; ')}</div>` : ''}
+        ${KELOLA ? `<div class="ubah" hidden><input list="daftarNama" value="${esc(x.nama)}" aria-label="Nama baku">
+          <button type="button" class="b utama" data-simpan="${x.ids[0]}">Simpan nama</button><span class="msg"></span></div>` : ''}</td>
+      <td class="n">${x.mahasiswa}</td><td class="n">${x.selesai}</td><td class="n">${x.berjalan}</td>
+      <td><span class="tag ${x.status}">${esc(STATUS[x.status])}</span>${x.mitra.map(m => `<div class="ket">${esc([m.jenis, m.tingkat, m.berlaku].filter(Boolean).join(' · '))}</div>`).join('')}
+        ${KELOLA ? `<div>${`<button type="button" class="b" data-bakukan>Bakukan nama</button>`}${x.status === 'mitra' ? ''
+          : x.status === 'belum' ? `<button type="button" class="b" data-putus="usul">Usulkan jadi mitra</button><button type="button" class="b" data-putus="tidak">Tidak dimasukkan</button>`
+          : `<button type="button" class="b" data-putus="batal">Batalkan keputusan</button>`}</div>` : ''}</td></tr>`).join('')}</tbody></table></div>`
+    : '<p class="kosong">Belum ada instansi pada periode ini.</p>')
+    + (usul.length ? `<p class="ket" style="margin-top:10px"><b>${usul.length} instansi diusulkan menjadi mitra:</b> ${usul.map(x => esc(x.nama)).join('; ')}.
+        Setelah ada IA/MoA, admin mencatatnya di <a href="data-prodi.html?tab=kerjasama">Data prodi › Kerja sama</a> dengan nama yang sama;
+        KP di instansi itu lalu otomatis menjadi bukti kegiatan kerja sama.</p>` : '');
+  if (!KELOLA) return;
+  $('instansi').querySelectorAll('[data-bakukan]').forEach(b => { b.onclick = () => {
+    const u = b.closest('tr').querySelector('.ubah'); u.hidden = !u.hidden; if (!u.hidden) u.querySelector('input').focus();
+  }; });
+  $('instansi').querySelectorAll('[data-simpan]').forEach(b => { b.onclick = () => bakukan(b); });
+  $('instansi').querySelectorAll('[data-putus]').forEach(b => { b.onclick = () => putuskan(b); });
+}
+
+// Bakukan: semua pengajuan berkunci sama (p_semua) diganti ke nama baru; nama lama tersimpan di instansi_asli.
+async function bakukan(b){
+  const u = b.closest('.ubah'), baru = rapiNama(u.querySelector('input').value), m = u.querySelector('.msg');
+  if (baru.length < 2) { m.className = 'msg err'; m.textContent = 'Tulis nama instansi.'; return; }
+  b.disabled = true;
+  const { data, error } = await sb.rpc('kp_bakukan_instansi', { p_id: +b.dataset.simpan, p_baru: baru, p_semua: true });
+  if (error) { m.className = 'msg err'; m.textContent = error.message; b.disabled = false; return; }
+  await muat(); gambar();
+  tulisAtas(`Nama instansi dibakukan menjadi "${baru}" pada ${data} pengajuan.`);
+}
+
+async function putuskan(b){
+  const tr = b.closest('tr'), kunci = tr.dataset.kunci, nama = tr.querySelector('b').textContent, aksi = b.dataset.putus;
+  b.disabled = true;
+  const { error } = aksi === 'batal' ? await sb.from('kp_instansi_keputusan').delete().eq('kunci', kunci)
+    : await sb.from('kp_instansi_keputusan').upsert({ kunci, nama, keputusan: aksi }, { onConflict: 'kunci' });
+  if (error) { alert(error.message); b.disabled = false; return; }
+  await muat(); gambar();
+}
+
+function tulisAtas(t){ const m = $('mAtas'); if (m) { m.className = 'msg ok'; m.textContent = t; } }
+
+// Bukti KP selesai: dibuka dengan login (RLS: koordinator, admin, pembimbing, asesor aktif). Tautan asesor = berkas privat
+// lewat lkd.html selama Akses asesor dibuka admin (Data prodi), tanpa login.
+function gambarBukti(){
+  const ids = new Set(BARIS.map(waktu).filter(p => cocokPeriode(p, PERIODE)).map(p => p.id));
+  const xs = buktiSelesai(RINCI.filter(p => ids.has(p.id)), BERKAS, DOSEN);
+  const dasar = location.href.replace(/[^/]*$/, '');
+  $('bukti').innerHTML = xs.length ? `<div class="lebar-tabel"><table><thead><tr><th>Mahasiswa</th><th>Instansi</th><th>Program</th>
+      <th class="n">Tahun</th><th>Pembimbing</th><th>Berkas</th></tr></thead><tbody>${xs.map(x => `<tr><td>${esc(x.nim)}<br>${esc(x.nama)}</td>
+      <td>${esc(x.instansi)}</td><td>${esc(x.program)}</td><td class="n">${x.tahun}</td><td>${esc(x.pembimbing)}</td>
+      <td>${x.berkas.length ? x.berkas.map(b => `<button type="button" class="b" data-buka="${b.id}">${esc(JUDUL_BERKAS[b.jenis] || b.jenis)}</button>${
+        KELOLA && b.asesor ? `<button type="button" class="b" data-salin="${esc(dasar + b.asesor)}" title="Salin tautan asesor">tautan asesor</button>` : ''}`).join('<br>')
+        : '<span class="ket">belum ada berkas</span>'}</td></tr>`).join('')}</tbody></table></div>`
+    : '<p class="kosong">Belum ada KP selesai pada periode ini.</p>';
+  $('bukti').querySelectorAll('[data-buka]').forEach(b => { b.onclick = async () => {
+    b.disabled = true;
+    try { bukaIsi(await appsScript({ kind: 'mhs_buka_prodi', token: await sesi(), berkas: +b.dataset.buka })); }
+    catch (e) { alert(e.message); } finally { b.disabled = false; }
+  }; });
+  $('bukti').querySelectorAll('[data-salin]').forEach(b => { b.onclick = async () => {
+    try { await navigator.clipboard.writeText(b.dataset.salin); b.textContent = 'tersalin'; }
+    catch { prompt('Salin tautan asesor:', b.dataset.salin); }
+  }; });
+}
+
+async function mulai(){
+  SAYA = await gerbang(sb);
+  if (!SAYA) return;
+  KELOLA = SAYA.peran === 'admin' || punya(SAYA, 'koordinator_kp');
+  ASESOR = SAYA.peran === 'asesor';
+  $('hSub').textContent = `Masuk sebagai ${SAYA.nama}`;
+  await muat();
+  const opsi = opsiPeriode(BARIS.map(waktu)).filter(g => g.opsi.length);
+  $('isi').innerHTML = `
+    <p class="ket">Pengajuan KP dan magang yang sudah dikirim mahasiswa. Tahun = tanggal mulai KP (laporan selesai), atau rencana mulai.
+      Instansi yang namanya sama dengan mitra di <a href="data-prodi.html?tab=kerjasama">Data prodi › Kerja sama</a> otomatis menjadi bukti
+      kegiatan kerja sama itu. ${KELOLA ? 'Bakukan nama yang ditulis berbeda supaya cocok.' : ''}</p>
+    <div class="saring"><label>Periode <select id="fPeriode"><option value="">Semua</option>${opsi.map(g => `<optgroup label="${esc(g.grup)}">${
+      g.opsi.map(([v, l]) => `<option value="${v}">${esc(l)}</option>`).join('')}</optgroup>`).join('')}</select></label><span class="msg" id="mAtas"></span></div>
+    <div class="ringkas" id="ringkas"></div>
+    <h2>Per tahun</h2><div id="perTahun"></div>
+    <h2>Per instansi</h2><div id="instansi"></div>
+    <h2>Beban bimbingan KP per dosen</h2><div id="beban"></div>
+    ${KELOLA || ASESOR ? `<h2>Bukti KP selesai</h2>
+      <p class="ket">Laporan KP dan surat keterangan selesai bersifat privat. ${KELOLA ? `Tombol <b>tautan asesor</b> menyalin tautan yang bisa dibuka
+        asesor tanpa login selama <b>Akses asesor</b> dibuka admin; cantumkan di LED atau daftar bukti.` : ''}</p><div id="bukti"></div>` : ''}`;
+  $('fPeriode').onchange = e => { PERIODE = e.target.value; gambar(); };
+  gambar();
+}
+mulai().catch(e => { $('isi').innerHTML = `<p class="kosong">Gagal memuat: ${esc(e.message)}</p>`; });
+</script>
+</body>
+</html>

@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-18-2796a9">
+<link rel="stylesheet" href="tema.css?v=2026-11-18-ff5f6c">
 <style>
   /* Pengajuan mahasiswa, publik tanpa login (pemilik 2026-11-17; patch 90). Warna dari tema.css. */
   *{box-sizing:border-box}
@@ -75,7 +75,7 @@
   <h1>Pengajuan KP, seminar/sidang TA, lomba, publikasi/luaran, dan surat</h1><div class="prodi" id="hProdi"></div>
 </div></header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-18-2796a9"></script>
+<script src="config.js?v=2026-11-18-ff5f6c"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -96,7 +96,8 @@ addEventListener('error', function (e) {
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
 import { JENIS, LABEL_BERKAS, LABEL_STATUS, TINGKAT, BIDANG, jalur, bolehUbah, bacaAnggota, teksAnggota,
          periksaIsian, judulPengajuan, keB64, bukaIsi, appsScript, labelStatus, jalurTahap, BERKAS_SELESAI, PROGRAM_KP, labelProgram,
-         periksaSelesai, JENIS_SURAT, TAHAP_TA, JENIS_PUB, TINGKAT_PUB, INDEKSASI, JENIS_LUARAN } from './pengajuan-mhs.js?v=2026-11-18-2796a9';
+         periksaSelesai, JENIS_SURAT, TAHAP_TA, JENIS_PUB, TINGKAT_PUB, INDEKSASI, JENIS_LUARAN } from './pengajuan-mhs.js?v=2026-11-18-ff5f6c';
+import { saranInstansi } from './rekap-kp.js?v=2026-11-18-ff5f6c';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
@@ -106,6 +107,13 @@ const opsi = (xs, v) => xs.map(([k, l]) => `<option value="${k}"${k === v ? ' se
 const TOKEN = (new URLSearchParams(location.hash.slice(1)).get('t') || '').trim();
 // Konfirmasi email alternatif (104): tautan #alt=<token> dari email kampus.
 const ALT = (new URLSearchParams(location.hash.slice(1)).get('alt') || '').trim();
+// Ruang KP (105): ?jenis=kp memilih jenis; usulan nama instansi dari data.json (mitra kerja sama + tempat KP).
+const JENIS_AWAL = (new URLSearchParams(location.search).get('jenis') || '').trim();
+let SARAN = [];
+function isiSaran(){
+  const dl = $('daftar_instansi');
+  if (dl) dl.innerHTML = SARAN.map(n => `<option value="${esc(n)}">`).join('');
+}
 let DOSEN = [], P = null;
 
 function tulis(id, kelas, teks){ const m = $(id); m.className = 'msg ' + kelas; m.textContent = teks; }
@@ -165,7 +173,9 @@ function htmlIsian(jenis, d = {}, nama = '', pembimbing = ''){
   if (jenis === 'kp') return `${nm}${pb}
     <div class="fld"><label for="f_program">Program</label><select id="f_program">${PROGRAM_KP.map(([k, l]) =>
       `<option value="${k}"${(d.program || 'kp') === k ? ' selected' : ''}>${esc(l)}</option>`).join('')}</select></div>
-    <div class="fld"><label for="f_instansi">Instansi tujuan KP/magang</label><input id="f_instansi" maxlength="300" value="${esc(d.instansi)}"></div>
+    <div class="fld"><label for="f_instansi">Instansi tujuan KP/magang</label><input id="f_instansi" maxlength="300" value="${esc(d.instansi)}" list="daftar_instansi" autocomplete="off">
+      <datalist id="daftar_instansi"></datalist>
+      <small>Bila instansinya sudah pernah dipakai KP atau menjadi mitra prodi, pilih nama dari usulan supaya tercatat sama.</small></div>
     <div class="fld"><label for="f_alamat">Alamat instansi <span>(opsional)</span></label><input id="f_alamat" maxlength="300" value="${esc(d.alamat_instansi)}"></div>
     <div class="dua">
       <div class="fld"><label for="f_bidang">Bidang/divisi <span>(opsional)</span></label><input id="f_bidang" maxlength="300" value="${esc(d.bidang_kerja)}"></div>
@@ -270,8 +280,10 @@ function halamanBaru(){
         mereka bisa mendaftarkan email alternatif Anda langsung.</p>
     </form>`;
   const jenis = () => document.querySelector('[name=jenis]:checked').value;
-  const gambar = () => { $('isian').innerHTML = htmlIsian(jenis()); pasangSurat(); pasangLuaran(); };
+  const gambar = () => { $('isian').innerHTML = htmlIsian(jenis()); pasangSurat(); pasangLuaran(); isiSaran(); };
   document.querySelectorAll('[name=jenis]').forEach(r => { r.onchange = gambar; });
+  const awal = document.querySelector(`[name=jenis][value="${CSS.escape(JENIS_AWAL)}"]`);
+  if (awal) awal.checked = true;
   gambar();
   $('frm').onsubmit = async e => {
     e.preventDefault();
@@ -432,7 +444,7 @@ function halamanSaya(){
   document.querySelectorAll('[data-buang]').forEach(b => { b.onclick = () => buang(+b.dataset.buang, b); });
   if (ubah) $('b_unggah').onclick = unggah;
   if (ubahPengajuan) {
-    pasangSurat(); pasangLuaran();
+    pasangSurat(); pasangLuaran(); isiSaran();
     $('frmUbah').onsubmit = async e => { e.preventDefault(); await simpan(); };
     $('b_kirim').onclick = kirim;
   }
@@ -523,7 +535,7 @@ async function konfirmasiAlt(){
 
 async function mulai(){
   fetch('data.json?v=' + Date.now()).then(r => r.ok ? r.json() : {}).catch(() => ({}))
-    .then(d => { $('hProdi').textContent = [d.prodi, d.institusi].filter(Boolean).join(' · '); });
+    .then(d => { $('hProdi').textContent = [d.prodi, d.institusi].filter(Boolean).join(' · '); SARAN = saranInstansi(d); isiSaran(); });
   if (!window.UPLOAD_URL) throw new Error('Layanan unggah belum disiapkan admin.');
   const { data, error } = await sb.rpc('pembimbing_pilihan');
   if (error) throw new Error(/pembimbing_pilihan/.test(error.message) ? 'Layanan pengajuan belum dibuka admin prodi.' : error.message);

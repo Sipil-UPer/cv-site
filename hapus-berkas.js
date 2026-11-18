@@ -18,7 +18,7 @@
    ditautkan, tidak diunggah ulang) TIDAK dibuang selama tautannya masih
    dirujuk lebih dari satu catatan: hanya catatan pemanggil yang dihapus.
    ===================================================================== */
-import { jumlahRujukan } from './sidik-berkas.js?v=2026-11-18-2796a9';
+import { jumlahRujukan } from './sidik-berkas.js?v=2026-11-18-ff5f6c';
 
 export async function buangBerkas(sb, url){
   const U = String(window.UPLOAD_URL || '').trim();

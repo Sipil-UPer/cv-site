@@ -4,7 +4,7 @@
    Warna sama dengan situs (biru tua, biru muda, merah, hijau); kepuasan
    memakai urutan bermakna: hijau (sangat baik) sampai merah (kurang).
    ===================================================================== */
-import { warna as warnaTema } from './tema.js?v=2026-11-18-2796a9';
+import { warna as warnaTema } from './tema.js?v=2026-11-18-ff5f6c';
 
 const W = 1600, H = 800;
 const PALET = () => [warnaTema('--biru'), warnaTema('--biru-3'), warnaTema('--merah'), warnaTema('--hijau'), warnaTema('--emas')];
