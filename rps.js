@@ -12,7 +12,9 @@
 //   tujuan, deskripsi, kriteria          teks (baris baru = poin baru)
 //   pustaka    [{ kode, teks }]           kode dipakai di rencana pekanan, mis. [BREW Bab 2]
 //   syarat     { prasyarat, bersamaan }
-//   scl        { ada, teks }    integrasi { ada, teks }    direktori { status: ada|tidak_langsung|tidak_tersedia, teks }
+//   scl        { ada, teks }    direktori { status: ada|tidak_langsung|tidak_tersedia, teks }
+//   integrasi  { ada, teks, karya: [{ id, kategori, judul, tahun, pelaksana, bentuk, ket }] }   karya = penelitian/PkM tersimpan
+//              (tabel karya), judul/tahun/pelaksana disalin saat dipilih supaya Word tidak salah judul (pemilik 2026-11-19)
 //   pekan      [{ pekan: '1-2', jenis: 'kuliah'|'uts'|'uas', sub: [kode], asesmen: [nama], materi, pustaka, indikator,
 //                 bentuk, luring, daring, bentuk_pb: [BENTUK], scl: [SCL], penugasan }]
 //              bentuk = teks "Bentuk & Kriteria" asesmen; bentuk_pb dan scl = centang untuk lampiran rekap (pemilik 2026-11-19)
@@ -39,6 +41,10 @@ export const BENTUK = [['kuliah', 'Kuliah'], ['responsi', 'Responsi'], ['tutoria
 export const SCL = [['sgd', 'Small Group Discussion'], ['roleplay', 'Role-Play & Simulation'], ['discovery', 'Discovery Learning'],
   ['sdl', 'Self-Directed Learning'], ['cooperative', 'Cooperative Learning'], ['collaborative', 'Collaborative Learning'],
   ['contextual', 'Contextual Learning'], ['pjbl', 'Project Based Learning'], ['pbl', 'Problem Based Learning'], ['case', 'Case Method']];
+
+// Bentuk integrasi penelitian/PkM ke pembelajaran = pilihan karya "Integrasi ke pembelajaran" (form-karya.js, LKPS 3.a.3).
+export const BENTUK_INTEGRASI = [['bahan_kajian', 'bahan kajian'], ['studi_kasus', 'studi kasus'], ['bab_buku_ajar', 'bab buku ajar'],
+  ['modul_praktikum', 'modul praktikum'], ['tugas_proyek', 'tugas/proyek mahasiswa'], ['lainnya', 'lainnya']];
 
 const teks = v => String(v ?? '').trim();
 const angka = v => { const x = +String(v ?? '').replace(',', '.'); return Number.isFinite(x) ? x : 0; };
@@ -115,7 +121,7 @@ export function rpsKosong(mk = {}, situs = {}, kini = new Date()){
       + 'peserta mata kuliah mencapai ketercapaian tersebut. Sistem penilaian (konversi nilai angka ke nilai huruf dan ketentuan kelulusan) '
       + 'mengacu pada Peraturan Akademik Universitas Pertamina yang berlaku.',
     pustaka: [], syarat: { prasyarat: '', bersamaan: '' },
-    scl: { ada: null, teks: '' }, integrasi: { ada: null, teks: '' }, direktori: { status: '', teks: '' },
+    scl: { ada: null, teks: '' }, integrasi: { ada: null, teks: '', karya: [] }, direktori: { status: '', teks: '' },
     pekan: kerangkaPekan(),
     evaluasi: { baru: false, mk: '', kode: '', semester: '', jumlah: '', rerata: '', rekomendasi: '' },
     peta: { sub: {}, entry: '' },
@@ -193,9 +199,10 @@ export function rapikanRps(d, mk, situs){
   const k = rpsKosong(mk, situs);
   if (!d || typeof d !== 'object') return k;
   return { ...k, ...d, versi: VERSI_DATA, identitas: { ...k.identitas, ...(d.identitas || {}), sks: { ...k.identitas.sks, ...(d.identitas?.sks || {}) } },
-           syarat: { ...k.syarat, ...(d.syarat || {}) }, scl: { ...k.scl, ...(d.scl || {}) }, integrasi: { ...k.integrasi, ...(d.integrasi || {}) },
+           syarat: { ...k.syarat, ...(d.syarat || {}) }, scl: { ...k.scl, ...(d.scl || {}) },
            direktori: { ...k.direktori, ...(d.direktori || {}) }, evaluasi: { ...k.evaluasi, ...(d.evaluasi || {}) },
            peta: { sub: { ...(d.peta?.sub || {}) }, entry: d.peta?.entry || '' },
+           integrasi: { ...k.integrasi, ...(d.integrasi || {}), karya: Array.isArray(d.integrasi?.karya) ? d.integrasi.karya : [] },
            pustaka: Array.isArray(d.pustaka) ? d.pustaka : [], pekan: Array.isArray(d.pekan) && d.pekan.length ? d.pekan.map(p => ({ ...barisPekan(p.pekan, p.jenis), ...p })) : k.pekan };
 }
 
@@ -217,6 +224,13 @@ export function periksaRps({ mk = {}, struktur, rps, cpl = [], pengembang = null
   else if (penyusun && !penyusun.some(d => d.id === R.pengembang)) g('A', 'Dosen pengembang harus koordinator MK atau dosen pengampu MK ini.');
   else if (pengembang && (!teks(pengembang.nama_gelar) || !teks(pengembang.nip))) s('A', 'Nama dengan gelar atau NIP dosen pengembang belum diisi (Profil / Kelola dosen).');
   if (!kaprodi) s('A', 'Kaprodi belum ditetapkan di Penugasan koordinator; kolom pemeriksa di Word dibiarkan kosong.');
+  // Tabel 3.a.1 LKPS dan butir 18 (PJP) memakai sebaran sks di data MK (Data prodi), bukan RPS: keduanya harus sama.
+  if (mk.sks_kuliah != null || mk.sks_praktikum != null) {
+    const praktik = angka(I.sks?.p) + angka(I.sks?.pl) + angka(I.sks?.s);
+    if (angka(I.sks?.t) !== angka(mk.sks_kuliah) + angka(mk.sks_seminar) || praktik !== angka(mk.sks_praktikum))
+      s('A', `Sebaran sks RPS (kuliah ${angka(I.sks?.t)}, praktikum/praktik ${praktik}) berbeda dengan data MK (kuliah ${angka(mk.sks_kuliah) + angka(mk.sks_seminar)}, `
+        + `praktikum ${angka(mk.sks_praktikum)}) yang dipakai Tabel 3.a.1 LKPS dan butir 18; samakan (Data prodi › Mata kuliah).`);
+  }
   // B
   if (!cpl.length) g('B', 'MK ini belum dipetakan ke CPL (Data prodi › Kurikulum & CPL).');
   if (!S.cpmk.length) g('B', 'Belum ada CPMK (halaman CPMK).');
@@ -248,6 +262,8 @@ export function periksaRps({ mk = {}, struktur, rps, cpl = [], pengembang = null
   if (!teks(R.kriteria)) g('C', 'Isi kriteria ketercapaian CPMK.');
   if (R.scl?.ada == null) g('C', 'Nyatakan ada/tidak metode SCL.');
   if (R.integrasi?.ada == null) g('C', 'Nyatakan ada/tidak integrasi penelitian/PkM.');
+  else if (R.integrasi.ada && !(R.integrasi.karya || []).length && !teks(R.integrasi.teks))
+    g('C', 'Integrasi penelitian/PkM: pilih penelitian/PkM yang sudah tersimpan (atau uraikan).');
   if (!R.direktori?.status) g('C', 'Isi Direktori Kompetensi Teknis Pertamina (ada, pendukung tidak langsung, atau tidak tersedia).');
   // D
   const P = R.pekan || [], dipakai = new Map();
@@ -309,7 +325,7 @@ export function modelRps({ mk = {}, struktur, rps, cpl = [], pengembang = null, 
     tujuan: teks(R.tujuan), deskripsi: teks(R.deskripsi), pengampu: teks(R.pengampu), kriteria: teks(R.kriteria),
     pustaka: (R.pustaka || []).filter(p => teks(p.teks)), syarat: R.syarat || {}, scl: R.scl || {}, integrasi: R.integrasi || {},
     direktori: R.direktori || {}, pekan: R.pekan || [], evaluasi: R.evaluasi || {}, revisi,
-    rekap: rekapRps({ mk, struktur: S, rps: R }),
+    rekap: rekapRps({ mk, struktur: S, rps: R }), integrasi_teks: teksIntegrasi(R.integrasi),
   };
 }
 
@@ -359,7 +375,7 @@ export function rekapRps({ mk = {}, struktur, rps } = {}){
   const total = Object.values(jenis).reduce((a, v) => a + v, 0);
   const persen = v => (total ? bulat(100 * v / total) : 0);
   return {
-    beban: bebanBelajar(R.identitas?.sks),
+    beban: bebanBelajar(R.identitas?.sks), butir18: butir18(R.identitas?.sks),
     bentuk: perKode(BENTUK, p => p.bentuk_pb),
     scl: perKode(SCL, p => p.scl),
     ujian: P.filter(p => p.jenis !== 'kuliah').map(p => ({ pekan: teks(p.pekan), label: p.jenis === 'uts' ? 'UTS' : 'UAS' })),
@@ -368,6 +384,26 @@ export function rekapRps({ mk = {}, struktur, rps } = {}){
     penilaian: { jenis: JENIS_ASESMEN.filter(([j]) => jenis[j]).map(([j, l]) => ({ jenis: j, label: l, persen: persen(jenis[j]) })),
                  hots: hots(S, R.identitas?.semester || mk.semester).persen, nontes: persen(jenis.tugas + jenis.lainnya), total: bulat(total) },
   };
+}
+
+/**
+ * Kalimat integrasi untuk Word: "Penelitian "Judul" (pelaksana, tahun), sebagai studi kasus pada Sub-CPMK 2." per karya, lalu uraian bebas.
+ */
+export function teksIntegrasi(I = {}){
+  const bentuk = k => (BENTUK_INTEGRASI.find(b => b[0] === k) || [, ''])[1];
+  const xs = (I.karya || []).map(k => `${k.kategori === 'pkm' ? 'PkM' : 'Penelitian'} "${teks(k.judul)}" (${[teks(k.pelaksana), teks(k.tahun)].filter(Boolean).join(', ')})`
+    + `${k.bentuk ? `, sebagai ${bentuk(k.bentuk)}` : ''}${teks(k.ket) ? ` pada ${teks(k.ket)}` : ''}.`);
+  return [...xs, teks(I.teks)].filter(Boolean).join('\n');
+}
+
+/**
+ * Butir 18 LAM Teknik (Tabel 3.a.1 LKPS): PJP = JP / JB; Excel LKPS menghitung JP = sks praktikum x 50 dan JB = sks x 50
+ * (docs/analisis-instrumen-lam-teknik-2025.md). Kolom praktikum/praktik lapangan/penugasan = P + PL + S formulir RPS;
+ * penugasan terstruktur (PT) di dalam sks kuliah TIDAK dihitung.
+ */
+export function butir18(sks = {}){
+  const t = angka(sks.t), jp = angka(sks.p) + angka(sks.pl) + angka(sks.s), n = t + jp;
+  return { sks_praktik: jp, sks: n, jp_menit: jp * 50, jb_menit: n * 50, persen: n ? bulat(100 * jp / n) : 0 };
 }
 
 /** Nama berkas Word, mis. "RPS_K26_13301_Mekanika_Teknik.docx". */

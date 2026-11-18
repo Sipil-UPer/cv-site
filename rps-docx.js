@@ -124,7 +124,7 @@ export function dokumenRps(M, o = {}){
     [sel('Tujuan MK', { vm: 'restart', fill: BIRU_MUDA, b: true }), sel(M.tujuan, { vm: 'restart' }), lbl('Dosen Pengampu'), sel(M.pengampu)],
     [sel('', { vm: 'lanjut', fill: BIRU_MUDA }), sel('', { vm: 'lanjut' }), lbl('Mata Kuliah Syarat'), sel(`Prasyarat: ${sy.prasyarat || '-'}\nBersamaan: ${sy.bersamaan || '-'}`)],
     [sel('Deskripsi dan Bahan Kajian', { vm: 'restart', fill: BIRU_MUDA, b: true }), sel(M.deskripsi, { vm: 'restart' }), lbl('Integrasi Penelitian/PkM'),
-     sel([ya(M.integrasi.ada), M.integrasi.teks].filter(Boolean).join(' - '))],
+     sel([ya(M.integrasi.ada), M.integrasi_teks ?? M.integrasi.teks].filter(Boolean).join(' - '))],
     [sel('', { vm: 'lanjut', fill: BIRU_MUDA }), sel('', { vm: 'lanjut' }), lbl('Kriteria Ketercapaian CPMK'), sel(M.kriteria)],
     [sel('Pustaka', { vm: 'restart', fill: BIRU_MUDA, b: true }), sel(pustaka, { vm: 'restart' }), lbl('Metode SCL'), sel([ya(M.scl.ada), M.scl.teks].filter(Boolean).join(' - '))],
     [sel('', { vm: 'lanjut', fill: BIRU_MUDA }), sel('', { vm: 'lanjut' }), lbl('Direktori Kompetensi Teknis Pertamina'),
@@ -185,8 +185,15 @@ export function lampiranRekap(X){
     [sel('Jumlah', { b: true, fill: BIRU_MUDA }), ...[B.jumlah.sks, '', B.jumlah.pb, B.jumlah.pt, B.jumlah.km, B.jumlah.kegiatan, B.jumlah.jam]
       .map(v => sel(koma(v), { b: true, jc: 'center', fill: BIRU_MUDA }))],
   ]));
+  const J = X.butir18;
+  if (J) out.push(tabelK([9034, 5000], [
+    [sel('Butir 18 LAM Teknik (Tabel 3.a.1 LKPS): sks praktikum/praktik lapangan/penugasan', { b: true, fill: BIRU_MUDA }),
+     sel(`${koma(J.sks_praktik)} dari ${koma(J.sks)} sks`, { b: true, jc: 'center', fill: BIRU_MUDA })],
+    [sel('JP = sks praktikum/praktik × 50 menit;  JB = sks × 50 menit'), sel(`JP ${J.jp_menit}′ ; JB ${J.jb_menit}′ ; JP/JB = ${koma(J.persen)}%`, { jc: 'center' })],
+  ]));
   out.push(pg(rn('1 sks = 45 jam per semester (Panduan Pengisian RPS K26). Kuliah/responsi/tutorial: 50′ proses belajar (PB), 60′ penugasan terstruktur (PT), '
-    + '60′ kegiatan mandiri (KM) per pekan per sks; praktikum, praktik lapangan, dan simulasi: kegiatan 170′ per pekan per sks, tidak dibagi PB/PT/KM.', { i: true, sz: 16 }),
+    + '60′ kegiatan mandiri (KM) per pekan per sks; praktikum, praktik lapangan, dan simulasi: kegiatan 170′ per pekan per sks, tidak dibagi PB/PT/KM. '
+    + 'Butir 18 hanya menghitung sks praktikum/praktik lapangan/penugasan (P+PL+S); penugasan terstruktur (PT) di dalam sks kuliah tidak dihitung.', { i: true, sz: 16 }),
     { before: 40, after: 120 }));
   const baris = xs => xs.map(x => [sel(x.label), sel(x.pekan), sel(String(x.jumlah), { jc: 'center' })]);
   out.push(pg(rn('2. Bentuk pembelajaran dan metode SCL dalam rencana pekanan', { b: true, sz: 20 }), { before: 120, after: 60, keep: true }));

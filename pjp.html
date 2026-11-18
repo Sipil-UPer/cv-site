@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Simulasi PJP — Kinerja Program Studi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tema.css?v=2026-11-19-f5b9a7">
+<link rel="stylesheet" href="kepala.css?v=2026-11-19-f5b9a7">
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
+  .wrap{max-width:1240px;margin:0 auto;padding:18px 20px 80px}
+  .kosong, .ket{color:var(--muted)} .ket{font-size:13px}
+  .kartu{background:var(--panel);border:1px solid var(--line);padding:14px 18px;margin-bottom:16px}
+  .kartu h2{font-size:17px;margin:0 0 6px;color:var(--biru)}
+  .alat{display:flex;gap:10px 16px;align-items:center;flex-wrap:wrap;margin:6px 0}
+  .b{font:12.5px/1.4 var(--sans);padding:5px 12px;border:1px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer}
+  .b:hover{border-color:var(--biru);color:var(--biru)}
+  select, input{font:inherit;font-size:14px;padding:4px 6px;border:1px solid var(--line);background:var(--panel);color:var(--ink)}
+  .ringkas{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px;margin:8px 0}
+  .ringkas > div{border:1px solid var(--line);padding:10px 12px}
+  .ringkas b{font-family:var(--mono);font-size:22px;display:block}
+  .ringkas span{font-size:12.5px;color:var(--muted)}
+  .ringkas .sim{border-color:var(--biru)}
+  .ringkas .baik b{color:var(--hijau)} .ringkas .kurang b{color:var(--merah)}
+  .gulir{overflow-x:auto}
+  table.ds{width:100%;border-collapse:collapse;font-size:13.5px}
+  table.ds th{text-align:left;font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--line);padding:5px 8px;vertical-align:bottom}
+  table.ds td{padding:5px 8px;border-bottom:1px solid var(--line-soft);vertical-align:top}
+  td.n, th.n{text-align:right;font-family:var(--mono)}
+  tr.ubah td{background:var(--biru-m1, rgba(0,111,192,.07))}
+  .kode{font-family:var(--mono);font-size:12.5px;white-space:nowrap}
+  input.angka{width:72px;text-align:right;font-family:var(--mono);font-size:13px}
+  .catat{color:#8A5A00;font-size:12.5px}
+  @media(max-width:700px){.wrap{padding-left:16px;padding-right:16px}}
+</style>
+</head>
+<body>
+<header class="hero"><div class="hero-in">
+  <div class="hero-inst" data-identitas></div>
+  <h1>Simulasi PJP (butir 18)</h1>
+  <div class="sub" id="hSub">Memuat…</div>
+</div></header>
+<main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
+<script src="config.js?v=2026-11-19-f5b9a7"></script>
+<script>
+// Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
+addEventListener('error', function (e) {
+  if (document.getElementById('galat-muat')) return;
+  var d = document.createElement('div');
+  d.id = 'galat-muat';
+  d.style.cssText = 'margin:16px;padding:12px 14px;border:1px solid var(--merah);' +
+    'background:var(--merah-m3);color:var(--ink);font:14px/1.5 system-ui,sans-serif';
+  d.textContent = 'Halaman gagal dimuat: ' + (e.message || 'galat skrip') +
+    '. Tekan Ctrl+Shift+R untuk memuat ulang tanpa cache; bila tetap muncul, kirim pesan ini ke admin.';
+  document.body.insertBefore(d, document.body.firstChild);
+});
+</script>
+<script type="module">
+// Simulasi PJP butir 18 (pemilik 2026-11-19): mengubah sks praktikum/praktik/penugasan per MK di peramban saja, untuk
+// rapat kurikulum. Data MK tidak diubah; perubahan nyata dilakukan di Data prodi › Mata kuliah, dokumen kurikulum, SIAKAD.
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
+import { gerbang } from './menu.js?v=2026-11-19-f5b9a7';
+import { BASIS, hitungPjp, csvPjp, hitungPekan, MENIT_PER_SKS } from './pjp.js?v=2026-11-19-f5b9a7';
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+// Angka ditampilkan dua desimal dengan koma (pemilik 2026-11-19), mis. 7,46 dan 0,50.
+const koma = v => (v == null || v === '' || !Number.isFinite(+v) ? '—' : (+v).toFixed(2).replace('.', ','));
+const sb = createClient(window.SB_URL, window.SB_KEY);
+let MK = [], KUR = '', BAS = 'wajib', SIM = {}, F = { cari: '', ubah: false };
+// Kalkulator per MK (pemilik 2026-11-19): tugas besar/penugasan hanya di sebagian pekan.
+let KAL = { kode: '', mulai: 12, akhir: 15, terjadwal: 50, luar: 0, target: 1 };
+const menit = v => `${Math.round(v).toLocaleString('id-ID')}′`;
+const kunciSimpan = () => `simulasiPjp:${KUR}`;
+const muatSim = () => { try { SIM = JSON.parse(localStorage.getItem(kunciSimpan()) || '{}') || {}; } catch { SIM = {}; } };
+const simpanSim = () => { try { localStorage.setItem(kunciSimpan(), JSON.stringify(SIM)); } catch { /* cukup di memori */ } };
+
+function kartu(H){
+  const kelas = p => (p >= 20 && p <= 50 ? 'baik' : 'kurang');
+  return `<div class="ringkas">
+    <div class="${kelas(H.pjp)}"><b>${koma(H.pjp)}%</b><span>PJP sekarang · skor ${koma(H.skor)}<br>JP ${koma(H.jp)} dari JB ${koma(H.jb)} sks</span></div>
+    <div class="sim ${kelas(H.pjpSim)}"><b>${koma(H.pjpSim)}%</b><span>PJP simulasi · skor ${koma(H.skorSim)}<br>JP ${koma(H.jpSim)} dari JB ${koma(H.jb)} sks</span></div>
+    <div><b>${koma(H.kurang20Sim)}</b><span>sks praktik/penugasan yang masih kurang untuk PJP 20% (skor 4)${H.kurang20Sim ? '' : ': tercapai'}</span></div>
+  </div>`;
+}
+
+function htmlKalkulator(H){
+  const K = hitungPekan(KAL), m = H.baris.find(r => r.kode === KAL.kode);
+  const tanda = ok => (ok ? '<b style="color:var(--hijau)">cukup</b>' : '<b style="color:var(--merah)">belum cukup</b>');
+  const fld = (k, l, w = 80) => `<label>${l} <input class="angka" style="width:${w}px" inputmode="decimal" data-kal="${k}" value="${esc(String(KAL[k]).replace('.', ','))}"></label>`;
+  return `<section class="kartu"><h2>Kalkulator per mata kuliah</h2>
+    <p class="ket">Untuk penugasan/tugas besar yang hanya berjalan di sebagian pekan. 1 sks = 45 jam = ${menit(MENIT_PER_SKS)} kegiatan per semester
+      (Panduan Pengisian RPS K26); untuk sks praktik/penugasan boleh tidak dibagi rata per pekan. Pekan 8 (UTS) dan 16 (UAS) tidak dihitung.</p>
+    <div class="alat"><label>Mata kuliah <select data-kal="kode"><option value="">(pilih)</option>${H.baris.map(r => `<option value="${esc(r.kode)}"${
+      r.kode === KAL.kode ? ' selected' : ''}>${esc(r.kode)} ${esc(r.nama)}</option>`).join('')}</select></label></div>
+    <div class="alat">${fld('mulai', 'Pekan', 56)} ${fld('akhir', 's.d.', 56)} ${fld('terjadwal', 'Konsultasi/asistensi terjadwal per pekan (menit)')}
+      ${fld('luar', 'Kerja di luar kelas berlogbook per pekan (menit)')} ${fld('target', 'Target sks penugasan', 64)}</div>
+    <div class="gulir"><table class="ds"><tbody>
+      <tr><td>Pekan dihitung</td><td>${K.n ? `${esc(K.pekan.join(', '))} (${K.n} pekan)` : '—'}</td></tr>
+      <tr><td>Kegiatan terjadwal</td><td>${menit(K.menitTerjadwal)} = <b>${koma(K.sksTerjadwal)} sks</b></td></tr>
+      <tr><td>Kerja di luar kelas berlogbook</td><td>${menit(K.menitLuar)}</td></tr>
+      <tr><td>Total</td><td>${menit(K.total)} = <b>${koma(K.sksTotal)} sks</b></td></tr>
+      <tr><td>Target ${koma(KAL.target)} sks</td><td>${menit(K.perlu)}; bila dalam ${K.n} pekan, sekitar <b>${K.perluPerPekan == null ? '—' : menit(K.perluPerPekan)} per pekan</b></td></tr>
+      <tr><td>Tafsiran aman (hanya kegiatan terjadwal)</td><td>${tanda(K.cukupTerjadwal)}</td></tr>
+      <tr><td>Tafsiran longgar (termasuk kerja luar kelas berlogbook)</td><td>${tanda(K.cukupTotal)}</td></tr>
+    </tbody></table></div>
+    <div class="alat"><button class="b" data-pakai="${K.sksTerjadwal}"${m ? '' : ' disabled'}>Pakai ${koma(K.sksTerjadwal)} sks (terjadwal) di simulasi</button>
+      <button class="b" data-pakai="${K.sksTotal}"${m ? '' : ' disabled'}>Pakai ${koma(K.sksTotal)} sks (termasuk luar kelas) di simulasi</button></div>
+    <p class="ket">Sks penugasan diambil dari sks MK: sks kuliahnya berkurang sama banyak (mis. 3 sks = 2 kuliah + 1 penugasan), dan tugas besar yang sama
+      tidak boleh dihitung lagi sebagai penugasan terstruktur kuliah. Kerja di luar kelas hanya dapat dipertanggungjawabkan dengan logbook yang
+      diparaf saat konsultasi; instrumen LAM Teknik tidak merinci tafsiran mana yang dipakai.</p>
+  </section>`;
+}
+
+function gambar(){
+  const kurs = [...new Set(MK.map(m => m.kurikulum))].sort();
+  const H = hitungPjp(MK.filter(m => m.kurikulum === KUR), SIM, BAS);
+  const c = F.cari.trim().toLowerCase();
+  const xs = H.baris.filter(r => (!c || `${r.kode} ${r.nama}`.toLowerCase().includes(c)) && (!F.ubah || r.ubah || r.catatan.length));
+  $('isi').innerHTML = `
+    <section class="kartu">
+      <div class="alat"><label>Kurikulum <select id="fKur">${kurs.map(k => `<option${k === KUR ? ' selected' : ''}>${esc(k)}</option>`).join('')}</select></label>
+        <label>Basis <select id="fBasis">${BASIS.map(([k, l]) => `<option value="${k}"${k === BAS ? ' selected' : ''}>${l}</option>`).join('')}</select></label>
+        <button class="b" id="reset">Kembalikan ke data</button><button class="b" id="csv">Unduh CSV</button></div>
+      ${kartu(H)}
+      <p class="ket">PJP = JP / JB; JP = sks praktikum/praktik lapangan/penugasan × 50, JB = sks × 50 (Tabel 3.a.1 LKPS). Skor: PJP 20-50% = 4;
+        di bawah 20% = 20 × PJP; di atas 50% = 8 − 8 × PJP. Penugasan terstruktur di dalam sks kuliah tidak dihitung. Basis "MK wajib" atau
+        "semua MK aktif" mengikuti MK yang dimuat di Tabel 3.a.1. Isi kolom simulasi (boleh desimal, mis. 0,5); simulasi hanya tersimpan di
+        peramban ini dan <b>tidak mengubah data MK</b>. Perubahan nyata: dokumen kurikulum dan SIAKAD, lalu Data prodi › Mata kuliah dan RPS.</p>
+    </section>
+    ${htmlKalkulator(H)}
+    <section class="kartu">
+      <div class="alat"><input id="fCari" placeholder="Cari kode atau nama" value="${esc(F.cari)}">
+        <label><input type="checkbox" id="fUbah"${F.ubah ? ' checked' : ''}> Hanya yang diubah atau bercatatan</label>
+        <span class="ket">${xs.length} dari ${H.baris.length} MK</span></div>
+      <div class="gulir"><table class="ds"><thead><tr><th>Kode</th><th>Mata kuliah</th><th class="n">Smt</th><th>Sifat</th><th class="n">sks</th>
+        <th class="n">Praktik sekarang</th><th class="n">Praktik simulasi</th><th class="n">Perubahan</th><th>Catatan data</th></tr></thead>
+      <tbody>${xs.map(r => `<tr class="${r.ubah ? 'ubah' : ''}"><td class="kode">${esc(r.kode)}</td><td>${esc(r.nama)}</td><td class="n">${esc(r.semester ?? '')}</td>
+        <td>${esc(r.sifat || '')}</td><td class="n">${koma(r.sks)}</td><td class="n">${koma(r.praktik)}</td>
+        <td class="n"><input class="angka" inputmode="decimal" data-sim="${esc(r.kode)}" value="${esc(koma(r.simulasi))}" aria-label="sks praktik simulasi ${esc(r.kode)}"></td>
+        <td class="n">${r.ubah ? (r.ubah > 0 ? '+' : '') + koma(r.ubah) : ''}</td><td class="catat">${esc(r.catatan.join('; '))}</td></tr>`).join('')
+        || '<tr><td colspan="9" class="kosong">Tidak ada MK.</td></tr>'}</tbody></table></div>
+    </section>`;
+  $('fKur').onchange = e => { KUR = e.target.value; muatSim(); gambar(); };
+  $('fBasis').onchange = e => { BAS = e.target.value; gambar(); };
+  $('reset').onclick = () => { if (confirm('Kembalikan semua kolom simulasi ke data MK?')) { SIM = {}; simpanSim(); gambar(); } };
+  $('csv').onclick = () => {
+    const a = Object.assign(document.createElement('a'), { href: URL.createObjectURL(new Blob(['﻿' + csvPjp(H)], { type: 'text/csv' })),
+      download: `simulasi_pjp_${KUR}_${BAS}.csv` });
+    document.body.appendChild(a); a.click(); a.remove();
+  };
+  $('fCari').oninput = e => { F.cari = e.target.value; const p = e.target.selectionStart; gambar(); $('fCari').focus(); $('fCari').setSelectionRange(p, p); };
+  $('fUbah').onchange = e => { F.ubah = e.target.checked; gambar(); };
+  document.querySelectorAll('[data-kal]').forEach(i => { i.onchange = () => {
+    KAL[i.dataset.kal] = i.dataset.kal === 'kode' ? i.value : i.value.trim().replace(',', '.'); const sc = scrollY; gambar(); scrollTo(0, sc); }; });
+  document.querySelectorAll('[data-pakai]').forEach(b => { b.onclick = () => {
+    const m = H.baris.find(r => r.kode === KAL.kode); if (!m) return;
+    SIM[m.kode] = String(Math.min(+m.sks, +b.dataset.pakai)); simpanSim(); const sc = scrollY; gambar(); scrollTo(0, sc); }; });
+  document.querySelectorAll('[data-sim]').forEach(i => {
+    i.onchange = () => { const v = i.value.trim().replace(',', '.'); if (v === '') delete SIM[i.dataset.sim]; else SIM[i.dataset.sim] = v; simpanSim(); gambar(); };
+  });
+}
+
+async function mulai(){
+  const saya = await gerbang(sb);
+  if (!saya) return;
+  $('hSub').textContent = `Masuk sebagai ${saya.nama}`;
+  const { data, error } = await sb.from('ref_mata_kuliah').select('kurikulum,kode,nama,sks,sks_kuliah,sks_seminar,sks_praktikum,semester,sifat,aktif')
+    .order('kurikulum').order('semester').order('kode');
+  if (error) throw new Error(error.message);
+  MK = data || [];
+  const kurs = [...new Set(MK.map(m => m.kurikulum))].sort();
+  KUR = kurs[kurs.length - 1] || '';
+  muatSim(); gambar();
+}
+mulai().catch(e => { $('isi').innerHTML = `<p class="kosong">Gagal memuat: ${esc(e.message)}</p>`; });
+</script>
+</body>
+</html>
