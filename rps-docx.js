@@ -4,13 +4,13 @@
 // Tanpa DOM: dokumenRps menghasilkan XML; buatRpsDocx menerima JSZip (peramban: CDN; Node: tools/node_modules) dan logo.
 
 const xe = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-const HURUF = 'Times New Roman';
+const HURUF = 'Aptos';   // formulir K26: Aptos 9 pt di tabel, judul bagian Aptos 14 pt tebal (dibaca dari berkas formulir 2026-11-18)
 const BIRU_TUA = '001F5F', BIRU_JUDUL = '1F3863', BIRU = '006FC0', BIRU_MUDA = 'E0EBF7', BIRU_PUCAT = 'DCE6F0', ABU = 'F1F1F1';
 const BULAN = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
 export const tanggalPanjang = iso => { const m = String(iso || '').match(/^(\d{4})-(\d{2})-(\d{2})$/); return m ? `${+m[3]} ${BULAN[+m[2] - 1]} ${m[1]}` : String(iso || ''); };
 
 const rn = (t, o = {}) => `<w:r><w:rPr><w:rFonts w:ascii="${HURUF}" w:hAnsi="${HURUF}" w:cs="${HURUF}"/>${o.b ? '<w:b/>' : ''}${o.i ? '<w:i/>' : ''}${
-  o.warna ? `<w:color w:val="${o.warna}"/>` : ''}<w:sz w:val="${o.sz || 20}"/><w:szCs w:val="${o.sz || 20}"/></w:rPr><w:t xml:space="preserve">${xe(t)}</w:t></w:r>`;
+  o.warna ? `<w:color w:val="${o.warna}"/>` : ''}<w:sz w:val="${o.sz || 18}"/><w:szCs w:val="${o.sz || 18}"/></w:rPr><w:t xml:space="preserve">${xe(t)}</w:t></w:r>`;
 const pg = (isi, o = {}) => `<w:p><w:pPr>${o.keep ? '<w:keepNext/>' : ''}<w:spacing w:before="${o.before ?? 0}" w:after="${o.after ?? 0}"/>${
   o.jc ? `<w:jc w:val="${o.jc}"/>` : ''}</w:pPr>${isi}</w:p>`;
 /** Teks sel: baris baru = paragraf baru. */
@@ -44,7 +44,10 @@ export function tabelK(lebar, baris){
     `<w:tblGrid>${lebar.map(x => `<w:gridCol w:w="${x}"/>`).join('')}</w:tblGrid>${rows}</w:tbl>`;
 }
 
-const judulBagian = t => pg(rn(t, { b: true, sz: 24, warna: BIRU_JUDUL }), { before: 240, after: 120, keep: true });
+// Judul bagian A-F seperti gaya Heading1 formulir: "A." + tab, indentasi menggantung 357, Aptos 14 pt tebal biru tua.
+const judulBagian = (huruf, t) => `<w:p><w:pPr><w:keepNext/><w:tabs><w:tab w:val="left" w:pos="357"/></w:tabs><w:spacing w:before="240" w:after="120"/>` +
+  `<w:ind w:left="357" w:hanging="357"/><w:outlineLvl w:val="0"/></w:pPr>${rn(`${huruf}.`, { b: true, sz: 28, warna: BIRU_JUDUL })}` +
+  `<w:r><w:rPr><w:sz w:val="28"/></w:rPr><w:tab/></w:r>${rn(t, { b: true, sz: 28, warna: BIRU_JUDUL })}</w:p>`;
 // Gambar sebaris (logo di header, Peta Analisis di tabel B). cx/cy dalam EMU.
 const gambarXml = (rid, cx, cy, id, nama) => `<w:r><w:drawing><wp:inline distT="0" distB="0" distL="0" distR="0"><wp:extent cx="${cx}" cy="${cy}"/>` +
   `<wp:docPr id="${id}" name="${nama}"/><a:graphic xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main">` +
@@ -65,7 +68,7 @@ export function dokumenRps(M, o = {}){
   const I = M.identitas || {}, sks = I.sks || {};
   const out = [];
   // A. Identitas dan pengesahan (lebar kolom formulir).
-  out.push(judulBagian('Identitas Mata Kuliah dan Lembar Pengesahan'));
+  out.push(judulBagian('A', 'Identitas Mata Kuliah dan Lembar Pengesahan'));
   out.push(tabelK([3640, 1382, 2289, 916, 916, 921, 916, 1410, 1644], [
     { kepala: true, sel: [judulSel('NAMA MATA KULIAH (MK)'), judulSel('KODE'), judulSel('JENIS MK'), judulSel('BOBOT (sks)', BIRU_TUA, { span: 4 }),
       judulSel('SEMESTER'), judulSel('TGL PENYUSUNAN')] },
@@ -83,7 +86,7 @@ export function dokumenRps(M, o = {}){
      sel('NIP', { span: 2, jc: 'center' })],
   ]));
   // B. Capaian pembelajaran.
-  out.push(judulBagian('Capaian Pembelajaran'));
+  out.push(judulBagian('B', 'Capaian Pembelajaran'));
   out.push(tabelK([2205, 11829], [
     [judulSel('CPL YANG DIBEBANKAN PADA MK', BIRU_JUDUL, { span: 2 })],
     ...(M.cpl.length ? M.cpl.map(c => [sel(kodeCpl(c.kode), { fill: BIRU_MUDA, b: true }), sel(c.rumusan, { fill: BIRU_MUDA })]) : [[sel('—', { span: 2 })]]),
@@ -112,7 +115,7 @@ export function dokumenRps(M, o = {}){
       : { tinggi: 900, sel: [sel('(Peta Analisis belum tersedia: isi hubungan antar-Sub-CPMK di halaman RPS.)', { span: lebarB.length, i: true, jc: 'center', va: 'center' })] },
   ]));
   // C. Tujuan dan deskripsi.
-  out.push(judulBagian('Tujuan dan Deskripsi Mata Kuliah'));
+  out.push(judulBagian('C', 'Tujuan dan Deskripsi Mata Kuliah'));
   const lbl = t => sel(t, { fill: BIRU_MUDA, b: true });
   const pustaka = M.pustaka.map(p => (p.kode ? `${p.kode}: ${p.teks}` : p.teks)).join('\n');
   const sy = M.syarat || {};
@@ -128,7 +131,7 @@ export function dokumenRps(M, o = {}){
      sel([{ ada: 'Ada', tidak_langsung: 'Pendukung tidak langsung', tidak_tersedia: 'Tidak tersedia' }[M.direktori.status] || '', M.direktori.teks].filter(Boolean).join(' - '))],
   ]));
   // D. Rencana pembelajaran.
-  out.push(judulBagian('Rencana Pembelajaran'));
+  out.push(judulBagian('D', 'Rencana Pembelajaran'));
   const lebarD = [851, 1134, 2835, 2268, 2268, 2410, 2268];
   out.push(tabelK(lebarD, [
     { kepala: true, sel: [judulSel('Pekan ke-', BIRU_JUDUL, { vm: 'restart' }), judulSel('Sub-CPMK', BIRU_JUDUL, { vm: 'restart' }),
@@ -143,7 +146,7 @@ export function dokumenRps(M, o = {}){
          sel(p.indikator), sel([p.bentuk, (p.asesmen || []).length ? `Sumatif: ${p.asesmen.join(', ')}` : ''].filter(Boolean).join('\n')), sel(p.luring), sel(p.daring)]),
   ]));
   // E. Evaluasi penyelenggaraan sebelumnya.
-  out.push(judulBagian('Evaluasi Pelaksanaan Mata Kuliah pada Penyelenggaraan Sebelumnya'));
+  out.push(judulBagian('E', 'EVALUASI PELAKSANAAN MATA KULIAH PADA PENYELENGGARAAN SEBELUMNYA'));
   const E = M.evaluasi || {}, belum = 'belum pernah diselenggarakan';
   out.push(tabelK([3678, 2002, 2552, 3685, 1921], [
     [judulSel('NAMA MATA KULIAH'), judulSel('KODE'), judulSel('Semester/Tahun Akademik'), judulSel('Jumlah Mahasiswa dan Persentase Lulus'), judulSel('Rerata Nilai Akhir')],
@@ -152,7 +155,7 @@ export function dokumenRps(M, o = {}){
     [sel('Rekomendasi/Tindak Lanjut dari Portofolio Sebelumnya', { fill: BIRU_PUCAT, b: true }), sel(E.baru ? belum : E.rekomendasi, { span: 4 })],
   ]));
   // F. Daftar revisi (tahap 2: otomatis dari pengesahan Kaprodi).
-  out.push(judulBagian('Daftar Revisi RPS'));
+  out.push(judulBagian('F', 'Daftar Revisi RPS'));
   out.push(tabelK([1004, 1599, 2339, 4111, 2268, 2491], [
     [judulSel('No. Revisi', BIRU_JUDUL), judulSel('Tanggal Revisi', BIRU_JUDUL), judulSel('Pengusul Revisi', BIRU_JUDUL),
      judulSel('Deskripsi Penambahan/Pengurangan/Perubahan RPS', BIRU_JUDUL), judulSel('Tanggal/Paraf Validasi Program Studi', BIRU_JUDUL),
@@ -161,15 +164,65 @@ export function dokumenRps(M, o = {}){
       sel(tanggalPanjang(r.validasi)), sel(r.catatan)])
       : [[sel('1', { jc: 'center' }), sel('-'), sel('-'), sel('Belum ada revisi'), sel('-'), sel('-')]]),
   ]));
+  if (M.rekap) out.push(lampiranRekap(M.rekap));
+  return out.join('');
+}
+
+// Lampiran rekap untuk akreditasi (pemilik 2026-11-19): di bawah bagian F, bukan bagian formulir.
+const koma = v => String(v ?? '').replace('.', ',');
+export function lampiranRekap(X){
+  const out = [pg(rn('Lampiran: Rekapitulasi Beban Belajar, Bentuk Pembelajaran, dan Penilaian', { b: true, sz: 28, warna: BIRU_JUDUL }),
+    { before: 360, after: 60, keep: true }),
+    pg(rn('Untuk keperluan akreditasi (tabel kurikulum LKPS: bobot kredit per bentuk pembelajaran dan konversi kredit ke jam). Dihitung otomatis dari isian RPS.',
+      { i: true }), { after: 120 })];
+  const B = X.beban;
+  out.push(pg(rn('1. Beban belajar per bentuk pembelajaran', { b: true, sz: 20 }), { before: 120, after: 60, keep: true }));
+  out.push(tabelK([3300, 900, 3134, 1500, 1500, 1500, 1200, 1000], [
+    { kepala: true, sel: ['Bentuk pembelajaran', 'sks', 'Per pekan', 'Tatap muka / PB (jam)', 'Penugasan terstruktur / PT (jam)', 'Belajar mandiri / KM (jam)',
+      'Kegiatan praktikum/ lapangan/ simulasi (jam)', 'Jumlah (jam/ semester)'].map(t => judulSel(t, BIRU_JUDUL)) },
+    ...B.baris.map(r => [sel(r.bentuk), sel(koma(r.sks), { jc: 'center' }), sel(r.menit, { jc: 'center' }), sel(koma(r.pb), { jc: 'center' }),
+      sel(koma(r.pt), { jc: 'center' }), sel(koma(r.km), { jc: 'center' }), sel(koma(r.kegiatan), { jc: 'center' }), sel(koma(r.jam), { jc: 'center' })]),
+    [sel('Jumlah', { b: true, fill: BIRU_MUDA }), ...[B.jumlah.sks, '', B.jumlah.pb, B.jumlah.pt, B.jumlah.km, B.jumlah.kegiatan, B.jumlah.jam]
+      .map(v => sel(koma(v), { b: true, jc: 'center', fill: BIRU_MUDA }))],
+  ]));
+  out.push(pg(rn('1 sks = 45 jam per semester (Panduan Pengisian RPS K26). Kuliah/responsi/tutorial: 50′ proses belajar (PB), 60′ penugasan terstruktur (PT), '
+    + '60′ kegiatan mandiri (KM) per pekan per sks; praktikum, praktik lapangan, dan simulasi: kegiatan 170′ per pekan per sks, tidak dibagi PB/PT/KM.', { i: true, sz: 16 }),
+    { before: 40, after: 120 }));
+  const baris = xs => xs.map(x => [sel(x.label), sel(x.pekan), sel(String(x.jumlah), { jc: 'center' })]);
+  out.push(pg(rn('2. Bentuk pembelajaran dan metode SCL dalam rencana pekanan', { b: true, sz: 20 }), { before: 120, after: 60, keep: true }));
+  out.push(tabelK([4300, 7234, 2500], [
+    { kepala: true, sel: [judulSel('Bentuk/metode', BIRU_JUDUL), judulSel('Pekan', BIRU_JUDUL), judulSel('Jumlah pekan', BIRU_JUDUL)] },
+    [sel('Bentuk pembelajaran', { span: 3, b: true, fill: BIRU_MUDA })],
+    ...(X.bentuk.length ? baris(X.bentuk) : [[sel('Belum dicentang di rencana pekanan', { span: 3, i: true })]]),
+    [sel('Metode pembelajaran berpusat pada mahasiswa (SCL)', { span: 3, b: true, fill: BIRU_MUDA })],
+    ...(X.scl.length ? baris(X.scl) : [[sel('Tidak ada', { span: 3, i: true })]]),
+    [sel('Ujian', { span: 3, b: true, fill: BIRU_MUDA })],
+    ...X.ujian.map(u => [sel(u.label), sel(u.pekan), sel('1', { jc: 'center' })]),
+  ]));
+  out.push(pg(rn('3. Penugasan mahasiswa dan asesmen sumatif per pekan', { b: true, sz: 20 }), { before: 240, after: 60, keep: true }));
+  out.push(tabelK([1500, 8534, 4000], [
+    { kepala: true, sel: [judulSel('Pekan', BIRU_JUDUL), judulSel('Penugasan mahasiswa', BIRU_JUDUL), judulSel('Asesmen sumatif', BIRU_JUDUL)] },
+    ...(X.penugasan.length ? X.penugasan.map(t => [sel(t.pekan, { jc: 'center' }), sel(t.penugasan || '-'), sel(t.sumatif || '-')])
+      : [[sel('Belum ada penugasan', { span: 3, i: true })]]),
+  ]));
+  const N = X.penilaian;
+  out.push(pg(rn('4. Komposisi penilaian', { b: true, sz: 20 }), { before: 240, after: 60, keep: true }));
+  out.push(tabelK([9034, 5000], [
+    { kepala: true, sel: [judulSel('Komponen', BIRU_JUDUL), judulSel('Bobot (%)', BIRU_JUDUL)] },
+    ...N.jenis.map(j => [sel(j.label), sel(koma(j.persen), { jc: 'center' })]),
+    [sel('Jumlah', { b: true, fill: BIRU_MUDA }), sel(koma(N.total), { b: true, jc: 'center', fill: BIRU_MUDA })],
+    [sel('Proporsi penilaian HOTS (Sub-CPMK berkode C4-C6)'), sel(koma(N.hots), { jc: 'center' })],
+    [sel('Asesmen non-tes (tugas, proyek, laporan, presentasi, dan sejenisnya)'), sel(koma(N.nontes), { jc: 'center' })],
+  ]));
   return out.join('');
 }
 
 // Header: logo | judul | kode formulir. Logo 1,9 x 1,4 cm (EMU).
-const CX = 684000, CY = 496000;
+const CX = 646430, CY = 469265;   // ukuran logo di header formulir
 function header(adaLogo){
   const logo = adaLogo ? gambarXml('rIdLogo', CX, CY, 1, 'Logo') : '';
-  const isi = tabelK([2200, 9634, 2200], [[sel({ xml: pg(logo, { jc: 'center' }) }, { va: 'center' }),
-    sel('RENCANA PEMBELAJARAN SEMESTER', { b: true, sz: 28, jc: 'center', va: 'center' }), sel('UP-SPMI/FR008/R05', { b: true, jc: 'center', va: 'center' })]]);
+  const isi = tabelK([1818, 9639, 2471], [[sel({ xml: pg(logo, { jc: 'center' }) }, { va: 'center' }),
+    sel('RENCANA PEMBELAJARAN SEMESTER', { b: true, sz: 36, jc: 'center', va: 'center' }), sel('UP-SPMI/FR008/R05', { b: true, jc: 'center', va: 'center' })]]);
   return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <w:hdr xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing">${isi}${pg('')}</w:hdr>`;
 }
@@ -209,6 +262,6 @@ export async function buatRpsDocx(M, { JSZip, logo = null, peta = null, type = '
   zip.file('word/document.xml', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing">
 <w:body>${dokumenRps(M, { peta: peta ? { w: peta.w, h: peta.h } : null })}<w:sectPr><w:headerReference w:type="default" r:id="rIdH1"/><w:pgSz w:w="16838" w:h="11906" w:orient="landscape"/>` +
-`<w:pgMar w:top="1440" w:right="1402" w:bottom="1440" w:left="1402" w:header="708" w:footer="708" w:gutter="0"/></w:sectPr></w:body></w:document>`);
+`<w:pgMar w:top="1440" w:right="1440" w:bottom="1440" w:left="1440" w:header="708" w:footer="708" w:gutter="0"/></w:sectPr></w:body></w:document>`);
   return zip.generateAsync({ type, mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
 }

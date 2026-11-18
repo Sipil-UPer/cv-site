@@ -14,7 +14,8 @@
 //   syarat     { prasyarat, bersamaan }
 //   scl        { ada, teks }    integrasi { ada, teks }    direktori { status: ada|tidak_langsung|tidak_tersedia, teks }
 //   pekan      [{ pekan: '1-2', jenis: 'kuliah'|'uts'|'uas', sub: [kode], asesmen: [nama], materi, pustaka, indikator,
-//                 bentuk, luring, daring }]
+//                 bentuk, luring, daring, bentuk_pb: [BENTUK], scl: [SCL], penugasan }]
+//              bentuk = teks "Bentuk & Kriteria" asesmen; bentuk_pb dan scl = centang untuk lampiran rekap (pemilik 2026-11-19)
 //   evaluasi   { baru, mk, kode, semester, jumlah, rerata, rekomendasi }
 //   peta       { sub: { <kode Sub-CPMK>: { ke, jenis } }, entry }   Peta Analisis (rps-peta.js, tahap 3)
 
@@ -30,6 +31,14 @@ export const TARGET_HOTS = { 1: 0, 2: 10, 3: 30, 4: 50 };
 export const METODE_SCL = ['Small Group Discussion', 'Role-Play', 'Simulation', 'Discovery Learning', 'Self-Directed Learning',
   'Cooperative Learning', 'Collaborative Learning', 'Contextual Learning', 'Project Based Learning', 'Problem Based Learning',
   'Case Method', 'Case-Based', 'Flipped'];
+
+// Lampiran rekap untuk akreditasi (pemilik 2026-11-19): bentuk pembelajaran (Panduan 2: metode pembelajaran) dan metode SCL
+// (Panduan 5.2) dicentang per pekan.
+export const BENTUK = [['kuliah', 'Kuliah'], ['responsi', 'Responsi'], ['tutorial', 'Tutorial'], ['seminar', 'Seminar'], ['praktikum', 'Praktikum'],
+  ['praktik_lapangan', 'Praktik lapangan'], ['studio', 'Praktik studio/bengkel'], ['simulasi', 'Simulasi']];
+export const SCL = [['sgd', 'Small Group Discussion'], ['roleplay', 'Role-Play & Simulation'], ['discovery', 'Discovery Learning'],
+  ['sdl', 'Self-Directed Learning'], ['cooperative', 'Cooperative Learning'], ['collaborative', 'Collaborative Learning'],
+  ['contextual', 'Contextual Learning'], ['pjbl', 'Project Based Learning'], ['pbl', 'Problem Based Learning'], ['case', 'Case Method']];
 
 const teks = v => String(v ?? '').trim();
 const angka = v => { const x = +String(v ?? '').replace(',', '.'); return Number.isFinite(x) ? x : 0; };
@@ -83,7 +92,7 @@ export function rentangPekan(s){
 }
 
 const barisPekan = (pekan, jenis = 'kuliah') => ({ pekan: String(pekan), jenis, sub: [], asesmen: [], materi: '', pustaka: '', indikator: '',
-  bentuk: '', luring: '', daring: '' });
+  bentuk: '', luring: '', daring: '', bentuk_pb: [], scl: [], penugasan: '' });
 /** Kerangka 16 pekan: 1-7 kuliah, 8 UTS, 9-15 kuliah, 16 UAS (Panduan 3.4). Pekan bisa digabung kemudian. */
 export const kerangkaPekan = () => [...[1, 2, 3, 4, 5, 6, 7].map(p => barisPekan(p)), barisPekan(8, 'uts'),
   ...[9, 10, 11, 12, 13, 14, 15].map(p => barisPekan(p)), barisPekan(16, 'uas')];
@@ -255,6 +264,7 @@ export function periksaRps({ mk = {}, struktur, rps, cpl = [], pengembang = null
     if (!teks(p.indikator)) g('D', `${lbl}: isi indikator.`);
     else if (!/\d/.test(p.indikator)) s('D', `${lbl}: indikator sebaiknya memuat ambang terukur (skor/persen minimal).`);
     if (!teks(p.luring) && !teks(p.daring)) g('D', `${lbl}: isi bentuk/modalitas pembelajaran (luring atau daring).`);
+    if (!(p.bentuk_pb || []).length) g('D', `${lbl}: centang bentuk pembelajaran (kuliah, praktikum, dll.) untuk lampiran rekap.`);
     for (const a of p.asesmen || []) if (!(p.sub || []).some(k => angka(S.bobot?.[k]?.[a]))) s('D', `${lbl}: ${a} tidak berbobot pada Sub-CPMK pekan ini (bagian B).`);
   }
   const kurang = Array.from({ length: 16 }, (_, i) => i + 1).filter(n => !dipakai.has(n));
@@ -266,7 +276,7 @@ export function periksaRps({ mk = {}, struktur, rps, cpl = [], pengembang = null
   const sumatif = S.asesmen.filter(a => !['uts', 'uas'].includes(jenisAsesmen(a))).map(a => a.nama);
   const diD = new Set(P.flatMap(p => p.asesmen || []));
   for (const a of sumatif) if (!diD.has(a)) s('D', `${a} (bagian B) belum dijadwalkan di rencana pekanan.`);
-  const adaScl = P.some(p => METODE_SCL.some(m => `${p.luring} ${p.daring}`.toLowerCase().includes(m.toLowerCase())));
+  const adaScl = P.some(p => (p.scl || []).length || METODE_SCL.some(m => `${p.luring} ${p.daring}`.toLowerCase().includes(m.toLowerCase())));
   if (!adaScl && R.scl?.ada !== true) g('D', 'Gunakan minimal satu metode SCL (mis. Case Method, Project Based Learning) di kolom Luring/Daring.');
   for (const x of S.sub) if (!P.some(p => (p.sub || []).includes(x.kode))) s('D', `${x.kode} belum muncul di rencana pekanan.`);
   // E
@@ -299,6 +309,64 @@ export function modelRps({ mk = {}, struktur, rps, cpl = [], pengembang = null, 
     tujuan: teks(R.tujuan), deskripsi: teks(R.deskripsi), pengampu: teks(R.pengampu), kriteria: teks(R.kriteria),
     pustaka: (R.pustaka || []).filter(p => teks(p.teks)), syarat: R.syarat || {}, scl: R.scl || {}, integrasi: R.integrasi || {},
     direktori: R.direktori || {}, pekan: R.pekan || [], evaluasi: R.evaluasi || {}, revisi,
+    rekap: rekapRps({ mk, struktur: S, rps: R }),
+  };
+}
+
+// ---------- Lampiran rekap untuk akreditasi (pemilik 2026-11-19) ----------
+const satuDesimal = v => Math.round(v * 10) / 10;
+/** [1, 2, 3, 5, 9, 10] -> "1-3, 5, 9-10". */
+export function ringkasPekan(xs){
+  const n = [...new Set(xs)].sort((a, b) => a - b), out = [];
+  for (let i = 0; i < n.length; i++) {
+    let j = i;
+    while (j + 1 < n.length && n[j + 1] === n[j] + 1) j++;
+    out.push(i === j ? String(n[i]) : `${n[i]}-${n[j]}`);
+    i = j;
+  }
+  return out.join(', ');
+}
+
+/**
+ * Beban belajar per bentuk dari sks T/P/PL/S (Panduan Pengisian RPS K26 UPER, pemilik 2026-11-19): 1 sks = 45 jam per semester.
+ * Kuliah/responsi/tutorial (T) per pekan 50' PB + 60' PT + 60' KM per sks -> jam semester dibagi menurut 50:60:60.
+ * Praktikum (P), praktik lapangan (PL), simulasi (S): kegiatan 170' per pekan per sks, tidak dibagi PB/PT/KM.
+ */
+export function bebanBelajar(sks = {}){
+  const baris = [['t', 'Kuliah/Responsi/Tutorial'], ['p', 'Praktikum'], ['pl', 'Praktik lapangan'], ['s', 'Simulasi']].map(([k, l]) => {
+    const n = angka(sks[k]), jam = n * 45;
+    return k === 't'
+      ? { kode: k, bentuk: l, sks: n, menit: n ? `${50 * n}′ PB + ${60 * n}′ PT + ${60 * n}′ KM` : '-', pb: satuDesimal(jam * 50 / 170),
+          pt: satuDesimal(jam * 60 / 170), km: satuDesimal(jam * 60 / 170), kegiatan: 0, jam }
+      : { kode: k, bentuk: l, sks: n, menit: n ? `${170 * n}′ kegiatan` : '-', pb: 0, pt: 0, km: 0, kegiatan: jam, jam };
+  });
+  const jumlah = k => satuDesimal(baris.reduce((a, r) => a + r[k], 0));
+  return { baris, jumlah: { sks: jumlah('sks'), pb: jumlah('pb'), pt: jumlah('pt'), km: jumlah('km'), kegiatan: jumlah('kegiatan'), jam: jumlah('jam') } };
+}
+
+/**
+ * Rekap untuk lampiran: beban belajar, rencana pekanan (bentuk pembelajaran, metode SCL, penugasan), komposisi penilaian.
+ * ctx seperti periksaRps.
+ */
+export function rekapRps({ mk = {}, struktur, rps } = {}){
+  const S = struktur || { cpmk: [], sub: [], asesmen: [], bobot: {} }, R = rps || rpsKosong(mk), P = R.pekan || [];
+  const perKode = (daftar, ambil) => daftar.map(([k, l]) => {
+    const pk = P.flatMap(p => ((ambil(p) || []).includes(k) ? rentangPekan(p.pekan) : []));
+    return { kode: k, label: l, pekan: ringkasPekan(pk), jumlah: new Set(pk).size };
+  }).filter(x => x.jumlah);
+  const jenis = Object.fromEntries(JENIS_ASESMEN.map(([j]) => [j, 0]));
+  for (const x of S.sub) for (const a of S.asesmen) jenis[jenisAsesmen(a)] += angka(S.bobot?.[x.kode]?.[a.nama]);
+  const total = Object.values(jenis).reduce((a, v) => a + v, 0);
+  const persen = v => (total ? bulat(100 * v / total) : 0);
+  return {
+    beban: bebanBelajar(R.identitas?.sks),
+    bentuk: perKode(BENTUK, p => p.bentuk_pb),
+    scl: perKode(SCL, p => p.scl),
+    ujian: P.filter(p => p.jenis !== 'kuliah').map(p => ({ pekan: teks(p.pekan), label: p.jenis === 'uts' ? 'UTS' : 'UAS' })),
+    penugasan: P.filter(p => p.jenis === 'kuliah' && (teks(p.penugasan) || (p.asesmen || []).length))
+      .map(p => ({ pekan: teks(p.pekan), penugasan: teks(p.penugasan), sumatif: (p.asesmen || []).join(', ') })),
+    penilaian: { jenis: JENIS_ASESMEN.filter(([j]) => jenis[j]).map(([j, l]) => ({ jenis: j, label: l, persen: persen(jenis[j]) })),
+                 hots: hots(S, R.identitas?.semester || mk.semester).persen, nontes: persen(jenis.tugas + jenis.lainnya), total: bulat(total) },
   };
 }
 

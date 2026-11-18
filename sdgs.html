@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-18-c91465">
+<link rel="stylesheet" href="tema.css?v=2026-11-19-fe105f">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
@@ -107,7 +107,7 @@
 
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
 
-<script src="config.js?v=2026-11-18-c91465"></script>
+<script src="config.js?v=2026-11-19-fe105f"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -125,9 +125,9 @@ addEventListener('error', function (e) {
 <script type="module">
 // Rekap karya per Tujuan Pembangunan Berkelanjutan (SDGs). SDG dipilih dosen
 // pada isian karya (47-patch-sdgs.sql); data dari data.json publik.
-import { jagaHalaman } from './fitur.js?v=2026-11-18-c91465';
+import { jagaHalaman } from './fitur.js?v=2026-11-19-fe105f';
 if (!jagaHalaman()) await new Promise(() => {});   // modul dimatikan (config.js FITUR_MATI)
-import { SDGS, WARNA_SDG as WARNA } from './form-karya.js?v=2026-11-18-c91465';
+import { SDGS, WARNA_SDG as WARNA } from './form-karya.js?v=2026-11-19-fe105f';
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const KAT = { publikasi: 'Publikasi', penelitian: 'Penelitian', pkm: 'PkM', luaran: 'Luaran' };
 let D = null, PILIH = null;

@@ -1,7 +1,7 @@
 {
  "prodi": "Teknik Sipil",
  "institusi": "Universitas Pertamina",
- "diperbarui": "18 November 2026",
+ "diperbarui": "19 November 2026",
  "dosen": [
   {
    "nama": "Adita Utami",
@@ -27,7 +27,8 @@
    "sinta_id": "6733873",
    "scopus_id": "58317389400",
    "orcid": "0000-0002-2892-3494",
-   "kelompok": "STR"
+   "kelompok": "STR",
+   "nip": "116038"
   },
   {
    "nama": "Arlyn Aristo",
