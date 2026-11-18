@@ -1,5 +1,5 @@
-import { dosenLogin } from './dosen-login.js?v=2026-11-18-e724e2';
-import { aktifPada } from './koordinator.js?v=2026-11-18-e724e2';
+import { dosenLogin } from './dosen-login.js?v=2026-11-18-2796a9';
+import { aktifPada } from './koordinator.js?v=2026-11-18-2796a9';
 // Menu bersama ruang kerja (pemilik 2026-11-04).
 //
 // Situs dibagi dua:
@@ -25,7 +25,7 @@ const penyusun = s => admin(s) || (!!s.tim_penyusun && s.peran !== 'asesor');
 // Asesor, dan pimpinan yang bukan DTPS prodi ini (aktif=false), tidak mengisi karya.
 const isiKarya = s => s.peran !== 'asesor' && !(s.peran === 'pimpinan' && !s.aktif);
 
-import { halamanAktif } from './fitur.js?v=2026-11-18-e724e2';
+import { halamanAktif } from './fitur.js?v=2026-11-18-2796a9';
 
 export const MODUL = [
   // Susunan modul (pemilik 2026-11-17): mengikuti pembagian tugas koordinator prodi (kemahasiswaan,
@@ -63,8 +63,10 @@ export const MODUL = [
     { href: 'rekap-ta.html', judul: 'Rekap seminar/sidang TA', boleh: s => s.peran !== 'asesor',
       ket: 'Seminar proposal, seminar kemajuan, sidang akhir per periode; beban membimbing dan menguji per dosen.' },
     // Layanan mahasiswa (77, 78; pemilik 2026-11-16): pengumuman teks, tanya-jawab, kotak masuk pertanyaan/masukan.
-    { href: 'kelola-mahasiswa.html', judul: 'Layanan mahasiswa', boleh: admin,
-      ket: 'Pengumuman, tanya-jawab yang sering ditanya, dan kotak masuk pertanyaan/masukan mahasiswa.' },
+    // Email alternatif mahasiswa (104): juga koordinator KP/TA dan pembina kemahasiswaan (hanya bagian itu).
+    { href: 'kelola-mahasiswa.html', judul: 'Layanan mahasiswa',
+      boleh: s => admin(s) || (s.koordinator || []).some(j => ['koordinator_kp', 'koordinator_ta', 'pembina_kemahasiswaan'].includes(j)),
+      ket: 'Pengumuman, tanya-jawab, kotak masuk pertanyaan/masukan mahasiswa, dan email alternatif mahasiswa.' },
   ]},
   { judul: 'Penelitian & PkM', ket: 'Hibah, kepakaran dosen, dan SDGs.', halaman: [
     // Sama dengan boleh_hibah() di supabase/58-patch-hibah.sql.
@@ -307,7 +309,7 @@ export async function pasangMenu(sb){
   // Pencarian menyeluruh (pemilik 2026-11-12; cari-ui.js, cari.js): dimuat saat pertama dipakai.
   const kotak = nav.querySelector('.rk-cari input');
   let siapCari = null;
-  const muatCari = () => siapCari || (siapCari = import('./cari-ui.js?v=2026-11-18-e724e2').then(m =>
+  const muatCari = () => siapCari || (siapCari = import('./cari-ui.js?v=2026-11-18-2796a9').then(m =>
     m.pasangCari(kotak, { sb, saya: u.saya, modul: halamanBoleh(u.saya), boleh: h => bolehBuka(u.saya, h) !== false })));
   kotak.addEventListener('focus', muatCari);
   document.addEventListener('keydown', e => {

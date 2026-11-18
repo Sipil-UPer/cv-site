@@ -1,9 +1,9 @@
 // Tugas saya untuk koordinator MK dan pengampu kelas (pemilik 2026-11-17; OBE O2 dan O3).
 // Hanya yang belum punya pengingat lain: CPMK/RPS (cpmk.html) dan unggahan portofolio (portofolio.html).
 // Berkas nilai CPL dan refleksi evaluasi sudah diingatkan tugas-saya.js / evaluasi-pembelajaran.js.
-import { periksaStruktur } from './templat-cpl.js?v=2026-11-18-e724e2';
-import { cplMK, dataTemplat, statusStruktur } from './cpmk.js?v=2026-11-18-e724e2';
-import { kelengkapan, mkSemester, daftarSemester } from './portofolio.js?v=2026-11-18-e724e2';
+import { periksaStruktur } from './templat-cpl.js?v=2026-11-18-2796a9';
+import { cplMK, dataTemplat, statusStruktur } from './cpmk.js?v=2026-11-18-2796a9';
+import { kelengkapan, mkSemester, daftarSemester } from './portofolio.js?v=2026-11-18-2796a9';
 
 const kecil = s => String(s || '').trim().toLowerCase();
 const potong = (xs, n = 6) => xs.slice(0, n).join('; ') + (xs.length > n ? `; dan ${xs.length - n} lagi` : '');

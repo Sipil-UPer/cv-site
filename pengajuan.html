@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-18-e724e2">
+<link rel="stylesheet" href="tema.css?v=2026-11-18-2796a9">
 <style>
   /* Pengajuan mahasiswa, publik tanpa login (pemilik 2026-11-17; patch 90). Warna dari tema.css. */
   *{box-sizing:border-box}
@@ -75,7 +75,7 @@
   <h1>Pengajuan KP, seminar/sidang TA, lomba, publikasi/luaran, dan surat</h1><div class="prodi" id="hProdi"></div>
 </div></header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-18-e724e2"></script>
+<script src="config.js?v=2026-11-18-2796a9"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -96,7 +96,7 @@ addEventListener('error', function (e) {
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
 import { JENIS, LABEL_BERKAS, LABEL_STATUS, TINGKAT, BIDANG, jalur, bolehUbah, bacaAnggota, teksAnggota,
          periksaIsian, judulPengajuan, keB64, bukaIsi, appsScript, labelStatus, jalurTahap, BERKAS_SELESAI, PROGRAM_KP, labelProgram,
-         periksaSelesai, JENIS_SURAT, TAHAP_TA, JENIS_PUB, TINGKAT_PUB, INDEKSASI, JENIS_LUARAN } from './pengajuan-mhs.js?v=2026-11-18-e724e2';
+         periksaSelesai, JENIS_SURAT, TAHAP_TA, JENIS_PUB, TINGKAT_PUB, INDEKSASI, JENIS_LUARAN } from './pengajuan-mhs.js?v=2026-11-18-2796a9';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
@@ -104,6 +104,8 @@ const sb = createClient(window.SB_URL, window.SB_KEY, { auth: { persistSession: 
 const tglWaktu = s => s ? new Date(s).toLocaleString('id-ID', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '';
 const opsi = (xs, v) => xs.map(([k, l]) => `<option value="${k}"${k === v ? ' selected' : ''}>${esc(l)}</option>`).join('');
 const TOKEN = (new URLSearchParams(location.hash.slice(1)).get('t') || '').trim();
+// Konfirmasi email alternatif (104): tautan #alt=<token> dari email kampus.
+const ALT = (new URLSearchParams(location.hash.slice(1)).get('alt') || '').trim();
 let DOSEN = [], P = null;
 
 function tulis(id, kelas, teks){ const m = $(id); m.className = 'msg ' + kelas; m.textContent = teks; }
@@ -255,6 +257,17 @@ function halamanBaru(){
       <div class="fld"><label for="u_nim">NIM</label><input id="u_nim" inputmode="numeric" maxlength="15" autocomplete="off"></div>
       <div class="jebakan" aria-hidden="true"><input id="u_situs" type="text" tabindex="-1" autocomplete="off"></div>
       <button type="submit" class="b" id="b_ulang">Kirim tautan baru</button><span class="msg" id="m_ulang" role="status"></span>
+    </form>
+    <h2>Email kampus bermasalah?</h2>
+    <form class="kotak" id="frmAlt" novalidate>
+      <p class="ket" style="margin-top:0">Daftarkan email alternatif (mis. Gmail). Tautan konfirmasi dikirim ke <b>email kampus</b>;
+        sesudah Anda membukanya, tautan dan kabar pengajuan dikirim ke email kampus <b>dan</b> email alternatif.</p>
+      <div class="fld"><label for="a_nim">NIM</label><input id="a_nim" inputmode="numeric" maxlength="15" autocomplete="off"></div>
+      <div class="fld"><label for="a_email">Email alternatif</label><input id="a_email" type="email" maxlength="120" autocomplete="email"></div>
+      <div class="jebakan" aria-hidden="true"><input id="a_situs" type="text" tabindex="-1" autocomplete="off"></div>
+      <button type="submit" class="b" id="b_alt">Kirim tautan konfirmasi</button><span class="msg" id="m_alt" role="status"></span>
+      <p class="ket">Email kampus sama sekali tidak bisa dibuka? Datang ke admin prodi atau koordinator KP/TA dengan KTM;
+        mereka bisa mendaftarkan email alternatif Anda langsung.</p>
     </form>`;
   const jenis = () => document.querySelector('[name=jenis]:checked').value;
   const gambar = () => { $('isian').innerHTML = htmlIsian(jenis()); pasangSurat(); pasangLuaran(); };
@@ -272,6 +285,18 @@ function halamanBaru(){
       $('frm').innerHTML = `<p><b>Pengajuan dibuat sebagai draf.</b> Tautan pribadi sudah dikirim ke <b>${esc(out.email || 'email kampus Anda')}</b>.
         Buka email itu (periksa juga folder Spam/Junk) untuk mengunggah berkas dan menekan <b>Kirim untuk diperiksa</b>.</p>`;
     } catch (err) { tulis('m_ajukan', 'buruk', err.message); $('b_ajukan').disabled = false; }
+  };
+  $('frmAlt').onsubmit = async e => {
+    e.preventDefault();
+    const nim = $('a_nim').value.trim(), email = $('a_email').value.trim();
+    if (!/^\d{6,15}$/.test(nim)) return tulis('m_alt', 'buruk', 'NIM harus angka 6–15 digit.');
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return tulis('m_alt', 'buruk', 'Tulis alamat email alternatif yang sah.');
+    $('b_alt').disabled = true; tulis('m_alt', '', 'Mengirim…');
+    try {
+      const out = await appsScript({ kind: 'mhs_email_alt', nim, email, jebakan: $('a_situs').value });
+      tulis('m_alt', 'ok', `Tautan konfirmasi dikirim ke ${out.email || 'email kampus Anda'}; berlaku 2 hari.`);
+    } catch (err) { tulis('m_alt', 'buruk', err.message); }
+    finally { $('b_alt').disabled = false; }
   };
   $('frmUlang').onsubmit = async e => {
     e.preventDefault();
@@ -486,6 +511,16 @@ async function kirim(){
   } catch (e) { tulis('m_kirim', 'buruk', e.message); $('b_kirim').disabled = false; }
 }
 
+// Konfirmasi email alternatif dari tautan di email kampus (104).
+async function konfirmasiAlt(){
+  $('isi').innerHTML = '<p class="kosong">Mengaktifkan email alternatif…</p>';
+  history.replaceState(null, '', location.pathname);   // token tidak tertinggal di riwayat peramban
+  const out = await appsScript({ kind: 'mhs_email_alt_konfirmasi', token: ALT });
+  $('isi').innerHTML = `<div class="kotak"><p><b>Email alternatif ${esc(out.email || '')} sudah aktif.</b></p>
+    <p>Mulai sekarang tautan dan kabar pengajuan dikirim ke email kampus dan email alternatif ini.
+      Pemberitahuan juga dikirim ke kedua alamat.</p><p><a href="pengajuan.html">Ke halaman pengajuan</a></p></div>`;
+}
+
 async function mulai(){
   fetch('data.json?v=' + Date.now()).then(r => r.ok ? r.json() : {}).catch(() => ({}))
     .then(d => { $('hProdi').textContent = [d.prodi, d.institusi].filter(Boolean).join(' · '); });
@@ -493,6 +528,7 @@ async function mulai(){
   const { data, error } = await sb.rpc('pembimbing_pilihan');
   if (error) throw new Error(/pembimbing_pilihan/.test(error.message) ? 'Layanan pengajuan belum dibuka admin prodi.' : error.message);
   DOSEN = data || [];
+  if (ALT) return konfirmasiAlt();
   if (!TOKEN) return halamanBaru();
   await muat();
   halamanSaya();
