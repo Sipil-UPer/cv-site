@@ -3,11 +3,11 @@
 // mahasiswa (pasangPrestasi) dan verifikasi.html (pasangVerifikasiPrestasi).
 // Admin tetap bisa mengisi langsung di Data prodi.
 
-import { periksaBerkas, kolomSidik, teksTemuan } from './sidik-berkas.js?v=2026-11-17-796e64';
-import { buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-17-796e64';
-import { htmlSaran } from './saran-bukti.js?v=2026-11-17-796e64';
-import { tautanBerkas, temuanPakai } from './tautan-privat.js?v=2026-11-17-796e64';
-import { htmlTautanButir, tsBaris } from './tautan-butir.js?v=2026-11-17-796e64';
+import { periksaBerkas, kolomSidik, teksTemuan } from './sidik-berkas.js?v=2026-11-18-e724e2';
+import { buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-18-e724e2';
+import { htmlSaran } from './saran-bukti.js?v=2026-11-18-e724e2';
+import { tautanBerkas, temuanPakai } from './tautan-privat.js?v=2026-11-18-e724e2';
+import { htmlTautanButir, tsBaris } from './tautan-butir.js?v=2026-11-18-e724e2';
 
 export const TABEL = 'lkps_prestasi_mahasiswa';
 
@@ -32,6 +32,7 @@ const esc = s => String(s ?? '').replace(/[&<>"']/g, c =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const nama = (xs, v) => (xs.find(x => x[0] === v) || [v, v ?? ''])[1];
 export const JENIS_PRESTASI_PRIVAT = ['surat_tugas'];
+const PESAN_JENIS = 'Pilih jenis bukti dulu. Pilih "Foto kegiatan" agar foto tampil di halaman Prestasi situs.';
 export const namaJenis = j => nama(JENIS_BUKTI_PRESTASI, j || 'lainnya');
 
 // ---------- logika murni ----------
@@ -206,7 +207,7 @@ export async function pasangPrestasi(wadah, { sb, saya, dosen }){
           <b>Foto kegiatan</b> (mis. foto tim, karya, atau penyerahan penghargaan) tampil di halaman Prestasi situs publik;
           sertifikat tidak pernah ditampilkan.</span>
         <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
-          <select id="pr_jenis" style="width:auto">${opsi(JENIS_BUKTI_PRESTASI)}</select>
+          <select id="pr_jenis" style="width:auto"><option value="" selected>Pilih jenis bukti…</option>${opsi(JENIS_BUKTI_PRESTASI)}</select>
           <input id="pr_berkas" type="file" multiple style="width:auto;flex:1;min-width:200px">
           <button type="button" class="btn ghost sm" id="pr_unggah">Unggah</button></div>
         <ul id="pr_antrean" style="margin:6px 0 0;padding-left:18px;font-size:13px"></ul></div>
@@ -250,6 +251,8 @@ export async function pasangPrestasi(wadah, { sb, saya, dosen }){
   async function unggahAntrean(){
     const f = [...$('pr_berkas').files], tahun = $('pr_tahun').value, kegiatan = $('pr_kegiatan').value.trim();
     if (!f.length) return tulis('err', 'Pilih berkas dulu.');
+    // Jenis wajib dipilih (pemilik 2026-11-18: foto tersimpan sebagai sertifikat bawaan, tidak tampil di situs).
+    if (!$('pr_jenis').value) return tulis('err', PESAN_JENIS);
     if (!tahun || !kegiatan) return tulis('err', 'Isi nama kegiatan dan tahun dulu; keduanya menjadi nama folder bukti.');
     $('pr_unggah').disabled = true;
     try {
@@ -322,7 +325,7 @@ export async function pasangPrestasi(wadah, { sb, saya, dosen }){
           ? ` <button class="btn ghost sm" data-buang-bukti="${b.id}">×</button>` : ''}</li>`).join('')}</ul>
       <details><summary style="cursor:pointer;font-size:13px">Tambah bukti</summary>
         <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:6px">
-          <select id="prj-${r.id}" style="width:auto">${opsi(JENIS_BUKTI_PRESTASI)}</select>
+          <select id="prj-${r.id}" style="width:auto"><option value="" selected>Pilih jenis bukti…</option>${opsi(JENIS_BUKTI_PRESTASI)}</select>
           <input id="prf-${r.id}" type="file" multiple style="width:auto;flex:1;min-width:180px">
           <input id="pru-${r.id}" type="url" placeholder="atau tempel tautan https://…" style="flex:1;min-width:180px">
           <button class="btn ghost sm" data-tambah-bukti="${r.id}">Tambah</button>
@@ -349,6 +352,7 @@ export async function pasangPrestasi(wadah, { sb, saya, dosen }){
     const m = $('prm-' + r.id), jenis = $('prj-' + r.id).value, url = $('pru-' + r.id).value.trim();
     const f = [...$('prf-' + r.id).files], t = x => { m.className = 'msg'; m.textContent = x; };
     if (!f.length && !url) return t('Pilih berkas atau tempel tautan.');
+    if (!jenis) return t(PESAN_JENIS);
     if (url && !/^https?:\/\/\S+$/i.test(url)) return t('Tautan harus https://…');
     tombol.disabled = true;
     try {
