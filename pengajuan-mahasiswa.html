@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-18-1ccfe5">
-<link rel="stylesheet" href="kepala.css?v=2026-11-18-1ccfe5">
+<link rel="stylesheet" href="tema.css?v=2026-11-18-e23e71">
+<link rel="stylesheet" href="kepala.css?v=2026-11-18-e23e71">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
@@ -72,7 +72,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-18-1ccfe5"></script>
+<script src="config.js?v=2026-11-18-e23e71"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -92,14 +92,14 @@ addEventListener('error', function (e) {
 // Berkas privat dibuka lewat Apps Script (mhs_buka_prodi); surat pengantar KP diunggah admin (mhs_unggah_prodi);
 // mahasiswa dikabari email saat dikembalikan, ditolak, atau disetujui (mhs_kabari).
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-18-1ccfe5';
-import { bolehPengajuan, punya, labelJabatan } from './koordinator.js?v=2026-11-18-1ccfe5';
-import { JENIS, LABEL_BERKAS, LABEL_STATUS, TINGKAT, BIDANG, teksAnggota, judulPengajuan, keB64, bukaIsi, appsScript, labelStatus, JENIS_SURAT, TAHAP_TA, JENIS_PUB, TINGKAT_PUB, INDEKSASI, JENIS_LUARAN, waktuPengajuan, rekapPengajuan, lembarPengajuan, labelProgram } from './pengajuan-mhs.js?v=2026-11-18-1ccfe5';
-import { opsiPeriode, cocokPeriode, labelPeriode, taTeks, tsKarya } from './sdgs-unduh.js?v=2026-11-18-1ccfe5';
-import { SHEETJS } from './nilai-cpl.js?v=2026-11-18-1ccfe5';
-import { barisKuota, teksPilihanPembimbing } from './rekap-kp.js?v=2026-11-18-1ccfe5';
-import { siapkan } from './pembimbing.js?v=2026-11-18-1ccfe5';
-import { usulPenguji, bebanUji, tsDari } from './usulan-penguji.js?v=2026-11-18-1ccfe5';
+import { gerbang } from './menu.js?v=2026-11-18-e23e71';
+import { bolehPengajuan, punya, labelJabatan } from './koordinator.js?v=2026-11-18-e23e71';
+import { JENIS, LABEL_BERKAS, LABEL_STATUS, TINGKAT, BIDANG, teksAnggota, judulPengajuan, keB64, bukaIsi, appsScript, labelStatus, JENIS_SURAT, TAHAP_TA, JENIS_PUB, TINGKAT_PUB, INDEKSASI, JENIS_LUARAN, waktuPengajuan, rekapPengajuan, lembarPengajuan, labelProgram } from './pengajuan-mhs.js?v=2026-11-18-e23e71';
+import { opsiPeriode, cocokPeriode, labelPeriode, taTeks, tsKarya } from './sdgs-unduh.js?v=2026-11-18-e23e71';
+import { SHEETJS } from './nilai-cpl.js?v=2026-11-18-e23e71';
+import { barisKuota, teksPilihanPembimbing } from './rekap-kp.js?v=2026-11-18-e23e71';
+import { siapkan } from './pembimbing.js?v=2026-11-18-e23e71';
+import { usulPenguji, bebanUji, tsDari } from './usulan-penguji.js?v=2026-11-18-e23e71';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
@@ -226,12 +226,14 @@ function kartu(p){
           terkirim lewat email dan tampil di halaman mahasiswa)</label>
         <textarea id="c_${p.id}" maxlength="2000"></textarea>
         ${p.jenis === 'ta' && p.status === 'admin' && boleh(p) ? htmlJadwal(p) : ''}
-        <div class="baris">${p.jenis === 'ta' && p.status === 'admin' ? '' : `<button class="b utama" data-aksi="setujui" data-p="${p.id}">${p.status === 'pembimbing' ? 'Setujui, teruskan ke admin' : 'Sahkan'}</button>`}
+        <div class="baris">${p.jenis === 'ta' && p.status === 'admin' ? '' : `<button class="b utama" data-aksi="setujui" data-p="${p.id}">${p.status === 'pembimbing' && p.jenis !== 'lomba' ? 'Setujui, teruskan ke admin' : 'Sahkan'}</button>`}
           <button class="b" data-aksi="kembalikan" data-p="${p.id}">Kembalikan untuk diperbaiki</button>
           ${bolehTolak ? `<button class="b awas" data-aksi="tolak" data-p="${p.id}">Tolak</button>` : ''}
           <span class="msg" id="m_${p.id}" role="status"></span></div>
-        ${p.status === 'pembimbing' && p.pembimbing_id !== SAYA.id ? '<p class="ket">Anda memutuskan sebagai admin menggantikan pembimbing; tercatat di jalur proses.</p>' : ''}
-        ${p.status === 'admin' && p.jenis === 'lomba' ? '<p class="ket">Sahkan = tercatat sebagai prestasi mahasiswa terverifikasi beserta buktinya.</p>' : ''}
+        ${p.status === 'pembimbing' && p.pembimbing_id !== SAYA.id ? `<p class="ket">${p.jenis === 'lomba'
+          ? 'Anda mengesahkan sebagai pembina kemahasiswaan/admin; cukup satu persetujuan (pembimbing atau pembina), tercatat di jalur proses.'
+          : 'Anda memutuskan sebagai admin menggantikan pembimbing; tercatat di jalur proses.'}</p>` : ''}
+        ${['pembimbing', 'admin'].includes(p.status) && p.jenis === 'lomba' ? '<p class="ket">Sahkan = tercatat sebagai prestasi mahasiswa terverifikasi beserta buktinya (108: cukup satu persetujuan).</p>' : ''}
         ${p.status === 'admin' && p.jenis === 'luaran' ? `<p class="ket">${p.data?.bersama_dosen
           ? 'Ditulis bersama dosen: Sahkan TIDAK menambah tabel mahasiswa; pastikan dosennya memasukkan karya ini dengan mahasiswa sebagai penulis.'
           : `Sahkan = tercatat di Data prodi › ${p.data?.kategori === 'luaran' ? 'Luaran mahasiswa (6.e.3)' : 'Publikasi mahasiswa (6.e.1)'} beserta buktinya.`}</p>` : ''}

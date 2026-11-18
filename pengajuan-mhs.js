@@ -56,6 +56,9 @@ export const NAMA_TAHAP_SELESAI = ['Isi laporan selesai', 'Diperiksa dosen pembi
 // Pengajuan KP (107, pemilik 2026-11-18): langsung ke koordinator KP/admin, yang menetapkan dosen pembimbing (kuota).
 export const NAMA_TAHAP_KP = ['Isi pengajuan dan unggah surat', 'Dikirim ke koordinator KP', 'Diperiksa koordinator KP; pembimbing ditetapkan',
                               'Surat pengantar terbit'];
+// Laporan lomba (108, pemilik 2026-11-18): satu persetujuan, dari dosen pembimbing, pembina kemahasiswaan, atau admin.
+export const NAMA_TAHAP_LOMBA = ['Isi laporan dan unggah bukti', 'Diperiksa dosen pembimbing atau pembina kemahasiswaan',
+                                 'Disahkan (satu persetujuan)', 'Tercatat sebagai prestasi'];
 // nilai_lapangan tidak di sini: diunggah dosen pembimbing, koordinator KP, atau admin (99-patch-kp-magang.sql).
 export const BERKAS_SELESAI = ['laporan_kp', 'surat_selesai', 'logbook', 'surat_balasan', 'foto', 'lainnya'];
 
@@ -68,6 +71,8 @@ export function labelStatus(p){
   if (p.jenis === 'surat') return { admin: 'Diproses admin prodi', disetujui: 'Surat terbit' }[p.status] || LABEL_STATUS[p.status] || p.status;
   if (p.jenis === 'ta') return { pembimbing: 'Diperiksa pembimbing 1', admin: 'Menunggu jadwal dari admin prodi', disetujui: 'Terjadwal' }[p.status]
     || LABEL_STATUS[p.status] || p.status;
+  if (p.jenis === 'lomba') return { pembimbing: 'Diperiksa dosen pembimbing atau pembina kemahasiswaan', admin: 'Diperiksa pembina kemahasiswaan/admin',
+    disetujui: 'Disahkan; tercatat sebagai prestasi' }[p.status] || LABEL_STATUS[p.status] || p.status;
   if (p.jenis === 'kp' && p.tahap === 'selesai') return { pembimbing: 'Laporan selesai: diperiksa dosen pembimbing',
     admin: 'Laporan selesai: diperiksa koordinator KP/admin', disetujui: 'KP selesai', dikembalikan: 'Laporan selesai dikembalikan untuk diperbaiki',
     ditolak: 'Laporan selesai ditolak' }[p.status] || p.status;
@@ -82,7 +87,7 @@ export function labelStatus(p){
 // Jalur satu tahap KP (atau lomba): status dan riwayat tahap itu saja. Riwayat tanpa tahap = pengajuan (patch 90).
 export function jalurTahap(p, tahap = 'pengajuan'){
   const r = (p.riwayat || p.pengajuan_riwayat || []).filter(x => (x.tahap || 'pengajuan') === tahap);
-  if (tahap === 'pengajuan') return jalur(p.tahap === 'selesai' ? 'disetujui' : p.status, r, p.jenis === 'surat' ? NAMA_TAHAP_SURAT : p.jenis === 'ta' ? NAMA_TAHAP_TA : p.jenis === 'kp' ? NAMA_TAHAP_KP : null);
+  if (tahap === 'pengajuan') return jalur(p.tahap === 'selesai' ? 'disetujui' : p.status, r, p.jenis === 'surat' ? NAMA_TAHAP_SURAT : p.jenis === 'ta' ? NAMA_TAHAP_TA : p.jenis === 'kp' ? NAMA_TAHAP_KP : p.jenis === 'lomba' ? NAMA_TAHAP_LOMBA : null);
   return jalur(p.tahap === 'selesai' ? p.status : 'draf', r, NAMA_TAHAP_SELESAI);
 }
 

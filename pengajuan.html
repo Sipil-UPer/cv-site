@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-18-1ccfe5">
+<link rel="stylesheet" href="tema.css?v=2026-11-18-e23e71">
 <style>
   /* Pengajuan mahasiswa, publik tanpa login (pemilik 2026-11-17; patch 90). Warna dari tema.css. */
   *{box-sizing:border-box}
@@ -75,7 +75,7 @@
   <h1>Pengajuan KP, seminar/sidang TA, lomba, publikasi/luaran, dan surat</h1><div class="prodi" id="hProdi"></div>
 </div></header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-18-1ccfe5"></script>
+<script src="config.js?v=2026-11-18-e23e71"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -96,8 +96,8 @@ addEventListener('error', function (e) {
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
 import { JENIS, LABEL_BERKAS, LABEL_STATUS, TINGKAT, BIDANG, jalur, bolehUbah, bacaAnggota, teksAnggota,
          periksaIsian, judulPengajuan, keB64, bukaIsi, appsScript, labelStatus, jalurTahap, BERKAS_SELESAI, PROGRAM_KP, labelProgram,
-         periksaSelesai, JENIS_SURAT, TAHAP_TA, JENIS_PUB, TINGKAT_PUB, INDEKSASI, JENIS_LUARAN } from './pengajuan-mhs.js?v=2026-11-18-1ccfe5';
-import { saranInstansi } from './rekap-kp.js?v=2026-11-18-1ccfe5';
+         periksaSelesai, JENIS_SURAT, TAHAP_TA, JENIS_PUB, TINGKAT_PUB, INDEKSASI, JENIS_LUARAN } from './pengajuan-mhs.js?v=2026-11-18-e23e71';
+import { saranInstansi } from './rekap-kp.js?v=2026-11-18-e23e71';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
@@ -250,14 +250,14 @@ function halamanBaru(){
   $('isi').innerHTML = `
     <p class="ket">Isi data, lalu tautan pribadi dikirim ke <b>email kampus Anda</b> (NIM@domain mahasiswa). Lewat tautan itu
       Anda mengunggah berkas, memeriksa isian, menekan <b>Kirim untuk diperiksa</b>, dan memantau prosesnya. Pengajuan KP diperiksa
-      koordinator KP, yang juga menetapkan dosen pembimbing; lomba dan TA diperiksa dosen pembimbing, lalu admin prodi. Berkas tidak tampil di situs. <a href="privasi.html">Kebijakan privasi</a>.</p>
+      koordinator KP, yang juga menetapkan dosen pembimbing; laporan lomba cukup disahkan dosen pembimbing atau pembina kemahasiswaan; TA diperiksa dosen pembimbing, lalu admin prodi. Berkas tidak tampil di situs. <a href="privasi.html">Kebijakan privasi</a>.</p>
     <form class="kotak" id="frm" novalidate>
       <div class="pilih" role="radiogroup" aria-label="Jenis pengajuan">
         <label><input type="radio" name="jenis" value="kp" checked><span>Pengajuan KP<small>surat pengantar ke instansi; usulkan
           dosen pembimbing (ditetapkan koordinator KP). Sudah diterima instansi tanpa surat pengantar? Unggah surat balasannya.
           Pelaporan selesai KP menyusul lewat tautan yang sama</small></span></label>
         <label><input type="radio" name="jenis" value="lomba"><span>Laporan lomba<small>lomba atau kompetisi yang sudah diikuti;
-          setelah disetujui tercatat sebagai prestasi mahasiswa</small></span></label>
+          disahkan dosen pembimbing atau pembina kemahasiswaan (siapa pun lebih dulu), lalu tercatat sebagai prestasi mahasiswa</small></span></label>
         <label><input type="radio" name="jenis" value="ta"><span>Seminar/sidang TA<small>seminar proposal, seminar kemajuan,
           atau sidang akhir; jadwal dan penguji ditetapkan prodi, lalu diinput ke SIUP</small></span></label>
         <label><input type="radio" name="jenis" value="luaran"><span>Publikasi/luaran<small>artikel, prosiding, HKI, produk, buku;
