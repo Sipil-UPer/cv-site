@@ -1,6 +1,6 @@
 // Ruang KP (105-patch-ruang-kp.sql, pemilik 2026-11-18): nama instansi baku, mitra kerja sama, beban bimbingan,
 // dan bukti KP selesai untuk asesor. Fungsi murni; dipakai rekap-kp.html, pengajuan.html, kp.html, data-prodi.html.
-import { keadaanKP, waktuPengajuan } from './pengajuan-mhs.js?v=2026-11-18-54409d';
+import { keadaanKP, waktuPengajuan } from './pengajuan-mhs.js?v=2026-11-18-1ccfe5';
 
 // Sama dengan public.nama_instansi_kunci(): rapikan tepi, buang titik/koma, spasi tunggal, huruf kecil.
 export const kunciInstansi = s => String(s ?? '').trim().replace(/[.,]/g, '').replace(/\s+/g, ' ').toLowerCase();
@@ -26,7 +26,14 @@ export function saranInstansi(D = {}){
 
 // Baris kp_rekap_baris() -> bentuk pengajuan untuk keadaanKP/waktuPengajuan.
 export const dariRekap = r => ({ id: r.id, jenis: 'kp', status: r.status, tahap: r.tahap, dibuat: r.dibuat, pembimbing_id: r.pembimbing_id,
-  data: { instansi: r.instansi, program: r.program, rencana_mulai: r.mulai || '' }, data_selesai: {} });
+  data: { instansi: r.instansi, program: r.program, rencana_mulai: r.mulai || '', jawaban_instansi: r.jawaban || '' }, data_selesai: {} });
+
+// Kuota pembimbing KP (107): baris kp_beban(ts) -> {dosen_id, nama, kuota, kuota_sendiri, beban, sisa, lebih}.
+// kuota null = belum diatur (tanpa batas); lebih = beban sudah mencapai/melebihi kuota.
+export const barisKuota = rows => (rows || []).map(r => ({ ...r, sisa: r.kuota == null ? null : r.kuota - r.beban,
+  lebih: r.kuota != null && r.beban >= r.kuota }));
+// Teks pilihan pembimbing untuk koordinator: "Nama — 2/5" (beban/kuota), "Nama — 2" bila kuota belum diatur.
+export const teksPilihanPembimbing = r => `${r.nama} — ${r.beban}${r.kuota == null ? '' : '/' + r.kuota}${r.kuota != null && r.beban >= r.kuota ? ' (kuota penuh)' : ''}`;
 
 // Tahun KP (tanggal mulai, rencana mulai, lalu tanggal pengajuan); modul ini khusus KP.
 const tahunKP = p => waktuPengajuan({ ...p, jenis: 'kp' }).tahun || 0;

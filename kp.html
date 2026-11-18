@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-18-54409d">
+<link rel="stylesheet" href="tema.css?v=2026-11-18-1ccfe5">
 <style>
   /* Ruang KP, publik tanpa login (pemilik 2026-11-18; patch 105). Warna dari tema.css. */
   *{box-sizing:border-box}
@@ -60,21 +60,22 @@
     dan laporan selesai KP. Pengajuan dibuat tanpa akun; tautan pribadi dikirim ke <b>email kampus</b> Anda.</p>
   <div class="aksi">
     <a class="b utama" href="pengajuan.html?jenis=kp">Ajukan KP atau magang</a>
-    <a class="b" href="pengajuan.html?lapor=kp">KP sudah berjalan/selesai? Lapor di sini</a>
+    <a class="b" href="pengajuan.html?lapor=kp">KP sudah selesai? Pelaporan selesai KP</a>
     <a class="b" href="pengajuan.html?jenis=kp">Sudah mengajukan? Minta tautan baru</a>
   </div>
-  <p class="ket">Laporan selesai KP diisi lewat <b>tautan pribadi yang sama</b> setelah pengajuan Anda disetujui. Email kampus
+  <p class="ket">Pelaporan selesai KP diisi lewat <b>tautan pribadi yang sama</b> setelah Anda melaporkan diterima instansi.
+    Sudah diterima instansi tanpa surat pengantar dari prodi? Ajukan KP dan unggah surat balasan instansinya. Email kampus
     bermasalah? Daftarkan email alternatif di bagian bawah <a href="pengajuan.html?jenis=kp">halaman pengajuan</a>.</p>
 
   <h2>Alur</h2>
-  <h3>Tahap 1 · Pengajuan dan surat pengantar</h3>
+  <h3>Tahap 1 · Pengajuan KP</h3>
   <ol class="jalur">
-    <li><b>Isi pengajuan</b>instansi tujuan (pilih dari usulan bila sudah ada), rencana mulai, dosen pembimbing; unggah surat permohonan</li>
-    <li><b>Diperiksa dosen pembimbing</b>disetujui atau dikembalikan dengan catatan</li>
-    <li><b>Diperiksa koordinator KP</b>atau admin prodi</li>
-    <li><b>Surat pengantar terbit</b>unduh lewat tautan pribadi Anda</li>
+    <li><b>Isi pengajuan</b>instansi tujuan (pilih dari usulan bila sudah ada), rencana mulai, usulan dosen pembimbing; unggah surat permohonan</li>
+    <li><b>Diperiksa koordinator KP</b>atau admin prodi; dosen pembimbing ditetapkan sesuai kuota dosen</li>
+    <li><b>Surat pengantar terbit</b>unduh lewat tautan pribadi Anda, kirim ke instansi</li>
+    <li><b>Laporkan jawaban instansi</b>diterima: unggah surat balasan dan tanggal mulai; ditolak: pengajuan ditutup, buat pengajuan baru</li>
   </ol>
-  <h3>Tahap 2 · Selesai KP</h3>
+  <h3>Tahap 2 · Pelaporan selesai KP</h3>
   <ol class="jalur">
     <li><b>Isi laporan selesai</b>tanggal mulai dan selesai, pembimbing lapangan, ringkasan kegiatan; unggah berkas</li>
     <li class="wajib"><b>Disetujui dosen pembimbing</b>wajib; tanpa persetujuan ini KP belum selesai</li>
@@ -86,14 +87,15 @@
   <div class="kotak">
     <b>Tahap 1</b>
     <ul class="syarat">
-      <li>Surat permohonan KP (wajib); surat balasan instansi bila sudah ada.</li>
+      <li>Surat permohonan KP (wajib), atau surat balasan instansi bila Anda sudah diterima.</li>
+      <li>Satu mahasiswa hanya satu KP dalam proses. Ditolak instansi? Laporkan lewat tautan pribadi, lalu buat pengajuan baru.</li>
       <li>Nama instansi ditulis lengkap dan baku. Bila instansinya sudah pernah dipakai atau menjadi mitra prodi, pilih dari usulan nama
         yang muncul saat mengetik.</li>
       <li>Pilih program: Kerja Praktik atau Magang (MBKM).</li>
     </ul>
     <b>Tahap 2</b>
     <ul class="syarat">
-      <li>Laporan KP, surat keterangan selesai dari instansi, dan logbook.</li>
+      <li>Laporan KP dan surat keterangan selesai dari instansi (wajib); logbook dan foto bila ada.</li>
       <li>Nilai dari pembimbing lapangan <b>tidak</b> diunggah mahasiswa; diunggah dosen pembimbing, koordinator KP, atau admin prodi.</li>
       <li>Laporan KP dan surat selesai bersifat privat: hanya dosen pembimbing, koordinator KP, admin prodi, dan asesor akreditasi yang bisa
         membukanya.</li>
@@ -109,7 +111,7 @@
 
   <footer><a href="privasi.html">Kebijakan privasi</a></footer>
 </main>
-<script src="config.js?v=2026-11-18-54409d"></script>
+<script src="config.js?v=2026-11-18-1ccfe5"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {

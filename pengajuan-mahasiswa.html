@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-18-54409d">
-<link rel="stylesheet" href="kepala.css?v=2026-11-18-54409d">
+<link rel="stylesheet" href="tema.css?v=2026-11-18-1ccfe5">
+<link rel="stylesheet" href="kepala.css?v=2026-11-18-1ccfe5">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
@@ -72,7 +72,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-18-54409d"></script>
+<script src="config.js?v=2026-11-18-1ccfe5"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -92,13 +92,14 @@ addEventListener('error', function (e) {
 // Berkas privat dibuka lewat Apps Script (mhs_buka_prodi); surat pengantar KP diunggah admin (mhs_unggah_prodi);
 // mahasiswa dikabari email saat dikembalikan, ditolak, atau disetujui (mhs_kabari).
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-18-54409d';
-import { bolehPengajuan, punya, labelJabatan } from './koordinator.js?v=2026-11-18-54409d';
-import { JENIS, LABEL_BERKAS, LABEL_STATUS, TINGKAT, BIDANG, teksAnggota, judulPengajuan, keB64, bukaIsi, appsScript, labelStatus, JENIS_SURAT, TAHAP_TA, JENIS_PUB, TINGKAT_PUB, INDEKSASI, JENIS_LUARAN, waktuPengajuan, rekapPengajuan, lembarPengajuan, labelProgram } from './pengajuan-mhs.js?v=2026-11-18-54409d';
-import { opsiPeriode, cocokPeriode, labelPeriode, taTeks, tsKarya } from './sdgs-unduh.js?v=2026-11-18-54409d';
-import { SHEETJS } from './nilai-cpl.js?v=2026-11-18-54409d';
-import { siapkan } from './pembimbing.js?v=2026-11-18-54409d';
-import { usulPenguji, bebanUji, tsDari } from './usulan-penguji.js?v=2026-11-18-54409d';
+import { gerbang } from './menu.js?v=2026-11-18-1ccfe5';
+import { bolehPengajuan, punya, labelJabatan } from './koordinator.js?v=2026-11-18-1ccfe5';
+import { JENIS, LABEL_BERKAS, LABEL_STATUS, TINGKAT, BIDANG, teksAnggota, judulPengajuan, keB64, bukaIsi, appsScript, labelStatus, JENIS_SURAT, TAHAP_TA, JENIS_PUB, TINGKAT_PUB, INDEKSASI, JENIS_LUARAN, waktuPengajuan, rekapPengajuan, lembarPengajuan, labelProgram } from './pengajuan-mhs.js?v=2026-11-18-1ccfe5';
+import { opsiPeriode, cocokPeriode, labelPeriode, taTeks, tsKarya } from './sdgs-unduh.js?v=2026-11-18-1ccfe5';
+import { SHEETJS } from './nilai-cpl.js?v=2026-11-18-1ccfe5';
+import { barisKuota, teksPilihanPembimbing } from './rekap-kp.js?v=2026-11-18-1ccfe5';
+import { siapkan } from './pembimbing.js?v=2026-11-18-1ccfe5';
+import { usulPenguji, bebanUji, tsDari } from './usulan-penguji.js?v=2026-11-18-1ccfe5';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
@@ -108,6 +109,11 @@ const KABARI = new Set(['dikembalikan', 'ditolak', 'disetujui']);   // status ya
 let SAYA = null, ADMIN = false, UNDUH = false, DATA = [], TAB = 'tunggu', BUKA = new Set();
 // Seminar/sidang TA (94): daftar dosen (NIDN, nama) untuk penguji; jadwal per pengajuan.
 let DOSEN = [], JADWAL = new Map(), SEMUA_JADWAL = [], MODEL = null;   // MODEL: mesin Cari pembimbing (usulan penguji)
+// Pembimbing KP ditetapkan koordinator KP/admin (107): beban dan kuota per TS (kp_beban), Map ts -> baris.
+let BEBAN = new Map();
+const tsKP = p => tsDari(String(p.data_selesai?.tanggal_mulai || p.data?.tanggal_mulai || p.data?.rencana_mulai || p.dibuat || ''));
+const bolehTetapkan = p => p.jenis === 'kp' && boleh(p) && !['draf', 'ditolak'].includes(p.status)
+  && !(p.tahap === 'selesai' && p.status === 'disetujui');
 
 // Koordinator bidangnya menggantikan admin (97); surat tetap admin.
 const boleh = p => bolehPengajuan(SAYA, p.jenis);
@@ -130,6 +136,12 @@ async function muat(){
   DOSEN = (dq.data || []).filter(d => d.aktif && d.nidn && (d.dtps || ['dosen', 'pimpinan'].includes(d.peran)));
   SEMUA_JADWAL = jq.error ? [] : jq.data || [];
   JADWAL = new Map(SEMUA_JADWAL.filter(j => j.pengajuan_id).map(j => [j.pengajuan_id, j]));
+  // Beban/kuota hanya untuk TS pengajuan KP yang pembimbingnya bisa ditetapkan; sebelum patch 107: kosong.
+  BEBAN = new Map();
+  for (const ts of new Set(DATA.filter(bolehTetapkan).map(tsKP).filter(Boolean))) {
+    const { data: b, error: eb } = await sb.rpc('kp_beban', { p_ts: ts });
+    if (!eb) BEBAN.set(ts, barisKuota(b));
+  }
   if (!MODEL) MODEL = await fetch('data.json?v=' + Date.now()).then(r => r.ok ? r.json() : null).then(d => d ? siapkan(d) : null).catch(() => null);
 }
 
@@ -160,10 +172,12 @@ function ringkas(p){
     : p.jenis === 'kp'
     ? [['Program', labelProgram(d.program)], ['Instansi', d.instansi], ['Alamat', d.alamat_instansi], ['Bidang/divisi', d.bidang_kerja],
        ['Kontak', d.kontak_instansi],
-       [d.susulan ? 'Tanggal' : 'Rencana', [d.rencana_mulai, d.rencana_selesai].filter(Boolean).join(' s.d. ')],
-       // Lapor susulan (106): KP yang sudah berjalan/selesai sebelum layanan dipakai; tanpa surat pengantar.
-       ['Dilaporkan', { selesai: 'susulan, setelah KP selesai (tanpa surat pengantar)',
-                        berjalan: 'susulan, saat KP berjalan (tanpa surat pengantar)' }[d.susulan] || '']]
+       ['Rencana', [d.rencana_mulai, d.rencana_selesai].filter(Boolean).join(' s.d. ')],
+       // Jawaban instansi atas surat pengantar (107).
+       ['Jawaban instansi', d.jawaban_instansi === 'diterima' ? `diterima${d.tanggal_mulai ? ', mulai ' + d.tanggal_mulai : ''}`
+         : d.jawaban_instansi === 'ditolak' ? `ditolak${d.alasan_instansi ? ': ' + d.alasan_instansi : ''} (pengajuan ditutup)` : ''],
+       // Lapor selesai KP (106): KP yang sudah selesai sebelum layanan dipakai; tanpa surat pengantar.
+       ['Dilaporkan', d.susulan === 'selesai' ? 'setelah KP selesai (tanpa surat pengantar)' : '']]
     : [['Kegiatan', d.nama_kegiatan], ['Penyelenggara', d.penyelenggara], ['Tanggal', d.tanggal],
        ['Tingkat', (TINGKAT.find(t => t[0] === d.tingkat) || [, ''])[1]], ['Bidang', (BIDANG.find(t => t[0] === d.bidang) || [, ''])[1]],
        ['Capaian', d.capaian], ['Anggota lain', teksAnggota(d.anggota)], ['Nama di situs', d.tampil_nama ? 'disetujui mahasiswa' : 'tidak'],
@@ -200,6 +214,7 @@ function kartu(p){
           ? `<div class="baris" style="margin-top:8px"><input type="file" id="sp_${p.id}" accept=".pdf,.docx,.jpg,.jpeg,.png">
           <button class="b" data-pengantar="${p.id}" data-jenis="${p.jenis === 'surat' ? 'surat_jadi' : 'surat_pengantar'}">${p.jenis === 'surat'
             ? 'Unggah surat bertanda tangan' : 'Unggah surat pengantar'}</button></div>` : ''}
+        ${bolehTetapkan(p) ? htmlTetapkan(p) : ''}
         ${bolehNilai(p) ? `<div class="baris" style="margin-top:8px"><input type="file" id="nl_${p.id}" accept=".pdf,.docx,.jpg,.jpeg,.png"
           aria-label="Berkas nilai pembimbing lapangan"><button class="b" data-pengantar="${p.id}" data-jenis="nilai_lapangan" data-input="nl_${p.id}">
           Unggah nilai pembimbing lapangan</button></div>
@@ -221,9 +236,40 @@ function kartu(p){
           ? 'Ditulis bersama dosen: Sahkan TIDAK menambah tabel mahasiswa; pastikan dosennya memasukkan karya ini dengan mahasiswa sebagai penulis.'
           : `Sahkan = tercatat di Data prodi › ${p.data?.kategori === 'luaran' ? 'Luaran mahasiswa (6.e.3)' : 'Publikasi mahasiswa (6.e.1)'} beserta buktinya.`}</p>` : ''}
         ${p.status === 'admin' && p.jenis === 'surat' ? '<p class="ket">Unggah surat yang sudah ditandatangani Kaprodi dulu, lalu Sahkan; mahasiswa mengunduhnya lewat tautannya.</p>' : ''}
-        ${p.status === 'admin' && p.tahap === 'selesai' ? '<p class="ket">Sahkan = KP mahasiswa ini dinyatakan selesai.</p>' : ''}</div>`
+        ${p.status === 'admin' && p.tahap === 'selesai' ? '<p class="ket">Sahkan = KP mahasiswa ini dinyatakan selesai.</p>' : ''}
+        ${p.status === 'admin' && p.jenis === 'kp' && (p.tahap || 'pengajuan') === 'pengajuan' ? `<p class="ket">Periksa dulu dosen pembimbing
+          (usulan mahasiswa) dan kuotanya di atas; Sahkan = pengajuan disetujui, lalu unggah surat pengantar. Mahasiswa kemudian melaporkan
+          jawaban instansi.</p>` : ''}</div>`
         : `<span class="msg" id="m_${p.id}" role="status"></span>`}
     </div></details>`;
+}
+
+// Penetapan dosen pembimbing KP (107, pemilik 2026-11-18): koordinator KP/admin memilih dengan melihat beban/kuota TS KP itu.
+function htmlTetapkan(p){
+  const ts = tsKP(p), rows = BEBAN.get(ts);
+  if (!rows) return '';
+  const kini = rows.find(r => r.dosen_id === p.pembimbing_id);
+  return `<h3>Dosen pembimbing KP</h3>
+    <div class="baris"><select id="pb_${p.id}" aria-label="Dosen pembimbing KP">${rows.map(r => `<option value="${r.dosen_id}"${r.dosen_id === p.pembimbing_id
+      ? ' selected' : ''}>${esc(teksPilihanPembimbing(r))}</option>`).join('')}${kini ? '' : `<option value="" selected>${esc(p.dosen?.nama || '(belum ada)')}</option>`}</select>
+      <button class="b" data-tetapkan="${p.id}">Tetapkan pembimbing</button></div>
+    <p class="ket">Angka = beban/kuota bimbingan KP pada TS ${ts - 1}/${ts}. Kuota diatur di <a href="rekap-kp.html">Rekap KP dan magang</a>.
+      Penggantian tercatat di jalur proses.</p>`;
+}
+
+async function tetapkan(id, b){
+  const p = DATA.find(x => x.id === id), pilih = $('pb_' + id).value;
+  if (!pilih || pilih === p.pembimbing_id) return pesan(id, '', 'Pembimbing tidak berubah.');
+  const r = (BEBAN.get(tsKP(p)) || []).find(x => x.dosen_id === pilih);
+  if (r?.lebih && !confirm(`Kuota ${r.nama} pada TS ini sudah penuh (${r.beban}/${r.kuota}). Tetap tetapkan?`)) return;
+  b.disabled = true;
+  try {
+    const { error } = await sb.rpc('kp_tetapkan_pembimbing', { p_id: id, p_dosen: pilih });
+    if (error) throw new Error(error.message);
+    BUKA.add(id);
+    await muat(); gambar(); gambarRekap();
+    pesan(id, 'ok', `Dosen pembimbing ditetapkan: ${r?.nama || ''}.`);
+  } catch (e) { pesan(id, 'buruk', e.message); b.disabled = false; }
 }
 
 // Jadwal seminar/sidang (94): admin menetapkan tanggal, jam, ruang/daring, penguji; Jadwalkan = setujui.
@@ -293,6 +339,7 @@ function gambar(){
   document.querySelectorAll('[data-buka]').forEach(b => { b.onclick = () => buka(b); });
   document.querySelectorAll('[data-aksi]').forEach(b => { b.onclick = () => putuskan(+b.dataset.p, b.dataset.aksi, b); });
   document.querySelectorAll('[data-jadwalkan]').forEach(b => { b.onclick = () => jadwalkan(+b.dataset.jadwalkan, b); });
+  document.querySelectorAll('[data-tetapkan]').forEach(b => { b.onclick = () => tetapkan(+b.dataset.tetapkan, b); });
   document.querySelectorAll('[data-usul]').forEach(b => { b.onclick = () => {
     const pilih = new Set(b.dataset.nidn.split(','));
     document.querySelectorAll(`[data-uji="${b.dataset.usul}"]`).forEach(c => { if (pilih.has(c.value)) c.checked = true; });
@@ -364,7 +411,7 @@ function gambarRekap(){
       ${UNDUH ? `<button type="button" class="b utama" id="rUnduh"${xs.length ? '' : ' disabled'}>Unduh Excel (${xs.length} pengajuan + berkas)</button>` : ''}
       <span class="msg" id="rMsg" role="status"></span></div>
     <div class="ringkas-angka">
-      <div><b>${r.kp.selesai}</b><span>KP selesai</span></div><div><b>${r.kp.berjalan}</b><span>KP berjalan</span></div>
+      <div><b>${r.kp.selesai}</b><span>KP selesai</span></div><div><b>${r.kp.berjalan}</b><span>KP dilaksanakan</span></div>
       <div><b>${r.kp.proses}</b><span>pengajuan KP diperiksa</span></div><div><b>${r.instansi.length}</b><span>instansi tempat KP</span></div>
       <div><b>${r.lomba.disetujui}</b><span>laporan lomba disahkan</span></div>
       <div><b>${r.lomba.tingkat.internasional || 0} / ${r.lomba.tingkat.nasional || 0} / ${r.lomba.tingkat.wilayah_lokal || 0}</b><span>lomba internasional / nasional / lokal</span></div>
@@ -407,7 +454,9 @@ async function mulai(){
   await muat();
   $('isi').innerHTML = `
     <p class="ket">Pengajuan Kerja Praktik, seminar/sidang TA, laporan lomba, dan permohonan surat yang dikirim mahasiswa lewat <a href="pengajuan.html">halaman pengajuan</a>
-      (tanpa login; tautan pribadi ke email kampus). Urutan pemeriksaan: dosen pembimbing, lalu admin prodi; permohonan surat langsung ke admin (ditandatangani Kaprodi).
+      (tanpa login; tautan pribadi ke email kampus). Urutan pemeriksaan: dosen pembimbing, lalu admin prodi; <b>pengajuan KP</b> langsung ke
+      koordinator KP/admin, yang menetapkan dosen pembimbing sesuai kuota (pelaporan selesai KP tetap: dosen pembimbing, lalu koordinator KP/admin);
+      permohonan surat langsung ke admin (ditandatangani Kaprodi).
       ${ADMIN ? 'Admin melihat semua pengajuan dan boleh memutuskan tahap pembimbing bila pembimbing berhalangan.'
         : jab.length ? `Anda ${jab.map(labelJabatan).join(', ')}: memegang tahap admin pengajuan bidang Anda dan boleh menggantikan pembimbing yang berhalangan.` : 'Anda melihat pengajuan yang memilih Anda sebagai pembimbing.'}
       ${ADMIN ? 'Draf yang belum dikirim mahasiswa tampil di "Semua".' : 'Draf yang belum dikirim mahasiswa tidak tampil.'}</p>

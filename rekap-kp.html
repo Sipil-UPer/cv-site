@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-18-54409d">
-<link rel="stylesheet" href="kepala.css?v=2026-11-18-54409d">
+<link rel="stylesheet" href="tema.css?v=2026-11-18-1ccfe5">
+<link rel="stylesheet" href="kepala.css?v=2026-11-18-1ccfe5">
 <style>
   *{box-sizing:border-box}
   [hidden]{display:none !important}   /* .ubah berdisplay flex mengalahkan hidden */
@@ -48,7 +48,7 @@
 </div></header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
 <datalist id="daftarNama"></datalist>
-<script src="config.js?v=2026-11-18-54409d"></script>
+<script src="config.js?v=2026-11-18-1ccfe5"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -65,15 +65,15 @@ addEventListener('error', function (e) {
 <script type="module">
 // Rekap KP dan magang (105-patch-ruang-kp.sql, pemilik 2026-11-18).
 //   semua staf      : angka per tahun, per instansi (status mitra kerja sama), beban bimbingan per dosen (kp_rekap_baris,
-//                     tanpa NIM/nama mahasiswa);
-//   koordinator KP / admin : bakukan nama instansi, usulkan menjadi mitra atau tidak, bukti KP selesai + tautan asesor;
+//                     tanpa NIM/nama mahasiswa); kuota pembimbing per TS (kp_beban, 107);
+//   koordinator KP / admin : atur kuota (kp_atur_kuota), bakukan nama instansi, usulkan menjadi mitra atau tidak, bukti KP selesai + tautan asesor;
 //   asesor (akun)   : bukti KP selesai (laporan KP, surat selesai).
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-18-54409d';
-import { punya } from './koordinator.js?v=2026-11-18-54409d';
-import { appsScript, bukaIsi, waktuPengajuan } from './pengajuan-mhs.js?v=2026-11-18-54409d';
-import { rekapKP, buktiSelesai, dariRekap, rapiNama } from './rekap-kp.js?v=2026-11-18-54409d';
-import { opsiPeriode, cocokPeriode } from './sdgs-unduh.js?v=2026-11-18-54409d';
+import { gerbang } from './menu.js?v=2026-11-18-1ccfe5';
+import { punya } from './koordinator.js?v=2026-11-18-1ccfe5';
+import { appsScript, bukaIsi, waktuPengajuan } from './pengajuan-mhs.js?v=2026-11-18-1ccfe5';
+import { rekapKP, buktiSelesai, dariRekap, rapiNama, barisKuota } from './rekap-kp.js?v=2026-11-18-1ccfe5';
+import { opsiPeriode, cocokPeriode, tsBerjalan } from './sdgs-unduh.js?v=2026-11-18-1ccfe5';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
@@ -83,6 +83,9 @@ const STATUS = { mitra: 'Mitra kerja sama', usul: 'Diusulkan menjadi mitra', tid
 const JUDUL_BERKAS = { laporan_kp: 'Laporan KP', surat_selesai: 'Surat selesai' };
 let SAYA = null, KELOLA = false, ASESOR = false, PERIODE = '';
 let BARIS = [], RINCI = [], BERKAS = [], DOSEN = [], KS = [], PUTUS = [], TOLAK = [];
+// Kuota pembimbing KP (107): per TS (1 Sep - 31 Agu, tahun ujung). KUOTA = null bila patch 107 belum dijalankan.
+let TS_KUOTA = tsBerjalan(), KUOTA = null;
+const teksTS = ts => `${ts - 1}/${ts}`;
 const waktu = p => ({ ...p, ...waktuPengajuan({ ...p, jenis: 'kp' }) });
 
 async function muat(){
@@ -98,6 +101,7 @@ async function muat(){
   KS = k.data || []; PUTUS = p.data || [];
   // Surat pengantar ditolak instansi (106); sebelum patch 106 dijalankan: bagian ini kosong.
   if (!ASESOR) { const t = await sb.rpc('kp_tolak_rekap'); TOLAK = t.error ? [] : (t.data || []); }
+  await muatKuota();
   if (KELOLA || ASESOR) {
     const [q, b] = await Promise.all([
       sb.from('pengajuan_mahasiswa').select('id,nim,nama,jenis,status,tahap,data,data_selesai,dibuat,pembimbing_id').eq('jenis', 'kp'),
@@ -113,24 +117,25 @@ function gambar(){
   const r = rekapKP({ kp: xs, dosen: DOSEN, kerjasama: KS, keputusan: PUTUS });
   const t = r.tahun.reduce((a, x) => ({ semua: a.semua + x.semua, berjalan: a.berjalan + x.berjalan, selesai: a.selesai + x.selesai,
     magang: a.magang + x.magang }), { semua: 0, berjalan: 0, selesai: 0, magang: 0 });
-  $('ringkas').innerHTML = [[t.semua, 'diajukan (tanpa draf)'], [t.berjalan, 'sedang berjalan'], [t.selesai, 'selesai'],
+  $('ringkas').innerHTML = [[t.semua, 'diajukan (tanpa draf)'], [t.berjalan, 'sedang dilaksanakan'], [t.selesai, 'selesai'],
     [t.magang, 'di antaranya magang'], [r.instansi.length, 'instansi'], [r.instansi.filter(x => x.status === 'mitra').length, 'instansi mitra kerja sama']]
     .map(([n, l]) => `<div><b>${n}</b><span>${esc(l)}</span></div>`).join('');
   $('perTahun').innerHTML = r.tahun.length ? `<div class="lebar-tabel"><table><thead><tr><th>Tahun mulai</th><th class="n">Diajukan</th>
-      <th class="n">Diperiksa</th><th class="n">Berjalan</th><th class="n">Selesai</th><th class="n">Ditolak</th><th class="n">Magang</th></tr></thead>
+      <th class="n">Diperiksa</th><th class="n">Dilaksanakan</th><th class="n">Selesai</th><th class="n">Ditolak</th><th class="n">Magang</th></tr></thead>
     <tbody>${r.tahun.map(x => `<tr><td>${x.tahun || '—'}</td><td class="n">${x.semua}</td><td class="n">${x.proses}</td><td class="n">${x.berjalan}</td>
       <td class="n">${x.selesai}</td><td class="n">${x.ditolak}</td><td class="n">${x.magang}</td></tr>`).join('')}</tbody></table></div>`
     : '<p class="kosong">Belum ada pengajuan KP pada periode ini.</p>';
   gambarInstansi(r.instansi);
   const maks = Math.max(1, ...r.dosen.map(d => d.aktif));
-  $('beban').innerHTML = r.dosen.length ? `<p class="ket">Rata-rata ${String(r.rata).replace('.', ',')} mahasiswa aktif per dosen (diperiksa + berjalan).
+  $('beban').innerHTML = r.dosen.length ? `<p class="ket">Rata-rata ${String(r.rata).replace('.', ',')} mahasiswa aktif per dosen (diperiksa + dilaksanakan).
       Tanda <span class="tag tinggi">tinggi</span> = lebih dari 1,5 × rata-rata dan lebih dari 2.</p>
-    <div class="lebar-tabel"><table><thead><tr><th>Dosen</th><th class="n">Diperiksa</th><th class="n">Berjalan</th><th>Aktif</th>
+    <div class="lebar-tabel"><table><thead><tr><th>Dosen</th><th class="n">Diperiksa</th><th class="n">Dilaksanakan</th><th>Aktif</th>
       <th class="n">Selesai</th></tr></thead><tbody>${r.dosen.map(d => `<tr><td>${esc(d.nama)}</td><td class="n">${d.proses}</td>
       <td class="n">${d.berjalan}</td><td><span style="font-family:var(--mono)">${d.aktif}</span><span class="batang" style="width:${Math.round(80 * d.aktif / maks)}px"></span>
       ${d.tinggi ? ' <span class="tag tinggi">tinggi</span>' : ''}</td><td class="n">${d.selesai}</td></tr>`).join('')}</tbody></table></div>`
     : '<p class="kosong">Belum ada dosen.</p>';
   if (KELOLA || ASESOR) gambarBukti();
+  gambarKuota();
   if ($('tolak')) $('tolak').innerHTML = TOLAK.length ? `<div class="lebar-tabel"><table><thead><tr><th>Instansi</th>
       <th class="n">Ditolak</th><th>Terakhir</th></tr></thead><tbody>${TOLAK.map(x => `<tr><td>${esc(x.instansi)}</td>
       <td class="n">${x.n}</td><td>${esc(new Date(x.terakhir).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }))}</td></tr>`).join('')}
@@ -140,7 +145,7 @@ function gambar(){
 function gambarInstansi(xs){
   const usul = xs.filter(x => x.status === 'usul');
   $('instansi').innerHTML = (xs.length ? `<div class="lebar-tabel"><table><thead><tr><th>Instansi</th><th class="n">Mahasiswa</th>
-      <th class="n">Selesai</th><th class="n">Berjalan</th><th>Kerja sama</th></tr></thead><tbody>${xs.map(x => `<tr data-kunci="${esc(x.kunci)}">
+      <th class="n">Selesai</th><th class="n">Dilaksanakan</th><th>Kerja sama</th></tr></thead><tbody>${xs.map(x => `<tr data-kunci="${esc(x.kunci)}">
       <td><b>${esc(x.nama)}</b>${x.varian.length > 1 || (x.varian[0] && x.varian[0] !== x.nama)
         ? `<div class="ket">ditulis: ${x.varian.map(esc).join('; ')}</div>` : ''}
         ${KELOLA ? `<div class="ubah" hidden><input list="daftarNama" value="${esc(x.nama)}" aria-label="Nama baku">
@@ -181,6 +186,45 @@ async function putuskan(b){
   if (error) { alert(error.message); b.disabled = false; return; }
   await muat(); gambar();
 }
+
+async function muatKuota(){
+  if (ASESOR) return;
+  const { data, error } = await sb.rpc('kp_beban', { p_ts: TS_KUOTA });
+  KUOTA = error ? null : barisKuota(data);
+}
+
+// Kuota: tabel untuk semua staf; koordinator KP/admin mengubah kuota bawaan dan kuota per dosen.
+function gambarKuota(){
+  const el = $('kuota'); if (!el) return;
+  if (!KUOTA) { el.innerHTML = '<p class="kosong">Kuota belum tersedia (jalankan supabase/107-patch-kp-koordinator-kuota.sql).</p>'; return; }
+  // Kuota bawaan terbaca dari dosen yang tidak punya kuota khusus (kosong bila belum diatur).
+  const bawaan = KUOTA.find(r => !r.kuota_sendiri)?.kuota ?? null;
+  const pilihTS = [...new Set([tsBerjalan() - 1, tsBerjalan(), tsBerjalan() + 1, TS_KUOTA])].sort();
+  el.innerHTML = `<div class="saring"><label>TS <select id="kTS">${pilihTS.map(t => `<option value="${t}"${t === TS_KUOTA ? ' selected' : ''}>${teksTS(t)}</option>`).join('')}</select></label>
+    ${KELOLA ? `<label>Kuota bawaan semua dosen <input id="kBawaan" type="number" min="0" max="100" style="width:5em" value="${bawaan ?? ''}"
+      placeholder="—"></label><button type="button" class="b" id="kSimpanBawaan">Simpan</button>` : ''}<span class="msg" id="mKuota"></span></div>
+    <p class="ket">Beban = KP yang dibimbing dengan tanggal mulai (atau rencana mulai) pada TS ${teksTS(TS_KUOTA)}; draf dan pengajuan yang ditolak
+      tidak dihitung. Kuota tidak memblokir: koordinator diberi peringatan saat menetapkan pembimbing yang kuotanya penuh.
+      ${KELOLA ? 'Kosongkan kuota seorang dosen untuk kembali ke kuota bawaan.' : ''}</p>
+    <div class="lebar-tabel"><table><thead><tr><th>Dosen</th><th class="n">Kuota</th><th class="n">Beban</th><th class="n">Sisa</th></tr></thead>
+    <tbody>${KUOTA.map(r => `<tr><td>${esc(r.nama)}${r.lebih ? ' <span class="tag tinggi">penuh</span>' : ''}</td>
+      <td class="n">${KELOLA ? `<input type="number" min="0" max="100" style="width:5em" data-kuota="${r.dosen_id}" value="${r.kuota_sendiri ? r.kuota : ''}"
+          placeholder="${r.kuota ?? '—'}" aria-label="Kuota ${esc(r.nama)}">` : (r.kuota ?? '—')}${r.kuota_sendiri && !KELOLA ? '*' : ''}</td>
+      <td class="n">${r.beban}</td><td class="n">${r.sisa ?? '—'}</td></tr>`).join('')}</tbody></table></div>
+    ${KELOLA ? '<p class="ket">Kuota per dosen tersimpan saat kolomnya ditinggalkan (Tab/klik di luar).</p>' : '<p class="ket">* kuota khusus dosen itu.</p>'}`;
+  $('kTS').onchange = async e => { TS_KUOTA = +e.target.value; await muatKuota(); gambarKuota(); };
+  if (!KELOLA) return;
+  const simpan = async (dosen, v) => {
+    const n = String(v).trim() === '' ? null : Math.round(+v);
+    if (n !== null && !(n >= 0 && n <= 100)) { tulisKuota('err', 'Kuota 0 sampai 100.'); return; }
+    const { error } = await sb.rpc('kp_atur_kuota', { p_ts: TS_KUOTA, p_dosen: dosen, p_kuota: n });
+    if (error) { tulisKuota('err', error.message); return; }
+    await muatKuota(); gambarKuota(); tulisKuota('ok', 'Kuota tersimpan.');
+  };
+  $('kSimpanBawaan').onclick = () => simpan(null, $('kBawaan').value);
+  el.querySelectorAll('[data-kuota]').forEach(i => { i.onchange = () => simpan(i.dataset.kuota, i.value); });
+}
+function tulisKuota(k, t){ const m = $('mKuota'); if (m) { m.className = 'msg ' + k; m.textContent = t; } }
 
 function tulisAtas(t){ const m = $('mAtas'); if (m) { m.className = 'msg ok'; m.textContent = t; } }
 
@@ -226,8 +270,9 @@ async function mulai(){
     <h2>Per tahun</h2><div id="perTahun"></div>
     <h2>Per instansi</h2><div id="instansi"></div>
     <h2>Beban bimbingan KP per dosen</h2><div id="beban"></div>
+    ${ASESOR ? '' : '<h2>Kuota pembimbing KP</h2><div id="kuota"></div>'}
     ${ASESOR ? '' : `<h2>Surat pengantar ditolak instansi</h2>
-      <p class="ket">Dicatat mahasiswa lewat tautannya sebelum mengganti instansi (semua periode, tanpa nama mahasiswa).
+      <p class="ket">Dilaporkan mahasiswa lewat tautannya (pengajuan ditutup, lalu pengajuan baru; semua periode, tanpa nama mahasiswa).
         Membantu koordinator menyarankan instansi.</p><div id="tolak"></div>`}
     ${KELOLA || ASESOR ? `<h2>Bukti KP selesai</h2>
       <p class="ket">Laporan KP dan surat keterangan selesai bersifat privat. ${KELOLA ? `Tombol <b>tautan asesor</b> menyalin tautan yang bisa dibuka

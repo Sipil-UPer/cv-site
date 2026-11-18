@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-18-54409d">
+<link rel="stylesheet" href="tema.css?v=2026-11-18-1ccfe5">
 <style>
   /* Pengajuan mahasiswa, publik tanpa login (pemilik 2026-11-17; patch 90). Warna dari tema.css. */
   *{box-sizing:border-box}
@@ -75,7 +75,7 @@
   <h1>Pengajuan KP, seminar/sidang TA, lomba, publikasi/luaran, dan surat</h1><div class="prodi" id="hProdi"></div>
 </div></header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-18-54409d"></script>
+<script src="config.js?v=2026-11-18-1ccfe5"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -96,8 +96,8 @@ addEventListener('error', function (e) {
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
 import { JENIS, LABEL_BERKAS, LABEL_STATUS, TINGKAT, BIDANG, jalur, bolehUbah, bacaAnggota, teksAnggota,
          periksaIsian, judulPengajuan, keB64, bukaIsi, appsScript, labelStatus, jalurTahap, BERKAS_SELESAI, PROGRAM_KP, labelProgram,
-         periksaSelesai, JENIS_SURAT, TAHAP_TA, JENIS_PUB, TINGKAT_PUB, INDEKSASI, JENIS_LUARAN } from './pengajuan-mhs.js?v=2026-11-18-54409d';
-import { saranInstansi } from './rekap-kp.js?v=2026-11-18-54409d';
+         periksaSelesai, JENIS_SURAT, TAHAP_TA, JENIS_PUB, TINGKAT_PUB, INDEKSASI, JENIS_LUARAN } from './pengajuan-mhs.js?v=2026-11-18-1ccfe5';
+import { saranInstansi } from './rekap-kp.js?v=2026-11-18-1ccfe5';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
@@ -109,8 +109,11 @@ const TOKEN = (new URLSearchParams(location.hash.slice(1)).get('t') || '').trim(
 const ALT = (new URLSearchParams(location.hash.slice(1)).get('alt') || '').trim();
 // Ruang KP (105): ?jenis=kp memilih jenis; usulan nama instansi dari data.json (mitra kerja sama + tempat KP).
 const JENIS_AWAL = (new URLSearchParams(location.search).get('jenis') || '').trim();
-// Lapor KP susulan (106): ?lapor=kp membuka formulir terpisah untuk KP yang sudah berjalan atau sudah selesai.
+// Lapor selesai KP (106/107): ?lapor=kp membuka formulir terpisah untuk KP yang sudah selesai.
 const LAPOR = (new URLSearchParams(location.search).get('lapor') || '').trim() === 'kp';
+// Pengajuan baru setelah ditolak instansi (107): ?nim=&pembimbing= mengisi NIM dan usulan pembimbing lama.
+const NIM_AWAL = (new URLSearchParams(location.search).get('nim') || '').replace(/\D/g, '').slice(0, 15);
+const PB_AWAL = (new URLSearchParams(location.search).get('pembimbing') || '').trim();
 let SARAN = [];
 function isiSaran(){
   const dl = $('daftar_instansi');
@@ -122,7 +125,9 @@ function tulis(id, kelas, teks){ const m = $(id); m.className = 'msg ' + kelas; 
 
 // Isian per jenis (dipakai formulir baru dan perbaikan).
 function htmlIsian(jenis, d = {}, nama = '', pembimbing = ''){
-  const pb = `<div class="fld"><label for="f_pb">Dosen pembimbing ${jenis === 'kp' ? 'KP' : jenis === 'ta' ? 'TA' : 'lomba'}</label>
+  // KP (107): mahasiswa mengusulkan; koordinator KP menetapkan sesuai kuota. Lapor selesai: pembimbing yang membimbing.
+  const usulKP = jenis === 'kp' && d.susulan !== 'selesai';
+  const pb = `<div class="fld"><label for="f_pb">${usulKP ? 'Usulan dosen pembimbing KP' : `Dosen pembimbing ${jenis === 'kp' ? 'KP' : jenis === 'ta' ? 'TA' : 'lomba'}`}</label>
     <select id="f_pb"><option value="">(pilih)</option>${DOSEN.map(x => `<option value="${x.id}"${x.id === pembimbing ? ' selected' : ''}>${esc(x.nama)}</option>`).join('')}</select>
     <small>Dosen ini memeriksa pengajuan Anda lebih dulu, lalu ${jenis === 'kp' ? 'koordinator KP atau admin prodi' : 'admin prodi'}.</small></div>`;
   const nm = `<div class="fld"><label for="f_nama">Nama lengkap</label><input id="f_nama" maxlength="120" autocomplete="name" value="${esc(nama)}"></div>`;
@@ -172,8 +177,8 @@ function htmlIsian(jenis, d = {}, nama = '', pembimbing = ''){
       <div class="fld"><label for="f_lok">Lokasi <span>(opsional)</span></label><input id="f_lok" maxlength="300" value="${esc(d.lokasi)}"></div>
       <div class="fld"><label for="f_wkt">Waktu pelaksanaan <span>(opsional)</span></label><input id="f_wkt" maxlength="300" value="${esc(d.waktu_pelaksanaan)}" placeholder="mis. Desember 2026 – Januari 2027"></div>
     </div>`;
-  // KP susulan (106): 'berjalan' = tanggal mulai + perkiraan selesai; 'selesai' = tanggal diisi di laporan selesai.
-  const sus = d.susulan || '';
+  // Lapor selesai KP (106): tanggal diisi di laporan selesai.
+  const sus = d.susulan === 'selesai' ? 'selesai' : '';
   if (jenis === 'kp') return `${nm}${pb}<input type="hidden" id="f_susulan" value="${esc(sus)}">
     <div class="fld"><label for="f_program">Program</label><select id="f_program">${PROGRAM_KP.map(([k, l]) =>
       `<option value="${k}"${(d.program || 'kp') === k ? ' selected' : ''}>${esc(l)}</option>`).join('')}</select></div>
@@ -184,8 +189,8 @@ function htmlIsian(jenis, d = {}, nama = '', pembimbing = ''){
     <div class="dua">
       <div class="fld"><label for="f_bidang">Bidang/divisi <span>(opsional)</span></label><input id="f_bidang" maxlength="300" value="${esc(d.bidang_kerja)}"></div>
       <div class="fld"><label for="f_kontak">Kontak instansi <span>(opsional)</span></label><input id="f_kontak" maxlength="300" value="${esc(d.kontak_instansi)}" placeholder="nama, jabatan, telepon/email"></div>
-      ${sus === 'selesai' ? '' : `<div class="fld"><label for="f_mulai">${sus ? 'Tanggal mulai' : 'Rencana mulai'} <span>(opsional)</span></label><input id="f_mulai" type="date" value="${esc(d.rencana_mulai)}"></div>
-      <div class="fld"><label for="f_selesai">${sus ? 'Perkiraan selesai' : 'Rencana selesai'} <span>(opsional)</span></label><input id="f_selesai" type="date" value="${esc(d.rencana_selesai)}"></div>`}
+      ${sus === 'selesai' ? '' : `<div class="fld"><label for="f_mulai">Rencana mulai <span>(opsional)</span></label><input id="f_mulai" type="date" value="${esc(d.rencana_mulai)}"></div>
+      <div class="fld"><label for="f_selesai">Rencana selesai <span>(opsional)</span></label><input id="f_selesai" type="date" value="${esc(d.rencana_selesai)}"></div>`}
     </div>`;
   return `${nm}${pb}
     <div class="fld"><label for="f_keg">Nama kegiatan/lomba</label><input id="f_keg" maxlength="300" value="${esc(d.nama_kegiatan)}"></div>
@@ -244,12 +249,13 @@ function bacaIsian(jenis){
 function halamanBaru(){
   $('isi').innerHTML = `
     <p class="ket">Isi data, lalu tautan pribadi dikirim ke <b>email kampus Anda</b> (NIM@domain mahasiswa). Lewat tautan itu
-      Anda mengunggah berkas, memeriksa isian, menekan <b>Kirim untuk diperiksa</b>, dan memantau prosesnya: dosen pembimbing
-      (KP dan lomba), lalu admin prodi. Berkas tidak tampil di situs. <a href="privasi.html">Kebijakan privasi</a>.</p>
+      Anda mengunggah berkas, memeriksa isian, menekan <b>Kirim untuk diperiksa</b>, dan memantau prosesnya. Pengajuan KP diperiksa
+      koordinator KP, yang juga menetapkan dosen pembimbing; lomba dan TA diperiksa dosen pembimbing, lalu admin prodi. Berkas tidak tampil di situs. <a href="privasi.html">Kebijakan privasi</a>.</p>
     <form class="kotak" id="frm" novalidate>
       <div class="pilih" role="radiogroup" aria-label="Jenis pengajuan">
-        <label><input type="radio" name="jenis" value="kp" checked><span>Kerja Praktik (KP)<small>pengajuan KP dan surat
-          pengantar; laporan dan surat selesai menyusul lewat tautan yang sama</small></span></label>
+        <label><input type="radio" name="jenis" value="kp" checked><span>Pengajuan KP<small>surat pengantar ke instansi; usulkan
+          dosen pembimbing (ditetapkan koordinator KP). Sudah diterima instansi tanpa surat pengantar? Unggah surat balasannya.
+          Pelaporan selesai KP menyusul lewat tautan yang sama</small></span></label>
         <label><input type="radio" name="jenis" value="lomba"><span>Laporan lomba<small>lomba atau kompetisi yang sudah diikuti;
           setelah disetujui tercatat sebagai prestasi mahasiswa</small></span></label>
         <label><input type="radio" name="jenis" value="ta"><span>Seminar/sidang TA<small>seminar proposal, seminar kemajuan,
@@ -264,10 +270,10 @@ function halamanBaru(){
       <div class="jebakan" aria-hidden="true"><label for="f_situs">Situs web</label><input id="f_situs" type="text" tabindex="-1" autocomplete="off"></div>
       <p><button type="submit" class="b utama" id="b_ajukan">Buat pengajuan dan kirim tautan</button><span class="msg" id="m_ajukan" role="status"></span></p>
     </form>
-    <h2>KP sudah berjalan atau sudah selesai?</h2>
-    <div class="kotak"><p style="margin:0">KP yang dimulai sebelum layanan ini dipakai dilaporkan lewat formulir terpisah:
-      tanpa surat permohonan dan surat pengantar.</p>
-      <p><a class="b" href="pengajuan.html?lapor=kp">Buka formulir lapor KP</a></p></div>
+    <h2>KP sudah selesai?</h2>
+    <div class="kotak"><p style="margin:0">KP yang sudah selesai sebelum layanan ini dipakai dilaporkan lewat formulir
+      <b>Pelaporan selesai KP</b>: tanpa surat permohonan dan surat pengantar.</p>
+      <p><a class="b" href="pengajuan.html?lapor=kp">Buka formulir pelaporan selesai KP</a></p></div>
     <h2>Sudah pernah mengajukan?</h2>
     <form class="kotak" id="frmUlang" novalidate>
       <p class="ket" style="margin-top:0">Tautan hilang atau tidak berlaku? Tulis NIM; tautan baru untuk semua pengajuan Anda dikirim
@@ -288,10 +294,11 @@ function halamanBaru(){
         mereka bisa mendaftarkan email alternatif Anda langsung.</p>
     </form>`;
   const jenis = () => document.querySelector('[name=jenis]:checked').value;
-  const gambar = () => { $('isian').innerHTML = htmlIsian(jenis()); pasangSurat(); pasangLuaran(); isiSaran(); };
+  const gambar = () => { $('isian').innerHTML = htmlIsian(jenis(), {}, '', jenis() === 'kp' ? PB_AWAL : ''); pasangSurat(); pasangLuaran(); isiSaran(); };
   document.querySelectorAll('[name=jenis]').forEach(r => { r.onchange = gambar; });
   const awal = document.querySelector(`[name=jenis][value="${CSS.escape(JENIS_AWAL)}"]`);
   if (awal) awal.checked = true;
+  if (NIM_AWAL) $('f_nim').value = NIM_AWAL;
   gambar();
   $('frm').onsubmit = async e => {
     e.preventDefault();
@@ -331,18 +338,13 @@ function halamanBaru(){
   };
 }
 
-// ---------- tanpa token, ?lapor=kp: lapor KP yang sudah berjalan atau sudah selesai (106) ----------
+// ---------- tanpa token, ?lapor=kp: pelaporan selesai KP untuk KP yang sudah selesai (106/107) ----------
 function halamanLapor(){
   $('isi').innerHTML = `
-    <p class="ket">Formulir ini untuk mahasiswa yang KP atau magangnya <b>sudah berjalan</b> atau <b>sudah selesai</b> sebelum
-      layanan pengajuan dipakai. Belum mulai KP? Pakai <a href="pengajuan.html?jenis=kp">pengajuan KP biasa</a>.</p>
+    <p class="ket">Formulir <b>Pelaporan selesai KP</b> untuk mahasiswa yang KP atau magangnya <b>sudah selesai</b> sebelum layanan
+      pengajuan dipakai. Belum KP, atau sedang KP? Pakai <a href="pengajuan.html?jenis=kp">Pengajuan KP</a> (yang sudah diterima instansi
+      mengunggah surat balasannya).</p>
     <form class="kotak" id="frmLapor" novalidate>
-      <div class="pilih" role="radiogroup" aria-label="Keadaan KP">
-        <label><input type="radio" name="susulan" value="selesai" checked><span>KP sudah selesai<small>isi data KP dan laporan
-          selesai; wajib unggah laporan KP dan surat keterangan selesai dari instansi</small></span></label>
-        <label><input type="radio" name="susulan" value="berjalan"><span>KP sedang berjalan<small>wajib unggah surat balasan
-          (penerimaan) dari instansi; laporan selesai menyusul lewat tautan yang sama</small></span></label>
-      </div>
       <div class="fld"><label for="f_nim">NIM</label><input id="f_nim" inputmode="numeric" maxlength="15" autocomplete="off"></div>
       <div id="isian"></div>
       <div class="jebakan" aria-hidden="true"><label for="f_situs">Situs web</label><input id="f_situs" type="text" tabindex="-1" autocomplete="off"></div>
@@ -350,18 +352,12 @@ function halamanLapor(){
     </form>
     <div class="kotak"><b>Langkah berikutnya.</b> Tautan pribadi dikirim ke email kampus Anda. Lewat tautan itu:
       <ol style="margin:6px 0 0 18px;padding:0">
-        <li><b>KP sudah selesai:</b> isi tanggal mulai dan selesai, pembimbing lapangan, dan ringkasan kegiatan; unggah
-          <b>laporan KP</b> dan <b>surat keterangan selesai</b> (logbook dan foto bila ada); tekan <b>Kirim laporan selesai</b>.</li>
-        <li><b>KP sedang berjalan:</b> unggah <b>surat balasan instansi</b>, tekan <b>Kirim untuk diperiksa</b>; setelah KP
-          selesai, isi laporan selesai lewat tautan yang sama.</li>
-        <li>Diperiksa dosen pembimbing, lalu koordinator KP atau admin prodi.</li>
+        <li>isi tanggal mulai dan selesai, pembimbing lapangan, dan ringkasan kegiatan;</li>
+        <li>unggah <b>laporan KP</b> dan <b>surat keterangan selesai</b> (logbook dan foto bila ada);</li>
+        <li>tekan <b>Kirim laporan selesai</b>: diperiksa dosen pembimbing, lalu koordinator KP atau admin prodi.</li>
       </ol></div>
     <p class="ket"><a href="pengajuan.html">Kembali ke halaman pengajuan</a></p>`;
-  const sus = () => document.querySelector('[name=susulan]:checked').value;
-  const gambar = () => { const x = $('f_nama') ? bacaIsian('kp') : null;
-    $('isian').innerHTML = htmlIsian('kp', { ...(x?.data || {}), susulan: sus() }, x?.nama || '', x?.pembimbing || ''); isiSaran(); };
-  document.querySelectorAll('[name=susulan]').forEach(r => { r.onchange = gambar; });
-  gambar();
+  $('isian').innerHTML = htmlIsian('kp', { susulan: 'selesai' }); isiSaran();
   $('frmLapor').onsubmit = async e => {
     e.preventDefault();
     const x = bacaIsian('kp'), nim = $('f_nim').value.trim();
@@ -372,9 +368,8 @@ function halamanLapor(){
       const out = await appsScript({ kind: 'mhs_ajukan', jenis: 'kp', nim, nama: x.nama, pembimbing_id: x.pembimbing, data: x.data,
                                      jebakan: $('f_situs').value });
       $('frmLapor').innerHTML = `<p><b>Laporan KP dibuat sebagai draf.</b> Tautan pribadi sudah dikirim ke <b>${esc(out.email || 'email kampus Anda')}</b>.
-        Buka email itu (periksa juga folder Spam/Junk), lalu ${x.data.susulan === 'selesai'
-          ? 'isi laporan selesai, unggah laporan KP dan surat keterangan selesai, dan tekan <b>Kirim laporan selesai</b>.'
-          : 'unggah surat balasan instansi dan tekan <b>Kirim untuk diperiksa</b>.'}</p>`;
+        Buka email itu (periksa juga folder Spam/Junk), lalu isi laporan selesai, unggah laporan KP dan surat keterangan selesai,
+        dan tekan <b>Kirim laporan selesai</b>.</p>`;
     } catch (err) { tulis('m_ajukan', 'buruk', err.message); $('b_ajukan').disabled = false; }
   };
 }
@@ -426,13 +421,19 @@ function halamanSaya(){
   const ubahPengajuan = (p.tahap || 'pengajuan') === 'pengajuan' && bolehUbah(p.status);
   const jendelaSelesai = !!p.jendela_selesai, adaSelesai = p.jenis === 'kp' && (jendelaSelesai || p.tahap === 'selesai');
   const jenisUnggah = ubahPengajuan ? J.berkas : BERKAS_SELESAI;
-  // KP susulan (106): 'berjalan' wajib surat balasan; 'selesai' langsung ke laporan selesai.
-  const sus = p.jenis === 'kp' ? (d.susulan || '') : '';
-  const wajibAwal = sus === 'berjalan' ? 'surat_balasan' : sus === 'selesai' ? null : J.wajib;
-  // Surat pengantar ditolak instansi (106): ganti instansi di pengajuan yang sama (satu KP aktif per mahasiswa).
-  const bisaTolak = p.jenis === 'kp' && (p.tahap || 'pengajuan') === 'pengajuan' && p.status === 'disetujui';
-  const unggahan = !ubahPengajuan ? jenisUnggah : sus === 'selesai' ? BERKAS_SELESAI
-    : sus === 'berjalan' ? ['surat_balasan', ...J.berkas.filter(k => k !== 'surat_permohonan' && k !== 'surat_balasan')] : jenisUnggah;
+  // Lapor selesai KP (106): langsung ke laporan selesai. Nilai lama 'berjalan' = pengajuan KP biasa (107).
+  const sus = p.jenis === 'kp' && d.susulan === 'selesai' ? 'selesai' : '';
+  const wajibAwal = sus === 'selesai' ? null : J.wajib;
+  // Jawaban instansi atas surat pengantar (107): diterima (surat balasan + tanggal mulai) atau ditolak (pengajuan ditutup).
+  const tahapAju = p.jenis === 'kp' && (p.tahap || 'pengajuan') === 'pengajuan';
+  const bisaJawab = tahapAju && p.status === 'disetujui' && !d.jawaban_instansi;
+  const ditolakInstansi = tahapAju && p.status === 'ditolak' && d.jawaban_instansi === 'ditolak';
+  // Pelaporan selesai KP dibuka setelah diterima instansi (pengajuan lama sebelum 107: laporkan diterima dulu).
+  const bukaSelesai = jendelaSelesai && (sus === 'selesai' || p.tahap === 'selesai' || d.jawaban_instansi === 'diterima');
+  // Sebelum jawaban instansi: surat balasan (atau lainnya); berkas laporan selesai menyusul setelah diterima.
+  const unggahan = !ubahPengajuan ? (bisaJawab ? ['surat_balasan', 'lainnya'] : jenisUnggah)
+    : sus === 'selesai' ? BERKAS_SELESAI : jenisUnggah;
+  const baru = `pengajuan.html?jenis=kp&nim=${encodeURIComponent(p.nim)}${p.pembimbing_id ? '&pembimbing=' + encodeURIComponent(p.pembimbing_id) : ''}`;
   // Berkas bertanda "[ditolak …]" (106) adalah catatan surat ke instansi yang menolak: tidak bisa dibuang mahasiswa.
   const bisaBuang = b => ubah && b.oleh !== 'prodi' && !(p.status === 'disetujui' && b.jenis === 'surat_permohonan')
     && !String(b.nama || '').startsWith('[ditolak ');
@@ -446,8 +447,10 @@ function halamanSaya(){
     : p.jenis === 'kp'
     ? [['Program', labelProgram(d.program)], ['Instansi', d.instansi], ['Alamat', d.alamat_instansi], ['Bidang/divisi', d.bidang_kerja],
        ['Kontak', d.kontak_instansi],
-       [sus ? 'Tanggal' : 'Rencana', [d.rencana_mulai, d.rencana_selesai].filter(Boolean).join(' s.d. ')],
-       ['Dilaporkan', { selesai: 'susulan, setelah KP selesai', berjalan: 'susulan, saat KP berjalan' }[sus] || '']]
+       ['Rencana', [d.rencana_mulai, d.rencana_selesai].filter(Boolean).join(' s.d. ')],
+       ['Jawaban instansi', d.jawaban_instansi === 'diterima' ? `diterima${d.tanggal_mulai ? ', mulai KP ' + d.tanggal_mulai : ''}`
+         : d.jawaban_instansi === 'ditolak' ? `ditolak${d.alasan_instansi ? ': ' + d.alasan_instansi : ''}` : ''],
+       ['Dilaporkan', sus === 'selesai' ? 'setelah KP selesai' : '']]
     : [['Kegiatan', d.nama_kegiatan], ['Penyelenggara', d.penyelenggara], ['Tanggal', d.tanggal],
        ['Tingkat', (TINGKAT.find(t => t[0] === d.tingkat) || [, ''])[1]], ['Bidang', (BIDANG.find(t => t[0] === d.bidang) || [, ''])[1]],
        ['Capaian', d.capaian], ['Anggota lain', teksAnggota(d.anggota)], ['Nama di situs', d.tampil_nama ? 'boleh ditampilkan' : 'tidak']];
@@ -463,7 +466,7 @@ function halamanSaya(){
       ${p.jenis === 'surat' ? '' : '· pembimbing ' + esc([p.pembimbing, p.pembimbing_2].filter(Boolean).join(', ') || '—')}</div>
     ${sus === 'selesai' ? '<p class="ket">KP dilaporkan setelah selesai: tahap pengajuan dan surat pengantar dilewati.</p>'
       : `${p.jenis === 'kp' ? '<h3 class="sub-h">Pengajuan KP</h3>' : ''}${htmlJalur(jalurTahap(p, 'pengajuan'))}`}
-    ${adaSelesai ? `<h3 class="sub-h">Laporan selesai KP</h3>${htmlJalur(jalurTahap(p, 'selesai'))}` : ''}
+    ${adaSelesai && (bukaSelesai || p.tahap === 'selesai') ? `<h3 class="sub-h">Pelaporan selesai KP</h3>${htmlJalur(jalurTahap(p, 'selesai'))}` : ''}
     ${p.jadwal ? `<div class="kotak jadwal-kotak"><b>Jadwal ${esc((TAHAP_TA.find(t => t[0] === d.tahap_ta) || [, 'seminar/sidang'])[1].toLowerCase())}
       Anda${p.jadwal.status === 'ditunda' ? ' (DITUNDA)' : p.jadwal.status === 'batal' ? ' (DIBATALKAN)' : ''}</b>
       <dl class="ringkas">${[['Tanggal', p.jadwal.tanggal ? new Date(p.jadwal.tanggal + 'T00:00').toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) : ''],
@@ -477,19 +480,27 @@ function halamanSaya(){
       : '<p class="ket">Langkah berikutnya: input jadwal ini ke SIUP sesuai ketentuan universitas.</p>'}</div>` : ''}
     ${pengantar.length ? `<div class="kotak"><b>${p.jenis === 'surat' ? 'Surat dari prodi sudah terbit.' : 'Surat pengantar dari prodi sudah tersedia.'}</b>
       ${pengantar.map(b => `<button class="b" data-buka="${b.id}" style="margin-left:8px">Buka ${esc(b.nama || 'surat')}</button>`).join('')}</div>` : ''}
-    ${bisaTolak ? `<details class="kotak"><summary><b>Surat pengantar ditolak instansi?</b></summary>
-      <p class="ket">Catat penolakannya di sini, lalu ganti instansi pada pengajuan ini (satu mahasiswa hanya satu KP aktif).
-        Instansi lama tercatat; surat permohonan dan surat pengantar lama disimpan sebagai berkas <b>Lainnya</b>. Pengajuan kembali
-        ke draf: ganti instansi, unggah surat permohonan baru, lalu <b>Kirim untuk diperiksa</b> (dosen pembimbing, lalu koordinator
-        KP atau admin prodi) untuk surat pengantar baru.</p>
-      <div class="fld"><label for="t_alasan">Alasan dari instansi <span>(mis. kuota penuh, tidak menerima mahasiswa KP)</span></label>
-        <textarea id="t_alasan" maxlength="300" style="min-height:60px"></textarea></div>
-      <button class="b" id="b_tolak">Catat penolakan dan ganti instansi</button><span class="msg" id="m_tolak" role="status"></span></details>` : ''}
-    ${jendelaSelesai ? `<div class="kotak"><b>Sudah selesai KP?</b> Isi laporan selesai di bawah, unggah <b>laporan KP</b> dan
-      <b>surat keterangan selesai</b> (wajib), serta logbook, nilai pembimbing lapangan, dan foto bila ada, lalu tekan
-      <b>Kirim laporan selesai</b>. Pemeriksaannya sama: dosen pembimbing, lalu koordinator KP atau admin prodi.</div>` : ''}
+    ${bisaJawab ? `<div class="kotak" id="kJawab"><b>Laporkan jawaban instansi atas surat pengantar</b>
+      <p class="ket" style="margin-top:4px">Setelah surat pengantar Anda kirim ke ${esc(d.instansi || 'instansi')}, laporkan jawabannya di sini.</p>
+      <div class="dua">
+        <div><b>Diterima</b><p class="ket" style="margin:2px 0 6px">Unggah <b>surat balasan instansi</b> di bagian Berkas, isi tanggal mulai KP.</p>
+          <div class="fld"><label for="j_mulai">Tanggal mulai KP</label><input id="j_mulai" type="date"></div>
+          <button class="b utama" id="b_terima">Laporkan diterima</button><span class="msg" id="m_terima" role="status"></span></div>
+        <div><b>Ditolak</b><p class="ket" style="margin:2px 0 6px">Pengajuan ini <b>ditutup</b>; lalu buat pengajuan baru untuk instansi lain
+          (diperiksa lagi oleh koordinator KP).</p>
+          <div class="fld"><label for="t_alasan">Alasan dari instansi <span>(mis. kuota penuh)</span></label>
+            <textarea id="t_alasan" maxlength="300" style="min-height:60px"></textarea></div>
+          <button class="b" id="b_tolak">Laporkan ditolak</button><span class="msg" id="m_tolak" role="status"></span></div>
+      </div></div>` : ''}
+    ${ditolakInstansi ? `<div class="kotak"><b>Pengajuan ini ditutup karena ditolak instansi.</b> Buat pengajuan KP baru untuk instansi lain;
+      NIM dan usulan pembimbing sudah terisi. <p><a class="b utama" href="${esc(baru)}">Buat pengajuan baru</a></p></div>` : ''}
+    ${jendelaSelesai && !bukaSelesai ? `<p class="ket">Pelaporan selesai KP terbuka setelah Anda melaporkan <b>diterima instansi</b>.</p>` : ''}
+    ${bukaSelesai ? `<div class="kotak"><b>Pelaporan selesai KP.</b> Setelah KP selesai, isi laporan selesai di bawah, unggah <b>laporan KP</b> dan
+      <b>surat keterangan selesai</b> (wajib), serta logbook dan foto bila ada, lalu tekan <b>Kirim laporan selesai</b>.
+      Diperiksa dosen pembimbing, lalu koordinator KP atau admin prodi.</div>` : ''}
     <h2>Berkas</h2>
-    <p class="ket">${ubahPengajuan && wajibAwal ? `Wajib sebelum dikirim: <b>${esc(LABEL_BERKAS[wajibAwal])}</b>. ` : ''}${p.jenis === 'surat' ? 'Lampiran pendukung (mis. proposal) boleh diunggah, tidak wajib. ' : ''}${jendelaSelesai
+    <p class="ket">${ubahPengajuan && wajibAwal ? `Wajib sebelum dikirim: <b>${esc(LABEL_BERKAS[wajibAwal])}</b>${p.jenis === 'kp'
+      ? ' (atau <b>surat balasan instansi</b> bila Anda sudah diterima)' : ''}. ` : ''}${p.jenis === 'surat' ? 'Lampiran pendukung (mis. proposal) boleh diunggah, tidak wajib. ' : ''}${bukaSelesai
       ? 'Wajib untuk laporan selesai: <b>Laporan KP</b> dan <b>Surat keterangan selesai</b>. ' : ''}Boleh lebih dari satu berkas per jenis; maks. 20 berkas.</p>
     <ul class="daftar">${p.berkas.map(b => `<li class="${b.oleh === 'prodi' ? 'prodi-berkas' : ''}"><div class="isi">${esc(LABEL_BERKAS[b.jenis] || b.jenis)}
       <div class="meta">${esc(b.nama)} · ${esc(tglWaktu(b.dibuat))}${b.oleh === 'prodi' ? ' · dari prodi' : ''}</div></div>
@@ -499,7 +510,7 @@ function halamanSaya(){
       <input type="file" id="u_berkas" multiple accept=".pdf,.jpg,.jpeg,.png,.docx">
       <button class="b" id="b_unggah">Unggah</button><span class="msg" id="m_berkas" role="status"></span></div>
       <p class="ket">PDF, JPG, PNG, atau DOCX.</p>` : '<span class="msg" id="m_berkas" role="status"></span>'}
-    ${adaSelesai ? `<h2>Laporan selesai KP</h2>${jendelaSelesai ? `<form class="kotak" id="frmSelesai" novalidate>${htmlSelesai(ds)}
+    ${adaSelesai && (bukaSelesai || p.tahap === 'selesai') ? `<h2>Pelaporan selesai KP</h2>${bukaSelesai ? `<form class="kotak" id="frmSelesai" novalidate>${htmlSelesai(ds)}
         <p><button type="submit" class="b" id="b_simpanS">Simpan laporan</button><span class="msg" id="m_simpanS" role="status"></span></p>
         <p><button type="button" class="b utama" id="b_kirimS">Kirim laporan selesai</button><span class="msg" id="m_kirimS" role="status"></span></p></form>`
       : `<dl class="kotak ringkas">${ringkasSelesai.filter(([, v]) => v).map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join('')}</dl>`}` : ''}
@@ -523,8 +534,8 @@ function halamanSaya(){
     $('frmUbah').onsubmit = async e => { e.preventDefault(); await simpan(); };
     if ($('b_kirim')) $('b_kirim').onclick = kirim;
   }
-  if (bisaTolak) $('b_tolak').onclick = tolakInstansi;
-  if (jendelaSelesai) {
+  if (bisaJawab) { $('b_tolak').onclick = tolakInstansi; $('b_terima').onclick = terimaInstansi; }
+  if (bukaSelesai) {
     $('frmSelesai').onsubmit = async e => { e.preventDefault(); await simpanSelesai(); };
     $('b_kirimS').onclick = kirimSelesai;
   }
@@ -559,17 +570,28 @@ async function kirimSelesai(){
   } catch (e) { tulis('m_kirimS', 'buruk', e.message); $('b_kirimS').disabled = false; }
 }
 
+// Jawaban instansi (107).
 async function tolakInstansi(){
   const alasan = $('t_alasan').value.trim();
   if (alasan.length < 5) return tulis('m_tolak', 'buruk', 'Tulis alasan singkat penolakan dari instansi.');
-  if (!confirm('Catat bahwa surat pengantar ditolak ' + (P.data?.instansi || 'instansi') + ' dan ganti instansi?')) return;
+  if (!confirm('Laporkan bahwa ' + (P.data?.instansi || 'instansi') + ' menolak? Pengajuan ini ditutup; Anda lalu membuat pengajuan baru.')) return;
   $('b_tolak').disabled = true;
   try {
     const { error } = await sb.rpc('mhs_tolak_instansi', { p_token: TOKEN, p_alasan: alasan });
     if (error) throw new Error(error.message);
     await muat(); halamanSaya();
-    $('f_instansi')?.focus();
   } catch (e) { tulis('m_tolak', 'buruk', e.message); $('b_tolak').disabled = false; }
+}
+async function terimaInstansi(){
+  const mulai = $('j_mulai').value;
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(mulai)) return tulis('m_terima', 'buruk', 'Isi tanggal mulai KP.');
+  if (!P.berkas.some(b => b.jenis === 'surat_balasan')) return tulis('m_terima', 'buruk', 'Unggah surat balasan instansi dulu (bagian Berkas).');
+  $('b_terima').disabled = true;
+  try {
+    const { error } = await sb.rpc('mhs_terima_instansi', { p_token: TOKEN, p_mulai: mulai });
+    if (error) throw new Error(error.message);
+    await muat(); halamanSaya();
+  } catch (e) { tulis('m_terima', 'buruk', e.message); $('b_terima').disabled = false; }
 }
 
 async function buka(id, tombol){

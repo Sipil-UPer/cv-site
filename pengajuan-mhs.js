@@ -53,8 +53,9 @@ const TAHAP = [['draf', 'Isi dan unggah berkas'], ['pembimbing', 'Diperiksa dose
                ['admin', 'Diperiksa admin prodi'], ['disetujui', 'Disetujui']];
 // Laporan selesai KP (91-patch-laporan-selesai-kp.sql): label tahap dan berkasnya.
 export const NAMA_TAHAP_SELESAI = ['Isi laporan selesai', 'Diperiksa dosen pembimbing', 'Diperiksa koordinator KP/admin', 'KP selesai'];
-// KP tahap pengajuan: koordinator KP atau admin memutuskan (97-patch-koordinator.sql).
-export const NAMA_TAHAP_KP = ['Isi dan unggah berkas', 'Diperiksa dosen pembimbing', 'Diperiksa koordinator KP/admin', 'Disetujui'];
+// Pengajuan KP (107, pemilik 2026-11-18): langsung ke koordinator KP/admin, yang menetapkan dosen pembimbing (kuota).
+export const NAMA_TAHAP_KP = ['Isi pengajuan dan unggah surat', 'Dikirim ke koordinator KP', 'Diperiksa koordinator KP; pembimbing ditetapkan',
+                              'Surat pengantar terbit'];
 // nilai_lapangan tidak di sini: diunggah dosen pembimbing, koordinator KP, atau admin (99-patch-kp-magang.sql).
 export const BERKAS_SELESAI = ['laporan_kp', 'surat_selesai', 'logbook', 'surat_balasan', 'foto', 'lainnya'];
 
@@ -70,7 +71,11 @@ export function labelStatus(p){
   if (p.jenis === 'kp' && p.tahap === 'selesai') return { pembimbing: 'Laporan selesai: diperiksa dosen pembimbing',
     admin: 'Laporan selesai: diperiksa koordinator KP/admin', disetujui: 'KP selesai', dikembalikan: 'Laporan selesai dikembalikan untuk diperbaiki',
     ditolak: 'Laporan selesai ditolak' }[p.status] || p.status;
-  if (p.jenis === 'kp' && p.status === 'disetujui') return 'Pengajuan disetujui; KP berjalan (laporan selesai belum dikirim)';
+  // Jawaban instansi atas surat pengantar (107): data.jawaban_instansi 'diterima' | 'ditolak'.
+  if (p.jenis === 'kp' && p.status === 'ditolak' && p.data?.jawaban_instansi === 'ditolak') return 'Ditolak instansi; pengajuan ditutup';
+  if (p.jenis === 'kp' && p.status === 'disetujui') return p.data?.jawaban_instansi === 'diterima'
+    ? 'Diterima instansi; KP dilaksanakan (pelaporan selesai belum dikirim)' : 'Surat pengantar terbit; menunggu jawaban instansi';
+  if (p.jenis === 'kp' && p.status === 'admin') return 'Diperiksa koordinator KP/admin';
   return LABEL_STATUS[p.status] || p.status;
 }
 
@@ -188,16 +193,16 @@ export async function appsScript(isi){
 
 // ---------- Rekap dan unduhan per periode (pemilik 2026-11-17) ----------
 // Waktu satu pengajuan untuk saringan TS/tahun (sdgs-unduh.js cocokPeriode memakai {tahun, bulan}):
-// KP = tanggal mulai di laporan selesai, lalu rencana mulai, lalu tanggal dibuat; lomba = tanggal lomba, lalu dibuat.
+// KP = tanggal mulai di laporan selesai, lalu tanggal mulai dari jawaban instansi (107), lalu rencana mulai, lalu tanggal dibuat; lomba = tanggal lomba, lalu dibuat.
 export function waktuPengajuan(p){
   const d = p.data || {}, s = p.data_selesai || {};
-  const t = String((p.jenis === 'kp' ? s.tanggal_mulai || d.rencana_mulai : d.tanggal) || p.dibuat || '');
+  const t = String((p.jenis === 'kp' ? s.tanggal_mulai || d.tanggal_mulai || d.rencana_mulai : d.tanggal) || p.dibuat || '');
   const m = t.match(/^(\d{4})-(\d{2})/);
   return m ? { tahun: +m[1], bulan: +m[2] } : { tahun: 0, bulan: 0 };
 }
 
-// Keadaan KP untuk rekap: 'selesai' (laporan selesai disahkan), 'berjalan' (pengajuan disetujui atau laporan
-// sedang diperiksa), 'proses' (pengajuan belum disetujui), 'ditolak', 'draf'.
+// Keadaan KP untuk rekap: 'selesai' (laporan selesai disahkan), 'berjalan' (ditampilkan "dilaksanakan": pengajuan
+// disetujui atau laporan selesai sedang diperiksa), 'proses' (pengajuan belum disetujui), 'ditolak' (prodi atau instansi), 'draf'.
 export function keadaanKP(p){
   if (p.status === 'draf') return 'draf';
   if (p.status === 'ditolak') return 'ditolak';
@@ -228,14 +233,14 @@ export function rekapPengajuan(xs){
 }
 
 // Isi lembar Excel (untuk admin; memuat NIM). Sel tautan berbentuk {t, l}.
-const LABEL_KEADAAN = { selesai: 'KP selesai', berjalan: 'KP berjalan', proses: 'Pengajuan diperiksa', ditolak: 'Ditolak', draf: 'Draf' };
+const LABEL_KEADAAN = { selesai: 'KP selesai', berjalan: 'KP dilaksanakan', proses: 'Pengajuan diperiksa', ditolak: 'Ditolak', draf: 'Draf' };
 export function lembarPengajuan(xs, tsTeks = () => ''){
   const kp = xs.filter(p => p.jenis === 'kp' && p.status !== 'draf'), lomba = xs.filter(p => p.jenis === 'lomba' && p.status !== 'draf');
   const pemb = p => p.dosen?.nama || p.pembimbing || '';
   const L = {
     KP: [['No', 'NIM', 'Nama', 'Program', 'Instansi', 'Pembimbing', 'Mulai', 'Selesai', 'Pembimbing lapangan', 'TS', 'Keadaan', 'Berkas']],
     Lomba: [['No', 'NIM', 'Nama', 'Kegiatan', 'Penyelenggara', 'Tingkat', 'Bidang', 'Capaian', 'Tanggal', 'Anggota lain', 'Pembimbing', 'TS', 'Status']],
-    'Instansi KP': [['Instansi', 'Mahasiswa', 'KP selesai', 'KP berjalan']],
+    'Instansi KP': [['Instansi', 'Mahasiswa', 'KP selesai', 'KP dilaksanakan']],
     Berkas: [['NIM', 'Nama', 'Jenis pengajuan', 'Jenis berkas', 'Nama berkas', 'Tautan']],
   };
   kp.forEach((p, i) => {
