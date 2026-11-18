@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-19-f5b9a7">
+<link rel="stylesheet" href="tema.css?v=2026-11-19-558f16">
 <style>
   /* Panduan pengguna ruang kerja (pemilik 2026-11-04). Bagian admin hanya
      tampil untuk peran admin. Perbarui bila tombol atau halaman berubah. */
@@ -40,7 +40,7 @@
   @media(max-width:640px){nav.isi ol{columns:1}.wrap{padding:18px 16px 60px}}
   @media print{nav.isi{display:none}section{break-inside:avoid}}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-19-f5b9a7">
+<link rel="stylesheet" href="kepala.css?v=2026-11-19-558f16">
 </head>
 <body>
 
@@ -64,7 +64,7 @@
       <li><a href="#lihat">Monitoring dan skor</a></li>
       <li><a href="#publik">Apa yang tampil untuk umum</a></li>
       <li><a href="#evaluasi">Evaluasi pembelajaran</a></li>
-      <li><a href="#rps">Menyusun RPS (K26)</a></li>
+      <li><a href="#rps">Menyusun RPS</a></li>
       <li class="adm" hidden><a href="#verifikasi">Admin: verifikasi dan ajuan</a></li>
       <li class="adm" hidden><a href="#dosen">Admin: kelola dosen</a></li>
       <li class="adm" hidden><a href="#dataprodi">Admin: data prodi</a></li>
@@ -202,8 +202,9 @@
   </section>
 
   <section id="rps">
-    <h2>10. Menyusun RPS (K26)</h2>
-    <p>RPS disusun di situs mengikuti Formulir RPS K26 dan Panduan Pengisian RPS universitas, lalu diunduh sebagai Word.
+    <h2>10. Menyusun RPS</h2>
+    <p>RPS disusun di situs mengikuti formulir RPS universitas (UP-SPMI/FR008/R05) dan Panduan Pengisian RPS, lalu diunduh sebagai Word.
+      Pilih kurikulumnya (K21, K26, atau kurikulum berikutnya) di daftar mata kuliah.
       Yang menyusun: <b>koordinator MK</b> (ditetapkan admin/GKM) atau <b>dosen pengampu</b> kelas MK itu semester ini.
       GKM dan admin hanya melihat. Bagian B (CPL, CPMK, Sub-CPMK, asesmen, bobot) sama dengan yang dipakai templat nilai CPL,
       jadi RPS dan capaian CPL selalu memakai bobot yang sama.</p>
@@ -217,7 +218,7 @@
           <li>Butir asesmen (Kuis 1, Tugas 1, UTS, UAS, …) dan <b>jenisnya</b>; jenis ditebak dari nama dan bisa diubah.</li>
           <li>Bobot butir per Sub-CPMK, total 100. Klik <b>Simpan CPMK dan bobot</b>.</li>
         </ul></li>
-      <li><b>Buka RPS</b>: tombol <b>Susun RPS K26 di situs</b> (bagian 5 halaman CPMK) atau menu <b>Pembelajaran &amp; CPL ▾ › RPS K26</b>.
+      <li><b>Buka RPS</b>: tombol <b>Susun RPS di situs</b> (bagian 5 halaman CPMK) atau menu <b>Pembelajaran &amp; CPL ▾ › RPS</b>, lalu pilih kurikulum.
         Isian awal sudah terisi dari data MK (kode, sks, semester, pengampu); periksa dan lengkapi.</li>
       <li><b>Isi bagian per bagian</b>:
         <ul>
@@ -243,7 +244,7 @@
       <li><b>Mengubah RPS yang sudah disahkan</b>: ubah dan simpan (status kembali draf; versi disahkan tetap bisa diunduh), lalu ajukan lagi
         dengan <b>ringkasan perubahan</b>. Daftar revisi RPS (bagian F) tersusun otomatis dari pengesahan berikutnya.</li>
     </ol>
-    <p><b>Kaprodi:</b> buka <b>RPS K26</b>, centang <i>Hanya yang menunggu pemeriksaan Anda</i> (jumlahnya juga tampil di Dasbor operasional),
+    <p><b>Kaprodi:</b> buka <b>RPS</b>, centang <i>Hanya yang menunggu pemeriksaan Anda</i> (jumlahnya juga tampil di Dasbor operasional),
       klik <b>Periksa</b>, baca RPS dan daftar periksanya, lalu <b>Sahkan</b> atau <b>Kembalikan</b> dengan catatan untuk dosen.</p>
     <p class="adm-p" hidden><b>Admin:</b> tetapkan Kaprodi di <b>Penugasan koordinator</b> (jabatan Ketua Program Studi), koordinator MK di halaman
       CPMK dan RPS (bagian Koordinator MK / pengampu), dan lengkapi NIP dosen di Kelola dosen.</p>
@@ -401,7 +402,7 @@
   </div>
 </main>
 
-<script src="config.js?v=2026-11-19-f5b9a7"></script>
+<script src="config.js?v=2026-11-19-558f16"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -418,7 +419,7 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-19-f5b9a7';
+import { gerbang } from './menu.js?v=2026-11-19-558f16';
 
 // Bagian admin hanya untuk peran admin (isinya bukan rahasia; disembunyikan
 // supaya panduan dosen tetap ringkas).

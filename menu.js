@@ -1,5 +1,5 @@
-import { dosenLogin } from './dosen-login.js?v=2026-11-19-f5b9a7';
-import { aktifPada } from './koordinator.js?v=2026-11-19-f5b9a7';
+import { dosenLogin } from './dosen-login.js?v=2026-11-19-558f16';
+import { aktifPada } from './koordinator.js?v=2026-11-19-558f16';
 // Menu bersama ruang kerja (pemilik 2026-11-04).
 //
 // Situs dibagi dua:
@@ -25,7 +25,7 @@ const penyusun = s => admin(s) || (!!s.tim_penyusun && s.peran !== 'asesor');
 // Asesor, dan pimpinan yang bukan DTPS prodi ini (aktif=false), tidak mengisi karya.
 const isiKarya = s => s.peran !== 'asesor' && !(s.peran === 'pimpinan' && !s.aktif);
 
-import { halamanAktif } from './fitur.js?v=2026-11-19-f5b9a7';
+import { halamanAktif } from './fitur.js?v=2026-11-19-558f16';
 
 export const MODUL = [
   // Susunan modul (pemilik 2026-11-17): mengikuti pembagian tugas koordinator prodi (kemahasiswaan,
@@ -43,8 +43,8 @@ export const MODUL = [
     { href: 'cpmk.html', judul: 'CPMK dan RPS', boleh: isiKarya,
       ket: 'CPMK, Sub-CPMK, butir asesmen, bobot, dan RPS per mata kuliah; unduh templat nilai CPL yang sudah terisi per kelas.' },
     // RPS K26 (111-patch-rps-k26.sql, pemilik 2026-11-18): dosen mengisi RPS di situs, unduh Word Formulir RPS K26.
-    { href: 'rps.html', judul: 'RPS K26', boleh: isiKarya,
-      ket: 'Susun RPS per mata kuliah (bagian B dari CPMK dan RPS), periksa otomatis menurut Panduan, unduh Word Formulir RPS K26.' },
+    { href: 'rps.html', judul: 'RPS', boleh: isiKarya,
+      ket: 'Susun RPS per mata kuliah dan kurikulum (K21, K26, …; bagian B dari CPMK dan RPS), periksa otomatis menurut Panduan, unduh Word formulir RPS.' },
     // Simulasi PJP butir 18 (pemilik 2026-11-19): sks praktikum/praktik/penugasan per MK, di peramban saja.
     { href: 'pjp.html', judul: 'Simulasi PJP', boleh: s => mutu(s) || s.peran === 'pimpinan' || (s.koordinator || []).includes('kaprodi'),
       ket: 'Butir 18 LAM Teknik: PJP sekarang dan simulasi bila sks praktikum/praktik/penugasan beberapa MK diubah; unduh CSV untuk rapat kurikulum.' },
@@ -318,7 +318,7 @@ export async function pasangMenu(sb){
   // Pencarian menyeluruh (pemilik 2026-11-12; cari-ui.js, cari.js): dimuat saat pertama dipakai.
   const kotak = nav.querySelector('.rk-cari input');
   let siapCari = null;
-  const muatCari = () => siapCari || (siapCari = import('./cari-ui.js?v=2026-11-19-f5b9a7').then(m =>
+  const muatCari = () => siapCari || (siapCari = import('./cari-ui.js?v=2026-11-19-558f16').then(m =>
     m.pasangCari(kotak, { sb, saya: u.saya, modul: halamanBoleh(u.saya), boleh: h => bolehBuka(u.saya, h) !== false })));
   kotak.addEventListener('focus', muatCari);
   document.addEventListener('keydown', e => {

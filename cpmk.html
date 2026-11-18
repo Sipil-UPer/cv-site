@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-19-f5b9a7">
-<link rel="stylesheet" href="kepala.css?v=2026-11-19-f5b9a7">
+<link rel="stylesheet" href="tema.css?v=2026-11-19-558f16">
+<link rel="stylesheet" href="kepala.css?v=2026-11-19-558f16">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
@@ -59,7 +59,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-19-f5b9a7"></script>
+<script src="config.js?v=2026-11-19-558f16"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -79,15 +79,15 @@ addEventListener('error', function (e) {
 // mengisi CPMK, Sub-CPMK, butir asesmen, bobot, dan RPS. Templat nilai CPL per kelas diisi dari struktur ini
 // di peramban (templat-cpl.js + JSZip), jadi dosen tinggal mengisi NIM dan nilai.
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-19-f5b9a7';
-import { bolehMutu } from './koordinator.js?v=2026-11-19-f5b9a7';
-import { keB64 } from './pengajuan-mhs.js?v=2026-11-19-f5b9a7';
-import { semesterKini } from './evaluasi-pembelajaran.js?v=2026-11-19-f5b9a7';
-import { periksaStruktur, isiTemplat, namaBerkasTemplat } from './templat-cpl.js?v=2026-11-19-f5b9a7';
+import { gerbang } from './menu.js?v=2026-11-19-558f16';
+import { bolehMutu } from './koordinator.js?v=2026-11-19-558f16';
+import { keB64 } from './pengajuan-mhs.js?v=2026-11-19-558f16';
+import { semesterKini } from './evaluasi-pembelajaran.js?v=2026-11-19-558f16';
+import { periksaStruktur, isiTemplat, namaBerkasTemplat } from './templat-cpl.js?v=2026-11-19-558f16';
 import { cplMK, strukturKosong, tambahCpmk, hapusCpmk, tambahSub, hapusSub, tambahAsesmen, hapusAsesmen, gantiNamaAsesmen,
-  aturBobot, jumlahBobot, dataTemplat, statusStruktur } from './cpmk.js?v=2026-11-19-f5b9a7';
+  aturBobot, jumlahBobot, dataTemplat, statusStruktur } from './cpmk.js?v=2026-11-19-558f16';
 // RPS K26 (111): CPL per Sub-CPMK dan jenis asesmen (kolom Rencana Asesmen Sumatif) disimpan di struktur yang sama.
-import { JENIS_ASESMEN, jenisAsesmen } from './rps.js?v=2026-11-19-f5b9a7';
+import { JENIS_ASESMEN, jenisAsesmen } from './rps.js?v=2026-11-19-558f16';
 
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -214,7 +214,7 @@ function htmlEditor(){
           ${ro() ? '' : `<button class="b awas" data-hapus-cpmk="${esc(c.kode)}" title="Hapus CPMK beserta Sub-CPMK-nya">Hapus</button>`}</div>
         ${D.sub.filter(x => x.cpmk === c.kode).map(x => `<div class="sub"><span class="kode">${esc(x.kode)}</span>
           <span><textarea data-f="sub" data-k="${esc(x.kode)}" placeholder="Mahasiswa mampu … (C2)"${dis()}>${esc(x.rumusan)}</textarea>
-          <label class="ket">CPL yang didukung (RPS K26: 1 Sub-CPMK, 1 CPMK, 1 CPL)
+          <label class="ket">CPL yang didukung (RPS: 1 Sub-CPMK, 1 CPMK, 1 CPL)
             <select data-f="subcpl" data-k="${esc(x.kode)}"${dis()}><option value="">(pilih)</option>${CI.cpl.map(p => `<option value="${esc(p.kode)}"${
               x.cpl === p.kode ? ' selected' : ''}>CPL ${esc(p.kode)}</option>`).join('')}</select></label></span>
           ${ro() ? '' : `<button class="b awas" data-hapus-sub="${esc(x.kode)}">Hapus</button>`}</div>`).join('')}
@@ -233,7 +233,7 @@ function htmlEditor(){
 
     <section class="kartu"><h2>3. Butir asesmen</h2>
       <p class="ket">Tugas, kuis, praktikum, UTS, UAS, proyek, dan sebagainya; sama dengan rencana asesmen di RPS (paling banyak 50). Nama bisa diubah langsung.</p>
-      <p class="ket">Jenis butir menentukan kolom Rencana Asesmen Sumatif di RPS K26 (Kuis, Tugas, UTS, UAS, Lainnya).</p>
+      <p class="ket">Jenis butir menentukan kolom Rencana Asesmen Sumatif di RPS (Kuis, Tugas, UTS, UAS, Lainnya).</p>
       <div class="alat">${D.asesmen.map(a => `<span><input data-f="ases" data-lama="${esc(a.nama)}" value="${esc(a.nama)}" style="width:150px"${dis()}>
         <select data-f="asesjenis" data-k="${esc(a.nama)}" title="Jenis asesmen"${dis()}>${JENIS_ASESMEN.map(([k, l]) => `<option value="${k}"${
           jenisAsesmen(a) === k ? ' selected' : ''}>${l}</option>`).join('')}</select>
@@ -254,7 +254,7 @@ function htmlEditor(){
     </section>
 
     <section class="kartu"><h2>5. RPS</h2>
-      <p><a class="b utama" href="rps.html?kur=${encodeURIComponent(m.kurikulum)}&kode=${encodeURIComponent(m.kode)}">Susun RPS K26 di situs</a>
+      <p><a class="b utama" href="rps.html?kur=${encodeURIComponent(m.kurikulum)}&kode=${encodeURIComponent(m.kode)}">Susun RPS di situs</a>
         <span class="ket">Bagian B RPS memakai CPMK, Sub-CPMK, asesmen, dan bobot di halaman ini; simpan dulu sebelum membuka RPS.</span></p>
       <p>${m.rps_url ? `RPS sekarang: <a href="${esc(m.rps_url)}" target="_blank" rel="noopener">buka</a>${m.rps_9_komponen ? ' (memuat 9 komponen)' : ''}` : '<span class="kosong">Belum ada RPS.</span>'}</p>
       ${ro() ? '' : `<div class="grid">

@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-19-f5b9a7">
-<link rel="stylesheet" href="kepala.css?v=2026-11-19-f5b9a7">
+<link rel="stylesheet" href="tema.css?v=2026-11-19-558f16">
+<link rel="stylesheet" href="kepala.css?v=2026-11-19-558f16">
 <style>
   *{box-sizing:border-box}
   [hidden]{display:none !important}
@@ -41,7 +41,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-19-f5b9a7"></script>
+<script src="config.js?v=2026-11-19-558f16"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -59,9 +59,9 @@ addEventListener('error', function (e) {
 // Penugasan koordinator (97-patch-koordinator.sql, pemilik 2026-11-17): admin menetapkan dosen, jabatan, periode, dan SK.
 // SK diunggah ke pustaka dokumen (jenis "sk") sehingga sekaligus menjadi bukti tata pamong. Wewenang berlaku selama periode.
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-19-f5b9a7';
-import { JABATAN, labelJabatan, aktifPada } from './koordinator.js?v=2026-11-19-f5b9a7';
-import { unggahKePustaka } from './pustaka-dokumen.js?v=2026-11-19-f5b9a7';
+import { gerbang } from './menu.js?v=2026-11-19-558f16';
+import { JABATAN, labelJabatan, aktifPada } from './koordinator.js?v=2026-11-19-558f16';
+import { unggahKePustaka } from './pustaka-dokumen.js?v=2026-11-19-558f16';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);

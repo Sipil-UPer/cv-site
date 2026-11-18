@@ -191,7 +191,7 @@ export function lampiranRekap(X){
      sel(`${koma(J.sks_praktik)} dari ${koma(J.sks)} sks`, { b: true, jc: 'center', fill: BIRU_MUDA })],
     [sel('JP = sks praktikum/praktik × 50 menit;  JB = sks × 50 menit'), sel(`JP ${J.jp_menit}′ ; JB ${J.jb_menit}′ ; JP/JB = ${koma(J.persen)}%`, { jc: 'center' })],
   ]));
-  out.push(pg(rn('1 sks = 45 jam per semester (Panduan Pengisian RPS K26). Kuliah/responsi/tutorial: 50′ proses belajar (PB), 60′ penugasan terstruktur (PT), '
+  out.push(pg(rn('1 sks = 45 jam per semester (Panduan Pengisian RPS). Kuliah/responsi/tutorial: 50′ proses belajar (PB), 60′ penugasan terstruktur (PT), '
     + '60′ kegiatan mandiri (KM) per pekan per sks; praktikum, praktik lapangan, dan simulasi: kegiatan 170′ per pekan per sks, tidak dibagi PB/PT/KM. '
     + 'Butir 18 hanya menghitung sks praktikum/praktik lapangan/penugasan (P+PL+S); penugasan terstruktur (PT) di dalam sks kuliah tidak dihitung.', { i: true, sz: 16 }),
     { before: 40, after: 120 }));
