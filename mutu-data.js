@@ -98,6 +98,10 @@ export function periksaMutu(M, kini = new Date()){
   const labelMK = m => `${m.kode || '—'} ${m.nama || ''}`;
   tambah('mk_tanpa_rps', 'MK aktif tanpa RPS', 'penting', 'Butir 15 menilai ketersediaan RPS.', 'data-prodi.html?tab=mk',
     mk.filter(m => !m.rps_ada && !m.rps_url).map(m => ({ teks: labelMK(m) })));
+  // 113 (pemilik 2026-11-19): bukti RPS hanya berkas bertanda tangan Dekan.
+  tambah('mk_rps_ttd', 'RPS disahkan, bukti bertanda tangan Dekan belum diunggah', 'periksa',
+    'Butir 15: asesor hanya melihat RPS bertanda tangan Dekan sebagai bukti (unggah di halaman RPS).', 'rps.html',
+    mk.filter(m => m.rps_ada && !m.rps_url).map(m => ({ teks: labelMK(m) })));
   tambah('mk_rps_9', 'RPS belum memuat 9 komponen', 'periksa', 'Butir 15 unsur 4: RPS memuat 9 komponen.', 'data-prodi.html?tab=mk',
     mk.filter(m => (m.rps_ada || m.rps_url) && m.rps_9_komponen === false).map(m => ({ teks: labelMK(m) })));
   tambah('mk_sks', 'SKS tidak sama dengan jumlah rinciannya', 'periksa',

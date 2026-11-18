@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-19-558f16">
-<link rel="stylesheet" href="kepala.css?v=2026-11-19-558f16">
+<link rel="stylesheet" href="tema.css?v=2026-11-19-7b259f">
+<link rel="stylesheet" href="kepala.css?v=2026-11-19-7b259f">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
@@ -59,7 +59,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-19-558f16"></script>
+<script src="config.js?v=2026-11-19-7b259f"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -79,15 +79,14 @@ addEventListener('error', function (e) {
 // mengisi CPMK, Sub-CPMK, butir asesmen, bobot, dan RPS. Templat nilai CPL per kelas diisi dari struktur ini
 // di peramban (templat-cpl.js + JSZip), jadi dosen tinggal mengisi NIM dan nilai.
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-19-558f16';
-import { bolehMutu } from './koordinator.js?v=2026-11-19-558f16';
-import { keB64 } from './pengajuan-mhs.js?v=2026-11-19-558f16';
-import { semesterKini } from './evaluasi-pembelajaran.js?v=2026-11-19-558f16';
-import { periksaStruktur, isiTemplat, namaBerkasTemplat } from './templat-cpl.js?v=2026-11-19-558f16';
+import { gerbang } from './menu.js?v=2026-11-19-7b259f';
+import { bolehMutu } from './koordinator.js?v=2026-11-19-7b259f';
+import { semesterKini } from './evaluasi-pembelajaran.js?v=2026-11-19-7b259f';
+import { periksaStruktur, isiTemplat, namaBerkasTemplat } from './templat-cpl.js?v=2026-11-19-7b259f';
 import { cplMK, strukturKosong, tambahCpmk, hapusCpmk, tambahSub, hapusSub, tambahAsesmen, hapusAsesmen, gantiNamaAsesmen,
-  aturBobot, jumlahBobot, dataTemplat, statusStruktur } from './cpmk.js?v=2026-11-19-558f16';
+  aturBobot, jumlahBobot, dataTemplat, statusStruktur } from './cpmk.js?v=2026-11-19-7b259f';
 // RPS K26 (111): CPL per Sub-CPMK dan jenis asesmen (kolom Rencana Asesmen Sumatif) disimpan di struktur yang sama.
-import { JENIS_ASESMEN, jenisAsesmen } from './rps.js?v=2026-11-19-558f16';
+import { JENIS_ASESMEN, jenisAsesmen } from './rps.js?v=2026-11-19-7b259f';
 
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -256,13 +255,10 @@ function htmlEditor(){
     <section class="kartu"><h2>5. RPS</h2>
       <p><a class="b utama" href="rps.html?kur=${encodeURIComponent(m.kurikulum)}&kode=${encodeURIComponent(m.kode)}">Susun RPS di situs</a>
         <span class="ket">Bagian B RPS memakai CPMK, Sub-CPMK, asesmen, dan bobot di halaman ini; simpan dulu sebelum membuka RPS.</span></p>
-      <p>${m.rps_url ? `RPS sekarang: <a href="${esc(m.rps_url)}" target="_blank" rel="noopener">buka</a>${m.rps_9_komponen ? ' (memuat 9 komponen)' : ''}` : '<span class="kosong">Belum ada RPS.</span>'}</p>
-      ${ro() ? '' : `<div class="grid">
-          <label>Unggah berkas RPS (PDF/DOCX)<input type="file" id="rpsBerkas" accept=".pdf,.docx,.doc"></label>
-          <label>atau tempel tautan RPS<input id="rpsUrl" placeholder="https://…" value="${esc(m.rps_url || '')}"></label></div>
-        <label><input type="checkbox" id="rps9"${m.rps_9_komponen ? ' checked' : ''}> RPS memuat 9 komponen (identitas, CPL/CPMK, kemampuan akhir, bahan kajian,
-          metode, waktu, pengalaman belajar, kriteria dan bobot penilaian, daftar referensi)</label>
-        <p><button class="b utama" id="simpanRps">Simpan RPS</button><span class="msg" id="mRps"></span></p>`}
+      <p>${m.rps_ada ? 'RPS disahkan Kaprodi (terhitung di penilaian akreditasi).' : '<span class="kosong">RPS belum disahkan Kaprodi.</span>'}
+        ${m.rps_url ? `Bukti (RPS bertanda tangan Dekan): <a href="${esc(m.rps_url)}" target="_blank" rel="noopener">buka</a>.` : '<span class="kosong">Bukti RPS bertanda tangan Dekan belum diunggah.</span>'}</p>
+      <p class="ket">RPS disusun, diajukan ke Kaprodi, dan berkas bertanda tangan Dekan diunggah di halaman RPS;
+        hanya berkas bertanda tangan Dekan yang menjadi bukti akreditasi.</p>
     </section>
 
     <section class="kartu"><h2>6. Templat nilai CPL per kelas</h2>
@@ -309,7 +305,6 @@ function gambar(){
     $('asesBaru').onkeydown = e => { if (e.key === 'Enter') tambah(); };
   }
   if ($('simpan')) $('simpan').onclick = simpan;
-  if ($('simpanRps')) $('simpanRps').onclick = simpanRps;
   if ($('simpanPengampu')) $('simpanPengampu').onclick = simpanPengampu;
   $('unduhTemplat').onclick = unduhTemplat;
   $('tKelas').onchange = isiDariKelas; isiDariKelas();
@@ -355,28 +350,6 @@ async function simpan(){
   gambar(); tulis('mSimpan', 'ok', 'Tersimpan.');
 }
 
-async function simpanRps(){
-  const [kur, kode] = PILIH.split('|');
-  const f = $('rpsBerkas').files[0];
-  let url = $('rpsUrl').value.trim();
-  $('simpanRps').disabled = true;
-  try {
-    if (f) {
-      if (!window.UPLOAD_URL) throw new Error('Unggahan belum diatur (UPLOAD_URL di config.js).');
-      tulis('mRps', '', 'Mengunggah RPS…');
-      const { data: { session } } = await sb.auth.getSession();
-      const res = await fetch(window.UPLOAD_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify({ token: session.access_token, kind: 'rps', kurikulum: kur, kode_mk: kode, filename: f.name, data: await keB64(f) }) });
-      const out = await res.json();
-      if (!out.ok) throw new Error(out.error || 'Unggah gagal.');
-      url = out.url;
-    }
-    const { error } = await sb.rpc('mk_simpan_rps', { p_kurikulum: kur, p_kode: kode, p_url: url, p_9_komponen: $('rps9').checked });
-    if (error) throw new Error(error.message);
-    const m = mkDari(PILIH); m.rps_url = url || null; m.rps_ada = !!url; m.rps_9_komponen = $('rps9').checked;
-    gambar(); tulis('mRps', 'ok', url ? 'RPS tersimpan.' : 'Tautan RPS dikosongkan.');
-  } catch (e) { tulis('mRps', 'buruk', e.message); $('simpanRps').disabled = false; }
-}
 
 async function simpanPengampu(){
   const [kur, kode] = PILIH.split('|');

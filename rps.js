@@ -47,6 +47,10 @@ export const BENTUK_INTEGRASI = [['bahan_kajian', 'bahan kajian'], ['studi_kasus
   ['modul_praktikum', 'modul praktikum'], ['tugas_proyek', 'tugas/proyek mahasiswa'], ['lainnya', 'lainnya']];
 
 const teks = v => String(v ?? '').trim();
+// Tanggal/waktu menurut zona waktu peramban (WIB), bukan potongan teks UTC dari basis data (pemilik 2026-11-19).
+const dua = n => String(n).padStart(2, '0');
+export const tanggalLokal = v => { const d = new Date(v); return v && !isNaN(d) ? `${d.getFullYear()}-${dua(d.getMonth() + 1)}-${dua(d.getDate())}` : ''; };
+export const waktuLokal = v => { const d = new Date(v); return v && !isNaN(d) ? `${tanggalLokal(v)} ${dua(d.getHours())}:${dua(d.getMinutes())}` : ''; };
 const angka = v => { const x = +String(v ?? '').replace(',', '.'); return Number.isFinite(x) ? x : 0; };
 const bulat = v => Math.round(v * 100) / 100;
 
@@ -114,7 +118,7 @@ export function rpsKosong(mk = {}, situs = {}, kini = new Date()){
   return {
     versi: VERSI_DATA,
     identitas: { jenis_mk: jenis, sks: { t: t ?? '', p: mk.sks_praktikum ?? 0, pl: 0, s: 0 },
-                 semester: jenis === 'MKP' ? '' : teks(mk.semester), tanggal: kini.toISOString().slice(0, 10),
+                 semester: jenis === 'MKP' ? '' : teks(mk.semester), tanggal: tanggalLokal(kini),
                  penyelenggara: ['MKPT', 'MKU'].includes(jenis) ? 'Universitas Pertamina' : (situs.prodi ? `Program Studi ${situs.prodi}` : '') },
     pengembang: '', pengampu: '', tujuan: '', deskripsi: '',
     kriteria: 'CPMK dinyatakan tercapai bila mahasiswa memperoleh capaian minimal 45% pada CPMK terkait; target kinerja: minimal 60% '
@@ -152,8 +156,8 @@ export function revisiDariLog(log = []){
     if (r.aksi === 'ajukan') aju = r;
     else if (r.aksi === 'sahkan') {
       sah++;
-      if (sah > 1) out.push({ tanggal: String(aju?.waktu || '').slice(0, 10), pengusul: aju?.oleh_nama || '', deskripsi: aju?.catatan || '',
-                              validasi: String(r.waktu).slice(0, 10), catatan: [r.oleh_nama, r.catatan].filter(Boolean).join(': ') });
+      if (sah > 1) out.push({ tanggal: tanggalLokal(aju?.waktu), pengusul: aju?.oleh_nama || '', deskripsi: aju?.catatan || '',
+                              validasi: tanggalLokal(r.waktu), catatan: [r.oleh_nama, r.catatan].filter(Boolean).join(': ') });
       aju = null;
     }
   }

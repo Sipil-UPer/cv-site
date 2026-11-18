@@ -1,9 +1,9 @@
 // Tugas saya untuk koordinator MK dan pengampu kelas (pemilik 2026-11-17; OBE O2 dan O3).
 // Hanya yang belum punya pengingat lain: CPMK/RPS (cpmk.html) dan unggahan portofolio (portofolio.html).
 // Berkas nilai CPL dan refleksi evaluasi sudah diingatkan tugas-saya.js / evaluasi-pembelajaran.js.
-import { periksaStruktur } from './templat-cpl.js?v=2026-11-19-558f16';
-import { cplMK, dataTemplat, statusStruktur } from './cpmk.js?v=2026-11-19-558f16';
-import { kelengkapan, mkSemester, daftarSemester } from './portofolio.js?v=2026-11-19-558f16';
+import { periksaStruktur } from './templat-cpl.js?v=2026-11-19-7b259f';
+import { cplMK, dataTemplat, statusStruktur } from './cpmk.js?v=2026-11-19-7b259f';
+import { kelengkapan, mkSemester, daftarSemester } from './portofolio.js?v=2026-11-19-7b259f';
 
 const kecil = s => String(s || '').trim().toLowerCase();
 const potong = (xs, n = 6) => xs.slice(0, n).join('; ') + (xs.length > n ? `; dan ${xs.length - n} lagi` : '');
@@ -26,7 +26,7 @@ export function tugasMK(d){
   const kurang = milik.map(m => {
     const s = str.get(`${m.kurikulum}|${m.kode}`);
     const st = s ? statusStruktur(s, periksaStruktur(dataTemplat(s, cplMK(d.refCpl, d.peta, m.kurikulum, m.kode)))) : 'kosong';
-    const xs = [st === 'kosong' ? 'CPMK belum diisi' : st === 'belum' ? 'CPMK belum lengkap' : '', m.rps_url ? '' : 'RPS belum ada'].filter(Boolean);
+    const xs = [st === 'kosong' ? 'CPMK belum diisi' : st === 'belum' ? 'CPMK belum lengkap' : '', m.rps_url ? '' : m.rps_ada ? 'RPS bertanda tangan Dekan belum diunggah' : 'RPS belum disahkan'].filter(Boolean);
     return xs.length ? { m, teks: `${m.kode} ${m.nama}: ${xs.join(', ')}` } : null;
   }).filter(Boolean);
   if (kurang.length) out.push({ jenis: 'cpmk', judul: `CPMK dan RPS: ${kurang.length} mata kuliah yang Anda koordinasikan belum lengkap`,
