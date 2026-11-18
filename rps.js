@@ -37,7 +37,8 @@ export const METODE_SCL = ['Small Group Discussion', 'Role-Play', 'Simulation', 
 // Lampiran rekap untuk akreditasi (pemilik 2026-11-19): bentuk pembelajaran (Panduan 2: metode pembelajaran) dan metode SCL
 // (Panduan 5.2) dicentang per pekan.
 export const BENTUK = [['kuliah', 'Kuliah'], ['responsi', 'Responsi'], ['tutorial', 'Tutorial'], ['seminar', 'Seminar'], ['praktikum', 'Praktikum'],
-  ['praktik_lapangan', 'Praktik lapangan'], ['studio', 'Praktik studio/bengkel'], ['simulasi', 'Simulasi']];
+  ['praktik_lapangan', 'Praktik lapangan'], ['studio', 'Praktik studio/bengkel'], ['simulasi', 'Simulasi'],
+  ['penugasan', 'Penugasan (tugas besar/proyek)']];   // pemilik 2026-11-19; terhitung butir 18 hanya bila ber-sks P/PL/S
 export const SCL = [['sgd', 'Small Group Discussion'], ['roleplay', 'Role-Play & Simulation'], ['discovery', 'Discovery Learning'],
   ['sdl', 'Self-Directed Learning'], ['cooperative', 'Cooperative Learning'], ['collaborative', 'Collaborative Learning'],
   ['contextual', 'Contextual Learning'], ['pjbl', 'Project Based Learning'], ['pbl', 'Problem Based Learning'], ['case', 'Case Method']];
@@ -297,6 +298,10 @@ export function periksaRps({ mk = {}, struktur, rps, cpl = [], pengembang = null
   const diD = new Set(P.flatMap(p => p.asesmen || []));
   for (const a of sumatif) if (!diD.has(a)) s('D', `${a} (bagian B) belum dijadwalkan di rencana pekanan.`);
   const adaScl = P.some(p => (p.scl || []).length || METODE_SCL.some(m => `${p.luring} ${p.daring}`.toLowerCase().includes(m.toLowerCase())));
+  // Penugasan (tugas besar/proyek) dicentang tetapi tanpa sks praktik/penugasan: tetap PT kuliah, tidak menambah butir 18.
+  if (P.some(p => (p.bentuk_pb || []).includes('penugasan')) && !(angka(I.sks?.p) + angka(I.sks?.pl) + angka(I.sks?.s)))
+    s('D', 'Penugasan (tugas besar/proyek) dicentang, tetapi sks P/PL/S di bagian A 0: penugasan ini masih penugasan terstruktur kuliah dan '
+      + 'tidak terhitung di butir 18 (PJP). Bila tugas besar diberi sks sendiri, ubah sebaran sks di bagian A dan data MK.');
   if (!adaScl && R.scl?.ada !== true) g('D', 'Gunakan minimal satu metode SCL (mis. Case Method, Project Based Learning) di kolom Luring/Daring.');
   for (const x of S.sub) if (!P.some(p => (p.sub || []).includes(x.kode))) s('D', `${x.kode} belum muncul di rencana pekanan.`);
   // E
@@ -334,7 +339,6 @@ export function modelRps({ mk = {}, struktur, rps, cpl = [], pengembang = null, 
 }
 
 // ---------- Lampiran rekap untuk akreditasi (pemilik 2026-11-19) ----------
-const satuDesimal = v => Math.round(v * 10) / 10;
 /** [1, 2, 3, 5, 9, 10] -> "1-3, 5, 9-10". */
 export function ringkasPekan(xs){
   const n = [...new Set(xs)].sort((a, b) => a - b), out = [];
@@ -356,11 +360,11 @@ export function bebanBelajar(sks = {}){
   const baris = [['t', 'Kuliah/Responsi/Tutorial'], ['p', 'Praktikum'], ['pl', 'Praktik lapangan'], ['s', 'Simulasi']].map(([k, l]) => {
     const n = angka(sks[k]), jam = n * 45;
     return k === 't'
-      ? { kode: k, bentuk: l, sks: n, menit: n ? `${50 * n}′ PB + ${60 * n}′ PT + ${60 * n}′ KM` : '-', pb: satuDesimal(jam * 50 / 170),
-          pt: satuDesimal(jam * 60 / 170), km: satuDesimal(jam * 60 / 170), kegiatan: 0, jam }
+      ? { kode: k, bentuk: l, sks: n, menit: n ? `${50 * n}′ PB + ${60 * n}′ PT + ${60 * n}′ KM` : '-', pb: bulat(jam * 50 / 170),
+          pt: bulat(jam * 60 / 170), km: bulat(jam * 60 / 170), kegiatan: 0, jam }
       : { kode: k, bentuk: l, sks: n, menit: n ? `${170 * n}′ kegiatan` : '-', pb: 0, pt: 0, km: 0, kegiatan: jam, jam };
   });
-  const jumlah = k => satuDesimal(baris.reduce((a, r) => a + r[k], 0));
+  const jumlah = k => bulat(baris.reduce((a, r) => a + r[k], 0));
   return { baris, jumlah: { sks: jumlah('sks'), pb: jumlah('pb'), pt: jumlah('pt'), km: jumlah('km'), kegiatan: jumlah('kegiatan'), jam: jumlah('jam') } };
 }
 

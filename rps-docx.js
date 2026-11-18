@@ -169,7 +169,8 @@ export function dokumenRps(M, o = {}){
 }
 
 // Lampiran rekap untuk akreditasi (pemilik 2026-11-19): di bawah bagian F, bukan bagian formulir.
-const koma = v => String(v ?? '').replace('.', ',');
+// Angka lampiran: dua desimal, koma (pemilik 2026-11-19, sama dengan Simulasi PJP); teks dibiarkan.
+const koma = v => (v == null || v === '' ? '' : Number.isFinite(+v) ? (+v).toFixed(2).replace('.', ',') : String(v));
 export function lampiranRekap(X){
   const out = [pg(rn('Lampiran: Rekapitulasi Beban Belajar, Bentuk Pembelajaran, dan Penilaian', { b: true, sz: 28, warna: BIRU_JUDUL }),
     { before: 360, after: 60, keep: true }),
