@@ -1,11 +1,11 @@
 // Kerangka halaman publik (pemilik 2026-11-16): kepala bergaya situs universitas (deret logo di bilah
 // biru, nama prodi, menu turun) dan kaki halaman yang sama di halaman publik. Pemakaian:
-//   import { pasangKerangka, isiKerangka } from './kerangka.js?v=2026-11-18-ff5f6c';
+//   import { pasangKerangka, isiKerangka } from './kerangka.js?v=2026-11-18-e8ee03';
 //   pasangKerangka({ aktif: 'akademik' });   // segera, sebelum data.json
 //   isiKerangka(D);                           // setelah data.json: nama prodi, kontak, media sosial
 // Logo: window.LOGO_KEPALA di config.js; tanpa itu logo.png. Menu hanya memuat halaman yang ada
 // dan modul yang menyala (fitur.js). Tautan relatif (situs akan pindah ke subdomain kampus).
-import { halamanAktif } from './fitur.js?v=2026-11-18-ff5f6c';
+import { halamanAktif } from './fitur.js?v=2026-11-18-e8ee03';
 
 export const MENU = [
   { id: 'profil', judul: 'Profil', isi: [
@@ -32,7 +32,7 @@ export const MENU = [
   { id: 'mahasiswa', judul: 'Mahasiswa', isi: [
     { judul: 'Pengumuman', href: 'berkas-mahasiswa.html#pengumuman' },
     { judul: 'Prestasi mahasiswa', href: 'prestasi.html' },
-    { judul: 'Tempat KP dan magang', href: 'kerja-sama.html#tempat-kp' },
+    { judul: 'Kerja Praktik dan magang', href: 'kp.html' },
     { judul: 'Alumni dan tracer study', href: 'alumni.html' },
     { judul: 'Calon pembimbing TA', href: 'berkas-mahasiswa.html#pembimbing' },
     { judul: 'Tanya-jawab', href: 'berkas-mahasiswa.html#tanya-jawab' },
@@ -165,7 +165,7 @@ export function pasangKerangka({ aktif = '' } = {}){
     <div><h4>Mahasiswa</h4><ul>
       <li><a href="berkas-mahasiswa.html">Layanan mahasiswa</a></li><li><a href="prestasi.html">Prestasi mahasiswa</a></li>
       <li><a href="berkas-mahasiswa.html#pembimbing">Calon pembimbing TA</a></li>
-      <li><a href="kerja-sama.html#tempat-kp">Tempat KP dan magang</a></li><li><a href="alumni.html">Alumni dan tracer study</a></li></ul></div>
+      <li><a href="kp.html">Kerja Praktik dan magang</a></li><li><a href="alumni.html">Alumni dan tracer study</a></li></ul></div>
     <div><h4>Riset</h4><ul>
       <li><a href="daftar.html?jenis=dosen">Dosen</a></li><li><a href="daftar.html?jenis=publikasi">Publikasi</a></li>
       <li><a href="kinerja.html">Kinerja program studi</a></li></ul></div>
