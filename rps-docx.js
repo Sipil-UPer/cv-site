@@ -45,11 +45,23 @@ export function tabelK(lebar, baris){
 }
 
 const judulBagian = t => pg(rn(t, { b: true, sz: 24, warna: BIRU_JUDUL }), { before: 240, after: 120, keep: true });
+// Gambar sebaris (logo di header, Peta Analisis di tabel B). cx/cy dalam EMU.
+const gambarXml = (rid, cx, cy, id, nama) => `<w:r><w:drawing><wp:inline distT="0" distB="0" distL="0" distR="0"><wp:extent cx="${cx}" cy="${cy}"/>` +
+  `<wp:docPr id="${id}" name="${nama}"/><a:graphic xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main">` +
+  `<a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture"><pic:pic xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture">` +
+  `<pic:nvPicPr><pic:cNvPr id="${id}" name="${nama}.png"/><pic:cNvPicPr/></pic:nvPicPr><pic:blipFill><a:blip r:embed="${rid}"/><a:stretch><a:fillRect/></a:stretch></pic:blipFill>` +
+  `<pic:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="${cx}" cy="${cy}"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></pic:spPr></pic:pic></a:graphicData></a:graphic></wp:inline></w:drawing></w:r>`;
+/** Ukuran peta (px, 96 dpi) -> EMU, diperkecil agar muat lebar tabel (13 800 twip) dan tinggi ~12 cm. */
+export function ukuranPeta(w, h){
+  const px = 9525, maksW = 13800 * 635, maksH = 4320000;
+  const k = Math.min(1, maksW / (w * px), maksH / (h * px));
+  return { cx: Math.round(w * px * k), cy: Math.round(h * px * k) };
+}
 const kodeCpl = k => (/^cpl/i.test(String(k)) ? String(k) : `CPL-${k}`);
 const ya = v => (v === true ? 'Ada' : v === false ? 'Tidak ada' : '');
 
-/** Isi <w:body> RPS dari modelRps (tanpa sectPr). */
-export function dokumenRps(M){
+/** Isi <w:body> RPS dari modelRps (tanpa sectPr). o.peta = {w, h} (px) bila gambar Peta Analisis disertakan (rIdPeta). */
+export function dokumenRps(M, o = {}){
   const I = M.identitas || {}, sks = I.sks || {};
   const out = [];
   // A. Identitas dan pengesahan (lebar kolom formulir).
@@ -95,7 +107,9 @@ export function dokumenRps(M){
     [sel(`TOTAL BOBOT PENILAIAN · HOTS = ${M.hots.persen}%${target}${M.hots.sub.length ? `; Sub-CPMK HOTS: ${M.hots.sub.join(', ')}` : ''}`, { span: 4, b: true }),
      ...kolom.map(c => sel(`${c.total}%`, { jc: 'center', b: true })), sel(`${M.total}%`, { jc: 'center', b: true })],
     [judulSel('Peta Analisis Capaian Pembelajaran', BIRU_PUCAT, { span: lebarB.length, warna: '000000' })],
-    { tinggi: 900, sel: [sel('(Peta digambar otomatis dari hubungan antar-Sub-CPMK pada tahap berikutnya.)', { span: lebarB.length, i: true, jc: 'center', va: 'center' })] },
+    o.peta ? [sel({ xml: pg(gambarXml('rIdPeta', ukuranPeta(o.peta.w, o.peta.h).cx, ukuranPeta(o.peta.w, o.peta.h).cy, 2, 'Peta'), { jc: 'center', before: 60, after: 60 }) },
+                  { span: lebarB.length })]
+      : { tinggi: 900, sel: [sel('(Peta Analisis belum tersedia: isi hubungan antar-Sub-CPMK di halaman RPS.)', { span: lebarB.length, i: true, jc: 'center', va: 'center' })] },
   ]));
   // C. Tujuan dan deskripsi.
   out.push(judulBagian('Tujuan dan Deskripsi Mata Kuliah'));
@@ -153,11 +167,7 @@ export function dokumenRps(M){
 // Header: logo | judul | kode formulir. Logo 1,9 x 1,4 cm (EMU).
 const CX = 684000, CY = 496000;
 function header(adaLogo){
-  const logo = adaLogo ? `<w:r><w:drawing><wp:inline distT="0" distB="0" distL="0" distR="0"><wp:extent cx="${CX}" cy="${CY}"/><wp:docPr id="1" name="Logo"/>` +
-    `<a:graphic xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"><a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture">` +
-    `<pic:pic xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture"><pic:nvPicPr><pic:cNvPr id="1" name="logo.png"/><pic:cNvPicPr/></pic:nvPicPr>` +
-    `<pic:blipFill><a:blip r:embed="rIdLogo"/><a:stretch><a:fillRect/></a:stretch></pic:blipFill><pic:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="${CX}" cy="${CY}"/></a:xfrm>` +
-    `<a:prstGeom prst="rect"><a:avLst/></a:prstGeom></pic:spPr></pic:pic></a:graphicData></a:graphic></wp:inline></w:drawing></w:r>` : '';
+  const logo = adaLogo ? gambarXml('rIdLogo', CX, CY, 1, 'Logo') : '';
   const isi = tabelK([2200, 9634, 2200], [[sel({ xml: pg(logo, { jc: 'center' }) }, { va: 'center' }),
     sel('RENCANA PEMBELAJARAN SEMESTER', { b: true, sz: 28, jc: 'center', va: 'center' }), sel('UP-SPMI/FR008/R05', { b: true, jc: 'center', va: 'center' })]]);
   return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
@@ -165,9 +175,10 @@ function header(adaLogo){
 }
 
 /**
- * Berkas .docx. opsi: { JSZip (kelas), logo (ArrayBuffer/Uint8Array PNG atau null), type ('blob' di peramban, 'nodebuffer' di Node) }.
+ * Berkas .docx. opsi: { JSZip (kelas), logo (ArrayBuffer/Uint8Array PNG atau null), peta ({png, w, h} atau null; PNG Peta Analisis,
+ * w/h px tampilan), type ('blob' di peramban, 'nodebuffer' di Node) }.
  */
-export async function buatRpsDocx(M, { JSZip, logo = null, type = 'blob' } = {}){
+export async function buatRpsDocx(M, { JSZip, logo = null, peta = null, type = 'blob' } = {}){
   const zip = new JSZip();
   zip.file('[Content_Types].xml', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
@@ -183,8 +194,10 @@ export async function buatRpsDocx(M, { JSZip, logo = null, type = 'blob' } = {})
 </Relationships>`);
   zip.file('word/_rels/document.xml.rels', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
-<Relationship Id="rIdH1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/header" Target="header1.xml"/>
+<Relationship Id="rIdH1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/header" Target="header1.xml"/>${
+  peta ? '\n<Relationship Id="rIdPeta" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/peta.png"/>' : ''}
 </Relationships>`);
+  if (peta) zip.file('word/media/peta.png', peta.png);
   zip.file('word/header1.xml', header(!!logo));
   if (logo) {
     zip.file('word/media/logo.png', logo);
@@ -194,8 +207,8 @@ export async function buatRpsDocx(M, { JSZip, logo = null, type = 'blob' } = {})
 </Relationships>`);
   }
   zip.file('word/document.xml', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
-<w:body>${dokumenRps(M)}<w:sectPr><w:headerReference w:type="default" r:id="rIdH1"/><w:pgSz w:w="16838" w:h="11906" w:orient="landscape"/>` +
+<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing">
+<w:body>${dokumenRps(M, { peta: peta ? { w: peta.w, h: peta.h } : null })}<w:sectPr><w:headerReference w:type="default" r:id="rIdH1"/><w:pgSz w:w="16838" w:h="11906" w:orient="landscape"/>` +
 `<w:pgMar w:top="1440" w:right="1402" w:bottom="1440" w:left="1402" w:header="708" w:footer="708" w:gutter="0"/></w:sectPr></w:body></w:document>`);
   return zip.generateAsync({ type, mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
 }

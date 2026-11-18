@@ -16,6 +16,7 @@
 //   pekan      [{ pekan: '1-2', jenis: 'kuliah'|'uts'|'uas', sub: [kode], asesmen: [nama], materi, pustaka, indikator,
 //                 bentuk, luring, daring }]
 //   evaluasi   { baru, mk, kode, semester, jumlah, rerata, rekomendasi }
+//   peta       { sub: { <kode Sub-CPMK>: { ke, jenis } }, entry }   Peta Analisis (rps-peta.js, tahap 3)
 
 export const VERSI_DATA = '1';   // BUKAN bernama VERSI: stamp_versions.py menimpa konstanta bernama VERSI dengan cap versi situs.
 
@@ -108,6 +109,7 @@ export function rpsKosong(mk = {}, situs = {}, kini = new Date()){
     scl: { ada: null, teks: '' }, integrasi: { ada: null, teks: '' }, direktori: { status: '', teks: '' },
     pekan: kerangkaPekan(),
     evaluasi: { baru: false, mk: '', kode: '', semester: '', jumlah: '', rerata: '', rekomendasi: '' },
+    peta: { sub: {}, entry: '' },
   };
 }
 
@@ -143,6 +145,40 @@ export function revisiDariLog(log = []){
   return out;
 }
 
+/**
+ * Bagian E dari data prodi (tahap 3, pemilik 2026-11-18). ringkasan = cpl_ringkasan.data terbaru ({kelas: [{course_code, class_name,
+ * cpl, counted, above_threshold, share, status, term, term_order}]}); evaluasi = evaluasi_mk {id, tahun_akademik, semester, kode_mk,
+ * rps_sesuai, rps_catatan, metode_catatan} yang terbaca; tindak = evaluasi_tindak {evaluasi_id, masalah, rencana}.
+ * Persentase lulus dan rerata nilai akhir TIDAK ada di data prodi (ringkasan memuat capaian CPL, bukan nilai akhir):
+ * dibiarkan "…" untuk diisi dosen dari SIAKAD. Hasil null bila MK itu belum punya data.
+ */
+export function evaluasiDariData({ ringkasan, evaluasi = [], tindak = [], kode } = {}){
+  const K = String(kode || '').toUpperCase();
+  const xs = (ringkasan?.kelas || []).filter(r => String(r.course_code || '').toUpperCase() === K);
+  if (!xs.length) return null;
+  const akhir = Math.max(...xs.map(r => +r.term_order || 0)), di = xs.filter(r => (+r.term_order || 0) === akhir);
+  const m = String(di[0].term || '').match(/(\d{4})\s*\/\s*(\d{4})\s*(ganjil|genap)/i);
+  const ta = m ? `${m[1]}/${m[2]}` : '', sm = m ? m[3][0].toUpperCase() + m[3].slice(1).toLowerCase() : '';
+  const perKelas = new Map();
+  for (const r of di) perKelas.set(r.class_name, Math.max(perKelas.get(r.class_name) || 0, +r.counted || 0));
+  const n = [...perKelas.values()].reduce((a, v) => a + v, 0);
+  const perCpl = new Map();
+  for (const r of di) {
+    const x = perCpl.get(r.cpl) || { n: 0, atas: 0, belum: false };
+    x.n += +r.counted || 0; x.atas += +r.above_threshold || 0; x.belum ||= r.status === 'BELUM';
+    perCpl.set(r.cpl, x);
+  }
+  const bahan = [`Capaian CPL ${sm} ${ta} (${perKelas.size} kelas): ` + [...perCpl].map(([c, x]) =>
+    `CPL ${c} ${x.n ? Math.round(100 * x.atas / x.n) : 0}% mahasiswa di atas ambang${x.belum ? ' (belum tercapai)' : ''}`).join('; ') + '.'];
+  const ev = evaluasi.filter(e => String(e.kode_mk || '').toUpperCase() === K && e.tahun_akademik === ta && e.semester === sm);
+  for (const e of ev) {
+    if (e.rps_sesuai && e.rps_sesuai !== 'sesuai') bahan.push(`Pelaksanaan ${e.rps_sesuai === 'tidak' ? 'tidak' : 'sebagian'} sesuai RPS${e.rps_catatan ? ': ' + e.rps_catatan : '.'}`);
+    if (e.metode_catatan) bahan.push(`Catatan metode: ${e.metode_catatan}`);
+    for (const t of tindak.filter(t => t.evaluasi_id === e.id)) bahan.push(`Tindak lanjut: ${t.rencana}${t.masalah ? ` (masalah: ${t.masalah})` : ''}`);
+  }
+  return { semester: ta ? `${sm} ${ta}` : String(di[0].term || ''), jumlah: `${n} mahasiswa; lulus …%`, rerata: '…', bahan };
+}
+
 /** Lengkapi RPS tersimpan dengan kunci yang belum ada (data lama tetap). */
 export function rapikanRps(d, mk, situs){
   const k = rpsKosong(mk, situs);
@@ -150,6 +186,7 @@ export function rapikanRps(d, mk, situs){
   return { ...k, ...d, versi: VERSI_DATA, identitas: { ...k.identitas, ...(d.identitas || {}), sks: { ...k.identitas.sks, ...(d.identitas?.sks || {}) } },
            syarat: { ...k.syarat, ...(d.syarat || {}) }, scl: { ...k.scl, ...(d.scl || {}) }, integrasi: { ...k.integrasi, ...(d.integrasi || {}) },
            direktori: { ...k.direktori, ...(d.direktori || {}) }, evaluasi: { ...k.evaluasi, ...(d.evaluasi || {}) },
+           peta: { sub: { ...(d.peta?.sub || {}) }, entry: d.peta?.entry || '' },
            pustaka: Array.isArray(d.pustaka) ? d.pustaka : [], pekan: Array.isArray(d.pekan) && d.pekan.length ? d.pekan.map(p => ({ ...barisPekan(p.pekan, p.jenis), ...p })) : k.pekan };
 }
 
@@ -192,6 +229,8 @@ export function periksaRps({ mk = {}, struktur, rps, cpl = [], pengembang = null
   if (S.sub.length && bulat(total) !== 100) g('B', `Total bobot penilaian ${bulat(total)}%, harus 100%.`);
   const H = hots(S, I.semester || mk.semester);
   if (H.target != null && S.sub.length && H.persen < H.target) s('B', `HOTS ${H.persen}%; disarankan ≥ ${H.target}% untuk MK tahun ke-${H.tahun}.`);
+  if (S.sub.length > 1 && !Object.keys(R.peta?.sub || {}).some(k => S.sub.some(x => x.kode === k)))
+    s('B', 'Peta Analisis: tandai hubungan antar-Sub-CPMK (sekarang semua langsung menuju CPMK).');
   // C
   if (!teks(R.tujuan)) g('C', 'Isi tujuan MK (3-5 poin, sesuai silabus K26).');
   if (!teks(R.deskripsi)) g('C', 'Isi deskripsi dan bahan kajian.');
@@ -232,7 +271,8 @@ export function periksaRps({ mk = {}, struktur, rps, cpl = [], pengembang = null
   for (const x of S.sub) if (!P.some(p => (p.sub || []).includes(x.kode))) s('D', `${x.kode} belum muncul di rencana pekanan.`);
   // E
   const E = R.evaluasi || {};
-  if (!E.baru && !(teks(E.semester) && teks(E.jumlah) && teks(E.rekomendasi))) g('E', 'Isi evaluasi penyelenggaraan sebelumnya, atau centang "belum pernah diselenggarakan".');
+  if (!E.baru && !(teks(E.semester) && teks(E.jumlah) && teks(E.rerata) && teks(E.rekomendasi))) g('E', 'Isi evaluasi penyelenggaraan sebelumnya, atau centang "belum pernah diselenggarakan".');
+  if (!E.baru && ['semester', 'jumlah', 'rerata', 'rekomendasi'].some(k => String(E[k] || '').includes('…'))) g('E', 'Ganti tanda "…" (persentase lulus, rerata nilai akhir) dengan angka dari SIAKAD.');
   return out;
 }
 

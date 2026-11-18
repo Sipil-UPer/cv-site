@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-18-394409">
-<link rel="stylesheet" href="kepala.css?v=2026-11-18-394409">
+<link rel="stylesheet" href="tema.css?v=2026-11-18-c91465">
+<link rel="stylesheet" href="kepala.css?v=2026-11-18-c91465">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
@@ -61,7 +61,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-18-394409"></script>
+<script src="config.js?v=2026-11-18-c91465"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -81,12 +81,13 @@ addEventListener('error', function (e) {
 // Penyusun = koordinator MK atau pengampu kelas MK semester terakhir (boleh_rps, 112); GKM dan admin hanya melihat.
 // Pengesahan (112): dosen mengajukan -> Kaprodi aktif mengesahkan atau mengembalikan; daftar revisi (bagian F) otomatis.
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-18-394409';
-import { bolehMutu, aktifPada, punya } from './koordinator.js?v=2026-11-18-394409';
-import { cplMK } from './cpmk.js?v=2026-11-18-394409';
+import { gerbang } from './menu.js?v=2026-11-18-c91465';
+import { bolehMutu, aktifPada, punya } from './koordinator.js?v=2026-11-18-c91465';
+import { cplMK } from './cpmk.js?v=2026-11-18-c91465';
 import { JENIS_ASESMEN, JENIS_MK, DIREKTORI, jenisAsesmen, bloom, hots, rapikanRps, kerangkaPekan, barisPekan, periksaRps, modelRps,
-  namaBerkasRps, penyusunMK, revisiDariLog } from './rps.js?v=2026-11-18-394409';
-import { buatRpsDocx } from './rps-docx.js?v=2026-11-18-394409';
+  namaBerkasRps, penyusunMK, revisiDariLog, evaluasiDariData } from './rps.js?v=2026-11-18-c91465';
+import { JENIS_PETA, relasiPeta, petaSvg } from './rps-peta.js?v=2026-11-18-c91465';
+import { buatRpsDocx } from './rps-docx.js?v=2026-11-18-c91465';
 
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -263,6 +264,29 @@ function htmlB(m){
   </section>`;
 }
 
+// Peta Analisis (tahap 3): dosen menandai ke mana tiap Sub-CPMK menuju dan jenis hubungannya; peta digambar otomatis.
+const entryPeta = r => r.peta?.entry || (r.syarat?.prasyarat ? `MK prasyarat: ${r.syarat.prasyarat}` : '');
+function htmlPeta(){
+  const S = STR.get(PILIH);
+  if (!S?.sub?.length) return '<section class="kartu"><h2>Peta Analisis Capaian Pembelajaran</h2><p class="kosong">Isi Sub-CPMK dulu di halaman CPMK.</p></section>';
+  const { relasi, melingkar } = relasiPeta(S, R.peta);
+  const tujuan = x => [...S.cpmk.map(c => [c.kode, `${c.kode} (CPMK)`]), ...S.sub.filter(y => y.kode !== x.kode).map(y => [y.kode, y.kode])];
+  return `<section class="kartu"><h2>Peta Analisis Capaian Pembelajaran</h2>
+    <p class="ket">Untuk tiap Sub-CPMK pilih ke mana ia menuju dan hubungannya (Panduan 3.2.1): <b>hierarkikal</b> = prasyarat mutlak bagi tujuannya
+      (digambar di bawahnya, panah ke atas); <b>prosedural</b> = langkah sebelum tujuannya (mendatar, panah ke kanan); <b>pengelompokan</b> = setara
+      dengan Sub-CPMK lain yang menuju tujuan yang sama (garis tanpa panah). Peta ikut masuk Word.</p>
+    ${melingkar.length ? `<p class="msg buruk">Hubungan melingkar pada ${esc(melingkar.join(', '))}; diabaikan (menuju CPMK induk).</p>` : ''}
+    <div class="gulir"><table class="ds"><thead><tr><th>Sub-CPMK</th><th>Rumusan</th><th>Menuju ke</th><th>Hubungan</th></tr></thead><tbody>
+      ${S.sub.map(x => `<tr><td class="kode">${esc(x.kode)}</td><td>${esc(x.rumusan)}</td>
+        <td><select data-peta-ke="${esc(x.kode)}"${dis()}>${opsi(tujuan(x), relasi[x.kode].ke)}</select></td>
+        <td><select data-peta-jenis="${esc(x.kode)}"${dis()}>${opsi(JENIS_PETA, relasi[x.kode].jenis)}</select></td></tr>`).join('')}
+    </tbody></table></div>
+    <label class="fld"><span>Kemampuan awal di bawah garis entry behaviour (bawaan: MK prasyarat di bagian C)</span>
+      <input data-p="peta.entry" value="${esc(R.peta.entry)}" placeholder="${esc(entryPeta({ ...R, peta: {} }))}"${dis()}></label>
+    <div class="gulir" id="petaGambar" style="border:1px solid var(--line);background:#fff;margin-top:8px">${petaSvg(S, R.peta, entryPeta(R)).svg}</div>
+  </section>`;
+}
+
 function htmlAda(path, nilai){
   return `<span class="centang"><label><input type="radio" name="${path}" data-pb="${path}" value="1"${nilai === true ? ' checked' : ''}${dis()}> Ada</label>
     <label><input type="radio" name="${path}" data-pb="${path}" value="0"${nilai === false ? ' checked' : ''}${dis()}> Tidak ada</label></span>`;
@@ -325,6 +349,10 @@ function htmlE(){
   const E = R.evaluasi;
   return `<section class="kartu"><h2>E. Evaluasi pelaksanaan pada penyelenggaraan sebelumnya</h2>
     <label class="centang"><input type="checkbox" data-pc="evaluasi.baru"${E.baru ? ' checked' : ''}${dis()}> Mata kuliah ini belum pernah diselenggarakan</label>
+    ${E.baru || ro() ? '' : `<div class="alat"><button class="b" id="isiE">Isi dari data prodi</button><span class="msg" id="mE"></span></div>
+      <p class="ket">Mengisi semester terakhir dan jumlah mahasiswa dari ringkasan nilai CPL, serta bahan rekomendasi dari capaian CPL dan
+        evaluasi pembelajaran. Persentase lulus dan rerata nilai akhir tidak ada di data prodi: ganti tanda "…" dengan angka dari SIAKAD.
+        MK baru di K26: isi dulu kode MK ekuivalen K21 di kolom Kode.</p>`}
     ${E.baru ? '' : `<div class="grid">
       <label class="fld"><span>Nama MK (atau MK ekuivalen K21)</span><input data-p="evaluasi.mk" value="${esc(E.mk)}"${dis()}></label>
       <label class="fld"><span>Kode</span><input data-p="evaluasi.kode" value="${esc(E.kode)}"${dis()}></label>
@@ -349,7 +377,7 @@ function gambar(){
       <div id="sah">${htmlSah()}</div>
       <details><summary class="ket">Daftar periksa (Panduan Pengisian RPS bagian 6)</summary><div id="periksa">${htmlPeriksa()}</div></details>
     </section>
-    ${htmlA(m)}${htmlB(m)}${htmlC()}${htmlD()}${htmlE()}
+    ${htmlA(m)}${htmlB(m)}${htmlPeta()}${htmlC()}${htmlD()}${htmlE()}
     <p class="ket">Bagian F (daftar revisi) disusun otomatis dari riwayat pengesahan: pengesahan pertama = "Belum ada revisi".</p>`;
   pasang();
 }
@@ -370,6 +398,7 @@ function pasang(){
   $('unduh').onclick = () => unduh(false);
   if ($('unduhSah')) $('unduhSah').onclick = () => unduh(true);
   if ($('ajukan')) $('ajukan').onclick = ajukan;
+  if ($('isiE')) $('isiE').onclick = isiE;
   if ($('sahkan')) $('sahkan').onclick = () => putuskan('sahkan');
   if ($('kembalikan')) $('kembalikan').onclick = () => putuskan('kembalikan');
   if ($('tambahPustaka')) $('tambahPustaka').onclick = () => ubahBesar(() => R.pustaka.push({ kode: '', teks: '' }));
@@ -383,6 +412,12 @@ function pasang(){
 $('isi').addEventListener('input', e => {
   const t = e.target;
   if (!R || ro()) return;
+  if (t.dataset.petaKe || t.dataset.petaJenis) {
+    const k = t.dataset.petaKe || t.dataset.petaJenis, x = R.peta.sub[k] || relasiPeta(STR.get(PILIH), R.peta).relasi[k];
+    R.peta.sub[k] = { ...x, [t.dataset.petaKe ? 'ke' : 'jenis']: t.value };
+    KOTOR = true; tulis('mSimpan', '', 'Ada perubahan yang belum disimpan.');
+    const sc = scrollY; gambar(); scrollTo(0, sc); return;
+  }
   if (t.dataset.p) atur(t.dataset.p, t.value);
   else if (t.dataset.pl) { const xs = new Set(ambil(t.dataset.pl) || []); t.checked ? xs.add(t.value) : xs.delete(t.value); atur(t.dataset.pl, [...xs]); }
   else if (t.dataset.pb) atur(t.dataset.pb, t.value === '1');
@@ -390,6 +425,7 @@ $('isi').addEventListener('input', e => {
   else return;
   KOTOR = true; tulis('mSimpan', '', 'Ada perubahan yang belum disimpan.');
   if (t.dataset.gambar || t.dataset.pc) gambar(); else segarkanPeriksa();
+  if (t.dataset.p === 'peta.entry' || t.dataset.p === 'syarat.prasyarat') { const e = $('petaGambar'); if (e && STR.get(PILIH)) e.innerHTML = petaSvg(STR.get(PILIH), R.peta, entryPeta(R)).svg; }
 });
 
 async function simpan(){
@@ -414,6 +450,23 @@ async function segarkan(){
   gambar();
 }
 
+// Bagian E dari data prodi (tahap 3): ringkasan CPL terbaru + evaluasi pembelajaran yang terbaca; dimuat saat diminta.
+async function isiE(){
+  const b = $('isiE'); b.disabled = true; tulis('mE', '', 'Membaca data prodi…');
+  try {
+    const m = mkDari(PILIH), E = R.evaluasi, kode = (E.kode || m.kode).trim();
+    const [rq, eq, tq] = await Promise.all([
+      sb.from('cpl_ringkasan').select('data').order('diunggah', { ascending: false }).order('id', { ascending: false }).limit(1),
+      baca(sb.from('evaluasi_mk').select('id,tahun_akademik,semester,kode_mk,rps_sesuai,rps_catatan,metode_catatan')),
+      baca(sb.from('evaluasi_tindak').select('evaluasi_id,masalah,rencana'))]);
+    const h = evaluasiDariData({ ringkasan: rq.data?.[0]?.data, evaluasi: eq, tindak: tq, kode });
+    if (!h) { b.disabled = false; return tulis('mE', 'buruk', `Belum ada data penyelenggaraan untuk kode ${kode}. MK baru: isi kode MK ekuivalen K21 di kolom Kode, atau centang "belum pernah diselenggarakan".`); }
+    E.mk ||= m.nama; E.kode ||= kode; E.semester ||= h.semester; E.jumlah ||= h.jumlah; E.rerata ||= h.rerata;
+    E.rekomendasi = [E.rekomendasi, ...h.bahan].filter(Boolean).join('\n');
+    KOTOR = true; gambar(); tulis('mE', 'ok', 'Terisi dari data prodi; lengkapi persentase lulus dan rerata, lalu rapikan rekomendasi.');
+  } catch (e) { tulis('mE', 'buruk', e.message); b.disabled = false; }
+}
+
 async function ajukan(){
   if (KOTOR) return tulis('mSah', 'buruk', 'Simpan perubahan dulu.');
   const [kur, kode] = PILIH.split('|'), cat = $('catAju')?.value.trim() || null;
@@ -435,6 +488,18 @@ async function putuskan(aksi){
   await segarkan(); tulis('mSah', 'ok', aksi === 'sahkan' ? 'RPS disahkan.' : 'RPS dikembalikan ke dosen.');
 }
 
+// SVG peta -> PNG (2x) untuk Word.
+async function pngPeta(struktur, peta, entry){
+  const { svg, w, h } = petaSvg(struktur, peta, entry);
+  const img = new Image();
+  img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+  await img.decode();
+  const c = Object.assign(document.createElement('canvas'), { width: w * 2, height: h * 2 }), g = c.getContext('2d');
+  g.scale(2, 2); g.drawImage(img, 0, 0, w, h);
+  const blob = await new Promise(r => c.toBlob(r, 'image/png'));
+  return { png: new Uint8Array(await blob.arrayBuffer()), w, h };
+}
+
 async function unduh(versiSah){
   const b = $(versiSah ? 'unduhSah' : 'unduh'); b.disabled = true; tulis('mSimpan', '', 'Menyiapkan Word…');
   try {
@@ -443,7 +508,8 @@ async function unduh(versiSah){
     const r = RPS.get(PILIH), c = ctx();
     if (versiSah) Object.assign(c, { rps: rapikanRps(r.sah.rps, c.mk, SITUS), struktur: r.sah.struktur, kaprodi: namaDosen(r.sah_oleh) || KAPRODI });
     else if (r?.status === 'disahkan') c.kaprodi = namaDosen(r.sah_oleh) || KAPRODI;
-    const blob = await buatRpsDocx(modelRps(c), { JSZip, logo });
+    const peta = c.struktur?.sub?.length ? await pngPeta(c.struktur, c.rps.peta, entryPeta(c.rps)) : null;
+    const blob = await buatRpsDocx(modelRps(c), { JSZip, logo, peta });
     const a = Object.assign(document.createElement('a'), { href: URL.createObjectURL(blob), download: namaBerkasRps(mkDari(PILIH)) });
     document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
     tulis('mSimpan', 'ok', versiSah ? 'Word versi disahkan diunduh.' : KOTOR ? 'Word diunduh (berisi perubahan yang belum disimpan).' : 'Word diunduh.');
