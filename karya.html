@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-19-a4eda0">
+<link rel="stylesheet" href="tema.css?v=2026-11-19-0bb9e7">
 <style>
   :root{--bg:#EEF0ED; --ink:#161E26; --muted:#616C76; --line:#D8DDD8; --line-soft:#E8EBE7; --accent:var(--biru); --accent-soft:var(--biru-m7); --pending:#8A5A00; --pending-soft:#FAF0DC; --reject:#8C2F2F; --reject-soft:#F7E7E7;}
   *{box-sizing:border-box}
@@ -168,7 +168,7 @@
   .sitasi-sel small{color:var(--muted);font-size:10.5px;font-family:var(--sans)}
   @media(max-width:640px){.grid{grid-template-columns:1fr}}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-19-a4eda0">
+<link rel="stylesheet" href="kepala.css?v=2026-11-19-0bb9e7">
 </head>
 <body>
 
@@ -182,7 +182,7 @@
 
 <div class="wrap" id="app"></div>
 
-<script src="config.js?v=2026-11-19-a4eda0"></script>
+<script src="config.js?v=2026-11-19-0bb9e7"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -206,26 +206,26 @@ const SUPABASE_URL = window.SB_URL;
 const SUPABASE_ANON_KEY = window.SB_KEY;
 
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { JENIS_BUKTI_KARYA, namaJenisBukti, JENIS_KARYA_PRIVAT, teksAksesBukti } from './rencana-bukti.js?v=2026-11-19-a4eda0';
-import { tautanBerkas, temuanPakai } from './tautan-privat.js?v=2026-11-19-a4eda0';
-import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-19-a4eda0';
-import { periksaBerkas, kolomSidik, teksTemuan } from './sidik-berkas.js?v=2026-11-19-a4eda0';
-import { pasangContoh, durasiKS } from './manfaat-kerjasama.js?v=2026-11-19-a4eda0';
-import { pasangMenu } from './menu.js?v=2026-11-19-a4eda0';
-import { dosenLogin } from './dosen-login.js?v=2026-11-19-a4eda0';
-import { pasangPrestasi } from './prestasi.js?v=2026-11-19-a4eda0';
-import { htmlSaran } from './saran-bukti.js?v=2026-11-19-a4eda0';
-import { pasangBkd } from './bkd.js?v=2026-11-19-a4eda0';
-import { htmlTautanButir } from './tautan-butir.js?v=2026-11-19-a4eda0';
-import { ISIAN_32, ISIAN_25, ISIAN_74, TINGKAT, FORM, SDGS } from './form-karya.js?v=2026-11-19-a4eda0';
+import { JENIS_BUKTI_KARYA, namaJenisBukti, JENIS_KARYA_PRIVAT, teksAksesBukti } from './rencana-bukti.js?v=2026-11-19-0bb9e7';
+import { tautanBerkas, temuanPakai } from './tautan-privat.js?v=2026-11-19-0bb9e7';
+import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-19-0bb9e7';
+import { periksaBerkas, kolomSidik, teksTemuan } from './sidik-berkas.js?v=2026-11-19-0bb9e7';
+import { pasangContoh, durasiKS } from './manfaat-kerjasama.js?v=2026-11-19-0bb9e7';
+import { pasangMenu } from './menu.js?v=2026-11-19-0bb9e7';
+import { dosenLogin } from './dosen-login.js?v=2026-11-19-0bb9e7';
+import { pasangPrestasi } from './prestasi.js?v=2026-11-19-0bb9e7';
+import { htmlSaran } from './saran-bukti.js?v=2026-11-19-0bb9e7';
+import { pasangBkd } from './bkd.js?v=2026-11-19-0bb9e7';
+import { htmlTautanButir } from './tautan-butir.js?v=2026-11-19-0bb9e7';
+import { ISIAN_32, ISIAN_25, ISIAN_74, TINGKAT, FORM, SDGS } from './form-karya.js?v=2026-11-19-0bb9e7';
 import { barisKarya as htmlBarisKarya, muatBuktiKarya, daftarBuktiKarya as daftarBuktiDari,
   htmlDaftarBukti as htmlDaftarBuktiDari, berkasMilikKarya as berkasMilikDari,
-  pasangHapusBuktiAdmin } from './karya-tampil.js?v=2026-11-19-a4eda0';
-import { saringKarya, daftarNegara, ADA, TANPA } from './saring-karya.js?v=2026-11-19-a4eda0';
-import { hitungVerifikasi } from './verifikasi-hitung.js?v=2026-11-19-a4eda0';
+  pasangHapusBuktiAdmin } from './karya-tampil.js?v=2026-11-19-0bb9e7';
+import { saringKarya, daftarNegara, ADA, TANPA } from './saring-karya.js?v=2026-11-19-0bb9e7';
+import { hitungVerifikasi } from './verifikasi-hitung.js?v=2026-11-19-0bb9e7';
 import { daftarDoi, ambilDoi, drafDari, rapiDoi, sitasiTahunan, cariJudul, bacaBibtex, judulRapi, pilihCocok,
-  drafDariBib, teksBatas, karyaOrcid } from './impor-karya.js?v=2026-11-19-a4eda0';
-import { SUMBER_SITASI } from './sitasi.js?v=2026-11-19-a4eda0';
+  drafDariBib, teksBatas, karyaOrcid } from './impor-karya.js?v=2026-11-19-0bb9e7';
+import { SUMBER_SITASI } from './sitasi.js?v=2026-11-19-0bb9e7';
 
 const app = document.getElementById('app');
 if (!SUPABASE_URL || !SUPABASE_ANON_KEY
@@ -589,6 +589,8 @@ function tampilForm(key, ubah = null){
   pasangAtasNama(!!ubah);
   const muat = [isiInduk(), isiDaftarIntegrasi(), isiMataKuliah(), isiKerjasama(), siapkanIsian25(), siapkanIsian32(), siapkanIsian74()];
   pasangDurasiKS();
+  // Isian awal dari RPS (pemilik 2026-11-19): tombol "Catat sebagai karya integrasi" di halaman RPS menyimpan isian di sessionStorage.
+  if(!ubah && key === 'integrasi') Promise.allSettled(muat).then(isiAwalIntegrasi);
   if(ubah){
     pasangBuktiUbah(ubah.k);
     // Form dikunci sampai isian lama terpasang (pemilik 2026-11-16): isiUbah berjalan setelah dropdown
@@ -729,6 +731,23 @@ function gambarAntrean(){
 // kegiatan yang masih menunggu verifikasi pun boleh jadi induk, karena
 // publikasinya sering diinput di sesi yang sama.
 let JUDUL_INDUK = {};
+function isiAwalIntegrasi(){
+  let x = null;
+  try { x = JSON.parse(sessionStorage.getItem('isiAwalIntegrasi') || 'null'); sessionStorage.removeItem('isiAwalIntegrasi'); } catch(e) { x = null; }
+  if(!x) return;
+  const atur = (id, v) => { const el = document.getElementById(id); if(el && v != null && v !== '') el.value = String(v); };
+  const ind = document.getElementById('f_induk_id');
+  // Penelitian/PkM rekan (dipilih di RPS) tidak ada di daftar kegiatan sendiri: tambahkan sebagai pilihan.
+  if(ind && x.induk_id && ![...ind.options].some(o => o.value === x.induk_id)){
+    ind.insertAdjacentHTML('beforeend', `<option value="${esc(x.induk_id)}">${esc(x.judul_induk || 'kegiatan')}</option>`);
+    JUDUL_INDUK[x.induk_id] = x.judul_induk;
+  }
+  atur('f_mata_kuliah', x.mata_kuliah); atur('f_induk_id', x.induk_id); atur('f_sub_jenis', x.sub_jenis); atur('f_tahun', x.tahun);
+  atur('f_sesuai_rps', 'true');
+  const fm = document.getElementById('fm');
+  if(fm){ fm.className = 'msg'; fm.textContent = `Isian awal dari RPS ${x.dari || ''}. Lengkapi bukti sahih integrasi, periksa, lalu simpan.`; }
+}
+
 async function isiInduk(){
   const el = document.getElementById('f_induk_id');
   if(!el) return;

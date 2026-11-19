@@ -15,10 +15,11 @@
    angka yang sama dengan halaman skor. Lembar lain dibiarkan untuk diisi
    prodi; kolom yang tidak disimpan situs (mis. pita waktu tunggu) kosong.
    ===================================================================== */
-import { versiUntukTS, daftarProdi, STATUS_PS, tglTeks } from './pustaka-dokumen.js?v=2026-11-19-a4eda0';
-import { teksPendidikan } from './profil-dosen.js?v=2026-11-19-a4eda0';
-import { barisKerjaSama } from './kerjasama-karya.js?v=2026-11-19-a4eda0';
-import { karya4i } from './sitasi.js?v=2026-11-19-a4eda0';
+import { versiUntukTS, daftarProdi, STATUS_PS, tglTeks } from './pustaka-dokumen.js?v=2026-11-19-0bb9e7';
+import { teksPendidikan } from './profil-dosen.js?v=2026-11-19-0bb9e7';
+import { barisKerjaSama } from './kerjasama-karya.js?v=2026-11-19-0bb9e7';
+import { kunciIntegrasi } from './rps-integrasi.js?v=2026-11-19-0bb9e7';
+import { karya4i } from './sitasi.js?v=2026-11-19-0bb9e7';
 
 const TEMPLATE = 'lkps-template.xlsx';
 export const JSZIP = 'https://cdn.jsdelivr.net/npm/jszip@3.10.1/+esm';
@@ -299,8 +300,10 @@ export function petaDaftar(C){
       set(l, `L${r}`, BUKTI_KS[k.ks.jenis_bukti]);
     }));
 
-  // 3.a.3 integrasi penelitian/PkM dalam pembelajaran
+  // 3.a.3 integrasi penelitian/PkM dalam pembelajaran. Kolom K "sudah tercantum di RPS": isian dosen, atau otomatis bila RPS
+  // MK itu yang disahkan memuat penelitian/PkM yang sama (pemilik 2026-11-19; data-lkps.js integrasiRps).
   const perId = new Map((X.karya || []).map(k => [k.id, k]));
+  const diRps = new Set(X.integrasiRps || []);
   karya.filter(k => k.kategori === 'integrasi').sort(urut).forEach((k, i) => {
     const r = 13 + i;
     set('3a3', `B${r}`, ketua(k)); set('3a3', `C${r}`, k.judul); set('3a3', `D${r}`, k.mata_kuliah);
@@ -309,7 +312,7 @@ export function petaDaftar(C){
     // Kesesuaian peta jalan dari tema penelitian/PkM induknya (patch 25).
     if (perId.get(k.induk_id)?.tema_id) set('3a3', `I${r}`, 'Sesuai');
     set('3a3', `J${r}`, BUKTI_INTEGRASI[k.bukti_integrasi]);
-    if (k.sesuai_rps === true) set('3a3', `K${r}`, 'V');
+    if (k.sesuai_rps === true || diRps.has(kunciIntegrasi(k.induk_id, k.mata_kuliah))) set('3a3', `K${r}`, 'V');
   });
 
   // 4.f luaran DTPS per jenis

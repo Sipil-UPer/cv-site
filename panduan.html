@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-19-a4eda0">
+<link rel="stylesheet" href="tema.css?v=2026-11-19-0bb9e7">
 <style>
   /* Panduan pengguna ruang kerja (pemilik 2026-11-04). Bagian admin hanya
      tampil untuk peran admin. Perbarui bila tombol atau halaman berubah. */
@@ -40,7 +40,7 @@
   @media(max-width:640px){nav.isi ol{columns:1}.wrap{padding:18px 16px 60px}}
   @media print{nav.isi{display:none}section{break-inside:avoid}}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-19-a4eda0">
+<link rel="stylesheet" href="kepala.css?v=2026-11-19-0bb9e7">
 </head>
 <body>
 
@@ -64,7 +64,7 @@
       <li><a href="#lihat">Monitoring dan skor</a></li>
       <li><a href="#publik">Apa yang tampil untuk umum</a></li>
       <li><a href="#evaluasi">Evaluasi pembelajaran</a></li>
-      <li><a href="#rps">Menyusun RPS</a></li>
+      <li><a href="#rps">Menyusun RPS</a> · <a href="#rps-review">review sejawat</a></li>
       <li class="adm" hidden><a href="#verifikasi">Admin: verifikasi dan ajuan</a></li>
       <li class="adm" hidden><a href="#dosen">Admin: kelola dosen</a></li>
       <li class="adm" hidden><a href="#dataprodi">Admin: data prodi</a></li>
@@ -236,12 +236,26 @@
             CPL dan evaluasi pembelajaran), lalu <b>ganti tanda "…"</b> dengan persentase lulus dan rerata nilai akhir dari SIAKAD. MK baru di K26:
             isi dulu kode MK ekuivalen K21, atau centang "belum pernah diselenggarakan".</li>
         </ul></li>
+      <li><b>Lebih suka mengisi di Excel?</b> Klik <b>Unduh templat Excel</b> di kartu atas halaman RPS. Berkas sudah berisi data MK dan isian
+        yang ada (lembar A Identitas, B CPMK/asesmen/bobot, C Deskripsi dan pustaka, D 16 pekan, E Evaluasi). Isi di Excel tanpa mengubah
+        nama lembar dan judul kolom, lalu klik <b>Impor dari Excel</b>. Situs menampilkan ringkasan dulu (bagian yang berubah, dan masalah
+        dengan nama lembar dan barisnya); klik <b>Terapkan</b>, periksa, lalu <b>Simpan</b>. Bagian B ikut disimpan ke halaman CPMK hanya bila
+        dicentang. Rubrik, Peta Analisis, dan pilihan penelitian/PkM yang diintegrasikan tetap diisi di halaman.</li>
       <li><b>Simpan</b> sesering perlu. <b>Daftar periksa</b> di bagian atas menunjukkan butir yang belum lengkap menurut Panduan Pengisian RPS
-        (merah = wajib, cokelat = saran).</li>
+        (merah = wajib, cokelat = saran). <b>Klik butirnya</b> untuk langsung menuju isian yang dimaksud (isian disorot kuning).</li>
+      <li><b>Perhatikan tenggat.</b> Bila admin sudah mengisi tenggat semester, judul kolom Ganjil/Genap di daftar RPS menampilkannya, dan
+        <b>Tugas saya</b> di Ruang kerja mengingatkan RPS yang belum diajukan (ditandai <i>segera</i> atau <i>lewat</i>). RPS dianggap tepat
+        waktu bila sudah <b>diajukan</b> sebelum tenggat.</li>
       <li><b>Ajukan ke Kaprodi</b> bila daftar periksa sudah lengkap. Selama diajukan RPS terkunci.</li>
       <li><b>Dikembalikan?</b> Baca catatan Kaprodi di kotak Pengesahan, perbaiki, simpan, lalu ajukan lagi.</li>
-      <li><b>Disahkan</b>: mata kuliah langsung terhitung <i>RPS ada</i> dan <i>9 komponen</i> di penilaian akreditasi. Klik
-        <b>Unduh versi disahkan</b>, tanda tangani, mintakan tanda tangan Dekan, lalu unggah PDF hasil pindaiannya di kotak
+      <li><b>Review sejawat</b> (bila Kaprodi menunjuk reviewer): hasil review muncul di kartu <b>Review sejawat RPS</b> di bawah halaman RPS,
+        dan <b>Tugas saya</b> mengingatkan bila belum ditanggapi. Lihat bagian <a href="#rps-review">Review sejawat RPS</a> di bawah.</li>
+      <li><b>Disahkan dan ditetapkan secara elektronik</b>: Kaprodi mengesahkan, lalu Dekan menetapkan (bila jabatan Dekan sudah diisi). Tidak ada
+        tanda tangan basah: Word yang diunduh memuat <b>kode QR</b> di kolom Kaprodi dan Dekan, tanggal dokumen semester, dan alamat verifikasi.
+        Siapa pun yang memindai QR melihat halaman <b>Verifikasi RPS</b>: siapa yang mengesahkan dan menetapkan, waktunya, dan apakah versi itu
+        masih berlaku. Bila RPS direvisi dan disahkan ulang, kode lama tidak berlaku lagi.</li>
+      <li><b>Bukti akreditasi</b>: begitu disahkan, mata kuliah langsung terhitung <i>RPS ada</i> dan <i>9 komponen</i> di penilaian akreditasi. Klik
+        <b>Unduh versi disahkan</b>, lalu unggah PDF-nya di kotak
         <b>Bukti akreditasi (RPS bertanda tangan Dekan)</b> di halaman RPS (centang pernyataan tanda tangan). Hanya berkas inilah
         yang dilihat asesor sebagai bukti RPS. Unggah juga ke SIUP sesuai ketentuan universitas. RPS lama yang disusun di luar situs
         (mis. K21) dan sudah bertanda tangan Dekan boleh langsung diunggah di kotak yang sama.</li>
@@ -257,12 +271,48 @@
       bentuk <b>Penugasan (tugas besar/proyek)</b> dicentang di pekan itu, dan tugas besar tidak dihitung lagi sebagai PT kuliah.
       Kaprodi dan GKM dapat menghitungnya di <b>Simulasi PJP › Kalkulator per mata kuliah</b>.</p>
     <p><b>Kaprodi:</b> buka <b>RPS</b>, centang <i>Hanya yang menunggu pemeriksaan Anda</i> (jumlahnya juga tampil di Dasbor operasional),
-      klik <b>Periksa</b>, baca RPS dan daftar periksanya, lalu <b>Sahkan</b> atau <b>Kembalikan</b> dengan catatan untuk dosen.</p>
+      klik <b>Periksa</b>, baca RPS, daftar periksa, dan hasil review sejawat beserta tanggapan penyusun, lalu <b>Sahkan</b> atau
+      <b>Kembalikan</b> dengan catatan untuk dosen. <b>Dekan</b> (bila jabatannya diisi di Penugasan koordinator) lalu klik <b>Tetapkan</b> pada RPS
+      yang sudah disahkan. Pantau seluruh prodi di <b>Pembelajaran dan CPL ▾ › Rekap RPS kurikulum</b>: kartu <b>Kemajuan RPS</b> (belum dibuat,
+      draf, diajukan, disahkan, bertanda tangan) dan kotak <b>Review sejawat</b> (sudah direview, reviewer belum mengirim, RPS tanpa reviewer,
+      perlu perbaikan besar, belum ditanggapi); klik angkanya untuk menyaring, atau unduh CSV untuk rapat.</p>
+    <h3 id="rps-review">Review sejawat RPS</h3>
+    <p>RPS dinilai dosen lain dengan form 14 butir (dari Panduan Pengisian RPS bagian 6), skala 1 Kurang, 2 Cukup, 3 Baik, 4 Sangat baik.
+      Review tidak mengunci pengesahan; hasilnya menjadi bahan Kaprodi dan bukti tinjauan sejawat untuk akreditasi.</p>
+    <ol>
+      <li><b>Kaprodi atau admin menunjuk reviewer</b> di kartu <b>Review sejawat RPS</b> (bagian bawah halaman RPS MK itu): pilih dosen, biarkan
+        <i>kirim email ke reviewer</i> tercentang, klik <b>Tunjuk</b>. Dosen pengembang RPS itu tidak bisa ditunjuk. Reviewer menerima email
+        berisi MK, tenggat review (bawaan 14 hari sejak ditunjuk), dan tautan ke RPS. Email gagal? Klik <b>Kirim ulang email</b> di baris reviewernya.</li>
+      <li><b>Reviewer</b> membuka tautan di email atau <b>Tugas saya</b>. Form review tampil di <b>samping RPS</b> (di ponsel: tombol
+        <i>Form review</i> di bawah layar), jadi RPS bisa dibaca sambil mengisi:
+        <ul>
+          <li>Klik judul butir (mis. <i>B4 Bentuk asesmen dan bobot</i>) untuk membuka bagian RPS yang dinilai; butir bagian yang sedang dibaca
+            ditandai garis kuning.</li>
+          <li>Di bawah tiap butir ada <b>ringkasan otomatis</b> (mis. total bobot dan komposisi penilaian, HOTS, jumlah pekan terisi, pustaka
+            terbaru). Ringkasan hanya bahan; skor tetap penilaian Anda.</li>
+          <li>Beri skor 1-4 dan catatan per butir, catatan umum, dan kesimpulan (Layak disahkan, Layak dengan perbaikan kecil, Perlu perbaikan besar).
+            <b>Simpan draf</b> (hanya terlihat oleh Anda) atau <b>Kirim review</b>. Tombol <b>Unduh RPS (Word)</b> ada di form bila lebih nyaman
+            membaca di Word.</li>
+        </ul></li>
+      <li><b>Penyusun RPS menanggapi</b>: di kartu Review sejawat klik <b>Lihat penilaian … dan tanggapi</b>. Untuk tiap catatan atau skor rendah,
+        pilih <i>Diperbaiki</i>, <i>Diperbaiki sebagian</i>, atau <i>Tidak diubah</i> dan tulis uraiannya (alasan wajib bila tidak diperbaiki penuh),
+        lalu <b>Simpan tanggapan</b>. Tanggapan tampil berdampingan dengan catatan reviewer bagi Kaprodi dan reviewer.</li>
+      <li><b>Bukti akreditasi</b>: klik <b>Unduh berkas review (Word)</b> di kartu Review sejawat. Berkas memuat skor, catatan reviewer, tanggapan
+        penyusun, kesimpulan, dan waktu yang dicatat sistem.</li>
+    </ol>
     <p><b>Tinjauan RPS tiap semester</b> (butir 15 unsur 5-8): setelah nilai akhir keluar, buka <b>Pembelajaran dan CPL ▾ › Tinjauan RPS</b>,
       pilih semester dan mata kuliah. Capaian CPL per kelas tampil otomatis; isi analisis CPL, kesesuaian materi dan metode, metode penilaian,
       dan pembaruan materi, lalu pilih keputusan: RPS tetap atau direvisi (dengan rencana dan tenggat). Ajukan ke Kaprodi. Bila revisi disetujui,
       RPS mata kuliahnya kembali menjadi draf; perbaiki dan ajukan lagi, dan tindak lanjut selesai saat RPS revisi disahkan. MK kurikulum lama
       (mis. K21) ditinjau oleh koordinator MK padanannya di kurikulum baru.</p>
+    <p class="adm-p" hidden><b>Admin, tanggal dan tenggat:</b> di halaman RPS buka kotak <b>Tanggal dokumen dan tenggat RPS (admin)</b>: tanggal
+      dokumen semester (dicetak di Word), tenggat pengajuan RPS semester ganjil/genap, dan tenggat review (hari sejak ditunjuk). Pengingat ke
+      penyusun dan reviewer dikirim dari <b>Pengingat</b> (kelompok <i>RPS belum diajukan</i>, <i>Review RPS belum dikirim</i>,
+      <i>Review RPS belum ditanggapi</i>); tidak ada yang terkirim tanpa tombol Kirim.</p>
+    <p class="adm-p" hidden><b>Admin atas nama pejabat (khusus RPS):</b> bila Kaprodi atau Dekan berhalangan, admin boleh mengklik
+      <b>Sahkan a.n. Kaprodi</b> atau <b>Tetapkan a.n. Dekan</b>. Tercatat "a.n." di riwayat, Word, dan halaman verifikasi. Ketentuan ini hanya
+      untuk tanda tangan RPS; persetujuan lain di situs tetap dilakukan pejabat terkait. Admin juga tidak mengisi review atau tanggapan atas
+      nama dosen. Sebutan pejabat di dokumen (mis. <i>Pjs. Dekan …</i>) diisi di Penugasan koordinator.</p>
     <p class="adm-p" hidden><b>Admin:</b> tetapkan Kaprodi di <b>Penugasan koordinator</b> (jabatan Ketua Program Studi), koordinator MK di halaman
       CPMK dan penilaian (bagian Koordinator MK / pengampu), dan lengkapi NIP dosen di Kelola dosen. Di halaman Tinjauan RPS, admin mengatur
       semester mulai ditinjau dan mengimpor CSV padanan MK kurikulum lama ke baru.</p>
@@ -420,7 +470,7 @@
   </div>
 </main>
 
-<script src="config.js?v=2026-11-19-a4eda0"></script>
+<script src="config.js?v=2026-11-19-0bb9e7"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -437,7 +487,7 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-19-a4eda0';
+import { gerbang } from './menu.js?v=2026-11-19-0bb9e7';
 
 // Bagian admin hanya untuk peran admin (isinya bukan rahasia; disembunyikan
 // supaya panduan dosen tetap ringkas).

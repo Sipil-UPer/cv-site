@@ -4,6 +4,7 @@
    ===================================================================== */
 // Data Data prodi yang dipakai LKPS dan draf LED (hanya di browser pemakai yang login;
 // tabel yang belum boleh dibaca atau belum ada cukup kosong).
+import { integrasiDisahkan, kunciIntegrasi } from './rps-integrasi.js?v=2026-11-19-0bb9e7';
 export async function ambilDaftarLKPS(sb){
   // Tahap 2: lembar daftar (lkps.js petaDaftar). Tabel yang belum ada
   // (patch belum dijalankan) cukup kosong.
@@ -100,7 +101,11 @@ export async function ambilDaftarLKPS(sb){
     ambil(sb.from('ami_temuan').select('tahun_ts,kategori,status')),
     ambil(sb.rpc('rekap_evaluasi')),
   ]);
+  // Integrasi penelitian/PkM di RPS yang disahkan (pemilik 2026-11-19): kolom "Sudah tercantum di RPS" LKPS 3.a.3 otomatis.
+  // Hanya bagian sah.rps.integrasi yang dibaca (bukan seluruh RPS). Tanpa patch RPS = kosong.
+  const rpsInt = await ambil(sb.from('mk_rps').select('kurikulum,kode_mk,integ:sah->rps->integrasi,ref_mata_kuliah(nama)').not('sah', 'is', null));
+  const integrasiRps = integrasiDisahkan(rpsInt, mk).map(x => kunciIntegrasi(x.induk, x.nama_mk));
   return { dosen, karya, kerjasama, bkd, prestasi, luaranMhs, mk, tema, mhs, tracer,
            vmts, prodiUpps, dana, tendik, buktiVmts, prasarana, dokK3l, fasK3l, dokumen, ppepp, buktiBaris, buktiKarya, target, tim,
-           standar, capaianStandar, revisiStandar, temuan, rekapEval };
+           standar, capaianStandar, revisiStandar, temuan, rekapEval, integrasiRps };
 }

@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-19-a4eda0">
-<link rel="stylesheet" href="kepala.css?v=2026-11-19-a4eda0">
+<link rel="stylesheet" href="tema.css?v=2026-11-19-0bb9e7">
+<link rel="stylesheet" href="kepala.css?v=2026-11-19-0bb9e7">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
@@ -118,7 +118,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-19-a4eda0"></script>
+<script src="config.js?v=2026-11-19-0bb9e7"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -138,20 +138,20 @@ addEventListener('error', function (e) {
 // Penyusun = koordinator MK atau pengampu kelas MK semester terakhir (boleh_rps, 112); GKM dan admin hanya melihat.
 // Pengesahan (112): dosen mengajukan -> Kaprodi aktif mengesahkan atau mengembalikan; daftar revisi (bagian F) otomatis.
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-19-a4eda0';
-import { bolehMutu, aktifPada, punya } from './koordinator.js?v=2026-11-19-a4eda0';
-import { cplMK } from './cpmk.js?v=2026-11-19-a4eda0';
+import { gerbang } from './menu.js?v=2026-11-19-0bb9e7';
+import { bolehMutu, aktifPada, punya } from './koordinator.js?v=2026-11-19-0bb9e7';
+import { cplMK } from './cpmk.js?v=2026-11-19-0bb9e7';
 import { JENIS_ASESMEN, JENIS_MK, DIREKTORI, jenisAsesmen, bloom, hots, rapikanRps, kerangkaPekan, barisPekan, periksaRps, modelRps,
   namaBerkasRps, penyusunMK, revisiDariLog, tanggalLokal, waktuLokal, evaluasiDariData, BENTUK, SCL, rekapRps, BENTUK_INTEGRASI,
-  bedaRps, salinRps, ASESMEN_TES, BUTIR_REVIEW, SKALA_REVIEW, KESIMPULAN_REVIEW, rerataReview, butirKosongReview, faktaReview, STATUS_TANGGAPAN, butirTanggapan, sudahDitanggapi, rubrikKosong, kriteriaKosong, rentangPekan, susunanMK, jenisMK, bagiParitas, saringMK, ringkasSemester, htmlRingkasSemester, htmlSaringan, ubahSaringan, esignRps, paritas } from './rps.js?v=2026-11-19-a4eda0';
-import { JENIS_PETA, relasiPeta, petaSvg, usulPeta } from './rps-peta.js?v=2026-11-19-a4eda0';
-import { keB64 } from './pengajuan-mhs.js?v=2026-11-19-a4eda0';
-import { bacaTinjauan, bahanTinjauan } from './tinjauan-rps.js?v=2026-11-19-a4eda0';
-import { SHEETJS } from './nilai-cpl.js?v=2026-11-19-a4eda0';
-import { lembarRps, bacaRpsExcel, bagianBerubah, LEBAR_KOLOM } from './rps-excel.js?v=2026-11-19-a4eda0';
-import { modelBerkasReview, buatReviewDocx, namaBerkasReview } from './review-docx.js?v=2026-11-19-a4eda0';
-import { tenggatReview, hariKe, teksHari, mkTenggatRps, HARI_REVIEW_BAWAAN } from './pengingat-rps.js?v=2026-11-19-a4eda0';
-import { buatRpsDocx } from './rps-docx.js?v=2026-11-19-a4eda0';
+  bedaRps, salinRps, ASESMEN_TES, BUTIR_REVIEW, SKALA_REVIEW, KESIMPULAN_REVIEW, rerataReview, butirKosongReview, faktaReview, STATUS_TANGGAPAN, butirTanggapan, sudahDitanggapi, rubrikKosong, kriteriaKosong, rentangPekan, susunanMK, jenisMK, bagiParitas, saringMK, ringkasSemester, htmlRingkasSemester, htmlSaringan, ubahSaringan, esignRps, paritas } from './rps.js?v=2026-11-19-0bb9e7';
+import { JENIS_PETA, relasiPeta, petaSvg, usulPeta } from './rps-peta.js?v=2026-11-19-0bb9e7';
+import { keB64 } from './pengajuan-mhs.js?v=2026-11-19-0bb9e7';
+import { bacaTinjauan, bahanTinjauan } from './tinjauan-rps.js?v=2026-11-19-0bb9e7';
+import { SHEETJS } from './nilai-cpl.js?v=2026-11-19-0bb9e7';
+import { lembarRps, bacaRpsExcel, bagianBerubah, LEBAR_KOLOM } from './rps-excel.js?v=2026-11-19-0bb9e7';
+import { modelBerkasReview, buatReviewDocx, namaBerkasReview } from './review-docx.js?v=2026-11-19-0bb9e7';
+import { tenggatReview, hariKe, teksHari, mkTenggatRps, HARI_REVIEW_BAWAAN } from './pengingat-rps.js?v=2026-11-19-0bb9e7';
+import { buatRpsDocx } from './rps-docx.js?v=2026-11-19-0bb9e7';
 
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -515,7 +515,8 @@ function htmlIntegrasi(){
           k.status !== 'terverifikasi' ? '; belum diverifikasi' : ''})</span></span></label>
         ${x ? `<div class="dua" style="margin-left:24px"><label class="fld"><span>Bentuk integrasi</span><select data-int-bentuk="${k.id}"${dis()}>
             <option value="">(pilih)</option>${opsi(BENTUK_INTEGRASI, x.bentuk)}</select></label>
-          <label class="fld"><span>Pada (mis. Sub-CPMK 2, pekan 9-10)</span><input data-int-ket="${k.id}" value="${esc(x.ket || '')}"${dis()}></label></div>` : ''}</div>`; }).join('')
+          <label class="fld"><span>Pada (mis. Sub-CPMK 2, pekan 9-10)</span><input data-int-ket="${k.id}" value="${esc(x.ket || '')}"${dis()}></label></div>
+          ${htmlCatatIntegrasi(k, x, m, lkps)}` : ''}</div>`; }).join('')
       || `<p class="kosong">${F_SEMUA_KARYA ? 'Belum ada penelitian/PkM tersimpan.' : 'Penyusun MK ini belum punya penelitian/PkM tersimpan.'} Input di Karya dosen › Penelitian dan PkM.</p>`}
     <label class="centang"><input type="checkbox" id="semuaKarya"${F_SEMUA_KARYA ? ' checked' : ''}> Tampilkan penelitian/PkM semua dosen prodi</label>
     <label class="fld"><span>Uraian tambahan (opsional)</span><textarea data-p="integrasi.teks"${dis()}>${esc(R.integrasi.teks)}</textarea></label>
@@ -523,6 +524,25 @@ function htmlIntegrasi(){
       : 'Belum tercatat sebagai karya Integrasi ke pembelajaran untuk MK ini; catat juga di Karya saya › Integrasi ke pembelajaran agar terhitung di LKPS 3.a.3 (butir 17).'}</div>
   </div>`;
 }
+
+// LKPS 3.a.3 (pemilik 2026-11-19): tabel bersumber dari catatan karya "Integrasi ke pembelajaran". Untuk penelitian/PkM yang dipilih di
+// RPS: tanda bila sudah tercatat, atau tombol yang membuka form Karya dosen sudah terisi dari RPS (dosen melengkapi bukti sahih, lalu
+// diverifikasi admin seperti karya lain).
+function htmlCatatIntegrasi(k, x, m, lkps){
+  const ada = lkps.find(c => c.induk_id === k.id && c.status !== 'ditolak');
+  if (ada) return `<div class="ket" style="margin-left:24px"><span class="chip ok">tercatat di LKPS 3.a.3</span> karya integrasi ${esc(ada.status || '')}</div>`;
+  return `<div class="ket" style="margin-left:24px"><span class="chip saran">belum tercatat di LKPS 3.a.3</span>
+    ${BOLEH.has(PILIH) ? `<button class="b" data-catat-int="${esc(k.id)}">Catat sebagai karya integrasi</button>` : ''}</div>`;
+}
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-catat-int]');
+  if (!b) return;
+  const id = b.dataset.catatInt, k = KARYA.find(x => x.id === id), x = (R.integrasi.karya || []).find(y => y.id === id), m = mkDari(PILIH);
+  const d = new Date(), th = d.getMonth() >= 8 ? d.getFullYear() : d.getFullYear() - 1;   // tahun ajaran (mulai)
+  try { sessionStorage.setItem('isiAwalIntegrasi', JSON.stringify({ mata_kuliah: m.nama, induk_id: id, judul_induk: k?.judul || x?.judul || '',
+    sub_jenis: x?.bentuk || '', tahun: String(th), dari: `${m.kode} ${m.nama}` })); } catch { /* penyimpanan sesi tertutup: form kosong */ }
+  window.open('karya.html#integrasi', '_blank');
+});
 
 function htmlAda(path, nilai){
   return `<span class="centang"><label><input type="radio" name="${path}" data-pb="${path}" value="1"${nilai === true ? ' checked' : ''}${dis()}> Ada</label>
