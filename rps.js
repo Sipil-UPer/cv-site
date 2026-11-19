@@ -339,17 +339,20 @@ export function rapikanRps(d, mk, situs){
  * kaprodi: {...}|null }. Hasil [{ bagian, tingkat: 'galat'|'saran', pesan }]; kosong = lengkap.
  */
 export function periksaRps({ mk = {}, struktur, rps, cpl = [], pengembang = null, kaprodi = null, penyusun = null } = {}){
-  const out = [], g = (bagian, pesan) => out.push({ bagian, tingkat: 'galat', pesan }), s = (bagian, pesan) => out.push({ bagian, tingkat: 'saran', pesan });
+  // ke (pemilik 2026-11-19): alamat isian di halaman RPS (data-p/data-pl/data-pb, mis. 'pekan.3.materi') atau '#peta'/'#rubrik';
+  // tanpa ke = kartu bagiannya. Dipakai rps.html agar butir daftar periksa bisa diklik.
+  const out = [], b = (tingkat, bagian, pesan, ke) => out.push(ke ? { bagian, tingkat, pesan, ke } : { bagian, tingkat, pesan });
+  const g = (bagian, pesan, ke) => b('galat', bagian, pesan, ke), s = (bagian, pesan, ke) => b('saran', bagian, pesan, ke);
   const S = struktur || { cpmk: [], sub: [], asesmen: [], bobot: {} }, R = rps || rpsKosong(mk);
   const I = R.identitas || {};
   // A
-  if (!I.jenis_mk) g('A', 'Pilih jenis MK (MKPT/MKU/MKPS/MKP).');
+  if (!I.jenis_mk) g('A', 'Pilih jenis MK (MKPT/MKU/MKPS/MKP).', 'identitas.jenis_mk');
   const sks = ['t', 'p', 'pl', 's'].reduce((a, k) => a + angka(I.sks?.[k]), 0);
-  if (mk.sks != null && sks !== angka(mk.sks)) g('A', `Jumlah bobot T+P+PL+S (${sks}) tidak sama dengan sks MK (${mk.sks}).`);
-  if (!teks(I.semester)) g('A', 'Isi semester (angka 1-8, atau Ganjil/Genap untuk MKP).');
-  if (!teks(I.penyelenggara)) g('A', 'Isi penyelenggara.');
-  if (!R.pengembang) g('A', 'Pilih dosen pengembang RPS.');
-  else if (penyusun && !penyusun.some(d => d.id === R.pengembang)) g('A', 'Dosen pengembang harus koordinator MK atau dosen pengampu MK ini.');
+  if (mk.sks != null && sks !== angka(mk.sks)) g('A', `Jumlah bobot T+P+PL+S (${sks}) tidak sama dengan sks MK (${mk.sks}).`, 'identitas.sks.t');
+  if (!teks(I.semester)) g('A', 'Isi semester (angka 1-8, atau Ganjil/Genap untuk MKP).', 'identitas.semester');
+  if (!teks(I.penyelenggara)) g('A', 'Isi penyelenggara.', 'identitas.penyelenggara');
+  if (!R.pengembang) g('A', 'Pilih dosen pengembang RPS.', 'pengembang');
+  else if (penyusun && !penyusun.some(d => d.id === R.pengembang)) g('A', 'Dosen pengembang harus koordinator MK atau dosen pengampu MK ini.', 'pengembang');
   else if (pengembang && (!teks(pengembang.nama_gelar) || !teks(pengembang.nip))) s('A', 'Nama dengan gelar atau NIP dosen pengembang belum diisi (Profil / Kelola dosen).');
   if (!kaprodi) s('A', 'Kaprodi belum ditetapkan di Penugasan koordinator; kolom pemeriksa di Word dibiarkan kosong.');
   // Tabel 3.a.1 LKPS dan butir 18 (PJP) memakai sebaran sks di data MK (Data prodi), bukan RPS: keduanya harus sama.
@@ -357,7 +360,7 @@ export function periksaRps({ mk = {}, struktur, rps, cpl = [], pengembang = null
     const praktik = angka(I.sks?.p) + angka(I.sks?.pl) + angka(I.sks?.s);
     if (angka(I.sks?.t) !== angka(mk.sks_kuliah) + angka(mk.sks_seminar) || praktik !== angka(mk.sks_praktikum))
       s('A', `Sebaran sks RPS (kuliah ${angka(I.sks?.t)}, praktikum/praktik ${praktik}) berbeda dengan data MK (kuliah ${angka(mk.sks_kuliah) + angka(mk.sks_seminar)}, `
-        + `praktikum ${angka(mk.sks_praktikum)}) yang dipakai Tabel 3.a.1 LKPS dan butir 18; samakan (Data prodi › Mata kuliah).`);
+        + `praktikum ${angka(mk.sks_praktikum)}) yang dipakai Tabel 3.a.1 LKPS dan butir 18; samakan (Data prodi › Mata kuliah).`, 'identitas.sks.t');
   }
   // B
   if (!cpl.length) g('B', 'MK ini belum dipetakan ke CPL (Data prodi › Kurikulum & CPL).');
@@ -388,35 +391,35 @@ export function periksaRps({ mk = {}, struktur, rps, cpl = [], pengembang = null
   const H = hots(S, I.semester || mk.semester);
   if (H.target != null && S.sub.length && H.persen < H.target) s('B', `HOTS ${H.persen}%; disarankan ≥ ${H.target}% untuk MK tahun ke-${H.tahun}.`);
   if (S.sub.length > 1 && !Object.keys(R.peta?.sub || {}).some(k => S.sub.some(x => x.kode === k)))
-    s('B', 'Peta Analisis: tandai hubungan antar-Sub-CPMK (sekarang semua langsung menuju CPMK).');
+    s('B', 'Peta Analisis: tandai hubungan antar-Sub-CPMK (sekarang semua langsung menuju CPMK).', '#peta');
   // C
-  if (!teks(R.tujuan)) g('C', 'Isi tujuan MK (3-5 poin, sesuai silabus K26).');
-  if (!teks(R.deskripsi)) g('C', 'Isi deskripsi dan bahan kajian.');
-  if (!teks(R.pengampu)) g('C', 'Isi dosen pengampu.');
-  if (!(R.pustaka || []).some(p => teks(p.teks))) g('C', 'Isi minimal satu pustaka.');
-  if (!teks(R.kriteria)) g('C', 'Isi kriteria ketercapaian CPMK.');
-  if (R.scl?.ada == null) g('C', 'Nyatakan ada/tidak metode SCL.');
-  if (R.integrasi?.ada == null) g('C', 'Nyatakan ada/tidak integrasi penelitian/PkM.');
+  if (!teks(R.tujuan)) g('C', 'Isi tujuan MK (3-5 poin, sesuai silabus K26).', 'tujuan');
+  if (!teks(R.deskripsi)) g('C', 'Isi deskripsi dan bahan kajian.', 'deskripsi');
+  if (!teks(R.pengampu)) g('C', 'Isi dosen pengampu.', 'pengampu');
+  if (!(R.pustaka || []).some(p => teks(p.teks))) g('C', 'Isi minimal satu pustaka.', 'pustaka.0.teks');
+  if (!teks(R.kriteria)) g('C', 'Isi kriteria ketercapaian CPMK.', 'kriteria');
+  if (R.scl?.ada == null) g('C', 'Nyatakan ada/tidak metode SCL.', 'scl.ada');
+  if (R.integrasi?.ada == null) g('C', 'Nyatakan ada/tidak integrasi penelitian/PkM.', 'integrasi.ada');
   else if (R.integrasi.ada && !(R.integrasi.karya || []).length && !teks(R.integrasi.teks))
-    g('C', 'Integrasi penelitian/PkM: pilih penelitian/PkM yang sudah tersimpan (atau uraikan).');
-  if (!R.direktori?.status) g('C', 'Isi Direktori Kompetensi Teknis Pertamina (ada, pendukung tidak langsung, atau tidak tersedia).');
+    g('C', 'Integrasi penelitian/PkM: pilih penelitian/PkM yang sudah tersimpan (atau uraikan).', 'integrasi.ada');
+  if (!R.direktori?.status) g('C', 'Isi Direktori Kompetensi Teknis Pertamina (ada, pendukung tidak langsung, atau tidak tersedia).', 'direktori.status');
   // D
   const P = R.pekan || [], dipakai = new Map();
-  for (const p of P) {
-    const r = rentangPekan(p.pekan);
-    if (!r.length) { g('D', `Pekan "${teks(p.pekan) || '?'}" tidak sah (tulis 3 atau 5-7).`); continue; }
+  for (const [i, p] of P.entries()) {
+    const r = rentangPekan(p.pekan), ke = f => `pekan.${i}.${f}`;
+    if (!r.length) { g('D', `Pekan "${teks(p.pekan) || '?'}" tidak sah (tulis 3 atau 5-7).`, ke('pekan')); continue; }
     for (const n of r) dipakai.set(n, (dipakai.get(n) || 0) + 1);
-    if (p.jenis === 'uts' && !r.includes(8)) s('D', 'UTS lazimnya pekan ke-8.');
-    if (p.jenis === 'uas' && !r.includes(16)) s('D', 'UAS lazimnya pekan ke-16.');
+    if (p.jenis === 'uts' && !r.includes(8)) s('D', 'UTS lazimnya pekan ke-8.', ke('pekan'));
+    if (p.jenis === 'uas' && !r.includes(16)) s('D', 'UAS lazimnya pekan ke-16.', ke('pekan'));
     if (p.jenis !== 'kuliah') continue;
     const lbl = `Pekan ${teks(p.pekan)}`;
-    if (!(p.sub || []).length) g('D', `${lbl}: pilih Sub-CPMK.`);
-    if (!teks(p.materi)) g('D', `${lbl}: isi materi pembelajaran.`);
-    if (!teks(p.indikator)) g('D', `${lbl}: isi indikator.`);
-    else if (!/\d/.test(p.indikator)) s('D', `${lbl}: indikator sebaiknya memuat ambang terukur (skor/persen minimal).`);
-    if (!teks(p.luring) && !teks(p.daring)) g('D', `${lbl}: isi bentuk/modalitas pembelajaran (luring atau daring).`);
-    if (!(p.bentuk_pb || []).length) g('D', `${lbl}: centang bentuk pembelajaran (kuliah, praktikum, dll.) untuk lampiran rekap.`);
-    for (const a of p.asesmen || []) if (!(p.sub || []).some(k => angka(S.bobot?.[k]?.[a]))) s('D', `${lbl}: ${a} tidak berbobot pada Sub-CPMK pekan ini (bagian B).`);
+    if (!(p.sub || []).length) g('D', `${lbl}: pilih Sub-CPMK.`, ke('sub'));
+    if (!teks(p.materi)) g('D', `${lbl}: isi materi pembelajaran.`, ke('materi'));
+    if (!teks(p.indikator)) g('D', `${lbl}: isi indikator.`, ke('indikator'));
+    else if (!/\d/.test(p.indikator)) s('D', `${lbl}: indikator sebaiknya memuat ambang terukur (skor/persen minimal).`, ke('indikator'));
+    if (!teks(p.luring) && !teks(p.daring)) g('D', `${lbl}: isi bentuk/modalitas pembelajaran (luring atau daring).`, ke('luring'));
+    if (!(p.bentuk_pb || []).length) g('D', `${lbl}: centang bentuk pembelajaran (kuliah, praktikum, dll.) untuk lampiran rekap.`, ke('bentuk_pb'));
+    for (const a of p.asesmen || []) if (!(p.sub || []).some(k => angka(S.bobot?.[k]?.[a]))) s('D', `${lbl}: ${a} tidak berbobot pada Sub-CPMK pekan ini (bagian B).`, ke('asesmen'));
   }
   const kurang = Array.from({ length: 16 }, (_, i) => i + 1).filter(n => !dipakai.has(n));
   if (kurang.length) g('D', `Pekan belum terisi: ${kurang.join(', ')}.`);
@@ -445,10 +448,10 @@ export function periksaRps({ mk = {}, struktur, rps, cpl = [], pengembang = null
   // Rubrik untuk asesmen non-tes yang berbobot (Panduan: rubrik penilaian/kunci jawaban).
   for (const a of S.asesmen.filter(a => !ASESMEN_TES.includes(jenisAsesmen(a)) && S.sub.some(x => angka(S.bobot?.[x.kode]?.[a.nama])))) {
     const ks = (R.rubrik?.[a.nama]?.kriteria || []).filter(k => teks(k.nama));
-    if (!ks.length) { s('D', `Rubrik ${a.nama} belum disusun (bagian Rubrik penilaian); Panduan meminta rubrik untuk asesmen non-tes.`); continue; }
-    if (ks.some(k => (k.deskriptor || []).some(x => !teks(x)))) s('D', `Rubrik ${a.nama}: lengkapi deskriptor tiap tingkat.`);
+    if (!ks.length) { s('D', `Rubrik ${a.nama} belum disusun (bagian Rubrik penilaian); Panduan meminta rubrik untuk asesmen non-tes.`, '#rubrik'); continue; }
+    if (ks.some(k => (k.deskriptor || []).some(x => !teks(x)))) s('D', `Rubrik ${a.nama}: lengkapi deskriptor tiap tingkat.`, '#rubrik');
     const tot = ks.reduce((t, k) => t + angka(k.bobot), 0);
-    if (ks.some(k => teks(k.bobot)) && bulat(tot) !== 100) s('D', `Rubrik ${a.nama}: total bobot kriteria ${bulat(tot)}%, seharusnya 100%.`);
+    if (ks.some(k => teks(k.bobot)) && bulat(tot) !== 100) s('D', `Rubrik ${a.nama}: total bobot kriteria ${bulat(tot)}%, seharusnya 100%.`, '#rubrik');
   }
   const adaScl = P.some(p => (p.scl || []).length || METODE_SCL.some(m => `${p.luring} ${p.daring}`.toLowerCase().includes(m.toLowerCase())));
   // Penugasan (tugas besar/proyek) dicentang tetapi tanpa sks praktik/penugasan: tetap PT kuliah, tidak menambah butir 18.
@@ -459,8 +462,8 @@ export function periksaRps({ mk = {}, struktur, rps, cpl = [], pengembang = null
   for (const x of S.sub) if (!P.some(p => (p.sub || []).includes(x.kode))) s('D', `${x.kode} belum muncul di rencana pekanan.`);
   // E
   const E = R.evaluasi || {};
-  if (!E.baru && !(teks(E.semester) && teks(E.jumlah) && teks(E.rerata) && teks(E.rekomendasi))) g('E', 'Isi evaluasi penyelenggaraan sebelumnya, atau centang "belum pernah diselenggarakan".');
-  if (!E.baru && ['semester', 'jumlah', 'rerata', 'rekomendasi'].some(k => String(E[k] || '').includes('…'))) g('E', 'Ganti tanda "…" (persentase lulus, rerata nilai akhir) dengan angka dari SIAKAD.');
+  if (!E.baru && !(teks(E.semester) && teks(E.jumlah) && teks(E.rerata) && teks(E.rekomendasi))) g('E', 'Isi evaluasi penyelenggaraan sebelumnya, atau centang "belum pernah diselenggarakan".', 'evaluasi.semester');
+  if (!E.baru && ['semester', 'jumlah', 'rerata', 'rekomendasi'].some(k => String(E[k] || '').includes('…'))) g('E', 'Ganti tanda "…" (persentase lulus, rerata nilai akhir) dengan angka dari SIAKAD.', 'evaluasi.jumlah');
   return out;
 }
 
@@ -662,3 +665,32 @@ export function salinRps(R, sumber, struktur){
     hasil.pekan = c.pekan.map(p => ({ ...p, sub: (p.sub || []).filter(k => sub.has(k)), asesmen: (p.asesmen || []).filter(a => ases.has(a)) }));
   return hasil;
 }
+
+// ---------- Review sejawat RPS (118, pemilik 2026-11-19) ----------
+// Butir form dari Panduan Pengisian RPS bagian 6 (disusun Claude, diperiksa pemilik); skala 1-4. Basis data menyimpan skor per
+// kode butir, jadi butir boleh ditambah kemudian (butir lama tetap terbaca); jangan mengganti arti kode yang sudah dipakai.
+export const BUTIR_REVIEW = [
+  { kode: 'A1', bagian: 'A', teks: 'Identitas MK lengkap dan sesuai dokumen kurikulum (kode, nama, sks dan sebarannya, semester, jenis MK, prasyarat).' },
+  { kode: 'B1', bagian: 'B', teks: 'CPL yang dibebankan sesuai peta CPL-MK kurikulum.' },
+  { kode: 'B2', bagian: 'B', teks: 'CPMK dan Sub-CPMK dirumuskan jelas dan terukur (kata kerja operasional), dengan level taksonomi sesuai tahun/semester MK.' },
+  { kode: 'B3', bagian: 'B', teks: 'Keselarasan CPL - CPMK - Sub-CPMK logis (Peta Analisis).' },
+  { kode: 'B4', bagian: 'B', teks: 'Bentuk asesmen dan bobot penilaian selaras dengan Sub-CPMK; komposisi sesuai pedoman (UTS/UAS, penugasan, HOTS).' },
+  { kode: 'C1', bagian: 'C', teks: 'Tujuan, deskripsi, dan bahan kajian sesuai silabus dan perkembangan keilmuan.' },
+  { kode: 'C2', bagian: 'C', teks: 'Pustaka utama dan pendukung relevan dan mutakhir.' },
+  { kode: 'C3', bagian: 'C', teks: 'Integrasi penelitian/PkM dan keterkaitan dengan kompetensi kerja (Direktori Kompetensi) dinyatakan dengan tepat.' },
+  { kode: 'D1', bagian: 'D', teks: 'Rencana 16 pekan runtut; materi tiap pekan mendukung Sub-CPMK yang dituju.' },
+  { kode: 'D2', bagian: 'D', teks: 'Indikator dan kriteria penilaian tiap pekan terukur.' },
+  { kode: 'D3', bagian: 'D', teks: 'Metode pembelajaran berpusat pada mahasiswa (SCL) sesuai capaian yang dituju.' },
+  { kode: 'D4', bagian: 'D', teks: 'Beban belajar (tatap muka, penugasan terstruktur, belajar mandiri, praktikum) sesuai sks.' },
+  { kode: 'D5', bagian: 'D', teks: 'Rubrik atau kunci penilaian tersedia dan memadai untuk asesmen yang dipakai.' },
+  { kode: 'E1', bagian: 'E', teks: 'Evaluasi penyelenggaraan sebelumnya dan tindak lanjutnya dimuat.' },
+];
+export const SKALA_REVIEW = [[1, 'Kurang'], [2, 'Cukup'], [3, 'Baik'], [4, 'Sangat baik']];
+export const KESIMPULAN_REVIEW = [['layak', 'Layak disahkan'], ['perbaikan_kecil', 'Layak dengan perbaikan kecil'], ['perbaikan_besar', 'Perlu perbaikan besar']];
+/** Rerata skor (1-4) butir yang diisi, dua desimal; null bila belum ada. */
+export function rerataReview(skor){
+  const v = Object.values(skor || {}).map(Number).filter(n => n >= 1 && n <= 4);
+  return v.length ? +(v.reduce((a, b) => a + b, 0) / v.length).toFixed(2) : null;
+}
+/** Butir yang belum diberi skor (kode). */
+export const butirKosongReview = skor => BUTIR_REVIEW.filter(b => !(+skor?.[b.kode] >= 1)).map(b => b.kode);
