@@ -27,11 +27,11 @@
      unggah = {url, ext[], maxMb, accept} dari config.js, atau null.
    ===================================================================== */
 
-import { JENIS_DOKUMEN, infoJenis, buktiButir } from './rencana-bukti.js?v=2026-11-19-7f0983';
-import { tautanBerkas, temuanPakai } from './tautan-privat.js?v=2026-11-19-7f0983';
-import { buangBerkas, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-19-7f0983';
-import { periksaBerkas, kolomSidik, teksTemuan } from './sidik-berkas.js?v=2026-11-19-7f0983';
-import { UNSUR_BUTIR, pihakUnsur } from './unsur-butir.js?v=2026-11-19-7f0983';
+import { JENIS_DOKUMEN, infoJenis, buktiButir } from './rencana-bukti.js?v=2026-11-19-f0adae';
+import { tautanBerkas, temuanPakai } from './tautan-privat.js?v=2026-11-19-f0adae';
+import { buangBerkas, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-19-f0adae';
+import { periksaBerkas, kolomSidik, teksTemuan } from './sidik-berkas.js?v=2026-11-19-f0adae';
+import { UNSUR_BUTIR, pihakUnsur } from './unsur-butir.js?v=2026-11-19-f0adae';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g,
   c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));

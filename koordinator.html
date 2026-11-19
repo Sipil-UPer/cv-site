@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-19-7f0983">
-<link rel="stylesheet" href="kepala.css?v=2026-11-19-7f0983">
+<link rel="stylesheet" href="tema.css?v=2026-11-19-f0adae">
+<link rel="stylesheet" href="kepala.css?v=2026-11-19-f0adae">
 <style>
   *{box-sizing:border-box}
   [hidden]{display:none !important}
@@ -41,7 +41,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-19-7f0983"></script>
+<script src="config.js?v=2026-11-19-f0adae"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -59,9 +59,9 @@ addEventListener('error', function (e) {
 // Penugasan koordinator (97-patch-koordinator.sql, pemilik 2026-11-17): admin menetapkan dosen, jabatan, periode, dan SK.
 // SK diunggah ke pustaka dokumen (jenis "sk") sehingga sekaligus menjadi bukti tata pamong. Wewenang berlaku selama periode.
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-19-7f0983';
-import { JABATAN, labelJabatan, aktifPada } from './koordinator.js?v=2026-11-19-7f0983';
-import { unggahKePustaka } from './pustaka-dokumen.js?v=2026-11-19-7f0983';
+import { gerbang } from './menu.js?v=2026-11-19-f0adae';
+import { JABATAN, labelJabatan, aktifPada } from './koordinator.js?v=2026-11-19-f0adae';
+import { unggahKePustaka } from './pustaka-dokumen.js?v=2026-11-19-f0adae';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
@@ -78,7 +78,11 @@ const WEWENANG = {
   pembina_kemahasiswaan: 'Tahap admin laporan lomba dan publikasi/luaran mahasiswa; Data prodi › Prestasi, Publikasi, Luaran mahasiswa.',
   kepala_lab: 'Profil laboratorium miliknya dan alatnya (tahap 2).',
   gkm: 'Modul akreditasi dan SPMI (tahap 2).',
+  kaprodi: 'Memeriksa dan mengesahkan RPS; nama di kolom Ketua Program Studi lembar pengesahan RPS (admin boleh a.n., khusus RPS).',
+  dekan: 'Menetapkan RPS setelah disahkan Kaprodi; nama di kolom Dekan lembar pengesahan RPS (admin boleh a.n., khusus RPS).',
 };
+// 117 (pemilik 2026-11-19): sebutan di dokumen untuk Kaprodi/Dekan, mis. "Pjs. Dekan Fakultas Perencanaan Infrastruktur".
+const BERSEBUTAN = ['kaprodi', 'dekan'];
 let SAYA = null, BARIS = [], DOSEN = [], LAB = [], SUNTING = null;
 
 const tulis = (k, t) => { $('msg').className = 'msg ' + k; $('msg').textContent = t; };
@@ -98,7 +102,8 @@ async function muat(){
 function gambar(){
   const aktif = new Set(aktifPada(BARIS).map(x => x.id));
   $('daftar').innerHTML = BARIS.length ? `<div class="lebar-tabel"><table><thead><tr><th>Jabatan</th><th>Dosen</th><th>Periode</th><th>SK</th><th></th></tr></thead>
-    <tbody>${BARIS.map(r => `<tr class="${aktif.has(r.id) ? '' : 'berakhir'}"><td>${esc(labelJabatan(r.jabatan))}${r.laboratorium?.nama ? '<br><span class="ket">' + esc(r.laboratorium.nama) + '</span>' : ''}</td>
+    <tbody>${BARIS.map(r => `<tr class="${aktif.has(r.id) ? '' : 'berakhir'}"><td>${esc(labelJabatan(r.jabatan))}${r.laboratorium?.nama ? '<br><span class="ket">' + esc(r.laboratorium.nama) + '</span>' : ''}${
+        r.sebutan ? '<br><span class="ket">' + esc(r.sebutan) + '</span>' : ''}</td>
       <td>${esc(r.dosen?.nama || '')}</td><td>${esc(r.mulai)} s.d. ${esc(r.selesai || 'sekarang')} <span class="lencana${aktif.has(r.id) ? ' aktif' : ''}">${aktif.has(r.id) ? 'aktif' : 'tidak aktif'}</span></td>
       <td>${r.nomor_sk ? esc(r.nomor_sk) : ''}${r.dokumen?.url ? ` <a href="${esc(r.dokumen.url)}" target="_blank" rel="noopener">berkas</a>` : ''}</td>
       <td><button class="b" data-ubah="${r.id}">Ubah</button></td></tr>`).join('')}</tbody></table></div>`
@@ -110,16 +115,18 @@ function isiForm(r){
   SUNTING = r?.id || null;
   $('f_dosen').value = r?.dosen_id || ''; $('f_jab').value = r?.jabatan || 'koordinator_ta'; $('f_lab').value = r?.laboratorium_id || '';
   $('f_mulai').value = r?.mulai || new Date().toISOString().slice(0, 10); $('f_selesai').value = r?.selesai || '';
-  $('f_sk').value = r?.nomor_sk || ''; $('f_berkas').value = '';
+  $('f_sk').value = r?.nomor_sk || ''; $('f_berkas').value = ''; $('f_sebutan').value = r?.sebutan || '';
   $('judulForm').textContent = r ? 'Ubah penugasan' : 'Tetapkan koordinator';
   $('b_akhiri').hidden = !r; aturLab(); tulis('', '');
 }
-const aturLab = () => { $('l_lab').hidden = $('f_jab').value !== 'kepala_lab'; $('wewenang').textContent = WEWENANG[$('f_jab').value] || ''; };
+const aturLab = () => { $('l_lab').hidden = $('f_jab').value !== 'kepala_lab'; $('l_sebutan').hidden = !BERSEBUTAN.includes($('f_jab').value);
+  $('wewenang').textContent = WEWENANG[$('f_jab').value] || ''; };
 
 async function simpan(akhiri = false){
   const isi = { dosen_id: $('f_dosen').value, jabatan: $('f_jab').value, laboratorium_id: $('f_jab').value === 'kepala_lab' ? +$('f_lab').value || null : null,
     mulai: $('f_mulai').value, selesai: akhiri ? new Date().toISOString().slice(0, 10) : ($('f_selesai').value || null),
-    nomor_sk: $('f_sk').value.trim() || null, oleh: SAYA.email, diperbarui: new Date().toISOString() };
+    nomor_sk: $('f_sk').value.trim() || null, oleh: SAYA.email, diperbarui: new Date().toISOString(),
+    ...(BERSEBUTAN.includes($('f_jab').value) ? { sebutan: $('f_sebutan').value.trim().replace(/\s+/g, ' ') || null } : {}) };
   if (!isi.dosen_id || !isi.mulai) return tulis('buruk', 'Pilih dosen dan isi tanggal mulai.');
   if (isi.jabatan === 'kepala_lab' && !isi.laboratorium_id) return tulis('buruk', 'Pilih laboratoriumnya.');
   $('b_simpan').disabled = true;
@@ -157,6 +164,7 @@ async function mulai(){
         <label>Mulai<input type="date" id="f_mulai"></label>
         <label>Selesai (opsional)<input type="date" id="f_selesai"></label>
         <label>Nomor SK<input id="f_sk" maxlength="200"></label>
+        <label id="l_sebutan" hidden>Sebutan di dokumen (opsional)<input id="f_sebutan" maxlength="200" placeholder="mis. Pjs. Dekan Fakultas Perencanaan Infrastruktur"></label>
         <label>Berkas SK (ke pustaka dokumen)<input type="file" id="f_berkas" accept="${esc(UNGGAH?.accept || '.pdf')}"></label>
       </div>
       <p class="ket" id="wewenang"></p>

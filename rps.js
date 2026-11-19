@@ -468,7 +468,25 @@ export function periksaRps({ mk = {}, struktur, rps, cpl = [], pengembang = null
  * Model siap cetak untuk rps-docx.js. ctx seperti periksaRps + situs {prodi}. Kolom asesmen = jenis yang dipakai
  * (urutan Kuis, Tugas, UTS, UAS, Lainnya); sel = nama butir yang berbobot pada Sub-CPMK itu.
  */
-export function modelRps({ mk = {}, struktur, rps, cpl = [], pengembang = null, kaprodi = null, revisi = [], kaprodi_penyusun = false } = {}){
+/**
+ * E-sign RPS (116, pemilik 2026-11-19): data pengesahan elektronik untuk Word. r = baris mk_rps; log = mk_rps_pengesahan MK itu;
+ * nama(id) -> dosen {nama, nama_gelar, nip}; url = alamat halaman verifikasi berisi kode. null bila RPS belum pernah disahkan.
+ * Hasil { url, kode, tanggal, diajukan: {waktu}, sah: {waktu, oleh, diwakilkan, sebutan}, tetap: {...}|null }.
+ * o.tanggal = tanggal dokumen (ISO, 117: per semester) dicetak sebagai tanggal tanda tangan; waktu sistem tetap dicatat kecil.
+ * o.sebutanKaprodi/o.sebutanDekan = sebutan penugasan (117), mis. 'Pjs. Dekan Fakultas Perencanaan Infrastruktur'.
+ */
+export function esignRps(r, log = [], nama = () => null, url = '', o = {}){
+  if (!r?.sah_pada || !r?.kode_verifikasi) return null;
+  const nm = id => { const d = nama(id); return d ? teks(d.nama_gelar) || teks(d.nama) : ''; };
+  const aju = [...log].filter(l => l.aksi === 'ajukan' && String(l.waktu) <= String(r.sah_pada)).pop();
+  return { url, kode: String(r.kode_verifikasi), tanggal: o.tanggal || '',
+    diajukan: aju ? { waktu: aju.waktu } : null,
+    sah: { waktu: r.sah_pada, oleh: nm(r.sah_oleh), diwakilkan: !!r.sah_atas_nama && r.sah_oleh !== r.sah_atas_nama, sebutan: o.sebutanKaprodi || '' },
+    tetap: r.tetap_pada ? { waktu: r.tetap_pada, oleh: nm(r.tetap_oleh), diwakilkan: !!r.tetap_atas_nama && r.tetap_oleh !== r.tetap_atas_nama,
+      sebutan: o.sebutanDekan || '' } : null };
+}
+
+export function modelRps({ mk = {}, struktur, rps, cpl = [], pengembang = null, kaprodi = null, dekan = null, esign = null, revisi = [], kaprodi_penyusun = false } = {}){
   const S = struktur || { cpmk: [], sub: [], asesmen: [], bobot: {} }, R = rps || rpsKosong(mk);
   const kolom = JENIS_ASESMEN.filter(([j]) => S.asesmen.some(a => jenisAsesmen(a) === j));
   const isi = x => Object.fromEntries(kolom.map(([j]) => [j, S.asesmen.filter(a => jenisAsesmen(a) === j && angka(S.bobot?.[x.kode]?.[a.nama])).map(a => a.nama)]));
@@ -479,6 +497,7 @@ export function modelRps({ mk = {}, struktur, rps, cpl = [], pengembang = null, 
   return {
     mk: { kode: teks(mk.kode), nama: teks(mk.nama), kurikulum: teks(mk.kurikulum) },
     identitas: R.identitas, pengembang: orang(pengembang), kaprodi: orang(kaprodi), kaprodi_penyusun: !!kaprodi_penyusun,   // 114
+    dekan: orang(dekan), esign,   // 116: kolom Dekan dan pengesahan elektronik (QR)
     cpl: cpl.filter(c => S.sub.some(x => x.cpl === c.kode) || !S.sub.some(x => x.cpl)),
     cpmk: S.cpmk.map(c => ({ kode: c.kode, rumusan: teks(c.rumusan) })),
     kolom: kolom.map(([j, l]) => ({ jenis: j, label: l, total: totalJenis[j] })),

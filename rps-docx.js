@@ -63,8 +63,23 @@ export function ukuranPeta(w, h){
 const kodeCpl = k => (/^cpl/i.test(String(k)) ? String(k) : `CPL-${k}`);
 const ya = v => (v === true ? 'Ada' : v === false ? 'Tidak ada' : '');
 
-/** Isi <w:body> RPS dari modelRps (tanpa sectPr). o.peta = {w, h} (px) bila gambar Peta Analisis disertakan (rIdPeta). */
+// 116 (pemilik 2026-11-19): isi sel tanda tangan elektronik: [QR] + "Disahkan elektronik, <tanggal>" + "a.n. <jabatan>" bila diwakilkan.
+// x = {waktu, oleh, diwakilkan} atau null (sel kosong untuk tanda tangan basah); qr = true bila gambar rIdQR disertakan.
+const QR_EMU = 648000;   // 1,8 cm
+// 117: tanggal dokumen (per semester) dicetak sebagai tanggal tanda tangan; waktu sistem sebenarnya dicatat kecil di bawahnya.
+function selTtd(x, kata, qr, jabatan, tanggalDok = ''){
+  if (!x) return pg('');
+  const sistem = tanggalPanjang(String(x.waktu || '').slice(0, 10)), jab = x.sebutan || jabatan;
+  return (qr ? pg(gambarXml('rIdQR', QR_EMU, QR_EMU, kata === 'Disahkan' ? 3 : 4, 'QR'), { jc: 'center', before: 40, after: 0 }) : '')
+    + pg(rn(tanggalDok ? `${kata}, ${tanggalPanjang(tanggalDok)}` : `${kata} elektronik, ${sistem}`, { i: true, sz: 16 }), { jc: 'center', before: 20, after: 0 })
+    + (tanggalDok ? pg(rn(`(pengesahan elektronik dicatat sistem ${sistem})`, { i: true, sz: 12 }), { jc: 'center', before: 0, after: 0 }) : '')
+    + (x.diwakilkan && jab ? pg(rn(`a.n. ${jab}; dilaksanakan oleh ${x.oleh || 'admin prodi'}`, { i: true, sz: 14 }), { jc: 'center', before: 0, after: 20 })
+      : x.sebutan ? pg(rn(x.sebutan, { sz: 14 }), { jc: 'center', before: 0, after: 20 }) : '');
+}
+
+/** Isi <w:body> RPS dari modelRps (tanpa sectPr). o.peta = {w, h} (px) bila gambar Peta Analisis disertakan (rIdPeta); o.qr = QR (rIdQR). */
 export function dokumenRps(M, o = {}){
+  const ES = M.esign || null;   // 116
   const I = M.identitas || {}, sks = I.sks || {};
   const out = [];
   // A. Identitas dan pengesahan (lebar kolom formulir).
@@ -79,12 +94,17 @@ export function dokumenRps(M, o = {}){
     [sel(I.penyelenggara, { vm: 'restart', va: 'center', jc: 'center' }), sel('DISIAPKAN OLEH DOSEN PENGEMBANG RPS', { span: 2, fill: BIRU_PUCAT, b: true, jc: 'center' }),
      sel('DIPERIKSA OLEH KETUA PROGRAM STUDI', { span: 4, fill: BIRU_PUCAT, b: true, jc: 'center' }),
      sel('DISETUJUI/DITETAPKAN OLEH DEKAN', { span: 2, fill: BIRU_PUCAT, b: true, jc: 'center' })],
-    { tinggi: 1100, sel: [sel('', { vm: 'lanjut' }), sel('', { span: 2 }), sel('', { span: 4 }), sel('', { span: 2 })] },
+    { tinggi: 1100, sel: [sel('', { vm: 'lanjut' }), sel({ xml: selTtd(ES && ES.diajukan, 'Diajukan', false, null, ES?.tanggal) }, { span: 2, va: 'center' }),
+      sel({ xml: selTtd(ES && ES.sah, 'Disahkan', o.qr, 'Ketua Program Studi', ES?.tanggal) }, { span: 4, va: 'center' }),
+      sel({ xml: selTtd(ES && ES.tetap, 'Ditetapkan', o.qr, 'Dekan', ES?.tanggal) }, { span: 2, va: 'center' })] },
     [sel('', { vm: 'lanjut' }), sel(M.pengembang.nama || 'Nama dan Gelar', { span: 2, jc: 'center', b: true }),
-     sel(M.kaprodi.nama || 'Nama dan Gelar', { span: 4, jc: 'center', b: true }), sel('Nama dan Gelar', { span: 2, jc: 'center', b: true })],
+     sel(M.kaprodi.nama || 'Nama dan Gelar', { span: 4, jc: 'center', b: true }), sel(M.dekan?.nama || 'Nama dan Gelar', { span: 2, jc: 'center', b: true })],
     [sel('', { vm: 'lanjut' }), sel(`NIP ${M.pengembang.nip}`.trim(), { span: 2, jc: 'center' }), sel(`NIP ${M.kaprodi.nip}`.trim(), { span: 4, jc: 'center' }),
-     sel('NIP', { span: 2, jc: 'center' })],
+     sel(`NIP ${M.dekan?.nip || ''}`.trim(), { span: 2, jc: 'center' })],
   ]));
+  // 116: keterangan verifikasi pengesahan elektronik.
+  if (ES) out.push(pg(rn(`Disahkan secara elektronik melalui sistem program studi. Keaslian dapat diperiksa dengan memindai kode QR atau membuka ${ES.url}`
+    + ` (kode ${String(ES.kode).slice(0, 8)}).`, { i: true, sz: 16 }), { before: 40, after: 60 }));
   // 114 (pemilik 2026-11-19): Kaprodi pemeriksa sekaligus penyusun RPS -> boleh, ditandai.
   if (M.kaprodi_penyusun) out.push(pg(rn('Catatan: Ketua Program Studi yang memeriksa juga penyusun RPS ini (koordinator/pengampu mata kuliah); '
     + 'ditandai oleh sistem.', { i: true, sz: 16 }), { before: 40, after: 60 }));
@@ -256,7 +276,7 @@ function header(adaLogo){
  * Berkas .docx. opsi: { JSZip (kelas), logo (ArrayBuffer/Uint8Array PNG atau null), peta ({png, w, h} atau null; PNG Peta Analisis,
  * w/h px tampilan), type ('blob' di peramban, 'nodebuffer' di Node) }.
  */
-export async function buatRpsDocx(M, { JSZip, logo = null, peta = null, type = 'blob' } = {}){
+export async function buatRpsDocx(M, { JSZip, logo = null, peta = null, qr = null, type = 'blob' } = {}){
   const zip = new JSZip();
   zip.file('[Content_Types].xml', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
@@ -273,9 +293,11 @@ export async function buatRpsDocx(M, { JSZip, logo = null, peta = null, type = '
   zip.file('word/_rels/document.xml.rels', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
 <Relationship Id="rIdH1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/header" Target="header1.xml"/>${
-  peta ? '\n<Relationship Id="rIdPeta" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/peta.png"/>' : ''}
+  peta ? '\n<Relationship Id="rIdPeta" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/peta.png"/>' : ''}${
+  qr && M.esign ? '\n<Relationship Id="rIdQR" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/qr.png"/>' : ''}
 </Relationships>`);
   if (peta) zip.file('word/media/peta.png', peta.png);
+  if (qr && M.esign) zip.file('word/media/qr.png', qr);   // 116: PNG kode QR alamat verifikasi
   zip.file('word/header1.xml', header(!!logo));
   if (logo) {
     zip.file('word/media/logo.png', logo);
@@ -286,7 +308,7 @@ export async function buatRpsDocx(M, { JSZip, logo = null, peta = null, type = '
   }
   zip.file('word/document.xml', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing">
-<w:body>${dokumenRps(M, { peta: peta ? { w: peta.w, h: peta.h } : null })}<w:sectPr><w:headerReference w:type="default" r:id="rIdH1"/><w:pgSz w:w="16838" w:h="11906" w:orient="landscape"/>` +
+<w:body>${dokumenRps(M, { peta: peta ? { w: peta.w, h: peta.h } : null, qr: !!(qr && M.esign) })}<w:sectPr><w:headerReference w:type="default" r:id="rIdH1"/><w:pgSz w:w="16838" w:h="11906" w:orient="landscape"/>` +
 `<w:pgMar w:top="1440" w:right="1440" w:bottom="1440" w:left="1440" w:header="708" w:footer="708" w:gutter="0"/></w:sectPr></w:body></w:document>`);
   return zip.generateAsync({ type, mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
 }

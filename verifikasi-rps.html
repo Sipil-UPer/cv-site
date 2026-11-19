@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Verifikasi RPS — Program Studi</title>
+<meta name="description" content="Periksa keaslian pengesahan elektronik Rencana Pembelajaran Semester (RPS) dari kode QR di dokumen.">
+<meta name="robots" content="noindex, follow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tema.css?v=2026-11-19-f0adae">
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:780px;margin:0 auto;padding:0 20px 90px}
+  a{color:var(--biru-2)}
+  .hero{background:var(--biru);color:#fff;border-bottom:4px solid var(--merah)}
+  .hero-in{max-width:780px;margin:0 auto;padding:30px 20px 28px}
+  .balik{display:inline-flex;gap:7px;align-items:center;text-decoration:none;font-family:var(--mono);font-size:11px;
+         letter-spacing:.1em;text-transform:uppercase;color:var(--biru-m2);margin-bottom:20px}
+  h1{font-family:var(--serif);font-size:clamp(24px,4.2vw,34px);font-weight:600;letter-spacing:-.018em;margin:0;line-height:1.14}
+  .prodi{color:var(--biru-m4);font-size:14.5px;margin-top:7px}
+  .hasil{background:var(--panel);border:1px solid var(--line);border-left:6px solid var(--line);padding:16px 20px;margin:26px 0 10px}
+  .hasil.ok{border-left-color:var(--hijau)} .hasil.lama{border-left-color:#8A5A00} .hasil.tidak{border-left-color:var(--merah)}
+  .hasil h2{font-family:var(--serif);font-size:20px;margin:0 0 6px;color:var(--biru)}
+  table{width:100%;border-collapse:collapse;font-size:14px;margin-top:8px}
+  th{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);text-align:left;font-weight:400;
+     padding:8px 10px 6px 0;border-bottom:1px solid var(--line);width:34%;vertical-align:top}
+  td{padding:8px 10px 8px 0;border-bottom:1px solid var(--line-soft);vertical-align:top}
+  .ket{color:var(--muted);font-size:13px}
+  code{font-family:var(--mono);font-size:12.5px;word-break:break-all}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="hero-in">
+    <a class="balik" href="index.html">&larr; Beranda</a>
+    <h1>Verifikasi RPS</h1>
+    <div class="prodi" id="hProdi">Pengesahan elektronik Rencana Pembelajaran Semester</div>
+  </div>
+</header>
+<main class="wrap" id="isi"><p class="ket">Memeriksa…</p></main>
+<script src="config.js?v=2026-11-19-f0adae"></script>
+<script>
+// Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
+// halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
+addEventListener('error', function (e) {
+  if (document.getElementById('galat-muat')) return;
+  var d = document.createElement('div');
+  d.id = 'galat-muat';
+  d.style.cssText = 'margin:16px;padding:12px 14px;border:1px solid var(--merah);' +
+    'background:var(--merah-m3);color:var(--ink);font:14px/1.5 system-ui,sans-serif';
+  d.textContent = 'Halaman gagal dimuat: ' + (e.message || 'galat skrip') +
+    '. Tekan Ctrl+Shift+R untuk memuat ulang tanpa cache; bila tetap muncul, kirim pesan ini ke admin.';
+  document.body.insertBefore(d, document.body.firstChild);
+});
+</script>
+<script type="module">
+// Verifikasi pengesahan elektronik RPS (116/117, pemilik 2026-11-19): kode QR di Word RPS membuka halaman ini (?k=<kode>).
+// Data dari rps_verifikasi (fungsi publik, hanya baca): MK, revisi, pengaju, pengesah, penetap (a.n. bila diwakilkan admin),
+// sebutan pejabat, waktu pengesahan elektronik sebenarnya, sidik isi versi disahkan.
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const waktu = w => (w ? new Date(w).toLocaleString('id-ID', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' }) + ' WIB' : '');
+const $ = id => document.getElementById(id);
+const pejabat = (x, jabatan) => x ? `${esc(x.atas_nama || '')}${x.sebutan ? `<div class="ket">${esc(x.sebutan)}</div>` : `<div class="ket">${jabatan}</div>`}
+  ${x.diwakilkan ? `<div class="ket">Dilaksanakan oleh ${esc(x.oleh || 'admin prodi')} <b>a.n.</b> ${esc(x.sebutan || jabatan)}</div>` : ''}
+  <div class="ket">Dicatat sistem: ${esc(waktu(x.waktu))}</div>` : '<span class="ket">belum</span>';
+
+async function mulai(){
+  const kode = new URLSearchParams(location.search).get('k') || '';
+  if (!/^[0-9a-f-]{36}$/i.test(kode)) {
+    $('isi').innerHTML = '<div class="hasil tidak"><h2>Kode tidak dikenali</h2><p>Pindai kode QR di lembar pengesahan RPS, atau buka alamat lengkap yang tertulis di bawah tabel pengesahan.</p></div>';
+    return;
+  }
+  const sb = createClient(window.SB_URL, window.SB_KEY);
+  const { data: v, error } = await sb.rpc('rps_verifikasi', { p_kode: kode });
+  if (error) { $('isi').innerHTML = `<div class="hasil tidak"><h2>Gagal memeriksa</h2><p>${esc(error.message)}</p></div>`; return; }
+  if (!v?.ditemukan) {
+    $('isi').innerHTML = `<div class="hasil tidak"><h2>Tidak ditemukan</h2><p>Kode <code>${esc(kode)}</code> tidak cocok dengan pengesahan RPS mana pun.
+      Kode lama tidak berlaku lagi setelah RPS disahkan ulang (revisi); dokumen dengan kode ini <b>bukan</b> versi resmi yang berlaku.</p></div>`;
+    return;
+  }
+  const kelas = v.berlaku ? 'ok' : 'lama';
+  $('isi').innerHTML = `<div class="hasil ${kelas}"><h2>${v.berlaku ? 'Pengesahan sah dan berlaku' : 'Pengesahan sah, tetapi RPS sedang direvisi'}</h2>
+    <p>${v.berlaku ? 'Dokumen dengan kode ini adalah versi RPS yang disahkan dan berlaku.'
+      : 'Dokumen ini pernah disahkan dengan kode ini; RPS sedang diubah dan menunggu pengesahan ulang. Sampai disahkan lagi, versi ini tetap yang terakhir disahkan.'}</p>
+    <table>
+      <tr><th>Mata kuliah</th><td><b>${esc(v.kode_mk)}</b> ${esc(v.nama_mk || '')} <span class="ket">(${esc(v.kurikulum)})</span></td></tr>
+      <tr><th>Revisi</th><td>${v.revisi > 1 ? `revisi ${esc(v.revisi - 1)}` : 'pengesahan pertama'}</td></tr>
+      <tr><th>Disiapkan (dosen pengembang)</th><td>${v.diajukan ? `${esc(v.diajukan.nama || '')}<div class="ket">Diajukan: ${esc(waktu(v.diajukan.waktu))}</div>` : '<span class="ket">—</span>'}</td></tr>
+      <tr><th>Diperiksa dan disahkan</th><td>${pejabat(v.disahkan, 'Ketua Program Studi')}</td></tr>
+      <tr><th>Disetujui/ditetapkan</th><td>${pejabat(v.ditetapkan, 'Dekan')}</td></tr>
+      <tr><th>Sidik isi versi disahkan</th><td><code>${esc(v.sidik)}</code></td></tr>
+    </table>
+    <p class="ket">Tanggal di dokumen dapat berupa tanggal dokumen semester; waktu "dicatat sistem" adalah saat pengesahan elektronik dilakukan.
+      Kode: <code>${esc(kode)}</code></p></div>`;
+}
+mulai().catch(e => { $('isi').innerHTML = `<div class="hasil tidak"><h2>Gagal memeriksa</h2><p>${esc(e.message || e)}</p></div>`; });
+</script>
+</body>
+</html>

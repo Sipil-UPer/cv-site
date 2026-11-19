@@ -6,7 +6,9 @@ export const JABATAN = [['koordinator_ta', 'Koordinator TA'], ['koordinator_kp',
   // 100-patch-koordinator-capstone.sql (pemilik 2026-11-17): jabatan saja dulu, tanpa wewenang tambahan.
   ['koordinator_capstone', 'Koordinator capstone design'],
   // 111-patch-rps-k26.sql (pemilik 2026-11-18): memeriksa dan mengesahkan RPS (tahap 2), nama di lembar pengesahan.
-  ['kaprodi', 'Ketua Program Studi (Kaprodi)']];
+  ['kaprodi', 'Ketua Program Studi (Kaprodi)'],
+  // 116-patch-rps-esign.sql (pemilik 2026-11-19): menetapkan RPS setelah disahkan Kaprodi; nama di kolom Dekan lembar pengesahan.
+  ['dekan', 'Dekan']];
 export const labelJabatan = j => (JABATAN.find(x => x[0] === j) || [, j])[1];
 
 // Jenis pengajuan mahasiswa -> jabatan yang menggantikan admin (surat: admin saja).
