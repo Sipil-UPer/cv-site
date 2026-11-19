@@ -1,13 +1,14 @@
 // "Tugas saya" di Ruang kerja (pemilik 2026-11-12): hal yang menunggu tindakan dosen yang
 // sedang masuk, dari data yang sudah boleh ia baca (RLS). Aturan tenggat sama dengan halaman
 // Pengingat: rapat.js, hibah.js, temuan-ami.js, pengingat-dosen.js.
-import { kurangProfil } from './pengingat-dosen.js?v=2026-11-19-07af6f';
-import { tindakTerbuka, tglID } from './rapat.js?v=2026-11-19-07af6f';
-import { tenggatBerikut, teksHari, HARI_LEWAT } from './hibah.js?v=2026-11-19-07af6f';
-import { hariKeTenggat, labelStatus, HARI_DEKAT } from './temuan-ami.js?v=2026-11-19-07af6f';
-import { tugasEvaluasi } from './evaluasi-pembelajaran.js?v=2026-11-19-07af6f';
-import { bolehPengajuan } from './koordinator.js?v=2026-11-19-07af6f';
-import { tugasMK } from './tugas-mk.js?v=2026-11-19-07af6f';
+import { kurangProfil } from './pengingat-dosen.js?v=2026-11-19-a4eda0';
+import { tindakTerbuka, tglID } from './rapat.js?v=2026-11-19-a4eda0';
+import { tenggatBerikut, teksHari, HARI_LEWAT } from './hibah.js?v=2026-11-19-a4eda0';
+import { hariKeTenggat, labelStatus, HARI_DEKAT } from './temuan-ami.js?v=2026-11-19-a4eda0';
+import { tugasEvaluasi } from './evaluasi-pembelajaran.js?v=2026-11-19-a4eda0';
+import { bolehPengajuan } from './koordinator.js?v=2026-11-19-a4eda0';
+import { tenggatReview, hariKe, teksHari as teksHariRv, tugasTenggatRps, tanggalPanjang as tglRv } from './pengingat-rps.js?v=2026-11-19-a4eda0';
+import { tugasMK } from './tugas-mk.js?v=2026-11-19-a4eda0';
 
 const SELESAI_AMI = new Set(['selesai', 'ditutup']);
 const tingkat = h => h == null ? 'biasa' : h < 0 ? 'lewat' : h <= HARI_DEKAT ? 'dekat' : 'biasa';
@@ -28,7 +29,8 @@ const tgl10 = s => String(s || '').slice(0, 10);
  *   dataMK: data koordinator MK/pengampu untuk tugas-mk.js (null bila bukan keduanya),
  *   reviewSaya: baris mk_rps_review milik sendiri [{kurikulum, kode_mk, ditunjuk_pada, kirim_pada}] (118),
  *   rekapReview: rps_review_rekap [{kurikulum, kode_mk, terkirim, ditanggapi}], bolehRps: rps_boleh_saya [{kurikulum, kode_mk}] (119),
- *   mkNama: Map 'kur|kode' -> nama MK }
+ *   mkNama: Map 'kur|kode' -> nama MK,
+ *   hariReview: tenggat review (hari sejak ditunjuk), tenggatRps: {Ganjil, Genap} ISO, mkRef: ref_mata_kuliah, rpsStatus: Map 'kur|kode' -> {status, smt} (120) }
  * Hasil [{ jenis, judul, rinci, href, hari, tingkat }], lewat tenggat dulu.
  * Asesor tidak punya tugas.
  */
@@ -96,7 +98,10 @@ export function tugasSaya(d, kini = new Date()){
 
   // Review sejawat RPS (118/119, pemilik 2026-11-19): reviewer yang ditunjuk dan belum mengirim; penyusun RPS yang reviewnya
   // belum ditanggapi (admin tidak menanggapi atas nama penyusun). Tanpa tenggat resmi: tidak ditandai lewat.
-  for (const x of tugasReview(d)) tambah(x.jenis, x.judul, x.rinci, x.href);
+  for (const x of tugasReview(d, kini)) tambah(x.jenis, x.judul, x.rinci, x.href, x.hari);
+  // Tenggat RPS per semester (120): RPS yang boleh saya susun belum diajukan ke Kaprodi.
+  for (const x of tugasTenggatRps({ mk: d.mkRef || [], rps: d.rpsStatus || new Map(), bolehRps: d.bolehRps || [], tenggat: d.tenggatRps || {}, kini }))
+    tambah(x.jenis, x.judul, x.rinci, x.href, x.hari);
 
   // Target kinerja tahun berjalan (66-patch-target-dosen.sql): satu butir ringkas bila ada yang belum tercapai.
   const kurang = (d.target || []).filter(b => b.status !== 'tercapai');
@@ -127,12 +132,15 @@ export function tugasSaya(d, kini = new Date()){
 }
 
 /** Tugas review RPS (118/119): [{jenis, judul, rinci, href}]. Satu MK = tautan langsung ke RPS-nya. */
-export function tugasReview({ reviewSaya = [], rekapReview = [], bolehRps = [], mkNama = new Map() } = {}){
+export function tugasReview({ reviewSaya = [], rekapReview = [], bolehRps = [], mkNama = new Map(), hariReview } = {}, kini = new Date()){
   const out = [], k = x => `${x.kurikulum}|${x.kode_mk}`, nm = x => `${x.kode_mk} ${mkNama.get(k(x)) || ''}`.trim();
   const tautan = xs => (xs.length === 1 ? `rps.html?kur=${encodeURIComponent(xs[0].kurikulum)}&kode=${encodeURIComponent(xs[0].kode_mk)}` : 'rps.html');
   const belum = reviewSaya.filter(x => !x.kirim_pada);
+  // Tenggat review (120): N hari sejak ditunjuk; hari = tenggat terdekat.
+  const tg = x => tenggatReview(x, hariReview), hari = belum.length ? Math.min(...belum.map(x => hariKe(tg(x), kini))) : null;
   if (belum.length) out.push({ jenis: 'review', judul: belum.length === 1 ? `Review RPS ${nm(belum[0])}` : `Review RPS: ${belum.length} mata kuliah menunggu penilaian Anda`,
-    rinci: `Anda ditunjuk sebagai reviewer: ${belum.map(nm).join('; ')}. Isi form review di halaman RPS (panel di samping RPS).`, href: tautan(belum) });
+    rinci: `Anda ditunjuk sebagai reviewer: ${belum.map(x => `${nm(x)} (tenggat ${tglRv(tg(x))}, ${teksHariRv(hariKe(tg(x), kini))})`).join('; ')}. `
+      + 'Isi form review di halaman RPS (panel di samping RPS).', href: tautan(belum), hari });
   const saya = new Set(bolehRps.map(k));
   const tanggap = rekapReview.filter(x => saya.has(k(x)) && +x.terkirim > +x.ditanggapi);
   if (tanggap.length) out.push({ jenis: 'review', judul: tanggap.length === 1 ? `Tanggapi review RPS ${nm(tanggap[0])}`

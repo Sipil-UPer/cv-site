@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-19-07af6f">
-<link rel="stylesheet" href="kepala.css?v=2026-11-19-07af6f">
+<link rel="stylesheet" href="tema.css?v=2026-11-19-a4eda0">
+<link rel="stylesheet" href="kepala.css?v=2026-11-19-a4eda0">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
@@ -118,7 +118,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-19-07af6f"></script>
+<script src="config.js?v=2026-11-19-a4eda0"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -138,19 +138,20 @@ addEventListener('error', function (e) {
 // Penyusun = koordinator MK atau pengampu kelas MK semester terakhir (boleh_rps, 112); GKM dan admin hanya melihat.
 // Pengesahan (112): dosen mengajukan -> Kaprodi aktif mengesahkan atau mengembalikan; daftar revisi (bagian F) otomatis.
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-19-07af6f';
-import { bolehMutu, aktifPada, punya } from './koordinator.js?v=2026-11-19-07af6f';
-import { cplMK } from './cpmk.js?v=2026-11-19-07af6f';
+import { gerbang } from './menu.js?v=2026-11-19-a4eda0';
+import { bolehMutu, aktifPada, punya } from './koordinator.js?v=2026-11-19-a4eda0';
+import { cplMK } from './cpmk.js?v=2026-11-19-a4eda0';
 import { JENIS_ASESMEN, JENIS_MK, DIREKTORI, jenisAsesmen, bloom, hots, rapikanRps, kerangkaPekan, barisPekan, periksaRps, modelRps,
   namaBerkasRps, penyusunMK, revisiDariLog, tanggalLokal, waktuLokal, evaluasiDariData, BENTUK, SCL, rekapRps, BENTUK_INTEGRASI,
-  bedaRps, salinRps, ASESMEN_TES, BUTIR_REVIEW, SKALA_REVIEW, KESIMPULAN_REVIEW, rerataReview, butirKosongReview, faktaReview, STATUS_TANGGAPAN, butirTanggapan, sudahDitanggapi, rubrikKosong, kriteriaKosong, rentangPekan, susunanMK, jenisMK, bagiParitas, saringMK, ringkasSemester, htmlRingkasSemester, htmlSaringan, ubahSaringan, esignRps, paritas } from './rps.js?v=2026-11-19-07af6f';
-import { JENIS_PETA, relasiPeta, petaSvg, usulPeta } from './rps-peta.js?v=2026-11-19-07af6f';
-import { keB64 } from './pengajuan-mhs.js?v=2026-11-19-07af6f';
-import { bacaTinjauan, bahanTinjauan } from './tinjauan-rps.js?v=2026-11-19-07af6f';
-import { SHEETJS } from './nilai-cpl.js?v=2026-11-19-07af6f';
-import { lembarRps, bacaRpsExcel, bagianBerubah, LEBAR_KOLOM } from './rps-excel.js?v=2026-11-19-07af6f';
-import { modelBerkasReview, buatReviewDocx, namaBerkasReview } from './review-docx.js?v=2026-11-19-07af6f';
-import { buatRpsDocx } from './rps-docx.js?v=2026-11-19-07af6f';
+  bedaRps, salinRps, ASESMEN_TES, BUTIR_REVIEW, SKALA_REVIEW, KESIMPULAN_REVIEW, rerataReview, butirKosongReview, faktaReview, STATUS_TANGGAPAN, butirTanggapan, sudahDitanggapi, rubrikKosong, kriteriaKosong, rentangPekan, susunanMK, jenisMK, bagiParitas, saringMK, ringkasSemester, htmlRingkasSemester, htmlSaringan, ubahSaringan, esignRps, paritas } from './rps.js?v=2026-11-19-a4eda0';
+import { JENIS_PETA, relasiPeta, petaSvg, usulPeta } from './rps-peta.js?v=2026-11-19-a4eda0';
+import { keB64 } from './pengajuan-mhs.js?v=2026-11-19-a4eda0';
+import { bacaTinjauan, bahanTinjauan } from './tinjauan-rps.js?v=2026-11-19-a4eda0';
+import { SHEETJS } from './nilai-cpl.js?v=2026-11-19-a4eda0';
+import { lembarRps, bacaRpsExcel, bagianBerubah, LEBAR_KOLOM } from './rps-excel.js?v=2026-11-19-a4eda0';
+import { modelBerkasReview, buatReviewDocx, namaBerkasReview } from './review-docx.js?v=2026-11-19-a4eda0';
+import { tenggatReview, hariKe, teksHari, mkTenggatRps, HARI_REVIEW_BAWAAN } from './pengingat-rps.js?v=2026-11-19-a4eda0';
+import { buatRpsDocx } from './rps-docx.js?v=2026-11-19-a4eda0';
 
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -163,6 +164,7 @@ const JSZIP = 'https://cdn.jsdelivr.net/npm/jszip@3.10.1/+esm';
 
 let SAYA = null, KELOLA = false, MK = [], REF_CPL = [], PETA = [], DOSEN = [], BOLEH = new Set(), STR = new Map(), RPS = new Map();
 let DEKAN = null, KOOR = [], SAYA_DEKAN = false, TGL_DOK = { Ganjil: '', Genap: '' };   // 116/117
+let TENGGAT = { Ganjil: '', Genap: '' }, HARI_REVIEW = HARI_REVIEW_BAWAAN;   // 120: tenggat pengajuan RPS per semester; tenggat review (hari)
 let REVIEW = null, REVIEW_TBL = [];   // 118: review sejawat MK terbuka; baris mk_rps_review yang terbaca (sendiri, atau semua untuk Kaprodi/admin)
 let KAPRODI = null, SITUS = {}, PILIH = null, R = null, KOTOR = false, LOG = [], KELAS = [], SAYA_KAPRODI = false, F_MENUNGGU = false;
 // Kurikulum daftar (pemilik 2026-11-19): pilih K21, K26, atau kurikulum berikutnya; bawaan terbaru, diingat di ?kur=.
@@ -218,9 +220,13 @@ async function muat(){
   KAPRODI = aktifPada(koor.filter(k => k.jabatan === 'kaprodi'), new Date())[0]?.dosen || null;
   DEKAN = aktifPada(koor.filter(k => k.jabatan === 'dekan'), new Date())[0]?.dosen || null;   // 116: langkah Dekan aktif bila diisi
   SAYA_DEKAN = punya(SAYA, 'dekan');
-  { const t = await baca(sb.from('pengaturan').select('kunci,nilai').in('kunci', ['rps_tanggal_ganjil', 'rps_tanggal_genap']));   // 117
+  { const t = await baca(sb.from('pengaturan').select('kunci,nilai').in('kunci', ['rps_tanggal_ganjil', 'rps_tanggal_genap',
+      'rps_tenggat_ganjil', 'rps_tenggat_genap', 'rps_review_hari']));   // 117, 120
     const iso = n => { const m = String(n ?? '').match(/^(\d{4})(\d{2})(\d{2})$/); return m ? `${m[1]}-${m[2]}-${m[3]}` : ''; };
-    TGL_DOK = { Ganjil: iso(t.find(x => x.kunci === 'rps_tanggal_ganjil')?.nilai), Genap: iso(t.find(x => x.kunci === 'rps_tanggal_genap')?.nilai) }; }
+    const v = k => t.find(x => x.kunci === k)?.nilai;
+    TGL_DOK = { Ganjil: iso(v('rps_tanggal_ganjil')), Genap: iso(v('rps_tanggal_genap')) };
+    TENGGAT = { Ganjil: iso(v('rps_tenggat_ganjil')), Genap: iso(v('rps_tenggat_genap')) };
+    HARI_REVIEW = +v('rps_review_hari') || HARI_REVIEW_BAWAAN; }
   const kode = URL_AWAL.get('kode'), kur = URL_AWAL.get('kur');
   { const kurs = [...new Set(MK.map(m => m.kurikulum))].sort(); KUR_DAFTAR = kurs.includes(kur) ? kur : kurs[kurs.length - 1] || ''; }
   if (kode && !PILIH) {
@@ -284,17 +290,23 @@ function htmlDaftar(){
       <span class="ket">${xs.length} dari ${semua.length} mata kuliah${F_MENUNGGU ? ' (semua kurikulum)' : ` ${esc(kur)}`}</span></div>
     ${htmlTugasReview()}
     ${htmlSaringan(F_DAFTAR, GRUP_SARING_RPS(), esc)}
-    ${SAYA_ADMIN() ? `<details class="atur-tgl"><summary>Tanggal dokumen RPS (admin)</summary>
+    ${SAYA_ADMIN() ? `<details class="atur-tgl"><summary>Tanggal dokumen dan tenggat RPS (admin)</summary>
       <p class="ket">Dicetak di Word sebagai tanggal penyusunan dan tanggal tanda tangan RPS MK semester ganjil/genap (mis. 2 September 2026);
         waktu pengesahan elektronik sebenarnya tetap dicatat sistem dan ditulis kecil di Word serta di halaman verifikasi QR. Kosong = tanggal penyusunan RPS.</p>
       <div class="alat"><label>Semester ganjil <input type="date" id="tglGanjil" value="${esc(TGL_DOK.Ganjil)}"></label>
         <label>Semester genap <input type="date" id="tglGenap" value="${esc(TGL_DOK.Genap)}"></label>
-        <button class="b" id="simpanTgl">Simpan tanggal</button><span class="msg" id="mTgl"></span></div></details>` : ''}
+        </div>
+      <p class="ket">Tenggat pengajuan RPS ke Kaprodi per semester (pemilik 2026-11-19): RPS dianggap tepat waktu bila sudah diajukan sebelum tanggal ini.
+        Dipakai Tugas saya (segera/lewat) dan halaman Pengingat. Tenggat review = jumlah hari sejak reviewer ditunjuk.</p>
+      <div class="alat"><label>Tenggat semester ganjil <input type="date" id="tgGanjil" value="${esc(TENGGAT.Ganjil)}"></label>
+        <label>Tenggat semester genap <input type="date" id="tgGenap" value="${esc(TENGGAT.Genap)}"></label>
+        <label>Tenggat review <input type="number" id="hariReview" min="1" max="365" value="${HARI_REVIEW}" style="width:70px"> hari</label></div>
+      <div class="alat"><button class="b" id="simpanTgl">Simpan tanggal dan tenggat</button><span class="msg" id="mTgl"></span></div></details>` : ''}
     ${SAYA_KAPRODI || SAYA_ADMIN() ? `<p><label class="centang"><input type="checkbox" id="fMenunggu"${F_MENUNGGU ? ' checked' : ''}> Hanya yang menunggu pemeriksaan Anda
       (${menunggu})</label></p>` : ''}
     ${F_MENUNGGU ? '' : htmlRingkasSemester(rs)}
     ${F_MENUNGGU ? '' : F_DAFTAR.semester.length ? `<div class="lebar">${grup.map(tabelGrup).join('') || '<p class="kosong">Tidak ada mata kuliah yang cocok.</p>'}</div>`
-      : `<div class="dua-kolom">${kolom(ganjil, 'Semester Ganjil' + tot(rs.ganjil))}${kolom(genap, 'Semester Genap' + tot(rs.genap))}</div>`}
+      : `<div class="dua-kolom">${kolom(ganjil, 'Semester Ganjil' + tot(rs.ganjil) + teksTenggatKolom('Ganjil'))}${kolom(genap, 'Semester Genap' + tot(rs.genap) + teksTenggatKolom('Genap'))}</div>`}
     ${(F_MENUNGGU || !F_DAFTAR.semester.length) && lain.length ? `<div class="kolom-lain">${lain.map(tabelGrup).join('')}</div>` : ''}
     <p class="ket">Jenis: ${Object.entries(NAMA_JENIS).map(([k, v]) => `<b>${esc(k)}</b> ${esc(v)}`).join(' · ')}. MK pilihan ditempatkan di kolom Ganjil/Genap
       menurut semester yang diisi di RPS-nya; yang belum diisi tampil di bawah.</p></section>`;
@@ -786,6 +798,32 @@ async function terapkanImpor(){
   tulis('mSimpan', ubahLain ? '' : 'ok', (ubahLain ? 'Isian dari Excel diterapkan; periksa daftar periksa lalu klik Simpan.' : 'Diterapkan.') + pesanB);
 }
 
+// ---------- Tenggat RPS dan review, email undangan (120, pemilik 2026-11-19) ----------
+const tglPendek = iso => (iso ? new Date(iso + 'T00:00:00').toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) : '');
+// Judul kolom Ganjil/Genap: tenggat pengajuan dan jumlah MK yang belum diajukan (MK aktif semua kurikulum di kolom itu).
+function teksTenggatKolom(p){
+  if (!TENGGAT[p]) return '';
+  const n = mkTenggatRps({ mk: MK.filter(m => m.kurikulum === KUR_DAFTAR), rps: RPS, tenggat: { [p]: TENGGAT[p] } }).length, h = hariKe(TENGGAT[p]);
+  return `<div class="ket">Tenggat pengajuan ${esc(tglPendek(TENGGAT[p]))} (${esc(teksHari(h))})${n ? ` · <b>${n} MK belum diajukan</b>` : ''}</div>`;
+}
+const htmlTenggatRv = v => { const t = tenggatReview(v, HARI_REVIEW), h = hariKe(t);
+  return `<div class="ket">tenggat ${esc(tglPendek(t))} <span class="chip${h < 0 ? ' galat' : h <= 3 ? ' saran' : ''}">${esc(teksHari(h))}</span>${
+    v.dikabari_pada ? ` · email ${esc(waktuLokal(v.dikabari_pada))}` : ''}</div>`; };
+// Email undangan lewat Apps Script (Code.gs kind 'rps_review_kabari'): isi disusun dari basis data (rps_review_undangan).
+async function kabariReviewer(kur, kode, reviewer){
+  try {
+    if (!window.UPLOAD_URL) throw new Error('Apps Script belum disiapkan (UPLOAD_URL).');
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) throw new Error('Sesi masuk habis. Muat ulang halaman.');
+    const res = await fetch(window.UPLOAD_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ token: session.access_token, kind: 'rps_review_kabari', kurikulum: kur, kode, reviewer,
+        pengirim: SITUS.prodi ? `Program Studi ${SITUS.prodi}` : 'Program Studi' }) });
+    const out = await res.json();
+    if (!out.ok) throw new Error(/tidak dikenal/i.test(out.error || '') ? 'Apps Script belum diperbarui: terbitkan ulang Code.gs.' : out.error);
+    return `Email undangan terkirim${out.ke ? ` ke ${out.ke}` : ''}.`;
+  } catch (e) { return `Email undangan gagal: ${e.message || e}. Gunakan tombol Kirim ulang email.`; }
+}
+
 // ---------- Review sejawat (118, pemilik 2026-11-19) ----------
 // Reviewer ditunjuk Kaprodi aktif atau admin; pengembang RPS tidak boleh. Tidak mengunci pengesahan. Draf hanya untuk reviewer.
 // REVIEW = hasil rps_review_mk untuk MK terbuka (null = belum dimuat / patch 118 belum dijalankan: kartu disembunyikan).
@@ -857,7 +895,8 @@ function htmlPanelReview(){
   const r = RPS.get(PILIH), F = faktaReview(ctx()), temuan = periksaRps(ctx());
   const terisi = BUTIR_REVIEW.filter(b => +v.skor?.[b.kode] >= 1).length;
   const per = ['A', 'B', 'C', 'D', 'E'].map(g => [g, BUTIR_REVIEW.filter(b => b.bagian === g)]);
-  return `<details id="laciRv"${sempit() ? '' : ' open'}><summary><b>Form review</b> <span class="ket" id="rvHitung">${terisi}/${BUTIR_REVIEW.length} butir diberi skor</span></summary>
+  return `<details id="laciRv"${sempit() ? '' : ' open'}><summary><b>Form review</b> <span class="ket" id="rvHitung">${terisi}/${BUTIR_REVIEW.length} butir diberi skor</span>${v.kirim_pada ? ''
+      : ` <span class="ket">· tenggat ${esc(tglPendek(tenggatReview(v, HARI_REVIEW)))} (${esc(teksHari(hariKe(tenggatReview(v, HARI_REVIEW))))})</span>`}</summary>
     <p class="ket">Klik judul butir untuk membuka bagian RPS yang dinilai. Skala: ${SKALA_REVIEW.map(([n, l]) => `${n} ${l}`).join(' · ')}.
       Ringkasan abu-abu dihitung situs dari isian RPS; skor tetap penilaian Anda.
       ${v.kirim_pada ? `<br>Terkirim ${esc(waktuLokal(v.kirim_pada))}; perubahan dikirim ulang dengan Kirim review.` : '<br>Draf hanya terlihat oleh Anda sampai dikirim.'}
@@ -909,16 +948,18 @@ function htmlReview(){
     return `<tr><td>${esc(v.nama)}${v.saya ? ' <span class="ket">(Anda)</span>' : ''}</td>
       <td>${v.kirim_pada ? `terkirim ${esc(waktuLokal(v.kirim_pada))}${v.revisi > 1 ? ` <span class="ket">(RPS rev. ${v.revisi - 1})</span>` : ''}${
         v.sama ? '' : ' <span class="chip saran">RPS berubah sesudah review</span>'}<div>${sudahDitanggapi(v) ? '<span class="chip ok">ditanggapi penyusun</span>'
-        : '<span class="chip galat">belum ditanggapi penyusun</span>'}</div>` : `ditunjuk ${esc(waktuLokal(v.ditunjuk_pada))}${v.saya ? ' · belum dikirim' : ''}`}</td>
+        : '<span class="chip galat">belum ditanggapi penyusun</span>'}</div>` : `ditunjuk ${esc(waktuLokal(v.ditunjuk_pada))}${v.saya ? ' · belum dikirim' : ''}${htmlTenggatRv(v)}`}</td>
       <td>${v.kirim_pada ? chipKes(v.kesimpulan) : '<span class="kosong">—</span>'}</td>
       <td>${v.kirim_pada ? komaRv(rr) : '—'}</td>
-      <td>${bolehTunjuk() && !v.kirim_pada ? `<button class="b awas" data-rvbatal="${esc(v.reviewer_id)}">Batalkan</button>` : ''}</td></tr>
+      <td>${bolehTunjuk() && !v.kirim_pada ? `<button class="b" data-rvkabari="${esc(v.reviewer_id)}">${v.dikabari_pada ? 'Kirim ulang email' : 'Kirim email'}</button>
+        <button class="b awas" data-rvbatal="${esc(v.reviewer_id)}">Batalkan</button>` : ''}</td></tr>
       ${v.kirim_pada ? `<tr><td colspan="5"><details><summary class="ket">Lihat penilaian ${esc(v.nama)}${bolehTanggap() && !sudahDitanggapi(v) ? ' dan tanggapi' : ''}</summary>${htmlIsiReview(v)}</details></td></tr>` : ''}`; }).join('');
   return `<section class="kartu" id="bag-review"><h2>Review sejawat RPS</h2>
     <p class="ket">RPS dinilai dosen lain dengan form penilaian (butir dari Panduan Pengisian RPS bagian 6). Reviewer ditunjuk Kaprodi atau admin; dosen pengembang
       tidak me-review RPS-nya sendiri. Review tidak mengunci pengesahan; hasil yang dikirim terlihat oleh Kaprodi, penyusun, dan dosen lain.</p>
     ${bolehTunjuk() ? `<div class="alat"><label>Tunjuk reviewer <select id="rvDosen"><option value="">— pilih dosen —</option>${calon.map(d =>
       `<option value="${esc(d.id)}">${esc(d.nama_gelar || d.nama)}</option>`).join('')}</select></label><button class="b" id="rvTunjuk">Tunjuk</button>
+      <label class="centang"><input type="checkbox" id="rvEmail" checked> kirim email ke reviewer</label>
       <span class="msg" id="mReview"></span></div>` : '<span class="msg" id="mReview"></span>'}
     ${REVIEW.some(v => v.kirim_pada) ? `<div class="alat"><button class="b" id="rvBerkas">Unduh berkas review (Word)</button>
       <span class="ket">Bukti tinjauan sejawat untuk akreditasi: skor, catatan reviewer, dan tanggapan penyusun.</span><span class="msg" id="mBerkas"></span></div>` : ''}
@@ -959,10 +1000,17 @@ function pasangReview(){
   if ($('rvTunjuk')) $('rvTunjuk').onclick = async () => {
     const d = $('rvDosen').value;
     if (!d) return tulis('mReview', 'buruk', 'Pilih dosen dulu.');
+    const email = $('rvEmail')?.checked;
     const { error } = await sb.rpc('rps_review_tunjuk', { p_kurikulum: kur, p_kode: kode, p_dosen: d });
     if (error) return gagal('mReview', error);
-    await segarTabel(); await muatReview(); tulis('mReview', 'ok', 'Reviewer ditunjuk.');
+    const pesan = email ? await kabariReviewer(kur, kode, d) : '';
+    await segarTabel(); await muatReview(); tulis('mReview', /gagal/.test(pesan) ? 'buruk' : 'ok', `Reviewer ditunjuk.${pesan ? ' ' + pesan : ''}`);
   };
+  document.querySelectorAll('[data-rvkabari]').forEach(b => b.onclick = async () => {
+    b.disabled = true;
+    const pesan = await kabariReviewer(kur, kode, b.dataset.rvkabari);
+    await muatReview(); tulis('mReview', /gagal/.test(pesan) ? 'buruk' : 'ok', pesan);
+  });
   document.querySelectorAll('[data-rvbatal]').forEach(b => b.onclick = async () => {
     if (!confirm('Batalkan penunjukan reviewer ini?')) return;
     const { error } = await sb.rpc('rps_review_batal', { p_kurikulum: kur, p_kode: kode, p_dosen: b.dataset.rvbatal });
@@ -1231,11 +1279,15 @@ function tanggalDokumen(m, rps){ const p = paritas(m?.semester) || paritas(rps?.
 // 117: tanggal dokumen RPS per semester (pengaturan rps_tanggal_ganjil/genap, angka TTTTBBHH), diisi admin.
 async function simpanTanggalDokumen(){
   const n = v => (v ? +v.replaceAll('-', '') : null);
+  const hari = +$('hariReview').value;
+  if (!(hari >= 1 && hari <= 365)) return tulis('mTgl', 'buruk', 'Tenggat review 1-365 hari.');
   const { error } = await sb.from('pengaturan').upsert([{ kunci: 'rps_tanggal_ganjil', nilai: n($('tglGanjil').value) },
-    { kunci: 'rps_tanggal_genap', nilai: n($('tglGenap').value) }], { onConflict: 'kunci' });
+    { kunci: 'rps_tanggal_genap', nilai: n($('tglGenap').value) }, { kunci: 'rps_tenggat_ganjil', nilai: n($('tgGanjil').value) },
+    { kunci: 'rps_tenggat_genap', nilai: n($('tgGenap').value) }, { kunci: 'rps_review_hari', nilai: hari }], { onConflict: 'kunci' });
   if (error) return tulis('mTgl', 'buruk', error.message);
   TGL_DOK = { Ganjil: $('tglGanjil').value, Genap: $('tglGenap').value };
-  tulis('mTgl', 'ok', 'Tersimpan; berlaku untuk Word yang diunduh berikutnya.');
+  TENGGAT = { Ganjil: $('tgGanjil').value, Genap: $('tgGenap').value }; HARI_REVIEW = hari;
+  tulis('mTgl', 'ok', 'Tersimpan. Tanggal dokumen berlaku untuk Word berikutnya; tenggat dipakai Tugas saya dan Pengingat.');
 }
 async function tetapkan(){
   const [kur, kode] = PILIH.split('|');
