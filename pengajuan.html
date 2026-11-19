@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-19-a1feb3">
+<link rel="stylesheet" href="tema.css?v=2026-11-19-8d11f9">
 <style>
   /* Pengajuan mahasiswa, publik tanpa masuk akun (pemilik 2026-11-17; patch 90). Warna dari tema.css. */
   *{box-sizing:border-box}
@@ -51,6 +51,11 @@
   details.bantuan>summary{cursor:pointer;font-weight:600;padding:12px 0;color:var(--biru)}
   details.bantuan[open]{padding-bottom:14px}
   details.bantuan h2{font-size:16.5px;margin:16px 0 4px;scroll-margin-top:12px}
+  .lencana-contoh{position:fixed;top:8px;right:8px;z-index:50;background:#b7791f;color:#fff;font-weight:700;font-size:12.5px;
+    letter-spacing:.06em;padding:4px 10px;border-radius:999px;box-shadow:0 2px 8px rgba(0,0,0,.2);pointer-events:none}
+  .contoh-pita{margin:10px 0 14px;padding:10px 14px;border:2px dashed #b7791f;border-radius:10px;
+    background:#fff6dc;color:#4a3410;font-size:14px} .contoh-pita nav{margin:6px 0 2px} .contoh-pita .b{margin-top:8px}
+  .contoh-pita .ket{color:#4a3410}
   /* Jalur proses */
   .jalur{list-style:none;margin:8px 0 0;padding:0;display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
   @media (max-width:640px){.jalur{grid-template-columns:1fr}}
@@ -82,7 +87,7 @@
   <h1>Pengajuan KP, seminar/sidang TA, lomba, publikasi/luaran, dan surat</h1><div class="prodi" id="hProdi"></div>
 </div></header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-19-a1feb3"></script>
+<script src="config.js?v=2026-11-19-8d11f9"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -103,8 +108,9 @@ addEventListener('error', function (e) {
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
 import { JENIS, LABEL_BERKAS, LABEL_STATUS, TINGKAT, BIDANG, jalur, bolehUbah, bacaAnggota, teksAnggota,
          periksaIsian, judulPengajuan, keB64, bukaIsi, appsScript, labelStatus, jalurTahap, BERKAS_SELESAI, PROGRAM_KP, labelProgram,
-         periksaSelesai, JENIS_SURAT, TAHAP_TA, TAHAP_TA_AJU, TAHAP_PEMBIMBING_TA, penetapanTA, pembimbingCocok, JENIS_PUB, TINGKAT_PUB, INDEKSASI, JENIS_LUARAN } from './pengajuan-mhs.js?v=2026-11-19-a1feb3';
-import { saranInstansi } from './rekap-kp.js?v=2026-11-19-a1feb3';
+         periksaSelesai, JENIS_SURAT, TAHAP_TA, TAHAP_TA_AJU, TAHAP_PEMBIMBING_TA, penetapanTA, pembimbingCocok, JENIS_PUB, TINGKAT_PUB, INDEKSASI, JENIS_LUARAN } from './pengajuan-mhs.js?v=2026-11-19-8d11f9';
+import { saranInstansi } from './rekap-kp.js?v=2026-11-19-8d11f9';
+import { CONTOH_PENGAJUAN, contohPengajuan } from './pengajuan-contoh.js?v=2026-11-19-8d11f9';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
@@ -121,6 +127,8 @@ const LAPOR = (new URLSearchParams(location.search).get('lapor') || '').trim() =
 // Pengajuan baru setelah ditolak instansi (107): ?nim=&pembimbing= mengisi NIM dan usulan pembimbing lama.
 const NIM_AWAL = (new URLSearchParams(location.search).get('nim') || '').replace(/\D/g, '').slice(0, 15);
 const PB_AWAL = (new URLSearchParams(location.search).get('pembimbing') || '').trim();
+// ?contoh=<kunci> (pemilik 2026-11-19): contoh halaman tautan pribadi dengan data fiktif; tidak memanggil fungsi mhs_*.
+const CONTOH = (new URLSearchParams(location.search).get('contoh') || '').trim();
 let SARAN = [];
 function isiSaran(){
   const dl = $('daftar_instansi');
@@ -138,7 +146,10 @@ function htmlIsian(jenis, d = {}, nama = '', pembimbing = ''){
   const usulKP = jenis === 'kp' && d.susulan !== 'selesai';
   const pb = `<div class="fld"><label for="f_pb">${usulKP ? 'Usulan dosen pembimbing KP' : `Dosen pembimbing ${jenis === 'kp' ? 'KP' : jenis === 'ta' ? 'TA' : 'lomba'}`}</label>
     <select id="f_pb"><option value="">(pilih)</option>${DOSEN.map(x => `<option value="${x.id}"${x.id === pembimbing ? ' selected' : ''}>${esc(x.nama)}</option>`).join('')}</select>
-    <small>Dosen ini memeriksa pengajuan Anda lebih dulu, lalu ${jenis === 'kp' ? 'koordinator KP atau admin prodi' : 'admin prodi'}.</small></div>`;
+    <small>${usulKP ? 'Usulan Anda; koordinator KP menetapkan dosen pembimbing sesuai kuota.'
+      : jenis === 'kp' ? 'Dosen ini memeriksa laporan selesai Anda lebih dulu, lalu koordinator KP atau admin prodi.'
+      : jenis === 'lomba' ? 'Disahkan dosen ini atau pembina kemahasiswaan (siapa pun lebih dulu).'
+      : 'Dosen ini memeriksa pengajuan Anda lebih dulu, lalu admin prodi.'}</small></div>`;
   const nm = `<div class="fld"><label for="f_nama">Nama lengkap</label><input id="f_nama" maxlength="120" autocomplete="name" value="${esc(nama)}"></div>`;
   if (jenis === 'luaran') return `${nm}${pb.replace('Dosen pembimbing lomba', 'Dosen pemeriksa (pembimbing/dosen terkait)')}
     <div class="pilih" role="radiogroup" aria-label="Kategori">
@@ -282,7 +293,8 @@ function halamanBaru(){
     <ol class="langkah">
       <li><b>Pilih jenis</b> dan isi data di bawah.</li>
       <li><b>Buka email kampus</b> Anda (NIM@domain mahasiswa; periksa juga Spam): tautan pribadi dikirim ke sana.</li>
-      <li>Lewat tautan itu <b>unggah berkas</b>, tekan <b>Kirim untuk diperiksa</b>, lalu pantau prosesnya.</li>
+      <li>Lewat tautan itu <b>unggah berkas</b>, tekan <b>Kirim untuk diperiksa</b>, lalu pantau prosesnya.
+        <a href="pengajuan.html?contoh=baru">Lihat contoh halaman tautan pribadi</a>.</li>
     </ol>
     <form class="kotak" id="frm" novalidate>
       <div class="pilih" role="radiogroup" aria-label="Jenis pengajuan">
@@ -692,6 +704,26 @@ async function konfirmasiAlt(){
       Pemberitahuan juga dikirim ke kedua alamat.</p><p><a href="pengajuan.html">Ke halaman pengajuan</a></p></div>`;
 }
 
+// Contoh tautan pribadi: penggambar asli (halamanSaya) + data fiktif; semua isian dan tombol nonaktif, kecuali tautan.
+function halamanContoh(){
+  P = contohPengajuan(CONTOH);
+  halamanSaya();
+  const kini = CONTOH_PENGAJUAN.find(([k]) => k === CONTOH) || CONTOH_PENGAJUAN[0];
+  document.querySelectorAll('#isi button, #isi input, #isi select, #isi textarea').forEach(x => { x.disabled = true; });
+  document.querySelectorAll('#isi form').forEach(f => { f.onsubmit = e => e.preventDefault(); });
+  const pita = document.createElement('div');
+  pita.className = 'contoh-pita'; pita.setAttribute('role', 'note');
+  pita.innerHTML = `<b>CONTOH, data fiktif.</b> Begini halaman yang terbuka dari tautan di email kampus Anda; tombol di contoh ini tidak berfungsi.
+    <nav aria-label="Pilih contoh">${CONTOH_PENGAJUAN.map(([k, l]) => k === kini[0] ? `<b>${esc(l)}</b>`
+      : `<a href="pengajuan.html?contoh=${k}">${esc(l)}</a>`).join(' · ')}</nav>
+    <div class="ket">${esc(kini[2])}</div>
+    <a class="b utama" href="pengajuan.html">Kembali: buat pengajuan</a>`;
+  $('isi').prepend(pita);
+  const lencana = document.createElement('div');
+  lencana.className = 'lencana-contoh'; lencana.textContent = 'CONTOH'; lencana.setAttribute('aria-hidden', 'true');
+  document.body.appendChild(lencana);
+}
+
 async function mulai(){
   const D = await fetch('data.json?v=' + Date.now()).then(r => r.ok ? r.json() : {}).catch(() => ({}));
   if (D.prodi) document.title = document.title.split(' — ')[0] + ' — ' + ['Program Studi ' + D.prodi, D.institusi].filter(Boolean).join(' ');
@@ -700,6 +732,7 @@ async function mulai(){
   // Pilihan pembimbing TA menurut KK (110); tanpa patch 110: tahap Pengajuan pembimbing tidak ditawarkan.
   const ta = await sb.rpc('pembimbing_pilihan_ta');
   DOSEN_TA = ta.error ? null : (ta.data || []);
+  if (CONTOH) return halamanContoh();
   if (!window.UPLOAD_URL) throw new Error('Layanan unggah belum disiapkan admin.');
   const { data, error } = await sb.rpc('pembimbing_pilihan');
   if (error) throw new Error(/pembimbing_pilihan/.test(error.message) ? 'Layanan pengajuan belum dibuka admin prodi.' : error.message);
