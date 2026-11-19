@@ -32,6 +32,43 @@ export function relasiPeta(struktur, peta = {}){
   return { relasi: out, melingkar };
 }
 
+/**
+ * Usulan hubungan (pemilik 2026-11-19, tombol "Usulkan hubungan"), per CPMK:
+ *  - tingkat Bloom C lebih rendah = prasyarat (hierarkikal) bagi Sub-CPMK pertama di tingkat berikutnya;
+ *  - setingkat: urut pekan pertama di rencana pekanan; pekan lebih awal = prosedural menuju langkah berikutnya,
+ *    mulai di pekan yang sama (atau belum dijadwalkan) = pengelompokan dengan anggota pertama langkah itu;
+ *  - tingkat tertinggi menuju CPMK; Sub-CPMK tanpa kode C1-C6 menuju CPMK (dilaporkan di tanpaBloom).
+ * bloomC(rumusan) -> 0..6 dan rentang(teks pekan) -> [n] dari rps.js (disuntikkan supaya modul ini tetap mandiri).
+ * Hasil { sub: {kode: {ke, jenis}}, tanpaBloom: [kode] }; panah hanya naik tingkat atau maju pekan, jadi tanpa lingkaran.
+ */
+export function usulPeta(struktur, pekan = [], { bloomC, rentang }){
+  const S = struktur?.sub || [], sub = {}, tanpaBloom = [];
+  const awal = {};
+  for (const p of pekan || []) {
+    if (p.jenis && p.jenis !== 'kuliah') continue;
+    const n = Math.min(...rentang(p.pekan));
+    if (!Number.isFinite(n)) continue;
+    for (const k of p.sub || []) awal[k] = Math.min(awal[k] ?? Infinity, n);
+  }
+  for (const c of struktur?.cpmk || []) {
+    const xs = S.map((s, i) => ({ s, i, lv: bloomC(s.rumusan), pk: awal[s.kode] ?? Infinity })).filter(x => x.s.cpmk === c.kode);
+    for (const x of xs.filter(x => !x.lv)) { tanpaBloom.push(x.s.kode); sub[x.s.kode] = { ke: c.kode, jenis: 'hierarkikal' }; }
+    const tingkat = [...new Set(xs.filter(x => x.lv).map(x => x.lv))].sort((a, b) => a - b);
+    // langkah per tingkat: [[x, ...] per pekan pertama], urut pekan lalu urutan Sub-CPMK
+    const langkah = tingkat.map(lv => {
+      const ys = xs.filter(x => x.lv === lv).sort((a, b) => a.pk - b.pk || a.i - b.i), out = [];
+      for (const y of ys) (out.length && out.at(-1)[0].pk === y.pk ? out.at(-1) : out[out.push([]) - 1]).push(y);
+      return out;
+    });
+    langkah.forEach((ls, t) => ls.forEach((grup, j) => {
+      const [tuju, jenis] = j < ls.length - 1 ? [ls[j + 1][0].s.kode, 'prosedural']
+        : t < langkah.length - 1 ? [langkah[t + 1][0][0].s.kode, 'hierarkikal'] : [c.kode, 'hierarkikal'];
+      grup.forEach((y, m) => { sub[y.s.kode] = { ke: tuju, jenis: m ? 'kelompok' : jenis }; });
+    }));
+  }
+  return { sub, tanpaBloom };
+}
+
 const potong = (t, n) => (t.length > n ? t.slice(0, n - 1).trimEnd() + '…' : t);
 /** Rumusan pendek dua baris (tanpa "Mahasiswa mampu", kode Bloom tetap). */
 function ringkas(rumusan){

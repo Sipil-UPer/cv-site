@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-19-1cfd97">
-<link rel="stylesheet" href="kepala.css?v=2026-11-19-1cfd97">
+<link rel="stylesheet" href="tema.css?v=2026-11-19-4b5187">
+<link rel="stylesheet" href="kepala.css?v=2026-11-19-4b5187">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
@@ -61,7 +61,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-19-1cfd97"></script>
+<script src="config.js?v=2026-11-19-4b5187"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -81,16 +81,16 @@ addEventListener('error', function (e) {
 // Penyusun = koordinator MK atau pengampu kelas MK semester terakhir (boleh_rps, 112); GKM dan admin hanya melihat.
 // Pengesahan (112): dosen mengajukan -> Kaprodi aktif mengesahkan atau mengembalikan; daftar revisi (bagian F) otomatis.
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-19-1cfd97';
-import { bolehMutu, aktifPada, punya } from './koordinator.js?v=2026-11-19-1cfd97';
-import { cplMK } from './cpmk.js?v=2026-11-19-1cfd97';
+import { gerbang } from './menu.js?v=2026-11-19-4b5187';
+import { bolehMutu, aktifPada, punya } from './koordinator.js?v=2026-11-19-4b5187';
+import { cplMK } from './cpmk.js?v=2026-11-19-4b5187';
 import { JENIS_ASESMEN, JENIS_MK, DIREKTORI, jenisAsesmen, bloom, hots, rapikanRps, kerangkaPekan, barisPekan, periksaRps, modelRps,
   namaBerkasRps, penyusunMK, revisiDariLog, tanggalLokal, waktuLokal, evaluasiDariData, BENTUK, SCL, rekapRps, BENTUK_INTEGRASI,
-  bedaRps, salinRps, ASESMEN_TES, rubrikKosong, kriteriaKosong } from './rps.js?v=2026-11-19-1cfd97';
-import { JENIS_PETA, relasiPeta, petaSvg } from './rps-peta.js?v=2026-11-19-1cfd97';
-import { keB64 } from './pengajuan-mhs.js?v=2026-11-19-1cfd97';
-import { bacaTinjauan, bahanTinjauan } from './tinjauan-rps.js?v=2026-11-19-1cfd97';
-import { buatRpsDocx } from './rps-docx.js?v=2026-11-19-1cfd97';
+  bedaRps, salinRps, ASESMEN_TES, rubrikKosong, kriteriaKosong, rentangPekan } from './rps.js?v=2026-11-19-4b5187';
+import { JENIS_PETA, relasiPeta, petaSvg, usulPeta } from './rps-peta.js?v=2026-11-19-4b5187';
+import { keB64 } from './pengajuan-mhs.js?v=2026-11-19-4b5187';
+import { bacaTinjauan, bahanTinjauan } from './tinjauan-rps.js?v=2026-11-19-4b5187';
+import { buatRpsDocx } from './rps-docx.js?v=2026-11-19-4b5187';
 
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -348,6 +348,10 @@ function htmlPeta(){
     <p class="ket">Untuk tiap Sub-CPMK pilih ke mana ia menuju dan hubungannya (Panduan 3.2.1): <b>hierarkikal</b> = prasyarat mutlak bagi tujuannya
       (digambar di bawahnya, panah ke atas); <b>prosedural</b> = langkah sebelum tujuannya (mendatar, panah ke kanan); <b>pengelompokan</b> = setara
       dengan Sub-CPMK lain yang menuju tujuan yang sama (garis tanpa panah). Peta ikut masuk Word.</p>
+    ${ro() ? '' : `<div class="aksi"><button type="button" class="btn sm" id="petaUsul">Usulkan hubungan</button>
+      <span class="ket">Diisi dari tingkat Bloom (bagian B) dan pekan di rencana pekanan: tingkat lebih rendah menjadi prasyarat,
+        setingkat diurutkan menurut pekan. Periksa dan ubah bila perlu, lalu Simpan.</span></div>
+      <p class="msg" id="mPeta"></p>`}
     ${melingkar.length ? `<p class="msg buruk">Hubungan melingkar pada ${esc(melingkar.join(', '))}; diabaikan (menuju CPMK induk).</p>` : ''}
     <div class="gulir"><table class="ds"><thead><tr><th>Sub-CPMK</th><th>Rumusan</th><th>Menuju ke</th><th>Hubungan</th></tr></thead><tbody>
       ${S.sub.map(x => `<tr><td class="kode">${esc(x.kode)}</td><td>${esc(x.rumusan)}</td>
@@ -595,6 +599,16 @@ function ubahBesar(f){ f(); KOTOR = true; gambar(); }
 
 function pasang(){
   if ($('simpan')) $('simpan').onclick = simpan;
+  // Usulan peta (pemilik 2026-11-19): mengisi R.peta.sub; isian dosen yang sudah ada diganti setelah konfirmasi.
+  if ($('petaUsul')) $('petaUsul').onclick = () => {
+    const S = STR.get(PILIH);
+    if (Object.keys(R.peta?.sub || {}).length && !confirm('Ganti hubungan yang sudah diisi dengan usulan? Belum tersimpan sampai Anda klik Simpan.')) return;
+    const u = usulPeta(S, R.pekan, { bloomC: r => bloom(r).c, rentang: rentangPekan });
+    R.peta = { ...(R.peta || {}), sub: u.sub };
+    KOTOR = true; const sc = scrollY; gambar(); scrollTo(0, sc);
+    tulis('mPeta', u.tanpaBloom.length ? '' : 'ok', 'Usulan diisi; periksa lalu Simpan.' + (u.tanpaBloom.length
+      ? ` ${u.tanpaBloom.join(', ')} belum memuat kode Bloom (C1–C6) di rumusannya, jadi langsung menuju CPMK.` : ''));
+  };
   document.querySelectorAll('[data-rbaksi]').forEach(b => b.onclick = () => {
     const nama = decodeURIComponent(b.dataset.rba), aksi = b.dataset.rbaksi;
     R.rubrik ||= {};
