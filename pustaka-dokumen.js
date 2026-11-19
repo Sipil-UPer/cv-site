@@ -7,9 +7,9 @@
    MENGGANTI berkasnya (versi lama ke _arsip Drive), tidak menambah salinan.
    Dipakai data-prodi.html (tab Dokumen dan bukti baris) dan input-butir.html.
    ===================================================================== */
-import { JENIS_DOKUMEN, infoJenis } from './rencana-bukti.js?v=2026-11-19-90738d';
-import { tautanBerkas, temuanPakai } from './tautan-privat.js?v=2026-11-19-90738d';
-import { periksaBerkas, kolomSidik, teksTemuan } from './sidik-berkas.js?v=2026-11-19-90738d';
+import { JENIS_DOKUMEN, infoJenis } from './rencana-bukti.js?v=2026-11-19-1cfd97';
+import { tautanBerkas, temuanPakai } from './tautan-privat.js?v=2026-11-19-1cfd97';
+import { periksaBerkas, kolomSidik, teksTemuan } from './sidik-berkas.js?v=2026-11-19-1cfd97';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g,
   c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -106,7 +106,7 @@ export async function unggahKePustaka(sb, UNGGAH, { jenis, tahun, judul, berkas,
   if (ditolak.length) throw new Error(`Ditolak: ${ditolak.map(f => f.name).join(', ')}. ` +
     `Diterima: ${UNGGAH.ext.join(', ')}, maksimal ${UNGGAH.maxMb} MB.`);
   const { data: { session } } = await sb.auth.getSession();
-  if (!session) throw new Error('Sesi login habis. Muat ulang halaman lalu masuk lagi.');
+  if (!session) throw new Error('Sesi masuk habis. Muat ulang halaman lalu masuk lagi.');
   const sidik = [];
   for (const f of berkas) { progres(`Memeriksa ${f.name}…`); sidik.push(await periksaBerkas(sb, f)); }
   const ada = sidik.map((s, i) => temuanPakai(s.temuan, infoJenis(jenis).privat) ? { f: berkas[i], t: s.temuan } : null).filter(Boolean);

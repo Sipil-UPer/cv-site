@@ -1,7 +1,7 @@
-// Definisi formulir karya dosen (FORM) dan isiannya. Dipindah dari input.html
+// Definisi formulir karya dosen (FORM) dan isiannya. Dipindah dari karya.html
 // supaya verifikasi.html memakai label isian yang sama (pemilik 2026-11-08).
 
-import { htmlContoh, JENIS_BUKTI_KS } from './manfaat-kerjasama.js?v=2026-11-19-90738d';
+import { htmlContoh, JENIS_BUKTI_KS } from './manfaat-kerjasama.js?v=2026-11-19-1cfd97';
 
 const rapi = s => s ? String(s).replace(/_/g,' ') : '';
 
@@ -110,7 +110,7 @@ export const FORM = {
         ['wos','Web of Science'],['sinta_1_2','SINTA 1–2'],['sinta_3_4','SINTA 3–4'],
         ['sinta_5_6','SINTA 5–6'],['tidak_terindeks','Tidak terindeks']]},
       {n:'doi', l:'DOI', t:'text', ph:'10.1016/j.jhydrol.2025.132000'},
-      // Sitasi: kotak per tahun di input.html (htmlSitasi), bukan F_SITASI (pemilik 2026-11-10).
+      // Sitasi: kotak per tahun di karya.html (htmlSitasi), bukan F_SITASI (pemilik 2026-11-10).
       {n:'url', l:'Tautan', t:'url', full:1, ph:'https://'},
     ]
   },
@@ -193,7 +193,7 @@ export const FORM = {
       {n:'induk_id', l:'Penelitian / PkM yang diintegrasikan', t:'select',
        w:1, full:1, o:[],
        sub:'Dipilih dari kegiatan Anda yang sudah tersimpan. Bila belum ada, '
-         + 'input kegiatannya lebih dulu di tab Penelitian &amp; PkM.'},
+         + 'input kegiatannya lebih dulu di tab Penelitian dan PkM.'},
       {n:'sub_jenis', l:'Bentuk integrasi', t:'select', w:1, o:[
         ['bahan_kajian','Bahan kajian'],['studi_kasus','Studi kasus'],
         ['bab_buku_ajar','Bab buku ajar'],['modul_praktikum','Modul praktikum'],

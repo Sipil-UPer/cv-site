@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-19-90738d">
+<link rel="stylesheet" href="tema.css?v=2026-11-19-1cfd97">
 <style>
   /* Daftar dosen, publikasi, penelitian, pengabdian (pemilik 2026-11-16): kerangka publik bersama, kartu
      dosen, lencana mutu publikasi (warna sama dengan kinerja.html), dikelompokkan per tahun. */
@@ -77,7 +77,7 @@
   </div></header>
   <div class="isi" id="isi"><p class="kosong">Memuat…</p></div>
 </main>
-<script src="config.js?v=2026-11-19-90738d"></script>
+<script src="config.js?v=2026-11-19-1cfd97"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -93,7 +93,7 @@ addEventListener('error', function (e) {
 });
 </script>
 <script type="module">
-import { pasangKerangka, isiKerangka } from './kerangka.js?v=2026-11-19-90738d';
+import { pasangKerangka, isiKerangka } from './kerangka.js?v=2026-11-19-1cfd97';
 
 const SINTA = window.PROFIL_SINTA || 'https://sinta.kemdiktisaintek.go.id/authors/profile/';
 const SCOPUS = window.PROFIL_SCOPUS || 'https://www.scopus.com/pages/authors/';
@@ -130,7 +130,7 @@ function render(){
   const judul = JENIS.find(([k]) => k === pilih)[1];
   $('hInst').textContent = [D.prodi && 'Program Studi ' + D.prodi, D.institusi].filter(Boolean).join(' · ');
   $('hJudul').textContent = judul;
-  document.title = [judul, [D.prodi && 'Program Studi ' + D.prodi, D.institusi].filter(Boolean).join(', ')].filter(Boolean).join(' — ');
+  document.title = [judul, [D.prodi && 'Program Studi ' + D.prodi, D.institusi].filter(Boolean).join(' ')].filter(Boolean).join(' — ');
   $('nav').innerHTML = JENIS.map(([k, l]) => `<a href="${k === 'mitra' ? 'kerja-sama.html' : k === 'prestasi' ? 'prestasi.html' : 'daftar.html?jenis=' + k}"${
     k === pilih ? ' aria-current="page"' : ''}>${l}</a>`).join('');
   ({ dosen, publikasi, penelitian: () => kegiatan('penelitian'), pkm: () => kegiatan('pkm') })[pilih]?.();
@@ -156,7 +156,7 @@ function dosen(){
           nPkm = milik(D.kegiatan.filter(k => k.kategori === 'pkm'), d.slug);
     return `<article class="k">${d.foto ? `<img class="foto" src="${esc(d.foto)}" alt="" loading="lazy">`
         : `<span class="foto inisial" aria-hidden="true">${esc(inisial(d.nama))}</span>`}
-      <div><h3><a href="dosen/${encodeURIComponent(d.slug)}.html">${esc(d.nama)}</a></h3>
+      <div><h3><a href="dosen/${encodeURIComponent(d.slug)}.html">${esc(d.nama_gelar || d.nama)}</a></h3>
         ${d.bidang_keahlian ? `<div class="bidang">${esc(d.bidang_keahlian)}</div>` : ''}
         ${d.nip ? `<div class="nip">NIP ${esc(d.nip)}</div>` : ''}
         ${d.tugas_belajar ? `<div class="tb">Sedang tugas belajar · ${esc(d.tugas_belajar)}</div>` : ''}
@@ -166,7 +166,7 @@ function dosen(){
   };
   const isi = () => {
     const q = $('fCari').value.trim().toLowerCase();
-    const d = semua.filter(x => !q || [x.nama, x.bidang_keahlian, ...(x.topik_keahlian || []).map(k => namaTopik[k])]
+    const d = semua.filter(x => !q || [x.nama, x.nama_gelar, x.bidang_keahlian, ...(x.topik_keahlian || []).map(k => namaTopik[k])]
       .some(v => String(v || '').toLowerCase().includes(q)));
     $('jml').textContent = `${d.length} dosen`;
     // Dikelompokkan menurut kelompok keahlian (config.yaml public_site.expertise_groups, urutan tampil;

@@ -1,11 +1,11 @@
 // BKD diisi DTPS dari Laporan Kinerja Dosen (LKD) SISTER (pemilik 2026-11-06,
-// supabase/39-patch-bkd-dosen.sql). Dipakai input.html: tab BKD saya
+// supabase/39-patch-bkd-dosen.sql). Dipakai karya.html: tab BKD saya
 // (pasangBkd) dan verifikasi.html (pasangVerifikasiBkd). Dosen lain diisi admin
 // di Data prodi. Berkas LKD privat: lihat unggahLKD dan bukaLKD.
 
-import { ubahan } from './prestasi.js?v=2026-11-19-90738d';
-import { htmlSaran } from './saran-bukti.js?v=2026-11-19-90738d';
-import { htmlTautanButir, tsDariTA } from './tautan-butir.js?v=2026-11-19-90738d';
+import { ubahan } from './prestasi.js?v=2026-11-19-1cfd97';
+import { htmlSaran } from './saran-bukti.js?v=2026-11-19-1cfd97';
+import { htmlTautanButir, tsDariTA } from './tautan-butir.js?v=2026-11-19-1cfd97';
 
 // Bagian C LKD. Pendidikan dipecah per PS untuk Tabel 4.c; SISTER tidak
 // punya kolom prodi, jadi dosen memilahnya menurut kode kelas.
@@ -70,7 +70,7 @@ export async function unggahLKD(sb, f, ta, semester, atasNama){
   if (!/\.pdf$/i.test(f.name)) throw new Error('LKD harus berkas PDF.');
   if (maxMb && f.size > maxMb * 1024 * 1024) throw new Error(`Berkas lebih dari ${maxMb} MB.`);
   const { data: { session } } = await sb.auth.getSession();
-  if (!session) throw new Error('Sesi login habis. Muat ulang halaman.');
+  if (!session) throw new Error('Sesi masuk habis. Muat ulang halaman.');
   const res = await fetch(window.UPLOAD_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
     body: JSON.stringify({ token: session.access_token, kind: 'bkd', tahun_akademik: ta, semester,
       atas_nama: atasNama || '', filename: f.name, data: await keB64(f) }) });

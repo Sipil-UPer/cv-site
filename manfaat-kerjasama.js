@@ -1,7 +1,7 @@
 /* =====================================================================
    manfaat-kerjasama.js — bantuan isian LKPS 2.a (pemilik 2026-11-05): contoh
    kalimat manfaat, jenis bukti, dan durasi kerja sama. Dipakai form dosen
-   (input.html) dan form admin (data-prodi.html).
+   (karya.html) dan form admin (data-prodi.html).
 
    Contoh hanya kerangka: bagian [..] wajib diganti fakta kegiatan.
    ===================================================================== */

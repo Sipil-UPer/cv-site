@@ -4,12 +4,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<title>Pengajuan hibah — Kinerja Program Studi</title>
+<title>Pengajuan hibah — Ruang kerja</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-19-90738d">
-<link rel="stylesheet" href="kepala.css?v=2026-11-19-90738d">
+<link rel="stylesheet" href="tema.css?v=2026-11-19-1cfd97">
+<link rel="stylesheet" href="kepala.css?v=2026-11-19-1cfd97">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
@@ -51,7 +51,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-19-90738d"></script>
+<script src="config.js?v=2026-11-19-1cfd97"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -70,10 +70,10 @@ addEventListener('error', function (e) {
 // timnya; admin dan pimpinan melihat semua. Didanai -> "Jadikan karya" membuat
 // karya berstatus draf dengan tim sebagai penulis (41-patch-draf-karya.sql).
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-19-90738d';
-import { profilKeahlian, cariPakar, normal, daftarBaku } from './keahlian.js?v=2026-11-19-90738d';
-import { selisihHari } from './masa-berlaku.js?v=2026-11-19-90738d';
-import { STATUS, KATEGORI, juta, tglID, teksHari, tenggatBerikut, timUrut, panggilanTerbuka, karyaDariHibah, judulNorm, HARI_PENGINGAT } from './hibah.js?v=2026-11-19-90738d';
+import { gerbang } from './menu.js?v=2026-11-19-1cfd97';
+import { profilKeahlian, cariPakar, normal, daftarBaku } from './keahlian.js?v=2026-11-19-1cfd97';
+import { selisihHari } from './masa-berlaku.js?v=2026-11-19-1cfd97';
+import { STATUS, KATEGORI, juta, tglID, teksHari, tenggatBerikut, timUrut, panggilanTerbuka, karyaDariHibah, judulNorm, HARI_PENGINGAT } from './hibah.js?v=2026-11-19-1cfd97';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
@@ -163,7 +163,7 @@ function htmlDaftar(){
       <td>${esc(KATEGORI[a.kategori] || a.kategori)}<br><small class="ket">${esc(namaSkema(a.skema_kode) || 'skema belum dipilih')}</small></td>
       <td>${esc(a.tahun_usulan)}</td>
       <td><span class="chip st-${esc(a.status)}">${esc(STATUS[a.status] || a.status)}</span>
-        ${a.karya_id ? '<br><small><a href="input.html">sudah jadi karya ›</a></small>' : ''}</td>
+        ${a.karya_id ? '<br><small><a href="karya.html">sudah jadi karya ›</a></small>' : ''}</td>
       <td>${t ? `${esc(t.label)}<br><span class="${t.hari < 0 ? 'lewat' : t.hari <= HARI_PENGINGAT ? 'dekat' : 'ket'}">${tglID(t.tanggal)}, ${teksHari(t.hari)}</span>` : '—'}</td>
       <td>${juta(a.dana_usulan)}${a.status === 'didanai' ? ` / <b>${juta(a.dana_disetujui)}</b>` : ''}</td>
       <td>${aksi}<div class="msg" id="m-${a.id}"></div></td></tr>`;
@@ -358,7 +358,7 @@ async function jadikanKarya(a){
   await muat(); gambar();
   $('pesan').className = eA ? 'msg buruk' : 'msg ok';
   $('pesan').innerHTML = eA ? `Draf karya dibuat, tetapi tautan ke proposal gagal: ${esc(eA.message)}`
-    : `Draf karya dibuat. Lengkapi di <a href="input.html">Input › Karya saya</a> (tingkat, mitra, mahasiswa, bukti), lalu tekan <b>Simpan dan ajukan</b>.`;
+    : `Draf karya dibuat. Lengkapi di <a href="karya.html">Input › Karya saya</a> (tingkat, mitra, mahasiswa, bukti), lalu tekan <b>Simpan dan ajukan</b>.`;
 }
 
 async function hapus(a){
@@ -410,7 +410,7 @@ async function mulai(){
   const [kl, sk, ds] = await Promise.all([
     sb.from('ref_kelompok_dana').select('kode,nama,urutan').order('urutan'),
     sb.from('ref_skema_dana').select('kode,nama,kelompok,kategori,aktif,urutan').order('urutan'),
-    // Sama dengan daftar rekan di input.html: DTPS, atau dosen/pimpinan.
+    // Sama dengan daftar rekan di karya.html: DTPS, atau dosen/pimpinan.
     sb.from('dosen').select('id,nama,peran,dtps').or('dtps.eq.true,peran.in.(dosen,pimpinan)').order('nama')]);
   KELOMPOK = kl.data || []; SKEMA = sk.data || []; DOSEN = ds.data || [];
   await muat();

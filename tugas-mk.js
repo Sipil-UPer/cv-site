@@ -1,10 +1,10 @@
 // Tugas saya untuk koordinator MK dan pengampu kelas (pemilik 2026-11-17; OBE O2 dan O3).
 // Hanya yang belum punya pengingat lain: CPMK/RPS (cpmk.html) dan unggahan portofolio (portofolio.html).
 // Berkas nilai CPL dan refleksi evaluasi sudah diingatkan tugas-saya.js / evaluasi-pembelajaran.js.
-import { periksaStruktur } from './templat-cpl.js?v=2026-11-19-90738d';
-import { cplMK, dataTemplat, statusStruktur } from './cpmk.js?v=2026-11-19-90738d';
-import { bolehTinjau, cariTinjauan, statusTindak, petaRps, daftarSemester as semesterTinjau, mkSemester as mkTinjau } from './tinjauan-rps.js?v=2026-11-19-90738d';
-import { kelengkapan, mkSemester, daftarSemester } from './portofolio.js?v=2026-11-19-90738d';
+import { periksaStruktur } from './templat-cpl.js?v=2026-11-19-1cfd97';
+import { cplMK, dataTemplat, statusStruktur } from './cpmk.js?v=2026-11-19-1cfd97';
+import { bolehTinjau, cariTinjauan, statusTindak, petaRps, daftarSemester as semesterTinjau, mkSemester as mkTinjau } from './tinjauan-rps.js?v=2026-11-19-1cfd97';
+import { kelengkapan, mkSemester, daftarSemester } from './portofolio.js?v=2026-11-19-1cfd97';
 
 const kecil = s => String(s || '').trim().toLowerCase();
 const potong = (xs, n = 6) => xs.slice(0, n).join('; ') + (xs.length > n ? `; dan ${xs.length - n} lagi` : '');
@@ -30,7 +30,7 @@ export function tugasMK(d){
     const xs = [st === 'kosong' ? 'CPMK belum diisi' : st === 'belum' ? 'CPMK belum lengkap' : '', m.rps_url ? '' : m.rps_ada ? 'RPS bertanda tangan Dekan belum diunggah' : 'RPS belum disahkan'].filter(Boolean);
     return xs.length ? { m, teks: `${m.kode} ${m.nama}: ${xs.join(', ')}` } : null;
   }).filter(Boolean);
-  if (kurang.length) out.push({ jenis: 'cpmk', judul: `CPMK dan RPS: ${kurang.length} mata kuliah yang Anda koordinasikan belum lengkap`,
+  if (kurang.length) out.push({ jenis: 'cpmk', judul: `CPMK dan penilaian: ${kurang.length} mata kuliah yang Anda koordinasikan belum lengkap`,
     rinci: potong(kurang.map(x => x.teks)) + '.',
     href: kurang.length === 1 ? `cpmk.html?kode=${encodeURIComponent(kurang[0].m.kode)}` : 'cpmk.html' });
 

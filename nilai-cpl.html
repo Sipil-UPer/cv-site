@@ -4,12 +4,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<title>Berkas nilai CPL — Kinerja Program Studi</title>
+<title>Berkas nilai CPL — Ruang kerja</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-19-90738d">
-<link rel="stylesheet" href="kepala.css?v=2026-11-19-90738d">
+<link rel="stylesheet" href="tema.css?v=2026-11-19-1cfd97">
+<link rel="stylesheet" href="kepala.css?v=2026-11-19-1cfd97">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
@@ -41,7 +41,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-19-90738d"></script>
+<script src="config.js?v=2026-11-19-1cfd97"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -61,10 +61,10 @@ addEventListener('error', function (e) {
 // di Drive prodi lewat Apps Script. Admin mengimpor daftar kelas, memantau yang belum,
 // dan mengirim pengingat. run_cpl.py mengunduh berkas dengan kunci CPL_KUNCI.
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-19-90738d';
-import { bolehMutu } from './koordinator.js?v=2026-11-19-90738d';
-import { tautanBerkas } from './tautan-privat.js?v=2026-11-19-90738d';
-import { SHEETJS, VERSI_TEMPLAT, bacaLembar, periksaBerkas, bacaCSVKelas, statusKelas, periodeKelas, penerimaBelumUnggah } from './nilai-cpl.js?v=2026-11-19-90738d';
+import { gerbang } from './menu.js?v=2026-11-19-1cfd97';
+import { bolehMutu } from './koordinator.js?v=2026-11-19-1cfd97';
+import { tautanBerkas } from './tautan-privat.js?v=2026-11-19-1cfd97';
+import { SHEETJS, VERSI_TEMPLAT, bacaLembar, periksaBerkas, bacaCSVKelas, statusKelas, periodeKelas, penerimaBelumUnggah } from './nilai-cpl.js?v=2026-11-19-1cfd97';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
@@ -102,7 +102,7 @@ function gambar(){
     <p><a class="b" href="Template_Input_Data_CPL.xlsx" download>Unduh templat kosong (Template_Input_Data_CPL.xlsx, versi ${esc(VERSI_TEMPLAT.join(', '))})</a>
       <span class="ket">Hapus tiga baris contoh berwarna oranye di lembar Nilai, isi Info (termasuk Kelas), lalu simpan di Excel.</span></p>
     <p class="ket">Lebih cepat: <b>templat terisi</b> per kelas (tautan di kolom MK) sudah memuat CPL, CPMK, butir asesmen, dan bobot dari halaman
-      <a href="cpmk.html">CPMK dan RPS</a>; tinggal isi NIM dan nilai.</p>
+      <a href="cpmk.html">CPMK dan penilaian</a>; tinggal isi NIM dan nilai.</p>
     ${ps.length ? `<div class="periode"><label class="ket">Periode <select id="periode">${ps.map(p => { const [a, s] = p.split('|');
       return `<option value="${esc(p)}"${p === PILIH ? ' selected' : ''}>${esc(a)} ${esc(s)}</option>`; }).join('')}</select></label>
       <span class="ket">${sudah} dari ${tampil.length} kelas sudah mengunggah.</span></div>` : ''}
@@ -116,7 +116,7 @@ function gambar(){
           <td>${boleh ? `<input type="file" accept=".xlsx" data-berkas="${k.id}"> <button class="b utama" data-unggah="${k.id}">Unggah</button>
             <div class="msg" id="m-${k.id}"></div>` : ''}${ADMIN ? ` <button class="b" data-hapus-kelas="${k.id}" title="Hapus kelas dari daftar">Hapus kelas</button>` : ''}</td></tr>`; }).join('')}
       </tbody></table></div>` : `<p class="kosong">${ADMIN ? 'Belum ada kelas untuk periode ini. Impor daftar kelas di bawah.'
-        : 'Tidak ada kelas Anda di daftar. Bila Anda mengampu kelas ber-CPL semester ini, minta admin menambahkannya dengan email login Anda.'}</p>`}</div>
+        : 'Tidak ada kelas Anda di daftar. Bila Anda mengampu kelas ber-CPL semester ini, minta admin menambahkannya dengan email yang Anda pakai untuk masuk.'}</p>`}</div>
     ${HITUNG ? htmlHitung() : ''}
     ${ADMIN ? htmlAdmin(st) : ''}`;
   if ($('periode')) $('periode').onchange = e => { PILIH = e.target.value; gambar(); };
@@ -169,7 +169,7 @@ async function unggah(id, tombol){
     if (!hasil.ok) { tulis('buruk', 'Berkas belum bisa diterima:\n' + hasil.masalah.map(x => '• ' + x).join('\n')); return; }
     tulis('', 'Mengunggah ke Drive prodi (privat)…');
     const { data: { session } } = await sb.auth.getSession();
-    if (!session) throw new Error('Sesi login habis. Muat ulang halaman.');
+    if (!session) throw new Error('Sesi masuk habis. Muat ulang halaman.');
     const res = await fetch(window.UPLOAD_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body: JSON.stringify({ token: session.access_token, kind: 'cpl', kelas_id: id, filename: f.name, data: keB64(buf) }) });
     const out = await res.json();
@@ -188,7 +188,7 @@ function htmlAdmin(st){
   return `<div class="kartu"><h2>Impor daftar kelas (admin)</h2>
       <p class="ket">Satu baris per kelas yang wajib mengunggah. Kepala kolom: <code>tahun_akademik;semester;kode_mk;nama_mk;kelas;email_dosen</code>
         (pemisah titik koma atau koma). Contoh: <code>2026/2027;Ganjil;41214;Pemrograman dan Aplikasi Komputer;A;dosen@kampus.ac.id</code>.
-        Email dosen = email login situs dosen pengampu/koordinator. Kelas yang sudah ada (TA, semester, kode MK, kelas sama) diperbarui.</p>
+        Email dosen = email yang dipakai dosen pengampu/koordinator untuk masuk ke situs. Kelas yang sudah ada (TA, semester, kode MK, kelas sama) diperbarui.</p>
       <p><input type="file" id="csv_berkas" accept=".csv,text/csv"> atau tempel:</p>
       <textarea id="csv_teks" placeholder="tahun_akademik;semester;kode_mk;nama_mk;kelas;email_dosen"></textarea>
       <p><button class="b" id="csv_periksa">Periksa</button> <button class="b utama" id="csv_simpan" disabled>Simpan</button> <span class="msg" id="csv_msg"></span></p></div>

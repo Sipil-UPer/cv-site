@@ -20,9 +20,9 @@
      tabel  = TABEL Data prodi (id, tabel, judul) untuk nama tab dan saran jenis
      saran  = SARAN_DOK (id tab -> jenis dokumen yang disarankan)
    ===================================================================== */
-import { opsiJenis, kunciDokumen, labelDokumen } from './pustaka-dokumen.js?v=2026-11-19-90738d';
-import { infoJenis } from './rencana-bukti.js?v=2026-11-19-90738d';
-import { buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-19-90738d';
+import { opsiJenis, kunciDokumen, labelDokumen } from './pustaka-dokumen.js?v=2026-11-19-1cfd97';
+import { infoJenis } from './rencana-bukti.js?v=2026-11-19-1cfd97';
+import { buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-19-1cfd97';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g,
   c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -80,7 +80,7 @@ async function panggilScript(sb, isi){
   const U = String(window.UPLOAD_URL || '').trim();
   if (!U) throw new Error('UPLOAD_URL belum diisi di config.js.');
   const { data: { session } } = await sb.auth.getSession();
-  if (!session) throw new Error('Sesi login habis. Muat ulang halaman lalu masuk lagi.');
+  if (!session) throw new Error('Sesi masuk habis. Muat ulang halaman lalu masuk lagi.');
   const res = await fetch(U, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
     body: JSON.stringify({ token: session.access_token, ...isi }) });
   const out = await res.json();

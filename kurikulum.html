@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-19-90738d">
+<link rel="stylesheet" href="tema.css?v=2026-11-19-1cfd97">
 <style>
   *{box-sizing:border-box}
   html{scroll-behavior:smooth}
@@ -84,7 +84,7 @@
   </div>
 </header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-19-90738d"></script>
+<script src="config.js?v=2026-11-19-1cfd97"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -206,7 +206,7 @@ function gambar(){
           ${K.cpl.map(c => `<option value="${esc(c.kode)}"${c.kode === CPL_PILIH ? ' selected' : ''}>MK pendukung CPL ${esc(c.kode)}</option>`).join('')}</select>` : ''}
       </div><div id="struktur"></div>` : ''}
     <footer>Diperbarui ${esc(D.diperbarui || '')}.
-      <div style="margin-top:8px"><a href="berkas-mahasiswa.html">Layanan mahasiswa</a><a href="privasi.html">Kebijakan privasi</a><a href="index.html">Beranda</a></div></footer>`;
+      <div style="margin-top:8px"><a href="layanan-mahasiswa.html">Layanan mahasiswa</a><a href="privasi.html">Kebijakan privasi</a><a href="index.html">Beranda</a></div></footer>`;
   gambarStruktur();
   document.querySelectorAll('.pilih button').forEach(b => b.onclick = () => {
     K = kur.find(k => k.kode === b.dataset.k); CPL_PILIH = ''; CARI = '';
@@ -224,7 +224,7 @@ fetch('data.json?v=' + Date.now())
   .then(d => {
     D = d;
     $('hProdi').textContent = [d.prodi, d.institusi].filter(Boolean).join(' · ');
-    if (d.prodi) document.title = `Kurikulum — ${d.prodi}`;
+    if (d.prodi) document.title = 'Kurikulum — ' + ['Program Studi ' + d.prodi, d.institusi].filter(Boolean).join(' ');
     const kur = d.kurikulum || [];
     if (!kur.length) { $('isi').innerHTML = '<p class="kosong">Kurikulum sedang disiapkan.</p>'; return; }
     const minta = new URLSearchParams(location.search).get('k');

@@ -9,9 +9,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-19-90738d">
+<link rel="stylesheet" href="tema.css?v=2026-11-19-1cfd97">
 <style>
-  /* Pengajuan mahasiswa, publik tanpa login (pemilik 2026-11-17; patch 90). Warna dari tema.css. */
+  /* Pengajuan mahasiswa, publik tanpa masuk akun (pemilik 2026-11-17; patch 90). Warna dari tema.css. */
   *{box-sizing:border-box}
   [hidden]{display:none !important}   /* .dua/.fld berdisplay grid/block mengalahkan hidden */
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15.5px;line-height:1.55;-webkit-font-smoothing:antialiased}
@@ -71,11 +71,11 @@
 </head>
 <body>
 <header class="hero"><div class="hero-in">
-  <a class="balik" href="berkas-mahasiswa.html">&larr; Layanan mahasiswa</a>
+  <a class="balik" href="layanan-mahasiswa.html">&larr; Layanan mahasiswa</a>
   <h1>Pengajuan KP, seminar/sidang TA, lomba, publikasi/luaran, dan surat</h1><div class="prodi" id="hProdi"></div>
 </div></header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-19-90738d"></script>
+<script src="config.js?v=2026-11-19-1cfd97"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -96,8 +96,8 @@ addEventListener('error', function (e) {
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
 import { JENIS, LABEL_BERKAS, LABEL_STATUS, TINGKAT, BIDANG, jalur, bolehUbah, bacaAnggota, teksAnggota,
          periksaIsian, judulPengajuan, keB64, bukaIsi, appsScript, labelStatus, jalurTahap, BERKAS_SELESAI, PROGRAM_KP, labelProgram,
-         periksaSelesai, JENIS_SURAT, TAHAP_TA, TAHAP_TA_AJU, TAHAP_PEMBIMBING_TA, penetapanTA, pembimbingCocok, JENIS_PUB, TINGKAT_PUB, INDEKSASI, JENIS_LUARAN } from './pengajuan-mhs.js?v=2026-11-19-90738d';
-import { saranInstansi } from './rekap-kp.js?v=2026-11-19-90738d';
+         periksaSelesai, JENIS_SURAT, TAHAP_TA, TAHAP_TA_AJU, TAHAP_PEMBIMBING_TA, penetapanTA, pembimbingCocok, JENIS_PUB, TINGKAT_PUB, INDEKSASI, JENIS_LUARAN } from './pengajuan-mhs.js?v=2026-11-19-1cfd97';
+import { saranInstansi } from './rekap-kp.js?v=2026-11-19-1cfd97';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
@@ -170,7 +170,7 @@ function htmlIsian(jenis, d = {}, nama = '', pembimbing = ''){
     <p class="ket" data-ta="seminar">Bila pembimbing TA Anda sudah ditetapkan koordinator TA, seminar/sidang memakai pembimbing itu.</p>
     <div class="fld"><label for="f_pb2">Pembimbing 2 <span>(opsional)</span></label>
       <select id="f_pb2"><option value="">(tidak ada)</option>${DOSEN.map(x => `<option value="${x.id}"${x.id === d.pembimbing_2 ? ' selected' : ''}>${esc(x.nama)}</option>`).join('')}</select>
-      <small>Belum punya pembimbing? <a href="berkas-mahasiswa.html#pembimbing" target="_blank" rel="noopener">Cari calon pembimbing TA</a>
+      <small>Belum punya pembimbing? <a href="layanan-mahasiswa.html#pembimbing" target="_blank" rel="noopener">Cari calon pembimbing TA</a>
         menurut judul. Pembimbing 1 memeriksa kesiapan Anda, lalu admin prodi menetapkan jadwal dan penguji.</small></div>
     <div class="fld"><label for="f_judul">Judul TA</label><textarea id="f_judul" maxlength="400" style="min-height:60px">${esc(d.judul)}</textarea></div>
     <label class="cek" data-ta="seminar"><input type="checkbox" id="f_tampil"${d.tampil_nama ? ' checked' : ''}> Saya setuju nama saya ditampilkan
@@ -677,6 +677,7 @@ async function konfirmasiAlt(){
 
 async function mulai(){
   const D = await fetch('data.json?v=' + Date.now()).then(r => r.ok ? r.json() : {}).catch(() => ({}));
+  if (D.prodi) document.title = document.title.split(' — ')[0] + ' — ' + ['Program Studi ' + D.prodi, D.institusi].filter(Boolean).join(' ');
   $('hProdi').textContent = [D.prodi, D.institusi].filter(Boolean).join(' · '); SARAN = saranInstansi(D); isiSaran();
   KK = D.situs?.kelompok_keahlian || [];
   // Pilihan pembimbing TA menurut KK (110); tanpa patch 110: tahap Pengajuan pembimbing tidak ditawarkan.

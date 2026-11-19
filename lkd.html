@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
 <title>Berkas privat</title>
-<link rel="stylesheet" href="tema.css?v=2026-11-19-90738d">
+<link rel="stylesheet" href="tema.css?v=2026-11-19-1cfd97">
 <style>
   /* Berkas privat (pemilik 2026-11-06): tanpa tautan publik. Admin dan pemilik yang
      login langsung masuk (buka_bkd); asesor memakai kata sandi (buka_lkd_sandi). */
@@ -40,7 +40,7 @@
     </form>
   </div>
 </main>
-<script src="config.js?v=2026-11-19-90738d"></script>
+<script src="config.js?v=2026-11-19-1cfd97"></script>
 <script>
 var q = new URLSearchParams(location.search), id = q.get('f') || '', tautan = q.get('t') || '';
 var el = function (i) { return document.getElementById(i); };
@@ -58,10 +58,10 @@ function minta(isi) {
   return fetch(window.UPLOAD_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
     body: JSON.stringify(isi) }).then(function (r) { return r.json(); });
 }
-// Admin atau pemilik: tautan 2 bulan tanpa login, untuk laporan SISTER.
+// Admin atau pemilik: tautan 2 bulan tanpa masuk akun, untuk laporan SISTER.
 function pasangBagi(token) {
   el('bagi').innerHTML = '<button type="button" id="buat">Buat tautan sementara (2 bulan)</button>'
-    + '<p id="bagi-ket" style="margin-top:8px">Siapa pun yang punya tautan ini bisa membuka berkas tanpa login, misalnya untuk laporan SISTER.</p>';
+    + '<p id="bagi-ket" style="margin-top:8px">Siapa pun yang punya tautan ini bisa membuka berkas tanpa masuk akun, misalnya untuk laporan SISTER.</p>';
   el('buat').onclick = async function () {
     el('buat').disabled = true;
     var out = await minta({ token: token, kind: 'bagikan_sementara', url: 'https://drive.google.com/file/d/' + id + '/view' });

@@ -1,6 +1,6 @@
 /* =====================================================================
    KONFIGURASI SITUS — satu-satunya berkas yang perlu Anda sunting
-   setelah memperbarui index.html, input.html, monitoring.html,
+   setelah memperbarui index.html, karya.html, monitoring.html,
    atau dosen.html.
 
    -------------------------------------------------------------------

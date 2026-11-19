@@ -3,7 +3,7 @@
 // per tahun kalender yang beririsan dengan TS-2 s.d. TS, yaitu tahun awal
 // TS-2 sampai tahun akhir TS (empat tahun kalender). Karya tanpa sitasi per
 // tahun memakai angka total lama karya.jumlah_sitasi (cadangan).
-// Dipakai lkps.js (4.i), lkps-bukti.js, led-isi.js, input.html.
+// Dipakai lkps.js (4.i), lkps-bukti.js, led-isi.js, karya.html.
 
 export const SUMBER_SITASI = { openalex: 'OpenAlex', google_scholar: 'Google Scholar', scopus: 'Scopus', manual: 'manual' };
 

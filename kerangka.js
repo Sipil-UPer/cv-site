@@ -1,11 +1,11 @@
 // Kerangka halaman publik (pemilik 2026-11-16): kepala bergaya situs universitas (deret logo di bilah
 // biru, nama prodi, menu turun) dan kaki halaman yang sama di halaman publik. Pemakaian:
-//   import { pasangKerangka, isiKerangka } from './kerangka.js?v=2026-11-19-90738d';
+//   import { pasangKerangka, isiKerangka } from './kerangka.js?v=2026-11-19-1cfd97';
 //   pasangKerangka({ aktif: 'akademik' });   // segera, sebelum data.json
 //   isiKerangka(D);                           // setelah data.json: nama prodi, kontak, media sosial
 // Logo: window.LOGO_KEPALA di config.js; tanpa itu logo.png. Menu hanya memuat halaman yang ada
 // dan modul yang menyala (fitur.js). Tautan relatif (situs akan pindah ke subdomain kampus).
-import { halamanAktif } from './fitur.js?v=2026-11-19-90738d';
+import { halamanAktif } from './fitur.js?v=2026-11-19-1cfd97';
 
 export const MENU = [
   { id: 'profil', judul: 'Profil', isi: [
@@ -17,7 +17,7 @@ export const MENU = [
   { id: 'akademik', judul: 'Akademik', isi: [
     { judul: 'Kurikulum', href: 'kurikulum.html' },
     { judul: 'Laboratorium', href: 'laboratorium.html' },
-    { judul: 'Layanan mahasiswa', href: 'berkas-mahasiswa.html', ket: 'pengumuman, berkas, tanya-jawab' },
+    { judul: 'Layanan mahasiswa', href: 'layanan-mahasiswa.html', ket: 'pengumuman, berkas, tanya-jawab' },
   ] },
   { id: 'dosen', judul: 'Dosen', isi: [
     { judul: 'Daftar dosen', href: 'daftar.html?jenis=dosen' },
@@ -30,13 +30,13 @@ export const MENU = [
     { judul: 'Kontribusi SDGs', href: 'sdgs.html' },
   ] },
   { id: 'mahasiswa', judul: 'Mahasiswa', isi: [
-    { judul: 'Pengumuman', href: 'berkas-mahasiswa.html#pengumuman' },
+    { judul: 'Pengumuman', href: 'layanan-mahasiswa.html#pengumuman' },
     { judul: 'Prestasi mahasiswa', href: 'prestasi.html' },
-    { judul: 'Kerja Praktik dan magang', href: 'kp.html' },
+    { judul: 'Kerja praktik dan magang', href: 'kerja-praktik.html' },
     { judul: 'Alumni dan tracer study', href: 'alumni.html' },
-    { judul: 'Calon pembimbing TA', href: 'berkas-mahasiswa.html#pembimbing' },
-    { judul: 'Tanya-jawab', href: 'berkas-mahasiswa.html#tanya-jawab' },
-    { judul: 'Kirim pertanyaan / masukan', href: 'berkas-mahasiswa.html#kirim' },
+    { judul: 'Calon pembimbing TA', href: 'layanan-mahasiswa.html#pembimbing' },
+    { judul: 'Tanya-jawab', href: 'layanan-mahasiswa.html#tanya-jawab' },
+    { judul: 'Kirim pertanyaan / masukan', href: 'layanan-mahasiswa.html#kirim' },
   ] },
   // Berita: tautan ke halaman berita prodi (config.yaml public_site.news_url), muncul setelah data dimuat.
   { id: 'berita', judul: 'Berita', href: '#', isi: [] },
@@ -146,7 +146,7 @@ export function pasangKerangka({ aktif = '' } = {}){
       `<img src="${esc(l.src)}" alt="${esc(l.alt)}"${l.w ? ` width="${l.w}" height="${l.h}"` : ''}>`).join('')}</a>
     <div class="kr-kanan">
       <div class="kr-baris1"><a class="kr-merek" href="index.html">Program Studi<b data-kr="prodi"></b></a>
-        <span class="kr-tautan"><a href="#" data-kr="daftar" class="kr-daftar" hidden>Pendaftaran</a><a href="berkas-mahasiswa.html">Mahasiswa</a><a href="ruang-kerja.html" class="kr-masuk">Masuk ruang kerja</a></span></div>
+        <span class="kr-tautan"><a href="#" data-kr="daftar" class="kr-daftar" hidden>Pendaftaran</a><a href="layanan-mahasiswa.html">Mahasiswa</a><a href="ruang-kerja.html" class="kr-masuk">Masuk ruang kerja</a></span></div>
       <nav class="kr-nav" id="krNav" aria-label="Menu utama"><ul>${menuAtas(aktif)}<li class="kr-hp"><a href="ruang-kerja.html">Masuk ruang kerja &rarr;</a></li></ul></nav>
     </div>
     <button class="kr-burger" type="button" aria-expanded="false" aria-controls="krNav">Menu</button>
@@ -163,9 +163,9 @@ export function pasangKerangka({ aktif = '' } = {}){
       <li><a href="profil-prodi.html">Profil program studi</a></li><li><a href="kurikulum.html">Kurikulum</a></li>
       <li><a href="laboratorium.html">Laboratorium</a></li><li><a href="kerja-sama.html">Kerja sama</a></li></ul></div>
     <div><h4>Mahasiswa</h4><ul>
-      <li><a href="berkas-mahasiswa.html">Layanan mahasiswa</a></li><li><a href="prestasi.html">Prestasi mahasiswa</a></li>
-      <li><a href="berkas-mahasiswa.html#pembimbing">Calon pembimbing TA</a></li>
-      <li><a href="kp.html">Kerja Praktik dan magang</a></li><li><a href="alumni.html">Alumni dan tracer study</a></li></ul></div>
+      <li><a href="layanan-mahasiswa.html">Layanan mahasiswa</a></li><li><a href="prestasi.html">Prestasi mahasiswa</a></li>
+      <li><a href="layanan-mahasiswa.html#pembimbing">Calon pembimbing TA</a></li>
+      <li><a href="kerja-praktik.html">Kerja praktik dan magang</a></li><li><a href="alumni.html">Alumni dan tracer study</a></li></ul></div>
     <div><h4>Riset</h4><ul>
       <li><a href="daftar.html?jenis=dosen">Dosen</a></li><li><a href="daftar.html?jenis=publikasi">Publikasi</a></li>
       <li><a href="kinerja.html">Kinerja program studi</a></li></ul></div>

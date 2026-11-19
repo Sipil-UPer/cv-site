@@ -4,12 +4,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<title>Laboratorium — Kinerja Program Studi</title>
+<title>Kelola laboratorium — Ruang kerja</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-19-90738d">
-<link rel="stylesheet" href="kepala.css?v=2026-11-19-90738d">
+<link rel="stylesheet" href="tema.css?v=2026-11-19-1cfd97">
+<link rel="stylesheet" href="kepala.css?v=2026-11-19-1cfd97">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
@@ -46,11 +46,11 @@
 <body>
 <header class="hero"><div class="hero-in">
   <div class="hero-inst" data-identitas></div>
-  <h1>Laboratorium</h1>
+  <h1>Kelola laboratorium</h1>
   <div class="sub" id="hSub">Memuat…</div>
 </div></header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-19-90738d"></script>
+<script src="config.js?v=2026-11-19-1cfd97"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -70,7 +70,7 @@ addEventListener('error', function (e) {
 // Data prodi > Prasarana & alat (LKPS 5.a) dengan nama prasarana yang dipilih di sini; penelitian terkait hanya
 // yang terverifikasi.
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-19-90738d';
+import { gerbang } from './menu.js?v=2026-11-19-1cfd97';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
@@ -94,7 +94,7 @@ async function unggahFoto(berkas, nama, tulis){
   if (!window.UPLOAD_URL) throw new Error('Unggah berkas belum disiapkan di config.js.');
   const maxMb = Number(window.UPLOAD_MAX_MB) || 0;
   const { data: { session } } = await sb.auth.getSession();
-  if (!session) throw new Error('Sesi login habis. Muat ulang halaman.');
+  if (!session) throw new Error('Sesi masuk habis. Muat ulang halaman.');
   const hasil = [];
   for (let i = 0; i < berkas.length; i++) {
     const f = berkas[i], e = ((f.name.match(/\.([^.]+)$/) || [])[1] || '').toLowerCase();

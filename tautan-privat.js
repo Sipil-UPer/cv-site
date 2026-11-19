@@ -3,7 +3,7 @@
 // LKPS otomatis menuju halaman kata sandi; admin dan pemilik yang login langsung
 // masuk. Apps Script memegang daftar jenis yang sama (JENIS_PRIVAT di Code.gs).
 
-import { JENIS_DOKUMEN, TABEL_PRIVAT, JENIS_KARYA_PRIVAT } from './rencana-bukti.js?v=2026-11-19-90738d';
+import { JENIS_DOKUMEN, TABEL_PRIVAT, JENIS_KARYA_PRIVAT } from './rencana-bukti.js?v=2026-11-19-1cfd97';
 
 export const tautanLkd = id => new URL(`lkd.html?f=${id}`, location.href).href;
 // Tautan hasil unggah: berkas privat tidak memakai tautan Drive.
@@ -30,7 +30,7 @@ export async function privatkanLama(sb, tulis){
     lkpsBukti: await baca('lkps_bukti', 'id,tabel,jenis,url') });
   if (!xs.length) return 0;
   const { data: { session } } = await sb.auth.getSession();
-  if (!session) throw new Error('Sesi login habis. Muat ulang halaman.');
+  if (!session) throw new Error('Sesi masuk habis. Muat ulang halaman.');
   let n = 0;
   for (const x of xs) {
     tulis(`Memindahkan ${n + 1} dari ${xs.length}…`);

@@ -15,7 +15,7 @@
    Pemakaian: pasangYatim(sb, elemenWadah)
    ===================================================================== */
 
-import { buangBerkas, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-19-90738d';
+import { buangBerkas, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-19-1cfd97';
 
 // Tabel yang bisa memuat tautan Drive. Tambahkan tabel baru yang
 // menyimpan tautan bukti di sini, kalau tidak berkasnya tampak tak terpakai.
@@ -75,7 +75,7 @@ async function daftarDrive(sb){
   const U = String(window.UPLOAD_URL || '').trim();
   if (!U) throw new Error('UPLOAD_URL belum diisi di config.js.');
   const { data: { session } } = await sb.auth.getSession();
-  if (!session) throw new Error('Sesi login habis. Muat ulang halaman lalu masuk lagi.');
+  if (!session) throw new Error('Sesi masuk habis. Muat ulang halaman lalu masuk lagi.');
   const res = await fetch(U, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
     body: JSON.stringify({ token: session.access_token, kind: 'daftar_berkas' }) });
   const out = await res.json();

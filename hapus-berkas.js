@@ -1,6 +1,6 @@
 /* =====================================================================
    HAPUS BERKAS — admin membuang berkas bukti ke Sampah Drive prodi
-   (keputusan pemilik 2026-11-03). Dipakai input.html (bukti karya),
+   (keputusan pemilik 2026-11-03). Dipakai karya.html (bukti karya),
    input-butir.html (pustaka dokumen), panel-bukti.js (bukti butir), dan
    data-prodi.html (bukti per baris).
 
@@ -18,7 +18,7 @@
    ditautkan, tidak diunggah ulang) TIDAK dibuang selama tautannya masih
    dirujuk lebih dari satu catatan: hanya catatan pemanggil yang dihapus.
    ===================================================================== */
-import { jumlahRujukan } from './sidik-berkas.js?v=2026-11-19-90738d';
+import { jumlahRujukan } from './sidik-berkas.js?v=2026-11-19-1cfd97';
 
 export async function buangBerkas(sb, url){
   const U = String(window.UPLOAD_URL || '').trim();
@@ -27,7 +27,7 @@ export async function buangBerkas(sb, url){
   const n = await jumlahRujukan(sb, url);
   if (n !== null && n > 1) return { ok: true, dibuang: false, alasan: 'masih dipakai di tempat lain' };
   const { data: { session } } = await sb.auth.getSession();
-  if (!session) throw new Error('Sesi login habis. Muat ulang halaman lalu masuk lagi.');
+  if (!session) throw new Error('Sesi masuk habis. Muat ulang halaman lalu masuk lagi.');
   // text/plain: tanpa preflight CORS (tidak dilayani Apps Script).
   const res = await fetch(U, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
     body: JSON.stringify({ token: session.access_token, kind: 'hapus', url }) });

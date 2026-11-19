@@ -27,11 +27,11 @@
      unggah = {url, ext[], maxMb, accept} dari config.js, atau null.
    ===================================================================== */
 
-import { JENIS_DOKUMEN, infoJenis, buktiButir } from './rencana-bukti.js?v=2026-11-19-90738d';
-import { tautanBerkas, temuanPakai } from './tautan-privat.js?v=2026-11-19-90738d';
-import { buangBerkas, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-19-90738d';
-import { periksaBerkas, kolomSidik, teksTemuan } from './sidik-berkas.js?v=2026-11-19-90738d';
-import { UNSUR_BUTIR, pihakUnsur } from './unsur-butir.js?v=2026-11-19-90738d';
+import { JENIS_DOKUMEN, infoJenis, buktiButir } from './rencana-bukti.js?v=2026-11-19-1cfd97';
+import { tautanBerkas, temuanPakai } from './tautan-privat.js?v=2026-11-19-1cfd97';
+import { buangBerkas, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-19-1cfd97';
+import { periksaBerkas, kolomSidik, teksTemuan } from './sidik-berkas.js?v=2026-11-19-1cfd97';
+import { UNSUR_BUTIR, pihakUnsur } from './unsur-butir.js?v=2026-11-19-1cfd97';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g,
   c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -208,7 +208,7 @@ export function pasangPanel(c){
       const baris = [], gagal = [], ulang = [];
       try {
         const { data: { session } } = await c.sb.auth.getSession();
-        if (!session) throw new Error('Sesi login habis. Muat ulang halaman lalu masuk lagi.');
+        if (!session) throw new Error('Sesi masuk habis. Muat ulang halaman lalu masuk lagi.');
         for (let i = 0; i < unggah.length; i++) {
           const f = unggah[i];
           tulis(no, '', `Memeriksa dan mengunggah ${i + 1} dari ${unggah.length}: ${f.name}…`);
@@ -232,7 +232,7 @@ export function pasangPanel(c){
             baris.push({ judul: f.name, url: tautanBerkas(out), ...kolomSidik(s.sha256) });
           } catch (err) {
             gagal.push(`${f.name}: ${err.message || err}`);
-            if (/Sesi login/.test(err.message || '')) break;
+            if (/Sesi (login|masuk)/.test(err.message || '')) break;
           }
         }
         // Berkas yang sudah tertaut di butir ini dilewati, tidak menggagalkan yang lain.

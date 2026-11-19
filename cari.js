@@ -25,7 +25,7 @@ export const entri = (jenis, judul, ket, href, ekstra = '', luar = false) =>
 
 // Kata tambahan per halaman ruang kerja, supaya istilah sehari-hari menemukan halamannya.
 const KATA_HALAMAN = {
-  'input.html': 'karya publikasi penelitian pkm pengabdian luaran hki rekognisi prestasi bukti unggah bkd draf impor doi',
+  'karya.html': 'karya publikasi penelitian pkm pengabdian luaran hki rekognisi prestasi bukti unggah bkd draf impor doi',
   'profil.html': 'sinta scopus orcid jabatan pendidikan topik keahlian kata kunci',
   'nilai-cpl.html': 'cpl nilai obe template_input_data_cpl unggah kelas',
   'kalender.html': 'jadwal agenda ics google calendar tenggat',
@@ -45,10 +45,10 @@ const KATA_HALAMAN = {
   'input-butir.html': 'butir kualitatif bukti dokumen pustaka',
   'panduan.html': 'bantuan cara petunjuk',
 };
-// Pintasan langsung ke tab (dipakai input.html#tab dan data-prodi.html?tab=).
+// Pintasan langsung ke tab (dipakai karya.html#tab dan data-prodi.html?tab=).
 const PINTASAN = [
-  ['input.html#saya', 'Karya saya', 'Data saya · karya, draf, dan yang dikembalikan admin', 'draf ditolak dikembalikan'],
-  ['input.html#bkd', 'BKD saya', 'Data saya · beban kerja dosen per semester', 'beban kerja dosen'],
+  ['karya.html#saya', 'Karya saya', 'Data saya · karya, draf, dan yang dikembalikan admin', 'draf ditolak dikembalikan'],
+  ['karya.html#bkd', 'BKD saya', 'Data saya · beban kerja dosen per semester', 'beban kerja dosen'],
 ];
 
 /** Halaman ruang kerja yang boleh dibuka (hasil halamanBoleh di menu.js) + pintasan tab. */
@@ -83,7 +83,7 @@ export function indeksPublik(D, aktif = () => true){
     ['prestasi.html', 'Prestasi mahasiswa', 'lomba dan kompetisi', 'juara'],
     ['kerja-sama.html', 'Kerja sama', 'mitra karya dan kerja sama resmi', 'mou'],
     ['kerja-sama.html#tempat-kp', 'Tempat KP dan magang', 'instansi tempat kerja praktik dan magang mahasiswa', 'kerja praktik magang mbkm'],
-    ['kp.html', 'Kerja Praktik dan Magang', 'alur, syarat, dokumen, tempat KP, pengajuan surat pengantar dan selesai KP',
+    ['kerja-praktik.html', 'Kerja praktik dan magang', 'alur, syarat, dokumen, tempat KP, pengajuan surat pengantar dan selesai KP',
      'kp kerja praktik magang surat pengantar laporan selesai'],
     ['alumni.html', 'Alumni dan tracer study', 'waktu tunggu, kesesuaian bidang, tempat kerja lulusan', 'tracer lulusan alumni'],
     ['hasil-survei.html', 'Hasil survei kepuasan', 'rekap survei', 'kepuasan'],

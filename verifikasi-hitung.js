@@ -1,5 +1,5 @@
 // Jumlah yang menunggu keputusan admin per tab verifikasi.html (pemilik
-// 2026-11-08). Dipakai verifikasi.html (angka tab), input.html dan
+// 2026-11-08). Dipakai verifikasi.html (angka tab), karya.html dan
 // kelola-dosen.html (tautan), dan ruang-kerja.html (kartu menu).
 // Status yang dihitung sama dengan penyaring panelnya:
 //   karya   : karya.status 'diajukan' + ajuan_hapus + ajuan_ubah karya 'menunggu'

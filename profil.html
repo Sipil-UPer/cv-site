@@ -4,11 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<title>Profil saya — Kinerja Program Studi</title>
+<title>Profil saya — Ruang kerja</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-19-90738d">
+<link rel="stylesheet" href="tema.css?v=2026-11-19-1cfd97">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
@@ -60,7 +60,7 @@
   /* .fld input melebarkan semua input; kotak centang topik tetap kecil dan di kiri teksnya */
   .fld label.pilih-topik input[type=checkbox]{width:auto;padding:0;margin:0;flex:none}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-19-90738d">
+<link rel="stylesheet" href="kepala.css?v=2026-11-19-1cfd97">
 </head>
 <body>
 
@@ -74,7 +74,7 @@
 
 <main class="wrap" id="isi"></main>
 
-<script src="config.js?v=2026-11-19-90738d"></script>
+<script src="config.js?v=2026-11-19-1cfd97"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -91,16 +91,16 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { pasangMenu } from './menu.js?v=2026-11-19-90738d';
-import { dosenLogin } from './dosen-login.js?v=2026-11-19-90738d';
-import { unduhCV, htmlTombolCV, mkDiampu } from './cv-dosen.js?v=2026-11-19-90738d';
-import { keBase64 } from './pustaka-dokumen.js?v=2026-11-19-90738d';
-import { tautanBerkas, temuanPakai } from './tautan-privat.js?v=2026-11-19-90738d';
-import { periksaBerkas, sidikBerkas } from './sidik-berkas.js?v=2026-11-19-90738d';
-import { buangBuktiLepas } from './hapus-berkas.js?v=2026-11-19-90738d';
+import { pasangMenu } from './menu.js?v=2026-11-19-1cfd97';
+import { dosenLogin } from './dosen-login.js?v=2026-11-19-1cfd97';
+import { unduhCV, htmlTombolCV, mkDiampu } from './cv-dosen.js?v=2026-11-19-1cfd97';
+import { keBase64 } from './pustaka-dokumen.js?v=2026-11-19-1cfd97';
+import { tautanBerkas, temuanPakai } from './tautan-privat.js?v=2026-11-19-1cfd97';
+import { periksaBerkas, sidikBerkas } from './sidik-berkas.js?v=2026-11-19-1cfd97';
+import { buangBuktiLepas } from './hapus-berkas.js?v=2026-11-19-1cfd97';
 import { ISIAN_PROFIL, KOLOM_PROFIL, tampil as tampilIsian, sama, formLKPS, bacaFormLKPS, pasangEditor, bacaKataKunci,
   setelNamaTopik, htmlPilihTopik, bacaPilihTopik, MAKS_TOPIK, urlBukti, berkasLepas }
-  from './profil-dosen.js?v=2026-11-19-90738d';
+  from './profil-dosen.js?v=2026-11-19-1cfd97';
 
 /* =====================================================================
    PROFIL SAYA — dosen mengajukan perubahan profilnya sendiri (keputusan
@@ -177,7 +177,7 @@ async function kirimBuktiProfil(f, { jenis, tahun }){
   if (ext.length && !ext.includes(e)) throw new Error(`jenis berkas tidak diterima (${ext.join(', ')})`);
   if (maxMb && f.size > maxMb * 1024 * 1024) throw new Error(`lebih dari ${maxMb} MB`);
   const { data: { session } } = await sb.auth.getSession();
-  if (!session) throw new Error('sesi login habis; muat ulang halaman');
+  if (!session) throw new Error('sesi masuk habis; muat ulang halaman');
   const awalan = jenis === 'riwayat' ? 'Ijazah' : 'Sertifikat';
   const res = await fetch(window.UPLOAD_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
     body: JSON.stringify({ token: session.access_token, kind: 'karya', year: tahun, privat: true,
@@ -220,7 +220,7 @@ async function mulai(){
   }
   if (!saya) { $('hSub').textContent = 'Tidak terdaftar'; $('isi').innerHTML = '<p class="kosong">Email belum terdaftar. Hubungi admin prodi.</p>'; return; }
   SAYA = saya;
-  // Email alternatif untuk login (patch 69); kueri terpisah supaya isian lain tetap tampil sebelum patch.
+  // Email alternatif untuk masuk (patch 69); kueri terpisah supaya isian lain tetap tampil sebelum patch.
   const { data: alt, error: eAlt } = await sb.from('dosen').select('email_alternatif').eq('id', saya.id).maybeSingle();
   ADA_ALT = !eAlt;
   if (ADA_ALT) SAYA.email_alternatif = alt?.email_alternatif ?? null;
@@ -293,10 +293,10 @@ async function gambar(){
         <div class="fld"><label>SINTA ID</label><input id="f_sinta_id" value="${esc(SAYA.sinta_id)}"></div>
         <div class="fld"><label>Scopus ID</label><input id="f_scopus_id" value="${esc(SAYA.scopus_id)}"></div>
         <div class="fld"><label>ORCID</label><input id="f_orcid" value="${esc(SAYA.orcid)}"></div>
-        ${ADA_ALT ? `<div class="fld penuh"><label>Email alternatif untuk login</label><input id="f_email_alternatif" type="email"
+        ${ADA_ALT ? `<div class="fld penuh"><label>Email alternatif untuk masuk</label><input id="f_email_alternatif" type="email"
           value="${esc(SAYA.email_alternatif)}" placeholder="mis. nama@gmail.com" autocomplete="email">
           <small>Dipakai bila tautan masuk tidak sampai ke email kampus: masukkan email ini di halaman masuk.
-          Hanya untuk login; data Anda tetap atas email kampus. Kosongkan untuk menghapus.</small></div>` : ''}
+          Hanya untuk masuk; data Anda tetap atas email kampus. Kosongkan untuk menghapus.</small></div>` : ''}
         ${BAKU ? `<div class="fld penuh"><label>Topik keahlian <span class="ket" id="hitungTopik"></span></label>
           <div class="pilih-topik-kotak" id="pilihTopik">${htmlPilihTopik(BAKU.bidang, BAKU.topik, SAYA.topik_keahlian)}</div>
           <small>Pilih topik dari daftar keahlian prodi (paling banyak ${MAKS_TOPIK}); boleh dari beberapa bidang. Nama Indonesia dan
@@ -385,7 +385,7 @@ function pasangFoto(){
     $('fotoUnggah').disabled = true; msg('', 'Mengunggah…');
     try {
       const { data: { session } } = await sb.auth.getSession();
-      if (!session) throw new Error('Sesi login habis; muat ulang halaman.');
+      if (!session) throw new Error('Sesi masuk habis; muat ulang halaman.');
       const res = await fetch(window.UPLOAD_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
         body: JSON.stringify({ token: session.access_token, kind: 'karya', year: String(new Date().getFullYear()),
                                group: 'Foto profil', filename: `Foto profil - ${f.name}`, data: await keBase64(f) }) });

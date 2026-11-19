@@ -4,11 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<title>Data prodi — Kinerja Program Studi</title>
+<title>Data prodi — Ruang kerja</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-19-90738d">
+<link rel="stylesheet" href="tema.css?v=2026-11-19-1cfd97">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
@@ -101,7 +101,7 @@
   .masuk{max-width:420px;margin:40px auto;background:#fff;border:1px solid var(--line);padding:20px}
   .masuk input{width:100%;padding:8px 10px;margin:8px 0;font:inherit}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-19-90738d">
+<link rel="stylesheet" href="kepala.css?v=2026-11-19-1cfd97">
 </head>
 <body>
 
@@ -115,7 +115,7 @@
 
 <main class="wrap" id="isi"></main>
 
-<script src="config.js?v=2026-11-19-90738d"></script>
+<script src="config.js?v=2026-11-19-1cfd97"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -132,27 +132,27 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-19-90738d';
-import { pasangMenu } from './menu.js?v=2026-11-19-90738d';
-import { dosenLogin } from './dosen-login.js?v=2026-11-19-90738d';
-import { aktifPada, tabBoleh, labelJabatan, labelPeran } from './koordinator.js?v=2026-11-19-90738d';
-import { unggahKePustaka, opsiPustaka, opsiJenis, labelDokumen, cariDokumen } from './pustaka-dokumen.js?v=2026-11-19-90738d';
-import { pasangRapikan } from './rapikan-berkas.js?v=2026-11-19-90738d';
-import { UNSUR, skorUnsur, pihakUnsur } from './unsur-butir.js?v=2026-11-19-90738d';
-import { OPSI_SUMBER } from './iku-otomatis.js?v=2026-11-19-90738d';
-import { denganOtomatis as otomatisDari, tsTersedia, tsAwal, htmlCapaianIKU, KET_CAPAIAN, muatTambahan, denganTambahan } from './capaian-iku.js?v=2026-11-19-90738d';
-import { KATEGORI_TEMUAN, STATUS_TEMUAN, PIHAK_TEMUAN, ringkasTemuan, htmlRingkasTemuan } from './temuan-ami.js?v=2026-11-19-90738d';
-import { bacaRekapSPM, rencanaImporSPM, tsDariTanggal, labelTS, ringkasLembar, picProdi } from './standar-spmi.js?v=2026-11-19-90738d';
-import { SHEETJS } from './nilai-cpl.js?v=2026-11-19-90738d';
-import { bacaCSV, normKur, normCpl, KOLOM_IMPOR, CONTOH_IMPOR, rencanaImpor, sebaranCPL, htmlSebaran } from './kurikulum-cpl.js?v=2026-11-19-90738d';
-import { htmlContoh, pasangContoh, JENIS_BUKTI_KS } from './manfaat-kerjasama.js?v=2026-11-19-90738d';
-import { infoJenis } from './rencana-bukti.js?v=2026-11-19-90738d';
-import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-19-90738d';
-import { nomorButir, htmlTautanButir } from './tautan-butir.js?v=2026-11-19-90738d';
-import { htmlSaran } from './saran-bukti.js?v=2026-11-19-90738d';
-import { tautanBerkas, privatkanLama, adalahPrivat } from './tautan-privat.js?v=2026-11-19-90738d';
-import { unggahLKD, buangLKD, bukaLKD, pendidikanTotal, pendidikanPS } from './bkd.js?v=2026-11-19-90738d';
-import { teksPelaksanaan } from './rekap-kp.js?v=2026-11-19-90738d';
+import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-19-1cfd97';
+import { pasangMenu } from './menu.js?v=2026-11-19-1cfd97';
+import { dosenLogin } from './dosen-login.js?v=2026-11-19-1cfd97';
+import { aktifPada, tabBoleh, labelJabatan, labelPeran } from './koordinator.js?v=2026-11-19-1cfd97';
+import { unggahKePustaka, opsiPustaka, opsiJenis, labelDokumen, cariDokumen } from './pustaka-dokumen.js?v=2026-11-19-1cfd97';
+import { pasangRapikan } from './rapikan-berkas.js?v=2026-11-19-1cfd97';
+import { UNSUR, skorUnsur, pihakUnsur } from './unsur-butir.js?v=2026-11-19-1cfd97';
+import { OPSI_SUMBER } from './iku-otomatis.js?v=2026-11-19-1cfd97';
+import { denganOtomatis as otomatisDari, tsTersedia, tsAwal, htmlCapaianIKU, KET_CAPAIAN, muatTambahan, denganTambahan } from './capaian-iku.js?v=2026-11-19-1cfd97';
+import { KATEGORI_TEMUAN, STATUS_TEMUAN, PIHAK_TEMUAN, ringkasTemuan, htmlRingkasTemuan } from './temuan-ami.js?v=2026-11-19-1cfd97';
+import { bacaRekapSPM, rencanaImporSPM, tsDariTanggal, labelTS, ringkasLembar, picProdi } from './standar-spmi.js?v=2026-11-19-1cfd97';
+import { SHEETJS } from './nilai-cpl.js?v=2026-11-19-1cfd97';
+import { bacaCSV, normKur, normCpl, KOLOM_IMPOR, CONTOH_IMPOR, rencanaImpor, sebaranCPL, htmlSebaran } from './kurikulum-cpl.js?v=2026-11-19-1cfd97';
+import { htmlContoh, pasangContoh, JENIS_BUKTI_KS } from './manfaat-kerjasama.js?v=2026-11-19-1cfd97';
+import { infoJenis } from './rencana-bukti.js?v=2026-11-19-1cfd97';
+import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-19-1cfd97';
+import { nomorButir, htmlTautanButir } from './tautan-butir.js?v=2026-11-19-1cfd97';
+import { htmlSaran } from './saran-bukti.js?v=2026-11-19-1cfd97';
+import { tautanBerkas, privatkanLama, adalahPrivat } from './tautan-privat.js?v=2026-11-19-1cfd97';
+import { unggahLKD, buangLKD, bukaLKD, pendidikanTotal, pendidikanPS } from './bkd.js?v=2026-11-19-1cfd97';
+import { teksPelaksanaan } from './rekap-kp.js?v=2026-11-19-1cfd97';
 // Pelaksanaan KP per kerja sama (105, pemilik 2026-11-18): KP selesai di instansi bernama sama = bukti kegiatan.
 let KP_MITRA = new Map();
 
@@ -2311,7 +2311,7 @@ async function unggah(tombol){
   const items = [], gagal = [];
   try {
     const { data: { session } } = await sb.auth.getSession();
-    if (!session) throw new Error('Sesi login habis. Muat ulang halaman.');
+    if (!session) throw new Error('Sesi masuk habis. Muat ulang halaman.');
     for (let i = 0; i < semua.length; i++) {
       const f = semua[i];
       tulis('', `Mengunggah ${i + 1} dari ${semua.length}: ${f.name}…`);
@@ -2325,7 +2325,7 @@ async function unggah(tombol){
         items.push({ judul: f.name, url: tautanBerkas(out), ...($('bk_jb') ? { jenis: $('bk_jb').value } : {}) });
       } catch (err) {
         gagal.push(`${f.name}: ${err.message || err}`);
-        if (/Sesi login/.test(err.message || '')) break;
+        if (/Sesi (login|masuk)/.test(err.message || '')) break;
       }
     }
     $('bk_berkas').value = '';
@@ -2393,7 +2393,7 @@ async function bukaPustaka(){
     <div class="aksi"><span class="msg" id="msg"></span></div>
     <div class="gulir" id="daftar"><p class="kosong">Memuat…</p></div>
     <p class="ket">Pengumuman teks, tanya-jawab, dan kotak masuk pertanyaan/masukan mahasiswa ada di
-      <a href="kelola-mahasiswa.html">Layanan mahasiswa (kelola)</a>.</p>
+      <a href="kelola-layanan-mahasiswa.html">Layanan mahasiswa (kelola)</a>.</p>
     <h3 class="sub-h">Privatkan berkas lama</h3>
     <p class="ket">Berkas jenis privat yang terlanjur punya tautan publik dipindah ke folder privat, tautan publiknya dicabut,
       dan catatannya menuju halaman kata sandi.</p>
@@ -2445,14 +2445,14 @@ async function gambarPustaka(){
   if (!DOK.length) { box.innerHTML = '<p class="kosong">Belum ada dokumen di pustaka.</p>'; return; }
   const ringkas = xs => Object.entries(xs.reduce((a, s) => (a[s] = (a[s] || 0) + 1, a), {}))
     .map(([s, n]) => n > 1 ? `${s} (${n})` : s).join(', ');
-  // Kolom "Mahasiswa" (76-patch-berkas-mahasiswa.sql): tampil di halaman publik berkas-mahasiswa.html.
+  // Kolom "Mahasiswa" (76-patch-berkas-mahasiswa.sql): tampil di halaman publik layanan-mahasiswa.html.
   const ADA76 = 'untuk_mahasiswa' in DOK[0];
   const selMhs = d => adalahPrivat(d.url)
     ? '<td title="Berkas privat tidak bisa ditampilkan untuk mahasiswa">—</td>'
     : `<td><input type="checkbox" data-mhs-dok="${esc(d.id)}" ${d.untuk_mahasiswa ? 'checked' : ''}
         title="Tampil di halaman berkas mahasiswa" aria-label="Tampil untuk mahasiswa"></td>`;
   box.innerHTML = (ADA76 ? `<p class="ket">Centang <b>Mahasiswa</b> untuk menampilkan dokumen di halaman publik
-      <a href="berkas-mahasiswa.html" target="_blank" rel="noopener">Berkas mahasiswa</a> (tanpa login). Berkas privat tidak bisa ditampilkan;
+      <a href="layanan-mahasiswa.html" target="_blank" rel="noopener">Berkas mahasiswa</a> (tanpa masuk akun). Berkas privat tidak bisa ditampilkan;
       dokumen yang lewat masa berlakunya hilang sendiri dari halaman itu.</p>` : '')
     + `<table class="t"><thead><tr><th>Jenis</th><th>Tahun</th><th>Judul</th>${ADA30 ? '<th>Nomor</th><th>Tanggal</th>' : ''}<th>Dipakai di</th>
       <th>Berkas</th><th>Diperbarui</th>${ADA76 ? '<th>Mahasiswa</th>' : ''}<th></th></tr></thead><tbody>${DOK.map(d => `<tr>
@@ -2508,7 +2508,7 @@ async function ubahNomorDokumen(id){
   await gambarPustaka();
 }
 
-// Tampil/sembunyikan dokumen di halaman publik berkas-mahasiswa.html (76-patch-berkas-mahasiswa.sql).
+// Tampil/sembunyikan dokumen di halaman publik layanan-mahasiswa.html (76-patch-berkas-mahasiswa.sql).
 async function tampilUntukMahasiswa(cek){
   const d = dokPer(+cek.dataset.mhsDok);
   if (!d) return;

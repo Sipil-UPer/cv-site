@@ -1,6 +1,6 @@
 // Ruang KP (105-patch-ruang-kp.sql, pemilik 2026-11-18): nama instansi baku, mitra kerja sama, beban bimbingan,
-// dan bukti KP selesai untuk asesor. Fungsi murni; dipakai rekap-kp.html, pengajuan.html, kp.html, data-prodi.html.
-import { keadaanKP, waktuPengajuan } from './pengajuan-mhs.js?v=2026-11-19-90738d';
+// dan bukti KP selesai untuk asesor. Fungsi murni; dipakai rekap-kp.html, pengajuan.html, kerja-praktik.html, data-prodi.html.
+import { keadaanKP, waktuPengajuan } from './pengajuan-mhs.js?v=2026-11-19-1cfd97';
 
 // Sama dengan public.nama_instansi_kunci(): rapikan tepi, buang titik/koma, spasi tunggal, huruf kecil.
 export const kunciInstansi = s => String(s ?? '').trim().replace(/[.,]/g, '').replace(/\s+/g, ' ').toLowerCase();
@@ -10,7 +10,7 @@ export const idDrive = url => {
   const m = String(url || '').match(/\/d\/([A-Za-z0-9_-]{20,})|[?&]id=([A-Za-z0-9_-]{20,})/);
   return m ? (m[1] || m[2]) : '';
 };
-// Tautan asesor (Akses asesor dibuka admin, Code.gs bukaLkdAsesor_): berkas privat tanpa login.
+// Tautan asesor (Akses asesor dibuka admin, Code.gs bukaLkdAsesor_): berkas privat tanpa masuk akun.
 export const tautanAsesor = url => (idDrive(url) ? `lkd.html?f=${idDrive(url)}` : '');
 
 // Usulan nama instansi untuk mahasiswa (data.json publik): mitra kerja sama dulu (nama baku), lalu tempat KP.

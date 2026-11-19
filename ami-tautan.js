@@ -45,7 +45,7 @@ export function pasangAMIAdmin(sb, saya, wadah, keadaan){
   const opsiMasa = [1, 2, 3, 6].map(n => `<option value="${n}"${n === MASA_BAWAAN ? ' selected' : ''}>${n} bulan</option>`).join('');
   wadah.innerHTML = `<div class="kartu ami">
     <h3>Tautan Monitoring untuk bukti AMI</h3>
-    <p class="ket">Tautan tanpa login untuk auditor Audit Mutu Internal. Angka mengikuti data terbaru,
+    <p class="ket">Tautan tanpa masuk akun untuk auditor Audit Mutu Internal. Angka mengikuti data terbaru,
       tetapi periode dikunci ke pilihan yang sedang aktif di atas: <b id="ami_kunci"></b>.
       Salin tautannya lalu tempel sebagai bukti (tautan luar) pada dokumen atau butir AMI.</p>
     <div class="ami-f"><input id="ami_judul" type="text" maxlength="120" value="AMI ${new Date().getFullYear()}" aria-label="Judul tautan">

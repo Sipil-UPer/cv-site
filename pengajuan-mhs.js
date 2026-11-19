@@ -1,5 +1,5 @@
 // Pengajuan mahasiswa KP dan laporan lomba (90-patch-pengajuan-mahasiswa.sql, pemilik 2026-11-17).
-// Dipakai pengajuan.html (mahasiswa, tanpa login) dan pengajuan-mahasiswa.html (pembimbing/admin).
+// Dipakai pengajuan.html (mahasiswa, tanpa masuk akun) dan pengajuan-mahasiswa.html (pembimbing/admin).
 // Daftar jenis berkas sama dengan MHS_BERKAS di apps-script/Code.gs dan pengajuan_berkas_jenis_check (patch 90).
 
 export const JENIS = {

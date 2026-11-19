@@ -1,13 +1,13 @@
 // "Tugas saya" di Ruang kerja (pemilik 2026-11-12): hal yang menunggu tindakan dosen yang
 // sedang masuk, dari data yang sudah boleh ia baca (RLS). Aturan tenggat sama dengan halaman
 // Pengingat: rapat.js, hibah.js, temuan-ami.js, pengingat-dosen.js.
-import { kurangProfil } from './pengingat-dosen.js?v=2026-11-19-90738d';
-import { tindakTerbuka, tglID } from './rapat.js?v=2026-11-19-90738d';
-import { tenggatBerikut, teksHari, HARI_LEWAT } from './hibah.js?v=2026-11-19-90738d';
-import { hariKeTenggat, labelStatus, HARI_DEKAT } from './temuan-ami.js?v=2026-11-19-90738d';
-import { tugasEvaluasi } from './evaluasi-pembelajaran.js?v=2026-11-19-90738d';
-import { bolehPengajuan } from './koordinator.js?v=2026-11-19-90738d';
-import { tugasMK } from './tugas-mk.js?v=2026-11-19-90738d';
+import { kurangProfil } from './pengingat-dosen.js?v=2026-11-19-1cfd97';
+import { tindakTerbuka, tglID } from './rapat.js?v=2026-11-19-1cfd97';
+import { tenggatBerikut, teksHari, HARI_LEWAT } from './hibah.js?v=2026-11-19-1cfd97';
+import { hariKeTenggat, labelStatus, HARI_DEKAT } from './temuan-ami.js?v=2026-11-19-1cfd97';
+import { tugasEvaluasi } from './evaluasi-pembelajaran.js?v=2026-11-19-1cfd97';
+import { bolehPengajuan } from './koordinator.js?v=2026-11-19-1cfd97';
+import { tugasMK } from './tugas-mk.js?v=2026-11-19-1cfd97';
 
 const SELESAI_AMI = new Set(['selesai', 'ditutup']);
 const tingkat = h => h == null ? 'biasa' : h < 0 ? 'lewat' : h <= HARI_DEKAT ? 'dekat' : 'biasa';
@@ -45,16 +45,16 @@ export function tugasSaya(d, kini = new Date()){
   const milik = (d.karya || []).filter(k => (k.karya_penulis || []).some(p => p.dosen_id === s.id) || k.dilaporkan_oleh === s.id);
   const draf = milik.filter(k => k.status === 'draf');
   if (draf.length) tambah('karya', `${draf.length} draf karya belum diajukan`,
-    draf.slice(0, 3).map(k => k.judul).join('; ') + (draf.length > 3 ? '; …' : ''), 'input.html#saya');
+    draf.slice(0, 3).map(k => k.judul).join('; ') + (draf.length > 3 ? '; …' : ''), 'karya.html#saya');
   for (const k of milik.filter(k => k.status === 'ditolak'))
-    tambah('karya', 'Karya dikembalikan untuk diperbaiki', k.judul + (k.catatan ? ` (catatan admin: ${k.catatan})` : ''), 'input.html#saya');
+    tambah('karya', 'Karya dikembalikan untuk diperbaiki', k.judul + (k.catatan ? ` (catatan admin: ${k.catatan})` : ''), 'karya.html#saya');
   const tanpa = milik.filter(k => k.status === 'terverifikasi' && !k.bukti_url && !(d.berBukti || new Set()).has(k.id));
   if (tanpa.length) tambah('karya', `${tanpa.length} karya terverifikasi belum ada buktinya`,
-    tanpa.slice(0, 3).map(k => k.judul).join('; ') + (tanpa.length > 3 ? '; …' : ''), 'input.html#saya');
+    tanpa.slice(0, 3).map(k => k.judul).join('; ') + (tanpa.length > 3 ? '; …' : ''), 'karya.html#saya');
 
   // BKD yang dikembalikan admin (39-patch-bkd-dosen.sql).
   for (const b of (d.bkd || []).filter(b => b.verifikasi === 'ditolak'))
-    tambah('bkd', `BKD ${b.tahun_akademik} ${b.semester} dikembalikan`, b.catatan ? `Catatan admin: ${b.catatan}` : 'Perbaiki lalu ajukan lagi.', 'input.html#bkd');
+    tambah('bkd', `BKD ${b.tahun_akademik} ${b.semester} dikembalikan`, b.catatan ? `Catatan admin: ${b.catatan}` : 'Perbaiki lalu ajukan lagi.', 'karya.html#bkd');
 
   // Tindak lanjut rapat ber-PJ saya.
   for (const t of tindakTerbuka((d.tindak || []).filter(t => t.pj_dosen_id === s.id), kini))

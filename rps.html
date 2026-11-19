@@ -4,12 +4,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<title>RPS — Kinerja Program Studi</title>
+<title>RPS — Ruang kerja</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-19-90738d">
-<link rel="stylesheet" href="kepala.css?v=2026-11-19-90738d">
+<link rel="stylesheet" href="tema.css?v=2026-11-19-1cfd97">
+<link rel="stylesheet" href="kepala.css?v=2026-11-19-1cfd97">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
@@ -61,7 +61,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-19-90738d"></script>
+<script src="config.js?v=2026-11-19-1cfd97"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -81,16 +81,16 @@ addEventListener('error', function (e) {
 // Penyusun = koordinator MK atau pengampu kelas MK semester terakhir (boleh_rps, 112); GKM dan admin hanya melihat.
 // Pengesahan (112): dosen mengajukan -> Kaprodi aktif mengesahkan atau mengembalikan; daftar revisi (bagian F) otomatis.
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-19-90738d';
-import { bolehMutu, aktifPada, punya } from './koordinator.js?v=2026-11-19-90738d';
-import { cplMK } from './cpmk.js?v=2026-11-19-90738d';
+import { gerbang } from './menu.js?v=2026-11-19-1cfd97';
+import { bolehMutu, aktifPada, punya } from './koordinator.js?v=2026-11-19-1cfd97';
+import { cplMK } from './cpmk.js?v=2026-11-19-1cfd97';
 import { JENIS_ASESMEN, JENIS_MK, DIREKTORI, jenisAsesmen, bloom, hots, rapikanRps, kerangkaPekan, barisPekan, periksaRps, modelRps,
   namaBerkasRps, penyusunMK, revisiDariLog, tanggalLokal, waktuLokal, evaluasiDariData, BENTUK, SCL, rekapRps, BENTUK_INTEGRASI,
-  bedaRps, salinRps, ASESMEN_TES, rubrikKosong, kriteriaKosong } from './rps.js?v=2026-11-19-90738d';
-import { JENIS_PETA, relasiPeta, petaSvg } from './rps-peta.js?v=2026-11-19-90738d';
-import { keB64 } from './pengajuan-mhs.js?v=2026-11-19-90738d';
-import { bacaTinjauan, bahanTinjauan } from './tinjauan-rps.js?v=2026-11-19-90738d';
-import { buatRpsDocx } from './rps-docx.js?v=2026-11-19-90738d';
+  bedaRps, salinRps, ASESMEN_TES, rubrikKosong, kriteriaKosong } from './rps.js?v=2026-11-19-1cfd97';
+import { JENIS_PETA, relasiPeta, petaSvg } from './rps-peta.js?v=2026-11-19-1cfd97';
+import { keB64 } from './pengajuan-mhs.js?v=2026-11-19-1cfd97';
+import { bacaTinjauan, bahanTinjauan } from './tinjauan-rps.js?v=2026-11-19-1cfd97';
+import { buatRpsDocx } from './rps-docx.js?v=2026-11-19-1cfd97';
 
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -201,7 +201,7 @@ function htmlDaftar(){
     <div class="alat"><label>Kurikulum <select id="fKurDaftar"${F_MENUNGGU ? ' disabled' : ''}>${kurs.map(k => `<option${k === kur ? ' selected' : ''}>${esc(k)}</option>`).join('')}</select></label>
       <span class="ket">${F_MENUNGGU ? 'Menampilkan RPS yang menunggu dari semua kurikulum.' : `${xs.length} mata kuliah ${esc(kur)}`}</span></div>
     <p class="ket">Isi RPS sekali per mata kuliah; bagian B (CPL, CPMK, Sub-CPMK, asesmen, bobot) diambil dari halaman
-      <a href="cpmk.html">CPMK dan RPS</a>, jadi RPS dan nilai CPL selalu memakai bobot yang sama. Unduh Word mengikuti formulir RPS universitas (UP-SPMI/FR008/R05).
+      <a href="cpmk.html">CPMK dan penilaian</a>, jadi RPS dan nilai CPL selalu memakai bobot yang sama. Unduh Word mengikuti formulir RPS universitas (UP-SPMI/FR008/R05).
       RPS disusun koordinator MK atau dosen pengampu, diajukan ke Kaprodi, lalu disahkan; Dekan menandatangani Word di luar situs.
       <a href="panduan.html#rps">Panduan langkah demi langkah</a>.</p>
     ${SAYA_KAPRODI ? `<p><label class="centang"><input type="checkbox" id="fMenunggu"${F_MENUNGGU ? ' checked' : ''}> Hanya yang menunggu pemeriksaan Anda
@@ -384,7 +384,7 @@ function htmlIntegrasi(){
         ${x ? `<div class="dua" style="margin-left:24px"><label class="fld"><span>Bentuk integrasi</span><select data-int-bentuk="${k.id}"${dis()}>
             <option value="">(pilih)</option>${opsi(BENTUK_INTEGRASI, x.bentuk)}</select></label>
           <label class="fld"><span>Pada (mis. Sub-CPMK 2, pekan 9-10)</span><input data-int-ket="${k.id}" value="${esc(x.ket || '')}"${dis()}></label></div>` : ''}</div>`; }).join('')
-      || `<p class="kosong">${F_SEMUA_KARYA ? 'Belum ada penelitian/PkM tersimpan.' : 'Penyusun MK ini belum punya penelitian/PkM tersimpan.'} Input di Karya saya › Penelitian &amp; PkM.</p>`}
+      || `<p class="kosong">${F_SEMUA_KARYA ? 'Belum ada penelitian/PkM tersimpan.' : 'Penyusun MK ini belum punya penelitian/PkM tersimpan.'} Input di Karya dosen › Penelitian dan PkM.</p>`}
     <label class="centang"><input type="checkbox" id="semuaKarya"${F_SEMUA_KARYA ? ' checked' : ''}> Tampilkan penelitian/PkM semua dosen prodi</label>
     <label class="fld"><span>Uraian tambahan (opsional)</span><textarea data-p="integrasi.teks"${dis()}>${esc(R.integrasi.teks)}</textarea></label>
     <div class="ket">${lkps.length ? `Tercatat sebagai Integrasi ke pembelajaran (LKPS 3.a.3, butir 17): ${esc(lkps.map(k => k.judul).join('; '))}.`

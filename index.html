@@ -15,7 +15,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-19-90738d">
+<link rel="stylesheet" href="tema.css?v=2026-11-19-1cfd97">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:#fff;color:var(--ink);font-family:var(--sans);font-size:15.5px;line-height:1.6;-webkit-font-smoothing:antialiased}
@@ -195,7 +195,7 @@
           <li><a href="profil-prodi.html"><div>Profil program studi<small>Visi, misi, pengelola, sejarah</small></div><span>&rarr;</span></a></li>
           <li><a href="kurikulum.html"><div>Kurikulum<small>Profil lulusan, CPL, dan mata kuliah</small></div><span>&rarr;</span></a></li>
           <li><a href="laboratorium.html"><div>Laboratorium<small>Fasilitas, peralatan, layanan pengujian</small></div><span>&rarr;</span></a></li>
-          <li><a href="berkas-mahasiswa.html"><div>Layanan mahasiswa<small>Pengumuman, berkas, calon pembimbing TA</small></div><span>&rarr;</span></a></li>
+          <li><a href="layanan-mahasiswa.html"><div>Layanan mahasiswa<small>Pengumuman, berkas, calon pembimbing TA</small></div><span>&rarr;</span></a></li>
           <li><a href="kerja-sama.html"><div>Kerja sama<small>Mitra dan kerja sama resmi</small></div><span>&rarr;</span></a></li>
           <li><a href="kinerja.html"><div>Kinerja program studi<small>Angka dan grafik kinerja</small></div><span>&rarr;</span></a></li>
         </ul>
@@ -274,7 +274,7 @@
 
 </main>
 
-<script src="config.js?v=2026-11-19-90738d"></script>
+<script src="config.js?v=2026-11-19-1cfd97"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -292,8 +292,8 @@ addEventListener('error', function (e) {
 // Beranda program studi (pemilik 2026-11-16). Data dari data.json (bangun.py); pita dari RPC publik.
 // Isi yang belum ada (config.yaml public_site: tagline, kontak, media sosial, PMB) tidak ditampilkan.
 // Dasbor kinerja yang dulu di sini pindah ke kinerja.html.
-import { pasangKerangka, isiKerangka } from './kerangka.js?v=2026-11-19-90738d';
-import { halamanAktif } from './fitur.js?v=2026-11-19-90738d';
+import { pasangKerangka, isiKerangka } from './kerangka.js?v=2026-11-19-1cfd97';
+import { halamanAktif } from './fitur.js?v=2026-11-19-1cfd97';
 pasangKerangka({ aktif: '' });
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -318,9 +318,9 @@ function muatPita(){
     if (!xs.length) return;
     const tgl = s => String(s || '').slice(0, 10).split('-').reverse().join('/');
     $('pita').innerHTML = `<div class="pita-in"><span class="lbl">Pengumuman</span><ul>${xs.slice(0, 3).map(x =>
-      `<li><a href="berkas-mahasiswa.html#pengumuman">${esc(x.judul || 'Pengumuman')}</a>${x.berlaku_sampai
+      `<li><a href="layanan-mahasiswa.html#pengumuman">${esc(x.judul || 'Pengumuman')}</a>${x.berlaku_sampai
         ? ` <small>s.d. ${esc(tgl(x.berlaku_sampai))}</small>` : ''}</li>`).join('')}</ul>
-      <a href="berkas-mahasiswa.html#pengumuman" style="color:#fff;white-space:nowrap">${xs.length > 1 ? `Semua (${xs.length})` : 'Lihat'} &rarr;</a></div>`;
+      <a href="layanan-mahasiswa.html#pengumuman" style="color:#fff;white-space:nowrap">${xs.length > 1 ? `Semua (${xs.length})` : 'Lihat'} &rarr;</a></div>`;
     $('pita').hidden = false;
   });
 }
@@ -329,7 +329,7 @@ function gambar(d){
   isiKerangka(d);
   if (d.prodi) {
     $('hProdi').textContent = d.prodi;
-    document.title = `Program Studi ${d.prodi}${d.institusi ? ' — ' + d.institusi : ''}`;
+    document.title = ['Program Studi ' + d.prodi, d.institusi].filter(Boolean).join(' ');
   }
   if (d.institusi) $('hInst').textContent = d.institusi;
   const situs = d.situs || {};
@@ -344,7 +344,7 @@ function gambar(d){
     [d.dtps?.doktor, 'Bergelar doktor', 'daftar.html?jenis=dosen'],
     [ta?.mahasiswa_aktif || null, `Mahasiswa aktif ${ta?.ta || ''}`, 'kinerja.html'],
     [(d.publikasi || []).length, 'Publikasi', 'daftar.html?jenis=publikasi'],
-    [(d.kegiatan || []).length, 'Penelitian & PkM', 'daftar.html?jenis=penelitian'],
+    [(d.kegiatan || []).length, 'Penelitian dan PkM', 'daftar.html?jenis=penelitian'],
     [mitra.size, 'Institusi mitra', 'kerja-sama.html'],
   ].filter(([v]) => v != null);
   $('angka').innerHTML = angka.map(([v, l, h]) => `<a href="${h}"><b>${esc(v)}</b><span>${esc(l)}</span></a>`).join('');
@@ -435,7 +435,7 @@ function gambar(d){
   if ((d.dosen || []).length) {
     $('dosen').innerHTML = d.dosen.map(x => `<a class="kartu" href="dosen/${encodeURIComponent(x.slug)}.html">
         ${x.foto ? `<img class="avatar foto" src="${esc(x.foto)}" alt="Foto ${esc(x.nama)}" width="76" height="76" loading="lazy">`
-          : `<div class="avatar" aria-hidden="true">${esc(inisial(x.nama))}</div>`}<h3>${esc(x.nama)}</h3><p>${esc(bidangDosen(x))}</p></a>`).join('');
+          : `<div class="avatar" aria-hidden="true">${esc(inisial(x.nama))}</div>`}<h3>${esc(x.nama_gelar || x.nama)}</h3><p>${esc(bidangDosen(x))}</p></a>`).join('');
     $('bDosen').hidden = false;
   }
 
@@ -444,7 +444,7 @@ function gambar(d){
   const sks = wajib.reduce((a, m) => a + (Number(m.sks) || 0), 0);
   const prestasi = (d.prestasi_agregat || []).reduce((a, p) => a + (p.jumlah || 0), 0);
   $('mhs').innerHTML = `
-    <a class="kartu" href="berkas-mahasiswa.html"><div class="ikon">${IKON.mhs}</div><h3>Layanan mahasiswa</h3>
+    <a class="kartu" href="layanan-mahasiswa.html"><div class="ikon">${IKON.mhs}</div><h3>Layanan mahasiswa</h3>
       <p>Pengumuman, berkas panduan dan formulir, tanya-jawab, serta kotak pertanyaan dan masukan.</p><span class="panah">Buka &rarr;</span></a>
     <a class="kartu" href="kurikulum.html"><div class="ikon">${IKON.kur}</div><h3>Kurikulum ${esc(k?.kode || '')}</h3>
       <p>${k ? `${k.cpl.length} capaian pembelajaran lulusan dan ${wajib.length} mata kuliah wajib (${sks} sks), ditambah mata kuliah pilihan.` : 'Kurikulum dan capaian pembelajaran lulusan.'}</p><span class="panah">Lihat kurikulum &rarr;</span></a>
@@ -453,7 +453,7 @@ function gambar(d){
 }
 
 function pasangCari(D){
-  import('./cari.js?v=2026-11-19-90738d').then(m => {
+  import('./cari.js?v=2026-11-19-1cfd97').then(m => {
     const idx = m.indeksPublik(D, k => !(window.FITUR_MATI || []).includes(k));
     const kotak = $('cariUmum'), panel = $('hasilUmum');
     let aktif = -1;

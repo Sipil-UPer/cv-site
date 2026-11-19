@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-19-90738d">
+<link rel="stylesheet" href="tema.css?v=2026-11-19-1cfd97">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
@@ -65,7 +65,7 @@
   </div>
 </header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-19-90738d"></script>
+<script src="config.js?v=2026-11-19-1cfd97"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -83,12 +83,14 @@ addEventListener('error', function (e) {
 // Peta keahlian dosen (pemilik 2026-11-11; 60-patch-keahlian.sql). Publik, hanya data.json:
 // kata kunci dan bidang keahlian dari profil dosen (disetujui admin), topik OpenAlex
 // publikasi, dan judul karya terverifikasi.
-import { jagaHalaman } from './fitur.js?v=2026-11-19-90738d';
+import { jagaHalaman } from './fitur.js?v=2026-11-19-1cfd97';
 if (!jagaHalaman()) await new Promise(() => {});   // modul dimatikan (config.js FITUR_MATI)
-import { profilKeahlian, cariPakar, petaTopik, usulanTA, normal, daftarBaku, petaBaku, matriksBaku } from './keahlian.js?v=2026-11-19-90738d';
+import { profilKeahlian, cariPakar, petaTopik, usulanTA, normal, daftarBaku, petaBaku, matriksBaku } from './keahlian.js?v=2026-11-19-1cfd97';
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
 // B = daftar keahlian baku (61-patch-keahlian-baku.sql); null sebelum patch dijalankan.
+// Nama dengan gelar bila diisi (pemilik 2026-11-19), dicari lewat slug.
+const namaGelar = x => (D?.dosen || []).find(d => d.slug === x.slug)?.nama_gelar || x.nama;
 let D = null, P = [], B = null, TAB = new URLSearchParams(location.search).get('tab') || 'cari';
 const namaTopik = k => B?.perKode.get(k)?.nama || k;
 const unduhCSVBaris = (baris, nama) => {
@@ -117,7 +119,7 @@ function gambarCari(){
   const r = cariPakar(P, q, { B });
   out.innerHTML = r.length ? r.map(x => {
     const p = P.find(y => y.slug === x.slug);
-    return `<div class="kartu"><span class="skor">skor ${x.skor}</span><h3>${esc(x.nama)}</h3>
+    return `<div class="kartu"><span class="skor">skor ${x.skor}</span><h3>${esc(namaGelar(x))}</h3>
       <div>${chips(p.pilihan.map(namaTopik), '', x.alasan.baku || [])}${chips((x.alasan.baku || []).filter(n => !p.pilihan.map(namaTopik).includes(n)), 'oa')}
         ${chips(p.kata, '', x.alasan.kata)}${chips(p.bidang, '', x.alasan.bidang)}${chips(x.alasan.topik, 'oa')}</div>
       ${x.karya.length ? `<ul class="karya">${x.karya.map(j => `<li>${esc(j)}</li>`).join('')}</ul>` : ''}</div>`;
@@ -129,7 +131,7 @@ function htmlDosen(){
     .sort((a, b) => b[1] - a[1]).slice(0, 6).map(([k, n]) => `${namaTopik(k)} (${n})`);
   return `<p class="ket">${B ? '<b>Topik pilihan</b> dipilih dosen dari daftar keahlian prodi; <b>dari karya</b> = topik yang dipadankan otomatis dari judul dan topik OpenAlex karyanya (angka = jumlah karya). ' : ''}
       Kata kunci tambahan diisi dosen di profilnya.</p>
-    ${P.map(p => `<div class="kartu"><h3>${esc(p.nama)}</h3>
+    ${P.map(p => `<div class="kartu"><h3>${esc(namaGelar(p))}</h3>
       ${B ? `<div>${p.pilihan.length ? chips(p.pilihan.map(namaTopik)) : '<span class="ket">Topik pilihan belum diisi.</span>'}</div>
         ${p.dariKarya.size ? `<div style="margin-top:4px"><span class="ket">Dari karya: </span>${chips(dariKarya(p), 'oa')}</div>` : ''}` : ''}
       ${p.kata.length || p.bidang.length ? `<div style="margin-top:4px">${chips(p.kata)}${chips(p.bidang.filter(b => !p.kata.some(k => normal(k) === normal(b))))}</div>`
@@ -233,6 +235,7 @@ fetch('data.json?v=' + Date.now())
   .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
   .then(d => {
     D = d; P = profilKeahlian(d); B = daftarBaku(d);
+    if (d.prodi) document.title = 'Kepakaran dosen — ' + ['Program Studi ' + d.prodi, d.institusi].filter(Boolean).join(' ');
     $('hProdi').textContent = [d.prodi, d.institusi].filter(Boolean).join(' · ');
     if (B) {
       const m = petaBaku(P, B);

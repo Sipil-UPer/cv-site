@@ -2,14 +2,14 @@
 // kelengkapan.html mengambil data, modul ini menghitung. Aturan terisi sama
 // dengan halaman sumbernya: kotak narasi seperti narasi-led.html, bukti butir
 // seperti rekap bukti di skor.html.
-import { BUTIR_MANUAL } from './butir-manual.js?v=2026-11-19-90738d';
-import { UNSUR_BUTIR, pihakUnsur, PIHAK, PJ_UNSUR } from './unsur-butir.js?v=2026-11-19-90738d';
-import { BUTIR_DATA } from './butir-data.js?v=2026-11-19-90738d';
-import { faktaNarasi, anggotaTim } from './led-isi.js?v=2026-11-19-90738d';
-import { pisahKalimat } from './led-narasi.js?v=2026-11-19-90738d';
-import { masihKerangka } from './led-saran.js?v=2026-11-19-90738d';
-import { JENIS_DOKUMEN, buktiButir } from './rencana-bukti.js?v=2026-11-19-90738d';
-import { nilaiCapaian, perluAnalisis } from './capaian-iku.js?v=2026-11-19-90738d';
+import { BUTIR_MANUAL } from './butir-manual.js?v=2026-11-19-1cfd97';
+import { UNSUR_BUTIR, pihakUnsur, PIHAK, PJ_UNSUR } from './unsur-butir.js?v=2026-11-19-1cfd97';
+import { BUTIR_DATA } from './butir-data.js?v=2026-11-19-1cfd97';
+import { faktaNarasi, anggotaTim } from './led-isi.js?v=2026-11-19-1cfd97';
+import { pisahKalimat } from './led-narasi.js?v=2026-11-19-1cfd97';
+import { masihKerangka } from './led-saran.js?v=2026-11-19-1cfd97';
+import { JENIS_DOKUMEN, buktiButir } from './rencana-bukti.js?v=2026-11-19-1cfd97';
+import { nilaiCapaian, perluAnalisis } from './capaian-iku.js?v=2026-11-19-1cfd97';
 
 // Tab Data prodi: [id tab, tabel, judul, butir]; sama dengan TABEL di data-prodi.html.
 export const TAB_DATA = [
@@ -139,8 +139,8 @@ export function rekapKelengkapan(S){
   const berkas = new Set((S.karyaBukti || []).map(b => b.karya_id));
   const tanpaBukti = karya.filter(k => !k.bukti_url && !berkas.has(k.id));
   const dosen = [
-    baris('Karya terverifikasi', karya.length - diajukan.length, karya.length || 1, { href: 'input.html', ket: `${diajukan.length} menunggu verifikasi` }),
-    baris('Karya dengan tautan bukti', karya.length - tanpaBukti.length, karya.length || 1, { href: 'input.html', ket: `${tanpaBukti.length} tanpa bukti` }),
+    baris('Karya terverifikasi', karya.length - diajukan.length, karya.length || 1, { href: 'karya.html', ket: `${diajukan.length} menunggu verifikasi` }),
+    baris('Karya dengan tautan bukti', karya.length - tanpaBukti.length, karya.length || 1, { href: 'karya.html', ket: `${tanpaBukti.length} tanpa bukti` }),
   ];
 
   const bagian = [{ id: 'tim', judul: 'Tim penyusun', butir: tim }, { id: 'narasi', judul: 'Narasi LED', butir: narasi },

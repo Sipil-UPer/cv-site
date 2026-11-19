@@ -2,7 +2,7 @@
 // Mengumpulkan tanggal berakhir yang sudah ada di data dan menandai yang sudah
 // lewat (paling lama setahun ke belakang) atau akan berakhir <= 90 hari.
 // Dipakai Pengingat (tabel + email). Hanya membaca.
-import { labelDokumen } from './pustaka-dokumen.js?v=2026-11-19-90738d';
+import { labelDokumen } from './pustaka-dokumen.js?v=2026-11-19-1cfd97';
 
 export const HARI_SEGERA = 90;     // "3 bulan" (usulan 2026-11-11)
 export const HARI_LEWAT = 365;     // yang sudah lewat lebih lama dari ini tidak ditampilkan
@@ -32,7 +32,7 @@ export function daftarBerlaku(S, kini = new Date()){
   (S.kerjasama || []).forEach(r => tambah('Kerja sama', `${r.mitra || '—'}${r.jenis ? ` (${r.jenis})` : ''}`,
     tanggal(r.tanggal_selesai) || akhirTahun(r.tahun_selesai), 'data-prodi.html?tab=kerjasama', { perkiraan: !r.tanggal_selesai }));
   (S.karyaKS || []).forEach(k => tambah('Kerja sama di karya', `${k.mitra_institusi || 'Mitra'} — ${k.judul || ''}`,
-    tanggal(k.selesai_ks), 'input.html', { penerima: (k.karya_penulis || []).map(p => p.dosen).filter(d => d?.email) }));
+    tanggal(k.selesai_ks), 'karya.html', { penerima: (k.karya_penulis || []).map(p => p.dosen).filter(d => d?.email) }));
   (S.prodiUpps || []).forEach(r => tambah('SK akreditasi prodi', `${r.nama_prodi || '—'}${r.nomor_sk ? `, SK ${r.nomor_sk}` : ''}`,
     tanggal(r.tanggal_kedaluwarsa), 'data-prodi.html?tab=prodi_upps'));
   (S.petaJalan || []).forEach(r => tambah('Peta jalan', `${r.judul || r.jenis || 'Peta jalan'}`,

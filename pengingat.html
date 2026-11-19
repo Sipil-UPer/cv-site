@@ -4,12 +4,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<title>Pengingat — Kinerja Program Studi</title>
+<title>Pengingat — Ruang kerja</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-19-90738d">
-<link rel="stylesheet" href="kepala.css?v=2026-11-19-90738d">
+<link rel="stylesheet" href="tema.css?v=2026-11-19-1cfd97">
+<link rel="stylesheet" href="kepala.css?v=2026-11-19-1cfd97">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
@@ -72,7 +72,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-19-90738d"></script>
+<script src="config.js?v=2026-11-19-1cfd97"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -93,18 +93,18 @@ addEventListener('error', function (e) {
 // Script (Code.gs kind 'kirim_pengingat', maks. 30 per kirim). Tidak ada yang
 // terkirim tanpa tombol Kirim.
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-19-90738d';
-import { bacaTinjauan, unsurDariTinjauan } from './tinjauan-rps.js?v=2026-11-19-90738d';
-import { tugasPerPihak } from './kelengkapan.js?v=2026-11-19-90738d';
-import { PIHAK } from './unsur-butir.js?v=2026-11-19-90738d';
-import { penerimaTemuan, HARI_DEKAT } from './temuan-ami.js?v=2026-11-19-90738d';
-import { daftarBerlaku, penerimaBerlaku, htmlBerlaku, HARI_SEGERA } from './masa-berlaku.js?v=2026-11-19-90738d';
-import { penerimaKarya, penerimaProfil, isiPola } from './pengingat-dosen.js?v=2026-11-19-90738d';
-import { penerimaTindak, HARI_TINDAK } from './rapat.js?v=2026-11-19-90738d';
-import { penerimaHibah, penerimaPanggilan, HARI_PENGINGAT } from './hibah.js?v=2026-11-19-90738d';
-import { penerimaRefleksi, penerimaTindakEval, HARI_TINDAK_EVAL } from './evaluasi-pembelajaran.js?v=2026-11-19-90738d';
-import { penerimaRevisi, HARI_REVISI } from './rekap-ta.js?v=2026-11-19-90738d';
-import { penerimaTarget } from './target-kinerja.js?v=2026-11-19-90738d';
+import { gerbang } from './menu.js?v=2026-11-19-1cfd97';
+import { bacaTinjauan, unsurDariTinjauan } from './tinjauan-rps.js?v=2026-11-19-1cfd97';
+import { tugasPerPihak } from './kelengkapan.js?v=2026-11-19-1cfd97';
+import { PIHAK } from './unsur-butir.js?v=2026-11-19-1cfd97';
+import { penerimaTemuan, HARI_DEKAT } from './temuan-ami.js?v=2026-11-19-1cfd97';
+import { daftarBerlaku, penerimaBerlaku, htmlBerlaku, HARI_SEGERA } from './masa-berlaku.js?v=2026-11-19-1cfd97';
+import { penerimaKarya, penerimaProfil, isiPola } from './pengingat-dosen.js?v=2026-11-19-1cfd97';
+import { penerimaTindak, HARI_TINDAK } from './rapat.js?v=2026-11-19-1cfd97';
+import { penerimaHibah, penerimaPanggilan, HARI_PENGINGAT } from './hibah.js?v=2026-11-19-1cfd97';
+import { penerimaRefleksi, penerimaTindakEval, HARI_TINDAK_EVAL } from './evaluasi-pembelajaran.js?v=2026-11-19-1cfd97';
+import { penerimaRevisi, HARI_REVISI } from './rekap-ta.js?v=2026-11-19-1cfd97';
+import { penerimaTarget } from './target-kinerja.js?v=2026-11-19-1cfd97';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
@@ -148,7 +148,7 @@ async function kirim(id, penerima, setelah){
   m.className = 'msg'; m.textContent = 'Mengirim…';
   try {
     const { data: { session } } = await sb.auth.getSession();
-    if (!session) throw new Error('Sesi login habis. Muat ulang halaman.');
+    if (!session) throw new Error('Sesi masuk habis. Muat ulang halaman.');
     const res = await fetch(window.UPLOAD_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body: JSON.stringify({ token: session.access_token, kind: 'kirim_pengingat', pengirim: PRODI, pesan }) });
     const out = await res.json();
@@ -218,17 +218,17 @@ function gambar(){
         tahun lalu, yang menunggu verifikasi, yang terverifikasi tetapi belum ada buktinya, dan yang dikembalikan. Draf dosen tidak
         terlihat admin, jadi tidak ikut dihitung.`, pKarya,
         'Mohon perbarui karya di situs kinerja prodi',
-        `Yth. {nama},\n\nMohon memperbarui karya Anda (publikasi, penelitian, PkM, luaran, rekognisi) beserta buktinya di situs kinerja prodi. Ringkasan karya Anda saat ini:\n{rinci}\n\nKarya baru diisi di Data saya › Karya dosen; bukti diunggah pada tiap karya:\n{situs}input.html\n\nTerima kasih.\n{prodi}`)
+        `Yth. {nama},\n\nMohon memperbarui karya Anda (publikasi, penelitian, PkM, luaran, rekognisi) beserta buktinya di situs kinerja prodi. Ringkasan karya Anda saat ini:\n{rinci}\n\nKarya baru diisi di Data saya › Karya dosen; bukti diunggah pada tiap karya:\n{situs}karya.html\n\nTerima kasih.\n{prodi}`)
     + htmlJenis('profil', 'Mohon lengkapi profil', `Dosen aktif yang profilnya belum lengkap (SINTA ID, ORCID, Scopus ID bila ada, jabatan,
         riwayat pendidikan, topik keahlian). Dosen yang profilnya lengkap tidak masuk daftar.`, pProfil,
         'Mohon lengkapi profil di situs kinerja prodi',
         `Yth. {nama},\n\nProfil Anda di situs kinerja prodi belum lengkap. Isian yang masih kosong:\n{rinci}\n\nMohon dilengkapi di Data saya › Profil saya (perubahan berlaku setelah disetujui admin):\n{situs}profil.html\n\nTerima kasih.\n{prodi}`)
     + htmlJenis('bkd', 'BKD belum diisi', `DTPS aktif yang belum mengisi BKD ${esc(ta)} semester ${esc(sem)}.`, bkdBelum,
       `Pengingat pengisian BKD ${ta} semester ${sem}`,
-      `Yth. {nama},\n\nMohon mengisi BKD {rinci} di situs kinerja prodi (Input › BKD saya), dengan mengunggah LKD SISTER:\n${situs}input.html\n\nTerima kasih.\n${PRODI}`)
+      `Yth. {nama},\n\nMohon mengisi BKD {rinci} di situs kinerja prodi (Input › BKD saya), dengan mengunggah LKD SISTER:\n${situs}karya.html\n\nTerima kasih.\n${PRODI}`)
     + htmlJenis('tolak', 'Karya perlu diperbaiki', 'Penulis dari prodi pada karya berstatus ditolak. Draf dosen tidak terlihat admin, jadi tidak termasuk.', tolak,
       'Karya Anda perlu diperbaiki',
-      `Yth. {nama},\n\nKarya berikut dikembalikan untuk diperbaiki:\n{rinci}\n\nSilakan perbaiki di situs kinerja prodi:\n${situs}input.html\n\nTerima kasih.\n${PRODI}`)
+      `Yth. {nama},\n\nKarya berikut dikembalikan untuk diperbaiki:\n{rinci}\n\nSilakan perbaiki di situs kinerja prodi:\n${situs}karya.html\n\nTerima kasih.\n${PRODI}`)
     + htmlJenis('pihak', 'Bukti akreditasi per pihak', 'Unsur penilaian yang belum ada buktinya, dikirim ke email tiap pihak (isi di bawah).', pihak,
       'Permohonan bukti untuk akreditasi program studi',
       `Yth. {nama},\n\nUntuk akreditasi program studi, kami memerlukan bukti berikut:\n{rinci}\n\nMohon dikirimkan ke program studi. Terima kasih.\n${PRODI}`)

@@ -1,5 +1,5 @@
-// Tampilan baris karya dan buktinya, dipakai bersama input.html (Karya saya,
-// Karya prodi) dan verifikasi.html (tab Karya). Dipindah dari input.html saat
+// Tampilan baris karya dan buktinya, dipakai bersama karya.html (Karya saya,
+// Karya prodi) dan verifikasi.html (tab Karya). Dipindah dari karya.html saat
 // verifikasi dijadikan halaman tersendiri (pemilik 2026-11-08).
 //
 // Bukti jamak per karya (tabel karya_bukti, supabase/14-patch-bukti-jamak.sql;
@@ -7,9 +7,9 @@
 // ikut tampil pada publikasi/luaran/integrasi turunannya tanpa disalin.
 // st = { KB: karya_id -> [karya_bukti], INDUK: id -> karya } dari muatBuktiKarya.
 
-import { namaJenisBukti } from './rencana-bukti.js?v=2026-11-19-90738d';
-import { buangBerkas, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-19-90738d';
-import { htmlTautanButir, butirKarya, tsBaris } from './tautan-butir.js?v=2026-11-19-90738d';
+import { namaJenisBukti } from './rencana-bukti.js?v=2026-11-19-1cfd97';
+import { buangBerkas, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-19-1cfd97';
+import { htmlTautanButir, butirKarya, tsBaris } from './tautan-butir.js?v=2026-11-19-1cfd97';
 
 export const esc = s => String(s ?? '').replace(/[&<>"']/g, c =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));

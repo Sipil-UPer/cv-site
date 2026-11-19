@@ -88,7 +88,7 @@ export const BUTIR_MANUAL = [
      const mk = new Set(I.map(r => String(r.mata_kuliah || '').trim().toLowerCase())
                          .filter(Boolean));
      if (!I.length) return 'Belum ada kegiatan integrasi terverifikasi pada ' +
-       'jendela ini. Dosen mengisinya lewat tab Integrasi di input.html — ' +
+       'jendela ini. Dosen mengisinya lewat tab Integrasi di karya.html — ' +
        'tanpa itu, syarat 10% tidak punya bukti di sistem.';
      return `${I.length} kegiatan integrasi terverifikasi, mencakup ` +
        `${mk.size} mata kuliah. Persentase terhadap mata kuliah inti belum ` +

@@ -29,7 +29,7 @@ const KOLOM_SERTIFIKAT = [['bidang', 'Bidang sertifikasi'], ['lembaga', 'Lembaga
 export const ISIAN_PROFIL = [
   ['nama', 'Nama lengkap'], ['jabatan', 'Jabatan akademik'],
   ['sinta_id', 'SINTA ID'], ['scopus_id', 'Scopus ID'], ['orcid', 'ORCID'],
-  ['email_alternatif', 'Email alternatif untuk login'],   // patch 69
+  ['email_alternatif', 'Email alternatif untuk masuk'],   // patch 69
   ['riwayat_pendidikan', 'Riwayat pendidikan'], ['pendidikan', 'Pendidikan tertinggi'],
   ['bidang_keahlian', 'Bidang keahlian'], ['topik_keahlian', 'Topik keahlian'], ['kata_kunci', 'Kata kunci tambahan'], ['perusahaan', 'Perusahaan / industri'],
   ['nomor_serdos', 'Nomor sertifikat pendidik'], ['sertifikat', 'Sertifikat kompetensi/profesi/industri'],

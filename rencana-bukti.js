@@ -10,7 +10,7 @@
    2026-11-03).
    ===================================================================== */
 
-import { pihakBukti, UNSUR_BUTIR } from './unsur-butir.js?v=2026-11-19-90738d';
+import { pihakBukti, UNSUR_BUTIR } from './unsur-butir.js?v=2026-11-19-1cfd97';
 
 export const RENCANA_BUKTI = {
  "1": {
@@ -740,7 +740,7 @@ const esc = s => String(s ?? '').replace(/[&<>"']/g,
 // butir: butir bawaan; saat mengunggah bisa diubah per dokumen.
 // id: huruf kecil, angka, garis bawah (juga nama folder Drive).
 // Publikasi, penelitian, PkM, HKI, rekognisi TIDAK di sini: tetap lewat form
-// karya dosen (input.html) supaya terhitung di skor.
+// karya dosen (karya.html) supaya terhitung di skor.
 export const JENIS_DOKUMEN = [
   { id: 'statuta', nama: 'Statuta Universitas Pertamina', tunggal: true, butir: ['1', '4'] },
   { id: 'renstra_pt', nama: 'Renstra Universitas Pertamina', tunggal: true, butir: ['1', '59', '60'] },
@@ -801,7 +801,7 @@ export const JENIS_DOKUMEN = [
   { id: 'daftar_hadir', nama: 'Daftar hadir', tunggal: false, butir: [], contoh: 'Rapat kurikulum Maret 2026' },
   { id: 'kontrak_hibah', nama: 'Kontrak atau SK hibah', tunggal: false, butir: [], contoh: 'Kontrak hibah internal 2026' },
   { id: 'sertifikat', nama: 'Sertifikat/piagam', tunggal: false, butir: [], contoh: 'Sertifikat K3 laboran A' },
-  // Halaman publik berkas-mahasiswa.html (76-patch-berkas-mahasiswa.sql, pemilik 2026-11-16).
+  // Halaman publik layanan-mahasiswa.html (76-patch-berkas-mahasiswa.sql, pemilik 2026-11-16).
   { id: 'pengumuman', nama: 'Pengumuman untuk mahasiswa (jadwal sidang TA, dll.)', tunggal: false, butir: [],
     contoh: 'Jadwal Sidang Tugas Akhir Semester Ganjil 2026/2027' },
   { id: 'lainnya', nama: 'Dokumen lain', tunggal: false, butir: [], contoh: 'Judul dokumen' },

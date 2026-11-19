@@ -1,13 +1,13 @@
 // Prestasi mahasiswa yang diisi dosen pembimbing (pemilik 2026-11-06,
-// supabase/38-patch-prestasi-dosen.sql). Dipakai input.html: tab Prestasi
+// supabase/38-patch-prestasi-dosen.sql). Dipakai karya.html: tab Prestasi
 // mahasiswa (pasangPrestasi) dan verifikasi.html (pasangVerifikasiPrestasi).
 // Admin tetap bisa mengisi langsung di Data prodi.
 
-import { periksaBerkas, kolomSidik, teksTemuan } from './sidik-berkas.js?v=2026-11-19-90738d';
-import { buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-19-90738d';
-import { htmlSaran } from './saran-bukti.js?v=2026-11-19-90738d';
-import { tautanBerkas, temuanPakai } from './tautan-privat.js?v=2026-11-19-90738d';
-import { htmlTautanButir, tsBaris } from './tautan-butir.js?v=2026-11-19-90738d';
+import { periksaBerkas, kolomSidik, teksTemuan } from './sidik-berkas.js?v=2026-11-19-1cfd97';
+import { buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-19-1cfd97';
+import { htmlSaran } from './saran-bukti.js?v=2026-11-19-1cfd97';
+import { tautanBerkas, temuanPakai } from './tautan-privat.js?v=2026-11-19-1cfd97';
+import { htmlTautanButir, tsBaris } from './tautan-butir.js?v=2026-11-19-1cfd97';
 
 export const TABEL = 'lkps_prestasi_mahasiswa';
 
@@ -109,7 +109,7 @@ async function unggahBerkas(sb, berkas, jenis, tahun, kegiatan, tulis){
   const maxMb = Number(window.UPLOAD_MAX_MB) || 0;
   if (!window.UPLOAD_URL) throw new Error('Unggah berkas belum disiapkan; tempel tautan saja.');
   const { data: { session } } = await sb.auth.getSession();
-  if (!session) throw new Error('Sesi login habis. Muat ulang halaman.');
+  if (!session) throw new Error('Sesi masuk habis. Muat ulang halaman.');
   const hasil = [];
   for (let i = 0; i < berkas.length; i++) {
     const f = berkas[i], e = ((f.name.match(/\.([^.]+)$/) || [])[1] || '').toLowerCase();

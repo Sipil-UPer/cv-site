@@ -1,14 +1,14 @@
 // Saran bukti yang tampil di tiap form input data (pemilik 2026-11-06).
 // Isi mengikuti LKPS_TABEL dan RENCANA_BUKTI di rencana-bukti.js:
 // [teks, true] = disebut panduan LKPS; [teks] = usulan kami, bukan syarat resmi.
-// Kunci = kunci FORM di input.html, id tab Data prodi, 'prestasi_dosen', 'dosen'.
+// Kunci = kunci FORM di karya.html, id tab Data prodi, 'prestasi_dosen', 'dosen'.
 
 // Ketiga: berkas privat, disimpan tanpa tautan publik (pemilik 2026-11-06).
 const P = t => [t, true], U = t => [t], R = t => [t, false, true], PR = t => [t, true, true];
 const TRACER = [P('Laporan tracer study (responden sedikitnya 30%)'), R('Rekap jawaban kuesioner')];
 
 export const SARAN_BUKTI = {
-  // input.html
+  // karya.html
   publikasi: { tabel: '4.d, 4.h', isi: [P('Halaman profil SINTA yang memuat karya ini'),
     P('Status penulis pertama atau korespondensi, mis. halaman artikel'), U('Naskah terbit atau tautan DOI'),
     U('Bukti indeksasi (Scopus, WoS, atau SINTA)'), U('Korespondensi dengan editor')] },
