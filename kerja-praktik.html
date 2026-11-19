@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-20-a5354e">
+<link rel="stylesheet" href="tema.css?v=2026-11-20-d44442">
 <style>
   /* Ruang KP, publik tanpa masuk akun (pemilik 2026-11-18; patch 105). Warna dari tema.css. */
   *{box-sizing:border-box}
@@ -36,7 +36,8 @@
   .jalur li::before{content:counter(l);font-family:var(--mono);font-size:11px;color:var(--muted);display:block}
   .jalur li b{display:block;font-size:14px}
   .jalur li.wajib{border-top-color:var(--merah)}
-  ul.syarat{margin:6px 0 0;padding-left:20px} ul.syarat li{margin:3px 0}
+  .syarat{margin:6px 0 0;padding-left:20px} .syarat li{margin:3px 0}
+  h2[id]{scroll-margin-top:110px}   /* kepala situs menempel di atas */
   .daftar{list-style:none;margin:6px 0 0;padding:0;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--panel)}
   .daftar li{padding:9px 12px;border-bottom:1px solid var(--line-soft);font-size:14px}
   .daftar li:last-child{border-bottom:0}
@@ -60,11 +61,12 @@
     dan laporan selesai KP. Pengajuan dibuat tanpa akun; tautan pribadi dikirim ke <b>email kampus</b> Anda.</p>
   <div class="aksi">
     <a class="b utama" href="pengajuan.html?jenis=kp">Ajukan KP atau magang</a>
-    <a class="b" href="pengajuan.html?lapor=kp">KP sudah selesai? Pelaporan selesai KP</a>
+    <!-- Satu tombol, dua jalan dijelaskan di #lapor-selesai (pemilik 2026-11-20): yang sudah punya tautan tidak
+         membuat pengajuan baru (ditolak "satu KP aktif"); formulir ?lapor=kp hanya untuk KP sebelum layanan ini. -->
+    <a class="b" href="#lapor-selesai">Lapor selesai KP</a>
     <a class="b" href="pengajuan.html#tautan">Sudah mengajukan? Minta tautan baru</a>
   </div>
   <ul class="ket">
-    <li>Pelaporan selesai KP diisi lewat <b>tautan pribadi yang sama</b>, setelah Anda melaporkan diterima instansi.</li>
     <li>Sudah diterima instansi tanpa surat pengantar dari prodi? Ajukan KP, lalu unggah surat balasan instansinya.</li>
     <li>Email kampus bermasalah? <a href="pengajuan.html#email">Daftarkan email alternatif</a>.</li>
   </ul>
@@ -84,6 +86,25 @@
     <li><b>Diperiksa koordinator KP</b>atau admin prodi</li>
     <li><b>KP selesai</b>tercatat sebagai pelaksanaan KP prodi</li>
   </ol>
+
+  <h2 id="lapor-selesai">Lapor selesai KP</h2>
+  <div class="kotak">
+    <b>Sudah punya tautan pengajuan KP (dari email kampus)</b>
+    <ol class="syarat">
+      <li>Buka tautan pengajuan KP Anda. <b>Jangan</b> membuat pengajuan baru.</li>
+      <li>Belum pernah melaporkan jawaban instansi? Di kotak <b>Laporkan jawaban instansi</b>, unggah surat balasan instansi,
+        isi tanggal mulai KP, lalu tekan <b>Laporkan diterima</b>.</li>
+      <li>Di bagian <b>Pelaporan selesai KP</b>, isi tanggal mulai dan selesai, pembimbing lapangan, dan ringkasan kegiatan;
+        unggah <b>Laporan KP</b> dan <b>Surat keterangan selesai</b> (logbook dan foto bila ada); tekan <b>Kirim laporan selesai</b>.</li>
+    </ol>
+    <div class="aksi"><a class="b" href="pengajuan.html#tautan">Tautan hilang? Kirim tautan baru ke email kampus</a></div>
+  </div>
+  <div class="kotak">
+    <b>KP sudah selesai sebelum layanan pengajuan ini dipakai</b> (tidak pernah punya tautan pengajuan KP)
+    <p class="ket" style="margin:4px 0 0">Formulir tersendiri, tanpa surat permohonan dan surat pengantar. Tautan pribadinya dikirim ke email kampus.</p>
+    <div class="aksi"><a class="b utama" href="pengajuan.html?lapor=kp">Buka formulir pelaporan selesai KP</a></div>
+  </div>
+  <p class="ket">Diperiksa dosen pembimbing, lalu koordinator KP atau admin prodi; tiap keputusan dikabarkan lewat email.</p>
 
   <h2>Syarat dan berkas</h2>
   <div class="kotak">
@@ -114,7 +135,7 @@
 
   <footer><a href="privasi.html">Kebijakan privasi</a></footer>
 </main>
-<script src="config.js?v=2026-11-20-a5354e"></script>
+<script src="config.js?v=2026-11-20-d44442"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -130,7 +151,7 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 // Kepala dan kaki bersama situs umum (pemilik 2026-11-19, tahap 2).
-import { pasangKerangka } from './kerangka.js?v=2026-11-20-a5354e';
+import { pasangKerangka } from './kerangka.js?v=2026-11-20-d44442';
 pasangKerangka({ aktif: 'mahasiswa', muat: true });
 // Ruang KP (pemilik 2026-11-18): info publik. Dokumen = dokumen untuk mahasiswa (Data prodi › Dokumen, centang Mahasiswa;
 // dokumen_mahasiswa(), patch 76) yang judulnya memuat KP, Kerja Praktik, atau Magang. Tempat KP = data.json tempat_kp.
