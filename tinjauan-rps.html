@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-19-c0ec55">
-<link rel="stylesheet" href="kepala.css?v=2026-11-19-c0ec55">
+<link rel="stylesheet" href="tema.css?v=2026-11-19-b5974d">
+<link rel="stylesheet" href="kepala.css?v=2026-11-19-b5974d">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
@@ -52,7 +52,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-19-c0ec55"></script>
+<script src="config.js?v=2026-11-19-b5974d"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -71,10 +71,10 @@ addEventListener('error', function (e) {
 // Dibuka setelah nilai akhir keluar (berkas nilai akhir di ringkasan CPL); diisi koordinator MK (atau MK padanannya) atau
 // pengampu kelasnya, disetujui Kaprodi. Revisi = tindak lanjut; RPS sasaran diajukan ulang (selesai bila disahkan lagi).
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-19-c0ec55';
-import { punya } from './koordinator.js?v=2026-11-19-c0ec55';
+import { gerbang } from './menu.js?v=2026-11-19-b5974d';
+import { punya } from './koordinator.js?v=2026-11-19-b5974d';
 import { VERSI_DATA, MULAI_BAWAAN, UNSUR, KEPUTUSAN, STATUS, pecahTerm, daftarSemester, mkSemester, analisisCpl, sasaranRps,
-  bolehTinjau, tinjauanKosong, periksaTinjauan, statusTindak, bacaCsvPadanan } from './tinjauan-rps.js?v=2026-11-19-c0ec55';
+  bolehTinjau, tinjauanKosong, periksaTinjauan, statusTindak, bacaCsvPadanan, rekapSemester, csvTinjauan, kalimatLed } from './tinjauan-rps.js?v=2026-11-19-b5974d';
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const sb = createClient(window.SB_URL, window.SB_KEY);
@@ -160,7 +160,27 @@ function htmlDaftar(){
       }).join('') || '<tr><td colspan="9" class="kosong">Tidak ada MK yang cocok.</td></tr>'}
     </tbody></table></div>
     <p class="ket">Semester ${esc(semester)} ${esc(ta)}. Daftar MK = berkas nilai akhir di ringkasan CPL; semester mulai: ${esc(labelTerm(MULAI))}.</p></section>
+    ${htmlRekap()}
     ${ADMIN ? htmlAdmin() : ''}`;
+}
+
+// ---------- rekap semester (tahap 2): rapat kurikulum dan LED ----------
+const rekapIni = () => rekapSemester({ ringkasan: RG, term: TERM, tinjauan: TIN, padanan: PAD, mk: MK, rpsMap: RPS });
+function htmlRekap(){
+  const R = rekapIni();
+  if (!R.n) return '';
+  const sel = (l, v, ket = '') => `<tr><td>${esc(l)}</td><td><b>${v}</b>${ket ? ` <span class="ket">${esc(ket)}</span>` : ''}</td></tr>`;
+  return `<section class="kartu"><h2>Rekap tinjauan ${esc(R.term)}</h2>
+    <div class="gulir"><table class="ds"><tbody>
+      ${sel('Mata kuliah dengan nilai akhir', R.n)}
+      ${sel('Tinjauan disetujui Kaprodi', `${R.disetujui} dari ${R.n}`, R.disetujui === R.n ? 'semua: unsur 5-8 butir 15 terhitung di skor' : '')}
+      ${sel('Diajukan, menunggu Kaprodi', R.diajukan)}${sel('Sedang diisi atau dikembalikan', R.proses)}${sel('Belum diisi', R.belum)}
+      ${sel('Keputusan: RPS tetap', R.tetap)}${sel('Keputusan: RPS direvisi', R.revisi)}${R.tidakBerlanjut ? sel('Keputusan: MK tidak berlanjut', R.tidakBerlanjut) : ''}
+      ${sel('Tindak lanjut revisi selesai', R.tindak.selesai)}${sel('Tindak lanjut berjalan', R.tindak.terbuka)}${sel('Tindak lanjut lewat tenggat', R.tindak.lewat)}
+    </tbody></table></div>
+    <div class="alat"><button class="b" id="unduhCsv">Unduh CSV (bahan rapat)</button></div>
+    <label class="fld"><span>Kalimat untuk narasi LED butir 15/16</span><textarea id="teksLed" readonly>${esc(kalimatLed(R))}</textarea></label>
+    <div class="alat"><button class="b" id="salinLed">Salin kalimat</button><span class="msg" id="mLed"></span></div></section>`;
 }
 
 // ---------- admin: semester mulai dan padanan ----------
@@ -259,6 +279,15 @@ function gambar(){
     if ($('fMenunggu')) $('fMenunggu').onchange = e => { F_MENUNGGU = e.target.checked; gambar(); };
     document.querySelectorAll('[data-buka]').forEach(a => a.onclick = e => { e.preventDefault(); const [kur, kode] = a.dataset.buka.split('|');
       history.pushState(null, '', a.getAttribute('href')); bukaMK(kur, kode); });
+    if ($('unduhCsv')) $('unduhCsv').onclick = () => {
+      const a = Object.assign(document.createElement('a'), { href: URL.createObjectURL(new Blob([csvTinjauan(rekapIni())], { type: 'text/csv;charset=utf-8' })),
+        download: `tinjauan-rps-${TERM.replace(/[^0-9A-Za-z]+/g, '-')}.csv` });
+      document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+    };
+    if ($('salinLed')) $('salinLed').onclick = async () => {
+      try { await navigator.clipboard.writeText($('teksLed').value); tulis('mLed', 'ok', 'Tersalin.'); }
+      catch { $('teksLed').select(); tulis('mLed', 'buruk', 'Salin manual (Ctrl+C); teks sudah terpilih.'); }
+    };
     if ($('aSimpanMulai')) $('aSimpanMulai').onclick = simpanMulai;
     if ($('aImpor')) $('aImpor').onclick = imporPadanan;
     return;

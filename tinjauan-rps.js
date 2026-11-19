@@ -158,3 +158,95 @@ export function bacaCsvPadanan(isi, mk = [], kurLama = 'K21', kurBaru = 'K26'){
   });
   return { baris, galat };
 }
+
+// ---------- Tahap 2 (pemilik 2026-11-19): rekap, CSV, kalimat LED, unsur 5-8 skor, bagian E RPS, pemuat bersama ----------
+
+/** Pemuat bersama untuk skor, kelengkapan, pengingat, Dasbor, dan Ruang kerja. Tanpa patch 115: patch = false, daftar kosong. */
+export async function bacaTinjauan(sb){
+  const [rg, tin, pad, peng, rps] = await Promise.all([
+    sb.from('cpl_ringkasan').select('data').order('diunggah', { ascending: false }).order('id', { ascending: false }).limit(1),
+    sb.from('mk_rps_tinjauan').select('id,kurikulum,kode_mk,tahun_akademik,semester,keputusan,status,rps_dasar,data,disetujui_pada'),
+    sb.from('ref_mk_padanan').select('kurikulum_lama,kode_lama,kurikulum_baru,kode_baru,tidak_berlanjut'),
+    sb.from('pengaturan').select('nilai').eq('kunci', 'tinjauan_rps_mulai'),
+    sb.from('mk_rps').select('kurikulum,kode_mk,status,revisi')].map(q => q.then(r => r, () => ({ error: true }))));
+  return { patch: !tin.error, ringkasan: rg.error ? null : rg.data?.[0]?.data || null, tinjauan: tin.error ? [] : tin.data || [],
+           padanan: pad.error ? [] : pad.data || [], mulai: +(peng.data?.[0]?.nilai) || MULAI_BAWAAN, rps: rps.error ? [] : rps.data || [] };
+}
+export const petaRps = rps => new Map((rps || []).map(r => [kunci(r.kurikulum, r.kode_mk), r]));
+
+/** Tinjauan satu MK pada satu semester ("2025/2026 Genap"). */
+export function cariTinjauan(tinjauan = [], kur, kode, term){
+  const t = pecahTerm(term);
+  return t ? tinjauan.find(x => x.kurikulum === kur && x.kode_mk === kode && x.tahun_akademik === t.ta && x.semester === t.semester) : undefined;
+}
+
+/** Rekap satu semester: jumlah per status, keputusan, tindak lanjut, dan baris per MK. */
+export function rekapSemester({ ringkasan, term, tinjauan = [], padanan = [], mk = [], rpsMap = new Map() }){
+  const baris = mkSemester(ringkasan, term).map(m => {
+    const t = cariTinjauan(tinjauan, m.kurikulum, m.kode, term);
+    return { ...m, t: t || null, status: t?.status || 'belum', keputusan: t?.keputusan || '', tindak: statusTindak(t, rpsMap),
+      sasaran: sasaranRps(padanan, mk, m.kurikulum, m.kode).sasaran.map(s => s.kode),
+      belumCpl: analisisCpl(ringkasan, m.kode, term).perCpl.filter(x => x.belum.length).map(x => x.cpl) };
+  });
+  const hit = f => baris.filter(f).length, sah = b => b.status === 'disetujui';
+  return { term, baris, n: baris.length, disetujui: hit(sah), diajukan: hit(b => b.status === 'diajukan'),
+    proses: hit(b => ['draf', 'dikembalikan'].includes(b.status)), belum: hit(b => b.status === 'belum'),
+    tetap: hit(b => sah(b) && b.keputusan === 'tetap'), revisi: hit(b => sah(b) && b.keputusan === 'revisi'),
+    tidakBerlanjut: hit(b => sah(b) && b.keputusan === 'tidak_berlanjut'),
+    tindak: { selesai: hit(b => b.tindak.kode === 'selesai'), terbuka: hit(b => b.tindak.kode === 'terbuka'), lewat: hit(b => b.tindak.kode === 'lewat') } };
+}
+
+/** CSV rekap (BOM, pemisah titik koma) untuk bahan rapat kurikulum: satu baris per MK beserta isian tinjauannya. */
+export function csvTinjauan(R){
+  const q = v => { const s = String(v ?? ''); return /[;"\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
+  const kepala = ['semester', 'kurikulum', 'kode', 'nama', 'kelas', 'rps_sasaran', 'status', 'keputusan', 'cpl_belum_tercapai',
+    ...UNSUR.map(u => u[0]), 'rencana', 'tenggat', 'tindak_lanjut', 'disetujui_pada'];
+  const isi = R.baris.map(b => [R.term, b.kurikulum, b.kode, b.nama, b.kelas, b.sasaran.join(' '), STATUS[b.status] || 'belum diisi',
+    KEPUTUSAN.find(k => k[0] === b.keputusan)?.[1] || '', b.belumCpl.map(c => `CPL ${c}`).join(' '),
+    ...UNSUR.map(u => b.t?.data?.[u[0]]), b.t?.data?.rencana, b.t?.data?.tenggat,
+    b.tindak.kode === 'tidak_ada' ? '' : b.tindak.label, String(b.t?.disetujui_pada || '').slice(0, 10)].map(q).join(';'));
+  return '\uFEFF' + [kepala.join(';'), ...isi].join('\r\n');
+}
+
+/** Paragraf siap salin untuk narasi LED butir 15/16 dari rekap satu semester. */
+export function kalimatLed(R){
+  if (!R?.n) return '';
+  const cpl = new Map();
+  for (const b of R.baris) for (const c of b.belumCpl) cpl.set(c, [...(cpl.get(c) || []), b.kode]);
+  const s = [`Pada semester ${R.term}, RPS ${R.n} mata kuliah yang nilai akhirnya telah keluar ditinjau oleh koordinator mata kuliah; `
+    + `${R.disetujui} tinjauan telah disetujui Ketua Program Studi${R.disetujui < R.n ? ` dan ${R.n - R.disetujui} belum selesai` : ''}.`,
+    'Tinjauan mencakup analisis capaian CPL dari nilai akhir, kesesuaian materi dan metode pembelajaran, peninjauan metode penilaian, '
+    + 'serta penyesuaian kurikulum dan pembaruan materi.'];
+  if (cpl.size) s.push(`CPL yang belum tercapai di sebagian kelas: ${[...cpl].map(([c, ks]) => `CPL ${c} (${ks.join(', ')})`).join('; ')}.`);
+  if (R.disetujui) s.push(`Hasilnya, ${R.tetap} RPS dinyatakan tetap dan ${R.revisi} RPS diputuskan direvisi`
+    + (R.revisi ? `; tindak lanjut revisi telah selesai untuk ${R.tindak.selesai} RPS dan masih berjalan untuk ${R.tindak.terbuka + R.tindak.lewat} RPS.` : '.'));
+  return s.join(' ');
+}
+
+/**
+ * Unsur 5-8 butir 15 dari tinjauan (pemilik 2026-11-19): terhitung bila SEMUA MK yang nilai akhirnya keluar pada semester
+ * terbaru yang ditinjau sudah punya tinjauan disetujui Kaprodi (seketat unsur 1: semua MK ber-RPS lengkap).
+ */
+export function unsurDariTinjauan({ ringkasan, tinjauan = [], mulai = MULAI_BAWAAN } = {}){
+  const term = daftarSemester(ringkasan, mulai)[0]?.term;
+  if (!term) return { term: '', n: 0, disetujui: 0, unsur: [] };
+  const xs = mkSemester(ringkasan, term);
+  const ok = xs.filter(m => cariTinjauan(tinjauan, m.kurikulum, m.kode, term)?.status === 'disetujui').length;
+  return { term, n: xs.length, disetujui: ok, unsur: xs.length && ok === xs.length ? [5, 6, 7, 8] : [] };
+}
+
+/**
+ * Bagian E RPS dari tinjauan: MK lama padanan RPS ini (atau MK itu sendiri), tinjauan disetujui terbaru.
+ * Hasil { kodeLama, tinjauan, bahan: [baris teks] }.
+ */
+export function bahanTinjauan({ tinjauan = [], padanan = [], kur, kode }){
+  const lama = padanan.filter(p => p.kurikulum_baru === kur && p.kode_baru === kode).map(p => [p.kurikulum_lama, p.kode_lama]);
+  const asal = [[kur, kode], ...lama];
+  const t = tinjauan.filter(x => x.status === 'disetujui' && asal.some(([k, c]) => x.kurikulum === k && x.kode_mk === c))
+    .sort((a, b) => urutTerm(b.tahun_akademik, b.semester) - urutTerm(a.tahun_akademik, a.semester))[0] || null;
+  const bahan = t ? [`Tinjauan RPS ${t.semester} ${t.tahun_akademik} (MK ${t.kode_mk}, disetujui Kaprodi):`,
+    ...UNSUR.map(([k, l]) => (teks(t.data?.[k]) ? `${l}: ${teks(t.data[k])}` : '')),
+    t.keputusan === 'revisi' && teks(t.data?.rencana) ? `Rencana revisi: ${teks(t.data.rencana)}` : '',
+    t.keputusan === 'tetap' ? 'Keputusan tinjauan: RPS tetap.' : ''].filter(Boolean) : [];
+  return { kodeLama: lama[0]?.[1] || '', tinjauan: t, bahan };
+}

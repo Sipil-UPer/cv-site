@@ -1,9 +1,10 @@
 // Tugas saya untuk koordinator MK dan pengampu kelas (pemilik 2026-11-17; OBE O2 dan O3).
 // Hanya yang belum punya pengingat lain: CPMK/RPS (cpmk.html) dan unggahan portofolio (portofolio.html).
 // Berkas nilai CPL dan refleksi evaluasi sudah diingatkan tugas-saya.js / evaluasi-pembelajaran.js.
-import { periksaStruktur } from './templat-cpl.js?v=2026-11-19-c0ec55';
-import { cplMK, dataTemplat, statusStruktur } from './cpmk.js?v=2026-11-19-c0ec55';
-import { kelengkapan, mkSemester, daftarSemester } from './portofolio.js?v=2026-11-19-c0ec55';
+import { periksaStruktur } from './templat-cpl.js?v=2026-11-19-b5974d';
+import { cplMK, dataTemplat, statusStruktur } from './cpmk.js?v=2026-11-19-b5974d';
+import { bolehTinjau, cariTinjauan, statusTindak, petaRps, daftarSemester as semesterTinjau, mkSemester as mkTinjau } from './tinjauan-rps.js?v=2026-11-19-b5974d';
+import { kelengkapan, mkSemester, daftarSemester } from './portofolio.js?v=2026-11-19-b5974d';
 
 const kecil = s => String(s || '').trim().toLowerCase();
 const potong = (xs, n = 6) => xs.slice(0, n).join('; ') + (xs.length > n ? `; dan ${xs.length - n} lagi` : '');
@@ -32,6 +33,25 @@ export function tugasMK(d){
   if (kurang.length) out.push({ jenis: 'cpmk', judul: `CPMK dan RPS: ${kurang.length} mata kuliah yang Anda koordinasikan belum lengkap`,
     rinci: potong(kurang.map(x => x.teks)) + '.',
     href: kurang.length === 1 ? `cpmk.html?kode=${encodeURIComponent(kurang[0].m.kode)}` : 'cpmk.html' });
+
+  // 1b. Tinjauan RPS (115, tahap 2): MK semester terbaru yang terbuka dan boleh saya isi tetapi belum diajukan; lalu RPS yang
+  //     harus direvisi hasil tinjauan (saya koordinator MK sasarannya).
+  const T = d.tinjau;
+  if (T?.patch && T.ringkasan) {
+    const tm = semesterTinjau(T.ringkasan, T.mulai)[0];
+    const perlu = tm ? mkTinjau(T.ringkasan, tm.term).filter(m => bolehTinjau({ saya: d.saya, mk, padanan: T.padanan, kelas: d.kelas,
+      kur: m.kurikulum, kode: m.kode, ta: tm.ta, semester: tm.semester }) && ['draf', 'dikembalikan', undefined].includes(cariTinjauan(T.tinjauan, m.kurikulum, m.kode, tm.term)?.status)) : [];
+    if (perlu.length) out.push({ jenis: 'tinjauan', judul: `Tinjauan RPS ${tm.term}: ${perlu.length} mata kuliah belum diajukan`,
+      rinci: potong(perlu.map(m => `${m.kode} ${m.nama}`)) + '. Nilai akhir sudah keluar; isi analisis CPL, materi dan metode, penilaian, dan pembaruan materi.',
+      href: `tinjauan-rps.html?term=${encodeURIComponent(tm.term)}` });
+    const rm = petaRps(T.rps);
+    const rev = T.tinjauan.filter(t => t.keputusan === 'revisi' && t.status === 'disetujui' && statusTindak(t, rm).kode !== 'selesai')
+      .flatMap(t => Object.entries(t.rps_dasar || {}).filter(([k, v]) => !((rm.get(k)?.revisi || 0) > (+v || 0))).map(([k]) => ({ t, k })))
+      .filter(({ k }) => { const [kur, kode] = k.split('|'); return !!nidn && koor(mk.find(m => m.kurikulum === kur && m.kode === kode)).includes(nidn); });
+    if (rev.length) out.push({ jenis: 'tinjauan', judul: `Revisi RPS hasil tinjauan: ${rev.length} RPS perlu diperbaiki dan diajukan ulang`,
+      rinci: potong(rev.map(({ t, k }) => `${k.split('|')[1]} (tinjauan ${t.kode_mk} ${t.semester} ${t.tahun_akademik}${t.data?.tenggat ? `, tenggat ${t.data.tenggat}` : ''})`)) + '.',
+      href: rev.length === 1 ? `rps.html?kur=${encodeURIComponent(rev[0].k.split('|')[0])}&kode=${encodeURIComponent(rev[0].k.split('|')[1])}` : 'rps.html' });
+  }
 
   // 2. Portofolio semester terbaru: koordinator MK -> tingkat MK; pengampu -> kelasnya sendiri
   //    (dan tingkat MK bila MK itu belum punya koordinator).

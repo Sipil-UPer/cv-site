@@ -2,14 +2,14 @@
 // kelengkapan.html mengambil data, modul ini menghitung. Aturan terisi sama
 // dengan halaman sumbernya: kotak narasi seperti narasi-led.html, bukti butir
 // seperti rekap bukti di skor.html.
-import { BUTIR_MANUAL } from './butir-manual.js?v=2026-11-19-c0ec55';
-import { UNSUR_BUTIR, pihakUnsur, PIHAK, PJ_UNSUR } from './unsur-butir.js?v=2026-11-19-c0ec55';
-import { BUTIR_DATA } from './butir-data.js?v=2026-11-19-c0ec55';
-import { faktaNarasi, anggotaTim } from './led-isi.js?v=2026-11-19-c0ec55';
-import { pisahKalimat } from './led-narasi.js?v=2026-11-19-c0ec55';
-import { masihKerangka } from './led-saran.js?v=2026-11-19-c0ec55';
-import { JENIS_DOKUMEN, buktiButir } from './rencana-bukti.js?v=2026-11-19-c0ec55';
-import { nilaiCapaian, perluAnalisis } from './capaian-iku.js?v=2026-11-19-c0ec55';
+import { BUTIR_MANUAL } from './butir-manual.js?v=2026-11-19-b5974d';
+import { UNSUR_BUTIR, pihakUnsur, PIHAK, PJ_UNSUR } from './unsur-butir.js?v=2026-11-19-b5974d';
+import { BUTIR_DATA } from './butir-data.js?v=2026-11-19-b5974d';
+import { faktaNarasi, anggotaTim } from './led-isi.js?v=2026-11-19-b5974d';
+import { pisahKalimat } from './led-narasi.js?v=2026-11-19-b5974d';
+import { masihKerangka } from './led-saran.js?v=2026-11-19-b5974d';
+import { JENIS_DOKUMEN, buktiButir } from './rencana-bukti.js?v=2026-11-19-b5974d';
+import { nilaiCapaian, perluAnalisis } from './capaian-iku.js?v=2026-11-19-b5974d';
 
 // Tab Data prodi: [id tab, tabel, judul, butir]; sama dengan TABEL di data-prodi.html.
 export const TAB_DATA = [
@@ -43,9 +43,9 @@ export function konteksNarasi(D, daftar){
 // Tugas per pihak (pemilik 2026-11-11): unsur penilaian yang belum berbukti,
 // dikelompokkan per penanggung jawab (PJ_UNSUR). Unsur dengan dua pihak muncul
 // di keduanya. Butir 15 unsur 1 dan 4 dihitung dari RPS mata kuliah, jadi tidak
-// masuk daftar unggah.
-export function tugasPerPihak(butirBukti){
-  const ada = new Set((butirBukti || []).filter(b => b.unsur).map(b => `${b.butir}|${b.unsur}`));
+// masuk daftar unggah. otomatis = unsur lain yang berbukti dari data, mis. ['15|5'] (tinjauan RPS, 115).
+export function tugasPerPihak(butirBukti, otomatis = []){
+  const ada = new Set([...(butirBukti || []).filter(b => b.unsur).map(b => `${b.butir}|${b.unsur}`), ...otomatis]);
   const per = Object.fromEntries(Object.keys(PIHAK).map(k => [k, []]));
   for (const [no, d] of Object.entries(UNSUR_BUTIR))
     for (const [n, label] of Object.entries(d.unsur)) {

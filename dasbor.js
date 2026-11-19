@@ -1,6 +1,7 @@
 // Dasbor operasional koordinator prodi (pemilik 2026-11-17, tahap 3 koordinator): per bidang, siapa penanggung jawabnya
 // (koordinator aktif) dan antrean/keterlambatan, dengan tautan ke halaman kerjanya. Dipakai dasbor.html.
-import { aktifPada, labelJabatan } from './koordinator.js?v=2026-11-19-c0ec55';
+import { statusTindak, petaRps } from './tinjauan-rps.js?v=2026-11-19-b5974d';
+import { aktifPada, labelJabatan } from './koordinator.js?v=2026-11-19-b5974d';
 
 export const HARI_ANTRE = 7;     // pengajuan yang menunggu lebih dari ini = terlambat
 export const HARI_SK = 30;       // penugasan berakhir dalam sekian hari = perlu diperpanjang
@@ -60,6 +61,10 @@ export function ringkasDasbor(d, kini = new Date()){
         lewat: (d.perluTL || []).length, href: 'evaluasi-pembelajaran.html' },
       { label: 'MK dengan CPL belum tercapai tanpa baris evaluasi', n: (d.tanpaBaris || []).length,
         lewat: 0, href: 'evaluasi-pembelajaran.html' },
+      // Tinjauan RPS (115, tahap 2): revisi RPS hasil tinjauan yang belum disahkan ulang.
+      { label: 'Tindak lanjut tinjauan RPS (revisi RPS) belum selesai', ...(() => {
+        const m = petaRps(d.rpsSemua), xs = (d.tinjauan || []).map(t => statusTindak(t, m).kode);
+        return { n: xs.filter(k => k === 'terbuka' || k === 'lewat').length, lewat: xs.filter(k => k === 'lewat').length }; })(), href: 'tinjauan-rps.html' },
       { label: 'Tindak lanjut evaluasi pembelajaran terbuka', n: (d.tindakEval || []).filter(t => t.status !== 'selesai').length,
         lewat: (d.tindakEval || []).filter(t => t.status !== 'selesai' && t.tenggat && t.tenggat < hari).length,
         href: 'evaluasi-pembelajaran.html' }] },
@@ -68,6 +73,7 @@ export function ringkasDasbor(d, kini = new Date()){
       { label: 'Permohonan surat mahasiswa', ...antre(tunggu('surat', 'admin'), 'pengajuan-mahasiswa.html') },
       // RPS K26 (112, pemilik 2026-11-18): diajukan dosen, menunggu pengesahan Kaprodi.
       { label: 'RPS menunggu pengesahan Kaprodi', n: (d.rps || []).filter(r => r.status === 'diajukan').length, lewat: 0, href: 'rps.html' },
+      { label: 'Tinjauan RPS menunggu persetujuan Kaprodi', n: (d.tinjauan || []).filter(t => t.status === 'diajukan').length, lewat: 0, href: 'tinjauan-rps.html' },
       { label: 'Karya dosen menunggu verifikasi', n: (d.karya || []).filter(k => k.status === 'diajukan').length, lewat: 0, href: 'verifikasi.html' },
       { label: 'Kabar kegiatan menunggu terbit', n: (d.kabar || []).filter(k => k.status === 'diajukan').length, lewat: 0, href: 'kabar-kegiatan.html' },
       { label: 'Tindak lanjut rapat terbuka', n: (d.tindak || []).filter(t => ['terbuka', 'proses'].includes(t.status)).length,
