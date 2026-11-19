@@ -1,10 +1,10 @@
 // Tugas saya untuk koordinator MK dan pengampu kelas (pemilik 2026-11-17; OBE O2 dan O3).
 // Hanya yang belum punya pengingat lain: CPMK/RPS (cpmk.html) dan unggahan portofolio (portofolio.html).
 // Berkas nilai CPL dan refleksi evaluasi sudah diingatkan tugas-saya.js / evaluasi-pembelajaran.js.
-import { periksaStruktur } from './templat-cpl.js?v=2026-11-19-80149f';
-import { cplMK, dataTemplat, statusStruktur } from './cpmk.js?v=2026-11-19-80149f';
-import { bolehTinjau, cariTinjauan, statusTindak, petaRps, daftarSemester as semesterTinjau, mkSemester as mkTinjau } from './tinjauan-rps.js?v=2026-11-19-80149f';
-import { kelengkapan, mkSemester, daftarSemester } from './portofolio.js?v=2026-11-19-80149f';
+import { periksaStruktur } from './templat-cpl.js?v=2026-11-19-90738d';
+import { cplMK, dataTemplat, statusStruktur } from './cpmk.js?v=2026-11-19-90738d';
+import { bolehTinjau, cariTinjauan, statusTindak, petaRps, daftarSemester as semesterTinjau, mkSemester as mkTinjau } from './tinjauan-rps.js?v=2026-11-19-90738d';
+import { kelengkapan, mkSemester, daftarSemester } from './portofolio.js?v=2026-11-19-90738d';
 
 const kecil = s => String(s || '').trim().toLowerCase();
 const potong = (xs, n = 6) => xs.slice(0, n).join('; ') + (xs.length > n ? `; dan ${xs.length - n} lagi` : '');
@@ -67,6 +67,7 @@ export function tugasMK(d){
     const berkas = (d.berkas || []).filter(b => b.tahun_akademik === sem.ta && b.semester === sem.sm && b.kurikulum === x.kurikulum && b.kode_mk === x.kode);
     // Bagian otomatis (RPS, CPMK, refleksi, nilai) dianggap ada: pengingatnya di tempat lain.
     const k = kelengkapan({ rps: true, cpmkLengkap: true, refleksi: true, asesmen: (s?.asesmen || []).map(a => a.nama), berkas,
+      rubrikRps: d.rubrikRps?.get(`${x.kurikulum}|${x.kode}`),
       kelas: x.kelas.map(c => ({ kelas: c.kelas, nilai: true })) });
     const nMK = (sayaKoor || (!koor(ref).length && kelasSaya.length)) ? k.mk.filter(it => it.komponen && !it.ada).length : 0;
     const nKelas = k.kelas.filter(c => kelasSaya.includes(c.kelas)).map(c => [c.kelas, c.item.filter(it => it.komponen && !it.ada).length]).filter(([, n]) => n);

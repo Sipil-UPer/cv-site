@@ -168,12 +168,26 @@ export function dokumenRps(M, o = {}){
       : [[sel('1', { jc: 'center' }), sel('-'), sel('-'), sel('Belum ada revisi'), sel('-'), sel('-')]]),
   ]));
   if (M.rekap) out.push(lampiranRekap(M.rekap));
+  if (M.rubrik?.length) out.push(lampiranRubrik(M.rubrik));
   return out.join('');
 }
 
 // Lampiran rekap untuk akreditasi (pemilik 2026-11-19): di bawah bagian F, bukan bagian formulir.
 // Angka lampiran: dua desimal, koma (pemilik 2026-11-19, sama dengan Simulasi PJP); teks dibiarkan.
 const koma = v => (v == null || v === '' ? '' : Number.isFinite(+v) ? (+v).toFixed(2).replace('.', ',') : String(v));
+// Lampiran rubrik penilaian (pemilik 2026-11-19): satu tabel per asesmen non-tes; skor tingkat = n..1 dari kiri.
+export function lampiranRubrik(xs){
+  const out = [pg(rn('Lampiran: Rubrik Penilaian', { b: true, sz: 28, warna: BIRU_JUDUL }), { before: 360, after: 60, keep: true })];
+  for (const r of xs) {
+    const n = Math.max(1, r.tingkat.length), lebar = Math.floor(9600 / n);
+    out.push(pg(rn(`Rubrik ${r.asesmen}`, { b: true, sz: 20 }), { before: 160, after: 60, keep: true }));
+    out.push(tabelK([3534, 900, ...Array(n).fill(lebar)], [
+      { kepala: true, sel: [judulSel('Kriteria', BIRU_JUDUL), judulSel('Bobot (%)', BIRU_JUDUL), ...r.tingkat.map((t, j) => judulSel(`${t} (${n - j})`, BIRU_JUDUL))] },
+      ...r.kriteria.map(k => [sel(k.nama, { b: true }), sel(k.bobot, { jc: 'center' }), ...Array.from({ length: n }, (_, j) => sel(k.deskriptor[j] || ''))])]));
+  }
+  return out.join('');
+}
+
 export function lampiranRekap(X){
   const out = [pg(rn('Lampiran: Rekapitulasi Beban Belajar, Bentuk Pembelajaran, dan Penilaian', { b: true, sz: 28, warna: BIRU_JUDUL }),
     { before: 360, after: 60, keep: true }),

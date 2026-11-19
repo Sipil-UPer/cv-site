@@ -70,7 +70,9 @@ export function kelengkapan(o){
     { label: KOMPONEN.materi.label, ada: ada('materi'), komponen: 'materi' },
     ...(o.asesmen || []).flatMap(a => [
       { label: `Soal: ${a}`, ada: ada('soal', null, a), komponen: 'soal', asesmen: a },
-      { label: `Kunci atau rubrik: ${a}`, ada: ada('kunci', null, a) || ada('rubrik', null, a), komponen: 'kunci', asesmen: a }]),
+      // Rubrik yang disusun di RPS (pemilik 2026-11-19) memenuhi komponen ini; berkas unggahan tetap diterima.
+      { label: `Kunci atau rubrik: ${a}${o.rubrikRps?.has(a) ? ' (rubrik di RPS)' : ''}`,
+        ada: ada('kunci', null, a) || ada('rubrik', null, a) || !!o.rubrikRps?.has(a), komponen: 'kunci', asesmen: a }]),
   ];
   const kelas = (o.kelas || []).map(k => ({ kelas: k.kelas, item: [
     ...['contoh_tinggi', 'contoh_sedang', 'contoh_rendah'].map(c => ({ label: KOMPONEN[c].label, ada: ada(c, k.kelas), komponen: c })),

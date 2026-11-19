@@ -130,8 +130,17 @@ export function rpsKosong(mk = {}, situs = {}, kini = new Date()){
     pekan: kerangkaPekan(),
     evaluasi: { baru: false, mk: '', kode: '', semester: '', jumlah: '', rerata: '', rekomendasi: '' },
     peta: { sub: {}, entry: '' },
+    rubrik: {},   // { [nama asesmen non-tes]: { tingkat: [label], kriteria: [{ nama, bobot, deskriptor: [per tingkat] }] } }
   };
 }
+
+// Rubrik penilaian (Panduan: Bentuk & Kriteria = rubrik/kunci jawaban; ranah A/P berpedoman rubrik), pemilik 2026-11-19.
+export const TINGKAT_RUBRIK = ['Sangat baik', 'Baik', 'Cukup', 'Kurang'];
+export const ASESMEN_TES = ['kuis', 'uts', 'uas'];
+export const kriteriaKosong = n => ({ nama: '', bobot: '', deskriptor: Array(n).fill('') });
+export const rubrikKosong = () => ({ tingkat: [...TINGKAT_RUBRIK], kriteria: [kriteriaKosong(TINGKAT_RUBRIK.length)] });
+/** Nama asesmen yang punya rubrik berisi (minimal satu kriteria bernama) di data RPS. */
+export const rubrikRps = d => new Set(Object.entries(d?.rubrik || {}).filter(([, r]) => (r?.kriteria || []).some(k => teks(k.nama))).map(([n]) => n));
 
 /**
  * Penyusun RPS (112, pemilik 2026-11-18): koordinator MK (ref_mata_kuliah.pengampu, NIDN) dan pengampu kelas MK itu pada
@@ -252,6 +261,12 @@ export function periksaRps({ mk = {}, struktur, rps, cpl = [], pengembang = null
     if (!x.cpl) g('B', `${x.kode}: pilih CPL yang didukung (1 Sub-CPMK, 1 CPMK, 1 CPL).`);
     else if (!kodeCpl.has(x.cpl)) g('B', `${x.kode}: CPL ${x.cpl} tidak dibebankan pada MK ini.`);
     if (!bobotSub(S, x.kode)) g('B', `${x.kode}: belum ada bobot penilaian.`);
+    // Ranah A (sikap) / P (keterampilan) dinilai dengan observasi atau unjuk kerja berpedoman rubrik (Panduan).
+    const ranah = [...new Set(bloom(x.rumusan).kode.filter(k => k[0] !== 'C').map(k => k[0]))];
+    const dinilai = S.asesmen.filter(a => angka(S.bobot?.[x.kode]?.[a.nama]));
+    if (ranah.length && dinilai.length && dinilai.every(a => ASESMEN_TES.includes(jenisAsesmen(a))))
+      s('B', `${x.kode} memuat ranah ${ranah.map(r => (r === 'A' ? 'A (sikap)' : 'P (keterampilan)')).join(' dan ')}, tetapi hanya dinilai lewat kuis/UTS/UAS; `
+        + 'nilai dengan observasi atau unjuk kerja berpedoman rubrik (mis. tugas, praktikum, proyek).');
   }
   const total = S.sub.reduce((a, x) => a + bobotSub(S, x.kode), 0);
   if (S.sub.length && bulat(total) !== 100) g('B', `Total bobot penilaian ${bulat(total)}%, harus 100%.`);
@@ -312,6 +327,14 @@ export function periksaRps({ mk = {}, struktur, rps, cpl = [], pengembang = null
   const sumatif = S.asesmen.filter(a => !['uts', 'uas'].includes(jenisAsesmen(a))).map(a => a.nama);
   const diD = new Set(P.flatMap(p => p.asesmen || []));
   for (const a of sumatif) if (!diD.has(a)) s('D', `${a} (bagian B) belum dijadwalkan di rencana pekanan.`);
+  // Rubrik untuk asesmen non-tes yang berbobot (Panduan: rubrik penilaian/kunci jawaban).
+  for (const a of S.asesmen.filter(a => !ASESMEN_TES.includes(jenisAsesmen(a)) && S.sub.some(x => angka(S.bobot?.[x.kode]?.[a.nama])))) {
+    const ks = (R.rubrik?.[a.nama]?.kriteria || []).filter(k => teks(k.nama));
+    if (!ks.length) { s('D', `Rubrik ${a.nama} belum disusun (bagian Rubrik penilaian); Panduan meminta rubrik untuk asesmen non-tes.`); continue; }
+    if (ks.some(k => (k.deskriptor || []).some(x => !teks(x)))) s('D', `Rubrik ${a.nama}: lengkapi deskriptor tiap tingkat.`);
+    const tot = ks.reduce((t, k) => t + angka(k.bobot), 0);
+    if (ks.some(k => teks(k.bobot)) && bulat(tot) !== 100) s('D', `Rubrik ${a.nama}: total bobot kriteria ${bulat(tot)}%, seharusnya 100%.`);
+  }
   const adaScl = P.some(p => (p.scl || []).length || METODE_SCL.some(m => `${p.luring} ${p.daring}`.toLowerCase().includes(m.toLowerCase())));
   // Penugasan (tugas besar/proyek) dicentang tetapi tanpa sks praktik/penugasan: tetap PT kuliah, tidak menambah butir 18.
   if (P.some(p => (p.bentuk_pb || []).includes('penugasan')) && !(angka(I.sks?.p) + angka(I.sks?.pl) + angka(I.sks?.s)))
@@ -350,6 +373,9 @@ export function modelRps({ mk = {}, struktur, rps, cpl = [], pengembang = null, 
     pustaka: (R.pustaka || []).filter(p => teks(p.teks)), syarat: R.syarat || {}, scl: R.scl || {}, integrasi: R.integrasi || {},
     direktori: R.direktori || {}, pekan: R.pekan || [], evaluasi: R.evaluasi || {}, revisi,
     rekap: rekapRps({ mk, struktur: S, rps: R }), integrasi_teks: teksIntegrasi(R.integrasi),
+    rubrik: Object.entries(R.rubrik || {}).filter(([n]) => S.asesmen.some(a => a.nama === n)).map(([n, rb]) => ({ asesmen: n, tingkat: (rb.tingkat || []).map(teks),
+      kriteria: (rb.kriteria || []).filter(k => teks(k.nama)).map(k => ({ nama: teks(k.nama), bobot: teks(k.bobot), deskriptor: (k.deskriptor || []).map(teks) })) }))
+      .filter(x => x.kriteria.length),
   };
 }
 
@@ -437,7 +463,8 @@ const ISIAN_BEDA = [['A', 'identitas.jenis_mk', 'Jenis MK'], ['A', 'identitas.sk
   ['A', 'identitas.penyelenggara', 'Penyelenggara'], ['A', 'pengembang', 'Dosen pengembang'], ['C', 'tujuan', 'Tujuan'],
   ['C', 'deskripsi', 'Deskripsi dan bahan kajian'], ['C', 'pengampu', 'Pengampu'], ['C', 'syarat', 'MK syarat'], ['C', 'pustaka', 'Pustaka'],
   ['C', 'kriteria', 'Kriteria ketercapaian'], ['C', 'scl', 'Metode SCL'], ['C', 'integrasi', 'Integrasi penelitian/PkM'],
-  ['C', 'direktori', 'Direktori Kompetensi Teknis'], ['Peta', 'peta', 'Peta Analisis'], ['E', 'evaluasi', 'Evaluasi penyelenggaraan sebelumnya']];
+  ['C', 'direktori', 'Direktori Kompetensi Teknis'], ['Peta', 'peta', 'Peta Analisis'], ['E', 'evaluasi', 'Evaluasi penyelenggaraan sebelumnya'],
+  ['Rubrik', 'rubrik', 'Rubrik penilaian']];
 const KOLOM_PEKAN = [['sub', 'Sub-CPMK'], ['asesmen', 'Asesmen sumatif'], ['materi', 'Materi'], ['pustaka', 'Pustaka'], ['indikator', 'Indikator'],
   ['bentuk', 'Bentuk dan kriteria asesmen'], ['luring', 'Luring'], ['daring', 'Daring'], ['bentuk_pb', 'Bentuk pembelajaran'], ['scl', 'Metode SCL'],
   ['penugasan', 'Penugasan']];
@@ -484,7 +511,7 @@ export function bedaRps(lama = {}, baru = {}, sLama = null, sBaru = null){
       catat('B', `Bobot ${k}`, f(A.bobot?.[k]), f(B.bobot?.[k]));
     }
   }
-  const urut = { A: 1, B: 2, Peta: 3, C: 4, D: 5, E: 6 };
+  const urut = { A: 1, B: 2, Peta: 3, C: 4, D: 5, Rubrik: 6, E: 7 };
   return out.sort((a, b) => urut[a.bagian] - urut[b.bagian]);
 }
 

@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-19-80149f">
-<link rel="stylesheet" href="kepala.css?v=2026-11-19-80149f">
+<link rel="stylesheet" href="tema.css?v=2026-11-19-90738d">
+<link rel="stylesheet" href="kepala.css?v=2026-11-19-90738d">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
@@ -61,7 +61,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-19-80149f"></script>
+<script src="config.js?v=2026-11-19-90738d"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -81,16 +81,16 @@ addEventListener('error', function (e) {
 // Penyusun = koordinator MK atau pengampu kelas MK semester terakhir (boleh_rps, 112); GKM dan admin hanya melihat.
 // Pengesahan (112): dosen mengajukan -> Kaprodi aktif mengesahkan atau mengembalikan; daftar revisi (bagian F) otomatis.
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-19-80149f';
-import { bolehMutu, aktifPada, punya } from './koordinator.js?v=2026-11-19-80149f';
-import { cplMK } from './cpmk.js?v=2026-11-19-80149f';
+import { gerbang } from './menu.js?v=2026-11-19-90738d';
+import { bolehMutu, aktifPada, punya } from './koordinator.js?v=2026-11-19-90738d';
+import { cplMK } from './cpmk.js?v=2026-11-19-90738d';
 import { JENIS_ASESMEN, JENIS_MK, DIREKTORI, jenisAsesmen, bloom, hots, rapikanRps, kerangkaPekan, barisPekan, periksaRps, modelRps,
   namaBerkasRps, penyusunMK, revisiDariLog, tanggalLokal, waktuLokal, evaluasiDariData, BENTUK, SCL, rekapRps, BENTUK_INTEGRASI,
-  bedaRps, salinRps } from './rps.js?v=2026-11-19-80149f';
-import { JENIS_PETA, relasiPeta, petaSvg } from './rps-peta.js?v=2026-11-19-80149f';
-import { keB64 } from './pengajuan-mhs.js?v=2026-11-19-80149f';
-import { bacaTinjauan, bahanTinjauan } from './tinjauan-rps.js?v=2026-11-19-80149f';
-import { buatRpsDocx } from './rps-docx.js?v=2026-11-19-80149f';
+  bedaRps, salinRps, ASESMEN_TES, rubrikKosong, kriteriaKosong } from './rps.js?v=2026-11-19-90738d';
+import { JENIS_PETA, relasiPeta, petaSvg } from './rps-peta.js?v=2026-11-19-90738d';
+import { keB64 } from './pengajuan-mhs.js?v=2026-11-19-90738d';
+import { bacaTinjauan, bahanTinjauan } from './tinjauan-rps.js?v=2026-11-19-90738d';
+import { buatRpsDocx } from './rps-docx.js?v=2026-11-19-90738d';
 
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -422,6 +422,31 @@ function htmlSalin(){
     <span class="ket">Titik awal saja: identitas, pengampu, evaluasi, dan peta tidak disalin; periksa lalu Simpan.</span></div>`;
 }
 
+// Rubrik penilaian (Panduan: rubrik untuk asesmen non-tes; ranah A/P berpedoman rubrik), pemilik 2026-11-19.
+function htmlRubrik(){
+  const S = STR.get(PILIH), xs = (S?.asesmen || []).filter(a => !ASESMEN_TES.includes(jenisAsesmen(a)));
+  const dis = ro() ? ' disabled' : '', en = a => encodeURIComponent(a.nama);
+  return `<section class="kartu"><h2>Rubrik penilaian</h2>
+    <p class="ket">Untuk asesmen non-tes (tugas, proyek, laporan, presentasi, praktikum). Kuis, UTS, dan UAS memakai kunci jawaban yang diunggah di Portofolio.
+      Rubrik ikut ke Word sebagai lampiran dan memenuhi komponen "kunci atau rubrik" di Portofolio. Skor tingkat dari kiri: ${TINGKAT_N()}..1.</p>
+    ${!xs.length ? '<p class="kosong">Belum ada butir asesmen non-tes di bagian B (halaman CPMK).</p>' : xs.map(a => {
+      const rb = R.rubrik?.[a.nama];
+      if (!rb) return `<h3>${esc(a.nama)}</h3>${ro() ? '<p class="kosong">Belum ada rubrik.</p>' : `<button class="b" data-rbaksi="buat" data-rba="${en(a)}">Buat rubrik ${esc(a.nama)}</button>`}`;
+      const total = rb.kriteria.reduce((t, k) => t + (+String(k.bobot || '').replace(',', '.') || 0), 0);
+      return `<h3>${esc(a.nama)} <span class="ket">total bobot kriteria ${esc(String(Math.round(total * 100) / 100).replace('.', ','))}%</span></h3>
+        <div class="gulir"><table class="ds"><thead><tr><th style="min-width:160px">Kriteria</th><th>Bobot (%)</th>
+          ${rb.tingkat.map((t, j) => `<th><input data-rb="${en(a)}|t|${j}" value="${esc(t)}" style="width:110px"${dis}></th>`).join('')}<th></th></tr></thead><tbody>
+          ${rb.kriteria.map((k, i) => `<tr><td><textarea data-rb="${en(a)}|k|${i}|nama"${dis}>${esc(k.nama)}</textarea></td>
+            <td><input data-rb="${en(a)}|k|${i}|bobot" value="${esc(k.bobot)}" style="width:60px" inputmode="decimal"${dis}></td>
+            ${rb.tingkat.map((_, j) => `<td><textarea data-rb="${en(a)}|k|${i}|d|${j}"${dis}>${esc(k.deskriptor?.[j] || '')}</textarea></td>`).join('')}
+            <td>${ro() ? '' : `<button class="b awas" data-rbaksi="hapus" data-rba="${en(a)}" data-rbi="${i}" title="Hapus kriteria">×</button>`}</td></tr>`).join('')}
+        </tbody></table></div>
+        ${ro() ? '' : `<div class="alat"><button class="b" data-rbaksi="tambah" data-rba="${en(a)}">+ Kriteria</button>
+          <button class="b awas" data-rbaksi="buang" data-rba="${en(a)}">Hapus rubrik ${esc(a.nama)}</button></div>`}`;
+    }).join('')}</section>`;
+}
+const TINGKAT_N = () => Math.max(...Object.values(R.rubrik || {}).map(r => r.tingkat?.length || 0), 4);
+
 function htmlC(){
   return `<section class="kartu"><h2>C. Tujuan dan deskripsi mata kuliah</h2>
     ${ro() ? '' : htmlSalin()}
@@ -549,7 +574,7 @@ function gambar(){
       ${htmlBukti()}
       <details><summary class="ket">Daftar periksa (Panduan Pengisian RPS bagian 6)</summary><div id="periksa">${htmlPeriksa()}</div></details>
     </section>
-    ${htmlA(m)}${htmlB(m)}${htmlPeta()}${htmlC()}${htmlD()}${htmlE()}
+    ${htmlA(m)}${htmlB(m)}${htmlPeta()}${htmlC()}${htmlD()}${htmlRubrik()}${htmlE()}
     <section class="kartu"><h2>Lampiran: rekapitulasi beban belajar, bentuk pembelajaran, dan penilaian</h2>
       <p class="ket">Untuk akreditasi (tabel kurikulum LKPS); dihitung otomatis dari isian di atas dan ikut masuk Word di bawah bagian F.</p>
       <div id="rekap">${htmlRekap()}</div></section>
@@ -570,6 +595,16 @@ function ubahBesar(f){ f(); KOTOR = true; gambar(); }
 
 function pasang(){
   if ($('simpan')) $('simpan').onclick = simpan;
+  document.querySelectorAll('[data-rbaksi]').forEach(b => b.onclick = () => {
+    const nama = decodeURIComponent(b.dataset.rba), aksi = b.dataset.rbaksi;
+    R.rubrik ||= {};
+    const rb = R.rubrik[nama];
+    if (aksi === 'buat') R.rubrik[nama] = rubrikKosong();
+    else if (aksi === 'tambah') rb.kriteria.push(kriteriaKosong(rb.tingkat.length));
+    else if (aksi === 'hapus') rb.kriteria.splice(+b.dataset.rbi, 1);
+    else if (aksi === 'buang') { if (!confirm(`Hapus rubrik ${nama}?`)) return; delete R.rubrik[nama]; }
+    KOTOR = true; const sc = scrollY; gambar(); scrollTo(0, sc);
+  });
   if ($('salinDari')) $('salinDari').onclick = () => {
     const k = $('salinSumber').value, src = RPS.get(k)?.data;
     if (!src) return tulis('mSimpan', 'buruk', 'Pilih MK sumber.');
@@ -614,6 +649,14 @@ $('isi').addEventListener('input', e => {
     R.peta.sub[k] = { ...x, [t.dataset.petaKe ? 'ke' : 'jenis']: t.value };
     KOTOR = true; tulis('mSimpan', '', 'Ada perubahan yang belum disimpan.');
     const sc = scrollY; gambar(); scrollTo(0, sc); return;
+  }
+  if (t.dataset.rb) {   // rubrik: "<asesmen>|t|j" (label tingkat) atau "<asesmen>|k|i|nama|bobot" / "<asesmen>|k|i|d|j" (deskriptor)
+    const [n, jenis, i, f, j] = t.dataset.rb.split('|'), rb = R.rubrik?.[decodeURIComponent(n)];
+    if (!rb) return;
+    if (jenis === 't') rb.tingkat[+i] = t.value;
+    else if (f === 'd') { const k = rb.kriteria[+i]; k.deskriptor ||= []; k.deskriptor[+j] = t.value; }
+    else rb.kriteria[+i][f] = t.value;
+    KOTOR = true; tulis('mSimpan', '', 'Ada perubahan yang belum disimpan.'); segarkanPeriksa(); return;
   }
   if (t.dataset.p) atur(t.dataset.p, t.value);
   else if (t.dataset.pl) { const xs = new Set(ambil(t.dataset.pl) || []); t.checked ? xs.add(t.value) : xs.delete(t.value); atur(t.dataset.pl, [...xs]); }

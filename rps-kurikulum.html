@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Rekap RPS Kurikulum — Kinerja Program Studi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tema.css?v=2026-11-19-90738d">
+<link rel="stylesheet" href="kepala.css?v=2026-11-19-90738d">
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
+  .wrap{max-width:1400px;margin:0 auto;padding:18px 20px 80px}
+  .kosong, .ket{color:var(--muted)}
+  .ket{font-size:13px}
+  .kartu{background:var(--panel);border:1px solid var(--line);padding:14px 18px;margin-bottom:16px}
+  .kartu h2{font-size:17px;margin:0 0 6px;color:var(--biru)}
+  .kartu h3{font-size:14.5px;margin:14px 0 6px}
+  .alat{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:8px 0}
+  select{font:inherit;font-size:14px;padding:4px 6px;border:1px solid var(--line);background:var(--panel);color:var(--ink)}
+  .gulir{overflow-x:auto}
+  table.ds{width:100%;border-collapse:collapse;font-size:13px}
+  table.ds th{text-align:left;font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--line);padding:5px 6px;vertical-align:bottom}
+  table.ds td{padding:5px 6px;border-bottom:1px solid var(--line-soft);vertical-align:top}
+  table.kal td.p, table.kal th.p{text-align:center;min-width:44px;font-size:12px}
+  table.kal tfoot td{font-weight:600;border-top:1px solid var(--line)}
+  .kode{font-family:var(--mono);font-size:12.5px;white-space:nowrap}
+  .chip{display:inline-block;font-size:11.5px;padding:1px 6px;border:1px solid var(--line);white-space:nowrap;margin:1px 0}
+  .chip.galat{color:var(--merah);border-color:var(--merah)}
+  .uji{color:var(--muted)}
+  .h1{background:rgba(64,120,200,.12)} .h2{background:rgba(64,120,200,.24)} .h3{background:rgba(64,120,200,.38)} .h4{background:rgba(200,80,60,.30)}
+  @media(max-width:700px){.wrap{padding-left:16px;padding-right:16px}}
+</style>
+</head>
+<body>
+<header class="hero"><div class="hero-in">
+  <div class="hero-inst" data-identitas></div>
+  <h1>Rekap RPS kurikulum</h1>
+  <div class="sub" id="hSub">Memuat…</div>
+</div></header>
+<main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
+<script src="config.js?v=2026-11-19-90738d"></script>
+<script>
+// Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
+addEventListener('error', function (e) {
+  if (document.getElementById('galat-muat')) return;
+  var d = document.createElement('div');
+  d.id = 'galat-muat';
+  d.style.cssText = 'margin:16px;padding:12px 14px;border:1px solid var(--merah);' +
+    'background:var(--merah-m3);color:var(--ink);font:14px/1.5 system-ui,sans-serif';
+  d.textContent = 'Halaman gagal dimuat: ' + (e.message || 'galat skrip') +
+    '. Tekan Ctrl+Shift+R untuk memuat ulang tanpa cache; bila tetap muncul, kirim pesan ini ke admin.';
+  document.body.insertBefore(d, document.body.firstChild);
+});
+</script>
+<script type="module">
+// Rekap RPS kurikulum (pemilik 2026-11-19): kalender asesmen lintas MK per semester dan peta CPL dari bagian B (rps-kurikulum.js).
+// Hanya membaca; bahan rapat kurikulum dan narasi LED (beban mahasiswa, keterkaitan CPL-MK, jenjang HOTS).
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
+import { gerbang } from './menu.js?v=2026-11-19-90738d';
+import { semesterKurikulum, kalenderAsesmen, petaCplKurikulum } from './rps-kurikulum.js?v=2026-11-19-90738d';
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const sb = createClient(window.SB_URL, window.SB_KEY);
+const baca = q => q.then(r => r.error ? [] : (r.data || []), () => []);
+const kunci = (kur, kode) => `${kur}|${kode}`;
+const koma = v => String(v).replace('.', ',');
+const labelSem = s => (s === '' ? 'Pilihan' : `Smt ${s}`);
+let MK = [], RPS = new Map(), STR = new Map(), CPL = [], PETA = [], KUR = '', SEM = '';
+const URL_AWAL = new URLSearchParams(location.search);
+
+async function muat(){
+  const [mk, rps, str, cpl, peta] = await Promise.all([
+    baca(sb.from('ref_mata_kuliah').select('kurikulum,kode,nama,sks,semester,aktif')),
+    baca(sb.from('mk_rps').select('kurikulum,kode_mk,data,status,sah')),
+    baca(sb.from('mk_struktur').select('kurikulum,kode_mk,data')),
+    baca(sb.from('ref_cpl').select('kurikulum,kode,rumusan,urutan')),
+    baca(sb.from('ref_mk_cpl').select('kurikulum,kode_mk,cpl'))]);
+  MK = mk; CPL = cpl; PETA = peta;
+  RPS = new Map(rps.map(r => [kunci(r.kurikulum, r.kode_mk), r]));
+  STR = new Map(str.map(s => [kunci(s.kurikulum, s.kode_mk), s.data]));
+  const kurs = [...new Set(MK.filter(m => m.aktif !== false).map(m => m.kurikulum))].sort();
+  KUR = kurs.includes(URL_AWAL.get('kur')) ? URL_AWAL.get('kur') : kurs[kurs.length - 1] || '';
+  const sems = semesterKurikulum(MK, KUR);
+  SEM = sems.includes(URL_AWAL.get('sem') ?? '-') ? URL_AWAL.get('sem') : sems[0] ?? '';
+  gambar();
+}
+
+function htmlKalender(){
+  const sems = semesterKurikulum(MK, KUR), K = kalenderAsesmen({ mk: MK, rps: RPS, kur: KUR, semester: SEM });
+  const kelas = n => (!n || !K.maks ? '' : n === K.maks && n >= 3 ? 'h4' : n / K.maks > .66 ? 'h3' : n / K.maks > .33 ? 'h2' : 'h1');
+  const pk = Array.from({ length: 16 }, (_, i) => i + 1);
+  return `<section class="kartu"><h2>Kalender asesmen per semester</h2>
+    <p class="ket">Asesmen sumatif tiap MK per pekan dari rencana pekanan RPS (versi disahkan bila ada). Baris Jumlah menunjukkan beban mahasiswa
+      semester itu per pekan; pekan terpadat ditandai.</p>
+    <div class="alat"><label>Semester <select id="fSem">${sems.map(s => `<option value="${esc(s)}"${s === SEM ? ' selected' : ''}>${esc(labelSem(s))}</option>`).join('')}</select></label>
+      <span class="ket">${K.baris.length} MK${K.tanpaRps ? ` · ${K.tanpaRps} belum punya RPS di situs` : ''}${K.maks ? ` · terpadat ${K.maks} asesmen sepekan` : ''}</span></div>
+    <div class="gulir"><table class="ds kal"><thead><tr><th>Kode</th><th>Mata kuliah</th><th>RPS</th>${pk.map(n => `<th class="p">${n}</th>`).join('')}</tr></thead><tbody>
+      ${K.baris.map(b => `<tr><td class="kode">${esc(b.kode)}</td><td>${esc(b.nama)}</td><td class="ket">${esc(b.versi)}</td>
+        ${pk.map(n => `<td class="p">${(b.pekan[n] || []).map(a => `<div class="${a === 'UTS' || a === 'UAS' ? 'uji' : ''}">${esc(a)}</div>`).join('')}</td>`).join('')}</tr>`).join('')
+        || `<tr><td colspan="${pk.length + 3}" class="kosong">Tidak ada MK aktif di semester ini.</td></tr>`}
+    </tbody><tfoot><tr><td colspan="3">Jumlah asesmen (tanpa UTS/UAS)</td>${K.perPekan.map(x => `<td class="p ${kelas(x.n)}">${x.n || ''}</td>`).join('')}</tr></tfoot></table></div></section>`;
+}
+
+function htmlPetaCpl(){
+  const P = petaCplKurikulum({ mk: MK, struktur: STR, refCpl: CPL, petaMk: PETA, kur: KUR });
+  const nMk = MK.filter(m => m.kurikulum === KUR && m.aktif !== false).length;
+  return `<section class="kartu"><h2>Peta CPL dari CPMK dan bobot (bagian B)</h2>
+    <p class="ket">Setiap sel berisi MK yang benar-benar menilai CPL itu (Sub-CPMK berbobot), dengan tingkat Bloom tertinggi dan ranah A/P.
+      ${P.belumStruktur.length ? `${P.belumStruktur.length} dari ${nMk} MK belum punya CPMK dan bobot, sehingga belum ikut terhitung.` : ''}</p>
+    <div class="gulir"><table class="ds"><thead><tr><th>CPL</th>${P.sems.map(s => `<th>${esc(labelSem(s))}</th>`).join('')}<th>MK menilai</th><th>Tertinggi</th></tr></thead><tbody>
+      ${P.baris.map(c => `<tr><td><b>CPL ${esc(c.kode)}</b><div class="ket" style="max-width:260px">${esc(c.rumusan.slice(0, 140))}${c.rumusan.length > 140 ? '…' : ''}</div>
+          ${c.tanpaNilai.length ? `<div><span class="chip galat" title="Dibebankan di peta MK-CPL, tetapi tidak ada Sub-CPMK berbobot">dibebankan, tidak dinilai: ${esc(c.tanpaNilai.join(', '))}</span></div>` : ''}</td>
+        ${P.sems.map(s => `<td>${(c.sel[s] || []).map(x => `<div class="chip" title="${esc(x.nama)} · bobot ${koma(x.bobot)}%"><span class="kode">${esc(x.kode)}</span> ${esc(x.level)}${x.ranah.length ? ' ' + esc(x.ranah.join(',')) : ''}</div>`).join('')}</td>`).join('')}
+        <td>${c.nMk || '<span class="chip galat">0</span>'}</td><td>${esc(c.levelMax)}</td></tr>`).join('') || `<tr><td colspan="${P.sems.length + 3}" class="kosong">Belum ada CPL untuk ${esc(KUR)}.</td></tr>`}
+    </tbody></table></div>
+    <h3>HOTS rata-rata per tahun (C4-C6, Panduan 4.4)</h3>
+    ${P.hotsTahun.length ? `<div class="gulir"><table class="ds" style="max-width:520px"><thead><tr><th>Tahun</th><th>MK</th><th>HOTS rata-rata</th><th>Target</th></tr></thead><tbody>
+      ${P.hotsTahun.map(h => `<tr><td>${h.tahun}</td><td>${h.n}</td><td>${koma(h.rata)}%${h.target != null && h.rata < h.target ? ' <span class="chip galat">di bawah target</span>' : ''}</td>
+        <td>${h.target != null ? `≥ ${h.target}%` : '-'}</td></tr>`).join('')}</tbody></table></div>` : '<p class="kosong">Belum ada MK dengan CPMK dan bobot.</p>'}
+  </section>`;
+}
+
+function gambar(){
+  const kurs = [...new Set(MK.filter(m => m.aktif !== false).map(m => m.kurikulum))].sort();
+  $('isi').innerHTML = `<div class="alat"><label>Kurikulum <select id="fKur">${kurs.map(k => `<option${k === KUR ? ' selected' : ''}>${esc(k)}</option>`).join('')}</select></label></div>
+    ${htmlKalender()}${htmlPetaCpl()}`;
+  $('fKur').onchange = e => { KUR = e.target.value; SEM = semesterKurikulum(MK, KUR)[0] ?? ''; simpanUrl(); gambar(); };
+  $('fSem').onchange = e => { SEM = e.target.value; simpanUrl(); gambar(); };
+}
+const simpanUrl = () => history.replaceState(null, '', `?kur=${encodeURIComponent(KUR)}&sem=${encodeURIComponent(SEM)}`);
+
+async function mulai(){
+  const saya = await gerbang(sb);
+  if (!saya) return;
+  $('hSub').textContent = `Masuk sebagai ${saya.nama}`;
+  await muat();
+}
+mulai().catch(e => { $('isi').innerHTML = `<p class="kosong">Gagal memuat: ${esc(e.message)}</p>`; });
+</script>
+</body>
+</html>
