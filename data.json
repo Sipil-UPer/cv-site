@@ -7523,9 +7523,9 @@
   "doktor": 7,
   "jabatan": {
    "lektor": 5,
-   "asisten_ahli": 2,
+   "asisten_ahli": 3,
    "guru_besar": 1,
-   "tanpa_jabatan": 2
+   "tanpa_jabatan": 1
   },
   "karya_utama_internasional": 5,
   "karya_utama_rinci": [
@@ -7598,6 +7598,14 @@
   },
   {
    "tahun": 2026,
+   "tahun_ts": 2026,
+   "dosen": "Gati Annisa Hayu",
+   "bentuk": "penghargaan",
+   "nama_kegiatan": "Lulusan Terbaik Program Studi Pascasarjana Departemen Teknik Sipil FT-SPK ITS",
+   "tingkat": "wilayah_lokal"
+  },
+  {
+   "tahun": 2026,
    "tahun_ts": 2027,
    "dosen": "Adita Utami",
    "bentuk": "invited_speaker",
@@ -7611,6 +7619,22 @@
    "bentuk": "narasumber",
    "nama_kegiatan": "Narasumber pada acara Sharing Session Persiapan Beasiswa PDDI 2026 \"Panduan Strategis Meraih Beasiswa PDDI 2026\" untuk Dosen seluruh Indonesia Oleh Civil Work",
    "tingkat": "nasional"
+  },
+  {
+   "tahun": 2026,
+   "tahun_ts": 2027,
+   "dosen": "Gati Annisa Hayu",
+   "bentuk": "lainnya",
+   "nama_kegiatan": "Moderator Keynote Speaker of ICOSEID 2026",
+   "tingkat": "internasional"
+  },
+  {
+   "tahun": 2025,
+   "tahun_ts": 2026,
+   "dosen": "Gati Annisa Hayu",
+   "bentuk": "penghargaan",
+   "nama_kegiatan": "Best Paper Award of Civil Engineering Conference in the Asian Region (CECAR10)",
+   "tingkat": "internasional"
   },
   {
    "tahun": 2023,
@@ -7627,6 +7651,30 @@
    "bentuk": "mitra_bestari",
    "nama_kegiatan": "Reviewer of The Twelfth International Structural Engineering and Construction Conference",
    "tingkat": "internasional"
+  },
+  {
+   "tahun": 2021,
+   "tahun_ts": 2022,
+   "dosen": "Gati Annisa Hayu",
+   "bentuk": "visiting",
+   "nama_kegiatan": "Program Pertukaran Dosen dan Staf (PPDS) dengan NTUST ",
+   "tingkat": "internasional"
+  },
+  {
+   "tahun": 2020,
+   "tahun_ts": 2021,
+   "dosen": "Gati Annisa Hayu",
+   "bentuk": "editor",
+   "nama_kegiatan": "Editorial Board Jurnal Rekayasa Sipil dan Lingkungan",
+   "tingkat": "internasional"
+  },
+  {
+   "tahun": 2020,
+   "tahun_ts": 2021,
+   "dosen": "Gati Annisa Hayu",
+   "bentuk": "mitra_bestari",
+   "nama_kegiatan": "Reviewer Journal of Applied Sciences, Management, and Engineering Technology (JASMET)",
+   "tingkat": "nasional"
   }
  ],
  "integrasi": [],
@@ -7839,7 +7887,15 @@
     "tahun": 2027
    },
    {
+    "slug": "gati-annisa-hayu",
+    "tahun": 2027
+   },
+   {
     "slug": "adita-utami",
+    "tahun": 2026
+   },
+   {
+    "slug": "gati-annisa-hayu",
     "tahun": 2026
    },
    {
@@ -7849,6 +7905,14 @@
    {
     "slug": "gati-annisa-hayu",
     "tahun": 2023
+   },
+   {
+    "slug": "gati-annisa-hayu",
+    "tahun": 2022
+   },
+   {
+    "slug": "gati-annisa-hayu",
+    "tahun": 2021
    }
   ],
   "publikasi_dtps": [
