@@ -3,11 +3,52 @@
 //    penumpukan tugas/kuis di pekan yang sama.
 // 2. Peta CPL dari bagian B (mk_struktur): CPL x semester berisi MK yang benar-benar menilai CPL itu (Sub-CPMK berbobot),
 //    tingkat Bloom tertinggi, ranah A/P; CPL yang dibebankan di peta MK-CPL tetapi tidak dinilai; HOTS rata-rata per tahun.
-import { rentangPekan, bloom, bobotSub, hots, TARGET_HOTS } from './rps.js?v=2026-11-19-d02cea';
+import { rentangPekan, bloom, bobotSub, hots, TARGET_HOTS } from './rps.js?v=2026-11-19-8d6021';
 
 const kunci = (kur, kode) => `${kur}|${kode}`;
 const urutSem = s => (s === '' ? 99 : +s || 98);
 const bulat = v => Math.round(v * 100) / 100;
+
+// Kemajuan RPS per MK (pemilik 2026-11-19: Kaprodi/admin memantau yang belum dibuat/diajukan/disahkan/ditandatangani).
+export const STATUS_KEMAJUAN = [['belum', 'Belum dibuat'], ['draf', 'Draf'], ['revisi', 'Revisi berjalan'], ['diajukan', 'Diajukan'],
+  ['dikembalikan', 'Dikembalikan'], ['disahkan', 'Disahkan, belum bertanda tangan'], ['ttd', 'Bertanda tangan Dekan']];
+
+/**
+ * Status kemajuan satu MK. r = baris mk_rps {status, sah, revisi} atau null; ttd = baris mk_rps_ttd MK itu [{revisi, waktu}].
+ * 'ttd' bila unggahan bertanda tangan untuk pengesahan terakhir (ttd.revisi == r.revisi) atau RPS di luar situs (revisi null, tanpa r).
+ * Hasil { kode, lama } (lama = ada tanda tangan tetapi untuk versi sebelum pengesahan terakhir).
+ */
+export function statusKemajuan(r, ttd = []){
+  const n = r?.revisi ?? 0;
+  const cocok = ttd.some(t => (r ? t.revisi != null && +t.revisi === +n : true));
+  if (!r) return { kode: cocok ? 'ttd' : 'belum', lama: false };
+  if (r.status === 'disahkan') return cocok ? { kode: 'ttd', lama: false } : { kode: 'disahkan', lama: ttd.length > 0 };
+  if (r.status === 'draf') return { kode: r.sah ? 'revisi' : 'draf', lama: false };
+  return { kode: r.status, lama: false };
+}
+
+/**
+ * Kemajuan RPS satu kurikulum. rps = Map "kur|kode" -> mk_rps; ttd = Map "kur|kode" -> [mk_rps_ttd]; nama(m) -> [nama penyusun].
+ * Hasil { jumlah: {kode: n}, total, baris: [{ m, kode, lama, penyusun, diperbarui }] } (baris urut kode; susun per semester di halaman).
+ */
+export function kemajuanRps({ mk = [], rps = new Map(), ttd = new Map(), kur, nama = () => [] }){
+  const xs = mk.filter(m => m.kurikulum === kur && m.aktif !== false).sort((a, b) => String(a.kode).localeCompare(String(b.kode)));
+  const jumlah = Object.fromEntries(STATUS_KEMAJUAN.map(([k]) => [k, 0]));
+  const baris = xs.map(m => {
+    const r = rps.get(kunci(kur, m.kode)) || null, s = statusKemajuan(r, ttd.get(kunci(kur, m.kode)) || []);
+    jumlah[s.kode] = (jumlah[s.kode] || 0) + 1;
+    return { m, ...s, penyusun: nama(m), diperbarui: r?.diperbarui || '' };
+  });
+  return { jumlah, total: xs.length, baris };
+}
+
+/** CSV kemajuan (bahan rapat): kode, nama, semester, status, penyusun, diperbarui. Pemisah koma, sel dikutip. */
+export function csvKemajuan(h){
+  const label = Object.fromEntries(STATUS_KEMAJUAN), q = v => `"${String(v ?? '').replace(/"/g, '""')}"`;
+  return [['kode', 'nama', 'semester', 'sifat', 'status', 'penyusun', 'diperbarui'],
+    ...h.baris.map(b => [b.m.kode, b.m.nama, b.m.semester ?? '', b.m.sifat ?? '', label[b.kode] + (b.lama ? ' (tanda tangan versi lama)' : ''),
+      b.penyusun.join('; '), String(b.diperbarui).slice(0, 10)])].map(r => r.map(q).join(',')).join('\r\n') + '\r\n';
+}
 
 /** Versi RPS yang dipakai rekap: salinan disahkan bila ada, selain itu isian terakhir. null = belum ada RPS. */
 export function versiRps(r){
