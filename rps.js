@@ -104,6 +104,17 @@ export const jenisDariKode = kode => ({ 1: 'MKPT', 2: 'MKU', 3: 'MKPS', 4: 'MKP'
 export const jenisMK = m => jenisDariKode(m.kode) || (m.sifat === 'pilihan' ? 'MKP' : '');
 export const paritas = s => (/^[1-8]$/.test(teks(s)) ? (+s % 2 ? 'Ganjil' : 'Genap') : /^(Ganjil|Genap)$/i.test(teks(s)) ? teks(s)[0].toUpperCase() + teks(s).slice(1).toLowerCase() : '');
 
+/** Kelompok susunanMK dibagi dua kolom (pemilik 2026-11-19): kiri Ganjil (1, 3, 5, 7, MK pilihan Ganjil), kanan Genap;
+ *  lain = MK pilihan yang semesternya belum ditetapkan di RPS dan MK tanpa semester (selebar halaman). */
+export const bagiParitas = grup => ({ ganjil: grup.filter(g => g.paritas === 'Ganjil'), genap: grup.filter(g => g.paritas === 'Genap'),
+                                      lain: grup.filter(g => !g.paritas) });
+/** Saringan daftar MK: cari (kode/nama/teks tambahan), jenis, sifat, status; fungsi jenis/status/teks dari halaman. */
+export const saringMK = (xs, f = {}, { status = () => '', jenis = jenisMK, teksCari = () => '' } = {}) => {
+  const q = teks(f.cari).toLowerCase();
+  return xs.filter(m => (!q || `${m.kode} ${m.nama} ${teksCari(m)}`.toLowerCase().includes(q)) && (!f.jenis || jenis(m) === f.jenis)
+    && (!f.sifat || m.sifat === f.sifat) && (!f.status || status(m) === f.status));
+};
+
 /**
  * Susunan daftar MK satu kurikulum (pemilik 2026-11-19): per semester 1-8 (Ganjil/Genap), lalu MK pilihan dikelompokkan
  * Ganjil / Genap / belum ditetapkan menurut semester di RPS-nya (semPilihan: kode -> 'Ganjil'|'Genap'|'').
