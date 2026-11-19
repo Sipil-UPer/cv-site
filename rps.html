@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-19-b5974d">
-<link rel="stylesheet" href="kepala.css?v=2026-11-19-b5974d">
+<link rel="stylesheet" href="tema.css?v=2026-11-19-a13f17">
+<link rel="stylesheet" href="kepala.css?v=2026-11-19-a13f17">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
@@ -61,7 +61,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-19-b5974d"></script>
+<script src="config.js?v=2026-11-19-a13f17"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -81,15 +81,15 @@ addEventListener('error', function (e) {
 // Penyusun = koordinator MK atau pengampu kelas MK semester terakhir (boleh_rps, 112); GKM dan admin hanya melihat.
 // Pengesahan (112): dosen mengajukan -> Kaprodi aktif mengesahkan atau mengembalikan; daftar revisi (bagian F) otomatis.
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-19-b5974d';
-import { bolehMutu, aktifPada, punya } from './koordinator.js?v=2026-11-19-b5974d';
-import { cplMK } from './cpmk.js?v=2026-11-19-b5974d';
+import { gerbang } from './menu.js?v=2026-11-19-a13f17';
+import { bolehMutu, aktifPada, punya } from './koordinator.js?v=2026-11-19-a13f17';
+import { cplMK } from './cpmk.js?v=2026-11-19-a13f17';
 import { JENIS_ASESMEN, JENIS_MK, DIREKTORI, jenisAsesmen, bloom, hots, rapikanRps, kerangkaPekan, barisPekan, periksaRps, modelRps,
-  namaBerkasRps, penyusunMK, revisiDariLog, tanggalLokal, waktuLokal, evaluasiDariData, BENTUK, SCL, rekapRps, BENTUK_INTEGRASI } from './rps.js?v=2026-11-19-b5974d';
-import { JENIS_PETA, relasiPeta, petaSvg } from './rps-peta.js?v=2026-11-19-b5974d';
-import { keB64 } from './pengajuan-mhs.js?v=2026-11-19-b5974d';
-import { bacaTinjauan, bahanTinjauan } from './tinjauan-rps.js?v=2026-11-19-b5974d';
-import { buatRpsDocx } from './rps-docx.js?v=2026-11-19-b5974d';
+  namaBerkasRps, penyusunMK, revisiDariLog, tanggalLokal, waktuLokal, evaluasiDariData, BENTUK, SCL, rekapRps, BENTUK_INTEGRASI } from './rps.js?v=2026-11-19-a13f17';
+import { JENIS_PETA, relasiPeta, petaSvg } from './rps-peta.js?v=2026-11-19-a13f17';
+import { keB64 } from './pengajuan-mhs.js?v=2026-11-19-a13f17';
+import { bacaTinjauan, bahanTinjauan } from './tinjauan-rps.js?v=2026-11-19-a13f17';
+import { buatRpsDocx } from './rps-docx.js?v=2026-11-19-a13f17';
 
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -108,6 +108,14 @@ let KUR_DAFTAR = '';
 let KARYA = [], PENULIS = [], F_SEMUA_KARYA = false;
 // Bukti akreditasi (113, pemilik 2026-11-19): hanya RPS bertanda tangan Dekan yang diunggah (mk_rps_ttd; terakhir = rps_url).
 let TTD = [];
+// Penyusunan (pemilik 2026-11-19): DASAR = diperbarui RPS saat dibuka (simpan ditolak bila orang lain sudah mengubahnya);
+// draf belum tersimpan disalin ke peramban tiap 4 detik dan ditawarkan untuk dipulihkan (PULIH).
+let DASAR = null, PULIH = null;
+const kunciDraf = k => `rpsDraf|${k}`;
+const bacaDraf = k => { try { return JSON.parse(localStorage.getItem(kunciDraf(k)) || 'null'); } catch { return null; } };
+const tulisDraf = k => { try { localStorage.setItem(kunciDraf(k), JSON.stringify({ R, waktu: new Date().toISOString(), dasar: DASAR })); } catch { /* penyimpanan peramban penuh/tertutup */ } };
+const hapusDraf = k => { try { localStorage.removeItem(kunciDraf(k)); } catch { /* abaikan */ } };
+setInterval(() => { if (PILIH && R && KOTOR && !ro()) tulisDraf(PILIH); }, 4000);
 const ST = { draf: 'draf', diajukan: 'diajukan ke Kaprodi', dikembalikan: 'dikembalikan', disahkan: 'disahkan' };
 const URL_AWAL = new URLSearchParams(location.search);
 addEventListener('beforeunload', e => { if (KOTOR) { e.preventDefault(); e.returnValue = ''; } });
@@ -175,6 +183,9 @@ function buka(kur, kode, gambarUlang = true){
     R.pengembang = (ps.some(d => d.id === SAYA.id) ? SAYA.id : ps[0]?.id) || '';
   }
   KOTOR = false;
+  DASAR = RPS.get(PILIH)?.diperbarui || null;
+  const df = bacaDraf(PILIH);
+  PULIH = df?.R && JSON.stringify(df.R) !== JSON.stringify(R) ? df : null;
   history.replaceState(null, '', `?kur=${encodeURIComponent(kur)}&kode=${encodeURIComponent(kode)}`);
   if (gambarUlang) { gambar(); scrollTo(0, 0); }
 }
@@ -503,6 +514,9 @@ function gambar(){
         : '<button class="b utama" id="simpan">Simpan</button>'}<button class="b" id="unduh">Unduh Word (versi ini)</button>
         ${simpanan?.sah ? '<button class="b" id="unduhSah">Unduh versi disahkan</button>' : ''}
         <span class="msg" id="mSimpan">${simpanan ? `Tersimpan ${esc(waktuLokal(simpanan.diperbarui || ''))} oleh ${esc(simpanan.oleh || '')}` : 'Belum pernah disimpan.'}</span></div>
+      ${PULIH && !ro() ? `<div class="periksa" style="border-color:#8A5A00"><b>Ada isian yang belum tersimpan</b> dari ${esc(waktuLokal(PULIH.waktu))} di peramban ini.
+        ${PULIH.dasar !== DASAR ? `<span style="color:#8A5A00">RPS di server sudah berubah sejak itu${simpanan?.oleh ? ` (terakhir oleh ${esc(simpanan.oleh)})` : ''}; periksa ulang setelah memulihkan.</span>` : ''}
+        <div class="alat"><button class="b" id="pulihkan">Pulihkan isian itu</button><button class="b awas" id="buangDraf">Buang</button></div></div>` : ''}
       <div id="sah">${htmlSah()}</div>
       ${htmlBukti()}
       <details><summary class="ket">Daftar periksa (Panduan Pengisian RPS bagian 6)</summary><div id="periksa">${htmlPeriksa()}</div></details>
@@ -528,6 +542,9 @@ function ubahBesar(f){ f(); KOTOR = true; gambar(); }
 
 function pasang(){
   if ($('simpan')) $('simpan').onclick = simpan;
+  if ($('pulihkan')) $('pulihkan').onclick = () => { R = rapikanRps(PULIH.R, mkDari(PILIH), SITUS); PULIH = null; KOTOR = true; gambar();
+    tulis('mSimpan', '', 'Isian dipulihkan; periksa lalu Simpan.'); };
+  if ($('buangDraf')) $('buangDraf').onclick = () => { hapusDraf(PILIH); PULIH = null; gambar(); };
   $('unduh').onclick = () => unduh(false);
   if ($('unduhSah')) $('unduhSah').onclick = () => unduh(true);
   if ($('ajukan')) $('ajukan').onclick = ajukan;
@@ -575,13 +592,27 @@ $('isi').addEventListener('input', e => {
 });
 
 async function simpan(){
-  const [kur, kode] = PILIH.split('|');
+  const [kur, kode] = PILIH.split('|'), KOL = 'kurikulum,kode_mk,data,status,oleh,diperbarui';
   $('simpan').disabled = true; tulis('mSimpan', '', 'Menyimpan…');
-  const { data, error } = await sb.from('mk_rps').upsert({ kurikulum: kur, kode_mk: kode, data: R, status: 'draf' }, { onConflict: 'kurikulum,kode_mk' })
-    .select('kurikulum,kode_mk,data,status,oleh,diperbarui');
+  // Pencegah tabrakan (pemilik 2026-11-19): RPS yang sudah ada hanya diperbarui bila belum diubah orang lain sejak dibuka.
+  let q;
+  if (RPS.get(PILIH)) {
+    let u = sb.from('mk_rps').update({ data: R, status: 'draf' }).eq('kurikulum', kur).eq('kode_mk', kode);
+    if (DASAR) u = u.eq('diperbarui', DASAR);
+    q = await u.select(KOL);
+  } else q = await sb.from('mk_rps').insert({ kurikulum: kur, kode_mk: kode, data: R, status: 'draf' }).select(KOL);
   $('simpan').disabled = false;
+  const { data, error } = q;
+  if ((error && /duplicate|unique/i.test(error.message)) || (!error && !data?.length)) {
+    const { data: kini } = await sb.from('mk_rps').select('oleh,diperbarui,status').eq('kurikulum', kur).eq('kode_mk', kode).maybeSingle();
+    tulisDraf(PILIH);
+    if (kini && kini.diperbarui !== DASAR) return tulis('mSimpan', 'buruk', `Tidak tersimpan: RPS ini sudah diubah ${kini.oleh || 'penyusun lain'} `
+      + `(${waktuLokal(kini.diperbarui)}) setelah Anda membukanya. Isian Anda aman di peramban ini: muat ulang halaman, lalu pilih "Pulihkan" bila perlu.`);
+    return tulis('mSimpan', 'buruk', kini?.status === 'diajukan' ? 'Tidak tersimpan: RPS sedang diajukan ke Kaprodi (terkunci).'
+      : 'Tidak tersimpan: Anda tidak berhak mengubah RPS ini.');
+  }
   if (error) return tulis('mSimpan', 'buruk', /mk_rps/.test(error.message) ? 'Tabel RPS belum ada: jalankan supabase/111-patch-rps-k26.sql.' : error.message);
-  RPS.set(PILIH, data[0]); KOTOR = false;
+  RPS.set(PILIH, { ...(RPS.get(PILIH) || {}), ...data[0] }); KOTOR = false; DASAR = data[0].diperbarui || null; PULIH = null; hapusDraf(PILIH);
   gambar(); tulis('mSimpan', 'ok', 'Tersimpan.');
 }
 

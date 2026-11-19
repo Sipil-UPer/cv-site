@@ -294,6 +294,21 @@ export function periksaRps({ mk = {}, struktur, rps, cpl = [], pengembang = null
   if (ganda.length) g('D', `Pekan tercantum lebih dari sekali: ${ganda.join(', ')}.`);
   if (!P.some(p => p.jenis === 'uts')) g('D', 'Tambahkan baris UTS.');
   if (!P.some(p => p.jenis === 'uas')) g('D', 'Tambahkan baris UAS.');
+  // Keselarasan (pemilik 2026-11-19): tiap Sub-CPMK diajarkan di pekan tertentu; asesmen yang menilai Sub-CPMK dijadwalkan di
+  // pekan yang memuat Sub-CPMK itu.
+  const kuliah = P.filter(p => p.jenis === 'kuliah');
+  if (kuliah.length) {
+    const diPekan = new Set(kuliah.flatMap(p => p.sub || []));
+    for (const x of S.sub) {
+      if (!diPekan.has(x.kode)) { g('D', `${x.kode} belum dijadwalkan di pekan mana pun; pilih di rencana pekanan.`); continue; }
+      for (const a of S.asesmen) {
+        if (['uts', 'uas'].includes(jenisAsesmen(a)) || !angka(S.bobot?.[x.kode]?.[a.nama])) continue;
+        const pk = kuliah.filter(p => (p.asesmen || []).includes(a.nama));
+        if (pk.length && !pk.some(p => (p.sub || []).includes(x.kode)))
+          s('D', `${x.kode} dinilai lewat ${a.nama}, tetapi ${a.nama} dijadwalkan di pekan yang tidak memuat ${x.kode}.`);
+      }
+    }
+  }
   const sumatif = S.asesmen.filter(a => !['uts', 'uas'].includes(jenisAsesmen(a))).map(a => a.nama);
   const diD = new Set(P.flatMap(p => p.asesmen || []));
   for (const a of sumatif) if (!diD.has(a)) s('D', `${a} (bagian B) belum dijadwalkan di rencana pekanan.`);
