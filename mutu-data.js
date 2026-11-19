@@ -98,9 +98,9 @@ export function periksaMutu(M, kini = new Date()){
   const labelMK = m => `${m.kode || '—'} ${m.nama || ''}`;
   tambah('mk_tanpa_rps', 'MK aktif tanpa RPS', 'penting', 'Butir 15 menilai ketersediaan RPS.', 'data-prodi.html?tab=mk',
     mk.filter(m => !m.rps_ada && !m.rps_url).map(m => ({ teks: labelMK(m) })));
-  // 113 (pemilik 2026-11-19): bukti RPS hanya berkas bertanda tangan Dekan.
-  tambah('mk_rps_ttd', 'RPS disahkan, bukti bertanda tangan Dekan belum diunggah', 'periksa',
-    'Butir 15: asesor hanya melihat RPS bertanda tangan Dekan sebagai bukti (unggah di halaman RPS).', 'rps.html',
+  // 121 (pemilik 2026-11-19): bukti RPS = RPS elektronik lengkap (tautan verifikasi); unggahan hanya untuk RPS di luar situs.
+  tambah('mk_rps_ttd', 'RPS disahkan, Dokumen RPS belum tercatat', 'periksa',
+    'Butir 15: menunggu penetapan Dekan, atau tautan verifikasi belum dipasang (admin: halaman RPS, kotak Tanggal dokumen dan tenggat, Pasang tautan).', 'rps.html',
     mk.filter(m => m.rps_ada && !m.rps_url).map(m => ({ teks: labelMK(m) })));
   // 114: RPS disahkan ulang, bukti bertanda tangan terakhir masih untuk pengesahan sebelumnya (rpsTtd urut id; terakhir = rps_url).
   const kMK = (kur, kode) => `${kur}|${kode}`;
@@ -109,7 +109,7 @@ export function periksaMutu(M, kini = new Date()){
   tambah('mk_rps_ttd_lama', 'Bukti RPS bertanda tangan Dekan masih untuk versi lama', 'periksa',
     'Butir 15: RPS sudah disahkan ulang Kaprodi; unggah versi terbaru yang bertanda tangan Dekan di halaman RPS.', 'rps.html',
     mk.filter(m => { const t = ttdAkhir.get(kMK(m.kurikulum, m.kode));
-      return m.rps_url && t && t.revisi != null && t.revisi < (revRps.get(kMK(m.kurikulum, m.kode)) || 0); })
+      return m.rps_url && !/verifikasi-rps\.html/.test(m.rps_url) && t && t.revisi != null && t.revisi < (revRps.get(kMK(m.kurikulum, m.kode)) || 0); })
       .map(m => ({ teks: labelMK(m) })));
   tambah('mk_rps_9', 'RPS belum memuat 9 komponen', 'periksa', 'Butir 15 unsur 4: RPS memuat 9 komponen.', 'data-prodi.html?tab=mk',
     mk.filter(m => (m.rps_ada || m.rps_url) && m.rps_9_komponen === false).map(m => ({ teks: labelMK(m) })));

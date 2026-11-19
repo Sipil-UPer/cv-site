@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-19-e356d9">
+<link rel="stylesheet" href="tema.css?v=2026-11-19-8a9cbb">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased}
@@ -30,6 +30,11 @@
   td{padding:8px 10px 8px 0;border-bottom:1px solid var(--line-soft);vertical-align:top}
   .ket{color:var(--muted);font-size:13px}
   code{font-family:var(--mono);font-size:12.5px;word-break:break-all}
+  /* Isi RPS versi disahkan (121) */
+  .dok{background:var(--panel);border:1px solid var(--line);padding:16px 20px;margin:16px 0}
+  .dok h2{font-family:var(--serif);font-size:20px;margin:0 0 6px;color:var(--biru)} .dok h3{font-size:15px;margin:16px 0 4px}
+  .gulir{overflow-x:auto} table.ds th{width:auto} .b{font:13px/1.4 var(--sans);padding:6px 14px;border:1px solid var(--biru);background:var(--biru);color:#fff;cursor:pointer}
+  .b:disabled{opacity:.6;cursor:default} .wrap{max-width:980px} .hero-in{max-width:980px}
 </style>
 </head>
 <body>
@@ -41,7 +46,7 @@
   </div>
 </header>
 <main class="wrap" id="isi"><p class="ket">Memeriksa…</p></main>
-<script src="config.js?v=2026-11-19-e356d9"></script>
+<script src="config.js?v=2026-11-19-8a9cbb"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -61,6 +66,8 @@ addEventListener('error', function (e) {
 // Data dari rps_verifikasi (fungsi publik, hanya baca): MK, revisi, pengaju, pengesah, penetap (a.n. bila diwakilkan admin),
 // sebutan pejabat, waktu pengesahan elektronik sebenarnya, sidik isi versi disahkan.
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
+import { rapikanRps, bobotSub, BENTUK } from './rps.js?v=2026-11-19-8a9cbb';
+import { wordDariDokumen, konteksDokumen } from './rps-word.js?v=2026-11-19-8a9cbb';
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const waktu = w => (w ? new Date(w).toLocaleString('id-ID', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' }) + ' WIB' : '');
 const $ = id => document.getElementById(id);
@@ -95,7 +102,55 @@ async function mulai(){
       <tr><th>Sidik isi versi disahkan</th><td><code>${esc(v.sidik)}</code></td></tr>
     </table>
     <p class="ket">Tanggal di dokumen dapat berupa tanggal dokumen semester; waktu "dicatat sistem" adalah saat pengesahan elektronik dilakukan.
-      Kode: <code>${esc(kode)}</code></p></div>`;
+      Kode: <code>${esc(kode)}</code></p></div><div id="dokumen"><p class="ket">Memuat isi RPS…</p></div>`;
+  await tampilDokumen(sb, kode);
+}
+
+// Isi RPS versi disahkan dan unduh Word (121, pemilik 2026-11-19): bukti akreditasi tanpa unggah PDF; dibuka asesor dari tautan ini.
+async function tampilDokumen(sb, kode){
+  const el = $('dokumen');
+  const { data: D, error } = await sb.rpc('rps_dokumen', { p_kode: kode });
+  if (error || !D?.mk || !D?.rps?.sah?.rps) { el.innerHTML = error && !/does not exist|schema cache|Could not find/i.test(error.message)
+    ? `<p class="ket">Isi RPS tidak dapat dimuat: ${esc(error.message)}</p>` : ''; return; }
+  const situs = await fetch('data.json?v=' + Date.now()).then(r => (r.ok ? r.json() : {})).catch(() => ({}));
+  const c = konteksDokumen(D, { situs, url: location.href }), R = c.rps, S = c.struktur || { cpmk: [], sub: [], asesmen: [], bobot: {} }, I = R.identitas || {};
+  const sks = ['t', 'p', 'pl', 's'].map(k => +(I.sks?.[k] || 0));
+  const label = (xs, k) => (xs.find(x => x[0] === k) || [, k])[1];
+  el.innerHTML = `<section class="dok"><h2>Isi RPS versi disahkan</h2>
+    <p class="ket">Ringkasan isi RPS yang disahkan dengan kode ini. Dokumen lengkap mengikuti formulir RPS universitas: unduh Word.</p>
+    <p><button class="b" id="unduhWord">Unduh RPS (Word)</button> <span class="ket" id="mWord"></span></p>
+    <table class="ds">
+      <tr><th>Mata kuliah</th><td><b>${esc(D.mk.kode)}</b> ${esc(D.mk.nama)} (${esc(D.mk.kurikulum)})</td></tr>
+      <tr><th>Jenis, sks (T/P/PL/S), semester</th><td>${esc(I.jenis_mk || '—')}; ${sks.join('/')} = ${sks.reduce((a, b) => a + b, 0)} sks; semester ${esc(I.semester || '—')}</td></tr>
+      <tr><th>Dosen pengembang</th><td>${esc(c.pengembang?.nama_gelar || c.pengembang?.nama || '—')}</td></tr>
+      <tr><th>Pengampu</th><td>${esc(R.pengampu || '—').replace(/\n/g, '<br>')}</td></tr>
+    </table>
+    <h3>CPL dan CPMK</h3>
+    <ul>${c.cpl.map(x => `<li><b>CPL ${esc(x.kode)}</b> ${esc(x.rumusan)}</li>`).join('')}</ul>
+    <div class="gulir"><table class="ds"><thead><tr><th>Kode</th><th>Rumusan</th><th>CPL</th><th>Bobot (%)</th></tr></thead><tbody>
+      ${S.cpmk.map(k => `<tr><td><b>${esc(k.kode)}</b></td><td>${esc(k.rumusan)}</td><td></td><td></td></tr>`
+        + S.sub.filter(x => x.cpmk === k.kode).map(x => `<tr><td>${esc(x.kode)}</td><td>${esc(x.rumusan)}</td><td>${esc(x.cpl || '')}</td>
+          <td>${String(bobotSub(S, x.kode)).replace('.', ',')}</td></tr>`).join('')).join('')}</tbody></table></div>
+    <h3>Rencana pembelajaran</h3>
+    <div class="gulir"><table class="ds"><thead><tr><th>Pekan</th><th>Sub-CPMK</th><th>Materi</th><th>Indikator</th><th>Bentuk</th><th>Asesmen</th></tr></thead><tbody>
+      ${(R.pekan || []).map(p => `<tr><td>${esc(p.pekan)}</td><td>${p.jenis === 'kuliah' ? esc((p.sub || []).join(', ')) : esc(String(p.jenis).toUpperCase())}</td>
+        <td>${esc(p.materi || '')}</td><td>${esc(p.indikator || '')}</td><td>${esc((p.bentuk_pb || []).map(b => label(BENTUK, b)).join(', '))}</td>
+        <td>${esc((p.asesmen || []).join(', '))}</td></tr>`).join('')}</tbody></table></div>
+    <h3>Pustaka</h3>
+    <ul>${(R.pustaka || []).filter(x => x.teks).map(x => `<li>${x.kode ? `[${esc(x.kode)}] ` : ''}${esc(x.teks)}</li>`).join('') || '<li class="ket">—</li>'}</ul>
+  </section>`;
+  $('unduhWord').onclick = async () => {
+    const b = $('unduhWord'); b.disabled = true; $('mWord').textContent = 'Menyiapkan Word…';
+    try {
+      const { default: JSZip } = await import('https://cdn.jsdelivr.net/npm/jszip@3.10.1/+esm');
+      const logo = await fetch('logo-uper.png').then(r => (r.ok ? r.arrayBuffer() : null)).catch(() => null);
+      const { blob, nama } = await wordDariDokumen(D, { JSZip, logo, situs, url: location.href });
+      const a = Object.assign(document.createElement('a'), { href: URL.createObjectURL(blob), download: nama });
+      document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+      $('mWord').textContent = 'Word diunduh.';
+    } catch (e) { $('mWord').textContent = 'Gagal membuat Word: ' + (e.message || e); }
+    b.disabled = false;
+  };
 }
 mulai().catch(e => { $('isi').innerHTML = `<div class="hasil tidak"><h2>Gagal memeriksa</h2><p>${esc(e.message || e)}</p></div>`; });
 </script>

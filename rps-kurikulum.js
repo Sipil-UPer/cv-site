@@ -3,26 +3,25 @@
 //    penumpukan tugas/kuis di pekan yang sama.
 // 2. Peta CPL dari bagian B (mk_struktur): CPL x semester berisi MK yang benar-benar menilai CPL itu (Sub-CPMK berbobot),
 //    tingkat Bloom tertinggi, ranah A/P; CPL yang dibebankan di peta MK-CPL tetapi tidak dinilai; HOTS rata-rata per tahun.
-import { rentangPekan, bloom, bobotSub, hots, TARGET_HOTS, KESIMPULAN_REVIEW } from './rps.js?v=2026-11-19-e356d9';
+import { rentangPekan, bloom, bobotSub, hots, TARGET_HOTS, KESIMPULAN_REVIEW } from './rps.js?v=2026-11-19-8a9cbb';
 
 const kunci = (kur, kode) => `${kur}|${kode}`;
 const urutSem = s => (s === '' ? 99 : +s || 98);
 const bulat = v => Math.round(v * 100) / 100;
 
 // Kemajuan RPS per MK (pemilik 2026-11-19: Kaprodi/admin memantau yang belum dibuat/diajukan/disahkan/ditandatangani).
+// 121 (pemilik 2026-11-19): bukti = RPS elektronik lengkap (ditetapkan Dekan; tanpa Dekan aktif: disahkan); unggahan hanya RPS di luar situs.
 export const STATUS_KEMAJUAN = [['belum', 'Belum dibuat'], ['draf', 'Draf'], ['revisi', 'Revisi berjalan'], ['diajukan', 'Diajukan'],
-  ['dikembalikan', 'Dikembalikan'], ['disahkan', 'Disahkan, belum bertanda tangan'], ['ttd', 'Bertanda tangan Dekan']];
+  ['dikembalikan', 'Dikembalikan'], ['disahkan', 'Disahkan, menunggu penetapan Dekan'], ['ttd', 'Lengkap (bukti akreditasi)']];
 
 /**
- * Status kemajuan satu MK. r = baris mk_rps {status, sah, revisi} atau null; ttd = baris mk_rps_ttd MK itu [{revisi, waktu}].
- * 'ttd' bila unggahan bertanda tangan untuk pengesahan terakhir (ttd.revisi == r.revisi) atau RPS di luar situs (revisi null, tanpa r).
- * Hasil { kode, lama } (lama = ada tanda tangan tetapi untuk versi sebelum pengesahan terakhir).
+ * Status kemajuan satu MK. r = baris mk_rps {status, sah, revisi, tetap_pada} atau null; ttd = baris mk_rps_ttd MK itu [{revisi, waktu}];
+ * dekanAktif = jabatan Dekan sedang diisi. 'ttd' (lengkap) = ditetapkan Dekan secara elektronik, atau disahkan bila tidak ada Dekan
+ * aktif; RPS di luar situs (tanpa r) lengkap bila ada unggahan bertanda tangan. Hasil { kode, lama } (lama dipertahankan: selalu false).
  */
-export function statusKemajuan(r, ttd = []){
-  const n = r?.revisi ?? 0;
-  const cocok = ttd.some(t => (r ? t.revisi != null && +t.revisi === +n : true));
-  if (!r) return { kode: cocok ? 'ttd' : 'belum', lama: false };
-  if (r.status === 'disahkan') return cocok ? { kode: 'ttd', lama: false } : { kode: 'disahkan', lama: ttd.length > 0 };
+export function statusKemajuan(r, ttd = [], dekanAktif = false){
+  if (!r) return { kode: ttd.length ? 'ttd' : 'belum', lama: false };
+  if (r.status === 'disahkan') return { kode: r.tetap_pada || !dekanAktif ? 'ttd' : 'disahkan', lama: false };
   if (r.status === 'draf') return { kode: r.sah ? 'revisi' : 'draf', lama: false };
   return { kode: r.status, lama: false };
 }
@@ -31,11 +30,11 @@ export function statusKemajuan(r, ttd = []){
  * Kemajuan RPS satu kurikulum. rps = Map "kur|kode" -> mk_rps; ttd = Map "kur|kode" -> [mk_rps_ttd]; nama(m) -> [nama penyusun].
  * Hasil { jumlah: {kode: n}, total, baris: [{ m, kode, lama, penyusun, diperbarui }] } (baris urut kode; susun per semester di halaman).
  */
-export function kemajuanRps({ mk = [], rps = new Map(), ttd = new Map(), kur, nama = () => [], review = new Map() }){
+export function kemajuanRps({ mk = [], rps = new Map(), ttd = new Map(), kur, nama = () => [], review = new Map(), dekanAktif = false }){
   const xs = mk.filter(m => m.kurikulum === kur && m.aktif !== false).sort((a, b) => String(a.kode).localeCompare(String(b.kode)));
   const jumlah = Object.fromEntries(STATUS_KEMAJUAN.map(([k]) => [k, 0]));
   const baris = xs.map(m => {
-    const r = rps.get(kunci(kur, m.kode)) || null, s = statusKemajuan(r, ttd.get(kunci(kur, m.kode)) || []);
+    const r = rps.get(kunci(kur, m.kode)) || null, s = statusKemajuan(r, ttd.get(kunci(kur, m.kode)) || [], dekanAktif);
     jumlah[s.kode] = (jumlah[s.kode] || 0) + 1;
     return { m, ...s, penyusun: nama(m), diperbarui: r?.diperbarui || '', review: review.get(kunci(kur, m.kode)) || null };
   });

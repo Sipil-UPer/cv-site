@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-19-e356d9">
+<link rel="stylesheet" href="tema.css?v=2026-11-19-8a9cbb">
 <style>
   /* Panduan pengguna ruang kerja (pemilik 2026-11-04). Bagian admin hanya
      tampil untuk peran admin. Perbarui bila tombol atau halaman berubah. */
@@ -40,7 +40,7 @@
   @media(max-width:640px){nav.isi ol{columns:1}.wrap{padding:18px 16px 60px}}
   @media print{nav.isi{display:none}section{break-inside:avoid}}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-19-e356d9">
+<link rel="stylesheet" href="kepala.css?v=2026-11-19-8a9cbb">
 </head>
 <body>
 
@@ -254,11 +254,11 @@
         tanda tangan basah: Word yang diunduh memuat <b>kode QR</b> di kolom Kaprodi dan Dekan, tanggal dokumen semester, dan alamat verifikasi.
         Siapa pun yang memindai QR melihat halaman <b>Verifikasi RPS</b>: siapa yang mengesahkan dan menetapkan, waktunya, dan apakah versi itu
         masih berlaku. Bila RPS direvisi dan disahkan ulang, kode lama tidak berlaku lagi.</li>
-      <li><b>Bukti akreditasi</b>: begitu disahkan, mata kuliah langsung terhitung <i>RPS ada</i> dan <i>9 komponen</i> di penilaian akreditasi. Klik
-        <b>Unduh versi disahkan</b>, lalu unggah PDF-nya di kotak
-        <b>Bukti akreditasi (RPS bertanda tangan Dekan)</b> di halaman RPS (centang pernyataan tanda tangan). Hanya berkas inilah
-        yang dilihat asesor sebagai bukti RPS. Unggah juga ke SIUP sesuai ketentuan universitas. RPS lama yang disusun di luar situs
-        (mis. K21) dan sudah bertanda tangan Dekan boleh langsung diunggah di kotak yang sama.</li>
+      <li><b>Bukti akreditasi</b>: <b>tidak perlu mengunggah PDF</b> (pemilik 2026-11-19). Begitu disahkan, mata kuliah terhitung <i>RPS ada</i>
+        dan <i>9 komponen</i>; begitu ditetapkan Dekan (atau disahkan, bila jabatan Dekan belum diisi), RPS <b>lengkap</b> dan tautan verifikasinya
+        otomatis menjadi <b>Dokumen RPS</b> untuk asesor. Dari tautan itu siapa pun bisa membaca isi RPS versi disahkan dan mengunduh Word-nya
+        tanpa login. Unggah ke SIUP tetap mengikuti ketentuan universitas (Word dari <b>Unduh versi disahkan</b>). Hanya RPS lama yang disusun
+        di luar situs (mis. K21) dan sudah bertanda tangan yang diunggah, di kotak <b>Bukti akreditasi (RPS di luar situs)</b>.</li>
       <li><b>Mengubah RPS yang sudah disahkan</b>: ubah dan simpan (status kembali draf; versi disahkan tetap bisa diunduh), lalu ajukan lagi
         dengan <b>ringkasan perubahan</b>. Daftar revisi RPS (bagian F) tersusun otomatis dari pengesahan berikutnya.</li>
     </ol>
@@ -308,7 +308,8 @@
     <p class="adm-p" hidden><b>Admin, tanggal dan tenggat:</b> di halaman RPS buka kotak <b>Tanggal dokumen dan tenggat RPS (admin)</b>: tanggal
       dokumen semester (dicetak di Word), tenggat pengajuan RPS semester ganjil/genap, dan tenggat review (hari sejak ditunjuk). Pengingat ke
       penyusun dan reviewer dikirim dari <b>Pengingat</b> (kelompok <i>RPS belum diajukan</i>, <i>Review RPS belum dikirim</i>,
-      <i>Review RPS belum ditanggapi</i>); tidak ada yang terkirim tanpa tombol Kirim.</p>
+      <i>Review RPS belum ditanggapi</i>); tidak ada yang terkirim tanpa tombol Kirim. RPS yang sudah lengkap sebelum
+      fitur Dokumen RPS elektronik: klik <b>Pasang tautan untuk … RPS</b> di kotak yang sama.</p>
     <p class="adm-p" hidden><b>Admin atas nama pejabat (khusus RPS):</b> bila Kaprodi atau Dekan berhalangan, admin boleh mengklik
       <b>Sahkan a.n. Kaprodi</b> atau <b>Tetapkan a.n. Dekan</b>. Tercatat "a.n." di riwayat, Word, dan halaman verifikasi. Ketentuan ini hanya
       untuk tanda tangan RPS; persetujuan lain di situs tetap dilakukan pejabat terkait. Admin juga tidak mengisi review atau tanggapan atas
@@ -470,7 +471,7 @@
   </div>
 </main>
 
-<script src="config.js?v=2026-11-19-e356d9"></script>
+<script src="config.js?v=2026-11-19-8a9cbb"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -487,7 +488,7 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-19-e356d9';
+import { gerbang } from './menu.js?v=2026-11-19-8a9cbb';
 
 // Bagian admin hanya untuk peran admin (isinya bukan rahasia; disembunyikan
 // supaya panduan dosen tetap ringkas).
