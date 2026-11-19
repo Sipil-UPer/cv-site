@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-19-8a9cbb">
+<link rel="stylesheet" href="tema.css?v=2026-11-19-a1feb3">
 <style>
   /* Ruang KP, publik tanpa masuk akun (pemilik 2026-11-18; patch 105). Warna dari tema.css. */
   *{box-sizing:border-box}
@@ -61,11 +61,13 @@
   <div class="aksi">
     <a class="b utama" href="pengajuan.html?jenis=kp">Ajukan KP atau magang</a>
     <a class="b" href="pengajuan.html?lapor=kp">KP sudah selesai? Pelaporan selesai KP</a>
-    <a class="b" href="pengajuan.html?jenis=kp">Sudah mengajukan? Minta tautan baru</a>
+    <a class="b" href="pengajuan.html#tautan">Sudah mengajukan? Minta tautan baru</a>
   </div>
-  <p class="ket">Pelaporan selesai KP diisi lewat <b>tautan pribadi yang sama</b> setelah Anda melaporkan diterima instansi.
-    Sudah diterima instansi tanpa surat pengantar dari prodi? Ajukan KP dan unggah surat balasan instansinya. Email kampus
-    bermasalah? Daftarkan email alternatif di bagian bawah <a href="pengajuan.html?jenis=kp">halaman pengajuan</a>.</p>
+  <ul class="ket">
+    <li>Pelaporan selesai KP diisi lewat <b>tautan pribadi yang sama</b>, setelah Anda melaporkan diterima instansi.</li>
+    <li>Sudah diterima instansi tanpa surat pengantar dari prodi? Ajukan KP, lalu unggah surat balasan instansinya.</li>
+    <li>Email kampus bermasalah? <a href="pengajuan.html#email">Daftarkan email alternatif</a>.</li>
+  </ul>
 
   <h2>Alur</h2>
   <h3>Tahap 1 · Pengajuan KP</h3>
@@ -102,16 +104,17 @@
     </ul>
   </div>
 
-  <h2>Dokumen KP</h2>
-  <div id="dok"><p class="kosong">Memuat…</p></div>
+  <!-- Bagian kosong tidak ditampilkan (pemilik 2026-11-19). -->
+  <section id="bagDok" hidden><h2>Dokumen KP</h2>
+  <div id="dok"></div></section>
 
-  <h2>Tempat KP dan magang kakak tingkat</h2>
+  <section id="bagTempat" hidden><h2>Tempat KP dan magang kakak tingkat</h2>
   <p class="ket">Dari KP yang sudah disetujui prodi; tanpa nama mahasiswa. Lihat juga <a href="kerja-sama.html">mitra kerja sama prodi</a>.</p>
-  <div id="tempat"><p class="kosong">Memuat…</p></div>
+  <div id="tempat"></div></section>
 
   <footer><a href="privasi.html">Kebijakan privasi</a></footer>
 </main>
-<script src="config.js?v=2026-11-19-8a9cbb"></script>
+<script src="config.js?v=2026-11-19-a1feb3"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -143,7 +146,8 @@ fetch('data.json?v=' + Date.now()).then(r => r.ok ? r.json() : {}).catch(() => (
       <th>Bidang</th><th>Tahun</th></tr></thead><tbody>${xs.map(x => `<tr><td>${esc(x.instansi)}</td><td class="n">${x.kp || 0}</td>
       <td class="n">${x.magang || 0}</td><td>${esc((x.bidang || []).join('; '))}</td>
       <td>${x.tahun_awal ? esc(x.tahun_awal === x.tahun_akhir ? x.tahun_awal : `${x.tahun_awal}–${x.tahun_akhir}`) : ''}</td></tr>`).join('')}</tbody></table></div>`
-    : '<p class="kosong">Belum ada data tempat KP.</p>';
+    : '';
+  $('bagTempat').hidden = !xs.length;
 });
 
 sb.rpc('dokumen_mahasiswa').then(({ data, error }) => {
@@ -151,7 +155,8 @@ sb.rpc('dokumen_mahasiswa').then(({ data, error }) => {
   $('dok').innerHTML = error ? '<p class="kosong">Dokumen belum bisa dimuat.</p>'
     : xs.length ? `<ul class="daftar">${xs.map(d => `<li><a href="${esc(d.url)}" target="_blank" rel="noopener">${esc(d.judul || d.nomor || 'Dokumen')}</a>
         <div class="meta">${esc([d.nomor, d.tahun].filter(Boolean).join(' · '))}</div></li>`).join('')}</ul>`
-    : '<p class="kosong">Belum ada dokumen KP. Pedoman dan formulir umum ada di <a href="layanan-mahasiswa.html">Layanan mahasiswa</a>.</p>';
+    : '';
+  $('bagDok').hidden = !(!error && xs.length);
 });
 </script>
 </body>

@@ -4,11 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Layanan mahasiswa — Program Studi</title>
-<meta name="description" content="Pengumuman, pedoman, tanya-jawab, dan kotak pertanyaan/masukan program studi untuk mahasiswa.">
+<meta name="description" content="Layanan mahasiswa program studi: pengajuan KP, seminar/sidang TA, lomba, luaran, dan surat; jadwal seminar/sidang; pengumuman, pedoman, tanya-jawab.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-19-8a9cbb">
+<link rel="stylesheet" href="tema.css?v=2026-11-19-a1feb3">
 <style>
   /* Layanan mahasiswa, publik (pemilik 2026-11-16; patch 76, 77, 78). Warna dari tema.css. */
   *{box-sizing:border-box}
@@ -22,13 +22,19 @@
   .hero a.balik:hover{text-decoration:underline}
   h1{font-family:var(--serif);font-size:clamp(22px,4.2vw,30px);font-weight:600;margin:6px 0 0;line-height:1.2;color:#fff}
   .prodi{color:var(--biru-m4);font-size:14px;margin-top:6px}
-  .pintu{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:16px}
+  /* Susunan (pemilik 2026-11-19): 4 tombol utama, lalu tautan informasi lain. */
+  [hidden]{display:none !important}
+  .pintu{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:16px}
+  .pintu a.utama{background:#fff;color:var(--biru);border-color:#fff} .pintu a.utama small{color:var(--muted)}
+  .pintu a.utama:hover{background:#fff;filter:brightness(.96)}
+  .pintu-lain{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:12px;font-size:13.5px}
+  .pintu-lain a{color:#fff;text-decoration:underline;text-underline-offset:3px;text-decoration-color:rgba(255,255,255,.5)}
   .pintu a{display:block;text-decoration:none;color:#fff;border:1px solid rgba(255,255,255,.4);border-radius:8px;
     padding:9px 12px;font-weight:600;font-size:14px;transition:background .15s}
   .pintu a small{display:block;font-weight:400;font-size:12px;color:var(--biru-m4);margin-top:1px}
   .pintu a:hover{background:rgba(255,255,255,.12)}
   .pintu a:focus-visible{outline:2px solid #fff;outline-offset:2px}
-  @media (max-width:640px){.pintu{grid-template-columns:1fr 1fr}}
+  @media (max-width:760px){.pintu{grid-template-columns:1fr 1fr}}
   .kosong, .ket{color:var(--muted)}
   .ket{font-size:13.5px}
   .cari{margin:18px 0 4px}
@@ -99,28 +105,33 @@
 <header class="hero"><div class="hero-in">
   <a class="balik" href="index.html">&larr; Beranda</a>
   <h1>Layanan mahasiswa</h1><div class="prodi" id="hProdi"></div>
-  <nav class="pintu" aria-label="Bagian halaman">
-    <a href="#pengumuman">Pengumuman<small>jadwal, batas waktu</small></a>
-    <a href="#berkas">Berkas<small>pedoman, panduan</small></a>
-    <a href="#pembimbing">Calon pembimbing TA<small>cocokkan judul dan keahlian</small></a>
-    <a href="#tanya-jawab">Tanya-jawab<small>yang sering ditanya</small></a>
-    <a href="#kirim">Tanya / masukan<small>kirim ke prodi</small></a>
-    <a href="#jadwal-ta">Jadwal seminar/sidang<small>TA: proposal, kemajuan, akhir</small></a>
-    <a href="kerja-praktik.html">Kerja Praktik dan Magang<small>alur, dokumen, tempat KP, pengajuan</small></a>
-    <a href="pengajuan.html">Pengajuan KP, TA, lomba, luaran, surat<small>unggah berkas, pantau proses</small></a>
+  <nav class="pintu" aria-label="Layanan utama">
+    <a class="utama" href="pengajuan.html">Ajukan<small>KP, seminar/sidang TA, lomba, luaran, surat</small></a>
+    <a href="pengajuan.html#tautan">Cek pengajuan saya<small>tautan hilang? kirim ulang ke email kampus</small></a>
+    <a href="#jadwal-ta">Jadwal seminar/sidang<small>proposal, kemajuan, sidang akhir</small></a>
+    <a href="#kirim">Tanya prodi<small>pertanyaan atau masukan</small></a>
+  </nav>
+  <nav class="pintu-lain" aria-label="Informasi lain">
+    <a href="kerja-praktik.html">Kerja praktik dan magang</a>
+    <a href="#pembimbing">Calon pembimbing TA</a>
+    <a href="#pengumuman" data-ada="pengumuman" hidden>Pengumuman</a>
+    <a href="#berkas" data-ada="berkas" hidden>Pedoman dan berkas</a>
+    <a href="#tanya-jawab" data-ada="faq" hidden>Tanya-jawab</a>
   </nav>
 </div></header>
 <main class="wrap">
-  <div class="cari"><input id="cari" type="search" placeholder="Cari pengumuman, pedoman, tanya-jawab…" aria-label="Cari" autocomplete="off"></div>
-  <div id="isi"><p class="kosong">Memuat…</p></div>
+  <div class="cari" id="kotakCari" hidden><input id="cari" type="search" placeholder="Cari pengumuman, pedoman, tanya-jawab…" aria-label="Cari" autocomplete="off"></div>
+  <div id="isiPeng"></div>
 
-  <!-- Jadwal seminar dan sidang TA (94-patch-jadwal-ta.sql, pemilik 2026-11-17): dari data.json jadwal_ta. -->
-  <section id="jadwal-ta" hidden>
+  <!-- Jadwal seminar dan sidang TA (94-patch-jadwal-ta.sql, pemilik 2026-11-17): dari data.json jadwal_ta. Selalu tampil (tombol utama). -->
+  <section id="jadwal-ta">
     <h2 class="besar">Jadwal seminar dan sidang TA</h2>
     <p class="ket">Seminar proposal, seminar kemajuan, dan sidang akhir yang terbuka untuk dihadiri. Pendaftaran tetap lewat SIUP.
       Nama mahasiswa hanya ditampilkan bila yang bersangkutan setuju.</p>
-    <div id="jadwalIsi"></div>
+    <div id="jadwalIsi"><p class="kosong">Memuat…</p></div>
   </section>
+
+  <div id="isi"></div>
 
   <!-- Cari calon pembimbing TA (pemilik 2026-11-16; pembimbing.js). -->
   <section id="pembimbing">
@@ -130,7 +141,7 @@
     <div id="pbIsi"><p class="kosong">Memuat…</p></div>
   </section>
 
-  <section id="tanya-jawab">
+  <section id="tanya-jawab" hidden>
     <h2 class="besar">Tanya-jawab</h2>
     <div id="faq"><p class="kosong">Memuat…</p></div>
   </section>
@@ -160,7 +171,7 @@
   <footer>Pertanyaan tentang isi berkas: hubungi sekretariat program studi.
     · <a href="kurikulum.html">Kurikulum</a> · <a href="privasi.html">Kebijakan privasi</a></footer>
 </main>
-<script src="config.js?v=2026-11-19-8a9cbb"></script>
+<script src="config.js?v=2026-11-19-a1feb3"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -182,8 +193,8 @@ addEventListener('error', function (e) {
 //   Tanya-jawab: tanya_jawab_publik() (78), disusun admin di kelola-layanan-mahasiswa.html.
 //   Kiriman: kirim_masukan_mahasiswa() (78) ke kotak masuk tertutup; kolom k_situs adalah jebakan bot.
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { infoJenis } from './rencana-bukti.js?v=2026-11-19-8a9cbb';
-import { pasangPembimbing } from './pembimbing.js?v=2026-11-19-8a9cbb';
+import { infoJenis } from './rencana-bukti.js?v=2026-11-19-a1feb3';
+import { pasangPembimbing } from './pembimbing.js?v=2026-11-19-a1feb3';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
@@ -192,7 +203,7 @@ const sb = createClient(window.SB_URL, window.SB_KEY, { auth: { persistSession: 
 
 // Jadwal seminar/sidang TA (bangun.py jadwal_ta_publik): akan datang dulu, lalu yang baru lewat (14 hari).
 function gambarJadwal(xs){
-  if (!xs.length) return;
+  if (!xs.length) { $('jadwalIsi').innerHTML = '<p class="kosong">Belum ada jadwal seminar/sidang yang terbuka untuk dihadiri.</p>'; return; }
   const kini = new Date().toISOString().slice(0, 10);
   const tgl = s => new Date(s + 'T00:00').toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
   const nama = x => !x.mahasiswa?.length ? 'Mahasiswa TA' : x.mahasiswa.join(', ');
@@ -206,7 +217,6 @@ function gambarJadwal(xs){
   $('jadwalIsi').innerHTML = (akan.length ? `<h3 class="sub-j">Akan datang</h3><ul class="daftar">${akan.map(li).join('')}</ul>`
       : '<p class="kosong">Belum ada jadwal mendatang.</p>')
     + (lewat.length ? `<h3 class="sub-j">Baru lewat</h3><ul class="daftar">${lewat.map(li).join('')}</ul>` : '');
-  $('jadwal-ta').hidden = false;
 }
 
 fetch('data.json?v=' + Date.now()).then(r => r.ok ? r.json() : {}).catch(() => ({}))
@@ -252,18 +262,25 @@ function gambar(){
   const xs = DOK.filter(d => cocok(q, d.judul, d.isi, infoJenis(d.jenis).nama, d.nomor, d.tahun));
   const gs = kelompok(xs), peng = gs.find(g => g.jenis === 'pengumuman'), lain = gs.filter(g => g.jenis !== 'pengumuman');
   const daftar = g => `<ul class="daftar${g.jenis === 'pengumuman' ? ' pengumuman' : ''}">${g.xs.map(baris).join('')}</ul>`;
-  $('isi').innerHTML = `<section id="pengumuman"><h2>Pengumuman${peng ? `<span class="n">${peng.xs.length}</span>` : ''}</h2>
-      ${peng ? daftar(peng) : `<p class="kosong">${q ? 'Tidak ada pengumuman yang cocok.' : 'Belum ada pengumuman yang berlaku.'}</p>`}</section>
-    <section id="berkas"><h2 class="besar">Berkas</h2>
+  // Bagian kosong tidak ditampilkan (pemilik 2026-11-19); saat mencari, bagian yang punya isi tetap tampil dengan pesan "tidak cocok".
+  const adaPeng = DOK.some(d => d.jenis === 'pengumuman'), adaBerkas = DOK.some(d => d.jenis !== 'pengumuman');
+  $('isiPeng').innerHTML = adaPeng ? `<section id="pengumuman"><h2>Pengumuman${peng ? `<span class="n">${peng.xs.length}</span>` : ''}</h2>
+      ${peng ? daftar(peng) : '<p class="kosong">Tidak ada pengumuman yang cocok.</p>'}</section>` : '';
+  $('isi').innerHTML = adaBerkas ? `<section id="berkas"><h2 class="besar">Pedoman dan berkas</h2>
       ${lain.length ? lain.map(g => `<h2>${esc(g.nama)}<span class="n">${g.xs.length}</span></h2>${daftar(g)}`).join('')
-        : `<p class="kosong">${q ? 'Tidak ada berkas yang cocok.' : 'Belum ada berkas yang dibagikan untuk mahasiswa.'}</p>`}</section>`;
+        : '<p class="kosong">Tidak ada berkas yang cocok.</p>'}</section>` : '';
+  document.querySelector('[data-ada="pengumuman"]').hidden = !adaPeng;
+  document.querySelector('[data-ada="berkas"]').hidden = !adaBerkas;
+  $('kotakCari').hidden = !(DOK.length || FAQ.length);
   gambarFaq(q);
 }
 
 function gambarFaq(q){
-  if (GAGAL_FAQ) { $('faq').innerHTML = '<p class="kosong">Tanya-jawab belum tersedia.</p>'; return; }
+  $('tanya-jawab').hidden = GAGAL_FAQ || !FAQ.length;   // kosong: tidak ditampilkan (pemilik 2026-11-19)
+  document.querySelector('[data-ada="faq"]').hidden = $('tanya-jawab').hidden;
+  if ($('tanya-jawab').hidden) return;
   const xs = FAQ.filter(f => cocok(q, f.topik, f.pertanyaan, f.jawaban));
-  if (!xs.length) { $('faq').innerHTML = `<p class="kosong">${q ? 'Tidak ada tanya-jawab yang cocok.' : 'Belum ada tanya-jawab. Kirim pertanyaan Anda di bawah.'}</p>`; return; }
+  if (!xs.length) { $('faq').innerHTML = '<p class="kosong">Tidak ada tanya-jawab yang cocok.</p>'; return; }
   const m = new Map();
   xs.forEach(f => { const k = f.topik || ''; if (!m.has(k)) m.set(k, []); m.get(k).push(f); });
   const topik = [...m.keys()].sort((a, b) => (a === '') - (b === '') || a.localeCompare(b, 'id'));
@@ -283,7 +300,7 @@ FAQ = rf.data || [];
 DOK = [...(rb.data || []).filter(d => /^https?:\/\//i.test(d.url || '')),
        ...(rp.data || []).map(p => ({ ...p, jenis: 'pengumuman', teks: true }))];
 if (rb.error && rp.error) {
-  $('isi').innerHTML = '<p class="msg buruk">Pengumuman dan berkas belum tersedia. Coba lagi nanti.</p>';
+  $('isi').innerHTML = '';
   gambarFaq('');
 } else {
   gambar();

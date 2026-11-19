@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-19-8a9cbb">
+<link rel="stylesheet" href="tema.css?v=2026-11-19-a1feb3">
 <style>
   /* Pengajuan mahasiswa, publik tanpa masuk akun (pemilik 2026-11-17; patch 90). Warna dari tema.css. */
   *{box-sizing:border-box}
@@ -44,6 +44,13 @@
   button.b:disabled{opacity:.6;cursor:default}
   button.b:focus-visible{outline:2px solid var(--biru);outline-offset:2px}
   .msg{font-size:14px;margin-left:8px} .msg.buruk{color:var(--merah)} .msg.ok{color:var(--hijau)}
+  /* Susunan halaman pengajuan (pemilik 2026-11-19) */
+  ol.langkah{margin:14px 0 6px;padding-left:22px;font-size:14.5px} ol.langkah li{margin:3px 0}
+  .info-jenis{margin:4px 0 2px;padding:8px 12px;border-left:3px solid var(--biru);background:var(--panel);font-size:13.5px;color:var(--ink)}
+  details.bantuan{margin-top:22px;border:1px solid var(--line);border-radius:10px;padding:0 14px;background:var(--panel)}
+  details.bantuan>summary{cursor:pointer;font-weight:600;padding:12px 0;color:var(--biru)}
+  details.bantuan[open]{padding-bottom:14px}
+  details.bantuan h2{font-size:16.5px;margin:16px 0 4px;scroll-margin-top:12px}
   /* Jalur proses */
   .jalur{list-style:none;margin:8px 0 0;padding:0;display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
   @media (max-width:640px){.jalur{grid-template-columns:1fr}}
@@ -75,7 +82,7 @@
   <h1>Pengajuan KP, seminar/sidang TA, lomba, publikasi/luaran, dan surat</h1><div class="prodi" id="hProdi"></div>
 </div></header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-19-8a9cbb"></script>
+<script src="config.js?v=2026-11-19-a1feb3"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -96,8 +103,8 @@ addEventListener('error', function (e) {
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
 import { JENIS, LABEL_BERKAS, LABEL_STATUS, TINGKAT, BIDANG, jalur, bolehUbah, bacaAnggota, teksAnggota,
          periksaIsian, judulPengajuan, keB64, bukaIsi, appsScript, labelStatus, jalurTahap, BERKAS_SELESAI, PROGRAM_KP, labelProgram,
-         periksaSelesai, JENIS_SURAT, TAHAP_TA, TAHAP_TA_AJU, TAHAP_PEMBIMBING_TA, penetapanTA, pembimbingCocok, JENIS_PUB, TINGKAT_PUB, INDEKSASI, JENIS_LUARAN } from './pengajuan-mhs.js?v=2026-11-19-8a9cbb';
-import { saranInstansi } from './rekap-kp.js?v=2026-11-19-8a9cbb';
+         periksaSelesai, JENIS_SURAT, TAHAP_TA, TAHAP_TA_AJU, TAHAP_PEMBIMBING_TA, penetapanTA, pembimbingCocok, JENIS_PUB, TINGKAT_PUB, INDEKSASI, JENIS_LUARAN } from './pengajuan-mhs.js?v=2026-11-19-a1feb3';
+import { saranInstansi } from './rekap-kp.js?v=2026-11-19-a1feb3';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
@@ -270,54 +277,64 @@ function bacaIsian(jenis){
 
 // ---------- tanpa token: pengajuan baru ----------
 function halamanBaru(){
+  // Susunan (pemilik 2026-11-19): 3 langkah; kartu jenis ringkas, keterangan lengkap hanya untuk jenis terpilih; bantuan dilipat.
   $('isi').innerHTML = `
-    <p class="ket">Isi data, lalu tautan pribadi dikirim ke <b>email kampus Anda</b> (NIM@domain mahasiswa). Lewat tautan itu
-      Anda mengunggah berkas, memeriksa isian, menekan <b>Kirim untuk diperiksa</b>, dan memantau prosesnya. Pengajuan KP diperiksa
-      koordinator KP, yang juga menetapkan dosen pembimbing; laporan lomba cukup disahkan dosen pembimbing atau pembina kemahasiswaan; TA diperiksa dosen pembimbing, lalu admin prodi. Berkas tidak tampil di situs. <a href="privasi.html">Kebijakan privasi</a>.</p>
+    <ol class="langkah">
+      <li><b>Pilih jenis</b> dan isi data di bawah.</li>
+      <li><b>Buka email kampus</b> Anda (NIM@domain mahasiswa; periksa juga Spam): tautan pribadi dikirim ke sana.</li>
+      <li>Lewat tautan itu <b>unggah berkas</b>, tekan <b>Kirim untuk diperiksa</b>, lalu pantau prosesnya.</li>
+    </ol>
     <form class="kotak" id="frm" novalidate>
       <div class="pilih" role="radiogroup" aria-label="Jenis pengajuan">
-        <label><input type="radio" name="jenis" value="kp" checked><span>Pengajuan KP<small>surat pengantar ke instansi; usulkan
-          dosen pembimbing (ditetapkan koordinator KP). Sudah diterima instansi tanpa surat pengantar? Unggah surat balasannya.
-          Pelaporan selesai KP menyusul lewat tautan yang sama</small></span></label>
-        <label><input type="radio" name="jenis" value="lomba"><span>Laporan lomba<small>lomba atau kompetisi yang sudah diikuti;
-          disahkan dosen pembimbing atau pembina kemahasiswaan (siapa pun lebih dulu), lalu tercatat sebagai prestasi mahasiswa</small></span></label>
-        <label><input type="radio" name="jenis" value="ta"><span>Seminar/sidang TA<small>seminar proposal, seminar kemajuan,
-          atau sidang akhir; jadwal dan penguji ditetapkan prodi, lalu diinput ke SIUP</small></span></label>
-        <label><input type="radio" name="jenis" value="luaran"><span>Publikasi/luaran<small>artikel, prosiding, HKI, produk, buku;
-          karya mandiri tercatat untuk akreditasi</small></span></label>
-        <label><input type="radio" name="jenis" value="surat"><span>Permohonan surat<small>keterangan aktif kuliah, izin penelitian,
-          atau rekomendasi; ditandatangani Kaprodi</small></span></label>
+        <label><input type="radio" name="jenis" value="kp" checked><span>Kerja Praktik / magang<small>surat pengantar ke instansi</small></span></label>
+        <label><input type="radio" name="jenis" value="ta"><span>Seminar/sidang TA<small>proposal, kemajuan, sidang akhir</small></span></label>
+        <label><input type="radio" name="jenis" value="lomba"><span>Laporan lomba<small>lomba yang sudah diikuti</small></span></label>
+        <label><input type="radio" name="jenis" value="luaran"><span>Publikasi/luaran<small>artikel, prosiding, HKI, produk, buku</small></span></label>
+        <label><input type="radio" name="jenis" value="surat"><span>Permohonan surat<small>aktif kuliah, izin penelitian, rekomendasi</small></span></label>
       </div>
+      <p class="info-jenis" id="infoJenis"></p>
       <div class="fld"><label for="f_nim">NIM</label><input id="f_nim" inputmode="numeric" maxlength="15" autocomplete="off"></div>
       <div id="isian"></div>
       <div class="jebakan" aria-hidden="true"><label for="f_situs">Situs web</label><input id="f_situs" type="text" tabindex="-1" autocomplete="off"></div>
       <p><button type="submit" class="b utama" id="b_ajukan">Buat pengajuan dan kirim tautan</button><span class="msg" id="m_ajukan" role="status"></span></p>
+      <p class="ket">Berkas tidak tampil di situs. <a href="privasi.html">Kebijakan privasi</a>.</p>
     </form>
-    <h2>KP sudah selesai?</h2>
-    <div class="kotak"><p style="margin:0">KP yang sudah selesai sebelum layanan ini dipakai dilaporkan lewat formulir
-      <b>Pelaporan selesai KP</b>: tanpa surat permohonan dan surat pengantar.</p>
-      <p><a class="b" href="pengajuan.html?lapor=kp">Buka formulir pelaporan selesai KP</a></p></div>
-    <h2>Sudah pernah mengajukan?</h2>
-    <form class="kotak" id="frmUlang" novalidate>
-      <p class="ket" style="margin-top:0">Tautan hilang atau tidak berlaku? Tulis NIM; tautan baru untuk semua pengajuan Anda dikirim
-        ke email kampus (tautan lama tidak berlaku lagi).</p>
-      <div class="fld"><label for="u_nim">NIM</label><input id="u_nim" inputmode="numeric" maxlength="15" autocomplete="off"></div>
-      <div class="jebakan" aria-hidden="true"><input id="u_situs" type="text" tabindex="-1" autocomplete="off"></div>
-      <button type="submit" class="b" id="b_ulang">Kirim tautan baru</button><span class="msg" id="m_ulang" role="status"></span>
-    </form>
-    <h2>Email kampus bermasalah?</h2>
-    <form class="kotak" id="frmAlt" novalidate>
-      <p class="ket" style="margin-top:0">Daftarkan email alternatif (mis. Gmail). Tautan konfirmasi dikirim ke <b>email kampus</b>;
-        sesudah Anda membukanya, tautan dan kabar pengajuan dikirim ke email kampus <b>dan</b> email alternatif.</p>
-      <div class="fld"><label for="a_nim">NIM</label><input id="a_nim" inputmode="numeric" maxlength="15" autocomplete="off"></div>
-      <div class="fld"><label for="a_email">Email alternatif</label><input id="a_email" type="email" maxlength="120" autocomplete="email"></div>
-      <div class="jebakan" aria-hidden="true"><input id="a_situs" type="text" tabindex="-1" autocomplete="off"></div>
-      <button type="submit" class="b" id="b_alt">Kirim tautan konfirmasi</button><span class="msg" id="m_alt" role="status"></span>
-      <p class="ket">Email kampus sama sekali tidak bisa dibuka? Datang ke admin prodi atau koordinator KP/TA dengan KTM;
-        mereka bisa mendaftarkan email alternatif Anda langsung.</p>
-    </form>`;
+    <details class="bantuan" id="bantuan">
+      <summary>Butuh bantuan? Tautan hilang, email kampus bermasalah, atau KP sudah selesai</summary>
+      <h2 id="tautan">Tautan pengajuan hilang atau tidak berlaku</h2>
+      <form class="kotak" id="frmUlang" novalidate>
+        <p class="ket" style="margin-top:0">Tulis NIM; tautan baru untuk semua pengajuan Anda dikirim ke email kampus (tautan lama tidak berlaku lagi).</p>
+        <div class="fld"><label for="u_nim">NIM</label><input id="u_nim" inputmode="numeric" maxlength="15" autocomplete="off"></div>
+        <div class="jebakan" aria-hidden="true"><input id="u_situs" type="text" tabindex="-1" autocomplete="off"></div>
+        <button type="submit" class="b" id="b_ulang">Kirim tautan baru</button><span class="msg" id="m_ulang" role="status"></span>
+      </form>
+      <h2 id="email">Email kampus bermasalah</h2>
+      <form class="kotak" id="frmAlt" novalidate>
+        <p class="ket" style="margin-top:0">Daftarkan email alternatif (mis. Gmail). Tautan konfirmasi dikirim ke <b>email kampus</b>;
+          sesudah Anda membukanya, tautan dan kabar pengajuan dikirim ke email kampus <b>dan</b> email alternatif.</p>
+        <div class="fld"><label for="a_nim">NIM</label><input id="a_nim" inputmode="numeric" maxlength="15" autocomplete="off"></div>
+        <div class="fld"><label for="a_email">Email alternatif</label><input id="a_email" type="email" maxlength="120" autocomplete="email"></div>
+        <div class="jebakan" aria-hidden="true"><input id="a_situs" type="text" tabindex="-1" autocomplete="off"></div>
+        <button type="submit" class="b" id="b_alt">Kirim tautan konfirmasi</button><span class="msg" id="m_alt" role="status"></span>
+        <p class="ket">Email kampus sama sekali tidak bisa dibuka? Datang ke admin prodi atau koordinator KP/TA dengan KTM;
+          mereka bisa mendaftarkan email alternatif Anda langsung.</p>
+      </form>
+      <h2>KP sudah selesai sebelum layanan ini dipakai</h2>
+      <div class="kotak"><p style="margin:0">Laporkan lewat formulir <b>Pelaporan selesai KP</b>: tanpa surat permohonan dan surat pengantar.</p>
+        <p><a class="b" href="pengajuan.html?lapor=kp">Buka formulir pelaporan selesai KP</a></p></div>
+    </details>`;
   const jenis = () => document.querySelector('[name=jenis]:checked').value;
-  const gambar = () => { $('isian').innerHTML = htmlIsian(jenis(), {}, '', jenis() === 'kp' ? PB_AWAL : ''); pasangSurat(); pasangLuaran(); pasangTA(); isiSaran(); };
+  const INFO_JENIS = {
+    kp: 'Diperiksa koordinator KP, yang juga menetapkan dosen pembimbing. Sudah diterima instansi tanpa surat pengantar? Ajukan juga, lalu unggah surat balasannya. Pelaporan selesai KP menyusul lewat tautan yang sama.',
+    ta: 'Diperiksa dosen pembimbing, lalu admin prodi. Jadwal dan penguji ditetapkan prodi, lalu Anda input ke SIUP.',
+    lomba: 'Disahkan dosen pembimbing atau pembina kemahasiswaan (siapa pun lebih dulu), lalu tercatat sebagai prestasi mahasiswa.',
+    luaran: 'Karya Anda (juga yang mandiri) tercatat untuk akreditasi program studi.',
+    surat: 'Surat ditandatangani Kaprodi dan diunduh lewat tautan pribadi Anda.' };
+  const gambar = () => { $('infoJenis').textContent = INFO_JENIS[jenis()] || '';
+    $('isian').innerHTML = htmlIsian(jenis(), {}, '', jenis() === 'kp' ? PB_AWAL : ''); pasangSurat(); pasangLuaran(); pasangTA(); isiSaran(); };
+  // #tautan / #email / #bantuan (mis. dari "Cek pengajuan saya"): bantuan dibuka dan digulir ke bagiannya.
+  const sasaran = { '#tautan': 'tautan', '#email': 'email', '#bantuan': 'bantuan' }[location.hash];
+  if (sasaran) { $('bantuan').open = true; setTimeout(() => { $(sasaran).scrollIntoView(); if (sasaran === 'tautan') $('u_nim').focus({ preventScroll: true }); }, 0); }
   document.querySelectorAll('[name=jenis]').forEach(r => { r.onchange = gambar; });
   const awal = document.querySelector(`[name=jenis][value="${CSS.escape(JENIS_AWAL)}"]`);
   if (awal) awal.checked = true;

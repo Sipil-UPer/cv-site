@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-19-8a9cbb">
-<link rel="stylesheet" href="kepala.css?v=2026-11-19-8a9cbb">
+<link rel="stylesheet" href="tema.css?v=2026-11-19-a1feb3">
+<link rel="stylesheet" href="kepala.css?v=2026-11-19-a1feb3">
 <style>
   *{box-sizing:border-box}
   [hidden]{display:none !important}   /* .ubah berdisplay flex mengalahkan hidden */
@@ -48,7 +48,7 @@
 </div></header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
 <datalist id="daftarNama"></datalist>
-<script src="config.js?v=2026-11-19-8a9cbb"></script>
+<script src="config.js?v=2026-11-19-a1feb3"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -69,11 +69,11 @@ addEventListener('error', function (e) {
 //   koordinator KP / admin : atur kuota (kp_atur_kuota), bakukan nama instansi, usulkan menjadi mitra atau tidak, bukti KP selesai + tautan asesor;
 //   asesor (akun)   : bukti KP selesai (laporan KP, surat selesai).
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-19-8a9cbb';
-import { punya } from './koordinator.js?v=2026-11-19-8a9cbb';
-import { appsScript, bukaIsi, waktuPengajuan } from './pengajuan-mhs.js?v=2026-11-19-8a9cbb';
-import { rekapKP, buktiSelesai, dariRekap, rapiNama, barisKuota } from './rekap-kp.js?v=2026-11-19-8a9cbb';
-import { opsiPeriode, cocokPeriode, tsBerjalan } from './sdgs-unduh.js?v=2026-11-19-8a9cbb';
+import { gerbang } from './menu.js?v=2026-11-19-a1feb3';
+import { punya } from './koordinator.js?v=2026-11-19-a1feb3';
+import { appsScript, bukaIsi, waktuPengajuan } from './pengajuan-mhs.js?v=2026-11-19-a1feb3';
+import { rekapKP, buktiSelesai, dariRekap, rapiNama, barisKuota } from './rekap-kp.js?v=2026-11-19-a1feb3';
+import { opsiPeriode, cocokPeriode, tsBerjalan } from './sdgs-unduh.js?v=2026-11-19-a1feb3';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);

@@ -1,11 +1,11 @@
 // Kerangka halaman publik (pemilik 2026-11-16): kepala bergaya situs universitas (deret logo di bilah
 // biru, nama prodi, menu turun) dan kaki halaman yang sama di halaman publik. Pemakaian:
-//   import { pasangKerangka, isiKerangka } from './kerangka.js?v=2026-11-19-8a9cbb';
+//   import { pasangKerangka, isiKerangka } from './kerangka.js?v=2026-11-19-a1feb3';
 //   pasangKerangka({ aktif: 'akademik' });   // segera, sebelum data.json
 //   isiKerangka(D);                           // setelah data.json: nama prodi, kontak, media sosial
 // Logo: window.LOGO_KEPALA di config.js; tanpa itu logo.png. Menu hanya memuat halaman yang ada
 // dan modul yang menyala (fitur.js). Tautan relatif (situs akan pindah ke subdomain kampus).
-import { halamanAktif } from './fitur.js?v=2026-11-19-8a9cbb';
+import { halamanAktif } from './fitur.js?v=2026-11-19-a1feb3';
 
 export const MENU = [
   { id: 'profil', judul: 'Profil', isi: [
@@ -30,13 +30,15 @@ export const MENU = [
     { judul: 'Kontribusi SDGs', href: 'sdgs.html' },
   ] },
   { id: 'mahasiswa', judul: 'Mahasiswa', isi: [
-    { judul: 'Pengumuman', href: 'layanan-mahasiswa.html#pengumuman' },
-    { judul: 'Prestasi mahasiswa', href: 'prestasi.html' },
+    // Selaras dengan 4 tombol utama Layanan mahasiswa (pemilik 2026-11-19).
+    { judul: 'Layanan mahasiswa', href: 'layanan-mahasiswa.html' },
+    { judul: 'Ajukan KP, TA, lomba, luaran, surat', href: 'pengajuan.html' },
+    { judul: 'Jadwal seminar/sidang TA', href: 'layanan-mahasiswa.html#jadwal-ta' },
     { judul: 'Kerja praktik dan magang', href: 'kerja-praktik.html' },
-    { judul: 'Alumni dan tracer study', href: 'alumni.html' },
     { judul: 'Calon pembimbing TA', href: 'layanan-mahasiswa.html#pembimbing' },
-    { judul: 'Tanya-jawab', href: 'layanan-mahasiswa.html#tanya-jawab' },
-    { judul: 'Kirim pertanyaan / masukan', href: 'layanan-mahasiswa.html#kirim' },
+    { judul: 'Tanya prodi', href: 'layanan-mahasiswa.html#kirim' },
+    { judul: 'Prestasi mahasiswa', href: 'prestasi.html' },
+    { judul: 'Alumni dan tracer study', href: 'alumni.html' },
   ] },
   // Berita: tautan ke halaman berita prodi (config.yaml public_site.news_url), muncul setelah data dimuat.
   { id: 'berita', judul: 'Berita', href: '#', isi: [] },
