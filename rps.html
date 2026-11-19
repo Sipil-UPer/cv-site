@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-19-a13f17">
-<link rel="stylesheet" href="kepala.css?v=2026-11-19-a13f17">
+<link rel="stylesheet" href="tema.css?v=2026-11-19-80149f">
+<link rel="stylesheet" href="kepala.css?v=2026-11-19-80149f">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
@@ -61,7 +61,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-19-a13f17"></script>
+<script src="config.js?v=2026-11-19-80149f"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -81,15 +81,16 @@ addEventListener('error', function (e) {
 // Penyusun = koordinator MK atau pengampu kelas MK semester terakhir (boleh_rps, 112); GKM dan admin hanya melihat.
 // Pengesahan (112): dosen mengajukan -> Kaprodi aktif mengesahkan atau mengembalikan; daftar revisi (bagian F) otomatis.
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-19-a13f17';
-import { bolehMutu, aktifPada, punya } from './koordinator.js?v=2026-11-19-a13f17';
-import { cplMK } from './cpmk.js?v=2026-11-19-a13f17';
+import { gerbang } from './menu.js?v=2026-11-19-80149f';
+import { bolehMutu, aktifPada, punya } from './koordinator.js?v=2026-11-19-80149f';
+import { cplMK } from './cpmk.js?v=2026-11-19-80149f';
 import { JENIS_ASESMEN, JENIS_MK, DIREKTORI, jenisAsesmen, bloom, hots, rapikanRps, kerangkaPekan, barisPekan, periksaRps, modelRps,
-  namaBerkasRps, penyusunMK, revisiDariLog, tanggalLokal, waktuLokal, evaluasiDariData, BENTUK, SCL, rekapRps, BENTUK_INTEGRASI } from './rps.js?v=2026-11-19-a13f17';
-import { JENIS_PETA, relasiPeta, petaSvg } from './rps-peta.js?v=2026-11-19-a13f17';
-import { keB64 } from './pengajuan-mhs.js?v=2026-11-19-a13f17';
-import { bacaTinjauan, bahanTinjauan } from './tinjauan-rps.js?v=2026-11-19-a13f17';
-import { buatRpsDocx } from './rps-docx.js?v=2026-11-19-a13f17';
+  namaBerkasRps, penyusunMK, revisiDariLog, tanggalLokal, waktuLokal, evaluasiDariData, BENTUK, SCL, rekapRps, BENTUK_INTEGRASI,
+  bedaRps, salinRps } from './rps.js?v=2026-11-19-80149f';
+import { JENIS_PETA, relasiPeta, petaSvg } from './rps-peta.js?v=2026-11-19-80149f';
+import { keB64 } from './pengajuan-mhs.js?v=2026-11-19-80149f';
+import { bacaTinjauan, bahanTinjauan } from './tinjauan-rps.js?v=2026-11-19-80149f';
+import { buatRpsDocx } from './rps-docx.js?v=2026-11-19-80149f';
 
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -290,6 +291,7 @@ function htmlSah(){
         <div class="ket">${galat ? `Daftar periksa masih ${galat} butir belum lengkap.` : 'Daftar periksa lengkap.'} Sahkan = RPS dan bagian B saat ini disimpan sebagai
           versi resmi dan mata kuliah terhitung RPS ada di penilaian; bukti untuk asesor = RPS bertanda tangan Dekan yang diunggah.</div>
         ${BOLEH.has(PILIH) ? '<div style="color:#8A5A00">Anda juga penyusun mata kuliah ini (koordinator/pengampu); pengesahan Anda akan ditandai di riwayat dan di Word.</div>' : ''}` : ''}
+    ${htmlBeda(r)}
     ${log.length ? `<details><summary class="ket">Riwayat pengesahan (${log.length})</summary><ul>${log.map(l => `<li>${esc(waktuLokal(l.waktu))}
       · ${esc({ ajukan: 'diajukan', kembalikan: 'dikembalikan', sahkan: 'disahkan' }[l.aksi])} oleh ${esc(l.oleh_nama || '')}${l.penyusun_sendiri ? ' <b>(Kaprodi sekaligus penyusun)</b>' : ''}${l.catatan ? `: ${esc(l.catatan)}` : ''}</li>`).join('')}</ul></details>` : ''}
     <span class="msg" id="mSah"></span></div>`;
@@ -395,8 +397,34 @@ function htmlAda(path, nilai){
     <label><input type="radio" name="${path}" data-pb="${path}" value="0"${nilai === false ? ' checked' : ''}${dis()}> Tidak ada</label></span>`;
 }
 
+// Perubahan dibanding versi disahkan (pemilik 2026-11-19): terbuka otomatis untuk Kaprodi saat RPS revisi diajukan.
+function htmlBeda(r){
+  if (!r?.sah || r.status === 'disahkan') return '';
+  // Kedua sisi dirapikan (nilai bawaan, kolom baru) supaya yang tampil hanya perubahan isian sungguhan.
+  const sah = rapikanRps(JSON.parse(JSON.stringify(r.sah.rps || {})), mkDari(PILIH), SITUS);
+  const xs = bedaRps(sah, R || {}, r.sah.struktur || null, STR.get(PILIH) || null);
+  const potong = s => (s.length > 400 ? s.slice(0, 400) + '…' : s);
+  return `<details${SAYA_KAPRODI && r.status === 'diajukan' ? ' open' : ''}><summary class="ket"><b>Perubahan dibanding versi disahkan</b> (${xs.length} isian)</summary>
+    ${xs.length ? `<div class="gulir"><table class="ds"><thead><tr><th>Bagian</th><th>Isian</th><th>Sebelumnya</th><th>Sekarang</th></tr></thead><tbody>
+      ${xs.slice(0, 80).map(x => `<tr><td>${esc(x.bagian)}</td><td>${esc(x.label)}</td><td style="white-space:pre-wrap">${esc(potong(x.lama)) || '<span class="kosong">kosong</span>'}</td>
+        <td style="white-space:pre-wrap">${esc(potong(x.baru)) || '<span class="kosong">kosong</span>'}</td></tr>`).join('')}</tbody></table></div>
+      ${xs.length > 80 ? `<p class="ket">dan ${xs.length - 80} isian lain.</p>` : ''}` : '<p class="ket">Belum ada perubahan dibanding versi disahkan.</p>'}</details>`;
+}
+
+// Salin dari RPS lain (pemilik 2026-11-19): bagian C dan rencana pekanan sebagai titik awal.
+function htmlSalin(){
+  const xs = [...RPS.entries()].filter(([k, r]) => k !== PILIH && r?.data).map(([k]) => mkDari(k)).filter(Boolean)
+    .sort((a, b) => a.kurikulum.localeCompare(b.kurikulum) || a.kode.localeCompare(b.kode));
+  if (!xs.length) return '';
+  return `<div class="alat"><label>Salin dari RPS lain <select id="salinSumber"><option value="">(pilih MK)</option>${xs.map(m =>
+      `<option value="${esc(kunci(m.kurikulum, m.kode))}">${esc(m.kode)} ${esc(m.nama)} (${esc(m.kurikulum)})</option>`).join('')}</select></label>
+    <button class="b" id="salinDari">Salin bagian C dan rencana pekanan</button>
+    <span class="ket">Titik awal saja: identitas, pengampu, evaluasi, dan peta tidak disalin; periksa lalu Simpan.</span></div>`;
+}
+
 function htmlC(){
   return `<section class="kartu"><h2>C. Tujuan dan deskripsi mata kuliah</h2>
+    ${ro() ? '' : htmlSalin()}
     <label class="fld"><span>Tujuan MK (3-5 poin, sesuai silabus K26; satu poin per baris)</span><textarea data-p="tujuan"${dis()}>${esc(R.tujuan)}</textarea></label>
     <label class="fld"><span>Deskripsi dan bahan kajian (sesuai silabus K26)</span><textarea data-p="deskripsi" style="min-height:90px"${dis()}>${esc(R.deskripsi)}</textarea></label>
     <div class="dua">
@@ -542,6 +570,12 @@ function ubahBesar(f){ f(); KOTOR = true; gambar(); }
 
 function pasang(){
   if ($('simpan')) $('simpan').onclick = simpan;
+  if ($('salinDari')) $('salinDari').onclick = () => {
+    const k = $('salinSumber').value, src = RPS.get(k)?.data;
+    if (!src) return tulis('mSimpan', 'buruk', 'Pilih MK sumber.');
+    if (!confirm(`Salin bagian C dan rencana pekanan dari ${k.split('|')[1]}? Isian bagian C dan D di RPS ini akan diganti (belum tersimpan sampai Anda klik Simpan).`)) return;
+    R = salinRps(R, src, STR.get(PILIH)); KOTOR = true; gambar(); tulis('mSimpan', '', `Disalin dari ${k.split('|')[1]}; periksa lalu Simpan.`);
+  };
   if ($('pulihkan')) $('pulihkan').onclick = () => { R = rapikanRps(PULIH.R, mkDari(PILIH), SITUS); PULIH = null; KOTOR = true; gambar();
     tulis('mSimpan', '', 'Isian dipulihkan; periksa lalu Simpan.'); };
   if ($('buangDraf')) $('buangDraf').onclick = () => { hapusDraf(PILIH); PULIH = null; gambar(); };

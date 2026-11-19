@@ -431,3 +431,73 @@ export function butir18(sks = {}){
 
 /** Nama berkas Word, mis. "RPS_K26_13301_Mekanika_Teknik.docx". */
 export const namaBerkasRps = mk => `RPS_${teks(mk.kurikulum)}_${teks(mk.kode)}_${teks(mk.nama).replace(/[^\p{L}\p{N}]+/gu, '_').replace(/^_|_$/g, '')}.docx`;
+
+// ---------- Perubahan dibanding versi disahkan dan salin dari RPS lain (pemilik 2026-11-19) ----------
+const ISIAN_BEDA = [['A', 'identitas.jenis_mk', 'Jenis MK'], ['A', 'identitas.sks', 'Bobot sks T/P/PL/S'], ['A', 'identitas.semester', 'Semester'],
+  ['A', 'identitas.penyelenggara', 'Penyelenggara'], ['A', 'pengembang', 'Dosen pengembang'], ['C', 'tujuan', 'Tujuan'],
+  ['C', 'deskripsi', 'Deskripsi dan bahan kajian'], ['C', 'pengampu', 'Pengampu'], ['C', 'syarat', 'MK syarat'], ['C', 'pustaka', 'Pustaka'],
+  ['C', 'kriteria', 'Kriteria ketercapaian'], ['C', 'scl', 'Metode SCL'], ['C', 'integrasi', 'Integrasi penelitian/PkM'],
+  ['C', 'direktori', 'Direktori Kompetensi Teknis'], ['Peta', 'peta', 'Peta Analisis'], ['E', 'evaluasi', 'Evaluasi penyelenggaraan sebelumnya']];
+const KOLOM_PEKAN = [['sub', 'Sub-CPMK'], ['asesmen', 'Asesmen sumatif'], ['materi', 'Materi'], ['pustaka', 'Pustaka'], ['indikator', 'Indikator'],
+  ['bentuk', 'Bentuk dan kriteria asesmen'], ['luring', 'Luring'], ['daring', 'Daring'], ['bentuk_pb', 'Bentuk pembelajaran'], ['scl', 'Metode SCL'],
+  ['penugasan', 'Penugasan']];
+const ambil = (o, jalur) => jalur.split('.').reduce((x, k) => x?.[k], o);
+/** Nilai isian sebagai teks ringkas untuk tabel perubahan. */
+export function teksNilai(v){
+  if (v == null || v === '') return '';
+  if (Array.isArray(v)) return v.map(teksNilai).filter(Boolean).join('; ');
+  if (typeof v === 'object') {
+    if ('kode' in v && 'teks' in v) return [teks(v.kode), teks(v.teks)].filter(Boolean).join(': ');
+    if ('judul' in v) return teks(v.judul);
+    if ('t' in v && 'p' in v) return ['t', 'p', 'pl', 's'].map(k => `${k.toUpperCase()}=${teks(v[k]) || 0}`).join(' ');
+    return Object.entries(v).map(([k, x]) => [k, teksNilai(x)]).filter(([, x]) => x !== '').map(([k, x]) => `${k}: ${x}`).join(', ');
+  }
+  return teks(v);
+}
+
+/**
+ * Perubahan RPS (dan bagian B) dibanding versi yang disahkan: [{ bagian, label, lama, baru }]. Tanggal penyusunan diabaikan.
+ * lama/baru = data mk_rps; sLama/sBaru = struktur CPMK (mk_rps.sah.struktur dan mk_struktur sekarang).
+ */
+export function bedaRps(lama = {}, baru = {}, sLama = null, sBaru = null){
+  const out = [], catat = (bagian, label, a, b) => { const x = teksNilai(a), y = teksNilai(b); if (x !== y) out.push({ bagian, label, lama: x, baru: y }); };
+  for (const [bagian, jalur, label] of ISIAN_BEDA) catat(bagian, label, ambil(lama, jalur), ambil(baru, jalur));
+  const kunciP = p => `${p.jenis}|${teks(p.pekan)}`, label = p => (p.jenis === 'kuliah' ? `Pekan ${teks(p.pekan)}` : `${p.jenis.toUpperCase()} (pekan ${teks(p.pekan)})`);
+  const pl = new Map((lama.pekan || []).map(p => [kunciP(p), p])), pb = new Map((baru.pekan || []).map(p => [kunciP(p), p]));
+  for (const [k, p] of pb) {
+    const q = pl.get(k);
+    if (!q) { out.push({ bagian: 'D', label: `${label(p)} (baris baru)`, lama: '', baru: teksNilai(p.materi) || '(baris baru)' }); continue; }
+    for (const [kol, l] of KOLOM_PEKAN) catat('D', `${label(p)} · ${l}`, q[kol], p[kol]);
+  }
+  for (const [k, q] of pl) if (!pb.has(k)) out.push({ bagian: 'D', label: `${label(q)} (dihapus)`, lama: teksNilai(q.materi) || '(baris)', baru: '' });
+  if (sLama || sBaru) {
+    const A = sLama || {}, B = sBaru || {};
+    const per = (xs, f) => new Map((xs || []).map(x => [x.kode, f(x)]));
+    const cL = per(A.cpmk, c => teks(c.rumusan)), cB = per(B.cpmk, c => teks(c.rumusan));
+    for (const k of new Set([...cL.keys(), ...cB.keys()])) catat('B', k, cL.get(k), cB.get(k));
+    const sub = x => `${teks(x.rumusan)}${x.cpl ? ` [CPL ${x.cpl}]` : ''}`;
+    const xL = per(A.sub, sub), xB = per(B.sub, sub);
+    for (const k of new Set([...xL.keys(), ...xB.keys()])) catat('B', k, xL.get(k), xB.get(k));
+    catat('B', 'Butir asesmen', (A.asesmen || []).map(a => a.nama), (B.asesmen || []).map(a => a.nama));
+    for (const k of new Set([...Object.keys(A.bobot || {}), ...Object.keys(B.bobot || {})])) {
+      const f = o => Object.entries(o || {}).filter(([, v]) => angka(v)).map(([a, v]) => `${a} ${v}`).sort().join(', ');
+      catat('B', `Bobot ${k}`, f(A.bobot?.[k]), f(B.bobot?.[k]));
+    }
+  }
+  const urut = { A: 1, B: 2, Peta: 3, C: 4, D: 5, E: 6 };
+  return out.sort((a, b) => urut[a.bagian] - urut[b.bagian]);
+}
+
+/**
+ * Salin dari RPS lain sebagai titik awal: bagian C (kecuali pengampu) dan rencana pekanan. Identitas, pengembang, pengampu,
+ * evaluasi, dan peta tetap milik MK ini. Sub-CPMK dan asesmen di pekan dipertahankan hanya bila ada di struktur MK ini.
+ */
+export function salinRps(R, sumber, struktur){
+  const S = struktur || { sub: [], asesmen: [] }, sub = new Set(S.sub.map(x => x.kode)), ases = new Set(S.asesmen.map(a => a.nama));
+  const c = JSON.parse(JSON.stringify(sumber || {}));
+  const hasil = { ...R };
+  for (const k of ['tujuan', 'deskripsi', 'syarat', 'pustaka', 'kriteria', 'scl', 'integrasi', 'direktori']) if (c[k] !== undefined) hasil[k] = c[k];
+  if (Array.isArray(c.pekan) && c.pekan.length)
+    hasil.pekan = c.pekan.map(p => ({ ...p, sub: (p.sub || []).filter(k => sub.has(k)), asesmen: (p.asesmen || []).filter(a => ases.has(a)) }));
+  return hasil;
+}
