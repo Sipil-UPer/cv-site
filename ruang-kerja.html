@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-20-d44442">
+<link rel="stylesheet" href="tema.css?v=2026-11-20-7ad6c0">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
@@ -62,8 +62,21 @@
   .tugas li a:hover{text-decoration:underline}
   .tugas li span{display:block;color:var(--muted);font-size:13px}
   .tugas details summary{cursor:pointer;color:var(--biru-2);font-size:13.5px;margin-top:6px}
+  /* Pintasan per peran (pemilik 2026-11-20, tahap 3) */
+  .pintasan{margin-bottom:26px}
+  .pintasan h2,.semua-h{font-family:var(--serif);font-size:19px;margin:0 0 4px;color:var(--biru)}
+  .p-grup{margin-top:10px}
+  .p-grup h3{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:0 0 6px;font-weight:500}
+  .p-isi{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px}
+  .p-isi a{display:block;background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--biru);border-radius:4px;
+    padding:9px 12px;text-decoration:none;color:var(--biru-2);font-weight:600;font-size:14px}
+  .p-isi a:hover{background:var(--line-soft)}
+  .semua-h{margin:6px 0 10px}
+  /* Ponsel (tahap 3): kepala ringkas; Beranda umum ada di menu. */
+  @media(max-width:640px){.hero-in{padding-top:16px;padding-bottom:14px}.hero .balik,.logo-deret{display:none}
+    .hero-baris{margin-top:0} h1{font-size:23px}}
   @media(max-width:640px){.hero-in,.wrap{padding-left:16px;padding-right:16px}
-    .modul{grid-template-columns:1fr}}
+    .modul{grid-template-columns:1fr} .p-isi{grid-template-columns:1fr 1fr}}
 </style>
 </head>
 <body>
@@ -84,7 +97,7 @@
 
 <main class="wrap" id="isi"><p class="hint">Memuat&hellip;</p></main>
 
-<script src="config.js?v=2026-11-20-d44442"></script>
+<script src="config.js?v=2026-11-20-7ad6c0"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache) tampil sebagai pesan.
 addEventListener('error', function (e) {
@@ -100,14 +113,14 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { pengguna, pasangMenu, halamanBoleh, bolehBuka, identitas, pasangJudul } from './menu.js?v=2026-11-20-d44442';
-import { hitungVerifikasi } from './verifikasi-hitung.js?v=2026-11-20-d44442';
-import { rubrikRps } from './rps.js?v=2026-11-20-d44442';
-import { bacaTinjauan } from './tinjauan-rps.js?v=2026-11-20-d44442';
-import { isoDari } from './pengingat-rps.js?v=2026-11-20-d44442';
-import { tugasSaya } from './tugas-saya.js?v=2026-11-20-d44442';
-import { fiturAktif, halamanAktif } from './fitur.js?v=2026-11-20-d44442';
-import { barisDosen } from './target-kinerja.js?v=2026-11-20-d44442';
+import { pengguna, pasangMenu, halamanBoleh, bolehBuka, identitas, pasangJudul, pintasanUntuk } from './menu.js?v=2026-11-20-7ad6c0';
+import { hitungVerifikasi } from './verifikasi-hitung.js?v=2026-11-20-7ad6c0';
+import { rubrikRps } from './rps.js?v=2026-11-20-7ad6c0';
+import { bacaTinjauan } from './tinjauan-rps.js?v=2026-11-20-7ad6c0';
+import { isoDari } from './pengingat-rps.js?v=2026-11-20-7ad6c0';
+import { tugasSaya } from './tugas-saya.js?v=2026-11-20-7ad6c0';
+import { fiturAktif, halamanAktif } from './fitur.js?v=2026-11-20-7ad6c0';
+import { barisDosen } from './target-kinerja.js?v=2026-11-20-7ad6c0';
 
 const sb = createClient(window.SB_URL, window.SB_KEY);
 const $ = id => document.getElementById(id);
@@ -140,20 +153,26 @@ async function mulai(){
   $('isi').innerHTML = (tolak ? `<div class="info">Halaman <code>${esc(tolak.split('?')[0])}</code>
       ${halamanAktif(tolak) ? `tidak tersedia untuk peran ${esc(u.saya.peran)}. Hubungi admin prodi bila perlu akses.`
         : 'termasuk modul yang tidak diaktifkan di situs ini.'}</div>` : '')
+    // Tahap 3 (pemilik 2026-11-20): Tugas saya, pintasan menurut peran/jabatan, lalu semua halaman.
+    + (pin => pin.length ? `<section class="pintasan" aria-labelledby="jPin"><h2 id="jPin">Pintasan untuk Anda</h2>
+        ${pin.map(g => `<div class="p-grup"><h3>${esc(g.label)}</h3><div class="p-isi">${g.halaman.map(h =>
+          `<a href="${esc(h.href)}" title="${esc(h.ket || '')}">${esc(h.judul)}</a>`).join('')}</div></div>`).join('')}</section>` : '')(pintasanUntuk(u.saya))
+    + `<h2 class="semua-h">Semua halaman</h2>`
     + `<div class="modul">${halamanBoleh(u.saya).map(m => `<section class="m">
         <h2>${esc(m.judul)}</h2><p>${esc(m.ket)}</p>
         ${m.halaman.map(h => `<a href="${esc(h.href)}"><b>${esc(h.judul)}</b>
           <span>${esc(h.ket)}</span></a>`).join('')}</section>`).join('')}</div>`;
   if (u.saya.peran !== 'asesor') {
-    $('isi').querySelector('.modul').insertAdjacentHTML('beforebegin', '<div id="tugas"></div>');
+    ($('isi').querySelector('.pintasan') || $('isi').querySelector('.semua-h')).insertAdjacentHTML('beforebegin', '<div id="tugas"></div>');
     muatTugas(u.saya).then(xs => { $('tugas').innerHTML = htmlTugas(xs); })
       .catch(e => { $('tugas').innerHTML = `<p class="hint">Tugas saya gagal dimuat: ${esc(e.message || e)}</p>`; });
   }
   // Total yang menunggu verifikasi pada kartu Verifikasi (admin; pemilik 2026-11-08).
-  const kartu = $('isi').querySelector('a[href="verifikasi.html"] b');
-  if (kartu) hitungVerifikasi(sb).then(n => {
-    if (n.total) kartu.insertAdjacentHTML('beforeend',
-      ` <span style="display:inline-block;background:#8A5A00;color:#fff;border-radius:9px;padding:0 7px;font-size:12px">${n.total} menunggu</span>`);
+  // Juga pada petak pintasan (tahap 3): kartu = <b> di daftar modul, petak = tautannya sendiri.
+  const kartu = [...$('isi').querySelectorAll('.modul a[href="verifikasi.html"] b, .pintasan a[href="verifikasi.html"]')];
+  if (kartu.length) hitungVerifikasi(sb).then(n => {
+    if (n.total) kartu.forEach(k => k.insertAdjacentHTML('beforeend',
+      ` <span style="display:inline-block;background:#8A5A00;color:#fff;border-radius:9px;padding:0 7px;font-size:12px">${n.total} menunggu</span>`));
   });
 }
 

@@ -1,5 +1,5 @@
-import { dosenLogin } from './dosen-login.js?v=2026-11-20-d44442';
-import { aktifPada } from './koordinator.js?v=2026-11-20-d44442';
+import { dosenLogin } from './dosen-login.js?v=2026-11-20-7ad6c0';
+import { aktifPada } from './koordinator.js?v=2026-11-20-7ad6c0';
 // Menu bersama ruang kerja (pemilik 2026-11-04).
 //
 // Situs dibagi dua:
@@ -25,19 +25,24 @@ const penyusun = s => admin(s) || (!!s.tim_penyusun && s.peran !== 'asesor');
 // Asesor, dan pimpinan yang bukan DTPS prodi ini (aktif=false), tidak mengisi karya.
 const isiKarya = s => s.peran !== 'asesor' && !(s.peran === 'pimpinan' && !s.aktif);
 
-import { halamanAktif } from './fitur.js?v=2026-11-20-d44442';
-import { pasangPemicuBangun } from './pemicu-bangun.js?v=2026-11-20-d44442';
+import { halamanAktif } from './fitur.js?v=2026-11-20-7ad6c0';
+import { pasangPemicuBangun } from './pemicu-bangun.js?v=2026-11-20-7ad6c0';
 
 export const MODUL = [
   // Susunan modul (pemilik 2026-11-17): mengikuti pembagian tugas koordinator prodi (kemahasiswaan,
   // laboratorium, mutu & akreditasi/GKM) dan pemantauan oleh koordinator prodi; admin prodi terpisah.
-  { judul: 'Data saya', ket: 'Profil dan karya dosen.', halaman: [
+  // Tahap 3 (pemilik 2026-11-20): "Pembelajaran dan CPL" dipecah jadi Mata kuliah saya (pekerjaan dosen per MK) dan
+  // Kurikulum dan CPL prodi (rekap prodi); halaman admin, profil prodi, dan laboratorium dikumpulkan di Pengelolaan.
+  { judul: 'Data saya', ket: 'Profil, karya, dan target kinerja Anda.', halaman: [
     { href: 'profil.html', judul: 'Profil saya',
       ket: 'Nama, SINTA, Scopus, ORCID, pendidikan, jabatan; perubahan disetujui admin.' },
     { href: 'karya.html', judul: 'Karya dosen', boleh: isiKarya,
       ket: 'Publikasi, penelitian, PkM, luaran, rekognisi, dan buktinya.' },
+    // Target kinerja per dosen (66-patch-target-dosen.sql, pemilik 2026-11-12): dosen melihat miliknya.
+    { href: 'target.html', judul: 'Target kinerja dosen', boleh: s => s.peran !== 'asesor',
+      ket: 'Target tahunan per dosen (publikasi, penelitian, PkM, luaran, rekognisi, hibah) dibandingkan capaiannya.' },
   ]},
-  { judul: 'Pembelajaran dan CPL', ket: 'Berkas nilai CPL, capaian CPL, evaluasi pembelajaran, dan data kurikulum.', halaman: [
+  { judul: 'Mata kuliah saya', ket: 'CPMK, RPS, nilai CPL, portofolio, dan evaluasi mata kuliah yang Anda ampu.', halaman: [
     { href: 'nilai-cpl.html', judul: 'Berkas nilai CPL', boleh: isiKarya,
       ket: 'Unggah Template_Input_Data_CPL per kelas (diperiksa sebelum dikirim, disimpan privat); admin: daftar kelas dan pengingat.' },
     // CPMK dan RPS per MK (102-patch-cpmk-rps.sql, pemilik 2026-11-17, OBE O2): templat nilai CPL terisi per kelas.
@@ -49,21 +54,23 @@ export const MODUL = [
     // Tinjauan RPS (115-patch-tinjauan-rps.sql, pemilik 2026-11-19): butir 15 unsur 5-8 setelah nilai akhir keluar.
     { href: 'tinjauan-rps.html', judul: 'Tinjauan RPS', boleh: isiKarya,
       ket: 'Tinjau RPS tiap MK setelah nilai akhir keluar: analisis CPL, materi dan metode, penilaian, pembaruan materi; disetujui Kaprodi, revisi jadi tindak lanjut.' },
-    // Rekap RPS kurikulum (pemilik 2026-11-19): kalender asesmen lintas MK dan peta CPL dari bagian B.
-    { href: 'rps-kurikulum.html', judul: 'Rekap RPS kurikulum', boleh: isiKarya,
-      ket: 'Kalender asesmen semua MK per semester (penumpukan tugas per pekan), peta CPL dari CPMK berbobot, dan HOTS per tahun.' },
-    // Simulasi PJP butir 18 (pemilik 2026-11-19): sks praktikum/praktik/penugasan per MK, di peramban saja.
-    { href: 'pjp.html', judul: 'Simulasi PJP', boleh: s => mutu(s) || s.peran === 'pimpinan' || (s.koordinator || []).includes('kaprodi'),
-      ket: 'Butir 18 LAM Teknik: PJP sekarang dan simulasi bila sks praktikum/praktik/penugasan beberapa MK diubah; unduh CSV untuk rapat kurikulum.' },
     // Portofolio MK (103-patch-portofolio-mk.sql, pemilik 2026-11-17, OBE O3): isi disaring basis data (koordinator MK, pengampu,
     // GKM, admin, pimpinan, asesor aktif).
     { href: 'portofolio.html', judul: 'Portofolio mata kuliah',
       ket: 'Per MK per semester dan per kelas: materi, soal, kunci/rubrik, contoh jawaban, presensi, BAP; kelengkapan dan indeks DOCX.' },
-    { href: 'monitoring.html#cpl', judul: 'Capaian CPL',
-      ket: 'Ketercapaian CPL: grafik per angkatan, progres per semester, peta MK × CPL, kelas yang belum tercapai.' },
     // Evaluasi pembelajaran (68-patch-evaluasi-pembelajaran.sql): dosen miliknya, admin/pimpinan semua, asesor rekap prodi.
     { href: 'evaluasi-pembelajaran.html', judul: 'Evaluasi pembelajaran',
       ket: 'EDOM, capaian CPL kelas, refleksi RPS per mata kuliah tiap semester, dan tindak lanjutnya.' },
+  ]},
+  { judul: 'Kurikulum dan CPL prodi', ket: 'Rekap RPS, capaian CPL, PJP, dan data kurikulum program studi.', halaman: [
+    // Rekap RPS kurikulum (pemilik 2026-11-19): kalender asesmen lintas MK dan peta CPL dari bagian B.
+    { href: 'rps-kurikulum.html', judul: 'Rekap RPS kurikulum', boleh: isiKarya,
+      ket: 'Kalender asesmen semua MK per semester (penumpukan tugas per pekan), peta CPL dari CPMK berbobot, dan HOTS per tahun.' },
+    { href: 'monitoring.html#cpl', judul: 'Capaian CPL',
+      ket: 'Ketercapaian CPL: grafik per angkatan, progres per semester, peta MK × CPL, kelas yang belum tercapai.' },
+    // Simulasi PJP butir 18 (pemilik 2026-11-19): sks praktikum/praktik/penugasan per MK, di peramban saja.
+    { href: 'pjp.html', judul: 'Simulasi PJP', boleh: s => mutu(s) || s.peran === 'pimpinan' || (s.koordinator || []).includes('kaprodi'),
+      ket: 'Butir 18 LAM Teknik: PJP sekarang dan simulasi bila sks praktikum/praktik/penugasan beberapa MK diubah; unduh CSV untuk rapat kurikulum.' },
     { href: 'data-prodi.html?tab=mk', judul: 'Mata kuliah dan CPL', boleh: admin,
       ket: 'Data prodi › Kurikulum & CPL: mata kuliah, CPL per kurikulum, peta MK–CPL, korelasi CPL antar kurikulum.' },
   ]},
@@ -93,7 +100,7 @@ export const MODUL = [
     { href: 'sdgs-bukti.html', judul: 'Rekap SDGs dan bukti',
       ket: 'Karya dosen per SDG beserta berkas bukti dan DOI-nya; karya tanpa bukti ditandai.' },
   ]},
-  { judul: 'Kegiatan dan laboratorium', ket: 'Kalender, kabar kegiatan, rapat, laboratorium, dan profil prodi.', halaman: [
+  { judul: 'Kegiatan', ket: 'Kalender, kabar kegiatan, rapat dan notulen.', halaman: [
     // Kalender (64-patch-kegiatan.sql): semua pengguna terdaftar; kegiatan manual diisi admin (pemilik 2026-11-12).
     { href: 'kalender.html', judul: 'Kalender kegiatan',
       ket: 'Rapat, kegiatan prodi, tenggat hibah, tindak lanjut, dan temuan AMI dalam satu kalender; unduh .ics.' },
@@ -103,12 +110,6 @@ export const MODUL = [
     // Rapat dan notulen (62-patch-rapat.sql): admin dan dosen mencatat; semua terdaftar membaca.
     { href: 'rapat.html', judul: 'Rapat dan notulen', boleh: s => s.peran !== 'asesor',
       ket: 'Agenda, peserta, keputusan, tindak lanjut ber-PJ, notulen Word, daftar hadir daring (QR).' },
-    // Laboratorium (82-patch-laboratorium.sql, pemilik 2026-11-16): profil lab untuk situs publik.
-    { href: 'kelola-laboratorium.html', judul: 'Kelola laboratorium', boleh: kalab,
-      ket: 'Profil laboratorium untuk situs publik: ringkasan, koordinator, praktikum, layanan pengujian, foto.' },
-    // Profil prodi (84-patch-profil-prodi.sql, pemilik 2026-11-16): sambutan, sejarah, pengelola.
-    { href: 'kelola-profil.html', judul: 'Kelola profil prodi', boleh: admin,
-      ket: 'Sambutan, sejarah, dan pengelola program studi untuk halaman publik Profil.' },
   ]},
   { judul: 'Mutu dan akreditasi', ket: 'Skor LAM, LED, bukti, SPMI, survei kepuasan, dan mutu data (GKM).', halaman: [
     { href: 'skor.html', judul: 'Skor akreditasi dan LED',
@@ -142,11 +143,8 @@ export const MODUL = [
       ket: 'Rekap per tahun atau TS, per dosen, dan syarat unggul.' },
     { href: 'grafik.html', judul: 'Grafik untuk LED',
       ket: 'Grafik siap pakai untuk laporan dan LED.' },
-    // Target kinerja per dosen (66-patch-target-dosen.sql, pemilik 2026-11-12): dosen melihat miliknya.
-    { href: 'target.html', judul: 'Target kinerja dosen', boleh: s => s.peran !== 'asesor',
-      ket: 'Target tahunan per dosen (publikasi, penelitian, PkM, luaran, rekognisi, hibah) dibandingkan capaiannya.' },
   ]},
-  { judul: 'Admin prodi', ket: 'Verifikasi, data prodi, dosen, penugasan koordinator, pengingat (khusus admin).', halaman: [
+  { judul: 'Pengelolaan', ket: 'Verifikasi, data prodi, dosen, koordinator, pengingat, profil prodi, dan laboratorium.', halaman: [
     { href: 'verifikasi.html', judul: 'Verifikasi data', boleh: admin,
       ket: 'Karya dosen, profil dosen, BKD, dan prestasi mahasiswa yang menunggu keputusan admin.' },
     { href: 'data-prodi.html', judul: 'Data prodi', boleh: dataProdi,
@@ -160,6 +158,12 @@ export const MODUL = [
     // Jejak perubahan (65-patch-jejak.sql, pemilik 2026-11-12): khusus admin, termasuk paket akreditasi.
     { href: 'jejak.html', judul: 'Jejak perubahan', boleh: admin,
       ket: 'Siapa mengubah apa dan kapan pada data penting (karya, dosen, LKPS, bukti, LED); disimpan 3 tahun.' },
+    // Profil prodi (84-patch-profil-prodi.sql, pemilik 2026-11-16): sambutan, sejarah, pengelola.
+    { href: 'kelola-profil.html', judul: 'Kelola profil prodi', boleh: admin,
+      ket: 'Sambutan, sejarah, dan pengelola program studi untuk halaman publik Profil.' },
+    // Laboratorium (82-patch-laboratorium.sql, pemilik 2026-11-16): profil lab untuk situs publik; kepala lab miliknya.
+    { href: 'kelola-laboratorium.html', judul: 'Kelola laboratorium', boleh: kalab,
+      ket: 'Profil laboratorium untuk situs publik: ringkasan, koordinator, praktikum, layanan pengujian, foto.' },
   ]},
   { judul: 'Bantuan', ket: 'Cara memakai ruang kerja.', halaman: [
     { href: 'panduan.html', judul: 'Panduan pengguna',
@@ -186,6 +190,29 @@ export function bolehBuka(saya, href){
   const h = MODUL.flatMap(m => m.halaman).find(x => berkas(x.href) === b);
   if (!h) return null;
   return halamanAktif(h.href) && (!h.boleh || h.boleh(saya));
+}
+
+// Pintasan di halaman depan ruang kerja (pemilik 2026-11-20, tahap 3): per peran/jabatan, jabatan lebih dulu,
+// "Dosen" terakhir; halaman yang sudah tampil di kelompok sebelumnya tidak diulang. href harus ada di MODUL.
+const jab = j => s => (s.koordinator || []).includes(j);
+export const PINTASAN = [
+  { label: 'Admin prodi', cocok: admin, href: ['verifikasi.html', 'pengajuan-mahasiswa.html', 'data-prodi.html', 'pengingat.html', 'dasbor.html', 'kelola-dosen.html'] },
+  { label: 'Kaprodi', cocok: s => jab('kaprodi')(s) || s.peran === 'pimpinan', href: ['dasbor.html', 'tinjauan-rps.html', 'rps-kurikulum.html', 'monitoring.html', 'pjp.html'] },
+  { label: 'Dekan', cocok: jab('dekan'), href: ['rps.html', 'monitoring.html'] },
+  { label: 'Gugus kendali mutu (GKM)', cocok: jab('gkm'), href: ['skor.html', 'mutu-data.html', 'siklus-ppepp.html', 'kelola-survei.html', 'monitoring.html#cpl', 'evaluasi-pembelajaran.html'] },
+  { label: 'Koordinator KP/Magang', cocok: jab('koordinator_kp'), href: ['pengajuan-mahasiswa.html', 'rekap-kp.html', 'kelola-layanan-mahasiswa.html'] },
+  { label: 'Koordinator TA', cocok: jab('koordinator_ta'), href: ['pengajuan-mahasiswa.html', 'rekap-ta.html', 'kelola-layanan-mahasiswa.html'] },
+  { label: 'Pembina kemahasiswaan', cocok: jab('pembina_kemahasiswaan'), href: ['pengajuan-mahasiswa.html', 'kelola-layanan-mahasiswa.html', 'data-prodi.html'] },
+  { label: 'Kepala laboratorium', cocok: jab('kepala_lab'), href: ['kelola-laboratorium.html'] },
+  { label: 'Asesor', cocok: s => s.peran === 'asesor', href: ['skor.html', 'rincian.html?butir=23', 'portofolio.html', 'monitoring.html#cpl', 'rekap-kp.html'] },
+  { label: 'Dosen', cocok: s => s.peran !== 'asesor', href: ['profil.html', 'karya.html', 'rps.html', 'nilai-cpl.html', 'pengajuan-mahasiswa.html', 'kalender.html'] },
+];
+
+/** Kelompok pintasan untuk `saya`: [{label, halaman: [{href, judul, ket}]}]; hanya halaman yang boleh dan aktif. */
+export function pintasanUntuk(saya){
+  const semua = halamanBoleh(saya).flatMap(m => m.halaman), sudah = new Set();
+  return PINTASAN.filter(p => p.cocok(saya)).map(p => ({ label: p.label, halaman: p.href.map(h => semua.find(x => x.href === h))
+    .filter(x => x && !sudah.has(x.href) && sudah.add(x.href)) })).filter(p => p.halaman.length);
 }
 
 // { email, saya }: saya = baris dosen atau null (belum terdaftar);
@@ -279,6 +306,14 @@ const CSS = `
 .rk-cari input::placeholder{color:var(--biru-m3)}
 .rk-cari input:focus{outline:none;background:#fff;color:var(--ink)}
 @media(max-width:760px){.rk-cari{width:100%}.rk-cari input{width:100%}}
+/* Ponsel (pemilik 2026-11-20, tahap 3): kelompok menu dilipat di balik tombol Menu supaya isi halaman langsung terlihat. */
+.rk-burger{display:none;font:inherit;color:#fff;background:none;border:1px solid rgba(255,255,255,.4);border-radius:3px;padding:3px 10px;cursor:pointer}
+@media(max-width:760px){
+  .rk-burger{display:inline-block;margin-left:auto}
+  .rk-grup{display:none;width:100%}
+  .rk-menu.buka .rk-grup{display:block}
+  .rk-isi{position:static;margin:4px 0 6px;box-shadow:none}
+}
 @media print{.rk-menu{display:none}}`;
 
 // Menu atas untuk pengguna terdaftar; tidak tampil bila belum login atau
@@ -310,13 +345,19 @@ export async function pasangMenu(sb){
     <a class="rk-merek" href="ruang-kerja.html"><img src="logo-uper.png" alt="${esc(institusi)}">
       <span><b>${esc(prodi || 'Program studi')}</b><small>${esc(institusi)}</small></span></a>
     <a href="ruang-kerja.html"${ini === 'ruang-kerja.html' ? ' aria-current="page"' : ''}>Ruang kerja</a>
+    <button type="button" class="rk-burger" aria-expanded="false">Menu</button>
     ${grup}
     <div class="rk-user"><div class="rk-cari"><input type="search" placeholder="Cari… (tekan /)" aria-label="Cari di situs"
         autocomplete="off"></div><a href="index.html">Beranda umum</a>
       <span>${esc(u.saya.nama)}</span><button type="button">Keluar</button></div></div>`;
-  nav.querySelector('button').onclick = async () => {
+  nav.querySelector('.rk-user button').onclick = async () => {
     await sb.auth.signOut();
     location.href = 'index.html';
+  };
+  const burger = nav.querySelector('.rk-burger');
+  burger.onclick = () => {
+    const buka = nav.classList.toggle('buka');
+    burger.setAttribute('aria-expanded', String(buka)); burger.textContent = buka ? 'Tutup' : 'Menu';
   };
   // Satu menu terbuka sekaligus; klik di luar menu menutupnya.
   const grupEl = [...nav.querySelectorAll('.rk-grup')];
@@ -330,7 +371,7 @@ export async function pasangMenu(sb){
   // Pencarian menyeluruh (pemilik 2026-11-12; cari-ui.js, cari.js): dimuat saat pertama dipakai.
   const kotak = nav.querySelector('.rk-cari input');
   let siapCari = null;
-  const muatCari = () => siapCari || (siapCari = import('./cari-ui.js?v=2026-11-20-d44442').then(m =>
+  const muatCari = () => siapCari || (siapCari = import('./cari-ui.js?v=2026-11-20-7ad6c0').then(m =>
     m.pasangCari(kotak, { sb, saya: u.saya, modul: halamanBoleh(u.saya), boleh: h => bolehBuka(u.saya, h) !== false })));
   kotak.addEventListener('focus', muatCari);
   document.addEventListener('keydown', e => {
