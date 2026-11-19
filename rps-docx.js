@@ -15,6 +15,7 @@ const pg = (isi, o = {}) => `<w:p><w:pPr>${o.keep ? '<w:keepNext/>' : ''}<w:spac
   o.jc ? `<w:jc w:val="${o.jc}"/>` : ''}</w:pPr>${isi}</w:p>`;
 /** Teks sel: baris baru = paragraf baru. */
 const paragraf = (t, o) => String(t ?? '').split(/\r?\n/).map(b => pg(rn(b, o), o)).join('');
+export { rn, pg, paragraf };   // dipakai review-docx.js (berkas review sejawat, pemilik 2026-11-19)
 
 /**
  * Sel tabel. isi: teks atau XML siap pakai ({xml}); o: span (gridSpan), vm ('restart'|'lanjut'), fill, warna, b, i, sz, jc.

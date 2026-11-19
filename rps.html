@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-19-c94533">
-<link rel="stylesheet" href="kepala.css?v=2026-11-19-c94533">
+<link rel="stylesheet" href="tema.css?v=2026-11-19-07af6f">
+<link rel="stylesheet" href="kepala.css?v=2026-11-19-07af6f">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
@@ -83,6 +83,9 @@
   .periksa li .ke{font-size:11.5px;color:var(--biru-2);margin-left:4px;white-space:nowrap}
   .sorot{outline:3px solid #E0A800;outline-offset:3px;transition:outline-color 2.5s ease-in}
   .sorot.pudar{outline-color:transparent}
+  /* Tanggapan penyusun (119) */
+  details.tanggap{margin:10px 0;padding:8px 10px;border:1px solid var(--biru)} details.tanggap textarea{min-height:44px}
+  .rv-tanggap{font-size:12.5px;margin:2px 0 4px;padding:4px 6px;border-left:3px solid var(--hijau)}
   /* Form review sejawat (118) */
   /* Mode review (pemilik 2026-11-19): RPS kiri, form kanan menempel; ponsel = laci bawah */
   body.mode-review .wrap{max-width:1680px}
@@ -115,7 +118,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-19-c94533"></script>
+<script src="config.js?v=2026-11-19-07af6f"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -135,18 +138,19 @@ addEventListener('error', function (e) {
 // Penyusun = koordinator MK atau pengampu kelas MK semester terakhir (boleh_rps, 112); GKM dan admin hanya melihat.
 // Pengesahan (112): dosen mengajukan -> Kaprodi aktif mengesahkan atau mengembalikan; daftar revisi (bagian F) otomatis.
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-19-c94533';
-import { bolehMutu, aktifPada, punya } from './koordinator.js?v=2026-11-19-c94533';
-import { cplMK } from './cpmk.js?v=2026-11-19-c94533';
+import { gerbang } from './menu.js?v=2026-11-19-07af6f';
+import { bolehMutu, aktifPada, punya } from './koordinator.js?v=2026-11-19-07af6f';
+import { cplMK } from './cpmk.js?v=2026-11-19-07af6f';
 import { JENIS_ASESMEN, JENIS_MK, DIREKTORI, jenisAsesmen, bloom, hots, rapikanRps, kerangkaPekan, barisPekan, periksaRps, modelRps,
   namaBerkasRps, penyusunMK, revisiDariLog, tanggalLokal, waktuLokal, evaluasiDariData, BENTUK, SCL, rekapRps, BENTUK_INTEGRASI,
-  bedaRps, salinRps, ASESMEN_TES, BUTIR_REVIEW, SKALA_REVIEW, KESIMPULAN_REVIEW, rerataReview, butirKosongReview, faktaReview, rubrikKosong, kriteriaKosong, rentangPekan, susunanMK, jenisMK, bagiParitas, saringMK, ringkasSemester, htmlRingkasSemester, htmlSaringan, ubahSaringan, esignRps, paritas } from './rps.js?v=2026-11-19-c94533';
-import { JENIS_PETA, relasiPeta, petaSvg, usulPeta } from './rps-peta.js?v=2026-11-19-c94533';
-import { keB64 } from './pengajuan-mhs.js?v=2026-11-19-c94533';
-import { bacaTinjauan, bahanTinjauan } from './tinjauan-rps.js?v=2026-11-19-c94533';
-import { SHEETJS } from './nilai-cpl.js?v=2026-11-19-c94533';
-import { lembarRps, bacaRpsExcel, bagianBerubah, LEBAR_KOLOM } from './rps-excel.js?v=2026-11-19-c94533';
-import { buatRpsDocx } from './rps-docx.js?v=2026-11-19-c94533';
+  bedaRps, salinRps, ASESMEN_TES, BUTIR_REVIEW, SKALA_REVIEW, KESIMPULAN_REVIEW, rerataReview, butirKosongReview, faktaReview, STATUS_TANGGAPAN, butirTanggapan, sudahDitanggapi, rubrikKosong, kriteriaKosong, rentangPekan, susunanMK, jenisMK, bagiParitas, saringMK, ringkasSemester, htmlRingkasSemester, htmlSaringan, ubahSaringan, esignRps, paritas } from './rps.js?v=2026-11-19-07af6f';
+import { JENIS_PETA, relasiPeta, petaSvg, usulPeta } from './rps-peta.js?v=2026-11-19-07af6f';
+import { keB64 } from './pengajuan-mhs.js?v=2026-11-19-07af6f';
+import { bacaTinjauan, bahanTinjauan } from './tinjauan-rps.js?v=2026-11-19-07af6f';
+import { SHEETJS } from './nilai-cpl.js?v=2026-11-19-07af6f';
+import { lembarRps, bacaRpsExcel, bagianBerubah, LEBAR_KOLOM } from './rps-excel.js?v=2026-11-19-07af6f';
+import { modelBerkasReview, buatReviewDocx, namaBerkasReview } from './review-docx.js?v=2026-11-19-07af6f';
+import { buatRpsDocx } from './rps-docx.js?v=2026-11-19-07af6f';
 
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -810,17 +814,38 @@ function htmlRingkasReview(){
   if (!REVIEW.length) return ajak + (bolehTunjuk() ? '<div class="ket">Review sejawat: belum ada reviewer. <a href="#bag-review" data-lompat="review">Tunjuk reviewer</a></div>' : '');
   const kirim = REVIEW.filter(v => v.kirim_pada);
   return ajak + `<div class="ket" style="margin:4px 0"><b>Review sejawat:</b> ${kirim.length} dari ${REVIEW.length} terkirim${kirim.length ? ': '
-    + kirim.map(v => `${esc(v.nama)} ${chipKes(v.kesimpulan)}${v.sama ? '' : ' <span class="chip saran">RPS berubah sesudah review</span>'}`).join(' ') : ''}.
+    + kirim.map(v => `${esc(v.nama)} ${chipKes(v.kesimpulan)}${v.sama ? '' : ' <span class="chip saran">RPS berubah sesudah review</span>'}`).join(' ') : ''}${
+    kirim.length ? ` · ditanggapi penyusun ${kirim.filter(sudahDitanggapi).length}/${kirim.length}` : ''}.
     <a href="#bag-review" data-lompat="review">Lihat</a></div>`;
 }
+const LABEL_TANGGAP = Object.fromEntries(STATUS_TANGGAPAN);
+const teksTanggap = t => (t ? `<span class="chip ${t.status === 'diperbaiki' ? 'ok' : t.status === 'sebagian' ? 'saran' : ''}">${esc(LABEL_TANGGAP[t.status] || t.status)}</span> ${esc(t.teks || '')}` : '');
+// Penyusun RPS (119): menanggapi review terkirim; admin tidak menanggapi atas nama penyusun (a.n. admin hanya tanda tangan RPS).
+const bolehTanggap = () => BOLEH.has(PILIH);
 function htmlIsiReview(v){
   const ada = BUTIR_REVIEW.filter(b => v.skor?.[b.kode] || v.catatan?.[b.kode]);
   const lain = Object.keys(v.skor || {}).filter(k => !BUTIR_REVIEW.some(b => b.kode === k));   // butir lama yang sudah dihapus dari form
-  return `<div class="gulir"><table class="ds"><thead><tr><th>Butir</th><th>Skor</th><th>Catatan</th></tr></thead><tbody>
+  return `<div class="gulir"><table class="ds"><thead><tr><th>Butir</th><th>Skor</th><th>Catatan reviewer</th><th>Tanggapan penyusun</th></tr></thead><tbody>
     ${[...ada.map(b => [b.kode, b.teks]), ...lain.map(k => [k, ''])].map(([k, t]) => `<tr><td><b>${esc(k)}</b> ${esc(t)}</td>
       <td>${v.skor?.[k] ? `${esc(v.skor[k])} <span class="ket">${esc(Object.fromEntries(SKALA_REVIEW)[v.skor[k]] || '')}</span>` : '—'}</td>
-      <td>${esc(v.catatan?.[k] || '')}</td></tr>`).join('')}</tbody></table></div>
-    ${v.umum ? `<p><b>Catatan umum:</b> ${esc(v.umum)}</p>` : ''}`;
+      <td>${esc(v.catatan?.[k] || '')}</td><td>${teksTanggap(v.tanggapan?.[k])}</td></tr>`).join('')}</tbody></table></div>
+    ${v.umum ? `<p><b>Catatan umum reviewer:</b> ${esc(v.umum)}</p>` : ''}
+    ${v.tanggapan_umum ? `<p><b>Tanggapan umum penyusun:</b> ${esc(v.tanggapan_umum)}</p>` : ''}
+    ${v.tanggapan_pada ? `<p class="ket">Ditanggapi ${esc(v.tanggapan_oleh || 'penyusun')}, ${esc(waktuLokal(v.tanggapan_pada))}${sudahDitanggapi(v) ? '' : '; review dikirim ulang sesudahnya, perlu ditanggapi lagi'}.</p>` : ''}
+    ${bolehTanggap() ? htmlFormTanggap(v) : ''}`;
+}
+function htmlFormTanggap(v){
+  const bs = butirTanggapan(v), id = esc(v.reviewer_id);
+  return `<details class="tanggap"${sudahDitanggapi(v) ? '' : ' open'}><summary><b>${v.tanggapan_pada ? 'Ubah tanggapan Anda' : 'Tanggapi review ini'}</b>
+      <span class="ket">(penyusun RPS; Kaprodi melihat catatan dan tanggapan berdampingan)</span></summary>
+    ${bs.length ? `<div class="gulir"><table class="ds"><thead><tr><th>Butir dan catatan reviewer</th><th>Status</th><th>Tanggapan / perbaikan</th></tr></thead><tbody>
+      ${bs.map(b => { const t = v.tanggapan?.[b.kode] || {};
+        return `<tr><td><b>${b.kode}</b> <span class="ket">skor ${esc(v.skor?.[b.kode] ?? '—')}</span><div>${esc(v.catatan?.[b.kode] || '(tanpa catatan; skor rendah)')}</div></td>
+        <td><select data-tgst="${id}|${b.kode}"><option value="">— pilih —</option>${STATUS_TANGGAPAN.map(([k, l]) => `<option value="${k}"${t.status === k ? ' selected' : ''}>${esc(l)}</option>`).join('')}</select></td>
+        <td><textarea data-tgteks="${id}|${b.kode}" rows="2" placeholder="mis. Bobot tugas dinaikkan menjadi 25% (bagian B)">${esc(t.teks || '')}</textarea></td></tr>`; }).join('')}
+      </tbody></table></div>` : '<p class="ket">Tidak ada butir bercatatan atau berskor rendah; cukup tanggapan umum.</p>'}
+    <label class="fld"><span>Tanggapan umum</span><textarea data-tgumum="${id}">${esc(v.tanggapan_umum || '')}</textarea></label>
+    <div class="alat"><button class="b utama" data-tgsimpan="${id}">Simpan tanggapan</button><span class="msg" id="mTg_${id}"></span></div></details>`;
 }
 // Mode review (pemilik 2026-11-19): form review di panel kanan (layar lebar) atau laci bawah (ponsel), berdampingan dengan RPS;
 // butir menuju bagian yang dinilai, butir bagian yang sedang dibaca ditandai, ringkasan otomatis (faktaReview) di bawah tiap butir.
@@ -843,6 +868,7 @@ function htmlPanelReview(){
       ${bs.map(b => `<div class="rv-butir" data-bagsek="${bagSasaran(b)}">
         <div class="rv-judul" data-rvke="${esc(b.ke || '')}" data-rvbag="${b.bagian}" title="Buka bagian RPS yang dinilai"><b>${b.kode}</b> ${esc(b.teks)} <span class="ke">→</span></div>
         <ul class="rv-fakta">${(F[b.kode] || []).map(x => `<li>${esc(x)}</li>`).join('')}</ul>
+        ${v.tanggapan?.[b.kode] ? `<div class="rv-tanggap"><b>Tanggapan penyusun:</b> ${teksTanggap(v.tanggapan[b.kode])}</div>` : ''}
         <div class="rv-skor">${SKALA_REVIEW.map(([n, l]) => `<label title="${esc(l)}"><input type="radio" name="rv_${b.kode}" value="${n}"${+v.skor?.[b.kode] === n ? ' checked' : ''}> ${n}</label>`).join('')}</div>
         <textarea data-rvcat="${b.kode}" rows="1" placeholder="Catatan (boleh kosong)">${esc(v.catatan?.[b.kode] || '')}</textarea></div>`).join('')}`; }).join('')}
     <label class="fld"><span>Catatan umum dan saran perbaikan</span><textarea id="rvUmum">${esc(v.umum || '')}</textarea></label>
@@ -882,17 +908,20 @@ function htmlReview(){
   const baris = REVIEW.map(v => { const rr = rerataReview(v.skor);
     return `<tr><td>${esc(v.nama)}${v.saya ? ' <span class="ket">(Anda)</span>' : ''}</td>
       <td>${v.kirim_pada ? `terkirim ${esc(waktuLokal(v.kirim_pada))}${v.revisi > 1 ? ` <span class="ket">(RPS rev. ${v.revisi - 1})</span>` : ''}${
-        v.sama ? '' : ' <span class="chip saran">RPS berubah sesudah review</span>'}` : `ditunjuk ${esc(waktuLokal(v.ditunjuk_pada))}${v.saya ? ' · belum dikirim' : ''}`}</td>
+        v.sama ? '' : ' <span class="chip saran">RPS berubah sesudah review</span>'}<div>${sudahDitanggapi(v) ? '<span class="chip ok">ditanggapi penyusun</span>'
+        : '<span class="chip galat">belum ditanggapi penyusun</span>'}</div>` : `ditunjuk ${esc(waktuLokal(v.ditunjuk_pada))}${v.saya ? ' · belum dikirim' : ''}`}</td>
       <td>${v.kirim_pada ? chipKes(v.kesimpulan) : '<span class="kosong">—</span>'}</td>
       <td>${v.kirim_pada ? komaRv(rr) : '—'}</td>
       <td>${bolehTunjuk() && !v.kirim_pada ? `<button class="b awas" data-rvbatal="${esc(v.reviewer_id)}">Batalkan</button>` : ''}</td></tr>
-      ${v.kirim_pada ? `<tr><td colspan="5"><details><summary class="ket">Lihat penilaian ${esc(v.nama)}</summary>${htmlIsiReview(v)}</details></td></tr>` : ''}`; }).join('');
+      ${v.kirim_pada ? `<tr><td colspan="5"><details><summary class="ket">Lihat penilaian ${esc(v.nama)}${bolehTanggap() && !sudahDitanggapi(v) ? ' dan tanggapi' : ''}</summary>${htmlIsiReview(v)}</details></td></tr>` : ''}`; }).join('');
   return `<section class="kartu" id="bag-review"><h2>Review sejawat RPS</h2>
     <p class="ket">RPS dinilai dosen lain dengan form penilaian (butir dari Panduan Pengisian RPS bagian 6). Reviewer ditunjuk Kaprodi atau admin; dosen pengembang
       tidak me-review RPS-nya sendiri. Review tidak mengunci pengesahan; hasil yang dikirim terlihat oleh Kaprodi, penyusun, dan dosen lain.</p>
     ${bolehTunjuk() ? `<div class="alat"><label>Tunjuk reviewer <select id="rvDosen"><option value="">— pilih dosen —</option>${calon.map(d =>
       `<option value="${esc(d.id)}">${esc(d.nama_gelar || d.nama)}</option>`).join('')}</select></label><button class="b" id="rvTunjuk">Tunjuk</button>
       <span class="msg" id="mReview"></span></div>` : '<span class="msg" id="mReview"></span>'}
+    ${REVIEW.some(v => v.kirim_pada) ? `<div class="alat"><button class="b" id="rvBerkas">Unduh berkas review (Word)</button>
+      <span class="ket">Bukti tinjauan sejawat untuk akreditasi: skor, catatan reviewer, dan tanggapan penyusun.</span><span class="msg" id="mBerkas"></span></div>` : ''}
     ${REVIEW.length ? `<div class="gulir"><table class="ds"><thead><tr><th>Reviewer</th><th>Status</th><th>Kesimpulan</th><th>Rerata skor (1-4)</th><th></th></tr></thead>
       <tbody>${baris}</tbody></table></div>` : '<p class="kosong">Belum ada reviewer yang ditunjuk.</p>'}
     ${saya ? `<p class="periksa" style="border-color:var(--biru)">Form penilaian Anda ada di panel <b>Form review</b> ${sempit() ? 'di bawah layar' : 'di kanan'}; RPS bisa dibaca sambil mengisi.</p>` : ''}</section>`;
@@ -901,6 +930,31 @@ function pasangReview(){
   pasangPanelReview();
   const [kur, kode] = (PILIH || '|').split('|');
   const gagal = (id, e) => tulis(id, 'buruk', e.message || String(e));
+  // 119: berkas review (Word) dan tanggapan penyusun.
+  if ($('rvBerkas')) $('rvBerkas').onclick = async () => {
+    try {
+      const { default: JSZip } = await import(JSZIP), m = mkDari(PILIH), r = RPS.get(PILIH);
+      const pg = namaDosen(r?.data?.pengembang || R?.pengembang);
+      const M = modelBerkasReview({ mk: m, rps: r, review: REVIEW || [], prodi: SITUS.prodi ? `Program Studi ${SITUS.prodi}` : '', pengembang: pg ? pg.nama_gelar || pg.nama : '' });
+      const blob = await buatReviewDocx(M, { JSZip });
+      const a = Object.assign(document.createElement('a'), { href: URL.createObjectURL(blob), download: namaBerkasReview(m) });
+      a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+    } catch (e) { gagal('mBerkas', e); }
+  };
+  document.querySelectorAll('[data-tgsimpan]').forEach(b => b.onclick = async () => {
+    const rv = b.dataset.tgsimpan, tg = {}, msg = `mTg_${rv}`;
+    for (const x of document.querySelectorAll(`[data-tgst^="${rv}|"]`)) {
+      const k = x.dataset.tgst.split('|')[1], t = document.querySelector(`[data-tgteks="${rv}|${k}"]`).value.trim();
+      if (!x.value) { if (t) return tulis(msg, 'buruk', `${k}: pilih status (diperbaiki, sebagian, atau tidak diubah).`); continue; }
+      if (x.value !== 'diperbaiki' && !t) return tulis(msg, 'buruk', `${k}: tulis alasan atau rencana perbaikan.`);
+      tg[k] = { status: x.value, teks: t };
+    }
+    const umum = document.querySelector(`[data-tgumum="${rv}"]`).value;
+    if (!Object.keys(tg).length && !umum.trim()) return tulis(msg, 'buruk', 'Isi minimal satu tanggapan atau tanggapan umum.');
+    const { error } = await sb.rpc('rps_review_tanggapi', { p_kurikulum: kur, p_kode: kode, p_reviewer: rv, p_tanggapan: tg, p_umum: umum });
+    if (error) return gagal(msg, error);
+    await muatReview(); tulis('mReview', 'ok', 'Tanggapan tersimpan.');
+  });
   const segarTabel = async () => { REVIEW_TBL = await baca(sb.from('mk_rps_review').select('kurikulum,kode_mk,reviewer_id,kirim_pada,kesimpulan')); };
   if ($('rvTunjuk')) $('rvTunjuk').onclick = async () => {
     const d = $('rvDosen').value;

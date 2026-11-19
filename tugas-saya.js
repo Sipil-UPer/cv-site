@@ -1,13 +1,13 @@
 // "Tugas saya" di Ruang kerja (pemilik 2026-11-12): hal yang menunggu tindakan dosen yang
 // sedang masuk, dari data yang sudah boleh ia baca (RLS). Aturan tenggat sama dengan halaman
 // Pengingat: rapat.js, hibah.js, temuan-ami.js, pengingat-dosen.js.
-import { kurangProfil } from './pengingat-dosen.js?v=2026-11-19-c94533';
-import { tindakTerbuka, tglID } from './rapat.js?v=2026-11-19-c94533';
-import { tenggatBerikut, teksHari, HARI_LEWAT } from './hibah.js?v=2026-11-19-c94533';
-import { hariKeTenggat, labelStatus, HARI_DEKAT } from './temuan-ami.js?v=2026-11-19-c94533';
-import { tugasEvaluasi } from './evaluasi-pembelajaran.js?v=2026-11-19-c94533';
-import { bolehPengajuan } from './koordinator.js?v=2026-11-19-c94533';
-import { tugasMK } from './tugas-mk.js?v=2026-11-19-c94533';
+import { kurangProfil } from './pengingat-dosen.js?v=2026-11-19-07af6f';
+import { tindakTerbuka, tglID } from './rapat.js?v=2026-11-19-07af6f';
+import { tenggatBerikut, teksHari, HARI_LEWAT } from './hibah.js?v=2026-11-19-07af6f';
+import { hariKeTenggat, labelStatus, HARI_DEKAT } from './temuan-ami.js?v=2026-11-19-07af6f';
+import { tugasEvaluasi } from './evaluasi-pembelajaran.js?v=2026-11-19-07af6f';
+import { bolehPengajuan } from './koordinator.js?v=2026-11-19-07af6f';
+import { tugasMK } from './tugas-mk.js?v=2026-11-19-07af6f';
 
 const SELESAI_AMI = new Set(['selesai', 'ditutup']);
 const tingkat = h => h == null ? 'biasa' : h < 0 ? 'lewat' : h <= HARI_DEKAT ? 'dekat' : 'biasa';
@@ -25,7 +25,10 @@ const tgl10 = s => String(s || '').slice(0, 10);
  *   target: baris target-kinerja.js barisDosen tahun berjalan, tahunTarget,
  *   pengajuanMhs: pengajuan_mahasiswa yang terbaca [{nama, jenis, status, pembimbing_id, diperbarui}],
  *   revisiTa: jadwal_ta lulus_revisi belum selesai [{nama_mahasiswa, judul, pembimbing, hasil, batas_revisi, revisi_selesai}],
- *   dataMK: data koordinator MK/pengampu untuk tugas-mk.js (null bila bukan keduanya) }
+ *   dataMK: data koordinator MK/pengampu untuk tugas-mk.js (null bila bukan keduanya),
+ *   reviewSaya: baris mk_rps_review milik sendiri [{kurikulum, kode_mk, ditunjuk_pada, kirim_pada}] (118),
+ *   rekapReview: rps_review_rekap [{kurikulum, kode_mk, terkirim, ditanggapi}], bolehRps: rps_boleh_saya [{kurikulum, kode_mk}] (119),
+ *   mkNama: Map 'kur|kode' -> nama MK }
  * Hasil [{ jenis, judul, rinci, href, hari, tingkat }], lewat tenggat dulu.
  * Asesor tidak punya tugas.
  */
@@ -91,6 +94,10 @@ export function tugasSaya(d, kini = new Date()){
   // Koordinator MK dan pengampu (pemilik 2026-11-17; tugas-mk.js): CPMK/RPS dan portofolio semester terbaru.
   if (d.dataMK) for (const x of tugasMK({ saya: s, ...d.dataMK })) tambah(x.jenis, x.judul, x.rinci, x.href);
 
+  // Review sejawat RPS (118/119, pemilik 2026-11-19): reviewer yang ditunjuk dan belum mengirim; penyusun RPS yang reviewnya
+  // belum ditanggapi (admin tidak menanggapi atas nama penyusun). Tanpa tenggat resmi: tidak ditandai lewat.
+  for (const x of tugasReview(d)) tambah(x.jenis, x.judul, x.rinci, x.href);
+
   // Target kinerja tahun berjalan (66-patch-target-dosen.sql): satu butir ringkas bila ada yang belum tercapai.
   const kurang = (d.target || []).filter(b => b.status !== 'tercapai');
   if (kurang.length) tambah('target', `Target kinerja ${d.tahunTarget || kini.getFullYear()}: ${kurang.length} indikator belum tercapai`,
@@ -117,4 +124,20 @@ export function tugasSaya(d, kini = new Date()){
 
   return out.map((x, i) => [x, i]).sort(([a, i], [b, j]) => URUT[a.tingkat] - URUT[b.tingkat]
     || (a.hari ?? 1e9) - (b.hari ?? 1e9) || i - j).map(([x]) => x);
+}
+
+/** Tugas review RPS (118/119): [{jenis, judul, rinci, href}]. Satu MK = tautan langsung ke RPS-nya. */
+export function tugasReview({ reviewSaya = [], rekapReview = [], bolehRps = [], mkNama = new Map() } = {}){
+  const out = [], k = x => `${x.kurikulum}|${x.kode_mk}`, nm = x => `${x.kode_mk} ${mkNama.get(k(x)) || ''}`.trim();
+  const tautan = xs => (xs.length === 1 ? `rps.html?kur=${encodeURIComponent(xs[0].kurikulum)}&kode=${encodeURIComponent(xs[0].kode_mk)}` : 'rps.html');
+  const belum = reviewSaya.filter(x => !x.kirim_pada);
+  if (belum.length) out.push({ jenis: 'review', judul: belum.length === 1 ? `Review RPS ${nm(belum[0])}` : `Review RPS: ${belum.length} mata kuliah menunggu penilaian Anda`,
+    rinci: `Anda ditunjuk sebagai reviewer: ${belum.map(nm).join('; ')}. Isi form review di halaman RPS (panel di samping RPS).`, href: tautan(belum) });
+  const saya = new Set(bolehRps.map(k));
+  const tanggap = rekapReview.filter(x => saya.has(k(x)) && +x.terkirim > +x.ditanggapi);
+  if (tanggap.length) out.push({ jenis: 'review', judul: tanggap.length === 1 ? `Tanggapi review RPS ${nm(tanggap[0])}`
+      : `Tanggapi review RPS: ${tanggap.length} mata kuliah`,
+    rinci: `${tanggap.map(x => `${nm(x)} (${+x.terkirim - +x.ditanggapi} review)`).join('; ')}. Tanggapi tiap catatan reviewer di kartu Review sejawat RPS.`,
+    href: tautan(tanggap) });
+  return out;
 }

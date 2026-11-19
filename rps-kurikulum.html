@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-19-c94533">
-<link rel="stylesheet" href="kepala.css?v=2026-11-19-c94533">
+<link rel="stylesheet" href="tema.css?v=2026-11-19-07af6f">
+<link rel="stylesheet" href="kepala.css?v=2026-11-19-07af6f">
 <style>
   /* Kemajuan RPS dan susunan per semester (pemilik 2026-11-19) */
   .kemajuan{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
@@ -54,7 +54,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-19-c94533"></script>
+<script src="config.js?v=2026-11-19-07af6f"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -72,9 +72,9 @@ addEventListener('error', function (e) {
 // Rekap RPS kurikulum (pemilik 2026-11-19): kalender asesmen lintas MK per semester dan peta CPL dari bagian B (rps-kurikulum.js).
 // Hanya membaca; bahan rapat kurikulum dan narasi LED (beban mahasiswa, keterkaitan CPL-MK, jenjang HOTS).
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-19-c94533';
-import { semesterKurikulum, kalenderAsesmen, petaCplKurikulum, kemajuanRps, STATUS_KEMAJUAN, csvKemajuan } from './rps-kurikulum.js?v=2026-11-19-c94533';
-import { susunanMK, jenisMK } from './rps.js?v=2026-11-19-c94533';
+import { gerbang } from './menu.js?v=2026-11-19-07af6f';
+import { semesterKurikulum, kalenderAsesmen, petaCplKurikulum, kemajuanRps, STATUS_KEMAJUAN, csvKemajuan, KATEGORI_REVIEW, jumlahReview, teksReview } from './rps-kurikulum.js?v=2026-11-19-07af6f';
+import { susunanMK, jenisMK, KESIMPULAN_REVIEW } from './rps.js?v=2026-11-19-07af6f';
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const sb = createClient(window.SB_URL, window.SB_KEY);
@@ -83,6 +83,7 @@ const kunci = (kur, kode) => `${kur}|${kode}`;
 const koma = v => String(v).replace('.', ',');
 const labelSem = s => (s === '' ? 'Pilihan' : `Smt ${s}`);
 let TTD = new Map(), DOSEN = new Map(), F_STATUS = '';
+let REVIEW = new Map(), F_REVIEW = '';   // 119: rekap review sejawat per MK; saringan kategori review
 let MK = [], RPS = new Map(), STR = new Map(), CPL = [], PETA = [], KUR = '', SEM = '';
 const URL_AWAL = new URLSearchParams(location.search);
 
@@ -95,6 +96,8 @@ async function muat(){
     baca(sb.from('ref_mk_cpl').select('kurikulum,kode_mk,cpl')),
     baca(sb.from('mk_rps_ttd').select('kurikulum,kode_mk,revisi,waktu')),
     baca(sb.from('dosen').select('nidn,nama'))]);
+  { const { data } = await sb.rpc('rps_review_rekap');   // [] / galat sebelum patch 119
+    REVIEW = new Map((Array.isArray(data) ? data : []).map(x => [kunci(x.kurikulum, x.kode_mk), x])); }
   MK = mk; CPL = cpl; PETA = peta;
   TTD = new Map(); for (const t of ttd) { const k = kunci(t.kurikulum, t.kode_mk); TTD.set(k, [...(TTD.get(k) || []), t]); }
   DOSEN = new Map(dosen.filter(d => d.nidn).map(d => [String(d.nidn), d.nama]));
@@ -111,11 +114,14 @@ async function muat(){
 const LABEL_KEMAJUAN = Object.fromEntries(STATUS_KEMAJUAN);
 const CHIP_KEMAJUAN = { belum: 'galat', draf: '', revisi: '', diajukan: 'saran', dikembalikan: 'galat', disahkan: 'saran', ttd: 'ok' };
 const tgl = s => (s ? new Date(s).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) : '');
-const kemajuanIni = () => kemajuanRps({ mk: MK, rps: RPS, ttd: TTD, kur: KUR, nama: m => (m.pengampu || []).map(n => DOSEN.get(String(n)) || n) });
+const kemajuanIni = () => kemajuanRps({ mk: MK, rps: RPS, ttd: TTD, kur: KUR, nama: m => (m.pengampu || []).map(n => DOSEN.get(String(n)) || n), review: REVIEW });
+const LABEL_KES = Object.fromEntries(KESIMPULAN_REVIEW);
+const chipKes = k => `<span class="chip ${k === 'layak' ? 'ok' : k === 'perbaikan_besar' ? 'galat' : 'saran'}">${esc(LABEL_KES[k] || k)}</span>`;
 function htmlKemajuan(){
   const h = kemajuanIni(), pct = n => (h.total ? Math.round(n / h.total * 100) : 0);
   const semP = Object.fromEntries(h.baris.map(b => [b.m.kode, RPS.get(kunci(KUR, b.m.kode))?.data?.identitas?.semester || '']));
-  const pilih = h.baris.filter(b => !F_STATUS || b.kode === F_STATUS), per = new Map(pilih.map(b => [b.m.kode, b]));
+  const fRv = (KATEGORI_REVIEW.find(x => x[0] === F_REVIEW) || [])[2], nRv = jumlahReview(h);
+  const pilih = h.baris.filter(b => (!F_STATUS || b.kode === F_STATUS) && (!fRv || fRv(b))), per = new Map(pilih.map(b => [b.m.kode, b]));
   const grup = susunanMK(pilih.map(b => b.m), semP);
   return `<section class="kartu"><h2>Kemajuan RPS ${esc(KUR)}</h2>
     <p class="ket">Status RPS tiap mata kuliah aktif. Selesai = Word bertanda tangan Dekan sudah diunggah untuk pengesahan terakhir
@@ -123,16 +129,21 @@ function htmlKemajuan(){
     <div class="kemajuan">${STATUS_KEMAJUAN.map(([k, l]) => `<button type="button" class="angka-st${F_STATUS === k ? ' aktif' : ''}" data-st="${k}">
       <b>${h.jumlah[k] || 0}</b><span>${esc(l)}</span><small>${pct(h.jumlah[k] || 0)}%</small></button>`).join('')}
       <button type="button" class="angka-st${!F_STATUS ? ' aktif' : ''}" data-st=""><b>${h.total}</b><span>Semua MK</span><small>100%</small></button></div>
+    <h3>Review sejawat</h3>
+    <div class="kemajuan">${KATEGORI_REVIEW.map(([k, l]) => `<button type="button" class="angka-st${F_REVIEW === k ? ' aktif' : ''}" data-rv="${k}">
+      <b>${nRv[k]}</b><span>${esc(l)}</span></button>`).join('')}
+      <button type="button" class="angka-st${!F_REVIEW ? ' aktif' : ''}" data-rv=""><b>${h.total}</b><span>Semua MK</span></button></div>
     <div class="alat"><button class="b" id="unduhKemajuan">Unduh CSV (bahan rapat)</button>
-      <span class="ket">${F_STATUS ? `Menampilkan: ${esc(LABEL_KEMAJUAN[F_STATUS])} (${pilih.length} MK)` : `${h.total} MK`}</span></div>
-    <div class="gulir"><table class="ds daftar-mk"><thead><tr><th>Kode</th><th>Mata kuliah</th><th>Jenis</th><th>Status RPS</th><th>Penyusun (pengampu)</th><th>Diperbarui</th><th></th></tr></thead><tbody>
-    ${grup.map(g => `<tr class="grup"><th colspan="7">${esc(g.judul)}${g.semester ? ` · ${esc(g.paritas)}` : ''}<span class="ket"> · ${g.xs.length} MK</span></th></tr>`
+      <span class="ket">${F_STATUS || F_REVIEW ? `Menampilkan: ${[F_STATUS && LABEL_KEMAJUAN[F_STATUS], F_REVIEW && (KATEGORI_REVIEW.find(x => x[0] === F_REVIEW) || [])[1]].filter(Boolean).map(esc).join(' dan ')} (${pilih.length} MK)` : `${h.total} MK`}</span></div>
+    <div class="gulir"><table class="ds daftar-mk"><thead><tr><th>Kode</th><th>Mata kuliah</th><th>Jenis</th><th>Status RPS</th><th>Review sejawat</th><th>Penyusun (pengampu)</th><th>Diperbarui</th><th></th></tr></thead><tbody>
+    ${grup.map(g => `<tr class="grup"><th colspan="8">${esc(g.judul)}${g.semester ? ` · ${esc(g.paritas)}` : ''}<span class="ket"> · ${g.xs.length} MK</span></th></tr>`
       + g.xs.map(m => { const b = per.get(m.kode);
         return `<tr><td class="kode">${esc(m.kode)}</td><td>${esc(m.nama)}</td><td>${esc(jenisMK(m))}</td>
         <td><span class="chip ${CHIP_KEMAJUAN[b.kode]}">${esc(LABEL_KEMAJUAN[b.kode])}</span>${b.lama ? ' <span class="ket">(tanda tangan versi lama)</span>' : ''}</td>
+        <td>${b.review ? `${(b.review.kesimpulan || []).map(chipKes).join(' ')}<div class="ket">${esc(teksReview(b.review))}</div>` : '<span class="kosong">—</span>'}</td>
         <td>${esc(b.penyusun.join(', ')) || '<span class="kosong">belum ditetapkan</span>'}</td><td>${esc(tgl(b.diperbarui))}</td>
         <td><a class="b" href="rps.html?kur=${encodeURIComponent(KUR)}&kode=${encodeURIComponent(m.kode)}">Buka</a></td></tr>`; }).join('')).join('')
-      || '<tr><td colspan="7" class="kosong">Tidak ada mata kuliah dengan status ini.</td></tr>'}
+      || '<tr><td colspan="8" class="kosong">Tidak ada mata kuliah dengan status ini.</td></tr>'}
     </tbody></table></div></section>`;
 }
 
@@ -176,6 +187,7 @@ function gambar(){
   $('isi').innerHTML = `<div class="alat"><label>Kurikulum <select id="fKur">${kurs.map(k => `<option${k === KUR ? ' selected' : ''}>${esc(k)}</option>`).join('')}</select></label></div>
     ${htmlKemajuan()}${htmlKalender()}${htmlPetaCpl()}`;
   document.querySelectorAll('[data-st]').forEach(b => b.onclick = () => { F_STATUS = b.dataset.st; gambar(); });
+  document.querySelectorAll('[data-rv]').forEach(b => b.onclick = () => { F_REVIEW = b.dataset.rv; gambar(); });
   $('unduhKemajuan').onclick = () => {
     const a = Object.assign(document.createElement('a'), { href: URL.createObjectURL(new Blob([csvKemajuan(kemajuanIni())], { type: 'text/csv;charset=utf-8' })),
       download: `kemajuan-rps-${KUR}.csv` });

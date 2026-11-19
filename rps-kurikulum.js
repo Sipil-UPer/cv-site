@@ -3,7 +3,7 @@
 //    penumpukan tugas/kuis di pekan yang sama.
 // 2. Peta CPL dari bagian B (mk_struktur): CPL x semester berisi MK yang benar-benar menilai CPL itu (Sub-CPMK berbobot),
 //    tingkat Bloom tertinggi, ranah A/P; CPL yang dibebankan di peta MK-CPL tetapi tidak dinilai; HOTS rata-rata per tahun.
-import { rentangPekan, bloom, bobotSub, hots, TARGET_HOTS } from './rps.js?v=2026-11-19-c94533';
+import { rentangPekan, bloom, bobotSub, hots, TARGET_HOTS, KESIMPULAN_REVIEW } from './rps.js?v=2026-11-19-07af6f';
 
 const kunci = (kur, kode) => `${kur}|${kode}`;
 const urutSem = s => (s === '' ? 99 : +s || 98);
@@ -31,13 +31,13 @@ export function statusKemajuan(r, ttd = []){
  * Kemajuan RPS satu kurikulum. rps = Map "kur|kode" -> mk_rps; ttd = Map "kur|kode" -> [mk_rps_ttd]; nama(m) -> [nama penyusun].
  * Hasil { jumlah: {kode: n}, total, baris: [{ m, kode, lama, penyusun, diperbarui }] } (baris urut kode; susun per semester di halaman).
  */
-export function kemajuanRps({ mk = [], rps = new Map(), ttd = new Map(), kur, nama = () => [] }){
+export function kemajuanRps({ mk = [], rps = new Map(), ttd = new Map(), kur, nama = () => [], review = new Map() }){
   const xs = mk.filter(m => m.kurikulum === kur && m.aktif !== false).sort((a, b) => String(a.kode).localeCompare(String(b.kode)));
   const jumlah = Object.fromEntries(STATUS_KEMAJUAN.map(([k]) => [k, 0]));
   const baris = xs.map(m => {
     const r = rps.get(kunci(kur, m.kode)) || null, s = statusKemajuan(r, ttd.get(kunci(kur, m.kode)) || []);
     jumlah[s.kode] = (jumlah[s.kode] || 0) + 1;
-    return { m, ...s, penyusun: nama(m), diperbarui: r?.diperbarui || '' };
+    return { m, ...s, penyusun: nama(m), diperbarui: r?.diperbarui || '', review: review.get(kunci(kur, m.kode)) || null };
   });
   return { jumlah, total: xs.length, baris };
 }
@@ -45,9 +45,12 @@ export function kemajuanRps({ mk = [], rps = new Map(), ttd = new Map(), kur, na
 /** CSV kemajuan (bahan rapat): kode, nama, semester, status, penyusun, diperbarui. Pemisah koma, sel dikutip. */
 export function csvKemajuan(h){
   const label = Object.fromEntries(STATUS_KEMAJUAN), q = v => `"${String(v ?? '').replace(/"/g, '""')}"`;
-  return [['kode', 'nama', 'semester', 'sifat', 'status', 'penyusun', 'diperbarui'],
+  const rv = b => b.review || {};
+  return [['kode', 'nama', 'semester', 'sifat', 'status', 'penyusun', 'diperbarui', 'review_terkirim', 'kesimpulan_review', 'rerata_review', 'ditanggapi'],
     ...h.baris.map(b => [b.m.kode, b.m.nama, b.m.semester ?? '', b.m.sifat ?? '', label[b.kode] + (b.lama ? ' (tanda tangan versi lama)' : ''),
-      b.penyusun.join('; '), String(b.diperbarui).slice(0, 10)])].map(r => r.map(q).join(',')).join('\r\n') + '\r\n';
+      b.penyusun.join('; '), String(b.diperbarui).slice(0, 10), b.review ? `${rv(b).terkirim}/${rv(b).ditunjuk}` : '',
+      (rv(b).kesimpulan || []).map(k => LABEL_KES[k] || k).join('; '), rv(b).rerata == null ? '' : String(rv(b).rerata).replace('.', ','),
+      b.review ? `${rv(b).ditanggapi}/${rv(b).terkirim}` : ''])].map(r => r.map(q).join(',')).join('\r\n') + '\r\n';
 }
 
 /** Versi RPS yang dipakai rekap: salinan disahkan bila ada, selain itu isian terakhir. null = belum ada RPS. */
@@ -119,4 +122,24 @@ export function petaCplKurikulum({ mk = [], struktur = new Map(), refCpl = [], p
            belumStruktur: mks.filter(m => !struktur.get(kunci(kur, m.kode))?.sub?.length).map(m => m.kode),
            hotsTahun: Object.entries(per).map(([t, xs]) => ({ tahun: +t, n: xs.length, rata: bulat(xs.reduce((a, v) => a + v, 0) / xs.length), target: TARGET_HOTS[t] }))
              .sort((a, b) => a.tahun - b.tahun) };
+}
+
+// ---------- Review sejawat di Kemajuan RPS (119, pemilik 2026-11-19) ----------
+// review per MK = baris rps_review_rekap {ditunjuk, terkirim, kesimpulan: [..], rerata, ditanggapi}.
+const LABEL_KES = Object.fromEntries(KESIMPULAN_REVIEW);
+/** Kategori saringan review: [kunci, label, cocok(baris kemajuan)]. */
+export const KATEGORI_REVIEW = [
+  ['direview', 'Sudah direview', b => (b.review?.terkirim || 0) > 0],
+  ['menunggu', 'Reviewer belum mengirim', b => !!b.review && b.review.ditunjuk > b.review.terkirim],
+  ['tanpa', 'RPS tanpa reviewer', b => b.kode !== 'belum' && !b.review],
+  ['besar', 'Perlu perbaikan besar', b => (b.review?.kesimpulan || []).includes('perbaikan_besar')],
+  ['belum_tanggap', 'Belum ditanggapi penyusun', b => !!b.review && b.review.terkirim > b.review.ditanggapi],
+];
+/** Jumlah MK per kategori review. */
+export const jumlahReview = h => Object.fromEntries(KATEGORI_REVIEW.map(([k, , f]) => [k, h.baris.filter(f).length]));
+/** Teks ringkas review satu MK, mis. "2/2 terkirim · rerata 3,4 · ditanggapi 1/2". */
+export function teksReview(rv){
+  if (!rv) return '';
+  return [`${rv.terkirim}/${rv.ditunjuk} terkirim`, rv.rerata != null ? `rerata ${String(rv.rerata).replace('.', ',')}` : '',
+    rv.terkirim ? `ditanggapi ${rv.ditanggapi}/${rv.terkirim}` : ''].filter(Boolean).join(' · ');
 }

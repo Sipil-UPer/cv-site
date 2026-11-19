@@ -693,6 +693,13 @@ export function rerataReview(skor){
   const v = Object.values(skor || {}).map(Number).filter(n => n >= 1 && n <= 4);
   return v.length ? +(v.reduce((a, b) => a + b, 0) / v.length).toFixed(2) : null;
 }
+// Tanggapan penyusun atas review (119, pemilik 2026-11-19).
+export const STATUS_TANGGAPAN = [['diperbaiki', 'Diperbaiki'], ['sebagian', 'Diperbaiki sebagian'], ['tidak_diubah', 'Tidak diubah']];
+/** Butir yang perlu ditanggapi penyusun: ada catatan reviewer, skor 1-2, atau sudah pernah ditanggapi. */
+export const butirTanggapan = v => BUTIR_REVIEW.filter(b => String(v?.catatan?.[b.kode] || '').trim() || (+v?.skor?.[b.kode] >= 1 && +v.skor[b.kode] <= 2)
+  || v?.tanggapan?.[b.kode]);
+/** Review terkirim sudah ditanggapi (tanggapan sesudah kiriman terakhir). */
+export const sudahDitanggapi = v => !!(v?.kirim_pada && v.tanggapan_pada && v.tanggapan_pada >= v.kirim_pada);
 /** Butir yang belum diberi skor (kode). */
 export const butirKosongReview = skor => BUTIR_REVIEW.filter(b => !(+skor?.[b.kode] >= 1)).map(b => b.kode);
 
