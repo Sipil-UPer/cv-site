@@ -54,7 +54,8 @@
    "sinta_id": "6650203",
    "scopus_id": "58600645500",
    "orcid": "0009-0005-2410-4837",
-   "kelompok": "STR"
+   "kelompok": "STR",
+   "nama_gelar": "Dr. Gati Annisa Hayu., S.T., M.T., M.Sc."
   },
   {
    "nama": "M Fanshurullah Asa",
@@ -103,6 +104,7 @@
    "scopus_id": "58902592000",
    "orcid": "0000-0002-3831-107X",
    "kelompok": "TRN",
+   "nama_gelar": "Dr. Ir. Vani Arliani, ST, MT",
    "foto": "foto-profil/1ehPvswX9P8KA6chANwk40tvaKdQflJFL.jpg"
   },
   {
@@ -7098,7 +7100,7 @@
    ],
    "pembimbing": [
     {
-     "nama": "Vani Arliani",
+     "nama": "Dr. Ir. Vani Arliani, ST, MT",
      "slug": "vani-arliani"
     }
    ]

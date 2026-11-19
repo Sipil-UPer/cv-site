@@ -68,6 +68,31 @@ export const jenisAsesmen = a => (JENIS_ASESMEN.some(j => j[0] === a?.jenis) ? a
 
 /** Jenis MK dari digit ke-3 kode 5 digit K26 (Panduan 3.1): 1 MKPT, 2 MKU, 3 MKPS, 4 MKP; '' bila tidak dikenali. */
 export const jenisDariKode = kode => ({ 1: 'MKPT', 2: 'MKU', 3: 'MKPS', 4: 'MKP' }[(String(kode || '').match(/^\d{2}(\d)\d{2}$/) || [])[1]] || '');
+/** Jenis MK untuk daftar: dari kode; MK pilihan tanpa pola kode = MKP; selain itu '' (tidak ditebak). */
+export const jenisMK = m => jenisDariKode(m.kode) || (m.sifat === 'pilihan' ? 'MKP' : '');
+export const paritas = s => (/^[1-8]$/.test(teks(s)) ? (+s % 2 ? 'Ganjil' : 'Genap') : /^(Ganjil|Genap)$/i.test(teks(s)) ? teks(s)[0].toUpperCase() + teks(s).slice(1).toLowerCase() : '');
+
+/**
+ * Susunan daftar MK satu kurikulum (pemilik 2026-11-19): per semester 1-8 (Ganjil/Genap), lalu MK pilihan dikelompokkan
+ * Ganjil / Genap / belum ditetapkan menurut semester di RPS-nya (semPilihan: kode -> 'Ganjil'|'Genap'|'').
+ * Hasil [{ judul, semester, paritas, pilihan, xs, sks }]; xs urut kode. MK tanpa semester yang bukan pilihan masuk "Tanpa semester".
+ */
+export function susunanMK(mk = [], semPilihan = {}){
+  const sks = xs => xs.reduce((a, m) => a + angka(m.sks), 0), urut = xs => [...xs].sort((a, b) => String(a.kode).localeCompare(String(b.kode)));
+  const out = [];
+  for (let s = 1; s <= 8; s++) {
+    const xs = mk.filter(m => String(m.semester ?? '') === String(s));
+    if (xs.length) out.push({ judul: `Semester ${s}`, semester: s, paritas: paritas(s), pilihan: false, xs: urut(xs), sks: sks(xs) });
+  }
+  const tanpa = mk.filter(m => !/^[1-8]$/.test(String(m.semester ?? '')));
+  for (const [p, judul] of [['Ganjil', 'MK pilihan · Ganjil'], ['Genap', 'MK pilihan · Genap'], ['', 'MK pilihan · semester belum ditetapkan']]) {
+    const xs = tanpa.filter(m => m.sifat === 'pilihan' && paritas(semPilihan[m.kode]) === p);
+    if (xs.length) out.push({ judul, semester: null, paritas: p, pilihan: true, xs: urut(xs), sks: sks(xs) });
+  }
+  const lain = tanpa.filter(m => m.sifat !== 'pilihan');
+  if (lain.length) out.push({ judul: 'Tanpa semester', semester: null, paritas: '', pilihan: false, xs: urut(lain), sks: sks(lain) });
+  return out;
+}
 
 /** Kode Bloom di akhir rumusan, mis. "(C4, HOTS)" atau "(C3, A2)": { kode: ['C4'], c: 4 } (c = level kognitif tertinggi). */
 export function bloom(rumusan){
