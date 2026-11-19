@@ -1,13 +1,13 @@
 // "Tugas saya" di Ruang kerja (pemilik 2026-11-12): hal yang menunggu tindakan dosen yang
 // sedang masuk, dari data yang sudah boleh ia baca (RLS). Aturan tenggat sama dengan halaman
 // Pengingat: rapat.js, hibah.js, temuan-ami.js, pengingat-dosen.js.
-import { kurangProfil } from './pengingat-dosen.js?v=2026-11-19-8d6021';
-import { tindakTerbuka, tglID } from './rapat.js?v=2026-11-19-8d6021';
-import { tenggatBerikut, teksHari, HARI_LEWAT } from './hibah.js?v=2026-11-19-8d6021';
-import { hariKeTenggat, labelStatus, HARI_DEKAT } from './temuan-ami.js?v=2026-11-19-8d6021';
-import { tugasEvaluasi } from './evaluasi-pembelajaran.js?v=2026-11-19-8d6021';
-import { bolehPengajuan } from './koordinator.js?v=2026-11-19-8d6021';
-import { tugasMK } from './tugas-mk.js?v=2026-11-19-8d6021';
+import { kurangProfil } from './pengingat-dosen.js?v=2026-11-19-e59841';
+import { tindakTerbuka, tglID } from './rapat.js?v=2026-11-19-e59841';
+import { tenggatBerikut, teksHari, HARI_LEWAT } from './hibah.js?v=2026-11-19-e59841';
+import { hariKeTenggat, labelStatus, HARI_DEKAT } from './temuan-ami.js?v=2026-11-19-e59841';
+import { tugasEvaluasi } from './evaluasi-pembelajaran.js?v=2026-11-19-e59841';
+import { bolehPengajuan } from './koordinator.js?v=2026-11-19-e59841';
+import { tugasMK } from './tugas-mk.js?v=2026-11-19-e59841';
 
 const SELESAI_AMI = new Set(['selesai', 'ditutup']);
 const tingkat = h => h == null ? 'biasa' : h < 0 ? 'lewat' : h <= HARI_DEKAT ? 'dekat' : 'biasa';

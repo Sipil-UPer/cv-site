@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-19-8d6021">
-<link rel="stylesheet" href="kepala.css?v=2026-11-19-8d6021">
+<link rel="stylesheet" href="tema.css?v=2026-11-19-e59841">
+<link rel="stylesheet" href="kepala.css?v=2026-11-19-e59841">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
@@ -32,6 +32,11 @@
   table.ds{width:100%;border-collapse:collapse;font-size:13.5px}
   table.ds th{text-align:left;font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--line);padding:5px 8px;vertical-align:bottom}
   table.ds td{padding:6px 8px;border-bottom:1px solid var(--line-soft);vertical-align:top}
+  /* Hitung bobot otomatis (pemilik 2026-11-19) */
+  .seg{display:inline-flex}.seg .b{border-radius:0}.seg .b.aktif{background:var(--ink);color:#fff}
+  table.mx.oto label.sel{display:flex;align-items:center;gap:6px;white-space:nowrap}
+  table.mx.oto tr.target th,table.mx.oto tr.target td{background:var(--line-soft)}
+  table.mx.oto .simpang{color:var(--merah);font-weight:600}
   /* Susunan daftar MK per semester (pemilik 2026-11-19, sama dengan rps.html) */
   table.daftar-mk tr.grup th{padding:14px 8px 5px;font-size:13px;letter-spacing:0;text-transform:none;color:var(--ink);
     border-bottom:2px solid var(--line);background:none}
@@ -65,7 +70,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-19-8d6021"></script>
+<script src="config.js?v=2026-11-19-e59841"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -85,14 +90,16 @@ addEventListener('error', function (e) {
 // mengisi CPMK, Sub-CPMK, butir asesmen, bobot, dan RPS. Templat nilai CPL per kelas diisi dari struktur ini
 // di peramban (templat-cpl.js + JSZip), jadi dosen tinggal mengisi NIM dan nilai.
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-19-8d6021';
-import { bolehMutu } from './koordinator.js?v=2026-11-19-8d6021';
-import { semesterKini } from './evaluasi-pembelajaran.js?v=2026-11-19-8d6021';
-import { periksaStruktur, isiTemplat, namaBerkasTemplat } from './templat-cpl.js?v=2026-11-19-8d6021';
+import { gerbang } from './menu.js?v=2026-11-19-e59841';
+import { bolehMutu } from './koordinator.js?v=2026-11-19-e59841';
+import { semesterKini } from './evaluasi-pembelajaran.js?v=2026-11-19-e59841';
+import { periksaStruktur, isiTemplat, namaBerkasTemplat } from './templat-cpl.js?v=2026-11-19-e59841';
 import { cplMK, strukturKosong, tambahCpmk, hapusCpmk, tambahSub, hapusSub, tambahAsesmen, hapusAsesmen, gantiNamaAsesmen,
-  aturBobot, jumlahBobot, dataTemplat, statusStruktur } from './cpmk.js?v=2026-11-19-8d6021';
+  aturBobot, jumlahBobot, dataTemplat, statusStruktur,
+  hitungAwal, hitungOtomatis, MODE_HITUNG, PRIORITAS, PEMBULATAN } from './cpmk.js?v=2026-11-19-e59841';
 // RPS K26 (111): CPL per Sub-CPMK dan jenis asesmen (kolom Rencana Asesmen Sumatif) disimpan di struktur yang sama.
-import { JENIS_ASESMEN, jenisAsesmen, JENIS_MK, susunanMK, jenisMK } from './rps.js?v=2026-11-19-8d6021';
+import { JENIS_ASESMEN, jenisAsesmen, JENIS_MK, susunanMK, jenisMK, KELOMPOK_ASESMEN, kelompokAsesmen, periksaKomposisi,
+  JENIS_KULIAH, jenisKuliah } from './rps.js?v=2026-11-19-e59841';
 
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -110,7 +117,7 @@ addEventListener('beforeunload', e => { if (KOTOR) { e.preventDefault(); e.retur
 
 async function muat(){
   const [mk, cpl, peta, str, boleh, dosen, kelas, rpsSt] = await Promise.all([
-    baca(sb.from('ref_mata_kuliah').select('kurikulum,kode,nama,sks,sks_praktikum,semester,sifat,aktif,pengampu,rps_url,rps_ada,rps_9_komponen')
+    baca(sb.from('ref_mata_kuliah').select('kurikulum,kode,nama,sks,sks_kuliah,sks_praktikum,semester,sifat,capstone,aktif,pengampu,rps_url,rps_ada,rps_9_komponen')
       .order('kurikulum').order('semester').order('kode')),
     baca(sb.from('ref_cpl').select('kurikulum,kode,rumusan,indikator,urutan')),
     baca(sb.from('ref_mk_cpl').select('kurikulum,kode_mk,cpl,indikator')),
@@ -204,8 +211,55 @@ function htmlPeriksa(){
   const kosong = [...D.cpmk.filter(c => !String(c.rumusan || '').trim()).map(c => `${c.kode}: rumusan belum diisi.`),
                   ...D.sub.filter(s => !String(s.rumusan || '').trim()).map(s => `${s.kode}: rumusan belum diisi.`)];
   const semua = [...(D.cpmk.length ? [] : ['Belum ada CPMK.']), ...kosong, ...g];
-  return semua.length ? `<div class="periksa belum"><b>Belum lengkap untuk templat nilai</b><ul>${semua.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div>`
-    : '<div class="periksa ok"><b>Lengkap.</b> Templat nilai CPL per kelas bisa diunduh di bawah.</div>';
+  const kom = [...periksaKomposisi({ struktur: D, mk: mkDari(PILIH) || {} }).map(x => x.pesan), ...pesanHitung()];
+  return (semua.length ? `<div class="periksa belum"><b>Belum lengkap untuk templat nilai</b><ul>${semua.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div>`
+    : '<div class="periksa ok"><b>Lengkap.</b> Templat nilai CPL per kelas bisa diunduh di bawah.</div>')
+    + (kom.length ? `<div class="periksa belum"><b>Komposisi penilaian (Pedoman Lampiran I dan III; wajib untuk RPS)</b><ul>${kom.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div>` : '');
+}
+
+// Bagian 4 (pemilik 2026-11-19): mode Manual (isi bobot tiap sel) atau Otomatis (cara Simulator Pemetaan Sub-CPMK UP:
+// rasio target per butir dan per Sub-CPMK, centang sel, bobot dihitung dan dibulatkan; cpmk.js hitungOtomatis).
+const pct = v => `${+(+v).toFixed(1)}%`.replace('.', ',');
+function htmlBobot(){
+  if (!(D.sub.length && D.asesmen.length)) return '<p class="kosong">Tambahkan Sub-CPMK dan butir asesmen dulu.</p>';
+  const H = D.hitung, oto = H?.mode === 'otomatis', jk = jenisKuliah(mkDari(PILIH) || {});
+  const alat = `<div class="alat"><span class="seg">${MODE_HITUNG.map(([k, l]) => `<button type="button" class="b${(oto ? 'otomatis' : 'manual') === k ? ' aktif' : ''}"
+      data-mode-hitung="${k}"${dis()}>${l}</button>`).join('')}</span>
+    ${oto ? `<label>Bila target bertentangan, utamakan <select data-f="hprio"${dis()}>${PRIORITAS.map(([k, l]) => `<option value="${k}"${H.prioritas === k ? ' selected' : ''}>${l}</option>`).join('')}</select></label>
+      <label>Pembulatan <select data-f="hbulat"${dis()}>${PEMBULATAN.map(([k, l]) => `<option value="${k}"${+H.bulat === k ? ' selected' : ''}>${l}</option>`).join('')}</select></label>` : ''}
+    <span class="ket">Jenis perkuliahan: ${esc((JENIS_KULIAH.find(x => x[0] === jk) || [, jk])[1])} (dari data MK)</span></div>`;
+  if (!oto) return `${alat}<p class="ket">Persen nilai akhir yang diukur tiap butir untuk tiap Sub-CPMK (lazimnya total 100). Kosong = butir itu tidak mengukur Sub-CPMK tersebut.
+      Mode <b>Otomatis</b> menghitung bobot sel dari rasio target, seperti Simulator Pemetaan Sub-CPMK.</p>
+    <div class="gulir"><table class="ds mx"><thead><tr><th>Sub-CPMK</th>${D.asesmen.map(a => `<th>${esc(a.nama)}</th>`).join('')}<th>jumlah</th></tr></thead><tbody>
+      ${D.sub.map(x => { const b = D.bobot[x.kode] || {}; const j = Object.values(b).reduce((p, q) => p + +q, 0);
+        return `<tr><td class="kode" title="${esc(x.rumusan)}">${esc(x.kode)}</td>${D.asesmen.map(a => `<td><input class="angka" inputmode="decimal" data-f="bobot" data-s="${esc(x.kode)}" data-a="${esc(a.nama)}"
+          value="${esc(b[a.nama] ?? '')}"${dis()}></td>`).join('')}<td class="kode" data-jumlah-sub="${esc(x.kode)}">${+j.toFixed(2)}</td></tr>`; }).join('')}
+      </tbody><tfoot><tr id="jumlahKolom">${htmlJumlah()}</tr></tfoot></table></div>`;
+  const h = hitungOtomatis(D), A = D.asesmen;
+  return `${alat}<p class="ket">Isi <b>rasio target</b> tiap butir asesmen (kolom, mis. 15 : 30 : 25 : 30) dan tiap Sub-CPMK (baris); angka dinormalkan
+      menjadi 100%. Centang butir yang mengukur tiap Sub-CPMK. Bobot sel dihitung sehingga kedua target sedekat mungkin terpenuhi
+      (sisi yang diutamakan tepat), lalu dibulatkan. Pindah ke Manual untuk menyunting angka sel langsung.</p>
+    <div class="gulir"><table class="ds mx oto"><thead><tr><th>Sub-CPMK</th><th>Rasio target</th>${A.map(a => `<th>${esc(a.nama)}<div class="ket">${
+        esc((KELOMPOK_ASESMEN.find(x => x[0] === kelompokAsesmen(a)) || [, ''])[1])}</div></th>`).join('')}<th>hasil / target</th></tr>
+      <tr class="target"><th>Rasio target asesmen</th><td></td>${A.map((a, j) => `<td><input class="angka" inputmode="decimal" data-f="tases" data-a="${esc(a.nama)}"
+        value="${esc(H.asesmen?.[a.nama] ?? '')}"${dis()}><div class="ket">${pct(h.colT[j])}</div></td>`).join('')}<td></td></tr></thead><tbody>
+      ${D.sub.map((x, i) => `<tr><td class="kode" title="${esc(x.rumusan)}">${esc(x.kode)}</td>
+        <td><input class="angka" inputmode="decimal" data-f="tsub" data-s="${esc(x.kode)}" value="${esc(H.sub?.[x.kode] ?? '')}"${dis()}><div class="ket">${pct(h.rowT[i])}</div></td>
+        ${A.map(a => { const on = (H.sel?.[x.kode] || []).includes(a.nama), v = h.bobot[x.kode]?.[a.nama];
+          return `<td><label class="sel"><input type="checkbox" data-f="hsel" data-s="${esc(x.kode)}" data-a="${esc(a.nama)}"${on ? ' checked' : ''}${dis()}>
+            <b>${v ? esc(String(v).replace('.', ',')) : ''}</b></label></td>`; }).join('')}
+        <td class="kode${Math.abs(h.rowSum[i] - h.rowT[i]) > 0.5 ? ' simpang' : ''}">${pct(h.rowSum[i])} / ${pct(h.rowT[i])}</td></tr>`).join('')}
+      </tbody><tfoot><tr><td>hasil / target</td><td></td>${A.map((a, j) => `<td class="${Math.abs(h.colSum[j] - h.colT[j]) > 0.5 ? 'simpang' : ''}">${pct(h.colSum[j])} / ${pct(h.colT[j])}</td>`).join('')}
+        <td><b>${pct(h.rowSum.reduce((a, b) => a + b, 0))}</b></td></tr></tfoot></table></div>`;
+}
+/** Pesan hitung otomatis: target tak tercapai, Sub-CPMK belum diukur, butir bertarget tanpa Sub-CPMK. */
+function pesanHitung(){
+  if (D.hitung?.mode !== 'otomatis' || !D.sub.length || !D.asesmen.length) return [];
+  const h = hitungOtomatis(D), out = [];
+  if (h.belumDiukur.length) out.push(`Sub-CPMK belum diukur asesmen apa pun (centang selnya): ${h.belumDiukur.join(', ')}.`);
+  if (h.tanpaSel.length) out.push(`Butir bertarget tetapi belum mengukur Sub-CPMK mana pun: ${h.tanpaSel.join(', ')}.`);
+  if (h.simpang > 0.5) out.push(`Komposisi akhir menyimpang dari target hingga ${String(+h.simpang.toFixed(1)).replace('.', ',')} poin persen: pola centang belum memungkinkan kedua target terpenuhi; tambah centang pada baris/kolom yang selisihnya besar, atau ubah targetnya.`);
+  return out;
 }
 
 function htmlJumlah(){
@@ -253,22 +307,19 @@ function htmlEditor(){
 
     <section class="kartu"><h2>3. Butir asesmen</h2>
       <p class="ket">Tugas, kuis, praktikum, UTS, UAS, proyek, dan sebagainya; sama dengan rencana asesmen di RPS (paling banyak 50). Nama bisa diubah langsung.</p>
-      <p class="ket">Jenis butir menentukan kolom Rencana Asesmen Sumatif di RPS (Kuis, Tugas, UTS, UAS, Lainnya).</p>
+      <p class="ket">Jenis butir menentukan kolom Rencana Asesmen Sumatif di RPS (Kuis, Tugas, UTS, UAS, Lainnya). Kelompok
+        (Ujian/kuis atau Penugasan) dipakai untuk syarat bobot Penugasan paling rendah 20% pada perkuliahan reguler.</p>
       <div class="alat">${D.asesmen.map(a => `<span><input data-f="ases" data-lama="${esc(a.nama)}" value="${esc(a.nama)}" style="width:150px"${dis()}>
         <select data-f="asesjenis" data-k="${esc(a.nama)}" title="Jenis asesmen"${dis()}>${JENIS_ASESMEN.map(([k, l]) => `<option value="${k}"${
           jenisAsesmen(a) === k ? ' selected' : ''}>${l}</option>`).join('')}</select>
+        <select data-f="aseskel" data-k="${esc(a.nama)}" title="Kelompok (syarat Penugasan paling rendah 20% perkuliahan reguler)"${dis()}>${KELOMPOK_ASESMEN.map(([k, l]) => `<option value="${k}"${
+          kelompokAsesmen(a) === k ? ' selected' : ''}>${l}</option>`).join('')}</select>
         ${ro() ? '' : `<button class="b awas" data-hapus-ases="${esc(a.nama)}" title="Hapus butir ini">×</button>`}</span>`).join('') || '<span class="kosong">Belum ada butir.</span>'}</div>
       ${ro() ? '' : '<div class="alat"><input id="asesBaru" placeholder="mis. Tugas 1" style="width:180px"><button class="b" id="tambahAses">+ Butir</button><span class="msg" id="mAses"></span></div>'}
     </section>
 
     <section class="kartu"><h2>4. Bobot butir asesmen per Sub-CPMK</h2>
-      <p class="ket">Persen nilai akhir yang diukur tiap butir untuk tiap Sub-CPMK (lazimnya total 100). Kosong = butir itu tidak mengukur Sub-CPMK tersebut.</p>
-      ${D.sub.length && D.asesmen.length ? `<div class="gulir"><table class="ds mx"><thead><tr><th>Sub-CPMK</th>${D.asesmen.map(a => `<th>${esc(a.nama)}</th>`).join('')}<th>jumlah</th></tr></thead><tbody>
-        ${D.sub.map(x => { const b = D.bobot[x.kode] || {}; const j = Object.values(b).reduce((p, q) => p + +q, 0);
-          return `<tr><td class="kode" title="${esc(x.rumusan)}">${esc(x.kode)}</td>${D.asesmen.map(a => `<td><input class="angka" inputmode="decimal" data-f="bobot" data-s="${esc(x.kode)}" data-a="${esc(a.nama)}"
-            value="${esc(b[a.nama] ?? '')}"${dis()}></td>`).join('')}<td class="kode" data-jumlah-sub="${esc(x.kode)}">${+j.toFixed(2)}</td></tr>`; }).join('')}
-        </tbody><tfoot><tr id="jumlahKolom">${htmlJumlah()}</tr></tfoot></table></div>`
-        : '<p class="kosong">Tambahkan Sub-CPMK dan butir asesmen dulu.</p>'}
+      ${htmlBobot()}
       <div id="periksa">${htmlPeriksa()}</div>
       ${ro() ? '' : htmlRpsB() + '<p><button class="b utama" id="simpan">Simpan CPMK dan bobot</button><span class="msg" id="mSimpan"></span></p>'}
     </section>
@@ -342,6 +393,7 @@ $('isi').addEventListener('input', e => {
     else if (f === 'sub') D.sub.find(s => s.kode === t.dataset.k).rumusan = t.value;
     else if (f === 'subcpl') { const s = D.sub.find(s => s.kode === t.dataset.k); if (t.value) s.cpl = t.value; else delete s.cpl; }
     else if (f === 'asesjenis') D.asesmen.find(a => a.nama === t.dataset.k).jenis = t.value;
+    else if (f === 'aseskel') D.asesmen.find(a => a.nama === t.dataset.k).kelompok = t.value;
     else if (f === 'ind') { const c = D.cpmk.find(c => c.kode === t.dataset.c); c.indikator = c.indikator || {}; aturBobot(c.indikator, t.dataset.i, t.value); }
     else if (f === 'bobot') {
       aturBobot(D.bobot[t.dataset.s] = D.bobot[t.dataset.s] || {}, t.dataset.a, t.value);
@@ -353,6 +405,32 @@ $('isi').addEventListener('input', e => {
   } catch { t.style.borderColor = 'var(--merah)'; return; }
   KOTOR = true;
   $('periksa').innerHTML = htmlPeriksa();
+});
+// Hitung otomatis (pemilik 2026-11-19): target/centang/prioritas/pembulatan berubah -> bobot dihitung ulang, bagian digambar ulang.
+const HITUNG_F = ['tases', 'tsub', 'hsel', 'hprio', 'hbulat'];
+function hitungUlang(){ D.bobot = hitungOtomatis(D).bobot; KOTOR = true; const y = scrollY; gambar(); scrollTo(0, y); }
+$('isi').addEventListener('change', e => {
+  const t = e.target, f = t.dataset?.f;
+  if (!D || !HITUNG_F.includes(f) || D.hitung?.mode !== 'otomatis') return;
+  const H = D.hitung, v = String(t.value).replace(',', '.');
+  if (f === 'tases') (H.asesmen ||= {})[t.dataset.a] = +v || 0;
+  else if (f === 'tsub') (H.sub ||= {})[t.dataset.s] = +v || 0;
+  else if (f === 'hprio') H.prioritas = t.value;
+  else if (f === 'hbulat') H.bulat = +t.value;
+  else if (f === 'hsel') {
+    const xs = new Set((H.sel ||= {})[t.dataset.s] || []);
+    if (t.checked) xs.add(t.dataset.a); else xs.delete(t.dataset.a);
+    H.sel[t.dataset.s] = D.asesmen.map(a => a.nama).filter(n => xs.has(n));
+  }
+  hitungUlang();
+});
+$('isi').addEventListener('click', e => {
+  const b = e.target.closest?.('[data-mode-hitung]');
+  if (!b || !D || b.disabled) return;
+  if (b.dataset.modeHitung === 'otomatis') {
+    if (!D.hitung) D.hitung = hitungAwal(D); else D.hitung.mode = 'otomatis';
+    hitungUlang();
+  } else if (D.hitung) { D.hitung.mode = 'manual'; KOTOR = true; const y = scrollY; gambar(); scrollTo(0, y); }
 });
 $('isi').addEventListener('change', e => {
   const t = e.target;

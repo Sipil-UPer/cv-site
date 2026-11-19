@@ -66,6 +66,38 @@ export function tebakJenis(nama){
 }
 export const jenisAsesmen = a => (JENIS_ASESMEN.some(j => j[0] === a?.jenis) ? a.jenis : tebakJenis(a?.nama));
 
+// Komposisi asesmen (pemilik 2026-11-19; Simulator Pemetaan Sub-CPMK UP, Pedoman Perencanaan Pembelajaran Lampiran I dan III).
+export const KELOMPOK_ASESMEN = [['ujian', 'Ujian/kuis'], ['penugasan', 'Penugasan']];
+/** Kelompok butir: isian a.kelompok; bawaan tugas/lainnya = penugasan, kuis/UTS/UAS = ujian. */
+export const kelompokAsesmen = a => (['ujian', 'penugasan'].includes(a?.kelompok) ? a.kelompok
+  : ['tugas', 'lainnya'].includes(jenisAsesmen(a)) ? 'penugasan' : 'ujian');
+export const JENIS_KULIAH = [['reguler', 'Reguler sarjana'], ['praktikum', 'Praktikum'], ['kulminasi', 'Kulminasi (KP, TA, capstone)']];
+/** Jenis perkuliahan dari data MK: kulminasi = capstone; praktikum = seluruh sks praktikum; selain itu reguler sarjana. */
+export function jenisKuliah(mk = {}){
+  if (mk.capstone === true || mk.capstone === 'true') return 'kulminasi';
+  const p = angka(mk.sks_praktikum), t = mk.sks_kuliah != null && mk.sks_kuliah !== '' ? angka(mk.sks_kuliah) : angka(mk.sks) - p;
+  return p > 0 && t <= 0 ? 'praktikum' : 'reguler';
+}
+/**
+ * Aturan komposisi (galat): reguler sarjana memuat UTS dan UAS berbobot dan kelompok Penugasan paling rendah 20%;
+ * praktikum memuat Laporan Akhir berbobot; kulminasi dinilai tersendiri. Hasil [{bagian:'B', tingkat:'galat', pesan}].
+ */
+export function periksaKomposisi({ struktur, mk = {} } = {}){
+  const S = struktur || {}, out = [], g = pesan => out.push({ bagian: 'B', tingkat: 'galat', pesan });
+  if (!S.sub?.length || !S.asesmen?.length) return out;
+  const kol = a => S.sub.reduce((t, x) => t + angka(S.bobot?.[x.kode]?.[a.nama]), 0);
+  const per = j => S.asesmen.filter(a => jenisAsesmen(a) === j).reduce((t, a) => t + kol(a), 0);
+  const jk = jenisKuliah(mk);
+  if (jk === 'reguler') {
+    if (!(per('uts') > 0 && per('uas') > 0)) g(`Perkuliahan reguler sarjana wajib memuat UTS dan UAS dengan bobot (Pedoman, Lampiran I dan III); sekarang UTS ${bulat(per('uts'))}%, UAS ${bulat(per('uas'))}%.`);
+    const pen = S.asesmen.filter(a => kelompokAsesmen(a) === 'penugasan').reduce((t, a) => t + kol(a), 0);
+    if (pen < 20 - 1e-9) g(`Bobot kelompok Penugasan ${bulat(pen)}%; perkuliahan reguler mensyaratkan paling rendah 20% (Pedoman, Lampiran I dan III).`);
+  } else if (jk === 'praktikum') {
+    if (!S.asesmen.some(a => /laporan\s+akhir/i.test(a.nama) && kol(a) > 0)) g('Praktikum wajib memuat butir "Laporan Akhir" dengan bobot (Pedoman, Lampiran I dan III).');
+  }
+  return out;
+}
+
 /** Jenis MK dari digit ke-3 kode 5 digit K26 (Panduan 3.1): 1 MKPT, 2 MKU, 3 MKPS, 4 MKP; '' bila tidak dikenali. */
 export const jenisDariKode = kode => ({ 1: 'MKPT', 2: 'MKU', 3: 'MKPS', 4: 'MKP' }[(String(kode || '').match(/^\d{2}(\d)\d{2}$/) || [])[1]] || '');
 /** Jenis MK untuk daftar: dari kode; MK pilihan tanpa pola kode = MKP; selain itu '' (tidak ditebak). */
@@ -295,6 +327,7 @@ export function periksaRps({ mk = {}, struktur, rps, cpl = [], pengembang = null
   }
   const total = S.sub.reduce((a, x) => a + bobotSub(S, x.kode), 0);
   if (S.sub.length && bulat(total) !== 100) g('B', `Total bobot penilaian ${bulat(total)}%, harus 100%.`);
+  for (const p of periksaKomposisi({ struktur: S, mk })) out.push(p);
   const H = hots(S, I.semester || mk.semester);
   if (H.target != null && S.sub.length && H.persen < H.target) s('B', `HOTS ${H.persen}%; disarankan ≥ ${H.target}% untuk MK tahun ke-${H.tahun}.`);
   if (S.sub.length > 1 && !Object.keys(R.peta?.sub || {}).some(k => S.sub.some(x => x.kode === k)))
