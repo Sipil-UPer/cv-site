@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-19-ee7343">
-<link rel="stylesheet" href="kepala.css?v=2026-11-19-ee7343">
+<link rel="stylesheet" href="tema.css?v=2026-11-19-52202c">
+<link rel="stylesheet" href="kepala.css?v=2026-11-19-52202c">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
@@ -42,6 +42,10 @@
   table.daftar-mk.ringkas{margin-bottom:6px}
   table.daftar-mk.ringkas td:first-child{width:62px}
   .alat.saring{flex-wrap:wrap;gap:8px 12px}
+  table.ringkas-smt{width:auto;margin:6px 0 4px}
+  table.ringkas-smt th,table.ringkas-smt td{text-align:center;padding:4px 10px}
+  table.ringkas-smt tbody th{text-align:left}
+  h3.judul-kolom .ket{font-weight:400;font-size:13px}
   /* Susunan daftar MK per semester (pemilik 2026-11-19) */
   table.daftar-mk tr.grup th{padding:14px 8px 5px;font-size:13px;letter-spacing:0;text-transform:none;color:var(--ink);
     border-bottom:2px solid var(--line);background:none}
@@ -74,7 +78,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-19-ee7343"></script>
+<script src="config.js?v=2026-11-19-52202c"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -94,16 +98,16 @@ addEventListener('error', function (e) {
 // Penyusun = koordinator MK atau pengampu kelas MK semester terakhir (boleh_rps, 112); GKM dan admin hanya melihat.
 // Pengesahan (112): dosen mengajukan -> Kaprodi aktif mengesahkan atau mengembalikan; daftar revisi (bagian F) otomatis.
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-19-ee7343';
-import { bolehMutu, aktifPada, punya } from './koordinator.js?v=2026-11-19-ee7343';
-import { cplMK } from './cpmk.js?v=2026-11-19-ee7343';
+import { gerbang } from './menu.js?v=2026-11-19-52202c';
+import { bolehMutu, aktifPada, punya } from './koordinator.js?v=2026-11-19-52202c';
+import { cplMK } from './cpmk.js?v=2026-11-19-52202c';
 import { JENIS_ASESMEN, JENIS_MK, DIREKTORI, jenisAsesmen, bloom, hots, rapikanRps, kerangkaPekan, barisPekan, periksaRps, modelRps,
   namaBerkasRps, penyusunMK, revisiDariLog, tanggalLokal, waktuLokal, evaluasiDariData, BENTUK, SCL, rekapRps, BENTUK_INTEGRASI,
-  bedaRps, salinRps, ASESMEN_TES, rubrikKosong, kriteriaKosong, rentangPekan, susunanMK, jenisMK, bagiParitas, saringMK } from './rps.js?v=2026-11-19-ee7343';
-import { JENIS_PETA, relasiPeta, petaSvg, usulPeta } from './rps-peta.js?v=2026-11-19-ee7343';
-import { keB64 } from './pengajuan-mhs.js?v=2026-11-19-ee7343';
-import { bacaTinjauan, bahanTinjauan } from './tinjauan-rps.js?v=2026-11-19-ee7343';
-import { buatRpsDocx } from './rps-docx.js?v=2026-11-19-ee7343';
+  bedaRps, salinRps, ASESMEN_TES, rubrikKosong, kriteriaKosong, rentangPekan, susunanMK, jenisMK, bagiParitas, saringMK, ringkasSemester, htmlRingkasSemester } from './rps.js?v=2026-11-19-52202c';
+import { JENIS_PETA, relasiPeta, petaSvg, usulPeta } from './rps-peta.js?v=2026-11-19-52202c';
+import { keB64 } from './pengajuan-mhs.js?v=2026-11-19-52202c';
+import { bacaTinjauan, bahanTinjauan } from './tinjauan-rps.js?v=2026-11-19-52202c';
+import { buatRpsDocx } from './rps-docx.js?v=2026-11-19-52202c';
 
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -214,6 +218,7 @@ function htmlDaftar(){
   const opsi = (xs2, v) => xs2.map(([k, l]) => `<option value="${esc(k)}"${k === v ? ' selected' : ''}>${esc(l)}</option>`).join('');
   const grup = F_MENUNGGU ? [{ judul: 'Menunggu pemeriksaan', xs, sks: xs.reduce((a, m) => a + (+m.sks || 0), 0) }] : susunanMK(xs, semPilihan(xs));
   const { ganjil, genap, lain } = F_MENUNGGU ? { ganjil: [], genap: [], lain: grup } : bagiParitas(grup);
+  const tot = x => `<span class="ket"> · ${x.mk} MK · ${String(x.sks).replace('.', ',')} sks</span>`, rs = ringkasSemester(xs);
   const kolom = (gs, judul) => `<div><h3 class="judul-kolom">${judul}</h3>${gs.map(tabelGrup).join('') || '<p class="kosong">Tidak ada mata kuliah yang cocok.</p>'}</div>`;
   return `<section class="kartu"><h2>RPS mata kuliah</h2>
     <p class="ket">Isi RPS sekali per mata kuliah; bagian B (CPL, CPMK, Sub-CPMK, asesmen, bobot) diambil dari halaman
@@ -228,7 +233,7 @@ function htmlDaftar(){
       <span class="ket">${xs.length} dari ${semua.length} mata kuliah${F_MENUNGGU ? ' (semua kurikulum)' : ` ${esc(kur)}`}</span></div>
     ${SAYA_KAPRODI ? `<p><label class="centang"><input type="checkbox" id="fMenunggu"${F_MENUNGGU ? ' checked' : ''}> Hanya yang menunggu pemeriksaan Anda
       (${menunggu})</label></p>` : ''}
-    ${F_MENUNGGU ? '' : `<div class="dua-kolom">${kolom(ganjil, 'Semester Ganjil')}${kolom(genap, 'Semester Genap')}</div>`}
+    ${F_MENUNGGU ? '' : `${htmlRingkasSemester(rs)}<div class="dua-kolom">${kolom(ganjil, 'Semester Ganjil' + tot(rs.ganjil))}${kolom(genap, 'Semester Genap' + tot(rs.genap))}</div>`}
     ${lain.length ? `<div class="kolom-lain">${lain.map(tabelGrup).join('')}</div>` : ''}
     <p class="ket">Jenis: ${Object.entries(NAMA_JENIS).map(([k, v]) => `<b>${esc(k)}</b> ${esc(v)}`).join(' · ')}. MK pilihan ditempatkan di kolom Ganjil/Genap
       menurut semester yang diisi di RPS-nya; yang belum diisi tampil di bawah.</p></section>`;

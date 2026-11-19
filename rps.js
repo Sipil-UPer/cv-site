@@ -104,6 +104,32 @@ export const jenisDariKode = kode => ({ 1: 'MKPT', 2: 'MKU', 3: 'MKPS', 4: 'MKP'
 export const jenisMK = m => jenisDariKode(m.kode) || (m.sifat === 'pilihan' ? 'MKP' : '');
 export const paritas = s => (/^[1-8]$/.test(teks(s)) ? (+s % 2 ? 'Ganjil' : 'Genap') : /^(Ganjil|Genap)$/i.test(teks(s)) ? teks(s)[0].toUpperCase() + teks(s).slice(1).toLowerCase() : '');
 
+/**
+ * Ringkasan jumlah MK dan sks per semester (pemilik 2026-11-19). Hasil { kolom: [{ label, mk, sks, sksP }], ganjil, genap, total }:
+ * kolom = Smt 1..8 (yang ada), lalu "Pilihan" (MK pilihan tanpa semester) dan "Tanpa smt" (bukan pilihan); ganjil/genap/total
+ * = { mk, sks } (pilihan masuk total saja). sksP = sks praktikum.
+ */
+export function ringkasSemester(mk = []){
+  const isi = xs => ({ mk: xs.length, sks: +xs.reduce((a, m) => a + angka(m.sks), 0).toFixed(2), sksP: +xs.reduce((a, m) => a + angka(m.sks_praktikum), 0).toFixed(2) });
+  const smt = m => (/^[1-8]$/.test(String(m.semester ?? '')) ? +m.semester : 0);
+  const kolom = [];
+  for (let s = 1; s <= 8; s++) { const xs = mk.filter(m => smt(m) === s); if (xs.length) kolom.push({ label: `Smt ${s}`, semester: s, ...isi(xs) }); }
+  const pil = mk.filter(m => !smt(m) && m.sifat === 'pilihan'), lain = mk.filter(m => !smt(m) && m.sifat !== 'pilihan');
+  if (pil.length) kolom.push({ label: 'Pilihan', semester: null, ...isi(pil) });
+  if (lain.length) kolom.push({ label: 'Tanpa smt', semester: null, ...isi(lain) });
+  const ambil = f => { const xs = mk.filter(f); const r = isi(xs); return { mk: r.mk, sks: r.sks }; };
+  return { kolom, ganjil: ambil(m => smt(m) % 2 === 1), genap: ambil(m => smt(m) && smt(m) % 2 === 0), total: ambil(() => true) };
+}
+/** Tabel ringkas (HTML) dari ringkasSemester; label dan angka dibuat sendiri, jadi tanpa teks pengguna. */
+export function htmlRingkasSemester(r){
+  if (!r.kolom.length) return '';
+  const k = v => String(v).replace('.', ',');
+  return `<div class="gulir"><table class="ds ringkas-smt"><thead><tr><th></th>${r.kolom.map(c => `<th>${c.label}</th>`).join('')}<th>Total</th></tr></thead><tbody>
+    <tr><th>MK</th>${r.kolom.map(c => `<td>${c.mk}</td>`).join('')}<td><b>${r.total.mk}</b></td></tr>
+    <tr><th>sks</th>${r.kolom.map(c => `<td>${k(c.sks)}${c.sksP ? `<div class="ket">P ${k(c.sksP)}</div>` : ''}</td>`).join('')}<td><b>${k(r.total.sks)}</b></td></tr>
+    </tbody></table></div>`;
+}
+
 /** Kelompok susunanMK dibagi dua kolom (pemilik 2026-11-19): kiri Ganjil (1, 3, 5, 7, MK pilihan Ganjil), kanan Genap;
  *  lain = MK pilihan yang semesternya belum ditetapkan di RPS dan MK tanpa semester (selebar halaman). */
 export const bagiParitas = grup => ({ ganjil: grup.filter(g => g.paritas === 'Ganjil'), genap: grup.filter(g => g.paritas === 'Genap'),
