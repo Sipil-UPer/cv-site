@@ -4,11 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Layanan mahasiswa — Program Studi</title>
-<meta name="description" content="Layanan mahasiswa program studi: pengajuan KP, seminar/sidang TA, lomba, luaran, dan surat; jadwal seminar/sidang; pengumuman, pedoman, tanya-jawab.">
+<meta name="description" content="Layanan mahasiswa program studi: pengajuan KP, seminar/sidang TA, lomba, luaran, surat, dan berkas yudisium; jadwal seminar/sidang; pengumuman, pedoman, tanya-jawab.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-19-8d11f9">
+<link rel="stylesheet" href="tema.css?v=2026-11-20-a5354e">
 <style>
   /* Layanan mahasiswa, publik (pemilik 2026-11-16; patch 76, 77, 78). Warna dari tema.css. */
   *{box-sizing:border-box}
@@ -103,10 +103,9 @@
 </head>
 <body>
 <header class="hero"><div class="hero-in">
-  <a class="balik" href="index.html">&larr; Beranda</a>
   <h1>Layanan mahasiswa</h1><div class="prodi" id="hProdi"></div>
   <nav class="pintu" aria-label="Layanan utama">
-    <a class="utama" href="pengajuan.html">Ajukan<small>KP, seminar/sidang TA, lomba, luaran, surat</small></a>
+    <a class="utama" href="pengajuan.html">Ajukan<small>KP, seminar/sidang TA, lomba, luaran, surat, yudisium</small></a>
     <a href="pengajuan.html#tautan">Cek pengajuan saya<small>tautan hilang? kirim ulang ke email kampus</small></a>
     <a href="#jadwal-ta">Jadwal seminar/sidang<small>proposal, kemajuan, sidang akhir</small></a>
     <a href="#kirim">Tanya prodi<small>pertanyaan atau masukan</small></a>
@@ -171,7 +170,7 @@
   <footer>Pertanyaan tentang isi berkas: hubungi sekretariat program studi.
     · <a href="kurikulum.html">Kurikulum</a> · <a href="privasi.html">Kebijakan privasi</a></footer>
 </main>
-<script src="config.js?v=2026-11-19-8d11f9"></script>
+<script src="config.js?v=2026-11-20-a5354e"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -186,6 +185,9 @@ addEventListener('error', function (e) {
 });
 </script>
 <script type="module">
+// Kepala dan kaki bersama situs umum (pemilik 2026-11-19, tahap 2).
+import { pasangKerangka } from './kerangka.js?v=2026-11-20-a5354e';
+pasangKerangka({ aktif: 'mahasiswa', muat: true });
 // Layanan mahasiswa, tanpa masuk akun (pemilik 2026-11-16). Alamat tetap layanan-mahasiswa.html supaya tautan lama tidak putus.
 //   Berkas: dipilih admin per dokumen pustaka (Data prodi > Dokumen, centang "Mahasiswa"); dokumen_mahasiswa() (76)
 //     hanya mengembalikan yang dicentang, bukan berkas privat, dan belum lewat masa berlakunya.
@@ -193,8 +195,8 @@ addEventListener('error', function (e) {
 //   Tanya-jawab: tanya_jawab_publik() (78), disusun admin di kelola-layanan-mahasiswa.html.
 //   Kiriman: kirim_masukan_mahasiswa() (78) ke kotak masuk tertutup; kolom k_situs adalah jebakan bot.
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { infoJenis } from './rencana-bukti.js?v=2026-11-19-8d11f9';
-import { pasangPembimbing } from './pembimbing.js?v=2026-11-19-8d11f9';
+import { infoJenis } from './rencana-bukti.js?v=2026-11-20-a5354e';
+import { pasangPembimbing } from './pembimbing.js?v=2026-11-20-a5354e';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);

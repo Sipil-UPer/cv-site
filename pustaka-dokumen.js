@@ -7,9 +7,9 @@
    MENGGANTI berkasnya (versi lama ke _arsip Drive), tidak menambah salinan.
    Dipakai data-prodi.html (tab Dokumen dan bukti baris) dan input-butir.html.
    ===================================================================== */
-import { JENIS_DOKUMEN, infoJenis } from './rencana-bukti.js?v=2026-11-19-8d11f9';
-import { tautanBerkas, temuanPakai } from './tautan-privat.js?v=2026-11-19-8d11f9';
-import { periksaBerkas, kolomSidik, teksTemuan } from './sidik-berkas.js?v=2026-11-19-8d11f9';
+import { JENIS_DOKUMEN, infoJenis } from './rencana-bukti.js?v=2026-11-20-a5354e';
+import { tautanBerkas, temuanPakai } from './tautan-privat.js?v=2026-11-20-a5354e';
+import { periksaBerkas, kolomSidik, teksTemuan } from './sidik-berkas.js?v=2026-11-20-a5354e';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g,
   c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));

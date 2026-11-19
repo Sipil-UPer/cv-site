@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-19-8d11f9">
+<link rel="stylesheet" href="tema.css?v=2026-11-20-a5354e">
 <style>
   *{box-sizing:border-box}
   html{scroll-behavior:smooth}
@@ -77,14 +77,13 @@
 <body>
 <header class="hero">
   <div class="hero-in">
-    <a class="balik" href="index.html">&larr; Beranda</a>
     <h1>Kurikulum</h1>
     <div class="prodi" id="hProdi"></div>
     <div class="angka" id="angka"></div>
   </div>
 </header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-19-8d11f9"></script>
+<script src="config.js?v=2026-11-20-a5354e"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -99,6 +98,9 @@ addEventListener('error', function (e) {
 });
 </script>
 <script type="module">
+// Kepala dan kaki bersama situs umum (pemilik 2026-11-19, tahap 2).
+import { pasangKerangka } from './kerangka.js?v=2026-11-20-a5354e';
+pasangKerangka({ aktif: 'profil', muat: true });
 // Kurikulum publik (pemilik 2026-11-16): visi, profil lulusan (79-patch-profil-lulusan.sql),
 // CPL (71) dan mata kuliah per semester, dari data.json (bangun.py kurikulum_publik). Kurikulum
 // terbaru menjadi utama; kurikulum lama bisa dipilih (?k=K21) untuk mahasiswa angkatan lama.

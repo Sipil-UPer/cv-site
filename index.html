@@ -15,7 +15,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-19-8d11f9">
+<link rel="stylesheet" href="tema.css?v=2026-11-20-a5354e">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:#fff;color:var(--ink);font-family:var(--sans);font-size:15.5px;line-height:1.6;-webkit-font-smoothing:antialiased}
@@ -166,6 +166,44 @@
   .pres .lomba{font-weight:600;color:var(--ink);font-size:14.5px}
   .pres .siapa{margin-top:8px;font-size:13px;color:var(--muted)}
   .tag.int{background:var(--aksen);color:var(--biru-gelap)}
+
+  /* Beranda ringkas di ponsel (pemilik 2026-11-19, tahap 2): dari ~12 layar ke ~5. Kartu prestasi, kegiatan,
+     riset, dan dosen jadi lajur geser ke samping (kartu berikutnya terlihat sebagian sebagai petunjuk);
+     bidang jadi chip; kartu mahasiswa satu baris; jarak antarbagian diperkecil. Desktop tidak berubah. */
+  @media(max-width:560px){
+    section{padding-top:38px}
+    .latar{padding:38px 0}
+    .kepala-bag{margin-bottom:14px}
+    .kepala-bag p{display:none}
+    .hero-in{padding:34px 20px 30px;gap:22px}
+    .hero p.lead{font-size:16px;margin-bottom:18px}
+    .akses{padding:16px 18px}
+    .akses li a{padding:7px 2px}
+    .akses li a small{display:none}
+    .geser{display:grid;grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:82%;gap:12px;overflow-x:auto;
+      scroll-snap-type:x mandatory;margin:0 -20px;padding:2px 20px 8px;scroll-padding-left:20px;overscroll-behavior-x:contain}
+    .geser>*{scroll-snap-align:start}
+    .geser.dosen{grid-auto-columns:44%}
+    .dua .geser{grid-template-columns:none}
+    .dua>section{min-width:0}   /* item grid: tanpa ini lajur geser melebarkan kolom */
+    .bidang{display:flex;flex-wrap:wrap;gap:8px}
+    .bidang .kartu{padding:7px 12px;border-top-width:1px;border-left:3px solid var(--aksen)}
+    .bidang .kartu h3{font-size:14.5px;margin:0}
+    .bidang .kartu p{display:none}
+    #lab{display:flex;flex-wrap:wrap;gap:6px}
+    #lab li{padding:4px 10px;border:1px solid var(--line);border-radius:2px}
+    #lab li::before{display:none}
+    .dua-kolom{gap:12px}
+    .dua-kolom .kartu{padding:14px 16px}
+    .daftar-cek li{padding:6px 0 6px 28px}
+    .daftar-cek li::before{top:11px}
+    .mhs .kartu{display:flex;align-items:center;gap:14px;padding:12px 16px}
+    .mhs .ikon{margin:0;flex:none;width:38px;height:38px}
+    .mhs .kartu h3{margin:0;font-size:16.5px}
+    .mhs .kartu p,.mhs .panah{display:none}
+    .grid.mhs{gap:10px}
+    .berita-band{padding:16px 18px}
+  }
 </style>
 </head>
 <body>
@@ -209,7 +247,7 @@
     <section aria-labelledby="jPres" id="bPres" hidden>
       <div class="kepala-bag"><div><div class="eyebrow">Prestasi mahasiswa</div><h2 id="jPres">Prestasi terbaru</h2></div>
         <a class="lagi" href="prestasi.html">Semua prestasi &rarr;</a></div>
-      <div class="grid pres" id="pres"></div>
+      <div class="grid pres geser" id="pres" tabindex="0" aria-label="Prestasi terbaru, geser ke samping"></div>
     </section>
   </div>
 
@@ -219,7 +257,7 @@
     <section aria-labelledby="jKabar" id="bKabar" hidden>
       <div class="kepala-bag"><div><div class="eyebrow">Kegiatan program studi</div><h2 id="jKabar">Kegiatan prodi terbaru</h2></div>
         <a class="lagi" href="kabar.html">Semua kegiatan &rarr;</a></div>
-      <div class="grid g3 kabar" id="kabar"></div>
+      <div class="grid g3 kabar geser" id="kabar" tabindex="0" aria-label="Kegiatan terbaru, geser ke samping"></div>
     </section>
   </div>
 
@@ -229,7 +267,7 @@
       <section aria-labelledby="jRiset">
         <div class="kepala-bag"><div><div class="eyebrow">Riset dan pengabdian</div><h2 id="jRiset">Penelitian dan pengabdian terbaru</h2></div>
           <a class="lagi" href="daftar.html?jenis=penelitian">Semua &rarr;</a></div>
-        <div class="grid grid2" id="riset"></div>
+        <div class="grid grid2 geser" id="riset" tabindex="0" aria-label="Penelitian dan pengabdian terbaru, geser ke samping"></div>
       </section>
       <section aria-labelledby="jPub">
         <div class="kepala-bag"><div><div class="eyebrow">Publikasi</div><h2 id="jPub">Terbitan terbaru</h2></div>
@@ -250,7 +288,7 @@
     <section aria-labelledby="jDosen" id="bDosen" hidden>
       <div class="kepala-bag"><div><div class="eyebrow">Dosen</div><h2 id="jDosen">Pengajar dan peneliti</h2></div>
         <a class="lagi" href="daftar.html?jenis=dosen">Semua dosen &rarr;</a></div>
-      <div class="grid dosen" id="dosen"></div>
+      <div class="grid dosen geser" id="dosen" tabindex="0" aria-label="Dosen, geser ke samping"></div>
     </section>
 
     <section aria-labelledby="jKarier" id="bKarier" hidden>
@@ -274,7 +312,7 @@
 
 </main>
 
-<script src="config.js?v=2026-11-19-8d11f9"></script>
+<script src="config.js?v=2026-11-20-a5354e"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -292,8 +330,8 @@ addEventListener('error', function (e) {
 // Beranda program studi (pemilik 2026-11-16). Data dari data.json (bangun.py); pita dari RPC publik.
 // Isi yang belum ada (config.yaml public_site: tagline, kontak, media sosial, PMB) tidak ditampilkan.
 // Dasbor kinerja yang dulu di sini pindah ke kinerja.html.
-import { pasangKerangka, isiKerangka } from './kerangka.js?v=2026-11-19-8d11f9';
-import { halamanAktif } from './fitur.js?v=2026-11-19-8d11f9';
+import { pasangKerangka, isiKerangka } from './kerangka.js?v=2026-11-20-a5354e';
+import { halamanAktif } from './fitur.js?v=2026-11-20-a5354e';
 pasangKerangka({ aktif: '' });
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -360,11 +398,12 @@ function gambar(d){
     $('hLencana').hidden = false;
   }
 
-  // Kegiatan prodi terbaru dengan foto (pemilik 2026-11-17): kabar kegiatan terbit, terbaru dulu, 6 kartu.
+  // Kegiatan prodi terbaru dengan foto (pemilik 2026-11-17): kabar kegiatan terbit, terbaru dulu;
+  // 3 kartu sejak beranda ringkas (pemilik 2026-11-19), sisanya di kabar.html.
   const JENIS_KABAR = { kuliah_tamu: 'Kuliah tamu', kunjungan_lapangan: 'Kuliah/kunjungan lapangan', seminar: 'Seminar',
     penelitian: 'Penelitian', pengabdian: 'Pengabdian', kerja_praktik: 'Kerja praktik', kompetisi: 'Kompetisi', kerja_sama: 'Kerja sama',
     lainnya: 'Kegiatan' };
-  const kabar = [...(d.kabar || [])].sort((a, b) => String(b.tanggal || '').localeCompare(String(a.tanggal || ''))).slice(0, 6);
+  const kabar = [...(d.kabar || [])].sort((a, b) => String(b.tanggal || '').localeCompare(String(a.tanggal || ''))).slice(0, 3);
   if (kabar.length) {
     $('kabar').innerHTML = kabar.map(x => `<a class="kartu" href="kabar.html#kabar-${esc(x.id)}">
       ${x.foto?.length ? `<img src="${esc(x.foto[0])}" alt="${esc(x.judul)}" loading="lazy">`
@@ -419,7 +458,7 @@ function gambar(d){
   }
 
   const riset = [...(d.kegiatan || [])].sort((a, b) => b.tahun - a.tahun).slice(0, 4);
-  const pub = [...(d.publikasi || [])].sort((a, b) => b.tahun - a.tahun).slice(0, 5);
+  const pub = [...(d.publikasi || [])].sort((a, b) => b.tahun - a.tahun).slice(0, 3);   // 3 terbaru (2026-11-19)
   if (riset.length || pub.length) {
     $('riset').innerHTML = riset.map(k => `<a class="kartu" href="daftar.html?jenis=${k.kategori === 'pkm' ? 'pkm' : 'penelitian'}&q=${encodeURIComponent(String(k.judul).slice(0, 40))}">
         <div class="meta"><span class="tag${k.kategori === 'pkm' ? ' pkm' : ''}">${k.kategori === 'pkm' ? 'Pengabdian' : 'Penelitian'}</span>${esc(k.tahun)} · ${esc(rapi(k.tingkat))}</div>
@@ -453,7 +492,7 @@ function gambar(d){
 }
 
 function pasangCari(D){
-  import('./cari.js?v=2026-11-19-8d11f9').then(m => {
+  import('./cari.js?v=2026-11-20-a5354e').then(m => {
     const idx = m.indeksPublik(D, k => !(window.FITUR_MATI || []).includes(k));
     const kotak = $('cariUmum'), panel = $('hasilUmum');
     let aktif = -1;

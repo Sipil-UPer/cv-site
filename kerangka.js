@@ -1,29 +1,28 @@
 // Kerangka halaman publik (pemilik 2026-11-16): kepala bergaya situs universitas (deret logo di bilah
 // biru, nama prodi, menu turun) dan kaki halaman yang sama di halaman publik. Pemakaian:
-//   import { pasangKerangka, isiKerangka } from './kerangka.js?v=2026-11-19-8d11f9';
-//   pasangKerangka({ aktif: 'akademik' });   // segera, sebelum data.json
+//   import { pasangKerangka, isiKerangka } from './kerangka.js?v=2026-11-20-a5354e';
+//   pasangKerangka({ aktif: 'profil' });     // segera, sebelum data.json
+//   pasangKerangka({ aktif: 'profil', muat: true });   // atau: kerangka memuat data.json sendiri
 //   isiKerangka(D);                           // setelah data.json: nama prodi, kontak, media sosial
 // Logo: window.LOGO_KEPALA di config.js; tanpa itu logo.png. Menu hanya memuat halaman yang ada
 // dan modul yang menyala (fitur.js). Tautan relatif (situs akan pindah ke subdomain kampus).
-import { halamanAktif } from './fitur.js?v=2026-11-19-8d11f9';
+import { halamanAktif } from './fitur.js?v=2026-11-20-a5354e';
 
+// Lima kelompok menu (pemilik 2026-11-19, tahap 2): Profil, Dosen dan riset, Mahasiswa, Kinerja, Kontak;
+// Pendaftaran dan Masuk ruang kerja di baris atas. Kaki halaman disusun dari MENU yang sama.
+// Butir ber-`kr` (Berita) diisi isiKerangka dari data.json dan tersembunyi bila kosong.
 export const MENU = [
   { id: 'profil', judul: 'Profil', isi: [
     { judul: 'Profil program studi', href: 'profil-prodi.html' },
     { judul: 'Visi dan misi', href: 'profil-prodi.html#visi' },
-    { judul: 'Kinerja program studi', href: 'kinerja.html', ket: 'angka dan grafik kinerja' },
-    { judul: 'Kerja sama', href: 'kerja-sama.html' },
-  ] },
-  { id: 'akademik', judul: 'Akademik', isi: [
-    { judul: 'Kurikulum', href: 'kurikulum.html' },
+    { judul: 'Kurikulum', href: 'kurikulum.html', ket: 'profil lulusan, CPL, mata kuliah' },
     { judul: 'Laboratorium', href: 'laboratorium.html' },
-    { judul: 'Layanan mahasiswa', href: 'layanan-mahasiswa.html', ket: 'pengumuman, berkas, tanya-jawab' },
+    { judul: 'Kerja sama', href: 'kerja-sama.html' },
+    { judul: 'Berita dan kegiatan', href: '#', kr: 'berita' },
   ] },
-  { id: 'dosen', judul: 'Dosen', isi: [
+  { id: 'dosen', judul: 'Dosen dan riset', isi: [
     { judul: 'Daftar dosen', href: 'daftar.html?jenis=dosen' },
     { judul: 'Kepakaran dosen', href: 'keahlian.html' },
-  ] },
-  { id: 'riset', judul: 'Riset & PkM', isi: [
     { judul: 'Publikasi', href: 'daftar.html?jenis=publikasi' },
     { judul: 'Penelitian', href: 'daftar.html?jenis=penelitian' },
     { judul: 'Pengabdian kepada masyarakat', href: 'daftar.html?jenis=pkm' },
@@ -32,7 +31,7 @@ export const MENU = [
   { id: 'mahasiswa', judul: 'Mahasiswa', isi: [
     // Selaras dengan 4 tombol utama Layanan mahasiswa (pemilik 2026-11-19).
     { judul: 'Layanan mahasiswa', href: 'layanan-mahasiswa.html' },
-    { judul: 'Ajukan KP, TA, lomba, luaran, surat', href: 'pengajuan.html' },
+    { judul: 'Ajukan KP, TA, lomba, luaran, surat, yudisium', href: 'pengajuan.html' },
     { judul: 'Jadwal seminar/sidang TA', href: 'layanan-mahasiswa.html#jadwal-ta' },
     { judul: 'Kerja praktik dan magang', href: 'kerja-praktik.html' },
     { judul: 'Calon pembimbing TA', href: 'layanan-mahasiswa.html#pembimbing' },
@@ -40,10 +39,14 @@ export const MENU = [
     { judul: 'Prestasi mahasiswa', href: 'prestasi.html' },
     { judul: 'Alumni dan tracer study', href: 'alumni.html' },
   ] },
-  // Berita: tautan ke halaman berita prodi (config.yaml public_site.news_url), muncul setelah data dimuat.
-  { id: 'berita', judul: 'Berita', href: '#', isi: [] },
+  { id: 'kinerja', judul: 'Kinerja', isi: [
+    { judul: 'Kinerja program studi', href: 'kinerja.html', ket: 'angka dan grafik kinerja' },
+    { judul: 'Hasil survei kepuasan', href: 'hasil-survei.html' },
+  ] },
   { id: 'kontak', judul: 'Kontak', href: '#kontak', isi: [] },
 ];
+// Nilai aktif lama (sebelum 2026-11-19) tetap dikenali, mis. halaman buatan halaman_publik.py versi lama.
+const AKTIF_LAMA = { akademik: 'profil', riset: 'dosen', berita: 'profil' };
 
 const LOGO = () => (Array.isArray(globalThis.LOGO_KEPALA) && globalThis.LOGO_KEPALA.length
   ? globalThis.LOGO_KEPALA : [{ src: 'logo.png', alt: 'Logo institusi', w: 600, h: 300 }]);
@@ -106,7 +109,7 @@ const CSS = `
 }
 @media (max-width:420px){ .kr-kepala-in{min-height:46px} .kr-logo img{height:46px} .kr-burger{margin-right:10px;padding:6px 10px} }
 .kr-kaki{background:var(--biru);color:var(--biru-m4);margin-top:70px;font-size:14px}
-.kr-kaki-in{max-width:1180px;margin:0 auto;padding:44px 20px 28px;display:grid;grid-template-columns:1.4fr repeat(4,1fr);gap:28px}
+.kr-kaki-in{max-width:1180px;margin:0 auto;padding:44px 20px 28px;display:grid;grid-template-columns:1.3fr repeat(5,1fr);gap:28px}
 .kr-kaki h4{border-bottom:2px solid var(--aksen,transparent);padding-bottom:6px;display:inline-block;font-family:var(--mono);font-size:11px;
   letter-spacing:.12em;text-transform:uppercase;color:#fff;margin:0 0 12px;font-weight:500}
 .kr-kaki ul{list-style:none;margin:0;padding:0}
@@ -117,38 +120,53 @@ const CSS = `
 .kr-kaki address{font-style:normal;margin-top:14px;line-height:1.6}
 .kr-kaki-bawah{border-top:1px solid rgba(255,255,255,.12)}
 .kr-kaki-bawah div{max-width:1180px;margin:0 auto;padding:14px 20px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;font-size:12.5px}
-@media (max-width:820px){.kr-kaki-in{grid-template-columns:1fr 1fr}}
-@media (max-width:520px){.kr-kaki-in{grid-template-columns:1fr}}
+@media (max-width:1000px){.kr-kaki-in{grid-template-columns:repeat(3,1fr)}.kr-kaki-in>div:first-child{grid-column:1/-1}}
+/* Ponsel: kelompok menu tidak diulang di kaki (sudah ada di tombol Menu); identitas, kontak, media sosial, tautan tetap. */
+@media (max-width:620px){.kr-kaki-in{grid-template-columns:1fr;gap:18px;padding-top:30px}.kr-kaki-grup{display:none}.kr-kaki li{margin:0 0 5px}.kr-kaki{font-size:13.5px;margin-top:48px}}
 `;
 
 const SOSIAL = { instagram: 'Instagram', instagram_himpunan: 'Instagram HMTS (himpunan mahasiswa)', youtube: 'YouTube',
   linkedin: 'LinkedIn', facebook: 'Facebook', tiktok: 'TikTok', x: 'X' };
 
+const menuAda = () => MENU.map(m => ({ ...m, isi: m.isi.filter(x => x.kr || halamanAktif(x.href)) }))
+  .filter(m => m.isi.length || m.href);
+// Butir ber-kr disembunyikan sampai isiKerangka mengisi alamatnya.
+const butir = x => `<li${x.kr ? ` data-kr-menu="${x.kr}" hidden` : ''}><a href="${esc(x.href)}">${esc(x.judul)}${x.ket ? `<small>${esc(x.ket)}</small>` : ''}</a></li>`;
+
 function menuAtas(aktif){
-  return MENU.map(m => ({ ...m, isi: m.isi.filter(x => halamanAktif(x.href)) }))
-    .filter(m => m.isi.length || m.href)
-    .map(m => {
+  aktif = AKTIF_LAMA[aktif] || aktif;
+  return menuAda().map(m => {
       const kls = m.id === aktif ? ' class="aktif"' : '';
-      if (!m.isi.length) return `<li${kls} data-kr-menu="${m.id}"${m.id === 'kontak' || m.id === 'berita' ? ' hidden' : ''}><a href="${esc(m.href)}">${esc(m.judul)}</a></li>`;
+      if (!m.isi.length) return `<li${kls} data-kr-menu="${m.id}"${m.id === 'kontak' ? ' hidden' : ''}><a href="${esc(m.href)}">${esc(m.judul)}</a></li>`;
       return `<li${kls}><button type="button" aria-expanded="false" aria-controls="kr-sub-${m.id}">${esc(m.judul)}</button>
-        <ul class="kr-sub" id="kr-sub-${m.id}">${m.isi.map(x =>
-          `<li><a href="${esc(x.href)}">${esc(x.judul)}${x.ket ? `<small>${esc(x.ket)}</small>` : ''}</a></li>`).join('')}</ul></li>`;
+        <ul class="kr-sub" id="kr-sub-${m.id}">${m.isi.map(butir).join('')}</ul></li>`;
     }).join('');
 }
 
-export function pasangKerangka({ aktif = '' } = {}){
+// Kaki halaman: kelompok menu yang sama (tanpa keterangan kecil), ditambah tautan umum.
+function menuKaki(){
+  return menuAda().filter(m => m.isi.length).map(m =>
+    `<div class="kr-kaki-grup"><h4>${esc(m.judul)}</h4><ul>${m.isi.map(x => butir({ ...x, ket: '' })).join('')}</ul></div>`).join('');
+}
+
+export function pasangKerangka({ aktif = '', muat = false } = {}){
+  // muat: halaman yang tidak memanggil isiKerangka sendiri; nama prodi, kontak, berita dari data.json.
+  if (muat) fetch('data.json?v=' + Date.now()).then(r => r.ok ? r.json() : null).then(d => { if (d) isiKerangka(d); }).catch(() => {});
   const gaya = document.createElement('style');
   gaya.textContent = CSS;
   document.head.appendChild(gaya);
 
+  // "Lewati ke isi" menuju <main> halaman, apa pun id-nya (beberapa halaman memakai id="isi").
+  const utama = document.querySelector('main');
+  if (utama && !utama.id) utama.id = 'utama';
   const kepala = document.createElement('div');
-  kepala.innerHTML = `<a class="kr-lewati" href="#utama">Lewati ke isi</a>
+  kepala.innerHTML = `<a class="kr-lewati" href="#${esc(utama?.id || 'utama')}">Lewati ke isi</a>
   <header class="kr-kepala" id="krKepala"><div class="kr-kepala-in">
     <a class="kr-logo" href="index.html" aria-label="Beranda">${LOGO().map(l =>
       `<img src="${esc(l.src)}" alt="${esc(l.alt)}"${l.w ? ` width="${l.w}" height="${l.h}"` : ''}>`).join('')}</a>
     <div class="kr-kanan">
       <div class="kr-baris1"><a class="kr-merek" href="index.html">Program Studi<b data-kr="prodi"></b></a>
-        <span class="kr-tautan"><a href="#" data-kr="daftar" class="kr-daftar" hidden>Pendaftaran</a><a href="layanan-mahasiswa.html">Mahasiswa</a><a href="ruang-kerja.html" class="kr-masuk">Masuk ruang kerja</a></span></div>
+        <span class="kr-tautan"><a href="#" data-kr="daftar" class="kr-daftar" hidden>Pendaftaran</a><a href="ruang-kerja.html" class="kr-masuk">Masuk ruang kerja</a></span></div>
       <nav class="kr-nav" id="krNav" aria-label="Menu utama"><ul>${menuAtas(aktif)}<li class="kr-hp"><a href="ruang-kerja.html">Masuk ruang kerja &rarr;</a></li></ul></nav>
     </div>
     <button class="kr-burger" type="button" aria-expanded="false" aria-controls="krNav">Menu</button>
@@ -161,16 +179,7 @@ export function pasangKerangka({ aktif = '' } = {}){
   kaki.innerHTML = `<div class="kr-kaki-in">
     <div><div class="kr-nama">Program Studi <span data-kr="prodi"></span></div><div data-kr="institusi"></div><div data-kr="akreditasi" hidden style="margin-top:6px;color:#fff;font-weight:600"></div>
       <address data-kr="kontak" hidden></address></div>
-    <div><h4>Program studi</h4><ul>
-      <li><a href="profil-prodi.html">Profil program studi</a></li><li><a href="kurikulum.html">Kurikulum</a></li>
-      <li><a href="laboratorium.html">Laboratorium</a></li><li><a href="kerja-sama.html">Kerja sama</a></li></ul></div>
-    <div><h4>Mahasiswa</h4><ul>
-      <li><a href="layanan-mahasiswa.html">Layanan mahasiswa</a></li><li><a href="prestasi.html">Prestasi mahasiswa</a></li>
-      <li><a href="layanan-mahasiswa.html#pembimbing">Calon pembimbing TA</a></li>
-      <li><a href="kerja-praktik.html">Kerja praktik dan magang</a></li><li><a href="alumni.html">Alumni dan tracer study</a></li></ul></div>
-    <div><h4>Riset</h4><ul>
-      <li><a href="daftar.html?jenis=dosen">Dosen</a></li><li><a href="daftar.html?jenis=publikasi">Publikasi</a></li>
-      <li><a href="kinerja.html">Kinerja program studi</a></li></ul></div>
+    ${menuKaki()}
     <div><div data-kr="sosial" hidden></div><h4>Tautan</h4><ul>
       <li><a href="ruang-kerja.html">Ruang kerja dosen</a></li><li><a href="privasi.html">Kebijakan privasi</a></li><li><a href="peta-situs.html">Peta situs</a></li></ul></div>
   </div>

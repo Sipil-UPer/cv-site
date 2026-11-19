@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-19-8d11f9">
+<link rel="stylesheet" href="tema.css?v=2026-11-20-a5354e">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
@@ -41,7 +41,6 @@
 <body>
 <header class="hero">
   <div class="hero-in">
-    <a class="balik" href="index.html">&larr; Beranda</a>
     <h1>Kebijakan privasi</h1>
     <div class="prodi" id="hProdi">Situs kinerja program studi</div>
   </div>
@@ -200,6 +199,25 @@
       tbody.innerHTML = '<tr><td colspan="2" class="ket">Tabel masa simpan belum dapat dimuat. Hubungi admin prodi.</td></tr>';
     });
 })();
+</script>
+<script>
+// Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
+// halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
+addEventListener('error', function (e) {
+  if (document.getElementById('galat-muat')) return;
+  var d = document.createElement('div');
+  d.id = 'galat-muat';
+  d.style.cssText = 'margin:16px;padding:12px 14px;border:1px solid var(--merah);' +
+    'background:var(--merah-m3);color:var(--ink);font:14px/1.5 system-ui,sans-serif';
+  d.textContent = 'Halaman gagal dimuat: ' + (e.message || 'galat skrip') +
+    '. Tekan Ctrl+Shift+R untuk memuat ulang tanpa cache; bila tetap muncul, kirim pesan ini ke admin.';
+  document.body.insertBefore(d, document.body.firstChild);
+});
+</script>
+<script type="module">
+// Kepala dan kaki bersama situs umum (pemilik 2026-11-19, tahap 2).
+import { pasangKerangka } from './kerangka.js?v=2026-11-20-a5354e';
+pasangKerangka({ aktif: '', muat: true });
 </script>
 </body>
 </html>

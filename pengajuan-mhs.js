@@ -13,7 +13,30 @@ export const JENIS = {
   ta: { label: 'Seminar/sidang TA', singkat: 'TA', wajib: 'naskah_ta', berkas: ['naskah_ta', 'lainnya'] },
   // Publikasi/luaran mahasiswa (96-patch-luaran-mahasiswa.sql): mandiri -> tabel LKPS 6.e.1 / 6.e.3.
   luaran: { label: 'Publikasi/luaran', singkat: 'Luaran', wajib: 'bukti_luaran', berkas: ['bukti_luaran', 'lainnya'] },
+  // Berkas yudisium (122-patch-yudisium.sql, pemilik 2026-11-19/20): admin prodi saja, tanpa pembimbing. Jenis berkas
+  // = kode yud_* dari yudisium_berkas_daftar() (admin bisa mengubah daftarnya); berkas besar boleh tautan Google Drive.
+  yudisium: { label: 'Berkas yudisium', singkat: 'Yudisium', wajib: null, tanpaPembimbing: true, berkas: [] },
 };
+
+// Daftar bawaan = isi awal tabel yudisium_berkas (patch 122); dipakai bila RPC belum ada (situs coba, contoh).
+export const BERKAS_YUDISIUM_BAWAAN = [
+  ['yud_form_pendaftaran', 'Form pendaftaran yudisium'], ['yud_laporan_ta', 'Laporan Tugas Akhir'], ['yud_transkrip', 'Transkrip'],
+  ['yud_pem', 'PEM'], ['yud_toefl', 'TOEFL'], ['yud_bebas_pustaka', 'SKET bebas pustaka'], ['yud_repository', 'SKET repository'],
+  ['yud_bebas_alat_lab', 'Bebas pinjam alat laboratorium'], ['yud_foto_warna', 'Foto warna'], ['yud_foto_bw', 'Foto BW'],
+  ['yud_bebas_fasilitas', 'Bebas pinjam fasilitas universitas'], ['yud_bebas_plagiasi', 'Bebas plagiasi'],
+  ['yud_form_fpi', 'Form FPI pengumpulan draft publikasi'], ['yud_artikel', 'Artikel ilmiah'],
+].map(([kode, label]) => ({ kode, label, keterangan: '', wajib: true })).concat([{ kode: 'yud_bukti_tambahan', label: 'Bukti tambahan', keterangan: '', wajib: false }]);
+export const NAMA_TAHAP_YUDISIUM = ['Unggah berkas yudisium', 'Dikirim ke admin prodi', 'Diperiksa admin prodi', 'Berkas lengkap (disahkan)'];
+
+/** Kelengkapan berkas yudisium: tiap butir daftar dengan berkasnya; kurang = label butir wajib yang belum ada. */
+export function kelengkapanYudisium(daftar = BERKAS_YUDISIUM_BAWAAN, berkas = []){
+  const butir = daftar.map(d => ({ ...d, berkas: berkas.filter(b => b.jenis === d.kode) }));
+  const wajib = butir.filter(b => b.wajib);
+  return { butir, wajib: wajib.length, ada: wajib.filter(b => b.berkas.length).length,
+           kurang: wajib.filter(b => !b.berkas.length).map(b => b.label) };
+}
+/** Label jenis berkas; kode yud_* dari daftar yudisium. */
+export const labelBerkas = (kode, daftar = BERKAS_YUDISIUM_BAWAAN) => LABEL_BERKAS[kode] || daftar.find(d => d.kode === kode)?.label || kode;
 
 export const JENIS_PUB = [['jurnal', 'Jurnal'], ['prosiding', 'Prosiding'], ['buku', 'Buku'], ['lainnya', 'Lainnya']];
 export const TINGKAT_PUB = [['internasional', 'Internasional'], ['nasional', 'Nasional'], ['wilayah', 'Wilayah']];
@@ -89,6 +112,8 @@ export const labelProgram = v => (PROGRAM_KP.find(x => x[0] === (v || 'kp')) || 
 // Status untuk dibaca manusia, dengan tahap KP.
 export function labelStatus(p){
   if (p.jenis === 'surat') return { admin: 'Diproses admin prodi', disetujui: 'Surat terbit' }[p.status] || LABEL_STATUS[p.status] || p.status;
+  if (p.jenis === 'yudisium') return { admin: 'Diperiksa admin prodi', disetujui: 'Berkas lengkap; disahkan admin prodi' }[p.status]
+    || LABEL_STATUS[p.status] || p.status;
   if (penetapanTA(p)) return { pembimbing: 'Diperiksa koordinator TA', admin: 'Diperiksa koordinator TA',
     disetujui: 'Pembimbing TA ditetapkan' }[p.status] || LABEL_STATUS[p.status] || p.status;
   if (p.jenis === 'ta') return { pembimbing: 'Diperiksa pembimbing 1', admin: 'Menunggu jadwal dari admin prodi', disetujui: 'Terjadwal' }[p.status]
@@ -109,7 +134,7 @@ export function labelStatus(p){
 // Jalur satu tahap KP (atau lomba): status dan riwayat tahap itu saja. Riwayat tanpa tahap = pengajuan (patch 90).
 export function jalurTahap(p, tahap = 'pengajuan'){
   const r = (p.riwayat || p.pengajuan_riwayat || []).filter(x => (x.tahap || 'pengajuan') === tahap);
-  if (tahap === 'pengajuan') return jalur(p.tahap === 'selesai' ? 'disetujui' : p.status, r, p.jenis === 'surat' ? NAMA_TAHAP_SURAT : p.jenis === 'ta' ? (penetapanTA(p) ? NAMA_TAHAP_PEMBIMBING_TA : NAMA_TAHAP_TA) : p.jenis === 'kp' ? NAMA_TAHAP_KP : p.jenis === 'lomba' ? NAMA_TAHAP_LOMBA : null);
+  if (tahap === 'pengajuan') return jalur(p.tahap === 'selesai' ? 'disetujui' : p.status, r, p.jenis === 'surat' ? NAMA_TAHAP_SURAT : p.jenis === 'ta' ? (penetapanTA(p) ? NAMA_TAHAP_PEMBIMBING_TA : NAMA_TAHAP_TA) : p.jenis === 'kp' ? NAMA_TAHAP_KP : p.jenis === 'lomba' ? NAMA_TAHAP_LOMBA : p.jenis === 'yudisium' ? NAMA_TAHAP_YUDISIUM : null);
   return jalur(p.tahap === 'selesai' ? p.status : 'draf', r, NAMA_TAHAP_SELESAI);
 }
 
@@ -157,7 +182,7 @@ export function periksaIsian(jenis, { nim, nama, pembimbing, data = {} }){
   const g = [];
   if (nim !== undefined && !/^\d{6,15}$/.test(String(nim).trim())) g.push('NIM harus angka 6–15 digit.');
   if (String(nama || '').trim().length < 2) g.push('Isi nama lengkap.');
-  if (!pembimbing && jenis !== 'surat') g.push('Pilih dosen pembimbing.');
+  if (!pembimbing && !JENIS[jenis]?.tanpaPembimbing) g.push('Pilih dosen pembimbing.');
   if (jenis === 'kp' && !String(data.instansi || '').trim()) g.push('Isi nama instansi tujuan KP.');
   if (jenis === 'lomba') {
     if (!String(data.nama_kegiatan || '').trim()) g.push('Isi nama kegiatan/lomba.');
@@ -189,7 +214,7 @@ export function periksaIsian(jenis, { nim, nama, pembimbing, data = {} }){
 }
 
 export const judulPengajuan = p => p.jenis === 'kp' ? (p.data?.instansi || 'KP') : p.jenis === 'ta' ? (p.data?.judul || 'Tugas Akhir')
-  : p.jenis === 'luaran' ? (p.data?.judul || 'Publikasi/luaran')
+  : p.jenis === 'luaran' ? (p.data?.judul || 'Publikasi/luaran') : p.jenis === 'yudisium' ? 'Berkas yudisium'
   : p.jenis === 'surat' ? ((JENIS_SURAT.find(x => x[0] === p.data?.jenis_surat) || [, 'Surat'])[1]) : (p.data?.nama_kegiatan || 'Lomba');
 
 export const keB64 = f => new Promise((ok, gagal) => {
@@ -257,20 +282,30 @@ export function rekapPengajuan(xs){
     lomba: { semua: lomba.length, disetujui: hit(lomba, p => p.status === 'disetujui'),
              tingkat: Object.fromEntries(TINGKAT.map(([k]) => [k, hit(lomba, p => p.status === 'disetujui' && p.data?.tingkat === k)])) },
     instansi: [...per.values()].sort((a, b) => b.mahasiswa - a.mahasiswa || a.instansi.localeCompare(b.instansi)),
+    // 122: berkas yudisium per status (draf tidak ikut, sama dengan jenis lain).
+    yudisium: (ys => ({ semua: ys.length, diperiksa: hit(ys, p => p.status === 'admin'), disahkan: hit(ys, p => p.status === 'disetujui'),
+                        dikembalikan: hit(ys, p => p.status === 'dikembalikan') }))(xs.filter(p => p.jenis === 'yudisium' && p.status !== 'draf')),
   };
 }
 
 // Isi lembar Excel (untuk admin; memuat NIM). Sel tautan berbentuk {t, l}.
 const LABEL_KEADAAN = { selesai: 'KP selesai', berjalan: 'KP dilaksanakan', proses: 'Pengajuan diperiksa', ditolak: 'Ditolak', draf: 'Draf' };
-export function lembarPengajuan(xs, tsTeks = () => ''){
+export function lembarPengajuan(xs, tsTeks = () => '', daftarYud = BERKAS_YUDISIUM_BAWAAN){
   const kp = xs.filter(p => p.jenis === 'kp' && p.status !== 'draf'), lomba = xs.filter(p => p.jenis === 'lomba' && p.status !== 'draf');
+  const yud = xs.filter(p => p.jenis === 'yudisium' && p.status !== 'draf');
   const pemb = p => p.dosen?.nama || p.pembimbing || '';
   const L = {
     KP: [['No', 'NIM', 'Nama', 'Program', 'Instansi', 'Pembimbing', 'Mulai', 'Selesai', 'Pembimbing lapangan', 'TS', 'Keadaan', 'Berkas']],
     Lomba: [['No', 'NIM', 'Nama', 'Kegiatan', 'Penyelenggara', 'Tingkat', 'Bidang', 'Capaian', 'Tanggal', 'Anggota lain', 'Pembimbing', 'TS', 'Status']],
     'Instansi KP': [['Instansi', 'Mahasiswa', 'KP selesai', 'KP dilaksanakan']],
+    Yudisium: [['No', 'NIM', 'Nama', 'Judul TA', 'Berkas wajib', 'Belum ada', 'Status', 'Diperbarui']],
     Berkas: [['NIM', 'Nama', 'Jenis pengajuan', 'Jenis berkas', 'Nama berkas', 'Tautan']],
   };
+  yud.forEach((p, i) => {
+    const k = kelengkapanYudisium(daftarYud, p.pengajuan_berkas || []);
+    L.Yudisium.push([i + 1, p.nim, p.nama, p.data?.judul || '', `${k.ada}/${k.wajib}`, k.kurang.join('; '), labelStatus(p),
+      String(p.diperbarui || '').slice(0, 10)]);
+  });
   kp.forEach((p, i) => {
     const s = p.data_selesai || {};
     L.KP.push([i + 1, p.nim, p.nama, labelProgram(p.data?.program), p.data?.instansi || '', pemb(p), s.tanggal_mulai || p.data?.rencana_mulai || '',
@@ -284,7 +319,7 @@ export function lembarPengajuan(xs, tsTeks = () => ''){
       pemb(p), tsTeks(p), labelStatus(p)]);
   });
   rekapPengajuan(xs).instansi.forEach(x => L['Instansi KP'].push([x.instansi, x.mahasiswa, x.selesai, x.berjalan]));
-  [...kp, ...lomba].forEach(p => (p.pengajuan_berkas || []).forEach(b => L.Berkas.push([p.nim, p.nama, JENIS[p.jenis]?.singkat || p.jenis,
-    LABEL_BERKAS[b.jenis] || b.jenis, b.nama || '', b.url ? { t: b.url, l: b.url } : ''])));
+  [...kp, ...lomba, ...yud].forEach(p => (p.pengajuan_berkas || []).forEach(b => L.Berkas.push([p.nim, p.nama, JENIS[p.jenis]?.singkat || p.jenis,
+    labelBerkas(b.jenis, daftarYud), b.nama || '', b.url ? { t: b.url, l: b.url } : ''])));
   return L;
 }
