@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-19-52202c">
-<link rel="stylesheet" href="kepala.css?v=2026-11-19-52202c">
+<link rel="stylesheet" href="tema.css?v=2026-11-19-c16ebd">
+<link rel="stylesheet" href="kepala.css?v=2026-11-19-c16ebd">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
@@ -35,6 +35,13 @@
   table.ds{width:100%;border-collapse:collapse;font-size:13.5px}
   table.ds th{text-align:left;font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--line);padding:5px 8px;vertical-align:bottom}
   table.ds td{padding:6px 8px;border-bottom:1px solid var(--line-soft);vertical-align:top}
+  /* Saringan bertombol, boleh banyak pilihan (pemilik 2026-11-19) */
+  .saringan{display:flex;flex-wrap:wrap;gap:6px 18px;align-items:center;margin:6px 0 10px}
+  .grup-saring{display:flex;flex-wrap:wrap;gap:4px;align-items:center}
+  .grup-saring .lbl{font-size:12px;color:var(--muted);margin-right:2px}
+  button.tg{font:inherit;font-size:12.5px;padding:2px 9px;border:1px solid var(--line);background:none;color:var(--ink);cursor:pointer}
+  button.tg.aktif{background:var(--ink);color:#fff;border-color:var(--ink)}
+  button.tg.hapus{border-style:dashed;color:var(--muted)}
   /* Daftar MK dua kolom: Ganjil | Genap (pemilik 2026-11-19) */
   .dua-kolom{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start}
   @media (max-width:900px){.dua-kolom{grid-template-columns:1fr}}
@@ -78,7 +85,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-19-52202c"></script>
+<script src="config.js?v=2026-11-19-c16ebd"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -98,16 +105,16 @@ addEventListener('error', function (e) {
 // Penyusun = koordinator MK atau pengampu kelas MK semester terakhir (boleh_rps, 112); GKM dan admin hanya melihat.
 // Pengesahan (112): dosen mengajukan -> Kaprodi aktif mengesahkan atau mengembalikan; daftar revisi (bagian F) otomatis.
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-19-52202c';
-import { bolehMutu, aktifPada, punya } from './koordinator.js?v=2026-11-19-52202c';
-import { cplMK } from './cpmk.js?v=2026-11-19-52202c';
+import { gerbang } from './menu.js?v=2026-11-19-c16ebd';
+import { bolehMutu, aktifPada, punya } from './koordinator.js?v=2026-11-19-c16ebd';
+import { cplMK } from './cpmk.js?v=2026-11-19-c16ebd';
 import { JENIS_ASESMEN, JENIS_MK, DIREKTORI, jenisAsesmen, bloom, hots, rapikanRps, kerangkaPekan, barisPekan, periksaRps, modelRps,
   namaBerkasRps, penyusunMK, revisiDariLog, tanggalLokal, waktuLokal, evaluasiDariData, BENTUK, SCL, rekapRps, BENTUK_INTEGRASI,
-  bedaRps, salinRps, ASESMEN_TES, rubrikKosong, kriteriaKosong, rentangPekan, susunanMK, jenisMK, bagiParitas, saringMK, ringkasSemester, htmlRingkasSemester } from './rps.js?v=2026-11-19-52202c';
-import { JENIS_PETA, relasiPeta, petaSvg, usulPeta } from './rps-peta.js?v=2026-11-19-52202c';
-import { keB64 } from './pengajuan-mhs.js?v=2026-11-19-52202c';
-import { bacaTinjauan, bahanTinjauan } from './tinjauan-rps.js?v=2026-11-19-52202c';
-import { buatRpsDocx } from './rps-docx.js?v=2026-11-19-52202c';
+  bedaRps, salinRps, ASESMEN_TES, rubrikKosong, kriteriaKosong, rentangPekan, susunanMK, jenisMK, bagiParitas, saringMK, ringkasSemester, htmlRingkasSemester, htmlSaringan, ubahSaringan } from './rps.js?v=2026-11-19-c16ebd';
+import { JENIS_PETA, relasiPeta, petaSvg, usulPeta } from './rps-peta.js?v=2026-11-19-c16ebd';
+import { keB64 } from './pengajuan-mhs.js?v=2026-11-19-c16ebd';
+import { bacaTinjauan, bahanTinjauan } from './tinjauan-rps.js?v=2026-11-19-c16ebd';
+import { buatRpsDocx } from './rps-docx.js?v=2026-11-19-c16ebd';
 
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -227,14 +234,14 @@ function htmlDaftar(){
       <a href="panduan.html#rps">Panduan langkah demi langkah</a>.</p>
     <div class="alat saring"><label>Kurikulum <select id="fKurDaftar"${F_MENUNGGU ? ' disabled' : ''}>${kurs.map(k => `<option${k === kur ? ' selected' : ''}>${esc(k)}</option>`).join('')}</select></label>
       <input type="search" id="fCariD" placeholder="Cari kode atau nama" value="${esc(F_DAFTAR.cari)}" style="min-width:200px">
-      <label>Jenis <select id="fJenisD"><option value="">semua</option>${opsi(JENIS_MK.map(([k]) => [k, k]), F_DAFTAR.jenis)}</select></label>
-      <label>Sifat <select id="fSifatD"><option value="">semua</option>${opsi([['wajib', 'Wajib'], ['pilihan', 'Pilihan']], F_DAFTAR.sifat)}</select></label>
-      <label>Status RPS <select id="fStatusD"><option value="">semua</option>${opsi([['belum', 'Belum dibuat'], ...Object.entries(ST)], F_DAFTAR.status)}</select></label>
       <span class="ket">${xs.length} dari ${semua.length} mata kuliah${F_MENUNGGU ? ' (semua kurikulum)' : ` ${esc(kur)}`}</span></div>
+    ${htmlSaringan(F_DAFTAR, GRUP_SARING_RPS(), esc)}
     ${SAYA_KAPRODI ? `<p><label class="centang"><input type="checkbox" id="fMenunggu"${F_MENUNGGU ? ' checked' : ''}> Hanya yang menunggu pemeriksaan Anda
       (${menunggu})</label></p>` : ''}
-    ${F_MENUNGGU ? '' : `${htmlRingkasSemester(rs)}<div class="dua-kolom">${kolom(ganjil, 'Semester Ganjil' + tot(rs.ganjil))}${kolom(genap, 'Semester Genap' + tot(rs.genap))}</div>`}
-    ${lain.length ? `<div class="kolom-lain">${lain.map(tabelGrup).join('')}</div>` : ''}
+    ${F_MENUNGGU ? '' : htmlRingkasSemester(rs)}
+    ${F_MENUNGGU ? '' : F_DAFTAR.semester.length ? `<div class="lebar">${grup.map(tabelGrup).join('') || '<p class="kosong">Tidak ada mata kuliah yang cocok.</p>'}</div>`
+      : `<div class="dua-kolom">${kolom(ganjil, 'Semester Ganjil' + tot(rs.ganjil))}${kolom(genap, 'Semester Genap' + tot(rs.genap))}</div>`}
+    ${(F_MENUNGGU || !F_DAFTAR.semester.length) && lain.length ? `<div class="kolom-lain">${lain.map(tabelGrup).join('')}</div>` : ''}
     <p class="ket">Jenis: ${Object.entries(NAMA_JENIS).map(([k, v]) => `<b>${esc(k)}</b> ${esc(v)}`).join(' · ')}. MK pilihan ditempatkan di kolom Ganjil/Genap
       menurut semester yang diisi di RPS-nya; yang belum diisi tampil di bawah.</p></section>`;
 }
@@ -254,7 +261,11 @@ function tabelGrup(g){
           SAYA_KAPRODI && r?.status === 'diajukan' ? 'Periksa' : BOLEH.has(k) ? 'Isi' : 'Lihat'}</a></td></tr>`; }).join('')}</tbody></table></div>`;
 }
 // Saringan daftar (pemilik 2026-11-19); status 'belum' = belum ada RPS. Jenis dari RPS bila diisi, selain itu dari kode.
-const F_DAFTAR = { cari: '', jenis: '', sifat: '', status: '' };
+const F_DAFTAR = { cari: '', semester: [], jenis: [], sifat: [], status: [] };
+// Saringan bertombol (pemilik 2026-11-19): boleh lebih dari satu nilai per grup; semester disaring = tampilan melebar.
+const GRUP_SARING_RPS = () => [{ kunci: 'semester', label: 'Semester', opsi: [...['1', '2', '3', '4', '5', '6', '7', '8'].map(s => [s, s]), ['pilihan', 'Pilihan']] },
+  { kunci: 'jenis', label: 'Jenis', opsi: JENIS_MK.map(([k]) => [k, k]) }, { kunci: 'sifat', label: 'Sifat', opsi: [['wajib', 'Wajib'], ['pilihan', 'Pilihan']] },
+  { kunci: 'status', label: 'Status RPS', opsi: [['belum', 'Belum dibuat'], ...Object.entries(ST)] }];
 const statusDaftar = m => RPS.get(kunci(m.kurikulum, m.kode))?.status || 'belum';
 const jenisDaftar = m => RPS.get(kunci(m.kurikulum, m.kode))?.data?.identitas?.jenis_mk || jenisMK(m);
 // Susunan daftar (pemilik 2026-11-19): nama jenis MK formulir K26, dan semester MK pilihan dari RPS (identitas.semester).
@@ -607,7 +618,8 @@ function gambar(){
     // Saringan (pemilik 2026-11-19): cari digambar ulang tiap ketikan, fokus dan posisi kursor dikembalikan.
     $('fCariD').oninput = e => { F_DAFTAR.cari = e.target.value; const pos = e.target.selectionStart; gambar();
       const c = $('fCariD'); c.focus(); c.setSelectionRange(pos, pos); };
-    for (const [id, k] of [['fJenisD', 'jenis'], ['fSifatD', 'sifat'], ['fStatusD', 'status']]) $(id).onchange = e => { F_DAFTAR[k] = e.target.value; gambar(); };
+    document.querySelectorAll('[data-saring], [data-saring-hapus]').forEach(b => b.onclick = () => {
+      ubahSaringan(F_DAFTAR, b.dataset.saringHapus ? null : b.dataset.saring, b.dataset.nilai, GRUP_SARING_RPS()); gambar(); });
     return;
   }
   const m = mkDari(PILIH), simpanan = RPS.get(PILIH);

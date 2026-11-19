@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-19-52202c">
-<link rel="stylesheet" href="kepala.css?v=2026-11-19-52202c">
+<link rel="stylesheet" href="tema.css?v=2026-11-19-c16ebd">
+<link rel="stylesheet" href="kepala.css?v=2026-11-19-c16ebd">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
@@ -37,6 +37,13 @@
   table.mx.oto label.sel{display:flex;align-items:center;gap:6px;white-space:nowrap}
   table.mx.oto tr.target th,table.mx.oto tr.target td{background:var(--line-soft)}
   table.mx.oto .simpang{color:var(--merah);font-weight:600}
+  /* Saringan bertombol, boleh banyak pilihan (pemilik 2026-11-19) */
+  .saringan{display:flex;flex-wrap:wrap;gap:6px 18px;align-items:center;margin:6px 0 10px}
+  .grup-saring{display:flex;flex-wrap:wrap;gap:4px;align-items:center}
+  .grup-saring .lbl{font-size:12px;color:var(--muted);margin-right:2px}
+  button.tg{font:inherit;font-size:12.5px;padding:2px 9px;border:1px solid var(--line);background:none;color:var(--ink);cursor:pointer}
+  button.tg.aktif{background:var(--ink);color:#fff;border-color:var(--ink)}
+  button.tg.hapus{border-style:dashed;color:var(--muted)}
   /* Daftar MK dua kolom: Ganjil | Genap (pemilik 2026-11-19, sama dengan rps.html) */
   .dua-kolom{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start}
   @media (max-width:900px){.dua-kolom{grid-template-columns:1fr}}
@@ -81,7 +88,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-19-52202c"></script>
+<script src="config.js?v=2026-11-19-c16ebd"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -101,16 +108,16 @@ addEventListener('error', function (e) {
 // mengisi CPMK, Sub-CPMK, butir asesmen, bobot, dan RPS. Templat nilai CPL per kelas diisi dari struktur ini
 // di peramban (templat-cpl.js + JSZip), jadi dosen tinggal mengisi NIM dan nilai.
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-19-52202c';
-import { bolehMutu } from './koordinator.js?v=2026-11-19-52202c';
-import { semesterKini } from './evaluasi-pembelajaran.js?v=2026-11-19-52202c';
-import { periksaStruktur, isiTemplat, namaBerkasTemplat } from './templat-cpl.js?v=2026-11-19-52202c';
+import { gerbang } from './menu.js?v=2026-11-19-c16ebd';
+import { bolehMutu } from './koordinator.js?v=2026-11-19-c16ebd';
+import { semesterKini } from './evaluasi-pembelajaran.js?v=2026-11-19-c16ebd';
+import { periksaStruktur, isiTemplat, namaBerkasTemplat } from './templat-cpl.js?v=2026-11-19-c16ebd';
 import { cplMK, strukturKosong, tambahCpmk, hapusCpmk, tambahSub, hapusSub, tambahAsesmen, hapusAsesmen, gantiNamaAsesmen,
   aturBobot, jumlahBobot, dataTemplat, statusStruktur,
-  hitungAwal, hitungOtomatis, MODE_HITUNG, PRIORITAS, PEMBULATAN } from './cpmk.js?v=2026-11-19-52202c';
+  hitungAwal, hitungOtomatis, MODE_HITUNG, PRIORITAS, PEMBULATAN } from './cpmk.js?v=2026-11-19-c16ebd';
 // RPS K26 (111): CPL per Sub-CPMK dan jenis asesmen (kolom Rencana Asesmen Sumatif) disimpan di struktur yang sama.
-import { JENIS_ASESMEN, jenisAsesmen, JENIS_MK, susunanMK, jenisMK, bagiParitas, saringMK, ringkasSemester, htmlRingkasSemester, KELOMPOK_ASESMEN, kelompokAsesmen, periksaKomposisi,
-  JENIS_KULIAH, jenisKuliah } from './rps.js?v=2026-11-19-52202c';
+import { JENIS_ASESMEN, jenisAsesmen, JENIS_MK, susunanMK, jenisMK, bagiParitas, saringMK, ringkasSemester, htmlRingkasSemester, htmlSaringan, ubahSaringan, KELOMPOK_ASESMEN, kelompokAsesmen, periksaKomposisi,
+  JENIS_KULIAH, jenisKuliah } from './rps.js?v=2026-11-19-c16ebd';
 
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -121,7 +128,7 @@ const kunci = (kur, kode) => `${kur}|${kode}`;
 const LABEL_ST = { lengkap: 'lengkap', belum: 'belum lengkap', kosong: 'belum diisi' };
 
 let SAYA = null, KELOLA = false, MK = [], REF_CPL = [], PETA = [], STR = new Map(), BOLEH = new Set(), DOSEN = [], KELAS = [];
-let KUR = '', F = { cari: '', saya: false, jenis: '', sifat: '', status: '' }, PILIH = null, D = null, CI = null, KOTOR = false;
+let KUR = '', F = { cari: '', saya: false, semester: [], jenis: [], sifat: [], status: [] }, PILIH = null, D = null, CI = null, KOTOR = false;
 const URL_AWAL = new URLSearchParams(location.search);
 
 addEventListener('beforeunload', e => { if (KOTOR) { e.preventDefault(); e.returnValue = ''; } });
@@ -181,7 +188,7 @@ function htmlDaftar(){
   const st = new Map(xs.map(m => [m.kode, statusMK(m)]));
   const n = k => [...st.values()].filter(x => x === k).length;
   const opsi = (xs2, v) => xs2.map(([k, l]) => `<option value="${esc(k)}"${k === v ? ' selected' : ''}>${esc(l)}</option>`).join('');
-  const { ganjil, genap, lain } = bagiParitas(susunanMK(xs, semPilihan(xs)));
+  const grup = susunanMK(xs, semPilihan(xs)), { ganjil, genap, lain } = bagiParitas(grup);
   const tabel = g => `<div class="gulir"><table class="ds daftar-mk ringkas"><thead><tr class="grup"><th colspan="4">${esc(g.judul)}<span class="ket"> · ${g.xs.length} MK · ${komaSks(g.sks)} sks</span></th></tr></thead><tbody>
     ${g.xs.map(m => { const k = kunci(m.kurikulum, m.kode), jenis = jenisDaftar(m), s = st.get(m.kode);
       const sks = +m.sks_praktikum ? `${komaSks(m.sks)} sks (P ${komaSks(m.sks_praktikum)})` : `${komaSks(m.sks)} sks`;
@@ -198,17 +205,21 @@ function htmlDaftar(){
       ${KELOLA ? 'Admin/GKM menetapkan koordinator MK di halaman tiap mata kuliah.' : 'Anda bisa mengubah mata kuliah yang Anda koordinasikan atau ampu semester ini.'}</p>
     <div class="alat saring"><label>Kurikulum <select id="fKur">${kurs.map(k => `<option${k === KUR ? ' selected' : ''}>${esc(k)}</option>`).join('')}</select></label>
       <input type="search" id="fCari" placeholder="Cari kode, nama, koordinator" value="${esc(F.cari)}" style="min-width:220px">
-      <label>Jenis <select id="fJenis"><option value="">semua</option>${opsi(JENIS_MK.map(([k]) => [k, k]), F.jenis)}</select></label>
-      <label>Sifat <select id="fSifat"><option value="">semua</option>${opsi([['wajib', 'Wajib'], ['pilihan', 'Pilihan']], F.sifat)}</select></label>
-      <label>CPMK <select id="fStatus"><option value="">semua</option>${opsi(Object.entries(LABEL_ST), F.status)}</select></label>
       <label><input type="checkbox" id="fSaya"${F.saya ? ' checked' : ''}> hanya yang bisa saya ubah</label>
       <span class="ket">${xs.length} dari ${semua.length} MK · CPMK lengkap ${n('lengkap')} · belum lengkap ${n('belum')} · belum diisi ${n('kosong')} ·
         RPS ${xs.filter(m => m.rps_url).length}</span></div>
-    ${htmlRingkasSemester(rs)}<div class="dua-kolom">${kolom(ganjil, 'Semester Ganjil' + tot(rs.ganjil))}${kolom(genap, 'Semester Genap' + tot(rs.genap))}</div>
-    ${lain.length ? `<div class="kolom-lain">${lain.map(tabel).join('')}</div>` : ''}
+    ${htmlSaringan(F, GRUP_SARING_CPMK, esc)}
+    ${htmlRingkasSemester(rs)}
+    ${F.semester.length ? `<div class="lebar">${grup.map(tabel).join('') || '<p class="kosong">Tidak ada mata kuliah yang cocok.</p>'}</div>`
+      : `<div class="dua-kolom">${kolom(ganjil, 'Semester Ganjil' + tot(rs.ganjil))}${kolom(genap, 'Semester Genap' + tot(rs.genap))}</div>
+    ${lain.length ? `<div class="kolom-lain">${lain.map(tabel).join('')}</div>` : ''}`}
     <p class="ket">Jenis: ${Object.entries(NAMA_JENIS).map(([k, v]) => `<b>${esc(k)}</b> ${esc(v)}`).join(' · ')}. MK pilihan ditempatkan di kolom Ganjil/Genap
       menurut semester yang diisi di RPS-nya; yang belum diisi tampil di bawah.</p></section>`;
 }
+// Saringan bertombol (pemilik 2026-11-19): boleh lebih dari satu nilai per grup; semester disaring = tampilan melebar.
+const GRUP_SARING_CPMK = [{ kunci: 'semester', label: 'Semester', opsi: [...['1', '2', '3', '4', '5', '6', '7', '8'].map(s => [s, s]), ['pilihan', 'Pilihan']] },
+  { kunci: 'jenis', label: 'Jenis', opsi: JENIS_MK.map(([k]) => [k, k]) }, { kunci: 'sifat', label: 'Sifat', opsi: [['wajib', 'Wajib'], ['pilihan', 'Pilihan']] },
+  { kunci: 'status', label: 'CPMK', opsi: Object.entries(LABEL_ST) }];
 // Jenis dari RPS bila diisi (identitas:data->identitas; coba lokal: data.identitas), selain itu dari kode MK.
 const jenisDaftar = m => { const r = RPS_ST.get(kunci(m.kurikulum, m.kode)); return r?.identitas?.jenis_mk || r?.data?.identitas?.jenis_mk || jenisMK(m); };
 // Susunan daftar per semester (pemilik 2026-11-19, sama dengan rps.html): nama jenis dari formulir K26; semester MK pilihan
@@ -373,7 +384,8 @@ function gambar(){
   if (!PILIH) {
     $('fKur').onchange = () => { KUR = $('fKur').value; gambar(); };
     $('fSaya').onchange = () => { F.saya = $('fSaya').checked; gambar(); };
-    for (const [id, k] of [['fJenis', 'jenis'], ['fSifat', 'sifat'], ['fStatus', 'status']]) $(id).onchange = e => { F[k] = e.target.value; gambar(); };
+    document.querySelectorAll('[data-saring], [data-saring-hapus]').forEach(b => b.onclick = () => {
+      ubahSaringan(F, b.dataset.saringHapus ? null : b.dataset.saring, b.dataset.nilai, GRUP_SARING_CPMK); gambar(); });
     $('fCari').oninput = () => { F.cari = $('fCari').value; const p = $('fCari').selectionStart; gambar(); $('fCari').focus(); $('fCari').setSelectionRange(p, p); };
     document.querySelectorAll('[data-buka]').forEach(b => { b.onclick = () => { const [k, kode] = b.dataset.buka.split('|'); buka(k, kode); }; });
     return;

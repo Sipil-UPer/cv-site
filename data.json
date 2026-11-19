@@ -45,6 +45,9 @@
    "sinta_id": "6733296",
    "scopus_id": "57221132574",
    "orcid": "0009-0004-4490-0235",
+   "topik_keahlian": [
+    "AIR06"
+   ],
    "kelompok": "AIR",
    "nama_gelar": "Fera Dwi Setyani, M.T."
   },
@@ -54,6 +57,17 @@
    "sinta_id": "6650203",
    "scopus_id": "58600645500",
    "orcid": "0009-0005-2410-4837",
+   "topik_keahlian": [
+    "STR01",
+    "STR02",
+    "MAT01",
+    "MAT02",
+    "MAT03",
+    "MAT04",
+    "MAT05",
+    "MAT06",
+    "MAT07"
+   ],
    "kelompok": "STR",
    "nama_gelar": "Dr. Gati Annisa Hayu., S.T., M.T., M.Sc.",
    "foto": "foto-profil/1OFLzKgyGTM__gfbVWEc66eCghfWo3mxZ.jpg"
@@ -105,6 +119,23 @@
    "sinta_id": "6926173",
    "scopus_id": "58902592000",
    "orcid": "0000-0002-3831-107X",
+   "kata_kunci": [
+    "transportasi",
+    "manajemen konstruksi"
+   ],
+   "bidang_keahlian": "Rekayasa Transportasi",
+   "topik_keahlian": [
+    "BCN04",
+    "TRN01",
+    "TRN02",
+    "TRN03",
+    "TRN04",
+    "TRN07",
+    "MRK01",
+    "MRK02",
+    "MRK04",
+    "LNG04"
+   ],
    "kelompok": "TRN",
    "nama_gelar": "Dr. Ir. Vani Arliani, ST, MT",
    "foto": "foto-profil/1ehPvswX9P8KA6chANwk40tvaKdQflJFL.jpg"
@@ -2123,6 +2154,39 @@
    ],
    "relevan_visi": true,
    "ember_dana": "dalam_negeri",
+   "sdgs": []
+  },
+  {
+   "judul": "Gerakan Penanaman Mangrove untuk Keberlanjutan dan Ketahanan Pesisir Dumai",
+   "tahun": 2025,
+   "tahun_ts": 2025,
+   "kategori": "pkm",
+   "tingkat": "wilayah_lokal",
+   "skema": "Hibah internal universitas",
+   "kelompok": "Hibah internal perguruan tinggi",
+   "mitra": [
+    {
+     "nama": "Kelurahan Mundam",
+     "tingkat": "wilayah_lokal",
+     "negara": ""
+    },
+    {
+     "nama": "Pertamina RU II Dumai",
+     "tingkat": "wilayah_lokal",
+     "negara": ""
+    }
+   ],
+   "mahasiswa": 0,
+   "penulis": [
+    {
+     "nama": "Ranny Adriana",
+     "slug": "ranny-adriana",
+     "peran": "anggota",
+     "korespondensi": false
+    }
+   ],
+   "relevan_visi": true,
+   "ember_dana": "pt_mandiri",
    "sdgs": []
   },
   {
@@ -7544,6 +7608,22 @@
    "bentuk": "narasumber",
    "nama_kegiatan": "Narasumber pada acara Sharing Session Persiapan Beasiswa PDDI 2026 \"Panduan Strategis Meraih Beasiswa PDDI 2026\" untuk Dosen seluruh Indonesia Oleh Civil Work",
    "tingkat": "nasional"
+  },
+  {
+   "tahun": 2023,
+   "tahun_ts": 2023,
+   "dosen": "Gati Annisa Hayu",
+   "bentuk": "mitra_bestari",
+   "nama_kegiatan": "Reviewer pada Jurnal Nasional Logic",
+   "tingkat": "nasional"
+  },
+  {
+   "tahun": 2023,
+   "tahun_ts": 2023,
+   "dosen": "Gati Annisa Hayu",
+   "bentuk": "mitra_bestari",
+   "nama_kegiatan": "Reviewer of The Twelfth International Structural Engineering and Construction Conference",
+   "tingkat": "internasional"
   }
  ],
  "integrasi": [],
@@ -7605,7 +7685,7 @@
     "tahun": 2025,
     "internasional": 1,
     "nasional": 13,
-    "wilayah": 0,
+    "wilayah": 2,
     "tanpa_tingkat": 0,
     "pendidikan": 0
    },
@@ -7656,7 +7736,7 @@
    {
     "tahun": 2025,
     "kategori": "pkm",
-    "total": 4,
+    "total": 5,
     "dengan_mahasiswa": 1
    },
    {
@@ -7714,7 +7794,7 @@
     "kategori": "pkm",
     "luar_negeri": 0,
     "dalam_negeri": 1,
-    "pt_mandiri": 3,
+    "pt_mandiri": 4,
     "tanpa_sumber": 0
    },
    {
@@ -7762,6 +7842,10 @@
    {
     "slug": "nurul-fajar-januriyadi",
     "tahun": 2026
+   },
+   {
+    "slug": "gati-annisa-hayu",
+    "tahun": 2023
    }
   ],
   "publikasi_dtps": [

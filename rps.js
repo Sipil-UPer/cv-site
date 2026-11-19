@@ -134,12 +134,32 @@ export function htmlRingkasSemester(r){
  *  lain = MK pilihan yang semesternya belum ditetapkan di RPS dan MK tanpa semester (selebar halaman). */
 export const bagiParitas = grup => ({ ganjil: grup.filter(g => g.paritas === 'Ganjil'), genap: grup.filter(g => g.paritas === 'Genap'),
                                       lain: grup.filter(g => !g.paritas) });
-/** Saringan daftar MK: cari (kode/nama/teks tambahan), jenis, sifat, status; fungsi jenis/status/teks dari halaman. */
+/** Kunci semester untuk saringan: '1'..'8', atau 'pilihan' untuk MK tanpa semester. */
+export const kunciSemester = m => (/^[1-8]$/.test(String(m.semester ?? '')) ? String(m.semester) : 'pilihan');
+/**
+ * Saringan daftar MK (pemilik 2026-11-19: boleh lebih dari satu nilai per saringan). f = { cari, semester: [], jenis: [], sifat: [],
+ * status: [] }; nilai tunggal (teks) juga diterima. Kosong = semua. Fungsi jenis/status/teks tambahan dari halaman.
+ */
 export const saringMK = (xs, f = {}, { status = () => '', jenis = jenisMK, teksCari = () => '' } = {}) => {
   const q = teks(f.cari).toLowerCase();
-  return xs.filter(m => (!q || `${m.kode} ${m.nama} ${teksCari(m)}`.toLowerCase().includes(q)) && (!f.jenis || jenis(m) === f.jenis)
-    && (!f.sifat || m.sifat === f.sifat) && (!f.status || status(m) === f.status));
+  const cocok = (v, x) => (Array.isArray(v) ? !v.length || v.includes(x) : !v || v === x);
+  return xs.filter(m => (!q || `${m.kode} ${m.nama} ${teksCari(m)}`.toLowerCase().includes(q)) && cocok(f.semester, kunciSemester(m))
+    && cocok(f.jenis, jenis(m)) && cocok(f.sifat, m.sifat) && cocok(f.status, status(m)));
 };
+/** Bilah saringan bertombol (HTML): grup = [{ kunci, label, opsi: [[nilai, label]] }]; tombol aktif = nilai ada di f[kunci]. */
+export function htmlSaringan(f, grup, esc = s => String(s)){
+  const ada = grup.some(g => (f[g.kunci] || []).length);
+  return `<div class="saringan">${grup.map(g => `<div class="grup-saring"><span class="lbl">${esc(g.label)}</span>${g.opsi.map(([v, l]) =>
+    `<button type="button" class="tg${(f[g.kunci] || []).includes(v) ? ' aktif' : ''}" data-saring="${esc(g.kunci)}" data-nilai="${esc(v)}"
+      aria-pressed="${(f[g.kunci] || []).includes(v)}">${esc(l)}</button>`).join('')}</div>`).join('')}
+    ${ada ? '<button type="button" class="tg hapus" data-saring-hapus="1">Hapus saringan</button>' : ''}</div>`;
+}
+/** Ubah saringan: nyalakan/matikan satu nilai, atau kosongkan semua grup. */
+export function ubahSaringan(f, kunci, nilai, grup){
+  if (kunci == null) { for (const g of grup) f[g.kunci] = []; return f; }
+  const xs = f[kunci] || []; f[kunci] = xs.includes(nilai) ? xs.filter(v => v !== nilai) : [...xs, nilai];
+  return f;
+}
 
 /**
  * Susunan daftar MK satu kurikulum (pemilik 2026-11-19): per semester 1-8 (Ganjil/Genap), lalu MK pilihan dikelompokkan
