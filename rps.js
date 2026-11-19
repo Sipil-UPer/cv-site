@@ -667,23 +667,24 @@ export function salinRps(R, sumber, struktur){
 }
 
 // ---------- Review sejawat RPS (118, pemilik 2026-11-19) ----------
+// ke = tujuan di halaman RPS (data-p atau '#bagian'), dipakai panel review untuk menuju bagian yang dinilai.
 // Butir form dari Panduan Pengisian RPS bagian 6 (disusun Claude, diperiksa pemilik); skala 1-4. Basis data menyimpan skor per
 // kode butir, jadi butir boleh ditambah kemudian (butir lama tetap terbaca); jangan mengganti arti kode yang sudah dipakai.
 export const BUTIR_REVIEW = [
-  { kode: 'A1', bagian: 'A', teks: 'Identitas MK lengkap dan sesuai dokumen kurikulum (kode, nama, sks dan sebarannya, semester, jenis MK, prasyarat).' },
-  { kode: 'B1', bagian: 'B', teks: 'CPL yang dibebankan sesuai peta CPL-MK kurikulum.' },
-  { kode: 'B2', bagian: 'B', teks: 'CPMK dan Sub-CPMK dirumuskan jelas dan terukur (kata kerja operasional), dengan level taksonomi sesuai tahun/semester MK.' },
-  { kode: 'B3', bagian: 'B', teks: 'Keselarasan CPL - CPMK - Sub-CPMK logis (Peta Analisis).' },
-  { kode: 'B4', bagian: 'B', teks: 'Bentuk asesmen dan bobot penilaian selaras dengan Sub-CPMK; komposisi sesuai pedoman (UTS/UAS, penugasan, HOTS).' },
-  { kode: 'C1', bagian: 'C', teks: 'Tujuan, deskripsi, dan bahan kajian sesuai silabus dan perkembangan keilmuan.' },
-  { kode: 'C2', bagian: 'C', teks: 'Pustaka utama dan pendukung relevan dan mutakhir.' },
-  { kode: 'C3', bagian: 'C', teks: 'Integrasi penelitian/PkM dan keterkaitan dengan kompetensi kerja (Direktori Kompetensi) dinyatakan dengan tepat.' },
-  { kode: 'D1', bagian: 'D', teks: 'Rencana 16 pekan runtut; materi tiap pekan mendukung Sub-CPMK yang dituju.' },
-  { kode: 'D2', bagian: 'D', teks: 'Indikator dan kriteria penilaian tiap pekan terukur.' },
-  { kode: 'D3', bagian: 'D', teks: 'Metode pembelajaran berpusat pada mahasiswa (SCL) sesuai capaian yang dituju.' },
-  { kode: 'D4', bagian: 'D', teks: 'Beban belajar (tatap muka, penugasan terstruktur, belajar mandiri, praktikum) sesuai sks.' },
-  { kode: 'D5', bagian: 'D', teks: 'Rubrik atau kunci penilaian tersedia dan memadai untuk asesmen yang dipakai.' },
-  { kode: 'E1', bagian: 'E', teks: 'Evaluasi penyelenggaraan sebelumnya dan tindak lanjutnya dimuat.' },
+  { kode: 'A1', bagian: 'A', ke: '#A', teks: 'Identitas MK lengkap dan sesuai dokumen kurikulum (kode, nama, sks dan sebarannya, semester, jenis MK, prasyarat).' },
+  { kode: 'B1', bagian: 'B', ke: '#B', teks: 'CPL yang dibebankan sesuai peta CPL-MK kurikulum.' },
+  { kode: 'B2', bagian: 'B', ke: '#B', teks: 'CPMK dan Sub-CPMK dirumuskan jelas dan terukur (kata kerja operasional), dengan level taksonomi sesuai tahun/semester MK.' },
+  { kode: 'B3', bagian: 'B', ke: '#peta', teks: 'Keselarasan CPL - CPMK - Sub-CPMK logis (Peta Analisis).' },
+  { kode: 'B4', bagian: 'B', ke: '#B', teks: 'Bentuk asesmen dan bobot penilaian selaras dengan Sub-CPMK; komposisi sesuai pedoman (UTS/UAS, penugasan, HOTS).' },
+  { kode: 'C1', bagian: 'C', ke: 'tujuan', teks: 'Tujuan, deskripsi, dan bahan kajian sesuai silabus dan perkembangan keilmuan.' },
+  { kode: 'C2', bagian: 'C', ke: 'pustaka.0.teks', teks: 'Pustaka utama dan pendukung relevan dan mutakhir.' },
+  { kode: 'C3', bagian: 'C', ke: 'integrasi.ada', teks: 'Integrasi penelitian/PkM dan keterkaitan dengan kompetensi kerja (Direktori Kompetensi) dinyatakan dengan tepat.' },
+  { kode: 'D1', bagian: 'D', ke: '#D', teks: 'Rencana 16 pekan runtut; materi tiap pekan mendukung Sub-CPMK yang dituju.' },
+  { kode: 'D2', bagian: 'D', ke: '#D', teks: 'Indikator dan kriteria penilaian tiap pekan terukur.' },
+  { kode: 'D3', bagian: 'D', ke: '#D', teks: 'Metode pembelajaran berpusat pada mahasiswa (SCL) sesuai capaian yang dituju.' },
+  { kode: 'D4', bagian: 'D', ke: '#rekap', teks: 'Beban belajar (tatap muka, penugasan terstruktur, belajar mandiri, praktikum) sesuai sks.' },
+  { kode: 'D5', bagian: 'D', ke: '#rubrik', teks: 'Rubrik atau kunci penilaian tersedia dan memadai untuk asesmen yang dipakai.' },
+  { kode: 'E1', bagian: 'E', ke: '#E', teks: 'Evaluasi penyelenggaraan sebelumnya dan tindak lanjutnya dimuat.' },
 ];
 export const SKALA_REVIEW = [[1, 'Kurang'], [2, 'Cukup'], [3, 'Baik'], [4, 'Sangat baik']];
 export const KESIMPULAN_REVIEW = [['layak', 'Layak disahkan'], ['perbaikan_kecil', 'Layak dengan perbaikan kecil'], ['perbaikan_besar', 'Perlu perbaikan besar']];
@@ -694,3 +695,58 @@ export function rerataReview(skor){
 }
 /** Butir yang belum diberi skor (kode). */
 export const butirKosongReview = skor => BUTIR_REVIEW.filter(b => !(+skor?.[b.kode] >= 1)).map(b => b.kode);
+
+/**
+ * Ringkasan otomatis per butir review (pemilik 2026-11-19): fakta yang sudah dihitung situs, supaya reviewer tidak bolak-balik
+ * membaca RPS. Bahan pertimbangan saja; skor tetap dari reviewer. ctx seperti periksaRps (+ kini untuk uji). Hasil {kode: [teks]}.
+ */
+export function faktaReview(ctx = {}){
+  const { mk = {}, struktur, rps, cpl = [], kini = new Date() } = ctx;
+  const S = struktur || { cpmk: [], sub: [], asesmen: [], bobot: {} }, R = rps || rpsKosong(mk), I = R.identitas || {}, P = R.pekan || [];
+  const X = rekapRps({ mk, struktur: S, rps: R }), F = {}, koma = v => String(bulat(v)).replace('.', ',');
+  const sks = ['t', 'p', 'pl', 's'].map(k => angka(I.sks?.[k])), nSks = sks.reduce((a, v) => a + v, 0);
+  F.A1 = [`Jenis ${teks(I.jenis_mk) || 'belum diisi'}; sks T/P/PL/S ${sks.map(koma).join('/')} = ${koma(nSks)}`
+      + (mk.sks != null ? (nSks === angka(mk.sks) ? ' (sama dengan data MK)' : ` (data MK ${koma(angka(mk.sks))})`) : ''),
+    `Semester ${teks(I.semester) || 'belum diisi'}; prasyarat: ${teks(R.syarat?.prasyarat) || 'tidak ada'}`];
+  const cplSub = [...new Set(S.sub.map(x => x.cpl).filter(Boolean))], tanpaCpl = S.sub.filter(x => !x.cpl).length;
+  F.B1 = [`CPL dibebankan: ${cpl.map(c => c.kode).join(', ') || 'MK belum dipetakan ke CPL'}`,
+    `CPL yang didukung Sub-CPMK: ${cplSub.join(', ') || '—'}${tanpaCpl ? `; ${tanpaCpl} Sub-CPMK tanpa CPL` : ''}`];
+  const lv = {}, rumusan = [...S.cpmk, ...S.sub];
+  for (const x of rumusan) for (const k of bloom(x.rumusan).kode) lv[k] = (lv[k] || 0) + 1;
+  const tanpaBloom = rumusan.filter(x => !bloom(x.rumusan).kode.length).length;
+  F.B2 = [`${S.cpmk.length} CPMK, ${S.sub.length} Sub-CPMK`,
+    `Level: ${Object.keys(lv).sort().map(k => `${k} ×${lv[k]}`).join(', ') || '—'}${tanpaBloom ? `; ${tanpaBloom} rumusan tanpa kode Bloom` : ''}`];
+  const rel = Object.keys(R.peta?.sub || {}).filter(k => S.sub.some(x => x.kode === k)).length;
+  F.B3 = [S.sub.length ? `Peta Analisis: ${rel} dari ${S.sub.length} Sub-CPMK punya hubungan antar-Sub-CPMK yang ditandai` : 'Belum ada Sub-CPMK'];
+  const kol = a => S.sub.reduce((t, x) => t + angka(S.bobot?.[x.kode]?.[a.nama]), 0);
+  const tot = S.sub.reduce((a, x) => a + bobotSub(S, x.kode), 0), H = hots(S, I.semester || mk.semester);
+  const pen = S.asesmen.filter(a => kelompokAsesmen(a) === 'penugasan').reduce((t, a) => t + kol(a), 0);
+  F.B4 = [`Total bobot ${koma(tot)}%: ${X.penilaian.jenis.map(j => `${j.label} ${koma(j.persen)}%`).join(', ') || '—'}`,
+    `Kelompok Penugasan ${koma(pen)}%, ujian/kuis ${koma(tot - pen)}%; HOTS ${koma(H.persen)}%${H.target ? ` (disarankan ≥ ${H.target}%)` : ''}`];
+  const poin = teks(R.tujuan).split('\n').map(teks).filter(Boolean).length, kata = teks(R.deskripsi).split(/\s+/).filter(Boolean).length;
+  F.C1 = [`Tujuan: ${poin} baris/poin; deskripsi: ${kata} kata`];
+  const tahun = (R.pustaka || []).map(p => Math.max(0, ...[...teks(p.teks).matchAll(/\b(19|20)\d{2}\b/g)].map(m => +m[0]))).filter(Boolean);
+  const th = kini.getFullYear();
+  F.C2 = [`${(R.pustaka || []).filter(p => teks(p.teks)).length} pustaka${tahun.length ? `; terbaru ${Math.max(...tahun)}; ${tahun.filter(t => t >= th - 10).length} terbit ${th - 10} atau sesudahnya` : ''}`];
+  const ig = R.integrasi || {};
+  F.C3 = [`Integrasi penelitian/PkM: ${ig.ada === true ? `ada (${(ig.karya || []).length} karya dipilih)` : ig.ada === false ? 'tidak ada' : 'belum dinyatakan'}`,
+    `Direktori Kompetensi: ${(DIREKTORI.find(d => d[0] === R.direktori?.status) || [, 'belum diisi'])[1]}`];
+  const dipakai = new Set(P.flatMap(p => rentangPekan(p.pekan))), kuliah = P.filter(p => p.jenis === 'kuliah');
+  const pk = j => P.filter(p => p.jenis === j).map(p => teks(p.pekan)).join(', ') || '—';
+  const belum = S.sub.filter(x => !kuliah.some(p => (p.sub || []).includes(x.kode))).length;
+  F.D1 = [`${[...dipakai].filter(n => n >= 1 && n <= 16).length} dari 16 pekan terisi; UTS pekan ${pk('uts')}, UAS pekan ${pk('uas')}`,
+    `${kuliah.filter(p => !teks(p.materi)).length} baris kuliah tanpa materi; ${belum} Sub-CPMK belum dijadwalkan`];
+  F.D2 = [`${kuliah.filter(p => !teks(p.indikator)).length} baris kuliah tanpa indikator; ${kuliah.filter(p => teks(p.indikator) && !/\d/.test(p.indikator)).length} indikator tanpa ambang angka`,
+    `${kuliah.filter(p => !teks(p.bentuk)).length} baris kuliah tanpa bentuk/kriteria asesmen`];
+  F.D3 = [`Metode SCL: ${X.scl.map(x => `${x.label} (${x.jumlah} pekan)`).join(', ') || 'belum dicentang di rencana pekanan'}`];
+  F.D4 = [`Beban belajar ${koma(X.beban.jumlah.jam)} jam per semester (${koma(nSks)} sks × 45 jam)`,
+    `Bentuk: ${X.bentuk.map(x => `${x.label} (${x.jumlah} pekan)`).join(', ') || 'belum dicentang'}`];
+  const nonTes = S.asesmen.filter(a => !ASESMEN_TES.includes(jenisAsesmen(a)) && kol(a) > 0), rb = rubrikRps(R);
+  const tanpaRubrik = nonTes.filter(a => !rb.has(a.nama)).map(a => a.nama);
+  F.D5 = [nonTes.length ? `${nonTes.length} asesmen non-tes berbobot, ${nonTes.length - tanpaRubrik.length} sudah berubrik${tanpaRubrik.length ? ` (belum: ${tanpaRubrik.join(', ')})` : ''}`
+    : 'Tidak ada asesmen non-tes berbobot'];
+  const E = R.evaluasi || {};
+  F.E1 = [E.baru ? 'MK baru: belum pernah diselenggarakan' : `${teks(E.semester) || 'semester belum diisi'}; ${teks(E.jumlah) || 'kelulusan belum diisi'}; rerata ${teks(E.rerata) || '—'}`,
+    ...(E.baru ? [] : [teks(E.rekomendasi) ? 'Rekomendasi/tindak lanjut diisi' : 'Rekomendasi/tindak lanjut belum diisi'])];
+  return F;
+}

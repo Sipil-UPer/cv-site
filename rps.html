@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-19-828642">
-<link rel="stylesheet" href="kepala.css?v=2026-11-19-828642">
+<link rel="stylesheet" href="tema.css?v=2026-11-19-c94533">
+<link rel="stylesheet" href="kepala.css?v=2026-11-19-c94533">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
@@ -84,6 +84,25 @@
   .sorot{outline:3px solid #E0A800;outline-offset:3px;transition:outline-color 2.5s ease-in}
   .sorot.pudar{outline-color:transparent}
   /* Form review sejawat (118) */
+  /* Mode review (pemilik 2026-11-19): RPS kiri, form kanan menempel; ponsel = laci bawah */
+  body.mode-review .wrap{max-width:1680px}
+  #tata.ada-panel{display:grid;grid-template-columns:minmax(0,1fr) minmax(340px,430px);gap:18px;align-items:start}
+  #panelReview:empty{display:none}
+  #tata.ada-panel #panelReview{position:sticky;top:8px;max-height:calc(100vh - 16px);overflow-y:auto;overscroll-behavior:contain;
+    background:var(--panel);border:1px solid var(--biru);padding:8px 14px 12px;font-size:13.5px}
+  #laciRv > summary{cursor:pointer;padding:4px 0;color:var(--biru)}
+  .rv-grup{margin:12px 0 2px;padding-bottom:3px;border-bottom:2px solid var(--line)}
+  .rv-butir{padding:7px 6px;border-bottom:1px solid var(--line-soft)}
+  .rv-butir.aktif{box-shadow:inset 3px 0 0 #E0A800}
+  .rv-judul{cursor:pointer} .rv-judul:hover{text-decoration:underline} .rv-judul .ke{color:var(--biru-2)}
+  .rv-fakta{margin:3px 0 4px;padding-left:16px;color:var(--muted);font-size:12.5px}
+  .rv-skor{display:flex;gap:12px;margin:3px 0} .rv-butir textarea{min-height:30px;font-size:13px}
+  @media(max-width:1000px){
+    #tata.ada-panel{display:block}
+    #tata.ada-panel #panelReview{position:fixed;left:0;right:0;bottom:0;top:auto;max-height:72vh;z-index:30;border-width:2px 0 0;
+      box-shadow:0 -4px 14px rgba(0,0,0,.18)}
+    body.mode-review{padding-bottom:64px}
+  }
   table.form-review td.skor{white-space:nowrap} table.form-review td.skor label{margin-right:8px;font-size:13px}
   table.form-review td:first-child{width:52%} table.form-review textarea{min-height:34px}
   @media(max-width:700px){.wrap{padding-left:16px;padding-right:16px}.dua,.pustaka{grid-template-columns:1fr}}
@@ -96,7 +115,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-19-828642"></script>
+<script src="config.js?v=2026-11-19-c94533"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -116,18 +135,18 @@ addEventListener('error', function (e) {
 // Penyusun = koordinator MK atau pengampu kelas MK semester terakhir (boleh_rps, 112); GKM dan admin hanya melihat.
 // Pengesahan (112): dosen mengajukan -> Kaprodi aktif mengesahkan atau mengembalikan; daftar revisi (bagian F) otomatis.
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-19-828642';
-import { bolehMutu, aktifPada, punya } from './koordinator.js?v=2026-11-19-828642';
-import { cplMK } from './cpmk.js?v=2026-11-19-828642';
+import { gerbang } from './menu.js?v=2026-11-19-c94533';
+import { bolehMutu, aktifPada, punya } from './koordinator.js?v=2026-11-19-c94533';
+import { cplMK } from './cpmk.js?v=2026-11-19-c94533';
 import { JENIS_ASESMEN, JENIS_MK, DIREKTORI, jenisAsesmen, bloom, hots, rapikanRps, kerangkaPekan, barisPekan, periksaRps, modelRps,
   namaBerkasRps, penyusunMK, revisiDariLog, tanggalLokal, waktuLokal, evaluasiDariData, BENTUK, SCL, rekapRps, BENTUK_INTEGRASI,
-  bedaRps, salinRps, ASESMEN_TES, BUTIR_REVIEW, SKALA_REVIEW, KESIMPULAN_REVIEW, rerataReview, butirKosongReview, rubrikKosong, kriteriaKosong, rentangPekan, susunanMK, jenisMK, bagiParitas, saringMK, ringkasSemester, htmlRingkasSemester, htmlSaringan, ubahSaringan, esignRps, paritas } from './rps.js?v=2026-11-19-828642';
-import { JENIS_PETA, relasiPeta, petaSvg, usulPeta } from './rps-peta.js?v=2026-11-19-828642';
-import { keB64 } from './pengajuan-mhs.js?v=2026-11-19-828642';
-import { bacaTinjauan, bahanTinjauan } from './tinjauan-rps.js?v=2026-11-19-828642';
-import { SHEETJS } from './nilai-cpl.js?v=2026-11-19-828642';
-import { lembarRps, bacaRpsExcel, bagianBerubah, LEBAR_KOLOM } from './rps-excel.js?v=2026-11-19-828642';
-import { buatRpsDocx } from './rps-docx.js?v=2026-11-19-828642';
+  bedaRps, salinRps, ASESMEN_TES, BUTIR_REVIEW, SKALA_REVIEW, KESIMPULAN_REVIEW, rerataReview, butirKosongReview, faktaReview, rubrikKosong, kriteriaKosong, rentangPekan, susunanMK, jenisMK, bagiParitas, saringMK, ringkasSemester, htmlRingkasSemester, htmlSaringan, ubahSaringan, esignRps, paritas } from './rps.js?v=2026-11-19-c94533';
+import { JENIS_PETA, relasiPeta, petaSvg, usulPeta } from './rps-peta.js?v=2026-11-19-c94533';
+import { keB64 } from './pengajuan-mhs.js?v=2026-11-19-c94533';
+import { bacaTinjauan, bahanTinjauan } from './tinjauan-rps.js?v=2026-11-19-c94533';
+import { SHEETJS } from './nilai-cpl.js?v=2026-11-19-c94533';
+import { lembarRps, bacaRpsExcel, bagianBerubah, LEBAR_KOLOM } from './rps-excel.js?v=2026-11-19-c94533';
+import { buatRpsDocx } from './rps-docx.js?v=2026-11-19-c94533';
 
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -662,7 +681,7 @@ function gambar(){
     return;
   }
   const m = mkDari(PILIH), simpanan = RPS.get(PILIH);
-  $('isi').innerHTML = `
+  $('isi').innerHTML = `<div id="tata"><div class="kiri">
     <p><a class="b" href="rps.html?kur=${encodeURIComponent(m.kurikulum)}" id="kembali">← Semua mata kuliah ${esc(m.kurikulum)}</a></p>
     <section class="kartu lengket"><h2><span class="kode">${esc(m.kode)}</span> ${esc(m.nama)} <span class="ket">(${esc(m.kurikulum)}, ${esc(m.sks ?? '—')} sks)</span></h2>
       <div class="alat">${ro() ? `<span class="ket">${BOLEH.has(PILIH) ? 'RPS sedang diajukan; terkunci sampai Kaprodi memutuskan.'
@@ -682,11 +701,12 @@ function gambar(){
       <details id="dPeriksa"><summary class="ket">Daftar periksa (Panduan Pengisian RPS bagian 6)</summary><div id="periksa" class="periksa-isi">${htmlPeriksa()}</div></details>
     </section>
     ${htmlA(m)}${htmlB(m)}${htmlPeta()}${htmlC()}${htmlD()}${htmlRubrik()}${htmlE()}
-    <section class="kartu"><h2>Lampiran: rekapitulasi beban belajar, bentuk pembelajaran, dan penilaian</h2>
+    <section class="kartu" id="bag-rekap"><h2>Lampiran: rekapitulasi beban belajar, bentuk pembelajaran, dan penilaian</h2>
       <p class="ket">Untuk akreditasi (tabel kurikulum LKPS); dihitung otomatis dari isian di atas dan ikut masuk Word di bawah bagian F.</p>
       <div id="rekap">${htmlRekap()}</div></section>
     <p class="ket">Bagian F (daftar revisi) disusun otomatis dari riwayat pengesahan: pengesahan pertama = "Belum ada revisi".</p>
-    <div id="slotReview">${htmlReview()}</div>`;
+    <div id="slotReview">${htmlReview()}</div></div>
+    <aside id="panelReview">${htmlPanelReview()}</aside></div>`;
   pasang(); pasangReview();
 }
 
@@ -779,6 +799,7 @@ async function muatReview(){
 function segarkanReview(){
   if ($('slotReview')) $('slotReview').innerHTML = htmlReview();
   if ($('ringkasReview')) $('ringkasReview').innerHTML = htmlRingkasReview();
+  if ($('panelReview')) $('panelReview').innerHTML = htmlPanelReview();
   pasangReview();
 }
 function htmlRingkasReview(){
@@ -801,22 +822,59 @@ function htmlIsiReview(v){
       <td>${esc(v.catatan?.[k] || '')}</td></tr>`).join('')}</tbody></table></div>
     ${v.umum ? `<p><b>Catatan umum:</b> ${esc(v.umum)}</p>` : ''}`;
 }
-function htmlFormReview(v){
-  const r = RPS.get(PILIH);
-  return `<h3>Form penilaian Anda</h3>
-    <p class="ket">Skala: ${SKALA_REVIEW.map(([n, l]) => `${n} ${l}`).join(' · ')}. Catatan per butir boleh kosong; tulis saran perbaikan yang spesifik.
-      ${v.kirim_pada ? `Terkirim ${esc(waktuLokal(v.kirim_pada))}; perubahan dikirim ulang dengan tombol Kirim review.` : 'Draf hanya terlihat oleh Anda sampai dikirim.'}
-      ${r ? '' : '<b>RPS belum disimpan penyusun; review dapat dikirim setelah RPS diisi.</b>'}</p>
-    <div class="gulir"><table class="ds form-review"><thead><tr><th>Butir</th><th>Skor</th><th>Catatan</th></tr></thead><tbody>
-    ${BUTIR_REVIEW.map(b => `<tr><td><b>${b.kode}</b> ${esc(b.teks)}</td>
-      <td class="skor">${SKALA_REVIEW.map(([n, l]) => `<label title="${esc(l)}"><input type="radio" name="rv_${b.kode}" value="${n}"${+v.skor?.[b.kode] === n ? ' checked' : ''}> ${n}</label>`).join('')}</td>
-      <td><textarea data-rvcat="${b.kode}" rows="1">${esc(v.catatan?.[b.kode] || '')}</textarea></td></tr>`).join('')}</tbody></table></div>
+// Mode review (pemilik 2026-11-19): form review di panel kanan (layar lebar) atau laci bawah (ponsel), berdampingan dengan RPS;
+// butir menuju bagian yang dinilai, butir bagian yang sedang dibaca ditandai, ringkasan otomatis (faktaReview) di bawah tiap butir.
+const sempit = () => matchMedia('(max-width:1000px)').matches;
+const bagSasaran = b => (b.ke && b.ke[0] === '#' ? 'bag-' + b.ke.slice(1) : 'bag-' + b.bagian);
+function htmlPanelReview(){
+  const v = REVIEW?.find(x => x.saya);
+  if (!v) return '';
+  const r = RPS.get(PILIH), F = faktaReview(ctx()), temuan = periksaRps(ctx());
+  const terisi = BUTIR_REVIEW.filter(b => +v.skor?.[b.kode] >= 1).length;
+  const per = ['A', 'B', 'C', 'D', 'E'].map(g => [g, BUTIR_REVIEW.filter(b => b.bagian === g)]);
+  return `<details id="laciRv"${sempit() ? '' : ' open'}><summary><b>Form review</b> <span class="ket" id="rvHitung">${terisi}/${BUTIR_REVIEW.length} butir diberi skor</span></summary>
+    <p class="ket">Klik judul butir untuk membuka bagian RPS yang dinilai. Skala: ${SKALA_REVIEW.map(([n, l]) => `${n} ${l}`).join(' · ')}.
+      Ringkasan abu-abu dihitung situs dari isian RPS; skor tetap penilaian Anda.
+      ${v.kirim_pada ? `<br>Terkirim ${esc(waktuLokal(v.kirim_pada))}; perubahan dikirim ulang dengan Kirim review.` : '<br>Draf hanya terlihat oleh Anda sampai dikirim.'}
+      ${r ? '' : '<br><b>RPS belum disimpan penyusun; review dapat dikirim setelah RPS diisi.</b>'}</p>
+    <div class="alat"><button class="b" id="rvUnduh">Unduh RPS (Word)</button></div>
+    ${per.map(([g, bs]) => { const t = temuan.filter(x => x.bagian === g), gl = t.filter(x => x.tingkat === 'galat').length;
+      return `<div class="rv-grup"><b>Bagian ${g}</b>${t.length ? ` <span class="ket">daftar periksa: ${gl ? `${gl} perlu dilengkapi` : ''}${gl && t.length - gl ? ', ' : ''}${t.length - gl ? `${t.length - gl} saran` : ''}</span>` : ' <span class="ket">daftar periksa lengkap</span>'}</div>
+      ${bs.map(b => `<div class="rv-butir" data-bagsek="${bagSasaran(b)}">
+        <div class="rv-judul" data-rvke="${esc(b.ke || '')}" data-rvbag="${b.bagian}" title="Buka bagian RPS yang dinilai"><b>${b.kode}</b> ${esc(b.teks)} <span class="ke">→</span></div>
+        <ul class="rv-fakta">${(F[b.kode] || []).map(x => `<li>${esc(x)}</li>`).join('')}</ul>
+        <div class="rv-skor">${SKALA_REVIEW.map(([n, l]) => `<label title="${esc(l)}"><input type="radio" name="rv_${b.kode}" value="${n}"${+v.skor?.[b.kode] === n ? ' checked' : ''}> ${n}</label>`).join('')}</div>
+        <textarea data-rvcat="${b.kode}" rows="1" placeholder="Catatan (boleh kosong)">${esc(v.catatan?.[b.kode] || '')}</textarea></div>`).join('')}`; }).join('')}
     <label class="fld"><span>Catatan umum dan saran perbaikan</span><textarea id="rvUmum">${esc(v.umum || '')}</textarea></label>
     <div class="alat"><label>Kesimpulan <select id="rvKes"><option value="">— pilih —</option>${KESIMPULAN_REVIEW.map(([k, l]) =>
-      `<option value="${k}"${v.kesimpulan === k ? ' selected' : ''}>${esc(l)}</option>`).join('')}</select></label>
-      <button class="b" id="rvDraf">Simpan draf</button><button class="b utama" id="rvKirim"${r ? '' : ' disabled'}>Kirim review</button>
-      <span class="msg" id="mRvForm"></span></div>`;
+      `<option value="${k}"${v.kesimpulan === k ? ' selected' : ''}>${esc(l)}</option>`).join('')}</select></label></div>
+    <div class="alat"><button class="b" id="rvDraf">Simpan draf</button><button class="b utama" id="rvKirim"${r ? '' : ' disabled'}>Kirim review</button>
+      <span class="msg" id="mRvForm"></span></div></details>`;
 }
+function pasangPanelReview(){
+  const p = $('panelReview'), ada = !!(p && p.innerHTML.trim());
+  $('tata')?.classList.toggle('ada-panel', ada);
+  document.body.classList.toggle('mode-review', ada);
+  if (!ada) return;
+  if ($('rvUnduh')) $('rvUnduh').onclick = () => unduh(false);
+  p.querySelectorAll('input[type=radio]').forEach(x => x.onchange = () => {
+    const n = BUTIR_REVIEW.filter(b => p.querySelector(`input[name="rv_${b.kode}"]:checked`)).length;
+    $('rvHitung').textContent = `${n}/${BUTIR_REVIEW.length} butir diberi skor`; });
+  tandaiButirAktif();
+}
+// Butir yang bagiannya sedang dibaca di kolom kiri ditandai (bagian yang memotong garis tepat di bawah kartu atas).
+function tandaiButirAktif(){
+  const p = $('panelReview');
+  if (!p || !p.innerHTML.trim()) return;
+  const garis = (document.querySelector('.lengket')?.getBoundingClientRect().bottom || 0) + 30;
+  const sek = [...document.querySelectorAll('#tata .kiri section[id^="bag-"]')].find(s => { const r = s.getBoundingClientRect(); return r.top <= garis && r.bottom > garis; });
+  p.querySelectorAll('.rv-butir').forEach(x => x.classList.toggle('aktif', !!sek && x.dataset.bagsek === sek.id));
+}
+// Layar berubah lebar/sempit (jendela diubah, ponsel diputar): laci terbuka di layar lebar, tertutup di layar sempit.
+matchMedia('(max-width:1000px)').addEventListener('change', e => { if ($('laciRv')) $('laciRv').open = !e.matches; });
+let rafTanda = 0;
+addEventListener('scroll', () => { if (!rafTanda) rafTanda = requestAnimationFrame(() => { rafTanda = 0; tandaiButirAktif(); }); }, { passive: true });
+
 function htmlReview(){
   if (!REVIEW) return '';
   const pengembang = RPS.get(PILIH)?.data?.pengembang || R?.pengembang, saya = REVIEW.find(v => v.saya);
@@ -837,9 +895,10 @@ function htmlReview(){
       <span class="msg" id="mReview"></span></div>` : '<span class="msg" id="mReview"></span>'}
     ${REVIEW.length ? `<div class="gulir"><table class="ds"><thead><tr><th>Reviewer</th><th>Status</th><th>Kesimpulan</th><th>Rerata skor (1-4)</th><th></th></tr></thead>
       <tbody>${baris}</tbody></table></div>` : '<p class="kosong">Belum ada reviewer yang ditunjuk.</p>'}
-    ${saya ? htmlFormReview(saya) : ''}</section>`;
+    ${saya ? `<p class="periksa" style="border-color:var(--biru)">Form penilaian Anda ada di panel <b>Form review</b> ${sempit() ? 'di bawah layar' : 'di kanan'}; RPS bisa dibaca sambil mengisi.</p>` : ''}</section>`;
 }
 function pasangReview(){
+  pasangPanelReview();
   const [kur, kode] = (PILIH || '|').split('|');
   const gagal = (id, e) => tulis(id, 'buruk', e.message || String(e));
   const segarTabel = async () => { REVIEW_TBL = await baca(sb.from('mk_rps_review').select('kurikulum,kode_mk,reviewer_id,kirim_pada,kesimpulan')); };
@@ -923,8 +982,13 @@ function lompatKe(ke, bag){
 document.addEventListener('click', e => {
   const li = e.target.closest('.periksa li[data-bag]');
   if (li) lompatKe(li.dataset.ke, li.dataset.bag);
+  const rv = e.target.closest('[data-rvbag]');
+  if (rv) { if (sempit() && $('laciRv')) $('laciRv').open = false; lompatKe(rv.dataset.rvke || '#' + rv.dataset.rvbag, rv.dataset.rvbag); tandaiButirAktif(); }
   const a = e.target.closest('[data-lompat]');
-  if (a) { e.preventDefault(); lompatKe('#' + a.dataset.lompat, a.dataset.lompat); }
+  if (a) { e.preventDefault();
+    const laci = $('laciRv');
+    if (a.dataset.lompat === 'review' && laci) { laci.open = true; laci.scrollIntoView({ block: 'nearest' }); return; }
+    lompatKe('#' + a.dataset.lompat, a.dataset.lompat); }
 });
 const segarkanPeriksa = () => { const e = $('periksa'); if (e) e.innerHTML = htmlPeriksa(); };   // panel pengesahan diperbarui saat simpan
 function ubahBesar(f){ f(); KOTOR = true; gambar(); }
