@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-19-0bb9e7">
+<link rel="stylesheet" href="tema.css?v=2026-11-19-e356d9">
 <style>
   /* Panduan pengguna ruang kerja (pemilik 2026-11-04). Bagian admin hanya
      tampil untuk peran admin. Perbarui bila tombol atau halaman berubah. */
@@ -40,7 +40,7 @@
   @media(max-width:640px){nav.isi ol{columns:1}.wrap{padding:18px 16px 60px}}
   @media print{nav.isi{display:none}section{break-inside:avoid}}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-19-0bb9e7">
+<link rel="stylesheet" href="kepala.css?v=2026-11-19-e356d9">
 </head>
 <body>
 
@@ -272,8 +272,8 @@
       Kaprodi dan GKM dapat menghitungnya di <b>Simulasi PJP › Kalkulator per mata kuliah</b>.</p>
     <p><b>Kaprodi:</b> buka <b>RPS</b>, centang <i>Hanya yang menunggu pemeriksaan Anda</i> (jumlahnya juga tampil di Dasbor operasional),
       klik <b>Periksa</b>, baca RPS, daftar periksa, dan hasil review sejawat beserta tanggapan penyusun, lalu <b>Sahkan</b> atau
-      <b>Kembalikan</b> dengan catatan untuk dosen. <b>Dekan</b> (bila jabatannya diisi di Penugasan koordinator) lalu klik <b>Tetapkan</b> pada RPS
-      yang sudah disahkan. Pantau seluruh prodi di <b>Pembelajaran dan CPL ▾ › Rekap RPS kurikulum</b>: kartu <b>Kemajuan RPS</b> (belum dibuat,
+      <b>Kembalikan</b> dengan catatan untuk dosen. <b>Dekan</b> (bila jabatannya diisi di Penugasan koordinator) lalu centang <i>Hanya yang menunggu penetapan Anda</i>
+      (juga diingatkan di Tugas saya), buka RPS-nya, dan klik <b>Tetapkan</b>. Pantau seluruh prodi di <b>Pembelajaran dan CPL ▾ › Rekap RPS kurikulum</b>: kartu <b>Kemajuan RPS</b> (belum dibuat,
       draf, diajukan, disahkan, bertanda tangan) dan kotak <b>Review sejawat</b> (sudah direview, reviewer belum mengirim, RPS tanpa reviewer,
       perlu perbaikan besar, belum ditanggapi); klik angkanya untuk menyaring, atau unduh CSV untuk rapat.</p>
     <h3 id="rps-review">Review sejawat RPS</h3>
@@ -470,7 +470,7 @@
   </div>
 </main>
 
-<script src="config.js?v=2026-11-19-0bb9e7"></script>
+<script src="config.js?v=2026-11-19-e356d9"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -487,7 +487,7 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-19-0bb9e7';
+import { gerbang } from './menu.js?v=2026-11-19-e356d9';
 
 // Bagian admin hanya untuk peran admin (isinya bukan rahasia; disembunyikan
 // supaya panduan dosen tetap ringkas).

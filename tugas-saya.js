@@ -1,14 +1,14 @@
 // "Tugas saya" di Ruang kerja (pemilik 2026-11-12): hal yang menunggu tindakan dosen yang
 // sedang masuk, dari data yang sudah boleh ia baca (RLS). Aturan tenggat sama dengan halaman
 // Pengingat: rapat.js, hibah.js, temuan-ami.js, pengingat-dosen.js.
-import { kurangProfil } from './pengingat-dosen.js?v=2026-11-19-0bb9e7';
-import { tindakTerbuka, tglID } from './rapat.js?v=2026-11-19-0bb9e7';
-import { tenggatBerikut, teksHari, HARI_LEWAT } from './hibah.js?v=2026-11-19-0bb9e7';
-import { hariKeTenggat, labelStatus, HARI_DEKAT } from './temuan-ami.js?v=2026-11-19-0bb9e7';
-import { tugasEvaluasi } from './evaluasi-pembelajaran.js?v=2026-11-19-0bb9e7';
-import { bolehPengajuan } from './koordinator.js?v=2026-11-19-0bb9e7';
-import { tenggatReview, hariKe, teksHari as teksHariRv, tugasTenggatRps, tanggalPanjang as tglRv } from './pengingat-rps.js?v=2026-11-19-0bb9e7';
-import { tugasMK } from './tugas-mk.js?v=2026-11-19-0bb9e7';
+import { kurangProfil } from './pengingat-dosen.js?v=2026-11-19-e356d9';
+import { tindakTerbuka, tglID } from './rapat.js?v=2026-11-19-e356d9';
+import { tenggatBerikut, teksHari, HARI_LEWAT } from './hibah.js?v=2026-11-19-e356d9';
+import { hariKeTenggat, labelStatus, HARI_DEKAT } from './temuan-ami.js?v=2026-11-19-e356d9';
+import { tugasEvaluasi } from './evaluasi-pembelajaran.js?v=2026-11-19-e356d9';
+import { bolehPengajuan } from './koordinator.js?v=2026-11-19-e356d9';
+import { tenggatReview, hariKe, teksHari as teksHariRv, tugasTenggatRps, tugasTetapDekan, tanggalPanjang as tglRv } from './pengingat-rps.js?v=2026-11-19-e356d9';
+import { tugasMK } from './tugas-mk.js?v=2026-11-19-e356d9';
 
 const SELESAI_AMI = new Set(['selesai', 'ditutup']);
 const tingkat = h => h == null ? 'biasa' : h < 0 ? 'lewat' : h <= HARI_DEKAT ? 'dekat' : 'biasa';
@@ -102,6 +102,9 @@ export function tugasSaya(d, kini = new Date()){
   // Tenggat RPS per semester (120): RPS yang boleh saya susun belum diajukan ke Kaprodi.
   for (const x of tugasTenggatRps({ mk: d.mkRef || [], rps: d.rpsStatus || new Map(), bolehRps: d.bolehRps || [], tenggat: d.tenggatRps || {}, kini }))
     tambah(x.jenis, x.judul, x.rinci, x.href, x.hari);
+  // Dekan aktif (Penugasan koordinator): RPS disahkan Kaprodi yang menunggu penetapan.
+  if ((s.koordinator || []).includes('dekan')) for (const x of tugasTetapDekan({ rps: d.rpsStatus || new Map(), mkNama: d.mkNama || new Map() }))
+    tambah(x.jenis, x.judul, x.rinci, x.href);
 
   // Target kinerja tahun berjalan (66-patch-target-dosen.sql): satu butir ringkas bila ada yang belum tercapai.
   const kurang = (d.target || []).filter(b => b.status !== 'tercapai');

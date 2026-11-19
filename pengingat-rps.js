@@ -1,8 +1,8 @@
 // Tenggat RPS dan review (120, pemilik 2026-11-19): dipakai halaman Pengingat (admin mengirim manual), Tugas saya, dan RPS.
 // Keputusan pemilik: tenggat RPS per semester ganjil/genap = RPS sudah DIAJUKAN ke Kaprodi; tenggat review = N hari sejak
 // reviewer ditunjuk (pengaturan rps_review_hari, bawaan 14). Tanpa DOM.
-import { paritas, penyusunMK } from './rps.js?v=2026-11-19-0bb9e7';
-import { tanggalPanjang } from './rps-docx.js?v=2026-11-19-0bb9e7';
+import { paritas, penyusunMK } from './rps.js?v=2026-11-19-e356d9';
+import { tanggalPanjang } from './rps-docx.js?v=2026-11-19-e356d9';
 
 export const HARI_REVIEW_BAWAAN = 14;
 export { tanggalPanjang };
@@ -87,6 +87,16 @@ export function penerimaTanggapBelum({ review = [], mk = [], dosen = [], kelas =
     for (const d of penyusunMK(m, dosen, kelas)) tambahKe(per, d, `- ${m.kode} ${m.nama} (${m.kurikulum}): ${j} review belum ditanggapi`);
   }
   return hasil(per);
+}
+
+/** Tugas saya untuk Dekan (pemilik 2026-11-19): RPS disahkan Kaprodi yang belum ditetapkan. rps = Map 'kur|kode' -> {status, tetap_pada}. */
+export function tugasTetapDekan({ rps = new Map(), mkNama = new Map() } = {}){
+  const xs = [...rps].filter(([, r]) => r && r.status === 'disahkan' && 'tetap_pada' in r && !r.tetap_pada).map(([k]) => k);
+  if (!xs.length) return [];
+  const nm = k => `${k.split('|')[1]} ${mkNama.get(k) || ''}`.trim();
+  return [{ jenis: 'rps', judul: `Tetapkan RPS: ${xs.length} mata kuliah menunggu penetapan Anda`,
+    rinci: xs.slice(0, 5).map(nm).join('; ') + (xs.length > 5 ? `; dan ${xs.length - 5} lainnya` : '') + '. Sudah disahkan Kaprodi.',
+    href: 'rps.html?tetap=1' }];
 }
 
 /** Tugas saya: satu tugas per semester bertenggat untuk MK yang boleh saya susun (rps_boleh_saya). */

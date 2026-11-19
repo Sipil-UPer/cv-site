@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-19-0bb9e7">
+<link rel="stylesheet" href="tema.css?v=2026-11-19-e356d9">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
@@ -84,7 +84,7 @@
 
 <main class="wrap" id="isi"><p class="hint">Memuat&hellip;</p></main>
 
-<script src="config.js?v=2026-11-19-0bb9e7"></script>
+<script src="config.js?v=2026-11-19-e356d9"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache) tampil sebagai pesan.
 addEventListener('error', function (e) {
@@ -100,14 +100,14 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { pengguna, pasangMenu, halamanBoleh, bolehBuka, identitas, pasangJudul } from './menu.js?v=2026-11-19-0bb9e7';
-import { hitungVerifikasi } from './verifikasi-hitung.js?v=2026-11-19-0bb9e7';
-import { rubrikRps } from './rps.js?v=2026-11-19-0bb9e7';
-import { bacaTinjauan } from './tinjauan-rps.js?v=2026-11-19-0bb9e7';
-import { isoDari } from './pengingat-rps.js?v=2026-11-19-0bb9e7';
-import { tugasSaya } from './tugas-saya.js?v=2026-11-19-0bb9e7';
-import { fiturAktif, halamanAktif } from './fitur.js?v=2026-11-19-0bb9e7';
-import { barisDosen } from './target-kinerja.js?v=2026-11-19-0bb9e7';
+import { pengguna, pasangMenu, halamanBoleh, bolehBuka, identitas, pasangJudul } from './menu.js?v=2026-11-19-e356d9';
+import { hitungVerifikasi } from './verifikasi-hitung.js?v=2026-11-19-e356d9';
+import { rubrikRps } from './rps.js?v=2026-11-19-e356d9';
+import { bacaTinjauan } from './tinjauan-rps.js?v=2026-11-19-e356d9';
+import { isoDari } from './pengingat-rps.js?v=2026-11-19-e356d9';
+import { tugasSaya } from './tugas-saya.js?v=2026-11-19-e356d9';
+import { fiturAktif, halamanAktif } from './fitur.js?v=2026-11-19-e356d9';
+import { barisDosen } from './target-kinerja.js?v=2026-11-19-e356d9';
 
 const sb = createClient(window.SB_URL, window.SB_KEY);
 const $ = id => document.getElementById(id);
@@ -259,7 +259,7 @@ async function muatTugas(saya){
   // Tenggat RPS dan review (120): pengaturan + status RPS (semester MK pilihan dari isian RPS). Tanpa patch = tanpa tenggat.
   const [atur, rpsSt] = await Promise.all([
     baca(sb.from('pengaturan').select('kunci,nilai').in('kunci', ['rps_tenggat_ganjil', 'rps_tenggat_genap', 'rps_review_hari'])),
-    baca(sb.from('mk_rps').select('kurikulum,kode_mk,status,revisi,smt:data->identitas->>semester'))]);
+    baca(sb.from('mk_rps').select('kurikulum,kode_mk,status,revisi,tetap_pada,smt:data->identitas->>semester'))]);
   const nilaiAtur = k => atur.find(x => x.kunci === k)?.nilai;
   const tenggatRps = { Ganjil: isoDari(nilaiAtur('rps_tenggat_ganjil')), Genap: isoDari(nilaiAtur('rps_tenggat_genap')) };
   const rpsStatus = new Map(rpsSt.map(r => [`${r.kurikulum}|${r.kode_mk}`, r]));
