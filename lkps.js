@@ -15,11 +15,11 @@
    angka yang sama dengan halaman skor. Lembar lain dibiarkan untuk diisi
    prodi; kolom yang tidak disimpan situs (mis. pita waktu tunggu) kosong.
    ===================================================================== */
-import { versiUntukTS, daftarProdi, STATUS_PS, tglTeks } from './pustaka-dokumen.js?v=2026-11-20-f6577c';
-import { teksPendidikan } from './profil-dosen.js?v=2026-11-20-f6577c';
-import { barisKerjaSama } from './kerjasama-karya.js?v=2026-11-20-f6577c';
-import { kunciIntegrasi } from './rps-integrasi.js?v=2026-11-20-f6577c';
-import { karya4i } from './sitasi.js?v=2026-11-20-f6577c';
+import { versiUntukTS, daftarProdi, STATUS_PS, tglTeks } from './pustaka-dokumen.js?v=2026-11-20-c87085';
+import { teksPendidikan, nidnNuptk } from './profil-dosen.js?v=2026-11-20-c87085';
+import { barisKerjaSama } from './kerjasama-karya.js?v=2026-11-20-c87085';
+import { kunciIntegrasi } from './rps-integrasi.js?v=2026-11-20-c87085';
+import { karya4i } from './sitasi.js?v=2026-11-20-c87085';
 
 const TEMPLATE = 'lkps-template.xlsx';
 export const JSZIP = 'https://cdn.jsdelivr.net/npm/jszip@3.10.1/+esm';
@@ -201,7 +201,7 @@ export function petaDaftar(C){
     const pend = (kelompok, ada, ket) => teksPendidikan(rw, kelompok) ||
       (ada ? `[isi: prodi ${ket} dan bidang ilmu]` : '');
     const srt = (d.sertifikat || []);
-    set('4a', `B${r}`, d.nama); set('4a', `C${r}`, d.nidn);
+    set('4a', `B${r}`, d.nama); set('4a', `C${r}`, nidnNuptk(d));   // C11 'NIDN/NIDK/ NUPTK' (patch 128)
     set('4a', `D${r}`, KATEGORI_LKPS[d.kategori || 'tetap']);
     set('4a', `E${r}`, pend('sarjana', !rw.length, 'S1'));
     set('4a', `F${r}`, pend('magister', !rw.length && ['S2', 'S3'].includes(d.pendidikan), 'S2'));

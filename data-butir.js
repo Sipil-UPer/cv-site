@@ -24,7 +24,7 @@
        pakai, pembanding, labelPakai, catatan }
    ===================================================================== */
 
-import { barisBkd } from './tautan-butir.js?v=2026-11-20-f6577c';
+import { barisBkd } from './tautan-butir.js?v=2026-11-20-c87085';
 
 const angka = v => { const x = parseFloat(String(v ?? '').replace(',', '.')); return Number.isFinite(x) ? x : 0; };
 const bulat = v => Math.trunc(angka(v));

@@ -2,8 +2,8 @@
 // Karya: hanya yang terverifikasi (data.json publik). Profil (NIDN, jabatan, pendidikan,
 // keahlian, sertifikat, email): tabel dosen di Supabase, dibaca dosen itu sendiri atau admin.
 // Dipakai profil.html (CV sendiri) dan kelola-dosen.html (admin, semua dosen).
-import { run, para, judul, teks, tabel, buatDocx } from './docx-dasar.js?v=2026-11-20-f6577c';
-import { JENJANG, JENIS_SERTIFIKAT, JABATAN, KATEGORI } from './profil-dosen.js?v=2026-11-20-f6577c';
+import { run, para, judul, teks, tabel, buatDocx } from './docx-dasar.js?v=2026-11-20-c87085';
+import { JENJANG, JENIS_SERTIFIKAT, JABATAN, KATEGORI } from './profil-dosen.js?v=2026-11-20-c87085';
 
 const label = (xs, k) => (xs.find(x => x[0] === k) || [, k || ''])[1];
 const rapi = s => String(s || '').replace(/_/g, ' ').trim();
@@ -52,7 +52,7 @@ export function isiCV(P, D, o = {}){
     + `${K.penelitian.length} penelitian, ${K.pkm.length} pengabdian kepada masyarakat, ${K.luaran.length} luaran/HKI, ${K.rekognisi.length} rekognisi.`));
 
   out.push(judul('Identitas', 1));
-  const id = [['Nama', P.nama], ['NIDN', P.nidn], ['Jabatan akademik', label(JABATAN, P.jabatan)], ['Kategori dosen', label(KATEGORI, P.kategori)],
+  const id = [['Nama', P.nama], ['NIP', P.nip], ['NIDN', P.nidn], ['NUPTK', P.nuptk], ['Jabatan akademik', label(JABATAN, P.jabatan)], ['Kategori dosen', label(KATEGORI, P.kategori)],
     ['Bidang keahlian', P.bidang_keahlian], ['Program studi', [D.prodi, D.institusi].filter(Boolean).join(', ')], ['Email', P.email],
     ['SINTA ID', P.sinta_id], ['Scopus Author ID', P.scopus_id], ['ORCID', P.orcid], ['Nomor sertifikat pendidik', P.nomor_serdos]]
     .filter(([, v]) => String(v ?? '').trim());
@@ -153,7 +153,7 @@ export function isiBiodataHibah(P, D, o = {}){
   out.push(judul('A. Identitas Diri', 1));
   out.push(tabel([['No', 'Isian', 'Keterangan'], ...[
     ['Nama lengkap (dengan gelar)', P.nama || ISI], ['Jenis kelamin', ISI], ['Jabatan fungsional', label(JABATAN, P.jabatan) || ISI],
-    ['NIP/NIK/identitas lainnya', ISI], ['NIDN', P.nidn || ISI], ['Tempat dan tanggal lahir', ISI], ['E-mail', P.email || ISI],
+    ['NIP/NIK/identitas lainnya', [P.nip && `NIP ${P.nip}`, P.nuptk && `NUPTK ${P.nuptk}`].filter(Boolean).join('; ') || ISI], ['NIDN', P.nidn || ISI], ['Tempat dan tanggal lahir', ISI], ['E-mail', P.email || ISI],
     ['Nomor telepon/HP', ISI], ['Alamat kantor', kantor ? `${kantor} ${ISI}` : ISI],
     ['Nomor telepon/faks kantor', ISI], ['Lulusan yang telah dihasilkan', `S-1 = ${ISI} orang; S-2 = ${ISI} orang; S-3 = ${ISI} orang`],
     ['Mata kuliah yang diampu', mk.length ? mk.map(m => `${m.nama}${m.sks ? ` (${m.sks} SKS)` : ''}`).join('; ') : ISI],

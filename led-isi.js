@@ -9,10 +9,10 @@
    Tautan di dalam teks memakai token ⟦url|label⟧; auto() di led.js
    mengubahnya menjadi hyperlink Word.
    ===================================================================== */
-import { versiUntukTS } from './pustaka-dokumen.js?v=2026-11-20-f6577c';
-import { infoJenis, JENIS_DOKUMEN, kelompokDokumen, buktiButir, saranDokumen } from './rencana-bukti.js?v=2026-11-20-f6577c';
-import { teksPendidikan } from './profil-dosen.js?v=2026-11-20-f6577c';
-import { karya4i } from './sitasi.js?v=2026-11-20-f6577c';
+import { versiUntukTS } from './pustaka-dokumen.js?v=2026-11-20-c87085';
+import { infoJenis, JENIS_DOKUMEN, kelompokDokumen, buktiButir, saranDokumen } from './rencana-bukti.js?v=2026-11-20-c87085';
+import { teksPendidikan, nidnNuptk } from './profil-dosen.js?v=2026-11-20-c87085';
+import { karya4i } from './sitasi.js?v=2026-11-20-c87085';
 
 export const tokenTautan = (url, label) => `⟦${url}|${String(label).replace(/[⟦⟧|]/g, ' ')}⟧`;
 const isi = t => `[isi: ${t}]`;
@@ -59,7 +59,7 @@ export function anggotaTim(tim, dosen){
     const d = r.dosen_id ? (dosen || []).find(x => x.id === r.dosen_id) : null;
     if (r.dosen_id && (!d || d.aktif === false || d.peran === 'asesor')) return [];
     return [{ id: r.id, dosen_id: r.dosen_id || null, jenis: r.jenis || 'dosen', deskripsi: r.deskripsi || '',
-      nama: d ? d.nama : r.nama, nomor: (d ? d.nidn : r.nomor) || '',
+      nama: d ? d.nama : r.nama, nomor: (d ? nidnNuptk(d) : r.nomor) || '',
       jabatan: (d ? JABATAN[d.jabatan] : r.jabatan) || '' }];
   });
 }
@@ -278,7 +278,7 @@ export function tabelPenjelas(no, C){
     }
     case '26': return buat('Daftar dosen tetap program studi (DTPS)', ['No', 'Nama', 'NIDN/NUPTK', 'Pendidikan', 'Bidang keahlian', 'Jabatan akademik'],
       (X.dosen || []).filter(d => d.dtps && d.aktif !== false).sort((a, b) => String(a.nama).localeCompare(String(b.nama)))
-        .map(d => [d.nama, d.nidn || '—', d.pendidikan || '—', d.bidang_keahlian || '—', JABATAN[d.jabatan] || '—']), 'pada Tabel 4.a LKPS', 80);
+        .map(d => [d.nama, nidnNuptk(d) || '—', d.pendidikan || '—', d.bidang_keahlian || '—', JABATAN[d.jabatan] || '—']), 'pada Tabel 4.a LKPS', 80);
     case '27': return buat('Riwayat pendidikan DTPS', ['No', 'Nama', 'Sarjana', 'Magister', 'Doktor'],
       (X.dosen || []).filter(d => d.dtps && d.aktif !== false && (d.riwayat_pendidikan || []).length)
         .sort((a, b) => String(a.nama).localeCompare(String(b.nama)))

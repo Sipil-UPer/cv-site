@@ -83,6 +83,16 @@ export function pendidikanTertinggi(riwayat){
   return null;
 }
 
+// Nomor dosen untuk kolom "NIDN/NIDK/ NUPTK" (LKPS 4.a C11, LED): NIDN dan NUPTK (patch 128, diisi dosen)
+// berdua bila keduanya ada. Kode staf tanpa NIDN (mis. STAF-001, NIP/NUP di kolom nidn) diganti NUPTK bila ada.
+export const nidnSah = s => /^[0-9]{10}$/.test(String(s || '').trim());
+export function nidnNuptk(d){
+  const nidn = String(d?.nidn || '').trim(), nuptk = String(d?.nuptk || '').trim();
+  if (!nuptk) return nidn;
+  if (!nidn || !nidnSah(nidn)) return nuptk;
+  return nidn === nuptk ? nidn : `${nidn} / ${nuptk}`;
+}
+
 // Satu sel LKPS 4.a kolom E/F/G: "Program studi, Perguruan tinggi (bidang ilmu)".
 export function teksPendidikan(riwayat, kelompok){
   return (riwayat || []).filter(r => (r.jenjang || '').startsWith(kelompok))
