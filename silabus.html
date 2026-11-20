@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Silabus — Ruang kerja</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tema.css?v=2026-11-20-68bf3d">
+<link rel="stylesheet" href="kepala.css?v=2026-11-20-68bf3d">
+<style>
+  /* Silabus mata kuliah (129-patch-silabus.sql, pemilik 2026-11-20) */
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
+  .wrap{max-width:1400px;margin:0 auto;padding:18px 20px 80px}
+  .kosong, .ket{color:var(--muted)}
+  .ket{font-size:13px}
+  .kartu{background:var(--panel);border:1px solid var(--line);padding:14px 18px;margin-bottom:16px}
+  .kartu h2{font-size:17px;margin:0 0 6px;color:var(--biru)}
+  .kartu h3{font-size:14.5px;margin:14px 0 6px}
+  .alat{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:8px 0}
+  select, input[type=text], textarea{font:inherit;font-size:14px;padding:5px 7px;border:1px solid var(--line);background:var(--panel);color:var(--ink)}
+  textarea{width:100%;resize:vertical;line-height:1.45}
+  .b{font:inherit;font-size:14px;padding:5px 12px;border:1px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer}
+  .b.utama{background:var(--biru);border-color:var(--biru);color:#fff}
+  .b.awas{color:var(--merah);border-color:var(--merah)}
+  .b:disabled{opacity:.5;cursor:default}
+  .gulir{overflow-x:auto}
+  table.ds{width:100%;border-collapse:collapse;font-size:13.5px}
+  table.ds th{text-align:left;font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--line);padding:5px 6px;vertical-align:bottom}
+  table.ds td{padding:5px 6px;border-bottom:1px solid var(--line-soft);vertical-align:top}
+  table.ds tr.grup th{padding:14px 6px 5px;font-size:13px;letter-spacing:0;text-transform:none;color:var(--ink);border-bottom:2px solid var(--line)}
+  .kode{font-family:var(--mono);font-size:12.5px;white-space:nowrap}
+  .chip{display:inline-block;font-size:11.5px;padding:1px 6px;border:1px solid var(--line);white-space:nowrap}
+  .chip.disahkan{color:var(--hijau);border-color:var(--hijau)} .chip.diajukan{color:var(--biru);border-color:var(--biru)}
+  .chip.dikembalikan{color:var(--merah);border-color:var(--merah)} .chip.belum{color:var(--muted)}
+  .kemajuan{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+  .angka-st{display:flex;flex-direction:column;min-width:110px;padding:8px 10px;border:1px solid var(--line);background:transparent;color:var(--ink);font:inherit;cursor:pointer;text-align:left}
+  .angka-st b{font-size:22px;line-height:1.1} .angka-st span{font-size:12px}
+  .angka-st.aktif{border-color:var(--ink);box-shadow:inset 0 -3px 0 var(--merah)}
+  .dua{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .fld{display:flex;flex-direction:column;gap:3px;margin:8px 0}
+  .fld>span{font-size:13px;font-weight:600}
+  .fld small{color:var(--muted);font-weight:400}
+  .identitas{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:6px 14px;font-size:13.5px}
+  .identitas div span{display:block;font-size:11.5px;color:var(--muted)}
+  .peringatan{border:1px solid #8A5A00;color:var(--ink);background:rgba(200,140,0,.10);padding:10px 12px;margin:8px 0;font-size:13.5px}
+  .pesan{font-size:13.5px;margin:6px 0}
+  .pesan.galat{color:var(--merah)} .pesan.ok{color:var(--hijau)}
+  ol.log{font-size:13px;padding-left:20px;margin:6px 0}
+  @media(max-width:800px){.dua{grid-template-columns:1fr}}
+  @media(max-width:700px){.wrap{padding-left:16px;padding-right:16px}}
+</style>
+</head>
+<body>
+<header class="hero"><div class="hero-in">
+  <div class="hero-inst" data-identitas></div>
+  <h1>Silabus</h1>
+  <div class="sub" id="hSub">Memuat…</div>
+</div></header>
+<main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
+<script src="config.js?v=2026-11-20-68bf3d"></script>
+<script>
+// Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
+addEventListener('error', function (e) {
+  if (document.getElementById('galat-muat')) return;
+  var d = document.createElement('div');
+  d.id = 'galat-muat';
+  d.style.cssText = 'margin:16px;padding:12px 14px;border:1px solid var(--merah);' +
+    'background:var(--merah-m3);color:var(--ink);font:14px/1.5 system-ui,sans-serif';
+  d.textContent = 'Halaman gagal dimuat: ' + (e.message || 'galat skrip') +
+    '. Tekan Ctrl+Shift+R untuk memuat ulang tanpa cache; bila tetap muncul, kirim pesan ini ke admin.';
+  document.body.insertBefore(d, document.body.firstChild);
+});
+</script>
+<script type="module">
+// Silabus mata kuliah (129-patch-silabus.sql, pemilik 2026-11-20): koordinator MK/pengampu menyusun (dua bahasa, bentuk
+// Lampiran Kurikulum SIAKUP), Kaprodi aktif mengesahkan; lampiran Word dokumen kurikulum dari versi disahkan (silabus.js).
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
+import { gerbang, identitas } from './menu.js?v=2026-11-20-68bf3d';
+import { punya } from './koordinator.js?v=2026-11-20-68bf3d';
+import { susunanMK } from './rps.js?v=2026-11-20-68bf3d';
+import { buatDocx } from './docx-dasar.js?v=2026-11-20-68bf3d';
+import { KOLOM_SILABUS, BATAS, STATUS_SILABUS, rapikanSilabus, kekuranganSilabus, statusSilabus, cplTerkait, rencanaImpor,
+  lampiranSilabus, penyelenggara } from './silabus.js?v=2026-11-20-68bf3d';
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const sb = createClient(window.SB_URL, window.SB_KEY);
+const baca = q => q.then(r => r.error ? [] : (r.data || []), () => []);
+const kunci = (kur, kode) => `${kur}|${kode}`;
+const waktu = s => (s ? new Date(s).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' }) : '');
+const URL_AWAL = new URLSearchParams(location.search);
+let SAYA = null, MK = [], SIL = new Map(), LOG = [], CPL = [], PETA = [], BOLEH = new Set(), IDENT = { prodi: '', institusi: '' };
+let KUR = URL_AWAL.get('kur') || '', PILIH = URL_AWAL.get('kode') || '', F_STATUS = '', ISIAN = null, KOTOR = false, TABEL_ADA = true;
+const ADMIN = () => SAYA?.peran === 'admin';
+const KAPRODI = () => punya(SAYA, 'kaprodi');
+
+async function muat(){
+  const [mk, cpl, peta, boleh, ident] = await Promise.all([
+    baca(sb.from('ref_mata_kuliah').select('kurikulum,kode,nama,sks,sks_praktikum,semester,sifat,aktif,unit_penyelenggara,pengampu')
+      .order('kurikulum').order('kode')),
+    baca(sb.from('ref_cpl').select('kurikulum,kode,rumusan,rumusan_en,urutan')),
+    baca(sb.from('ref_mk_cpl').select('kurikulum,kode_mk,cpl')),
+    baca(sb.rpc('mk_boleh_saya')),
+    identitas()]);
+  const sq = await sb.from('mk_silabus').select('kurikulum,kode_mk,data,status,revisi,sah,sah_pada,sah_oleh,oleh,diperbarui');
+  TABEL_ADA = !sq.error;
+  MK = mk; CPL = cpl; PETA = peta; IDENT = ident;
+  SIL = new Map((sq.data || []).map(s => [kunci(s.kurikulum, s.kode_mk), s]));
+  LOG = await baca(sb.from('mk_silabus_log').select('*').order('id'));
+  BOLEH = new Set(boleh.map(b => kunci(b.kurikulum, b.kode_mk)));
+  const kurs = [...new Set(MK.map(m => m.kurikulum).filter(Boolean))].sort().reverse();
+  if (!kurs.includes(KUR)) KUR = kurs.includes('K26') ? 'K26' : (kurs[0] || '');
+}
+
+const mkIni = () => MK.filter(m => m.kurikulum === KUR && m.aktif !== false);
+const simpanUrl = () => history.replaceState(null, '', `?kur=${encodeURIComponent(KUR)}${PILIH ? `&kode=${encodeURIComponent(PILIH)}` : ''}`);
+
+function gambar(){
+  if (!TABEL_ADA) { $('isi').innerHTML = '<div class="kartu"><p class="kosong">Tabel silabus belum ada. Admin menjalankan supabase/129-patch-silabus.sql di Supabase.</p></div>'; return; }
+  $('isi').innerHTML = PILIH ? gambarEditor() : gambarDaftar();
+  PILIH ? pasangEditor() : pasangDaftar();
+}
+
+function gambarDaftar(){
+  const xs = mkIni();
+  const hit = Object.fromEntries(Object.keys(STATUS_SILABUS).map(k => [k, 0]));
+  xs.forEach(m => { hit[statusSilabus(SIL.get(kunci(KUR, m.kode)))]++; });
+  const kurs = [...new Set(MK.map(m => m.kurikulum).filter(Boolean))].sort().reverse();
+  const tampil = m => !F_STATUS || statusSilabus(SIL.get(kunci(KUR, m.kode))) === F_STATUS;
+  const baris = susunanMK(xs).map(g => {
+    const isi = g.xs.filter(tampil);
+    if (!isi.length) return '';
+    return `<tr class="grup"><th colspan="5">${esc(g.judul)} <span class="ket">· ${isi.length} MK</span></th></tr>` + isi.map(m => {
+      const k = kunci(KUR, m.kode), s = SIL.get(k), st = statusSilabus(s);
+      const aksi = KAPRODI() && st === 'diajukan' ? 'Periksa' : BOLEH.has(k) ? 'Isi' : 'Lihat';
+      return `<tr><td class="kode">${esc(m.kode)}</td><td>${esc(m.nama)}</td><td>${esc(m.sks ?? '')}</td>
+        <td><span class="chip ${st}">${STATUS_SILABUS[st]}</span>${s?.revisi ? ` <span class="ket">disahkan ${s.revisi}×</span>` : ''}${
+          s?.data?.catatan_impor ? ' <span class="ket">isi awal belum diperiksa</span>' : ''}${KAPRODI() && st === 'diajukan' ? ' <b>menunggu Anda</b>' : ''}</td>
+        <td><a href="?kur=${encodeURIComponent(KUR)}&kode=${encodeURIComponent(m.kode)}">${aksi}</a></td></tr>`;
+    }).join('');
+  }).join('');
+  return `<div class="kartu"><h2>Silabus mata kuliah</h2>
+    <p class="ket">Silabus menjadi lampiran dokumen kurikulum (bentuk Lampiran Kurikulum SIAKUP, Indonesia dan Inggris). Diisi koordinator MK atau
+      dosen pengampu, diajukan, lalu disahkan Kaprodi. Identitas MK dan CPL terkait diambil dari Data prodi › Mata kuliah dan peta MK–CPL.</p>
+    <div class="alat"><label>Kurikulum <select id="fKur">${kurs.map(k => `<option${k === KUR ? ' selected' : ''}>${esc(k)}</option>`).join('')}</select></label></div>
+    <div class="kemajuan">${Object.entries(STATUS_SILABUS).map(([k, l]) => `<button class="angka-st${F_STATUS === k ? ' aktif' : ''}" data-st="${k}"><b>${hit[k]}</b><span>${l}</span></button>`).join('')}</div>
+    <div class="alat"><button class="b utama" id="unduhLampiran">Unduh lampiran silabus (Word)</button>
+      <label><input type="checkbox" id="pakaiDraf"> sertakan yang belum disahkan (ditandai DRAF)</label></div>
+    <div class="pesan" id="pesanLampiran"></div>
+    ${ADMIN() ? `<h3>Impor isi awal (admin)</h3>
+      <p class="ket">Berkas JSON hasil olahan Lampiran Kurikulum SIAKUP. Hanya MK yang belum punya silabus yang diisi (status draf, dengan catatan
+        impor yang harus diperiksa penyusun). Isian dosen tidak ditimpa.</p>
+      <div class="alat"><input type="file" id="berkasImpor" accept=".json,application/json"><button class="b" id="impor" disabled>Impor</button></div>
+      <div class="pesan" id="pesanImpor"></div>` : ''}
+  </div>
+  <div class="kartu"><div class="gulir"><table class="ds"><thead><tr><th>Kode</th><th>Mata kuliah</th><th>sks</th><th>Status</th><th></th></tr></thead>
+    <tbody>${baris || '<tr><td colspan="5" class="kosong">Tidak ada mata kuliah.</td></tr>'}</tbody></table></div></div>`;
+}
+
+let RENCANA = null;
+function pasangDaftar(){
+  $('fKur').onchange = e => { KUR = e.target.value; F_STATUS = ''; simpanUrl(); gambar(); };
+  document.querySelectorAll('[data-st]').forEach(b => { b.onclick = () => { F_STATUS = F_STATUS === b.dataset.st ? '' : b.dataset.st; gambar(); }; });
+  $('unduhLampiran').onclick = async () => {
+    const h = lampiranSilabus({ kur: KUR, mk: MK, silabus: SIL, peta: PETA, refCpl: CPL, prodi: IDENT.prodi, institusi: IDENT.institusi, draf: $('pakaiDraf').checked });
+    if (!h.jumlah) { $('pesanLampiran').innerHTML = '<span class="galat">Belum ada silabus yang disahkan. Centang "sertakan yang belum disahkan" untuk bahan kerja.</span>'; return; }
+    const blob = await buatDocx(h.xml);
+    const a = Object.assign(document.createElement('a'), { href: URL.createObjectURL(blob), download: `lampiran-silabus-${KUR}${h.draf ? '-draf' : ''}.docx` });
+    a.click(); URL.revokeObjectURL(a.href);
+    $('pesanLampiran').className = 'pesan ok';
+    $('pesanLampiran').textContent = `${h.jumlah} silabus${h.draf ? ` (${h.draf} draf)` : ''}; ${h.belum.length} MK belum ada${h.belum.length ? ' (didaftar di akhir dokumen)' : ''}.`;
+  };
+  if (!ADMIN()) return;
+  $('berkasImpor').onchange = async e => {
+    const f = e.target.files[0]; RENCANA = null; $('impor').disabled = true;
+    if (!f) return;
+    try {
+      RENCANA = rencanaImpor(JSON.parse(await f.text()), MK, SIL);
+      const r = RENCANA;
+      $('pesanImpor').className = 'pesan';
+      $('pesanImpor').innerHTML = `Kurikulum <b>${esc(r.kurikulum)}</b>: <b>${r.baris.length}</b> silabus akan diimpor; ${r.sudahAda.length} MK sudah punya silabus (dilewati)` +
+        (r.tanpaMk.length ? `; <span class="galat">${r.tanpaMk.length} tanpa MK yang cocok: ${esc(r.tanpaMk.map(x => `${x.kode || '?'} ${x.nama}`).join('; '))}</span>` : '') +
+        (r.ganda.length ? `; <span class="galat">nama ganda/bentrok: ${esc(r.ganda.join('; '))}</span>` : '') + '.';
+      $('impor').disabled = !r.baris.length;
+    } catch (err) { $('pesanImpor').className = 'pesan galat'; $('pesanImpor').textContent = `Berkas tidak bisa dibaca: ${err.message}`; }
+  };
+  $('impor').onclick = async () => {
+    if (!RENCANA?.baris.length) return;
+    $('impor').disabled = true;
+    const { data, error } = await sb.rpc('silabus_impor', { p_kurikulum: RENCANA.kurikulum, p_baris: RENCANA.baris });
+    if (error) { $('pesanImpor').className = 'pesan galat'; $('pesanImpor').textContent = error.message; $('impor').disabled = false; return; }
+    await muat(); gambar();
+    $('pesanImpor').className = 'pesan ok';
+    $('pesanImpor').textContent = `Diimpor ${data.masuk}; sudah ada ${data.sudah_ada}${data.tidak_ada?.length ? `; MK tidak ada: ${data.tidak_ada.join(', ')}` : ''}.`;
+  };
+}
+
+function gambarEditor(){
+  const m = MK.find(x => x.kurikulum === KUR && x.kode === PILIH);
+  if (!m) return `<div class="kartu"><p class="kosong">Mata kuliah ${esc(KUR)} ${esc(PILIH)} tidak ada.</p><p><a href="?kur=${encodeURIComponent(KUR)}">‹ Daftar silabus</a></p></div>`;
+  const k = kunci(KUR, PILIH), s = SIL.get(k), st = statusSilabus(s);
+  const boleh = BOLEH.has(k) && st !== 'diajukan';
+  ISIAN = rapikanSilabus(s?.data || {});
+  const dis = boleh ? '' : ' disabled';
+  const cpl = cplTerkait(KUR, PILIH, PETA, CPL);
+  const log = LOG.filter(l => l.kurikulum === KUR && l.kode_mk === PILIH);
+  const AKSI = { impor: 'Isi awal diimpor', ajukan: 'Diajukan', kembalikan: 'Dikembalikan', sahkan: 'Disahkan' };
+  const fld = c => `<label class="fld"><span>${esc(c.l)}${c.wajib ? '' : ' <small>(boleh kosong)</small>'}</span>${c.baris > 1
+    ? `<textarea data-k="${c.k}" rows="${c.baris}" maxlength="${BATAS[c.k]}"${dis}>${esc(ISIAN[c.k])}</textarea>`
+    : `<input type="text" data-k="${c.k}" maxlength="${BATAS[c.k]}" value="${esc(ISIAN[c.k])}"${dis}>`}</label>`;
+  const K = Object.fromEntries(KOLOM_SILABUS.map(c => [c.k, c]));
+  const kurang = kekuranganSilabus(ISIAN);
+  return `<p><a href="?kur=${encodeURIComponent(KUR)}">‹ Daftar silabus ${esc(KUR)}</a></p>
+  <div class="kartu"><h2>${esc(m.kode)} ${esc(m.nama)} <span class="chip ${st}">${STATUS_SILABUS[st]}</span></h2>
+    <div class="identitas">
+      <div><span>Kurikulum</span>${esc(KUR)}</div><div><span>Bobot sks</span>${esc(m.sks ?? '-')}${m.sks_praktikum ? ` (praktikum ${esc(m.sks_praktikum)})` : ''}</div>
+      <div><span>Semester</span>${esc(m.semester || (m.sifat === 'pilihan' ? 'Pilihan' : '-'))}</div>
+      <div><span>Jenis</span>${m.sifat === 'pilihan' ? 'Pilihan' : 'Wajib'}</div>
+      <div><span>Penyelenggara</span>${esc(penyelenggara(m, IDENT.prodi) || 'belum diisi di Data prodi')}</div>
+      <div><span>Versi disahkan</span>${s?.sah_pada ? `${s.revisi}× · terakhir ${waktu(s.sah_pada)}` : 'belum'}</div>
+    </div>
+    <p class="ket">Identitas di atas dari Data prodi › Mata kuliah. Perbaikannya oleh admin di sana, bukan di silabus.</p>
+    ${ISIAN.catatan_impor ? `<div class="peringatan"><b>Isi awal hasil impor, periksa dulu.</b> ${esc(ISIAN.catatan_impor)}
+      ${boleh ? '<div class="alat"><button class="b" id="hapusCatatan">Sudah saya periksa, hapus catatan ini</button></div>' : ''}</div>` : ''}
+    ${st === 'dikembalikan' ? `<div class="peringatan"><b>Dikembalikan Kaprodi:</b> ${esc([...log].reverse().find(l => l.aksi === 'kembalikan')?.catatan || '')}</div>` : ''}
+    ${st === 'diajukan' ? '<p class="ket">Sedang diajukan; isian terkunci sampai Kaprodi memutuskan.</p>' : ''}
+    ${!BOLEH.has(k) ? '<p class="ket">Anda melihat saja. Silabus diisi koordinator MK, dosen pengampu MK ini, admin, atau GKM.</p>' : ''}
+  </div>
+  <div class="kartu"><h2>Isi silabus</h2>
+    <div class="dua"><div>${fld({ k: '_nama', l: 'Nama MK', wajib: true, baris: 1 }).replace(/<input[^>]*>/, `<input type="text" value="${esc(m.nama)}" disabled>`)}</div><div>${fld(K.nama_en)}</div></div>
+    <div class="dua"><div>${fld(K.tujuan)}</div><div>${fld(K.tujuan_en)}</div></div>
+    <div class="dua"><div>${fld(K.deskripsi)}</div><div>${fld(K.deskripsi_en)}</div></div>
+    <h3>Capaian Pembelajaran Lulusan terkait</h3>
+    ${cpl.length ? `<ul class="ket">${cpl.map(c => `<li><b>CPL-${esc(c.kode)}</b>: ${esc(c.rumusan)}${c.rumusan_en ? `<br><i>${esc(c.rumusan_en)}</i>` : ''}</li>`).join('')}</ul>`
+      : '<p class="kosong">Belum ada CPL untuk MK ini di peta MK–CPL (Data prodi).</p>'}
+    <div class="dua"><div>${fld(K.prasyarat)}</div><div>${fld(K.bersamaan)}</div></div>
+    ${fld(K.pustaka)}
+    ${boleh ? `<div class="alat"><button class="b utama" id="simpan">Simpan</button><span class="pesan" id="pesanSimpan"></span></div>` : ''}
+  </div>
+  ${BOLEH.has(k) && s && ['draf', 'dikembalikan'].includes(st) ? `<div class="kartu"><h2>Ajukan ke Kaprodi</h2>
+    ${kurang.length ? `<p class="pesan galat">Belum lengkap: ${esc(kurang.join(', '))}.</p>` : ''}
+    <div class="alat"><input type="text" id="catAjukan" maxlength="2000" style="flex:1;min-width:260px" placeholder="${s.revisi ? 'Ringkasan perubahan dari versi disahkan (wajib)' : 'Catatan untuk Kaprodi (boleh kosong)'}">
+      <button class="b utama" id="ajukan">Ajukan</button></div><div class="pesan" id="pesanAjukan"></div></div>` : ''}
+  ${KAPRODI() && st === 'diajukan' ? `<div class="kartu"><h2>Keputusan Kaprodi</h2>
+    <div class="alat"><input type="text" id="catSah" maxlength="2000" style="flex:1;min-width:260px" placeholder="Catatan untuk penyusun (wajib bila dikembalikan)">
+      <button class="b utama" id="sahkan">Sahkan</button><button class="b awas" id="kembalikan">Kembalikan</button></div><div class="pesan" id="pesanSah"></div></div>` : ''}
+  ${!KAPRODI() && st === 'diajukan' && ADMIN() ? '<div class="kartu"><p class="ket">Silabus disahkan Kaprodi aktif sendiri; admin tidak mengesahkan atas nama Kaprodi (hanya RPS).</p></div>' : ''}
+  <div class="kartu"><h2>Riwayat</h2>${log.length ? `<ol class="log">${log.map(l => `<li>${AKSI[l.aksi] || esc(l.aksi)} · ${esc(l.oleh_nama || '')} · ${waktu(l.waktu)}${
+      l.catatan ? ` — <i>${esc(l.catatan)}</i>` : ''}</li>`).join('')}</ol>` : '<p class="kosong">Belum ada.</p>'}
+    ${s?.oleh ? `<p class="ket">Terakhir disimpan ${waktu(s.diperbarui)} oleh ${esc(s.oleh)}.</p>` : ''}</div>`;
+}
+
+function isianForm(){
+  const d = { ...ISIAN };
+  document.querySelectorAll('[data-k]').forEach(el => { if (el.dataset.k in BATAS) d[el.dataset.k] = el.value; });
+  return rapikanSilabus(d);
+}
+async function simpan(data, pesan = 'pesanSimpan'){
+  const { error } = await sb.rpc('silabus_simpan', { p_kurikulum: KUR, p_kode: PILIH, p_data: data });
+  if (error) { if ($(pesan)) { $(pesan).className = 'pesan galat'; $(pesan).textContent = error.message; } return false; }
+  KOTOR = false; await muat(); gambar();
+  if ($(pesan)) { $(pesan).className = 'pesan ok'; $(pesan).textContent = 'Tersimpan.'; }
+  return true;
+}
+function pasangEditor(){
+  document.querySelectorAll('[data-k]').forEach(el => { el.oninput = () => { KOTOR = true; }; });
+  if ($('simpan')) $('simpan').onclick = () => simpan(isianForm());
+  if ($('hapusCatatan')) $('hapusCatatan').onclick = () => simpan({ ...isianForm(), catatan_impor: '' });
+  if ($('ajukan')) $('ajukan').onclick = async () => {
+    if (KOTOR && !(await simpan(isianForm(), 'pesanAjukan'))) return;
+    const { error } = await sb.rpc('silabus_ajukan', { p_kurikulum: KUR, p_kode: PILIH, p_catatan: $('catAjukan')?.value || null });
+    if (error) { $('pesanAjukan').className = 'pesan galat'; $('pesanAjukan').textContent = error.message; return; }
+    await muat(); gambar();
+  };
+  for (const aksi of ['sahkan', 'kembalikan']) if ($(aksi)) $(aksi).onclick = async () => {
+    const { error } = await sb.rpc('silabus_putuskan', { p_kurikulum: KUR, p_kode: PILIH, p_aksi: aksi, p_catatan: $('catSah').value || null });
+    if (error) { $('pesanSah').className = 'pesan galat'; $('pesanSah').textContent = error.message; return; }
+    await muat(); gambar();
+  };
+}
+addEventListener('beforeunload', e => { if (KOTOR) { e.preventDefault(); e.returnValue = ''; } });
+
+async function mulai(){
+  SAYA = await gerbang(sb);
+  if (!SAYA) return;
+  $('hSub').textContent = `Masuk sebagai ${SAYA.nama}`;
+  await muat();
+  simpanUrl();
+  gambar();
+}
+mulai().catch(e => { $('isi').innerHTML = `<p class="kosong">Gagal memuat: ${esc(e.message)}</p>`; });
+</script>
+</body>
+</html>
