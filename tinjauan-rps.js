@@ -140,6 +140,7 @@ export function bacaCsvPadanan(isi, mk = [], kurLama = 'K21', kurBaru = 'K26'){
   const iL = kepala.findIndex(h => h === 'kode_lama' || h === `kode_${kurLama.toLowerCase()}`);
   const iB = kepala.findIndex(h => h === 'kode_baru' || h === `kode_${kurBaru.toLowerCase()}`);
   const iC = kepala.findIndex(h => h === 'cara' || h === 'model');
+  const iN = kepala.findIndex(h => h === 'catatan');   // opsional (134, pemilik 2026-11-21): sumber baris, mis. "Bab 7 Tabel 7-2"
   if (iL < 0 || iB < 0) return { baris: [], galat: [`Kolom kode_lama/kode_${kurLama.toLowerCase()} dan kode_baru/kode_${kurBaru.toLowerCase()} wajib ada.`] };
   const ada = (k, c) => mk.some(m => m.kurikulum === k && m.kode === c);
   const baris = [], galat = [], sudah = new Set();
@@ -154,7 +155,9 @@ export function bacaCsvPadanan(isi, mk = [], kurLama = 'K21', kurBaru = 'K26'){
     if (sudah.has(k)) return;
     sudah.add(k);
     const cara = (c[iC] || '').toLowerCase(), model = /1:2/.test(cara) ? '1:2' : /2:1/.test(cara) ? '2:1' : /1:1/.test(cara) ? '1:1' : /nama/.test(cara) ? 'nama sama' : null;
-    baris.push({ kurikulum_lama: kurLama, kode_lama: lama, kurikulum_baru: baru ? kurBaru : null, kode_baru: baru, model: baru ? model : null, tidak_berlanjut: !baru });
+    const catatan = iN >= 0 ? (c[iN] || '').slice(0, 500) || null : null;
+    baris.push({ kurikulum_lama: kurLama, kode_lama: lama, kurikulum_baru: baru ? kurBaru : null, kode_baru: baru, model: baru ? model : null,
+                 tidak_berlanjut: !baru, ...(iN >= 0 ? { catatan } : {}) });
   });
   return { baris, galat };
 }

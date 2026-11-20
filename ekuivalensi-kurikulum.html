@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ekuivalensi kurikulum — Program Studi</title>
+<meta name="description" content="Tabel ekuivalensi mata kuliah kurikulum lama ke kurikulum baru bagi mahasiswa dalam masa transisi kurikulum.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tema.css?v=2026-11-21-747da3">
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:960px;margin:0 auto;padding:0 20px 90px}
+  a{color:var(--biru-2)}
+  .hero{position:relative;background:var(--biru);color:#fff;overflow:hidden;border-bottom:4px solid var(--merah)}
+  .hero-in{position:relative;max-width:960px;margin:0 auto;padding:30px 20px 26px}
+  h1{font-family:var(--serif);font-size:clamp(24px,4.2vw,34px);font-weight:600;letter-spacing:-.018em;margin:0;line-height:1.14;color:#fff}
+  .prodi{color:var(--biru-m4);font-size:14.5px;margin-top:7px}
+  h2{font-family:var(--serif);font-size:21px;font-weight:600;margin:30px 0 8px;color:var(--biru)}
+  .ket{color:var(--muted);font-size:13px}
+  .kosong{color:var(--muted);font-size:13.5px;padding:16px 0}
+  .kartu{background:var(--panel);border:1px solid var(--line);border-radius:2px;padding:14px 18px;margin:12px 0}
+  .sah{border-left:4px solid var(--hijau)}
+  ol.langkah{margin:6px 0 0;padding-left:20px} ol.langkah li{margin:3px 0}
+  .pilih{display:flex;flex-wrap:wrap;gap:6px;margin:18px 0 0}
+  .pilih button{font:inherit;font-size:13.5px;padding:7px 14px;border:1px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer}
+  .pilih button[aria-pressed="true"]{background:var(--biru);color:#fff;border-color:var(--biru)}
+  .saring{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin:12px 0 0;font-size:13.5px}
+  .saring input[type=search]{flex:1 1 260px;font:inherit;font-size:14px;padding:7px 10px;border:1px solid var(--line);background:var(--panel);color:var(--ink)}
+  /* tabel bersama (ekuivalensi.js) */
+  .ek-judul{font-family:var(--serif);font-size:17px;margin:24px 0 2px;color:var(--biru)} .ek-n{font-family:var(--mono);font-size:12px;color:var(--muted)}
+  .ek-ket{color:var(--muted);font-size:13px;margin:2px 0 6px}
+  .ek-gulir{overflow-x:auto}
+  .ek-tabel{width:100%;border-collapse:collapse;font-size:13.5px}
+  .ek-tabel th{text-align:left;font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--line);padding:6px 8px 6px 0}
+  .ek-tabel td{padding:7px 10px 7px 0;border-bottom:1px solid var(--line-soft);vertical-align:top}
+  .ek-kode{font-family:var(--mono);font-size:12px;color:var(--muted)} .ek-sks{font-family:var(--mono);font-size:11.5px;color:var(--muted);white-space:nowrap}
+  .ek-cat{font-size:12.5px;color:var(--muted)} .ek-chip{font-size:11px;padding:0 5px;border:1px solid #8A5A00;color:#8A5A00}
+  footer{margin-top:50px;padding-top:20px;border-top:3px solid var(--biru);font-size:12.5px;color:var(--muted)}
+  footer a{margin-right:14px}
+</style>
+</head>
+<body>
+<header class="hero"><div class="hero-in">
+  <h1>Ekuivalensi kurikulum</h1>
+  <div class="prodi" id="hProdi"></div>
+</div></header>
+<main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
+<script src="config.js?v=2026-11-21-747da3"></script>
+<script>
+// Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
+addEventListener('error', function (e) {
+  if (document.getElementById('galat-muat')) return;
+  var d = document.createElement('div');
+  d.id = 'galat-muat';
+  d.style.cssText = 'margin:16px;padding:12px 14px;border:1px solid var(--merah);' +
+    'background:var(--merah-m3);color:var(--ink);font:14px/1.5 system-ui,sans-serif';
+  d.textContent = 'Halaman gagal dimuat: ' + (e.message || 'galat skrip') +
+    '. Tekan Ctrl+Shift+R untuk memuat ulang tanpa cache; bila tetap muncul, kirim pesan ini ke admin.';
+  document.body.insertBefore(d, document.body.firstChild);
+});
+</script>
+<script type="module">
+// Ekuivalensi kurikulum publik (134-patch-ekuivalensi-sah.sql, pemilik 2026-11-21): hanya versi yang disahkan Kaprodi dan
+// ditetapkan Dekan (data.json ekuivalensi, bangun.py ekuivalensi_publik). Langkah peralihan meringkas memo WRA
+// 0085/UPER-WRA/MEMO/PP.04/VIII/2026; ketentuan per model meringkas Pedoman Penyusunan Kurikulum 2026 Bab 4.1.
+import { pasangKerangka } from './kerangka.js?v=2026-11-21-747da3';
+import { susunEkuivalensi, htmlEkuivalensi } from './ekuivalensi.js?v=2026-11-21-747da3';
+pasangKerangka({ aktif: 'mahasiswa', muat: true });
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const $ = id => document.getElementById(id);
+const tanggal = s => s ? new Date(s).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : '';
+let D = null, E = null, CARI = '', BERUBAH = true;
+
+function gambarTabel(){
+  $('tabel').innerHTML = htmlEkuivalensi(susunEkuivalensi(E), { cari: CARI, hanyaBerubah: BERUBAH, lama: E.kurikulum_lama, baru: E.kurikulum_baru });
+}
+
+function gambar(){
+  const xs = D.ekuivalensi || [], L = esc(E.kurikulum_lama), B = esc(E.kurikulum_baru);
+  const R = susunEkuivalensi(E).ringkas;
+  $('isi').innerHTML = `
+    ${xs.length > 1 ? `<div class="pilih" role="group" aria-label="Pilih peralihan">${xs.map(x => `<button type="button"
+      data-p="${esc(x.kurikulum_lama + '-' + x.kurikulum_baru)}" aria-pressed="${x === E}">${esc(x.kurikulum_lama)} → ${esc(x.kurikulum_baru)}</button>`).join('')}</div>` : ''}
+    <h2>Untuk siapa</h2>
+    <p>Mahasiswa angkatan kurikulum ${L} yang melanjutkan studi pada kurikulum ${B}. Tabel ini menunjukkan mata kuliah ${L} yang sudah Anda
+      tempuh setara dengan mata kuliah ${B} yang mana, dan mata kuliah apa yang masih perlu diambil.</p>
+    <div class="kartu sah"><b>Tabel resmi, revisi ${esc(E.revisi)}</b><br>
+      <span class="ket">Disahkan Ketua Program Studi ${esc(E.disahkan?.nama || '')} (${esc(tanggal(E.disahkan?.pada))}) dan ditetapkan Dekan
+      (${esc(tanggal(E.ditetapkan?.pada))}). Sumber: dokumen kurikulum ${B} Bab 7 (Ketentuan Transisi);
+      aturan penyetaraan mengikuti Pedoman Penyusunan Kurikulum 2026 Universitas Pertamina Bab 4.1.</span></div>
+    <h2>Langkah peralihan</h2>
+    <ol class="langkah">
+      <li>Cocokkan transkrip ${L} Anda dengan tabel di bawah, lalu hitung sisa SKS: total SKS minimum kelulusan ${B} dikurangi SKS mata kuliah
+        wajib dan pilihan ${L} yang sudah lulus.</li>
+      <li>Bahas rencana studi atas sisa SKS bersama Dosen Wali. Urutan prioritas: mata kuliah wajib pendidikan tinggi, mata kuliah wajib universitas,
+        mata kuliah wajib program studi semester berikutnya, lalu yang semester lalu, lalu mata kuliah pilihan.</li>
+      <li>Isi dan tanda tangani Surat Pernyataan Peralihan Kurikulum (Lampiran A: ekuivalensi mata kuliah yang sudah lulus; Lampiran B: mata kuliah
+        ${B} yang harus ditempuh). Dosen Wali memeriksa, Ketua Program Studi mengesahkan.</li>
+      <li>Unggah pindaian surat yang sudah disahkan ke SIUP.</li>
+    </ol>
+    <p class="ket">Perbaikan nilai mata kuliah ${L} lintas kurikulum tidak diperkenankan kecuali atas pengajuan resmi program studi yang disetujui Dekan.
+      SKS hanya diakui untuk mata kuliah yang lulus. Ada pertanyaan? Hubungi Dosen Wali Anda atau <a href="layanan-mahasiswa.html#kirim">Tanya prodi</a>.</p>
+    <h2>Tabel ekuivalensi ${L} → ${B}</h2>
+    <p class="ket">${R['1:1']} padanan 1:1 (${R['1:1 berubah']} berubah nama atau sks), ${R['1:2']} kelompok 1:2, ${R['2:1']} kelompok 2:1,
+      ${R.tidak} mata kuliah ${L} tidak berlanjut, ${R.baru} mata kuliah ${B} tanpa padanan ${L}.</p>
+    <div class="saring"><input type="search" id="fCari" placeholder="Cari kode atau nama mata kuliah" aria-label="Cari mata kuliah" value="${esc(CARI)}">
+      <label><input type="checkbox" id="fBerubah"${BERUBAH ? ' checked' : ''}> Padanan 1:1: hanya yang berubah nama atau sks</label></div>
+    <div id="tabel"></div>
+    <footer>Diperbarui ${esc(D.diperbarui || '')}.
+      <div style="margin-top:8px"><a href="kurikulum.html">Kurikulum</a><a href="layanan-mahasiswa.html">Layanan mahasiswa</a><a href="index.html">Beranda</a></div></footer>`;
+  gambarTabel();
+  $('fCari').oninput = e => { CARI = e.target.value; gambarTabel(); };
+  $('fBerubah').onchange = e => { BERUBAH = e.target.checked; gambarTabel(); };
+  document.querySelectorAll('.pilih button').forEach(b => b.onclick = () => {
+    E = xs.find(x => `${x.kurikulum_lama}-${x.kurikulum_baru}` === b.dataset.p); gambar(); });
+}
+
+fetch('data.json?v=' + Date.now())
+  .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
+  .then(d => {
+    D = d;
+    $('hProdi').textContent = [d.prodi, d.institusi].filter(Boolean).join(' · ');
+    if (d.prodi) document.title = 'Ekuivalensi kurikulum — ' + ['Program Studi ' + d.prodi, d.institusi].filter(Boolean).join(' ');
+    const xs = d.ekuivalensi || [];
+    if (!xs.length) { $('isi').innerHTML = `<p class="kosong">Tabel ekuivalensi resmi sedang dalam proses pengesahan. Sementara itu, tanyakan
+      kepada Dosen Wali Anda atau lihat <a href="kurikulum.html">Kurikulum</a>.</p>`; return; }
+    E = xs[0];
+    gambar();
+  })
+  .catch(() => { $('isi').innerHTML = '<p class="kosong">Data sedang diperbarui. Silakan muat ulang beberapa saat lagi.</p>'; });
+</script>
+</body>
+</html>

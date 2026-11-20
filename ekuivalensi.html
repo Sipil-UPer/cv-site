@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Ekuivalensi mata kuliah — Ruang kerja</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tema.css?v=2026-11-21-747da3">
+<link rel="stylesheet" href="kepala.css?v=2026-11-21-747da3">
+<style>
+  /* Ekuivalensi MK (134-patch-ekuivalensi-sah.sql, pemilik 2026-11-21) */
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
+  .wrap{max-width:1200px;margin:0 auto;padding:18px 20px 80px}
+  .kosong, .ket{color:var(--muted)}
+  .ket{font-size:13px}
+  .kartu{background:var(--panel);border:1px solid var(--line);padding:14px 18px;margin-bottom:16px}
+  .kartu h2{font-size:17px;margin:0 0 6px;color:var(--biru)}
+  .alat{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:8px 0}
+  select, input[type=search], textarea{font:inherit;font-size:14px;padding:5px 7px;border:1px solid var(--line);background:var(--panel);color:var(--ink)}
+  input[type=search]{flex:1 1 260px}
+  textarea{width:100%;min-height:60px}
+  .b{font:inherit;font-size:14px;padding:6px 14px;border:1px solid var(--biru);background:var(--biru);color:#fff;cursor:pointer}
+  .b.garis{background:transparent;color:var(--biru)}
+  .b:disabled{opacity:.5;cursor:default}
+  .msg{font-size:13px} .msg.ok{color:var(--hijau)} .msg.buruk{color:var(--merah)}
+  .chip{display:inline-block;font-size:12px;padding:1px 8px;border:1px solid var(--line);white-space:nowrap}
+  .chip.draf{color:#8A5A00;border-color:#8A5A00} .chip.disahkan{color:var(--biru);border-color:var(--biru)} .chip.ditetapkan{color:var(--hijau);border-color:var(--hijau)}
+  .periksa{border-left:4px solid var(--merah);background:var(--merah-m3);padding:8px 12px;margin:8px 0;font-size:13.5px}
+  .ringkas{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+  .ringkas div{min-width:120px;padding:6px 10px;border:1px solid var(--line)} .ringkas b{display:block;font-size:20px;line-height:1.1} .ringkas span{font-size:12px;color:var(--muted)}
+  /* tabel bersama (ekuivalensi.js) */
+  .ek-judul{font-size:15px;margin:20px 0 2px;color:var(--biru)} .ek-n{font-family:var(--mono);font-size:12px;color:var(--muted)}
+  .ek-ket{color:var(--muted);font-size:13px;margin:2px 0 6px}
+  .ek-gulir{overflow-x:auto}
+  .ek-tabel{width:100%;border-collapse:collapse;font-size:13.5px}
+  .ek-tabel th{text-align:left;font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--line);padding:5px 6px}
+  .ek-tabel td{padding:5px 6px;border-bottom:1px solid var(--line-soft);vertical-align:top}
+  .ek-kode{font-family:var(--mono);font-size:12px;color:var(--muted)} .ek-sks{font-family:var(--mono);font-size:11.5px;color:var(--muted);white-space:nowrap}
+  .ek-cat{font-size:12.5px;color:var(--muted)} .ek-chip{font-size:11px;padding:0 5px;border:1px solid #8A5A00;color:#8A5A00}
+  ul.log{margin:6px 0 0;padding-left:18px;font-size:13px}
+  @media(max-width:700px){.wrap{padding-left:16px;padding-right:16px}}
+</style>
+</head>
+<body>
+<header class="hero"><div class="hero-in">
+  <div class="hero-inst" data-identitas></div>
+  <h1>Ekuivalensi mata kuliah</h1>
+  <div class="sub" id="hSub">Memuat…</div>
+</div></header>
+<main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
+<script src="config.js?v=2026-11-21-747da3"></script>
+<script>
+// Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
+addEventListener('error', function (e) {
+  if (document.getElementById('galat-muat')) return;
+  var d = document.createElement('div');
+  d.id = 'galat-muat';
+  d.style.cssText = 'margin:16px;padding:12px 14px;border:1px solid var(--merah);' +
+    'background:var(--merah-m3);color:var(--ink);font:14px/1.5 system-ui,sans-serif';
+  d.textContent = 'Halaman gagal dimuat: ' + (e.message || 'galat skrip') +
+    '. Tekan Ctrl+Shift+R untuk memuat ulang tanpa cache; bila tetap muncul, kirim pesan ini ke admin.';
+  document.body.insertBefore(d, document.body.firstChild);
+});
+</script>
+<script type="module">
+// Ekuivalensi MK kurikulum lama -> baru (134-patch-ekuivalensi-sah.sql, pemilik 2026-11-21). Isi = ref_mk_padanan (115; diimpor
+// admin dari CSV). Kaprodi aktif mengesahkan, Dekan aktif menetapkan (Pedoman Penyusunan K26 4.1.1 butir 4); versi yang
+// ditetapkan tampil di ekuivalensi-kurikulum.html. Logika: ekuivalensi.js.
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
+import { gerbang } from './menu.js?v=2026-11-21-747da3';
+import { susunEkuivalensi, htmlEkuivalensi, csvEkuivalensi } from './ekuivalensi.js?v=2026-11-21-747da3';
+import { bacaCsvPadanan } from './tinjauan-rps.js?v=2026-11-21-747da3';
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const sb = createClient(window.SB_URL, window.SB_KEY);
+const waktu = s => s ? new Date(s).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' }) : '';
+const STATUS = { draf: 'Draf', disahkan: 'Disahkan Kaprodi, menunggu penetapan Dekan', ditetapkan: 'Ditetapkan Dekan' };
+const AKSI = { sahkan: 'disahkan', tetapkan: 'ditetapkan', kembalikan: 'dikembalikan', berubah: 'padanan disunting' };
+let SAYA = null, MK = [], PAD = [], SAH = [], LOG = [], PATCH = true, LAMA = '', BARU = '', CARI = '', BERUBAH = false;
+
+const jab = j => (SAYA.koordinator || []).includes(j);
+const isAdmin = () => SAYA.peran === 'admin';
+
+async function muat(){
+  const [mk, pad, sah, log] = await Promise.all([
+    sb.from('ref_mata_kuliah').select('kurikulum,kode,nama,sks,semester,sifat'),
+    sb.from('ref_mk_padanan').select('*'),
+    sb.from('mk_padanan_sah').select('*'),
+    sb.from('mk_padanan_sah_log').select('*').order('pada', { ascending: false }).limit(60)]);
+  if (mk.error) throw mk.error;
+  MK = mk.data || []; PAD = pad.error ? [] : pad.data || [];
+  PATCH = !sah.error; SAH = sah.error ? [] : sah.data || []; LOG = log.error ? [] : log.data || [];
+}
+
+function salinan(){
+  const urut = (a, b) => (Number(a.semester) || 99) - (Number(b.semester) || 99) || String(a.kode).localeCompare(String(b.kode));
+  return { kurikulum_lama: LAMA, kurikulum_baru: BARU,
+    mk_lama: MK.filter(m => m.kurikulum === LAMA).sort(urut), mk_baru: MK.filter(m => m.kurikulum === BARU).sort(urut),
+    padanan: PAD.filter(p => p.kurikulum_lama === LAMA && (p.kurikulum_baru === BARU || p.tidak_berlanjut)) };
+}
+
+function htmlStatus(r){
+  const st = r?.status || 'draf';
+  const tombol = [];
+  if (PATCH && st === 'draf' && jab('kaprodi')) tombol.push('<button class="b" id="bSahkan">Sahkan (Kaprodi)</button>');
+  if (PATCH && st === 'disahkan' && jab('dekan')) tombol.push('<button class="b" id="bTetapkan">Tetapkan (Dekan)</button>');
+  const kembali = PATCH && st === 'disahkan' && (jab('kaprodi') || jab('dekan'));
+  return `<div class="kartu"><h2>Pengesahan ${esc(LAMA)} → ${esc(BARU)}</h2>
+    ${PATCH ? '' : '<p class="periksa">Pengesahan belum aktif: admin menjalankan supabase/134-patch-ekuivalensi-sah.sql.</p>'}
+    <p><span class="chip ${st}">${esc(STATUS[st])}</span>
+      ${st !== 'draf' && r?.sah_pada ? ` · disahkan ${esc(r.sah_nama || '')}, ${esc(waktu(r.sah_pada))}` : ''}
+      ${st === 'ditetapkan' && r?.tetap_pada ? ` · ditetapkan ${esc(r.tetap_nama || '')}, ${esc(waktu(r.tetap_pada))}` : ''}</p>
+    ${r?.catatan ? `<p class="periksa"><b>Catatan pengembalian:</b> ${esc(r.catatan)}</p>` : ''}
+    <p class="ket">${r?.terbit ? `Versi terbit revisi ${esc(r.revisi)} (${esc(waktu(r.terbit_pada))}) tampil di halaman publik
+      <a href="ekuivalensi-kurikulum.html" target="_blank" rel="noopener">Ekuivalensi kurikulum</a> setelah pembangunan situs berikutnya (paling lama sejam).`
+      : 'Belum ada versi yang ditetapkan; halaman publik Ekuivalensi kurikulum menampilkan "sedang disahkan".'}
+      Alur: admin mengisi padanan → Kaprodi aktif mengesahkan → Dekan aktif menetapkan (Pedoman Penyusunan K26 Bab 4.1.1 butir 4).
+      Padanan yang disunting sesudahnya mengembalikan status ke draf.</p>
+    ${tombol.length || kembali ? `<div class="alat">${tombol.join('')}<span class="msg" id="mSah"></span></div>
+      <label class="ket" for="catSah">Catatan (wajib bila dikembalikan)</label><textarea id="catSah" maxlength="2000"></textarea>
+      ${kembali ? '<div class="alat"><button class="b garis" id="bKembali">Kembalikan ke admin</button></div>' : ''}` : ''}</div>`;
+}
+
+function gambar(){
+  const kurs = [...new Set(MK.map(m => m.kurikulum))].sort();
+  const s = salinan(), h = susunEkuivalensi(s), r = SAH.find(x => x.kurikulum_lama === LAMA && x.kurikulum_baru === BARU);
+  const R = h.ringkas;
+  $('isi').innerHTML = `<div class="kartu"><div class="alat">
+      <label>Kurikulum lama <select id="fLama">${kurs.map(k => `<option${k === LAMA ? ' selected' : ''}>${esc(k)}</option>`).join('')}</select></label>
+      <label>baru <select id="fBaru">${kurs.map(k => `<option${k === BARU ? ' selected' : ''}>${esc(k)}</option>`).join('')}</select></label></div>
+    <p class="ket">Sumber isi: dokumen kurikulum ${esc(BARU)} Bab 7 (Ketentuan Transisi) dan MK bernama sama; aturan penyetaraan mengikuti
+      Pedoman Penyusunan Kurikulum 2026 Bab 4.1. Mahasiswa dan Dosen Wali memakai tabel ini untuk Surat Pernyataan Peralihan Kurikulum (Lampiran A).</p>
+    <div class="ringkas"><div><b>${R['1:1']}</b><span>1:1 (${R['1:1 berubah']} berubah)</span></div><div><b>${R['1:2']}</b><span>1:2</span></div>
+      <div><b>${R['2:1']}</b><span>2:1</span></div><div><b>${R.tidak}</b><span>MK ${esc(LAMA)} tidak berlanjut</span></div>
+      <div><b>${R.baru}</b><span>MK ${esc(BARU)} tanpa padanan</span></div><div><b>${R.belum}</b><span>MK ${esc(LAMA)} belum berbaris</span></div></div>
+    ${h.belum.length ? `<p class="periksa"><b>${h.belum.length} MK ${esc(LAMA)} belum punya baris</b> (padanan atau TIDAK_BERLANJUT); Kaprodi belum bisa
+      mengesahkan: ${h.belum.map(m => `${esc(m.kode)} ${esc(m.nama)}`).join(', ')}.</p>` : ''}
+    ${R['m:n'] ? `<p class="periksa">${R['m:n']} kelompok banyak-ke-banyak: periksa apakah memang dimaksud.</p>` : ''}</div>
+    ${htmlStatus(r)}
+    <div class="kartu"><h2>Tabel ekuivalensi (isi sekarang)</h2>
+      <div class="alat"><input type="search" id="fCari" placeholder="Cari kode atau nama MK" value="${esc(CARI)}">
+        <label class="ket"><input type="checkbox" id="fBerubah"${BERUBAH ? ' checked' : ''}> 1:1 hanya yang berubah nama/sks</label>
+        <button class="b garis" id="bUnduh">Unduh CSV</button></div>
+      <div id="tabel"></div></div>
+    ${isAdmin() ? `<div class="kartu"><h2>Impor padanan (admin)</h2>
+      <p class="ket">CSV pemisah ; dengan kolom <code>kode_${esc(LAMA.toLowerCase())}</code>, <code>kode_${esc(BARU.toLowerCase())}</code> (isi
+        <code>TIDAK_BERLANJUT</code> bila tanpa padanan), opsional <code>cara</code> (1:1, 1:2, 2:1, nama sama) dan <code>catatan</code> (sumber, maks. 500 huruf).
+        Impor mengganti baris MK ${esc(LAMA)} yang ada di berkas. Unduh CSV di atas, sunting, lalu impor ulang untuk perbaikan.
+        Padanan yang sama juga dipakai Tinjauan RPS.</p>
+      <div class="alat"><input type="file" id="aCsv" accept=".csv,text/csv"><button class="b" id="aImpor">Impor CSV</button><span class="msg" id="mImpor"></span></div>
+      <div id="aGalat"></div></div>` : ''}
+    <div class="kartu"><h2>Riwayat</h2>${LOG.filter(l => l.kurikulum_lama === LAMA && l.kurikulum_baru === BARU).length
+      ? `<ul class="log">${LOG.filter(l => l.kurikulum_lama === LAMA && l.kurikulum_baru === BARU).map(l => `<li>${esc(waktu(l.pada))}: ${esc(AKSI[l.aksi] || l.aksi)}
+        ${l.oleh_nama ? `oleh ${esc(l.oleh_nama)}` : ''}${l.catatan ? ` — ${esc(l.catatan)}` : ''}</li>`).join('')}</ul>` : '<p class="kosong">Belum ada.</p>'}</div>`;
+  const tabel = () => { $('tabel').innerHTML = htmlEkuivalensi(h, { cari: CARI, hanyaBerubah: BERUBAH, lama: LAMA, baru: BARU }); };
+  tabel();
+  $('fLama').onchange = e => { LAMA = e.target.value; gambar(); };
+  $('fBaru').onchange = e => { BARU = e.target.value; gambar(); };
+  $('fCari').oninput = e => { CARI = e.target.value; tabel(); };
+  $('fBerubah').onchange = e => { BERUBAH = e.target.checked; tabel(); };
+  $('bUnduh').onclick = () => {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob(['﻿' + csvEkuivalensi(s)], { type: 'text/csv;charset=utf-8' }));
+    a.download = `ekuivalensi-${LAMA}-${BARU}.csv`; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  };
+  if ($('bSahkan')) $('bSahkan').onclick = () => aksi('sahkan', 'Sahkan tabel ekuivalensi ini? Setelah itu Dekan menetapkannya.');
+  if ($('bTetapkan')) $('bTetapkan').onclick = () => aksi('tetapkan', 'Tetapkan tabel ekuivalensi ini? Isinya tampil di halaman publik.');
+  if ($('bKembali')) $('bKembali').onclick = () => aksi('kembalikan');
+  if ($('aImpor')) $('aImpor').onclick = impor;
+}
+
+const tulis = (id, kelas, t) => { const el = $(id); if (el) { el.className = 'msg ' + kelas; el.textContent = t; } };
+
+async function aksi(jenis, tanya){
+  const cat = $('catSah')?.value.trim() || null;
+  if (jenis === 'kembalikan' && !cat) return tulis('mSah', 'buruk', 'Tulis catatan perbaikan untuk admin.');
+  if (tanya && !confirm(tanya)) return;
+  const { error } = await sb.rpc('padanan_' + jenis, { p_lama: LAMA, p_baru: BARU, p_catatan: cat });
+  if (error) return tulis('mSah', 'buruk', error.message);
+  await muat(); gambar();
+  tulis('mSah', 'ok', jenis === 'sahkan' ? 'Disahkan. Menunggu penetapan Dekan.' : jenis === 'tetapkan' ? 'Ditetapkan.' : 'Dikembalikan ke draf.');
+}
+
+async function impor(){
+  const f = $('aCsv').files[0];
+  if (!f) return tulis('mImpor', 'buruk', 'Pilih berkas CSV.');
+  if (LAMA === BARU) return tulis('mImpor', 'buruk', 'Kurikulum lama dan baru harus berbeda.');
+  const { baris, galat } = bacaCsvPadanan(await f.text(), MK, LAMA, BARU);
+  const htmlGalat = galat.length ? `<div class="periksa"><b>${galat.length} baris dilewati:</b><ul>${galat.map(g => `<li>${esc(g)}</li>`).join('')}</ul></div>` : '';
+  $('aGalat').innerHTML = htmlGalat;
+  if (!baris.length) return tulis('mImpor', 'buruk', 'Tidak ada baris yang bisa diimpor.');
+  $('aImpor').disabled = true; tulis('mImpor', '', 'Mengimpor…');
+  const kode = [...new Set(baris.map(b => b.kode_lama))];
+  const h = await sb.from('ref_mk_padanan').delete().eq('kurikulum_lama', LAMA).in('kode_lama', kode);
+  const i = h.error ? h : await sb.from('ref_mk_padanan').insert(baris.map(b => ({ ...b, oleh: SAYA.email || null })));
+  $('aImpor').disabled = false;
+  if (i.error) return tulis('mImpor', 'buruk', 'Gagal: ' + i.error.message);
+  await muat(); gambar();
+  $('aGalat').innerHTML = htmlGalat;
+  tulis('mImpor', 'ok', `${baris.length} baris padanan untuk ${kode.length} MK ${LAMA} tersimpan.`);
+}
+
+async function mulai(){
+  SAYA = await gerbang(sb);
+  if (!SAYA) return;
+  $('hSub').textContent = `Masuk sebagai ${SAYA.nama}`;
+  await muat();
+  const kurs = [...new Set(MK.map(m => m.kurikulum))].sort();
+  LAMA = kurs[0] || 'K21'; BARU = kurs[kurs.length - 1] || 'K26';
+  gambar();
+}
+mulai().catch(e => { $('isi').innerHTML = `<p class="kosong">Gagal memuat: ${esc(e.message)}</p>`; });
+</script>
+</body>
+</html>

@@ -63,3 +63,64 @@ export function cariSlotKosong({ slot = [], hari = [], mingguan = [], tanggalan 
   }
   return out;
 }
+
+// ---------- Rentang tanggal + hari + slot (135-patch-berhalangan-rentang.sql, pemilik 2026-11-21) ----------
+const tglID = s => String(s || '').split('-').reverse().map(x => x.replace(/^0/, '')).join('/');
+export const RENTANG_MAKS_HARI = 366;   // sama dengan batas di patch 135
+const selisihHari = (a, b) => Math.round((Date.parse(b + 'T00:00:00Z') - Date.parse(a + 'T00:00:00Z')) / 864e5);
+
+/** Periksa isian rentang sebelum disimpan: { mulai, selesai, hari: [..], slot: [..] } -> daftar pesan galat ([] = baik). */
+export function cekRentang({ mulai, selesai, hari = [], slot = [] } = {}){
+  const g = [], ok = s => /^\d{4}-\d{2}-\d{2}$/.test(String(s || ''));
+  if (!ok(mulai)) g.push('Isi tanggal mulai.');
+  const akhir = selesai || mulai;
+  if (ok(mulai) && !ok(akhir)) g.push('Tanggal selesai tidak sah.');
+  if (ok(mulai) && ok(akhir)) {
+    const n = selisihHari(mulai, akhir);
+    if (n < 0) g.push('Tanggal selesai harus sama atau setelah tanggal mulai.');
+    else if (n > RENTANG_MAKS_HARI) g.push(`Rentang paling lama ${RENTANG_MAKS_HARI} hari; isi jadwal semesteran di Jadwal mingguan.`);
+    else if (hari.length) {
+      const ada = new Set();
+      for (let i = 0; i <= Math.min(n, 6); i++) ada.add(hariISO(new Date(Date.parse(mulai + 'T00:00:00Z') + i * 864e5).toISOString().slice(0, 10)));
+      if (!hari.some(h => ada.has(+h))) g.push('Hari yang dipilih tidak ada di dalam rentang tanggal itu.');
+    }
+  }
+  if (hari.some(h => !(+h >= 1 && +h <= 7))) g.push('Hari tidak sah.');
+  if (slot.length > 30) g.push('Paling banyak 30 slot.');
+  return g;
+}
+
+/** "1/12/2026–15/1/2027 · Selasa, Kamis · Jam 1, Jam 2" (satu tanggal: tanpa tanda hubung; tanpa hari/slot: semua hari/sepanjang hari). */
+export function labelRentang(r = {}, slot = []){
+  const tgl = r.mulai === r.selesai || !r.selesai ? tglID(r.mulai) : `${tglID(r.mulai)}–${tglID(r.selesai)}`;
+  const hari = r.hari?.length ? r.hari.map(namaHari).join(', ') : (r.mulai === r.selesai || !r.selesai ? namaHari(hariISO(r.mulai)) : 'setiap hari');
+  const jam = r.slot_ids?.length ? r.slot_ids.map(id => slot.find(s => s.id === id)?.label || `slot ${id}`).join(', ') : 'sepanjang hari';
+  return `${tgl} · ${hari} · ${jam}`;
+}
+
+/** Rentang yang berlaku pada satu tanggal, diuraikan seperti baris dosen_berhalangan_tgl: [{dosen_id, tanggal, slot_id|null, jenis, alasan}]. */
+export function rentangPadaTanggal(rentang = [], tanggal){
+  const h = hariISO(tanggal), out = [];
+  if (!h) return out;
+  for (const r of rentang) {
+    if (!(r.mulai <= tanggal && tanggal <= (r.selesai || r.mulai))) continue;
+    if (r.hari?.length && !r.hari.map(Number).includes(h)) continue;
+    for (const s of r.slot_ids?.length ? r.slot_ids : [null])
+      out.push({ dosen_id: r.dosen_id, tanggal, slot_id: s, jenis: r.jenis, alasan: r.alasan || '', rentang: r.id });
+  }
+  return out;
+}
+
+/** Slot berurutan dari jam awal sampai jam akhir tiap n menit (tombol "Buat slot otomatis", admin; pemilik 2026-11-21:
+ *  jam 07-17 per 1 jam). Hasil [{label, mulai, selesai, aktif}] atau galat { galat: '...' }. Nilai jam tidak ditanam di kode. */
+export function buatSlot(dari, sampai, menit){
+  const ke = t => { const m = String(t || '').match(/^(\d{1,2})[.:](\d{2})/); return m ? +m[1] * 60 + +m[2] : null; };
+  const ff = n => `${String(Math.floor(n / 60)).padStart(2, '0')}:${String(n % 60).padStart(2, '0')}`;
+  const a = ke(dari), b = ke(sampai), d = +menit;
+  if (a == null || b == null) return { galat: 'Isi jam awal dan jam akhir (mis. 07:00 dan 17:00).' };
+  if (!(d >= 15 && d <= 240)) return { galat: 'Lama slot 15–240 menit.' };
+  if (b - a < d) return { galat: 'Jam akhir harus setelah jam awal, paling sedikit satu slot.' };
+  const out = [];
+  for (let t = a; t + d <= b; t += d) out.push({ label: `Jam ${ff(t).slice(0, 2)}${t % 60 ? '.' + ff(t).slice(3) : ''}`, mulai: ff(t), selesai: ff(t + d), aktif: true });
+  return out.length > 30 ? { galat: 'Paling banyak 30 slot; perbesar lama slot.' } : out;
+}

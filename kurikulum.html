@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-20-3ce430">
+<link rel="stylesheet" href="tema.css?v=2026-11-21-747da3">
 <style>
   *{box-sizing:border-box}
   html{scroll-behavior:smooth}
@@ -83,7 +83,7 @@
   </div>
 </header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-20-3ce430"></script>
+<script src="config.js?v=2026-11-21-747da3"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -99,7 +99,7 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 // Kepala dan kaki bersama situs umum (pemilik 2026-11-19, tahap 2).
-import { pasangKerangka } from './kerangka.js?v=2026-11-20-3ce430';
+import { pasangKerangka } from './kerangka.js?v=2026-11-21-747da3';
 pasangKerangka({ aktif: 'profil', muat: true });
 // Kurikulum publik (pemilik 2026-11-16): visi, profil lulusan (79-patch-profil-lulusan.sql),
 // CPL (71) dan mata kuliah per semester, dari data.json (bangun.py kurikulum_publik). Kurikulum
@@ -197,7 +197,8 @@ function gambar(){
   $('isi').innerHTML = `
     ${kur.length > 1 ? `<div class="pilih" role="group" aria-label="Pilih kurikulum"><span>Kurikulum:</span>
       ${kur.map((k, i) => `<button type="button" data-k="${esc(k.kode)}" aria-pressed="${k.kode === K.kode}">${esc(k.kode)}${i === 0 ? ' (terbaru)' : ''}</button>`).join('')}</div>
-      ${K !== kur[0] ? `<p class="ket">Kurikulum ${esc(K.kode)} berlaku bagi mahasiswa angkatan lama. Kurikulum terbaru: ${esc(kur[0].kode)}.</p>` : ''}` : ''}
+      ${K !== kur[0] ? `<p class="ket">Kurikulum ${esc(K.kode)} berlaku bagi mahasiswa angkatan lama. Kurikulum terbaru: ${esc(kur[0].kode)}.
+        ${(D.ekuivalensi || []).length ? 'Padanan mata kuliahnya: <a href="ekuivalensi-kurikulum.html">Ekuivalensi kurikulum</a>.' : ''}</p>` : ''}` : ''}
     ${nav.length > 1 ? `<nav class="loncat">${nav.map(([id, l]) => `<a href="#${id}">${l}</a>`).join('')}</nav>` : ''}
     ${visi}${profil}${cpl}
     ${K.mk.length ? `<h2 id="mk">Mata kuliah per semester</h2>

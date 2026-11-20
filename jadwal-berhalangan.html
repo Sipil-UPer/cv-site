@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-20-3ce430">
-<link rel="stylesheet" href="kepala.css?v=2026-11-20-3ce430">
+<link rel="stylesheet" href="tema.css?v=2026-11-21-747da3">
+<link rel="stylesheet" href="kepala.css?v=2026-11-21-747da3">
 <style>
   /* Jadwal berhalangan dosen (132-patch-jadwal-berhalangan.sql, pemilik 2026-11-20) */
   *{box-sizing:border-box}
@@ -56,7 +56,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-20-3ce430"></script>
+<script src="config.js?v=2026-11-21-747da3"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -75,10 +75,11 @@ addEventListener('error', function (e) {
 // bisa (mingguan per semester dan tanggal tertentu, termasuk jadwal di luar prodi); pengatur jadwal (admin, Kaprodi,
 // koordinator TA/KP) melihat semua dan mencari slot kosong; dosen lain hanya jumlah per slot. Logika: jadwal-berhalangan.js.
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-20-3ce430';
-import { punya } from './koordinator.js?v=2026-11-20-3ce430';
-import { semesterKini } from './evaluasi-pembelajaran.js?v=2026-11-20-3ce430';
-import { HARI, namaHari, JENIS_HALANGAN, namaJenis, labelSlot, cekSlot, perSel, cariSlotKosong, hariISO } from './jadwal-berhalangan.js?v=2026-11-20-3ce430';
+import { gerbang } from './menu.js?v=2026-11-21-747da3';
+import { punya } from './koordinator.js?v=2026-11-21-747da3';
+import { semesterKini } from './evaluasi-pembelajaran.js?v=2026-11-21-747da3';
+import { HARI, namaHari, JENIS_HALANGAN, namaJenis, labelSlot, cekSlot, perSel, cariSlotKosong, hariISO,
+  cekRentang, labelRentang, rentangPadaTanggal, buatSlot } from './jadwal-berhalangan.js?v=2026-11-21-747da3';
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const sb = createClient(window.SB_URL, window.SB_KEY);
@@ -86,6 +87,8 @@ const baca = q => q.then(r => r.error ? [] : (r.data || []), () => []);
 const iso = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 const tgl = s => String(s || '').split('-').reverse().join('/');
 let SAYA = null, SLOT = [], HARI_AKTIF = [], DOSEN = [], MILIK = [], MILIK_TGL = [], SEMUA = [], SEMUA_TGL = [], REKAP = null, ADA = true;
+// Rentang tanggal + hari + slot (135, pemilik 2026-11-21); ADA_RENTANG = false sebelum patch 135 dijalankan.
+let MILIK_RENTANG = [], SEMUA_RENTANG = [], ADA_RENTANG = true;
 let PERIODE = null, TAB = 'saya', PILIH_DOSEN = new Set(), TGL_CARI = '', CARI = '';
 const ADMIN = () => SAYA?.peran === 'admin';
 const PENGATUR = () => ADMIN() || ['kaprodi', 'koordinator_ta', 'koordinator_kp'].some(j => punya(SAYA, j));
@@ -107,9 +110,12 @@ async function muat(){
   const p = PERIODE, dari = iso(new Date(Date.now() - 7 * 864e5));
   MILIK = await baca(sb.from('dosen_berhalangan').select('*').eq('dosen_id', SAYA.id).eq('tahun_akademik', p.ta).eq('semester', p.sm));
   MILIK_TGL = await baca(sb.from('dosen_berhalangan_tgl').select('*').eq('dosen_id', SAYA.id).gte('tanggal', dari).order('tanggal'));
+  const r = await sb.from('dosen_berhalangan_rentang').select('*').eq('dosen_id', SAYA.id).gte('selesai', dari).order('mulai');
+  ADA_RENTANG = !r.error; MILIK_RENTANG = r.error ? [] : r.data || [];
   if (PENGATUR()) {
     SEMUA = await baca(sb.from('dosen_berhalangan').select('*').eq('tahun_akademik', p.ta).eq('semester', p.sm));
     SEMUA_TGL = await baca(sb.from('dosen_berhalangan_tgl').select('*').gte('tanggal', dari).order('tanggal'));
+    SEMUA_RENTANG = ADA_RENTANG ? await baca(sb.from('dosen_berhalangan_rentang').select('*').gte('selesai', dari).order('mulai')) : [];
   } else {
     const { data } = await sb.rpc('jadwal_berhalangan_rekap', { p_ta: p.ta, p_semester: p.sm, p_dari: null, p_sampai: null });
     REKAP = data || { mingguan: [] };
@@ -146,7 +152,7 @@ function gambarSaya(){
       return `<td class="sel${r ? ' halang' : ''}"><button class="sel" data-h="${h}" data-s="${s.id}" title="${r ? esc(`${namaJenis(r.jenis)}${r.alasan ? ': ' + r.alasan : ''}`) : 'Bisa'}">${r ? `✕ ${esc(namaJenis(r.jenis).split(' ')[0])}` : ''}</button></td>`; })}
     <p class="pesan" id="mSaya"></p>
     <p class="ket">${MILIK.length} slot ditandai untuk ${PERIODE.sm} ${PERIODE.ta}.</p></div>
-  <div class="kartu"><h2>Tanggal tertentu</h2>
+  ${ADA_RENTANG ? htmlRentangSaya() : `<div class="kartu"><h2>Tanggal tertentu</h2>
     <p class="ket">Untuk halangan sekali waktu (dinas luar, konferensi, cuti). Tanggal lampau lebih dari seminggu tidak ditampilkan.</p>
     <div class="alat"><input type="date" id="tTanggal" min="${iso(new Date())}">
       <select id="tSlot"><option value="">Sepanjang hari</option>${slotAktif().map(s => `<option value="${s.id}">${esc(labelSlot(s))}</option>`).join('')}</select>
@@ -156,7 +162,29 @@ function gambarSaya(){
     ${MILIK_TGL.length ? `<table class="ds"><thead><tr><th>Tanggal</th><th>Slot</th><th>Jenis</th><th>Alasan</th><th></th></tr></thead><tbody>
       ${MILIK_TGL.map(t => `<tr><td>${namaHari(new Date(t.tanggal + 'T00:00:00').getDay() || 7)}, ${tgl(t.tanggal)}</td><td>${esc(labelSlot(SLOT.find(s => s.id === t.slot_id)))}</td>
         <td>${esc(namaJenis(t.jenis))}</td><td>${esc(t.alasan || '')}</td><td><button class="b bahaya" data-hapus-tgl="${t.id}">Hapus</button></td></tr>`).join('')}</tbody></table>`
-      : '<p class="kosong">Belum ada.</p>'}</div>`;
+      : '<p class="kosong">Belum ada.</p>'}</div>`}`;
+}
+
+// Tanggal atau rentang tanggal, hari tertentu, slot tertentu (135, pemilik 2026-11-21). Isian tanggal lama (132) tetap tampil.
+function htmlRentangSaya(){
+  const baris = [...MILIK_RENTANG.map(r => ({ urut: r.mulai, label: labelRentang(r, SLOT), jenis: r.jenis, alasan: r.alasan, hapus: `data-hapus-rentang="${r.id}"` })),
+                 ...MILIK_TGL.map(t => ({ urut: t.tanggal, label: labelRentang({ mulai: t.tanggal, selesai: t.tanggal, slot_ids: t.slot_id ? [t.slot_id] : null }, SLOT),
+                                          jenis: t.jenis, alasan: t.alasan, hapus: `data-hapus-tgl="${t.id}"` }))].sort((a, b) => a.urut.localeCompare(b.urut));
+  return `<div class="kartu"><h2>Tanggal atau rentang tanggal</h2>
+    <p class="ket">Untuk halangan di luar jadwal mingguan: satu tanggal (dinas luar, konferensi) atau rentang tanggal, mis. 1 Desember s.d.
+      15 Januari setiap Selasa dan Kamis pada Jam 1–2. Kosongkan <b>Sampai</b> untuk satu tanggal; tanpa hari dicentang = setiap hari dalam
+      rentang; tanpa jam dicentang = sepanjang hari. Isian yang sudah lewat lebih dari seminggu tidak ditampilkan.</p>
+    <div class="alat"><label>Dari <input type="date" id="rMulai" min="${iso(new Date())}"></label>
+      <label>Sampai <input type="date" id="rSelesai" min="${iso(new Date())}"></label></div>
+    <div class="alat"><span class="ket">Hari:</span>${HARI.map(([h, n]) => `<label><input type="checkbox" data-r-hari="${h}"> ${n}</label>`).join('')}</div>
+    <div class="alat"><span class="ket">Jam:</span>${slotAktif().map(s => `<label><input type="checkbox" data-r-slot="${s.id}"> ${esc(labelSlot(s))}</label>`).join('')
+      || '<span class="kosong">Slot jam belum diatur admin; isian berlaku sepanjang hari.</span>'}</div>
+    <div class="alat"><select id="rJenis">${JENIS_HALANGAN.map(([k, l]) => `<option value="${k}">${l}</option>`).join('')}</select>
+      <input type="text" id="rAlasan" maxlength="200" placeholder="Alasan (opsional)" style="min-width:240px">
+      <button class="b utama" id="rTambah">Tambah</button></div><p class="pesan" id="mTgl"></p>
+    ${baris.length ? `<table class="ds"><thead><tr><th>Tanggal · hari · jam</th><th>Jenis</th><th>Alasan</th><th></th></tr></thead><tbody>
+      ${baris.map(b => `<tr><td>${esc(b.label)}</td><td>${esc(namaJenis(b.jenis))}</td><td>${esc(b.alasan || '')}</td>
+        <td><button class="b bahaya" ${b.hapus}>Hapus</button></td></tr>`).join('')}</tbody></table>` : '<p class="kosong">Belum ada.</p>'}</div>`;
 }
 
 function gambarRekap(){
@@ -167,9 +195,14 @@ function gambarRekap(){
       ${kisi((h, s) => { const n = m.get(`${h}|${s.id}`) || 0; return `<td class="sel${n ? ' sebagian' : ''}">${n ? `${n} dosen` : ''}</td>`; })}</div>`;
   }
   const sel = perSel(SEMUA);
-  const cari = PILIH_DOSEN.size ? cariSlotKosong({ slot: slotAktif(), hari: HARI_AKTIF, mingguan: SEMUA, tanggalan: SEMUA_TGL, dosen: [...PILIH_DOSEN], tanggal: TGL_CARI || null }) : null;
+  const cari = PILIH_DOSEN.size ? cariSlotKosong({ slot: slotAktif(), hari: HARI_AKTIF, mingguan: SEMUA,
+    tanggalan: [...SEMUA_TGL, ...(TGL_CARI ? rentangPadaTanggal(SEMUA_RENTANG, TGL_CARI) : [])], dosen: [...PILIH_DOSEN], tanggal: TGL_CARI || null }) : null;
   const daftar = DOSEN.filter(d => !CARI || (d.nama_gelar || d.nama).toLowerCase().includes(CARI.toLowerCase()));
-  const nTgl = SEMUA_TGL.length;
+  const nTgl = SEMUA_TGL.length + SEMUA_RENTANG.length;
+  const barisTgl = [...SEMUA_TGL.map(t => ({ urut: t.tanggal, dosen_id: t.dosen_id, jenis: t.jenis, alasan: t.alasan,
+      label: labelRentang({ mulai: t.tanggal, selesai: t.tanggal, slot_ids: t.slot_id ? [t.slot_id] : null }, SLOT) })),
+    ...SEMUA_RENTANG.map(r => ({ urut: r.mulai, dosen_id: r.dosen_id, jenis: r.jenis, alasan: r.alasan, label: labelRentang(r, SLOT) }))]
+    .sort((a, b) => a.urut.localeCompare(b.urut));
   return `<div class="kartu"><h2>Cari slot kosong</h2>
       <p class="ket">Pilih dosen yang harus hadir (mis. pembimbing dan penguji sidang). Sel hijau = semua yang dipilih bisa; merah = ada yang berhalangan.
         Isi tanggal untuk ikut memperhitungkan halangan tanggal itu.</p>
@@ -184,9 +217,10 @@ function gambarRekap(){
       <p class="ket">${new Set(SEMUA.map(r => r.dosen_id)).size} dari ${DOSEN.length} dosen sudah mengisi. Arahkan kursor ke nama untuk jenis dan alasan.</p>
       ${kisi((h, s) => { const xs = sel.get(`${h}|${s.id}`) || [];
         return `<td class="sel${xs.length ? ' sebagian' : ''}">${xs.map(x => `<span class="nama" title="${esc(`${namaJenis(x.jenis)}${x.alasan ? ': ' + x.alasan : ''}`)}">${esc(namaDosen(x.dosen_id))}</span>`).join('')}</td>`; })}
-      <h3>Halangan tanggal tertentu (${nTgl})</h3>
-      ${nTgl ? `<table class="ds"><thead><tr><th>Tanggal</th><th>Dosen</th><th>Slot</th><th>Jenis</th><th>Alasan</th></tr></thead><tbody>
-        ${SEMUA_TGL.map(t => `<tr><td>${tgl(t.tanggal)}</td><td>${esc(namaDosen(t.dosen_id))}</td><td>${esc(labelSlot(SLOT.find(s => s.id === t.slot_id)))}</td>
+      <h3>Halangan tanggal dan rentang tanggal (${nTgl})</h3>
+      <p class="ket">Diperhitungkan di Cari slot kosong bila tanggal diisi.</p>
+      ${nTgl ? `<table class="ds"><thead><tr><th>Tanggal · hari · jam</th><th>Dosen</th><th>Jenis</th><th>Alasan</th></tr></thead><tbody>
+        ${barisTgl.map(t => `<tr><td>${esc(t.label)}</td><td>${esc(namaDosen(t.dosen_id))}</td>
           <td>${esc(namaJenis(t.jenis))}</td><td>${esc(t.alasan || '')}</td></tr>`).join('')}</tbody></table>` : '<p class="kosong">Belum ada.</p>'}</div>`;
 }
 
@@ -201,6 +235,11 @@ function gambarAtur(){
         <td><input type="checkbox" data-sl="${i}" data-k="aktif"${s.aktif !== false ? ' checked' : ''}></td>
         <td><button class="b bahaya" data-hapus-slot="${i}">Hapus</button></td></tr>`).join('') || '<tr><td colspan="6" class="kosong">Belum ada slot.</td></tr>'}</tbody></table>
     <div class="alat"><button class="b" id="aTambah">+ Slot</button></div>
+    <div class="alat"><span class="ket">Buat slot otomatis:</span>
+      <label>dari <input type="time" id="gDari"></label><label>sampai <input type="time" id="gSampai"></label>
+      <label>tiap <input type="number" id="gMenit" min="15" max="240" step="5" style="width:70px"> menit</label>
+      <button class="b" id="gBuat">Buat</button>
+      <span class="ket">mengganti daftar di atas (belum tersimpan sampai Simpan; isian dosen pada slot yang dihapus ikut terhapus).</span></div>
     <h3>Hari kuliah</h3>
     <div class="alat">${HARI.map(([h, n]) => `<label><input type="checkbox" data-hari="${h}"${HARI_AKTIF.includes(h) ? ' checked' : ''}> ${n}</label>`).join('')}</div>
     <div class="alat"><button class="b utama" id="aSimpan">Simpan slot dan hari</button><span class="pesan" id="mAtur"></span></div></div>`;
@@ -231,6 +270,24 @@ function pasang(){
     if (error) return tulis('mTgl', 'galat', /duplicate/i.test(error.message) ? 'Tanggal dan slot itu sudah ada.' : error.message);
     await segar();
   };
+  // Rentang tanggal (135): hari dan slot yang dicentang; tanpa centang = semua hari / sepanjang hari.
+  if ($('rTambah')) $('rTambah').onclick = async () => {
+    const mulai = $('rMulai').value, selesai = $('rSelesai').value || mulai;
+    const hari = [...document.querySelectorAll('[data-r-hari]:checked')].map(c => +c.dataset.rHari);
+    const slot = [...document.querySelectorAll('[data-r-slot]:checked')].map(c => +c.dataset.rSlot);
+    const g = cekRentang({ mulai, selesai, hari, slot });
+    if (g.length) return tulis('mTgl', 'galat', g.join(' '));
+    $('rTambah').disabled = true;
+    const { error } = await sb.from('dosen_berhalangan_rentang').insert({ dosen_id: SAYA.id, mulai, selesai, hari: hari.length ? hari : null,
+      slot_ids: slot.length ? slot : null, jenis: $('rJenis').value, alasan: $('rAlasan').value.trim() || null });
+    if (error) { $('rTambah').disabled = false; return tulis('mTgl', 'galat', error.message); }
+    await segar(); tulis('mTgl', 'ok', 'Tersimpan.');
+  };
+  document.querySelectorAll('[data-hapus-rentang]').forEach(b => { b.onclick = async () => {
+    const { error } = await sb.from('dosen_berhalangan_rentang').delete().eq('id', +b.dataset.hapusRentang);
+    if (error) return tulis('mTgl', 'galat', error.message);
+    await segar();
+  }; });
   document.querySelectorAll('[data-hapus-tgl]').forEach(b => { b.onclick = async () => {
     const { error } = await sb.from('dosen_berhalangan_tgl').delete().eq('id', +b.dataset.hapusTgl);
     if (error) return tulis('mTgl', 'galat', error.message);
@@ -244,6 +301,11 @@ function pasang(){
   // Atur slot (admin).
   document.querySelectorAll('[data-sl]').forEach(el => { el.onchange = () => { const s = DRAF_SLOT[+el.dataset.sl]; s[el.dataset.k] = el.type === 'checkbox' ? el.checked : el.value; }; });
   document.querySelectorAll('[data-hapus-slot]').forEach(b => { b.onclick = () => { DRAF_SLOT.splice(+b.dataset.hapusSlot, 1); gambar(); }; });
+  if ($('gBuat')) $('gBuat').onclick = () => {
+    const s = buatSlot($('gDari').value, $('gSampai').value, $('gMenit').value);
+    if (s.galat) return tulis('mAtur', 'galat', s.galat);
+    DRAF_SLOT = s; gambar(); tulis('mAtur', '', `${s.length} slot dibuat. Periksa, centang hari kuliah, lalu Simpan.`);
+  };
   if ($('aTambah')) $('aTambah').onclick = () => { DRAF_SLOT.push({ label: `Jam ${DRAF_SLOT.length + 1}`, mulai: '', selesai: '', aktif: true }); gambar(); };
   if ($('aSimpan')) $('aSimpan').onclick = async () => {
     const hari = [...document.querySelectorAll('[data-hari]:checked')].map(c => +c.dataset.hari);
