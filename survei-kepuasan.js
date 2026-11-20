@@ -5,7 +5,7 @@
 // disunting admin per survei; pengguna lulusan memakai 7 aspek resmi 6.g.2.
 // 2026-11-13 (pemilik): templat per kelompok menjawab butir LAM (bagian + butir per pertanyaan),
 // tracer memuat pertanyaan inti DIKTI, dan semua teks bisa dwibahasa (72-patch-survei-dwibahasa.sql).
-import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-20-63ad4d';
+import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-20-450f90';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
