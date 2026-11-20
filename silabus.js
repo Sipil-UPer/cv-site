@@ -1,8 +1,8 @@
 // Silabus mata kuliah (129-patch-silabus.sql, pemilik 2026-11-20): kolom isian, pemeriksaan kelengkapan, CPL terkait,
 // rencana impor isi awal, dan isi Word "Lampiran: Silabus Mata Kuliah" dokumen kurikulum (bentuk Lampiran Kurikulum SIAKUP,
 // dua bahasa). Fungsi murni; halaman: silabus.html.
-import { para, run, judul, tabel } from './docx-dasar.js?v=2026-11-20-6585c1';
-import { susunanMK, jenisMK } from './rps.js?v=2026-11-20-6585c1';
+import { para, run, judul, tabel } from './docx-dasar.js?v=2026-11-20-7d6176';
+import { susunanMK, jenisMK } from './rps.js?v=2026-11-20-7d6176';
 
 const t = s => String(s ?? '').trim();
 
@@ -34,9 +34,10 @@ export const kekuranganSilabus = d => KOLOM_SILABUS.filter(c => c.wajib && !t(d?
 /** Status kemajuan satu MK: belum | draf | diajukan | dikembalikan | disahkan; revisi berjalan = draf dengan revisi > 0. */
 export const statusSilabus = s => (s ? s.status : 'belum');
 
-/** MK yang silabusnya disusun prodi: penyelenggara prodi/fakultas. MK universitas (MKU, MKPT, Kalkulus, Fisika Dasar, ...)
- *  silabusnya dari universitas, tidak diisi dan tidak masuk lampiran (pemilik 2026-11-20). */
-export const perluSilabus = m => m.unit_penyelenggara !== 'universitas';
+/** MK berpenyelenggara universitas (MKU, MKPT, Kalkulus, Fisika Dasar, ...): silabusnya dari universitas. Pemilik 2026-11-20:
+ *  tetap tampil, boleh diisi (disalin dari universitas), ikut lampiran dan angka kemajuan; hanya impor isi awal yang
+ *  melewatinya (silabus lama prodi untuk MK ini sengaja dihapus). */
+export const dariUniversitas = m => m?.unit_penyelenggara === 'universitas';
 
 /** CPL terkait MK (urut kurikulum) dari peta MK-CPL dan daftar CPL: [{ kode, rumusan, rumusan_en }]. */
 export function cplTerkait(kur, kode, peta = [], refCpl = []){
@@ -70,7 +71,7 @@ export function rencanaImpor(berkas, mk = [], silabus = new Map()){
       kode = k || '';
     }
     if (!kode || !kodeAda.has(kode)) { out.tanpaMk.push({ kode: t(s.kode), nama: t(s.nama) }); continue; }
-    if (!perluSilabus(mkKur.find(m => m.kode === kode))) { out.universitas.push(kode); continue; }
+    if (dariUniversitas(mkKur.find(m => m.kode === kode))) { out.universitas.push(kode); continue; }
     if (dipakai.has(kode)) { out.ganda.push(`${kode} ${t(s.nama)}`); continue; }
     dipakai.add(kode);
     if (silabus.has(`${kur}|${kode}`)) { out.sudahAda.push(kode); continue; }
@@ -101,7 +102,7 @@ export const penyelenggara = (m, prodi = '') => {
  * ditandai "DRAF". MK tanpa silabus disebut di daftar "belum ada silabus". Hasil { xml, jumlah, draf, belum: [kode] }.
  */
 export function lampiranSilabus({ kur, mk = [], silabus = new Map(), peta = [], refCpl = [], prodi = '', institusi = '', draf = false }){
-  const mkKur = mk.filter(m => m.kurikulum === kur && m.aktif !== false && perluSilabus(m));
+  const mkKur = mk.filter(m => m.kurikulum === kur && m.aktif !== false);
   let x = judul(`LAMPIRAN: SILABUS MATA KULIAH KURIKULUM ${kur}`, 1);
   x += para(run([prodi && `Program Studi ${prodi}`, institusi].filter(Boolean).join(' · ')), { jc: 'left' });
   let jumlah = 0, nDraf = 0;
