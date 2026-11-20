@@ -1,5 +1,5 @@
-import { dosenLogin } from './dosen-login.js?v=2026-11-20-0d2eca';
-import { aktifPada } from './koordinator.js?v=2026-11-20-0d2eca';
+import { dosenLogin } from './dosen-login.js?v=2026-11-20-7cc355';
+import { aktifPada } from './koordinator.js?v=2026-11-20-7cc355';
 // Menu bersama ruang kerja (pemilik 2026-11-04).
 //
 // Situs dibagi dua:
@@ -25,8 +25,8 @@ const penyusun = s => admin(s) || (!!s.tim_penyusun && s.peran !== 'asesor');
 // Asesor, dan pimpinan yang bukan DTPS prodi ini (aktif=false), tidak mengisi karya.
 const isiKarya = s => s.peran !== 'asesor' && !(s.peran === 'pimpinan' && !s.aktif);
 
-import { halamanAktif } from './fitur.js?v=2026-11-20-0d2eca';
-import { pasangPemicuBangun } from './pemicu-bangun.js?v=2026-11-20-0d2eca';
+import { halamanAktif } from './fitur.js?v=2026-11-20-7cc355';
+import { pasangPemicuBangun } from './pemicu-bangun.js?v=2026-11-20-7cc355';
 
 export const MODUL = [
   // Susunan modul (pemilik 2026-11-17): mengikuti pembagian tugas koordinator prodi (kemahasiswaan,
@@ -349,7 +349,7 @@ export async function pasangMenu(sb){
     ${grup}
     <div class="rk-user"><div class="rk-cari"><input type="search" placeholder="Cari… (tekan /)" aria-label="Cari di situs"
         autocomplete="off"></div><a href="index.html">Beranda umum</a>
-      <span>${esc(u.saya.nama)}</span><button type="button">Keluar</button></div></div>`;
+      <span>${esc(u.saya.nama)}</span><button type="button" title="Mengakhiri sesi akun ini di semua perangkat dan tab">Keluar</button></div></div>`;
   nav.querySelector('.rk-user button').onclick = async () => {
     await sb.auth.signOut();
     location.href = 'index.html';
@@ -380,13 +380,51 @@ export async function pasangMenu(sb){
   // Pencarian menyeluruh (pemilik 2026-11-12; cari-ui.js, cari.js): dimuat saat pertama dipakai.
   const kotak = nav.querySelector('.rk-cari input');
   let siapCari = null;
-  const muatCari = () => siapCari || (siapCari = import('./cari-ui.js?v=2026-11-20-0d2eca').then(m =>
+  const muatCari = () => siapCari || (siapCari = import('./cari-ui.js?v=2026-11-20-7cc355').then(m =>
     m.pasangCari(kotak, { sb, saya: u.saya, modul: halamanBoleh(u.saya), boleh: h => bolehBuka(u.saya, h) !== false })));
   kotak.addEventListener('focus', muatCari);
   document.addEventListener('keydown', e => {
     if (e.key === '/' && !e.target.closest?.('input,textarea,select,[contenteditable]')) { e.preventDefault(); kotak.focus(); }
   });
+  // Keluar otomatis khusus admin (pemilik 2026-11-20): komputer yang ditinggal atau tercuri sesinya tidak terbuka terus.
+  if (u.saya.peran === 'admin') pasangKeluarOtomatis(sb);
   return u.saya;
+}
+
+// ---------- Keluar otomatis admin (pemilik 2026-11-20) ----------
+// Aktivitas (klik, ketik, gulir, sentuh) di tab ruang kerja mana pun dicatat di penyimpanan peramban; lewat
+// KELUAR_OTOMATIS_JAM tanpa aktivitas = keluar di perangkat ini saja, lalu ke ruang-kerja.html?habis=1.
+export const KELUAR_OTOMATIS_JAM = 2;   // default Claude 2026-11-20
+export const perluKeluarOtomatis = (terakhir, kini = Date.now(), jam = KELUAR_OTOMATIS_JAM) =>
+  !!terakhir && kini - terakhir > jam * 3600e3;
+let keluarOtomatisTerpasang = false;
+function pasangKeluarOtomatis(sb){
+  if (keluarOtomatisTerpasang) return;
+  keluarOtomatisTerpasang = true;
+  const KUNCI = 'rk-aktivitas';
+  let cadangan = Date.now(), lalu = 0, masuk = 0;   // cadangan: tanpa penyimpanan peramban (per tab saja)
+  // Waktu masuk (login) terakhir ikut dihitung: catatan aktivitas lama di peramban tidak mengeluarkan admin yang baru masuk.
+  const baca = () => { let x; try { x = +localStorage.getItem(KUNCI) || cadangan; } catch { x = cadangan; } return Math.max(x, masuk); };
+  let periksaDulu = null;
+  const catat = () => {
+    const kini = Date.now();
+    // Sudah lewat batas: aktivitas pertama sesudah lama ditinggal tidak memperpanjang sesi, langsung diperiksa.
+    if (perluKeluarOtomatis(baca(), kini)) { periksaDulu ||= periksa(); return; }
+    if (kini - lalu < 30e3) return;   // paling sering tiap 30 detik
+    lalu = kini; cadangan = kini;
+    try { localStorage.setItem(KUNCI, String(kini)); } catch { /* diblokir: cadangan per tab */ }
+  };
+  const periksa = async () => {
+    if (!perluKeluarOtomatis(baca())) return;
+    try { await sb.auth.signOut({ scope: 'local' }); } catch { /* tetap pindah ke layar masuk */ }
+    location.href = 'ruang-kerja.html?habis=1';
+  };
+  // Halaman yang dibuka setelah lama ditinggal: periksa dulu, baru dicatat.
+  sb.auth.getSession().then(({ data }) => { masuk = Date.parse(data?.session?.user?.last_sign_in_at || '') || 0; },
+    () => {}).then(periksa).then(() => catat());
+  ['pointerdown', 'keydown', 'scroll', 'touchstart'].forEach(e => addEventListener(e, catat, { passive: true, capture: true }));
+  setInterval(periksa, 60e3);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) periksa(); });
 }
 
 // Untuk halaman ruang kerja tanpa layar masuk sendiri (monitoring, grafik):
