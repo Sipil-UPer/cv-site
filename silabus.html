@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-20-68bf3d">
-<link rel="stylesheet" href="kepala.css?v=2026-11-20-68bf3d">
+<link rel="stylesheet" href="tema.css?v=2026-11-20-6585c1">
+<link rel="stylesheet" href="kepala.css?v=2026-11-20-6585c1">
 <style>
   /* Silabus mata kuliah (129-patch-silabus.sql, pemilik 2026-11-20) */
   *{box-sizing:border-box}
@@ -61,7 +61,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-20-68bf3d"></script>
+<script src="config.js?v=2026-11-20-6585c1"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -79,12 +79,12 @@ addEventListener('error', function (e) {
 // Silabus mata kuliah (129-patch-silabus.sql, pemilik 2026-11-20): koordinator MK/pengampu menyusun (dua bahasa, bentuk
 // Lampiran Kurikulum SIAKUP), Kaprodi aktif mengesahkan; lampiran Word dokumen kurikulum dari versi disahkan (silabus.js).
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang, identitas } from './menu.js?v=2026-11-20-68bf3d';
-import { punya } from './koordinator.js?v=2026-11-20-68bf3d';
-import { susunanMK } from './rps.js?v=2026-11-20-68bf3d';
-import { buatDocx } from './docx-dasar.js?v=2026-11-20-68bf3d';
+import { gerbang, identitas } from './menu.js?v=2026-11-20-6585c1';
+import { punya } from './koordinator.js?v=2026-11-20-6585c1';
+import { susunanMK } from './rps.js?v=2026-11-20-6585c1';
+import { buatDocx } from './docx-dasar.js?v=2026-11-20-6585c1';
 import { KOLOM_SILABUS, BATAS, STATUS_SILABUS, rapikanSilabus, kekuranganSilabus, statusSilabus, cplTerkait, rencanaImpor,
-  lampiranSilabus, penyelenggara } from './silabus.js?v=2026-11-20-68bf3d';
+  lampiranSilabus, penyelenggara, perluSilabus } from './silabus.js?v=2026-11-20-6585c1';
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const sb = createClient(window.SB_URL, window.SB_KEY);
@@ -115,7 +115,8 @@ async function muat(){
   if (!kurs.includes(KUR)) KUR = kurs.includes('K26') ? 'K26' : (kurs[0] || '');
 }
 
-const mkIni = () => MK.filter(m => m.kurikulum === KUR && m.aktif !== false);
+const mkIni = () => MK.filter(m => m.kurikulum === KUR && m.aktif !== false && perluSilabus(m));   // MK universitas: silabus dari universitas
+const mkUniv = () => MK.filter(m => m.kurikulum === KUR && m.aktif !== false && !perluSilabus(m));
 const simpanUrl = () => history.replaceState(null, '', `?kur=${encodeURIComponent(KUR)}${PILIH ? `&kode=${encodeURIComponent(PILIH)}` : ''}`);
 
 function gambar(){
@@ -144,7 +145,8 @@ function gambarDaftar(){
   }).join('');
   return `<div class="kartu"><h2>Silabus mata kuliah</h2>
     <p class="ket">Silabus menjadi lampiran dokumen kurikulum (bentuk Lampiran Kurikulum SIAKUP, Indonesia dan Inggris). Diisi koordinator MK atau
-      dosen pengampu, diajukan, lalu disahkan Kaprodi. Identitas MK dan CPL terkait diambil dari Data prodi › Mata kuliah dan peta MK–CPL.</p>
+      dosen pengampu, diajukan, lalu disahkan Kaprodi. Identitas MK dan CPL terkait diambil dari Data prodi › Mata kuliah dan peta MK–CPL.
+      ${mkUniv().length ? `MK yang diselenggarakan universitas (${mkUniv().length} MK, mis. MKU, Kalkulus, Fisika Dasar) tidak disusun di sini; silabusnya dari universitas.` : ''}</p>
     <div class="alat"><label>Kurikulum <select id="fKur">${kurs.map(k => `<option${k === KUR ? ' selected' : ''}>${esc(k)}</option>`).join('')}</select></label></div>
     <div class="kemajuan">${Object.entries(STATUS_SILABUS).map(([k, l]) => `<button class="angka-st${F_STATUS === k ? ' aktif' : ''}" data-st="${k}"><b>${hit[k]}</b><span>${l}</span></button>`).join('')}</div>
     <div class="alat"><button class="b utama" id="unduhLampiran">Unduh lampiran silabus (Word)</button>
@@ -183,7 +185,8 @@ function pasangDaftar(){
       $('pesanImpor').className = 'pesan';
       $('pesanImpor').innerHTML = `Kurikulum <b>${esc(r.kurikulum)}</b>: <b>${r.baris.length}</b> silabus akan diimpor; ${r.sudahAda.length} MK sudah punya silabus (dilewati)` +
         (r.tanpaMk.length ? `; <span class="galat">${r.tanpaMk.length} tanpa MK yang cocok: ${esc(r.tanpaMk.map(x => `${x.kode || '?'} ${x.nama}`).join('; '))}</span>` : '') +
-        (r.ganda.length ? `; <span class="galat">nama ganda/bentrok: ${esc(r.ganda.join('; '))}</span>` : '') + '.';
+        (r.ganda.length ? `; <span class="galat">nama ganda/bentrok: ${esc(r.ganda.join('; '))}</span>` : '') +
+        (r.universitas.length ? `; ${r.universitas.length} MK universitas dilewati (${esc(r.universitas.join(', '))})` : '') + '.';
       $('impor').disabled = !r.baris.length;
     } catch (err) { $('pesanImpor').className = 'pesan galat'; $('pesanImpor').textContent = `Berkas tidak bisa dibaca: ${err.message}`; }
   };
@@ -201,6 +204,8 @@ function pasangDaftar(){
 function gambarEditor(){
   const m = MK.find(x => x.kurikulum === KUR && x.kode === PILIH);
   if (!m) return `<div class="kartu"><p class="kosong">Mata kuliah ${esc(KUR)} ${esc(PILIH)} tidak ada.</p><p><a href="?kur=${encodeURIComponent(KUR)}">‹ Daftar silabus</a></p></div>`;
+  if (!perluSilabus(m)) return `<div class="kartu"><p class="kosong">${esc(m.kode)} ${esc(m.nama)} diselenggarakan universitas; silabusnya dari universitas, tidak disusun prodi dan tidak masuk lampiran.</p>
+    <p><a href="?kur=${encodeURIComponent(KUR)}">‹ Daftar silabus</a></p></div>`;
   const k = kunci(KUR, PILIH), s = SIL.get(k), st = statusSilabus(s);
   const boleh = BOLEH.has(k) && st !== 'diajukan';
   ISIAN = rapikanSilabus(s?.data || {});
