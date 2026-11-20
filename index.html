@@ -15,7 +15,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-20-90548a">
+<link rel="stylesheet" href="tema.css?v=2026-11-20-3ce430">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:#fff;color:var(--ink);font-family:var(--sans);font-size:15.5px;line-height:1.6;-webkit-font-smoothing:antialiased}
@@ -301,7 +301,7 @@
 
     <section aria-labelledby="jMhs">
       <div class="kepala-bag"><div><div class="eyebrow">Mahasiswa</div><h2 id="jMhs">Untuk mahasiswa dan calon mahasiswa</h2></div></div>
-      <div class="grid g3 mhs" id="mhs"></div>
+      <div class="grid g4 mhs" id="mhs"></div>
     </section>
     <section id="bBerita" hidden>
       <div class="berita-band"><div><h3>Kabar terbaru program studi</h3>
@@ -312,7 +312,7 @@
 
 </main>
 
-<script src="config.js?v=2026-11-20-90548a"></script>
+<script src="config.js?v=2026-11-20-3ce430"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -330,8 +330,8 @@ addEventListener('error', function (e) {
 // Beranda program studi (pemilik 2026-11-16). Data dari data.json (bangun.py); pita dari RPC publik.
 // Isi yang belum ada (config.yaml public_site: tagline, kontak, media sosial, PMB) tidak ditampilkan.
 // Dasbor kinerja yang dulu di sini pindah ke kinerja.html.
-import { pasangKerangka, isiKerangka } from './kerangka.js?v=2026-11-20-90548a';
-import { halamanAktif } from './fitur.js?v=2026-11-20-90548a';
+import { pasangKerangka, isiKerangka } from './kerangka.js?v=2026-11-20-3ce430';
+import { halamanAktif } from './fitur.js?v=2026-11-20-3ce430';
 pasangKerangka({ aktif: '' });
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -482,7 +482,10 @@ function gambar(d){
   const wajib = k ? k.mk.filter(m => m.sifat !== 'pilihan') : [];
   const sks = wajib.reduce((a, m) => a + (Number(m.sks) || 0), 0);
   const prestasi = (d.prestasi_agregat || []).reduce((a, p) => a + (p.jumlah || 0), 0);
+  // Kartu pertama: halaman calon mahasiswa (pemilik 2026-11-20; calon-mahasiswa.html dari halaman_publik.py).
   $('mhs').innerHTML = `
+    <a class="kartu" href="calon-mahasiswa.html"><div class="ikon">${IKON.pres}</div><h3>Untuk calon mahasiswa</h3>
+      <p>Bidang yang dipelajari, perjalanan kuliah, laboratorium, prestasi, prospek karier, dan pendaftaran.</p><span class="panah">Mulai di sini &rarr;</span></a>
     <a class="kartu" href="layanan-mahasiswa.html"><div class="ikon">${IKON.mhs}</div><h3>Layanan mahasiswa</h3>
       <p>Pengumuman, berkas panduan dan formulir, tanya-jawab, serta kotak pertanyaan dan masukan.</p><span class="panah">Buka &rarr;</span></a>
     <a class="kartu" href="kurikulum.html"><div class="ikon">${IKON.kur}</div><h3>Kurikulum ${esc(k?.kode || '')}</h3>
@@ -492,7 +495,7 @@ function gambar(d){
 }
 
 function pasangCari(D){
-  import('./cari.js?v=2026-11-20-90548a').then(m => {
+  import('./cari.js?v=2026-11-20-3ce430').then(m => {
     const idx = m.indeksPublik(D, k => !(window.FITUR_MATI || []).includes(k));
     const kotak = $('cariUmum'), panel = $('hasilUmum');
     let aktif = -1;

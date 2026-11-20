@@ -1,7 +1,7 @@
 {
  "prodi": "Teknik Sipil",
  "institusi": "Universitas Pertamina",
- "diperbarui": "20 November 2026",
+ "diperbarui": "21 November 2026",
  "dosen": [
   {
    "nama": "Adita Utami",
@@ -2139,7 +2139,7 @@
    "tahun_ts": 2026,
    "kategori": "pkm",
    "tingkat": "nasional",
-   "skema": "Lainnya — sebutkan di keterangan",
+   "skema": "",
    "kelompok": "Kementerian / lembaga lain / pemda",
    "mitra": [
     {
@@ -2296,7 +2296,7 @@
    "tahun_ts": 2025,
    "kategori": "penelitian",
    "tingkat": "nasional",
-   "skema": "Lainnya — sebutkan di keterangan",
+   "skema": "",
    "kelompok": "Kementerian / lembaga lain / pemda",
    "mitra": [
     {
@@ -2370,7 +2370,7 @@
    "tahun_ts": 2025,
    "kategori": "penelitian",
    "tingkat": "wilayah_lokal",
-   "skema": "Hibah internal lainnya — sebutkan namanya",
+   "skema": "Hibah internal lainnya",
    "kelompok": "Hibah internal perguruan tinggi",
    "mitra": [],
    "mahasiswa": 0,
@@ -2438,7 +2438,7 @@
    "tahun_ts": 2025,
    "kategori": "pkm",
    "tingkat": "nasional",
-   "skema": "Hibah internal lainnya — sebutkan namanya",
+   "skema": "Hibah internal lainnya",
    "kelompok": "Hibah internal perguruan tinggi",
    "mitra": [],
    "mahasiswa": 0,
@@ -2500,7 +2500,7 @@
    "tahun_ts": 2024,
    "kategori": "penelitian",
    "tingkat": "wilayah_lokal",
-   "skema": "Hibah internal lainnya — sebutkan namanya",
+   "skema": "Hibah internal lainnya",
    "kelompok": "Hibah internal perguruan tinggi",
    "mitra": [],
    "mahasiswa": 0,
@@ -2550,7 +2550,7 @@
    "tahun_ts": 2024,
    "kategori": "pkm",
    "tingkat": "nasional",
-   "skema": "Kementerian/lembaga/pemda lainnya — sebutkan namanya",
+   "skema": "Kementerian/lembaga/pemda lainnya",
    "kelompok": "Kementerian / lembaga lain / pemda",
    "mitra": [
     {
@@ -2684,7 +2684,7 @@
    "tahun_ts": 2023,
    "kategori": "penelitian",
    "tingkat": "wilayah_lokal",
-   "skema": "Hibah internal lainnya — sebutkan namanya",
+   "skema": "Hibah internal lainnya",
    "kelompok": "Hibah internal perguruan tinggi",
    "mitra": [],
    "mahasiswa": 0,
@@ -7110,7 +7110,7 @@
   "sosial": {
    "instagram_himpunan": "https://www.instagram.com/hmts.uper/"
   },
-  "pendaftaran": "https://pmb.universitaspertamina.ac.id/?ps=10",
+  "pendaftaran": "https://pmb.universitaspertamina.ac.id/admisi?src=203",
   "berita": "https://universitaspertamina.ac.id/prodi/teknik-sipil/berita",
   "karier": [
    "Industri infrastruktur",

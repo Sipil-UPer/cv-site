@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-20-90548a">
-<link rel="stylesheet" href="kepala.css?v=2026-11-20-90548a">
+<link rel="stylesheet" href="tema.css?v=2026-11-20-3ce430">
+<link rel="stylesheet" href="kepala.css?v=2026-11-20-3ce430">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
@@ -43,7 +43,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-20-90548a"></script>
+<script src="config.js?v=2026-11-20-3ce430"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -62,9 +62,9 @@ addEventListener('error', function (e) {
 // Pemeriksa mutu data (pemilik 2026-11-11): admin melihat data yang perlu
 // diperbaiki sebelum asesor/auditor. Hanya membaca; aturannya di mutu-data.js.
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-20-90548a';
-import { bolehMutu } from './koordinator.js?v=2026-11-20-90548a';
-import { periksaMutu, csvMutu, TINGKAT } from './mutu-data.js?v=2026-11-20-90548a';
+import { gerbang } from './menu.js?v=2026-11-20-3ce430';
+import { bolehMutu } from './koordinator.js?v=2026-11-20-3ce430';
+import { periksaMutu, csvMutu, TINGKAT } from './mutu-data.js?v=2026-11-20-3ce430';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
@@ -90,19 +90,20 @@ async function mulai(){
   $('hSub').textContent = `Masuk sebagai ${saya.nama}`;
   if (!bolehMutu(saya)) { $('isi').innerHTML = '<p class="kosong">Halaman ini khusus admin prodi dan GKM.</p>'; return; }
   $('isi').innerHTML = '<p class="kosong">Memeriksa data…</p>';
-  const [karya, karyaBukti, karyaPenulis, dosen, mk, kerjasama, tracer, rps, rpsTtd] = await Promise.all([
+  const [karya, karyaBukti, karyaPenulis, dosen, mk, kerjasama, tracer, rps, rpsTtd, bidang] = await Promise.all([
     aman('karya', semua(() => sb.from('karya').select('id,kategori,judul,judul_norm,tahun,jenis,doi,url,bukti_url,status,induk_id,dibuat_pada')
       .in('status', ['diajukan', 'terverifikasi']).order('id'))),
     aman('karya_bukti', semua(() => sb.from('karya_bukti').select('karya_id').order('id'))),
     aman('karya_penulis', semua(() => sb.from('karya_penulis').select('karya_id').order('karya_id').order('dosen_id'))),
-    aman('dosen', semua(() => sb.from('dosen').select('nama,nidn,sinta_id,scopus_id,orcid,aktif,peran,dtps,pendidikan,jabatan').order('nama'))),
+    aman('dosen', semua(() => sb.from('dosen').select('*').order('nama'))),   // * : nama_gelar (111), bidang_keahlian
     aman('ref_mata_kuliah', semua(() => sb.from('ref_mata_kuliah').select('*').order('id'))),
     aman('lkps_kerjasama', semua(() => sb.from('lkps_kerjasama').select('mitra,jenis,tanggal_selesai,tahun_selesai').order('id'))),
     aman('lkps_tracer_lulusan', semua(() => sb.from('lkps_tracer_lulusan').select('*').order('id'))),
     aman('mk_rps', semua(() => sb.from('mk_rps').select('kurikulum,kode_mk,revisi').order('kurikulum').order('kode_mk'))),
     aman('mk_rps_ttd', semua(() => sb.from('mk_rps_ttd').select('kurikulum,kode_mk,revisi').order('id'))),
+    aman('ref_bidang_keahlian', semua(() => sb.from('ref_bidang_keahlian').select('nama,aktif').order('urutan'))),
   ]);
-  const hasil = periksaMutu({ karya, karyaBukti, karyaPenulis, dosen, mk, kerjasama, tracer, rps, rpsTtd });
+  const hasil = periksaMutu({ karya, karyaBukti, karyaPenulis, dosen, mk, kerjasama, tracer, rps, rpsTtd, bidang });
   gambar(hasil);
 }
 

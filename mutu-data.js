@@ -18,6 +18,18 @@ export function mirip(a, b){
   return sama / (A.size + B.size - sama);
 }
 // TS berjalan: 1 Sep–31 Agu, ditulis tahun akhirnya.
+/** Kemiripan per huruf 0..1 (1 - jarak Levenshtein / panjang terpanjang), untuk saran ejaan (pemilik 2026-11-20). */
+export function miripHuruf(a, b){
+  const x = String(a || '').toLowerCase(), y = String(b || '').toLowerCase();
+  if (!x.length || !y.length) return 0;
+  let prev = Array.from({ length: y.length + 1 }, (_, j) => j);
+  for (let i = 1; i <= x.length; i++) {
+    const cur = [i];
+    for (let j = 1; j <= y.length; j++) cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (x[i - 1] === y[j - 1] ? 0 : 1));
+    prev = cur;
+  }
+  return 1 - prev[y.length] / Math.max(x.length, y.length);
+}
 export const tsBerjalan = kini => kini.getMonth() >= 8 ? kini.getFullYear() + 1 : kini.getFullYear();
 const tglISO = kini => `${kini.getFullYear()}-${String(kini.getMonth() + 1).padStart(2, '0')}-${String(kini.getDate()).padStart(2, '0')}`;
 const labelKarya = k => `${k.tahun || '—'} · ${k.kategori || ''} · ${k.judul || '(tanpa judul)'}`;
@@ -92,6 +104,20 @@ export function periksaMutu(M, kini = new Date()){
     'Dipakai Tabel 4.a LKPS dan butir kecukupan/kualifikasi dosen.', 'kelola-dosen.html',
     dosen.filter(d => d.dtps).map(d => ({ d, kurang: [['pendidikan', 'pendidikan'], ['jabatan', 'jabatan'], ['nidn', 'NIDN']].filter(([k]) => !String(d[k] || '').trim()).map(x => x[1]) }))
       .filter(x => x.kurang.length).map(x => ({ teks: `${x.d.nama}: ${x.kurang.join(', ')}` })));
+
+  // 8b (pemilik 2026-11-20): tampilan publik dosen. Nama dengan gelar dipakai situs publik, CV, dan dokumen (111);
+  // bidang keahlian tampil di beranda dan sebaiknya sama dengan daftar bidang baku (Data prodi › Bidang keahlian).
+  tambah('dosen_tanpa_gelar', 'Dosen aktif tanpa nama dengan gelar', 'periksa',
+    'Situs publik dan dokumen memakai nama dengan gelar; dosen mengisinya sendiri di Profil (atau admin di Kelola dosen).', 'profil.html',
+    dosen.filter(d => !String(d.nama_gelar || '').trim()).map(d => ({ teks: d.nama })));
+  const baku = (M.bidang || []).filter(b => b.aktif !== false).map(b => String(b.nama || '').trim()).filter(Boolean);
+  const kunci = s => String(s || '').trim().toLowerCase().replace(/\s+/g, ' ');
+  const bakuSet = new Set(baku.map(kunci));
+  const terdekat = s => baku.map(b => [b, miripHuruf(s, b)]).sort((a, b) => b[1] - a[1])[0];
+  tambah('dosen_bidang_tidak_baku', 'Bidang keahlian dosen tidak sama dengan daftar bidang baku', 'periksa',
+    'Bidang tampil di beranda dan daftar dosen; ejaan berbeda (mis. salah ketik) membuat bidang terpecah. Pilih dari daftar bidang baku.', 'kelola-dosen.html',
+    baku.length ? dosen.flatMap(d => String(d.bidang_keahlian || '').split(/[;,·]/).map(x => x.trim()).filter(Boolean)
+      .filter(x => !bakuSet.has(kunci(x))).map(x => { const t = terdekat(x); return { teks: `${d.nama}: "${x}"${t && t[1] >= 0.75 ? ` — mungkin "${t[0]}"` : ''}` }; })) : []);
 
   // 9. Mata kuliah.
   const mk = (M.mk || []).filter(m => m.aktif !== false);
