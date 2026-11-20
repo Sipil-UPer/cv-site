@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-21-747da3">
-<link rel="stylesheet" href="kepala.css?v=2026-11-21-747da3">
+<link rel="stylesheet" href="tema.css?v=2026-11-21-9555b6">
+<link rel="stylesheet" href="kepala.css?v=2026-11-21-9555b6">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
@@ -53,7 +53,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-21-747da3"></script>
+<script src="config.js?v=2026-11-21-9555b6"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -72,15 +72,16 @@ addEventListener('error', function (e) {
 // Internal (login): koordinator MK, pengampu kelas, GKM, admin, pimpinan, asesor aktif. Auditor AMI: ?ami=<token>, hanya baca.
 // Berkas selalu privat; dibuka lewat Apps Script (portofolio_buka / ami_portofolio_buka) sesudah izin diperiksa basis data.
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-21-747da3';
-import { bolehMutu } from './koordinator.js?v=2026-11-21-747da3';
-import { keB64 } from './pengajuan-mhs.js?v=2026-11-21-747da3';
-import { semesterKini } from './evaluasi-pembelajaran.js?v=2026-11-21-747da3';
-import { periksaStruktur } from './templat-cpl.js?v=2026-11-21-747da3';
-import { cplMK, dataTemplat, statusStruktur } from './cpmk.js?v=2026-11-21-747da3';
-import { judul, teks, tabel, tautan, run, buatDocx } from './docx-dasar.js?v=2026-11-21-747da3';
-import { rubrikRps } from './rps.js?v=2026-11-21-747da3';
-import { KOMPONEN, komponenUntuk, daftarSemester, mkSemester, kelengkapan, persen, labelBerkas } from './portofolio.js?v=2026-11-21-747da3';
+import { gerbang } from './menu.js?v=2026-11-21-9555b6';
+import { bolehMutu } from './koordinator.js?v=2026-11-21-9555b6';
+import { bawaanHanyaSaya, ingatHanyaSaya, pesanKosongSaya } from './mk-saya.js?v=2026-11-21-9555b6';
+import { keB64 } from './pengajuan-mhs.js?v=2026-11-21-9555b6';
+import { semesterKini } from './evaluasi-pembelajaran.js?v=2026-11-21-9555b6';
+import { periksaStruktur } from './templat-cpl.js?v=2026-11-21-9555b6';
+import { cplMK, dataTemplat, statusStruktur } from './cpmk.js?v=2026-11-21-9555b6';
+import { judul, teks, tabel, tautan, run, buatDocx } from './docx-dasar.js?v=2026-11-21-9555b6';
+import { rubrikRps } from './rps.js?v=2026-11-21-9555b6';
+import { KOMPONEN, komponenUntuk, daftarSemester, mkSemester, kelengkapan, persen, labelBerkas } from './portofolio.js?v=2026-11-21-9555b6';
 
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -166,9 +167,10 @@ function htmlDaftar(){
     <p class="ket">Per mata kuliah: RPS, CPMK, refleksi evaluasi, materi, soal dan kunci/rubrik tiap butir asesmen; per kelas: contoh jawaban
       tinggi/sedang/rendah, presensi, BAP, dan berkas nilai CPL. Semua berkas privat (contoh jawaban memuat NIM).</p>
     <div class="alat">${sem.length ? `<label>Semester <select id="fSem">${sem.map(s => `<option value="${esc(s.ta)}|${s.sm}"${SEM && s.ta === SEM.ta && s.sm === SEM.sm ? ' selected' : ''}>${esc(s.ta)} ${s.sm}</option>`).join('')}</select></label>` : ''}
-      ${AMI ? '' : `<label><input type="checkbox" id="fSaya"${F.saya ? ' checked' : ''}> hanya MK/kelas saya</label>`}
+      ${AMI ? '' : `<label><input type="checkbox" id="fSaya"${F.saya ? ' checked' : ''}> Hanya MK/kelas saya</label>`}
       <span class="ket">${rows.length} MK · rata-rata kelengkapan ${rata}%</span>
       ${rows.length ? '<button class="b" id="indeksSemester" style="margin-left:auto">Unduh indeks semester (DOCX)</button><span class="msg" id="mIndeksSem"></span>' : ''}</div>
+    ${!AMI && F.saya && !rows.length ? pesanKosongSaya(daftarMK().length) : ''}
     <div class="gulir"><table class="ds"><thead><tr><th>Kode</th><th>Mata kuliah</th><th>Kelas</th><th>Kelengkapan</th><th></th></tr></thead><tbody>
     ${rows.map(({ x, k }) => `<tr><td class="kode">${esc(x.kode)}</td><td>${esc(x.nama)}<div class="ket">${esc(x.kurikulum)}</div></td>
       <td>${esc(x.kelas.map(c => c.kelas).join(', ')) || '—'}</td>
@@ -228,7 +230,7 @@ function htmlDetail(){
 function gambar(){
   $('isi').innerHTML = PILIH ? htmlDetail() : htmlDaftar();
   if ($('fSem')) $('fSem').onchange = () => { const [ta, sm] = $('fSem').value.split('|'); SEM = { ta, sm }; PILIH = null; gambar(); };
-  if ($('fSaya')) $('fSaya').onchange = () => { F.saya = $('fSaya').checked; gambar(); };
+  if ($('fSaya')) $('fSaya').onchange = () => { F.saya = $('fSaya').checked; ingatHanyaSaya('portofolio', F.saya); gambar(); };
   document.querySelectorAll('[data-buka]').forEach(b => { b.onclick = () => { PILIH = b.dataset.buka; gambar(); scrollTo(0, 0); }; });
   if ($('kembali')) $('kembali').onclick = () => { PILIH = null; gambar(); };
   document.querySelectorAll('[data-buka-berkas]').forEach(b => { b.onclick = () => bukaBerkas(+b.dataset.bukaBerkas, b); });
@@ -344,6 +346,7 @@ async function mulai(){
   SAYA = await gerbang(sb);
   if (!SAYA) return;
   KELOLA = bolehMutu(SAYA);
+  F.saya = bawaanHanyaSaya('portofolio', SAYA);   // MK saya bawaan untuk dosen (pemilik 2026-11-21)
   $('hSub').textContent = `Masuk sebagai ${SAYA.nama}`;
   await muat();
 }

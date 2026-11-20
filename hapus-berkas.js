@@ -18,7 +18,7 @@
    ditautkan, tidak diunggah ulang) TIDAK dibuang selama tautannya masih
    dirujuk lebih dari satu catatan: hanya catatan pemanggil yang dihapus.
    ===================================================================== */
-import { jumlahRujukan } from './sidik-berkas.js?v=2026-11-21-747da3';
+import { jumlahRujukan } from './sidik-berkas.js?v=2026-11-21-9555b6';
 
 export async function buangBerkas(sb, url){
   const U = String(window.UPLOAD_URL || '').trim();
@@ -80,3 +80,11 @@ export async function buangBuktiLepas(sb, urls, { milik = false } = {}){
 }
 
 export const PESAN_SAMPAH = 'Berkas dipindah ke Sampah Drive prodi (bisa dipulihkan 30 hari).';
+
+// Foto prestasi yang tampil di situs publik (pemilik 2026-11-21: foto prestasi mahasiswa sempat hilang dari situs karena
+// baris buktinya terhapus di Data prodi). Sama dengan syarat halaman_publik.prestasi_publik: prestasi terverifikasi, tidak
+// disembunyikan, bukti berjenis 'foto'.
+export const fotoPrestasiPublik = (tabel, baris, bukti) => tabel === 'lkps_prestasi_mahasiswa' && bukti?.jenis === 'foto'
+  && (baris?.status ?? 'terverifikasi') === 'terverifikasi' && !baris?.sembunyikan_publik;
+export const PERINGATAN_FOTO = 'PERHATIAN: foto ini sedang tampil di halaman publik Prestasi. Bila dilanjutkan, foto hilang dari '
+  + 'situs pada pembangunan berikutnya (paling lama sejam) dan baru tampil lagi setelah diunggah ulang sebagai "Foto kegiatan".';

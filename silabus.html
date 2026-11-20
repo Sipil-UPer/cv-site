@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-21-747da3">
-<link rel="stylesheet" href="kepala.css?v=2026-11-21-747da3">
+<link rel="stylesheet" href="tema.css?v=2026-11-21-9555b6">
+<link rel="stylesheet" href="kepala.css?v=2026-11-21-9555b6">
 <style>
   /* Silabus mata kuliah (129-patch-silabus.sql, pemilik 2026-11-20) */
   *{box-sizing:border-box}
@@ -61,7 +61,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-21-747da3"></script>
+<script src="config.js?v=2026-11-21-9555b6"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -79,12 +79,13 @@ addEventListener('error', function (e) {
 // Silabus mata kuliah (129-patch-silabus.sql, pemilik 2026-11-20): koordinator MK/pengampu menyusun (dua bahasa, bentuk
 // Lampiran Kurikulum SIAKUP), Kaprodi aktif mengesahkan; lampiran Word dokumen kurikulum dari versi disahkan (silabus.js).
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang, identitas } from './menu.js?v=2026-11-21-747da3';
-import { punya } from './koordinator.js?v=2026-11-21-747da3';
-import { susunanMK } from './rps.js?v=2026-11-21-747da3';
-import { buatDocx } from './docx-dasar.js?v=2026-11-21-747da3';
+import { gerbang, identitas } from './menu.js?v=2026-11-21-9555b6';
+import { punya } from './koordinator.js?v=2026-11-21-9555b6';
+import { bawaanHanyaSaya, ingatHanyaSaya, pesanKosongSaya, mkMilikSaya } from './mk-saya.js?v=2026-11-21-9555b6';
+import { susunanMK } from './rps.js?v=2026-11-21-9555b6';
+import { buatDocx } from './docx-dasar.js?v=2026-11-21-9555b6';
 import { KOLOM_SILABUS, BATAS, STATUS_SILABUS, rapikanSilabus, kekuranganSilabus, statusSilabus, cplTerkait, rencanaImpor,
-  lampiranSilabus, penyelenggara, dariUniversitas } from './silabus.js?v=2026-11-21-747da3';
+  lampiranSilabus, penyelenggara, dariUniversitas } from './silabus.js?v=2026-11-21-9555b6';
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const sb = createClient(window.SB_URL, window.SB_KEY);
@@ -93,6 +94,8 @@ const kunci = (kur, kode) => `${kur}|${kode}`;
 const waktu = s => (s ? new Date(s).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' }) : '');
 const URL_AWAL = new URLSearchParams(location.search);
 let SAYA = null, MK = [], SIL = new Map(), LOG = [], CPL = [], PETA = [], BOLEH = new Set(), IDENT = { prodi: '', institusi: '' };
+// Hanya MK saya (mk-saya.js, pemilik 2026-11-21): BOLEH = semua MK (131), jadi MK saya dihitung terpisah.
+let MILIK = new Set(), F_SAYA_SIL = false;
 let KUR = URL_AWAL.get('kur') || '', PILIH = URL_AWAL.get('kode') || '', F_STATUS = '', ISIAN = null, KOTOR = false, TABEL_ADA = true;
 const ADMIN = () => SAYA?.peran === 'admin';
 const KAPRODI = () => punya(SAYA, 'kaprodi');
@@ -113,6 +116,7 @@ async function muat(){
   // 131 (pemilik 2026-11-20): setiap dosen aktif (bukan asesor) boleh mengisi silabus MK mana pun; pengesahan tetap Kaprodi.
   BOLEH = SAYA && SAYA.peran !== 'asesor' && SAYA.aktif !== false ? new Set(MK.map(m => kunci(m.kurikulum, m.kode)))
     : new Set(boleh.map(b => kunci(b.kurikulum, b.kode_mk)));
+  MILIK = mkMilikSaya(MK, boleh, SAYA, kunci);
   const kurs = [...new Set(MK.map(m => m.kurikulum).filter(Boolean))].sort().reverse();
   if (!kurs.includes(KUR)) KUR = kurs.includes('K26') ? 'K26' : (kurs[0] || '');
 }
@@ -128,7 +132,7 @@ function gambar(){
 }
 
 function gambarDaftar(){
-  const xs = mkIni();
+  const semuaMk = mkIni(), xs = F_SAYA_SIL ? semuaMk.filter(m => MILIK.has(kunci(KUR, m.kode))) : semuaMk;
   const hit = Object.fromEntries(Object.keys(STATUS_SILABUS).map(k => [k, 0]));
   xs.forEach(m => { hit[statusSilabus(SIL.get(kunci(KUR, m.kode)))]++; });
   const kurs = [...new Set(MK.map(m => m.kurikulum).filter(Boolean))].sort().reverse();
@@ -149,7 +153,10 @@ function gambarDaftar(){
     <p class="ket">Silabus menjadi lampiran dokumen kurikulum (bentuk Lampiran Kurikulum SIAKUP, Indonesia dan Inggris). Diisi dosen (koordinator MK,
       pengampu, atau dosen lain yang ditugasi), diajukan, lalu disahkan Kaprodi. Identitas MK dan CPL terkait diambil dari Data prodi › Mata kuliah dan peta MK–CPL.
       ${mkUniv().length ? `MK berlabel <span class="chip">Universitas</span> (${mkUniv().length} MK, mis. MKU, Kalkulus, Fisika Dasar) diselenggarakan universitas: silabusnya disalin dari silabus universitas.` : ''}</p>
-    <div class="alat"><label>Kurikulum <select id="fKur">${kurs.map(k => `<option${k === KUR ? ' selected' : ''}>${esc(k)}</option>`).join('')}</select></label></div>
+    <div class="alat"><label>Kurikulum <select id="fKur">${kurs.map(k => `<option${k === KUR ? ' selected' : ''}>${esc(k)}</option>`).join('')}</select></label>
+      <label><input type="checkbox" id="fSayaSil"${F_SAYA_SIL ? ' checked' : ''}> Hanya MK saya</label>
+      <span class="ket">${xs.length} dari ${semuaMk.length} MK; lampiran Word tetap memuat semua MK.</span></div>
+    ${F_SAYA_SIL && !xs.length ? pesanKosongSaya(semuaMk.length) : ''}
     <div class="kemajuan">${Object.entries(STATUS_SILABUS).map(([k, l]) => `<button class="angka-st${F_STATUS === k ? ' aktif' : ''}" data-st="${k}"><b>${hit[k]}</b><span>${l}</span></button>`).join('')}</div>
     <div class="alat"><button class="b utama" id="unduhLampiran">Unduh lampiran silabus (Word)</button>
       <label><input type="checkbox" id="pakaiDraf"> sertakan yang belum disahkan (ditandai DRAF)</label></div>
@@ -167,6 +174,7 @@ function gambarDaftar(){
 let RENCANA = null;
 function pasangDaftar(){
   $('fKur').onchange = e => { KUR = e.target.value; F_STATUS = ''; simpanUrl(); gambar(); };
+  $('fSayaSil').onchange = e => { F_SAYA_SIL = e.target.checked; ingatHanyaSaya('silabus', F_SAYA_SIL); gambar(); };
   document.querySelectorAll('[data-st]').forEach(b => { b.onclick = () => { F_STATUS = F_STATUS === b.dataset.st ? '' : b.dataset.st; gambar(); }; });
   $('unduhLampiran').onclick = async () => {
     const h = lampiranSilabus({ kur: KUR, mk: MK, silabus: SIL, peta: PETA, refCpl: CPL, prodi: IDENT.prodi, institusi: IDENT.institusi, draf: $('pakaiDraf').checked });
@@ -292,6 +300,7 @@ addEventListener('beforeunload', e => { if (KOTOR) { e.preventDefault(); e.retur
 async function mulai(){
   SAYA = await gerbang(sb);
   if (!SAYA) return;
+  F_SAYA_SIL = bawaanHanyaSaya('silabus', SAYA);
   $('hSub').textContent = `Masuk sebagai ${SAYA.nama}`;
   await muat();
   simpanUrl();

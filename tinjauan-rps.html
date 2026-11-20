@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-21-747da3">
-<link rel="stylesheet" href="kepala.css?v=2026-11-21-747da3">
+<link rel="stylesheet" href="tema.css?v=2026-11-21-9555b6">
+<link rel="stylesheet" href="kepala.css?v=2026-11-21-9555b6">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
@@ -52,7 +52,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-21-747da3"></script>
+<script src="config.js?v=2026-11-21-9555b6"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -71,10 +71,11 @@ addEventListener('error', function (e) {
 // Dibuka setelah nilai akhir keluar (berkas nilai akhir di ringkasan CPL); diisi koordinator MK (atau MK padanannya) atau
 // pengampu kelasnya, disetujui Kaprodi. Revisi = tindak lanjut; RPS sasaran diajukan ulang (selesai bila disahkan lagi).
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-21-747da3';
-import { punya } from './koordinator.js?v=2026-11-21-747da3';
+import { gerbang } from './menu.js?v=2026-11-21-9555b6';
+import { punya } from './koordinator.js?v=2026-11-21-9555b6';
+import { bawaanHanyaSaya, ingatHanyaSaya, pesanKosongSaya } from './mk-saya.js?v=2026-11-21-9555b6';
 import { VERSI_DATA, MULAI_BAWAAN, UNSUR, KEPUTUSAN, STATUS, pecahTerm, daftarSemester, mkSemester, analisisCpl, sasaranRps,
-  bolehTinjau, tinjauanKosong, periksaTinjauan, statusTindak, bacaCsvPadanan, rekapSemester, csvTinjauan, kalimatLed } from './tinjauan-rps.js?v=2026-11-21-747da3';
+  bolehTinjau, tinjauanKosong, periksaTinjauan, statusTindak, bacaCsvPadanan, rekapSemester, csvTinjauan, kalimatLed } from './tinjauan-rps.js?v=2026-11-21-9555b6';
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const sb = createClient(window.SB_URL, window.SB_KEY);
@@ -142,9 +143,10 @@ function htmlDaftar(){
     <p class="ket">Tinjauan dibuka setelah nilai akhir keluar (berkas nilai akhir di ringkasan CPL). Diisi koordinator MK (MK lama: koordinator MK
       padanannya di kurikulum baru) atau pengampu kelasnya, lalu disetujui Kaprodi. Isian mengikuti unsur 5-8 butir 15 LAM Teknik.</p>
     <div class="alat"><label>Semester <select id="fTerm">${TERMS.map(t => `<option${t.term === TERM ? ' selected' : ''}>${esc(t.term)}</option>`).join('')}</select></label>
-      <label><input type="checkbox" id="fSaya"${F_SAYA ? ' checked' : ''}> Hanya yang boleh saya isi</label>
+      <label><input type="checkbox" id="fSaya"${F_SAYA ? ' checked' : ''}> Hanya MK saya</label>
       ${KAPRODI_SAYA ? `<label><input type="checkbox" id="fMenunggu"${F_MENUNGGU ? ' checked' : ''}> Hanya yang menunggu persetujuan Anda (${nAju})</label>` : ''}
       <span class="ket">${n} MK · ${nSetuju} disetujui · ${nAju} diajukan</span></div>
+    ${F_SAYA && !F_MENUNGGU && !xs.length ? pesanKosongSaya(n) : ''}
     <div class="gulir"><table class="ds"><thead><tr><th>Kode</th><th>Mata kuliah</th><th>Kelas</th><th>RPS sasaran</th><th>Koordinator</th>
       <th>Tinjauan</th><th>Keputusan</th><th>Tindak lanjut</th><th></th></tr></thead><tbody>
       ${xs.map(x => {
@@ -275,7 +277,7 @@ function gambar(){
   $('isi').innerHTML = PILIH ? htmlDetail() : htmlDaftar();
   if (!PILIH) {
     if ($('fTerm')) $('fTerm').onchange = e => { TERM = e.target.value; history.replaceState(null, '', `?term=${encodeURIComponent(TERM)}`); gambar(); };
-    if ($('fSaya')) $('fSaya').onchange = e => { F_SAYA = e.target.checked; gambar(); };
+    if ($('fSaya')) $('fSaya').onchange = e => { F_SAYA = e.target.checked; ingatHanyaSaya('tinjauan-rps', F_SAYA); gambar(); };
     if ($('fMenunggu')) $('fMenunggu').onchange = e => { F_MENUNGGU = e.target.checked; gambar(); };
     document.querySelectorAll('[data-buka]').forEach(a => a.onclick = e => { e.preventDefault(); const [kur, kode] = a.dataset.buka.split('|');
       history.pushState(null, '', a.getAttribute('href')); bukaMK(kur, kode); });
@@ -375,6 +377,7 @@ async function mulai(){
   SAYA = await gerbang(sb);
   if (!SAYA) return;
   ADMIN = SAYA.peran === 'admin'; KAPRODI_SAYA = punya(SAYA, 'kaprodi');
+  F_SAYA = bawaanHanyaSaya('tinjauan-rps', SAYA);   // MK saya bawaan untuk dosen (pemilik 2026-11-21)
   $('hSub').textContent = `Masuk sebagai ${SAYA.nama}`;
   await muat();
 }
