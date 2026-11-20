@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-20-7cc355">
+<link rel="stylesheet" href="tema.css?v=2026-11-20-f6577c">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
@@ -60,7 +60,7 @@
   /* .fld input melebarkan semua input; kotak centang topik tetap kecil dan di kiri teksnya */
   .fld label.pilih-topik input[type=checkbox]{width:auto;padding:0;margin:0;flex:none}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-20-7cc355">
+<link rel="stylesheet" href="kepala.css?v=2026-11-20-f6577c">
 </head>
 <body>
 
@@ -74,7 +74,7 @@
 
 <main class="wrap" id="isi"></main>
 
-<script src="config.js?v=2026-11-20-7cc355"></script>
+<script src="config.js?v=2026-11-20-f6577c"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -91,16 +91,16 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { pasangMenu } from './menu.js?v=2026-11-20-7cc355';
-import { dosenLogin } from './dosen-login.js?v=2026-11-20-7cc355';
-import { unduhCV, htmlTombolCV, mkDiampu } from './cv-dosen.js?v=2026-11-20-7cc355';
-import { keBase64 } from './pustaka-dokumen.js?v=2026-11-20-7cc355';
-import { tautanBerkas, temuanPakai } from './tautan-privat.js?v=2026-11-20-7cc355';
-import { periksaBerkas, sidikBerkas } from './sidik-berkas.js?v=2026-11-20-7cc355';
-import { buangBuktiLepas } from './hapus-berkas.js?v=2026-11-20-7cc355';
+import { pasangMenu } from './menu.js?v=2026-11-20-f6577c';
+import { dosenLogin } from './dosen-login.js?v=2026-11-20-f6577c';
+import { unduhCV, htmlTombolCV, mkDiampu } from './cv-dosen.js?v=2026-11-20-f6577c';
+import { keBase64 } from './pustaka-dokumen.js?v=2026-11-20-f6577c';
+import { tautanBerkas, temuanPakai } from './tautan-privat.js?v=2026-11-20-f6577c';
+import { periksaBerkas, sidikBerkas } from './sidik-berkas.js?v=2026-11-20-f6577c';
+import { buangBuktiLepas } from './hapus-berkas.js?v=2026-11-20-f6577c';
 import { ISIAN_PROFIL, KOLOM_PROFIL, tampil as tampilIsian, sama, formLKPS, bacaFormLKPS, pasangEditor, bacaKataKunci,
   setelNamaTopik, htmlPilihTopik, bacaPilihTopik, MAKS_TOPIK, urlBukti, berkasLepas }
-  from './profil-dosen.js?v=2026-11-20-7cc355';
+  from './profil-dosen.js?v=2026-11-20-f6577c';
 
 /* =====================================================================
    PROFIL SAYA — dosen mengajukan perubahan profilnya sendiri (keputusan
@@ -138,7 +138,7 @@ const POLA = {
 // Kolom yang boleh diajukan, berurutan seperti form; label untuk tabel.
 const ISIAN = ISIAN_PROFIL;
 
-let SAYA = null, ADA_LKPS = true, ADA_ALT = false, ADA_FOTO = false, ADA_GELAR = false, MK_PRODI = null;
+let SAYA = null, ADA_LKPS = true, ADA_ALT = false, ADA_FOTO = false, ADA_GELAR = false, ADA_NOMOR = false, MK_PRODI = null;
 let BAKU = null;   // daftar keahlian baku aktif (61-patch-keahlian-baku.sql); null bila belum ada
 // CV dosen otomatis (pemilik 2026-11-11): tombol di kartu "CV saya".
 document.addEventListener('click', async e => {
@@ -232,6 +232,10 @@ async function mulai(){
   const { data: ng, error: eNg } = await sb.from('dosen').select('nama_gelar').eq('id', saya.id).maybeSingle();
   ADA_GELAR = !eNg;
   if (ADA_GELAR) SAYA.nama_gelar = ng?.nama_gelar ?? null;
+  // NIP dan NUPTK diisi dosen sendiri (patch 128); kueri terpisah: gagal = belum ada patch, kartu tidak tampil.
+  const { data: nn, error: eNn } = await sb.from('dosen').select('nip,nuptk').eq('id', saya.id).maybeSingle();
+  ADA_NOMOR = !eNn;
+  if (ADA_NOMOR) { SAYA.nip = nn?.nip ?? null; SAYA.nuptk = nn?.nuptk ?? null; }
   // Daftar keahlian baku (patch 61): dibaca pengguna terdaftar; gagal = belum ada patch, pemilih tidak tampil.
   const [rb, rt] = await Promise.all([
     sb.from('ref_bidang_keahlian').select('kode,nama,nama_en,urutan,aktif').order('urutan'),
@@ -268,6 +272,16 @@ async function gambar(){
       <p class="ket">Dipakai di lembar pengesahan RPS dan dokumen resmi lain, mis. "Dr. Nama Lengkap, S.T., M.T.". Kosong = nama biasa.</p>
       <div class="aksi"><input id="namaGelar" maxlength="200" style="flex:1;min-width:240px" value="${esc(SAYA.nama_gelar || '')}">
         <button class="btn" type="button" id="simpanGelar">Simpan</button><span class="msg" id="gelarMsg"></span></div></div>` : ''}
+    ${ADA_NOMOR ? `<div class="b"><h2>NIP dan NUPTK</h2>
+      <p class="ket">Langsung tersimpan, tanpa persetujuan admin. NIP tampil di daftar dan halaman dosen untuk keperluan
+        mahasiswa (surat, formulir KP/TA) dan di lembar pengesahan RPS. NUPTK hanya dipakai di dalam sistem, tidak tampil di situs publik.
+        Kosongkan untuk menghapus.</p>
+      <div class="grid">
+        <div class="fld"><label>NIP</label><input id="f_nip_saya" maxlength="40" inputmode="numeric" value="${esc(SAYA.nip || '')}"></div>
+        <div class="fld"><label>NUPTK</label><input id="f_nuptk_saya" maxlength="40" inputmode="numeric" value="${esc(SAYA.nuptk || '')}">
+          <small>Biasanya 16 angka.</small></div>
+      </div>
+      <div class="aksi"><button class="btn" type="button" id="simpanNomor">Simpan</button><span class="msg" id="nomorMsg"></span></div></div>` : ''}
     <div class="b"><h2>CV saya</h2>
       <p class="ket">CV akademik dalam Word (.docx), disusun dari profil ini dan karya Anda yang sudah diverifikasi prodi.
         Bisa disunting sebelum dipakai untuk hibah, SISTER, atau kenaikan jabatan.</p>
@@ -348,6 +362,17 @@ async function gambar(){
     const { error } = await sb.rpc('atur_nama_gelar', { p: v || null });
     m.className = 'msg ' + (error ? 'err' : 'ok'); m.textContent = error ? error.message : 'Tersimpan.';
     if (!error) SAYA.nama_gelar = v || null;
+  };
+  if (ADA_NOMOR) $('simpanNomor').onclick = async () => {
+    const m = $('nomorMsg'), rapi = id => $(id).value.trim().replace(/\s+/g, ' ');
+    const nip = rapi('f_nip_saya'), nuptk = rapi('f_nuptk_saya');
+    const pola = /^[0-9A-Za-z][0-9A-Za-z ./-]{1,38}[0-9A-Za-z]$/;
+    const salah = [nip && !pola.test(nip) && 'NIP', nuptk && !pola.test(nuptk) && 'NUPTK'].filter(Boolean);
+    if (salah.length) { m.className = 'msg err'; m.textContent = `${salah.join(' dan ')}: 3–40 karakter angka, huruf, spasi, titik, garis miring, atau tanda hubung.`; return; }
+    if (nuptk && !/^[0-9]{16}$/.test(nuptk) && !confirm('NUPTK biasanya 16 angka. Tetap simpan?')) return;
+    const { error } = await sb.rpc('atur_nip_nuptk', { p_nip: nip || null, p_nuptk: nuptk || null });
+    m.className = 'msg ' + (error ? 'err' : 'ok'); m.textContent = error ? error.message : 'Tersimpan.';
+    if (!error) { SAYA.nip = nip || null; SAYA.nuptk = nuptk || null; }
   };
 }
 

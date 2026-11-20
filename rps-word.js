@@ -1,9 +1,9 @@
 // Penyusun Word RPS bersama (pemilik 2026-11-19): gambar Peta Analisis dan QR (kanvas), dan Word versi disahkan dari rps_dokumen
 // (patch 121) untuk halaman verifikasi tanpa login. Halaman RPS memakai fungsi gambar yang sama, jadi Word dari kedua halaman sama.
-import { petaSvg } from './rps-peta.js?v=2026-11-20-7cc355';
-import { rapikanRps, modelRps, esignRps, revisiDariLog, paritas, namaBerkasRps } from './rps.js?v=2026-11-20-7cc355';
-import { cplMK } from './cpmk.js?v=2026-11-20-7cc355';
-import { buatRpsDocx } from './rps-docx.js?v=2026-11-20-7cc355';
+import { petaSvg } from './rps-peta.js?v=2026-11-20-f6577c';
+import { rapikanRps, modelRps, esignRps, revisiDariLog, paritas, namaBerkasRps } from './rps.js?v=2026-11-20-f6577c';
+import { cplMK } from './cpmk.js?v=2026-11-20-f6577c';
+import { buatRpsDocx } from './rps-docx.js?v=2026-11-20-f6577c';
 
 /** Titik masuk Peta Analisis: isian peta, atau prasyarat MK. */
 export const entryPeta = r => r.peta?.entry || (r.syarat?.prasyarat ? `MK prasyarat: ${r.syarat.prasyarat}` : '');
