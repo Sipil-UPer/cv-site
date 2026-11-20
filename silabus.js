@@ -1,8 +1,8 @@
 // Silabus mata kuliah (129-patch-silabus.sql, pemilik 2026-11-20): kolom isian, pemeriksaan kelengkapan, CPL terkait,
 // rencana impor isi awal, dan isi Word "Lampiran: Silabus Mata Kuliah" dokumen kurikulum (bentuk Lampiran Kurikulum SIAKUP,
 // dua bahasa). Fungsi murni; halaman: silabus.html.
-import { para, run, judul, tabel } from './docx-dasar.js?v=2026-11-20-7d6176';
-import { susunanMK, jenisMK } from './rps.js?v=2026-11-20-7d6176';
+import { para, run, judul, tabel } from './docx-dasar.js?v=2026-11-20-85f5d3';
+import { susunanMK, jenisMK } from './rps.js?v=2026-11-20-85f5d3';
 
 const t = s => String(s ?? '').trim();
 

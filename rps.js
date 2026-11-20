@@ -653,6 +653,34 @@ export function bedaRps(lama = {}, baru = {}, sLama = null, sBaru = null){
 }
 
 /**
+ * Kode singkat pustaka untuk rencana pekanan dari penulis pertama (mis. "Hass, J. R., ... (2024)" -> "HASS"); bentrok diberi angka,
+ * tanpa nama penulis -> P1, P2, ... (pemilik 2026-11-20).
+ */
+export function kodePustaka(daftar = []){
+  const dipakai = new Set();
+  return daftar.map((p, i) => {
+    const kata = (teks(p).replace(/^\d+\s*[.)]\s*/, '').match(/[A-Za-zÀ-ÿ]{3,}/) || [''])[0].toUpperCase().slice(0, 6);
+    let k = kata && !/^(THE|BUKU|MODUL|DAN|AND)$/.test(kata) ? kata : `P${i + 1}`;
+    for (let n = 2; dipakai.has(k); n++) k = `${k.replace(/\d+$/, '')}${n}`;
+    dipakai.add(k);
+    return k;
+  });
+}
+
+/**
+ * Bagian C dari silabus MK (129-patch-silabus.sql, pemilik 2026-11-20): tujuan, deskripsi, prasyarat/bersamaan, dan pustaka
+ * (satu per baris, nomor "1." dibuang, kode singkat dari penulis). sil = data silabus (versi disahkan bila ada). Bagian lain tetap.
+ */
+export function rpsDariSilabus(R, sil){
+  if (!sil) return R;
+  const baris = teks(sil.pustaka).split(/\n+/).map(s => s.trim().replace(/^\d+\s*[.)]\s*/, '')).filter(Boolean);
+  const kode = kodePustaka(baris);
+  return { ...R, tujuan: teks(sil.tujuan), deskripsi: teks(sil.deskripsi),
+           syarat: { ...(R.syarat || {}), prasyarat: teks(sil.prasyarat), bersamaan: teks(sil.bersamaan) },
+           pustaka: baris.length ? baris.map((t, i) => ({ kode: kode[i], teks: t })) : (R.pustaka || []) };
+}
+
+/**
  * Salin dari RPS lain sebagai titik awal: bagian C (kecuali pengampu) dan rencana pekanan. Identitas, pengembang, pengampu,
  * evaluasi, dan peta tetap milik MK ini. Sub-CPMK dan asesmen di pekan dipertahankan hanya bila ada di struktur MK ini.
  */

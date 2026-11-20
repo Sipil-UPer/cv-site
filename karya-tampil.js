@@ -7,9 +7,9 @@
 // ikut tampil pada publikasi/luaran/integrasi turunannya tanpa disalin.
 // st = { KB: karya_id -> [karya_bukti], INDUK: id -> karya } dari muatBuktiKarya.
 
-import { namaJenisBukti } from './rencana-bukti.js?v=2026-11-20-7d6176';
-import { buangBerkas, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-20-7d6176';
-import { htmlTautanButir, butirKarya, tsBaris } from './tautan-butir.js?v=2026-11-20-7d6176';
+import { namaJenisBukti } from './rencana-bukti.js?v=2026-11-20-85f5d3';
+import { buangBerkas, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-20-85f5d3';
+import { htmlTautanButir, butirKarya, tsBaris } from './tautan-butir.js?v=2026-11-20-85f5d3';
 
 export const esc = s => String(s ?? '').replace(/[&<>"']/g, c =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));

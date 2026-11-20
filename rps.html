@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-20-7d6176">
-<link rel="stylesheet" href="kepala.css?v=2026-11-20-7d6176">
+<link rel="stylesheet" href="tema.css?v=2026-11-20-85f5d3">
+<link rel="stylesheet" href="kepala.css?v=2026-11-20-85f5d3">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
@@ -118,7 +118,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-20-7d6176"></script>
+<script src="config.js?v=2026-11-20-85f5d3"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -138,21 +138,21 @@ addEventListener('error', function (e) {
 // Penyusun = koordinator MK atau pengampu kelas MK semester terakhir (boleh_rps, 112); GKM dan admin hanya melihat.
 // Pengesahan (112): dosen mengajukan -> Kaprodi aktif mengesahkan atau mengembalikan; daftar revisi (bagian F) otomatis.
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-20-7d6176';
-import { bolehMutu, aktifPada, punya } from './koordinator.js?v=2026-11-20-7d6176';
-import { cplMK } from './cpmk.js?v=2026-11-20-7d6176';
+import { gerbang } from './menu.js?v=2026-11-20-85f5d3';
+import { bolehMutu, aktifPada, punya } from './koordinator.js?v=2026-11-20-85f5d3';
+import { cplMK } from './cpmk.js?v=2026-11-20-85f5d3';
 import { JENIS_ASESMEN, JENIS_MK, DIREKTORI, jenisAsesmen, bloom, hots, rapikanRps, kerangkaPekan, barisPekan, periksaRps, modelRps,
   namaBerkasRps, penyusunMK, revisiDariLog, tanggalLokal, waktuLokal, evaluasiDariData, BENTUK, SCL, rekapRps, BENTUK_INTEGRASI,
-  bedaRps, salinRps, ASESMEN_TES, BUTIR_REVIEW, SKALA_REVIEW, KESIMPULAN_REVIEW, rerataReview, butirKosongReview, faktaReview, STATUS_TANGGAPAN, butirTanggapan, sudahDitanggapi, rubrikKosong, kriteriaKosong, rentangPekan, susunanMK, jenisMK, bagiParitas, saringMK, ringkasSemester, htmlRingkasSemester, htmlSaringan, ubahSaringan, esignRps, paritas } from './rps.js?v=2026-11-20-7d6176';
-import { JENIS_PETA, relasiPeta, petaSvg, usulPeta } from './rps-peta.js?v=2026-11-20-7d6176';
-import { keB64 } from './pengajuan-mhs.js?v=2026-11-20-7d6176';
-import { bacaTinjauan, bahanTinjauan } from './tinjauan-rps.js?v=2026-11-20-7d6176';
-import { SHEETJS } from './nilai-cpl.js?v=2026-11-20-7d6176';
-import { lembarRps, bacaRpsExcel, bagianBerubah, LEBAR_KOLOM } from './rps-excel.js?v=2026-11-20-7d6176';
-import { modelBerkasReview, buatReviewDocx, namaBerkasReview } from './review-docx.js?v=2026-11-20-7d6176';
-import { tenggatReview, hariKe, teksHari, mkTenggatRps, HARI_REVIEW_BAWAAN } from './pengingat-rps.js?v=2026-11-20-7d6176';
-import { pngPeta, pngQr, entryPeta } from './rps-word.js?v=2026-11-20-7d6176';
-import { buatRpsDocx } from './rps-docx.js?v=2026-11-20-7d6176';
+  bedaRps, salinRps, rpsDariSilabus, ASESMEN_TES, BUTIR_REVIEW, SKALA_REVIEW, KESIMPULAN_REVIEW, rerataReview, butirKosongReview, faktaReview, STATUS_TANGGAPAN, butirTanggapan, sudahDitanggapi, rubrikKosong, kriteriaKosong, rentangPekan, susunanMK, jenisMK, bagiParitas, saringMK, ringkasSemester, htmlRingkasSemester, htmlSaringan, ubahSaringan, esignRps, paritas } from './rps.js?v=2026-11-20-85f5d3';
+import { JENIS_PETA, relasiPeta, petaSvg, usulPeta } from './rps-peta.js?v=2026-11-20-85f5d3';
+import { keB64 } from './pengajuan-mhs.js?v=2026-11-20-85f5d3';
+import { bacaTinjauan, bahanTinjauan } from './tinjauan-rps.js?v=2026-11-20-85f5d3';
+import { SHEETJS } from './nilai-cpl.js?v=2026-11-20-85f5d3';
+import { lembarRps, bacaRpsExcel, bagianBerubah, LEBAR_KOLOM } from './rps-excel.js?v=2026-11-20-85f5d3';
+import { modelBerkasReview, buatReviewDocx, namaBerkasReview } from './review-docx.js?v=2026-11-20-85f5d3';
+import { tenggatReview, hariKe, teksHari, mkTenggatRps, HARI_REVIEW_BAWAAN } from './pengingat-rps.js?v=2026-11-20-85f5d3';
+import { pngPeta, pngQr, entryPeta } from './rps-word.js?v=2026-11-20-85f5d3';
+import { buatRpsDocx } from './rps-docx.js?v=2026-11-20-85f5d3';
 
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -183,6 +183,9 @@ let TTD = [];
 // Penyusunan (pemilik 2026-11-19): DASAR = diperbarui RPS saat dibuka (simpan ditolak bila orang lain sudah mengubahnya);
 // draf belum tersimpan disalin ke peramban tiap 4 detik dan ditawarkan untuk dipulihkan (PULIH).
 let DASAR = null, PULIH = null;
+// Silabus MK (129, pemilik 2026-11-20): bagian C RPS diambil dari silabus (versi disahkan bila ada, selain itu draf terakhir).
+let SILABUS = new Map();
+const silabusMK = k => { const s = SILABUS.get(k); return s ? { isi: s.sah || s.data, sah: !!s.sah, status: s.status } : null; };
 const kunciDraf = k => `rpsDraf|${k}`;
 const bacaDraf = k => { try { return JSON.parse(localStorage.getItem(kunciDraf(k)) || 'null'); } catch { return null; } };
 const tulisDraf = k => { try { localStorage.setItem(kunciDraf(k), JSON.stringify({ R, waktu: new Date().toISOString(), dasar: DASAR })); } catch { /* penyimpanan peramban penuh/tertutup */ } };
@@ -212,6 +215,7 @@ async function muat(){
     baca(sb.from('mk_rps_pengesahan').select('*').order('waktu')),   // * : penyusun_sendiri (114) bila patch sudah dijalankan
     baca(sb.from('cpl_kelas').select('tahun_akademik,semester,kode_mk,dosen_email'))]);
   REVIEW_TBL = await baca(sb.from('mk_rps_review').select('kurikulum,kode_mk,reviewer_id,kirim_pada,kesimpulan'));   // 118 ([] sebelum patch)
+  SILABUS = new Map((await baca(sb.from('mk_silabus').select('kurikulum,kode_mk,data,status,sah'))).map(s => [kunci(s.kurikulum, s.kode_mk), s]));   // 129
   TTD = await baca(sb.from('mk_rps_ttd').select('kurikulum,kode_mk,url,nama,revisi,oleh,waktu').order('waktu'));
   [KARYA, PENULIS] = await Promise.all([
     baca(sb.from('karya').select('id,kategori,judul,tahun,status,mata_kuliah,induk_id,sub_jenis').in('kategori', ['penelitian', 'pkm', 'integrasi'])),
@@ -265,6 +269,8 @@ function buka(kur, kode, gambarUlang = true){
     const p = pengampuAwal(m), ps = penyusun(PILIH);
     R.pengampu = (p.length ? p : ps).map(d => d.nama_gelar || d.nama).join('\n');
     R.pengembang = (ps.some(d => d.id === SAYA.id) ? SAYA.id : ps[0]?.id) || '';
+    const sil = silabusMK(PILIH);   // 129: RPS baru mulai dari silabus MK
+    if (sil) R = rpsDariSilabus(R, sil.isi);
   }
   KOTOR = false;
   DASAR = RPS.get(PILIH)?.diperbarui || null;
@@ -600,6 +606,15 @@ function htmlBeda(r){
 }
 
 // Salin dari RPS lain (pemilik 2026-11-19): bagian C dan rencana pekanan sebagai titik awal.
+// Bagian C dari silabus MK (129, pemilik 2026-11-20).
+function htmlDariSilabus(){
+  const s = silabusMK(PILIH), m = mkDari(PILIH);
+  const tautan = m ? `<a href="silabus.html?kur=${encodeURIComponent(m.kurikulum)}&kode=${encodeURIComponent(m.kode)}" target="_blank" rel="noopener">silabus MK ini</a>` : 'silabus MK ini';
+  if (!s) return `<p class="ket">Tujuan, deskripsi, MK syarat, dan pustaka sebaiknya sama dengan ${tautan}; silabusnya belum ada.</p>`;
+  return `<div class="alat">${ro() ? '' : '<button class="b" id="dariSilabus">Ambil dari silabus</button>'}
+    <span class="ket">Sumber: ${tautan} (${s.sah ? 'versi disahkan' : `<b>draf</b>, belum disahkan Kaprodi`}). Mengisi tujuan, deskripsi, MK syarat, dan pustaka.</span></div>`;
+}
+
 function htmlSalin(){
   const xs = [...RPS.entries()].filter(([k, r]) => k !== PILIH && r?.data).map(([k]) => mkDari(k)).filter(Boolean)
     .sort((a, b) => a.kurikulum.localeCompare(b.kurikulum) || a.kode.localeCompare(b.kode));
@@ -638,6 +653,7 @@ const TINGKAT_N = () => Math.max(...Object.values(R.rubrik || {}).map(r => r.tin
 function htmlC(){
   return `<section class="kartu" id="bag-C"><h2>C. Tujuan dan deskripsi mata kuliah</h2>
     ${ro() ? '' : htmlSalin()}
+    ${htmlDariSilabus()}
     <label class="fld"><span>Tujuan MK (3-5 poin, sesuai silabus K26; satu poin per baris)</span><textarea data-p="tujuan"${dis()}>${esc(R.tujuan)}</textarea></label>
     <label class="fld"><span>Deskripsi dan bahan kajian (sesuai silabus K26)</span><textarea data-p="deskripsi" style="min-height:90px"${dis()}>${esc(R.deskripsi)}</textarea></label>
     <div class="dua">
@@ -1177,6 +1193,12 @@ function pasang(){
     else if (aksi === 'buang') { if (!confirm(`Hapus rubrik ${nama}?`)) return; delete R.rubrik[nama]; }
     KOTOR = true; const sc = scrollY; gambar(); scrollTo(0, sc);
   });
+  if ($('dariSilabus')) $('dariSilabus').onclick = () => {   // 129
+    const s = silabusMK(PILIH);
+    if (!s) return;
+    if (!confirm('Ganti tujuan, deskripsi, MK prasyarat/bersamaan, dan pustaka dengan isi silabus? Kode pustaka di rencana pekanan mungkin perlu disesuaikan. Belum tersimpan sampai Anda klik Simpan.')) return;
+    R = rpsDariSilabus(R, s.isi); KOTOR = true; gambar(); tulis('mSimpan', '', `Bagian C diambil dari silabus${s.sah ? '' : ' (draf)'}; periksa lalu Simpan.`);
+  };
   if ($('salinDari')) $('salinDari').onclick = () => {
     const k = $('salinSumber').value, src = RPS.get(k)?.data;
     if (!src) return tulis('mSimpan', 'buruk', 'Pilih MK sumber.');
