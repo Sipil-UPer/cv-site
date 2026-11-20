@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-20-9ce5c1">
+<link rel="stylesheet" href="tema.css?v=2026-11-20-0d2eca">
 <style>
   /* Pengajuan mahasiswa, publik tanpa masuk akun (pemilik 2026-11-17; patch 90). Warna dari tema.css. */
   *{box-sizing:border-box}
@@ -99,7 +99,7 @@
   <h1>Pengajuan KP, seminar/sidang TA, lomba, publikasi/luaran, surat, dan yudisium</h1><div class="prodi" id="hProdi"></div>
 </div></header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-20-9ce5c1"></script>
+<script src="config.js?v=2026-11-20-0d2eca"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -115,7 +115,7 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 // Kepala dan kaki bersama situs umum (pemilik 2026-11-19, tahap 2).
-import { pasangKerangka } from './kerangka.js?v=2026-11-20-9ce5c1';
+import { pasangKerangka } from './kerangka.js?v=2026-11-20-0d2eca';
 pasangKerangka({ aktif: 'mahasiswa', muat: true });
 // Mahasiswa tidak login (pemilik 2026-11-17). Tanpa token: formulir baru dan minta tautan lagi; Apps Script
 // membuat pengajuan dan mengirim tautan pribadi ke <NIM>@<domain kampus>. Dengan #t=<token> (dari email):
@@ -124,9 +124,9 @@ import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 import { JENIS, LABEL_BERKAS, LABEL_STATUS, TINGKAT, BIDANG, jalur, bolehUbah, bacaAnggota, teksAnggota,
          periksaIsian, judulPengajuan, keB64, bukaIsi, appsScript, labelStatus, jalurTahap, BERKAS_SELESAI, PROGRAM_KP, labelProgram,
          periksaSelesai, JENIS_SURAT, TAHAP_TA, TAHAP_TA_AJU, TAHAP_PEMBIMBING_TA, penetapanTA, pembimbingCocok, JENIS_PUB, TINGKAT_PUB, INDEKSASI, JENIS_LUARAN,
-         BERKAS_YUDISIUM_BAWAAN, kelengkapanYudisium, labelBerkas } from './pengajuan-mhs.js?v=2026-11-20-9ce5c1';
-import { saranInstansi } from './rekap-kp.js?v=2026-11-20-9ce5c1';
-import { CONTOH_PENGAJUAN, contohPengajuan } from './pengajuan-contoh.js?v=2026-11-20-9ce5c1';
+         BERKAS_YUDISIUM_BAWAAN, kelengkapanYudisium, labelBerkas } from './pengajuan-mhs.js?v=2026-11-20-0d2eca';
+import { saranInstansi } from './rekap-kp.js?v=2026-11-20-0d2eca';
+import { CONTOH_PENGAJUAN, contohPengajuan } from './pengajuan-contoh.js?v=2026-11-20-0d2eca';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
@@ -591,9 +591,9 @@ function halamanSaya(){
       <button class="b" data-buka="${b.id}">Buka</button>${bisaBuang(b) ? `<button class="b" data-buang="${b.id}" aria-label="Buang berkas">×</button>` : ''}</li>`).join('')
       || '<li><span class="kosong">Belum ada berkas.</span></li>'}</ul>
     ${ubah ? `<div class="unggah"><select id="u_jenis" aria-label="Jenis berkas">${unggahan.map(k => `<option value="${k}">${esc(LABEL_BERKAS[k])}</option>`).join('')}</select>
-      <input type="file" id="u_berkas" multiple accept=".pdf,.jpg,.jpeg,.png,.docx">
+      <input type="file" id="u_berkas" multiple accept=".pdf,.jpg,.jpeg,.png">
       <button class="b" id="b_unggah">Unggah</button><span class="msg" id="m_berkas" role="status"></span></div>
-      <p class="ket">PDF, JPG, PNG, atau DOCX.</p>` : '<span class="msg" id="m_berkas" role="status"></span>'}`}
+      <p class="ket">PDF, JPG, atau PNG (berkas Word/Excel disimpan sebagai PDF dulu).</p>` : '<span class="msg" id="m_berkas" role="status"></span>'}`}
     ${adaSelesai && (bukaSelesai || p.tahap === 'selesai') ? `<h2>Pelaporan selesai KP</h2>${bukaSelesai ? `<form class="kotak" id="frmSelesai" novalidate>${htmlSelesai(ds)}
         <p><button type="submit" class="b" id="b_simpanS">Simpan laporan</button><span class="msg" id="m_simpanS" role="status"></span></p>
         <p><button type="button" class="b utama" id="b_kirimS">Kirim laporan selesai</button><span class="msg" id="m_kirimS" role="status"></span></p></form>`
@@ -642,9 +642,9 @@ function htmlYudisium(p, ubah, bisaBuang){
       <span class="tanda-yud">${b.berkas.length ? '✓ ada' : b.wajib ? 'belum' : 'opsional'}</span> ${esc(b.label)}
       ${b.keterangan ? `<div class="meta">${esc(b.keterangan)}</div>` : ''}${b.berkas.map(berkas).join('')}</div></li>`).join('')}</ul>
     ${ubah ? `<div class="unggah">${pilihan('u_jenis')}
-      <input type="file" id="u_berkas" multiple accept=".pdf,.jpg,.jpeg,.png,.docx">
+      <input type="file" id="u_berkas" multiple accept=".pdf,.jpg,.jpeg,.png">
       <button class="b" id="b_unggah">Unggah</button><span class="msg" id="m_berkas" role="status"></span></div>
-      <p class="ket">PDF, JPG, PNG, atau DOCX.</p>
+      <p class="ket">PDF, JPG, atau PNG (berkas Word/Excel disimpan sebagai PDF dulu).</p>
       <details class="tautan-yud"><summary>Berkas terlalu besar untuk diunggah? Tempel tautan Google Drive</summary>
         <div class="unggah">${pilihan('t_jenis')}
           <input id="t_url" type="url" maxlength="500" placeholder="https://drive.google.com/…" aria-label="Tautan Google Drive">
