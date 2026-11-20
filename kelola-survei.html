@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-20-85f5d3">
-<link rel="stylesheet" href="kepala.css?v=2026-11-20-85f5d3">
+<link rel="stylesheet" href="tema.css?v=2026-11-20-86a52b">
+<link rel="stylesheet" href="kepala.css?v=2026-11-20-86a52b">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
@@ -19,6 +19,7 @@
   /* Survei kepuasan (pemilik 2026-11-11) */
   .kartu{background:var(--panel);border:1px solid var(--line);padding:14px 18px;margin-bottom:16px}
   .kartu h2{font-size:17px;margin:0 0 8px;color:var(--biru)}
+  .gulir{overflow-x:auto}
   table.ds{width:100%;border-collapse:collapse;font-size:13.5px}
   table.ds th{text-align:left;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--line);padding:5px 8px}
   table.ds td{padding:7px 8px;border-bottom:1px solid var(--line-soft);vertical-align:top}
@@ -50,7 +51,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-20-85f5d3"></script>
+<script src="config.js?v=2026-11-20-86a52b"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -70,12 +71,12 @@ addEventListener('error', function (e) {
 // membagikan tautan survei.html?t=<token>, menutup, dan membaca hasil.
 // Pertanyaan dikunci setelah ada responden supaya rekap tetap sah.
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-20-85f5d3';
-import { bolehMutu } from './koordinator.js?v=2026-11-20-85f5d3';
+import { gerbang } from './menu.js?v=2026-11-20-86a52b';
+import { bolehMutu } from './koordinator.js?v=2026-11-20-86a52b';
 import { KELOMPOK_SURVEI, labelKelompok, templatSurvei, cekPertanyaan, hitungDariJawaban, rekapSurvei,
   komentarSurvei, keTabel62, csvJawaban, htmlRekap, CSS_SURVEI, JENIS_PERTANYAAN, IDENTITAS, teksOpsi, bacaOpsi,
   teksSyarat, bacaSyarat, ringkasLain, htmlLain, aspekTindakLanjut, temuanDariAspek, kodeTemuanSurvei,
-  masukanKurikulum, csvKurikulum, identitasBawaan, keTabelTracer, undanganPengguna, butirSurvei, BAGIAN, labelBagian } from './survei-kepuasan.js?v=2026-11-20-85f5d3';
+  masukanKurikulum, csvKurikulum, identitasBawaan, keTabelTracer, undanganPengguna, butirSurvei, BAGIAN, labelBagian, ringkasJawaban } from './survei-kepuasan.js?v=2026-11-20-86a52b';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
@@ -118,17 +119,25 @@ async function muat(){
   (Array.isArray(j) ? j : []).forEach(r => { if (!JAWAB.has(r.survei_id)) JAWAB.set(r.survei_id, []); JAWAB.get(r.survei_id).push(r); });
 }
 
+// Rekap terbit (130, pemilik 2026-11-20): publik hanya melihat salinan rekap yang diterbitkan admin.
+const ADA130 = () => SURVEI.some(s => 'rekap_terbit' in s);
+const nTerbit = s => (s.rekap_terbit ? +s.rekap_terbit.n || 0 : null);
+const terbitInfo = (s, n) => !ADA130() ? '' : s.rekap_terbit
+  ? ` · terbit ${tgl(String(s.terbit_pada || '').slice(0, 10))} (${nTerbit(s)} resp.)${n !== nTerbit(s) ? ` · <b>${n - nTerbit(s) > 0 ? `${n - nTerbit(s)} baru` : 'berubah'}, belum terbit</b>` : ''}`
+  : ' · <b>belum diterbitkan</b>';
+
 function gambar(){
   $('isi').innerHTML = `<p class="ket">Kuesioner per kelompok pemangku. Templat bawaan (2026-11-13) menjawab butir 2–3 (VMTS), 5
       (kepemimpinan), 7 (mitra), 12–13 (kurikulum dan kebutuhan pengguna), 16 (pembelajaran), 21 (suasana akademik), 38–39
       (sarana, K3L), 48–51 (tracer, pertanyaan inti DIKTI), 52 (pengguna lulusan, Tabel 6.g.2), dan 57 (kepuasan seluruh
       pemangku). Semua teks bisa dwibahasa untuk responden asing. Buat survei, bagikan tautannya, lalu baca hasilnya di sini. Rekap angka tampil publik di
-      <a href="hasil-survei.html">Hasil survei kepuasan</a> (bila "publik" dicentang); isian saran hanya terlihat admin.</p>
+      <a href="hasil-survei.html">Hasil survei kepuasan</a> hanya setelah <b>diterbitkan</b> admin (dan "publik" dicentang): periksa jawaban,
+      hapus isian uji coba atau iseng, lalu klik "Terbitkan rekap" di Hasil. Jawaban baru tidak tampil sampai diterbitkan ulang. Isian saran hanya terlihat admin.</p>
     <div class="kartu" id="form-survei"></div>
     <div class="kartu"><h2>Daftar survei</h2>${SURVEI.length ? `<div class="gulir"><table class="ds"><thead><tr><th>Survei</th><th>Kelompok</th>
       <th>Periode</th><th>Status</th><th>Responden</th><th></th></tr></thead><tbody>${SURVEI.map(s => {
         const [st, w] = status(s), n = (JAWAB.get(s.id) || []).length;
-        return `<tr><td><b>${esc(s.judul)}</b><br><small class="ket">TS ${s.tahun_ts - 1}/${s.tahun_ts}${s.publik ? ' · publik' : ' · tidak publik'}</small></td>
+        return `<tr><td><b>${esc(s.judul)}</b><br><small class="ket">TS ${s.tahun_ts - 1}/${s.tahun_ts}${s.publik ? ' · publik' : ' · tidak publik'}${terbitInfo(s, n)}</small></td>
           <td>${esc(labelKelompok(s.kelompok))}</td><td>${tgl(s.mulai)} – ${tgl(s.selesai)}</td>
           <td><span class="st" style="color:${w}">${st}</span></td><td>${n}</td>
           <td><button class="b" data-salin="${s.id}">Salin tautan</button>${adaEn(s) ? `<button class="b" data-salin-en="${s.id}" title="Formulir langsung dalam bahasa Inggris">Salin tautan EN</button>` : ''}<a class="b" href="${esc(urlSurvei(s.token))}" target="_blank" rel="noopener">Buka</a>
@@ -292,7 +301,14 @@ function gambarHasil(s){
   const kom = komentarSurvei(s.pertanyaan, rows);
   const rk = rekapSurvei(s.pertanyaan, hitung);
   const tl = rows.length ? aspekTindakLanjut(rk, s) : [];
-  box.innerHTML = `${htmlRekap(rk, rows.length)}${htmlLain(s.pertanyaan, ringkasLain(s.pertanyaan, rows), rows.length)}
+  const terbit = !ADA130() ? '<div class="kartu" style="margin:10px 0"><p class="ket">Rekap publik masih langsung dari semua jawaban: jalankan supabase/130-patch-survei-terbit.sql agar rekap diterbitkan admin.</p></div>'
+    : `<div class="kartu" style="margin:10px 0"><h2 style="font-size:15px">Rekap publik</h2>
+      <p class="ket">${s.rekap_terbit ? `Diterbitkan ${tgl(String(s.terbit_pada || '').slice(0, 10))}${s.terbit_oleh ? ` oleh ${esc(s.terbit_oleh)}` : ''} dengan
+        ${nTerbit(s)} responden${rows.length !== nTerbit(s) ? `; sekarang ${rows.length} responden, <b>belum terbit</b>` : ''}.` : '<b>Belum diterbitkan</b>; halaman publik belum memuat survei ini.'}
+        ${s.publik ? '' : ' Survei ini tidak publik: rekap terbit tidak tampil sampai "Rekap publik" dicentang (Ubah).'}</p>
+      <p><button class="b" id="h_terbit"${rows.length ? '' : ' disabled'}>${s.rekap_terbit ? 'Terbitkan ulang' : 'Terbitkan rekap'} (${rows.length} responden)</button>
+        ${s.rekap_terbit ? '<button class="b bahaya" id="h_tarik">Tarik dari publik</button>' : ''} <span class="msg" id="h_terbit_msg"></span></p></div>`;
+  box.innerHTML = `${terbit}${htmlRekap(rk, rows.length)}${htmlLain(s.pertanyaan, ringkasLain(s.pertanyaan, rows), rows.length)}
     <div class="kartu" style="margin:10px 0"><h2 style="font-size:15px">Tindak lanjut PPEPP</h2>
       <p class="ket">Aspek dengan % puas di bawah ${f2(s.ambang_puas ?? 75)} atau rerata di bawah ${f2(s.ambang_rerata ?? 3)}. "Jadikan tindak lanjut"
         membuat baris di Data prodi › Temuan AMI (peluang peningkatan) yang kemudian diberi PJ, tenggat, dan bukti, serta masuk Monitoring dan Pengingat.</p>
@@ -306,7 +322,22 @@ function gambarHasil(s){
     <p><button class="b" id="h_csv"${rows.length ? '' : ' disabled'}>Unduh CSV jawaban</button>
       ${s.kelompok === 'alumni' ? `<button class="b" id="h_tracer"${rows.length ? '' : ' disabled'}>Salin ke Tabel tracer</button>` : ''}
       ${s.kelompok === 'pengguna' ? `<button class="b" id="h_62"${rows.length ? '' : ' disabled'}>Salin ke Tabel 6.g.2 (TA ${s.tahun_ts - 1}/${s.tahun_ts})</button>` : ''}
-      <span class="msg" id="h_msg"></span></p>`;
+      <span class="msg" id="h_msg"></span></p>
+    ${htmlJawabanResponden(s, rows)}`;
+  pasangHapusJawaban(s, rows);
+  if ($('h_terbit')) $('h_terbit').onclick = async () => {
+    if (!confirm(`Terbitkan rekap "${s.judul}" (${rows.length} responden) ke halaman publik? Sudah memeriksa dan menghapus isian uji coba atau iseng?`)) return;
+    const { data, error } = await sb.rpc('survei_terbitkan', { p_id: s.id });
+    if (error) { $('h_terbit_msg').className = 'msg buruk'; $('h_terbit_msg').textContent = 'Gagal: ' + error.message; return; }
+    await muat(); gambar();
+    const m = $('h_terbit_msg'); if (m) { m.className = 'msg ok'; m.textContent = `Diterbitkan: ${data} responden.`; }
+  };
+  if ($('h_tarik')) $('h_tarik').onclick = async () => {
+    if (!confirm(`Tarik rekap "${s.judul}" dari halaman publik? Jawaban tidak terhapus.`)) return;
+    const { error } = await sb.rpc('survei_tarik_terbit', { p_id: s.id });
+    if (error) { $('h_terbit_msg').className = 'msg buruk'; $('h_terbit_msg').textContent = 'Gagal: ' + error.message; return; }
+    await muat(); gambar();
+  };
   $('h_csv').onclick = () => {
     const a = document.createElement('a');
     a.href = URL.createObjectURL(new Blob([csvJawaban(s.pertanyaan, rows)], { type: 'text/csv;charset=utf-8' }));
@@ -384,6 +415,50 @@ function gambarHasil(s){
     m.className = error ? 'msg buruk' : 'msg ok';
     m.textContent = error ? 'Gagal: ' + error.message : `${baris.length} aspek tersalin. Rencana tindak lanjut dan bukti diisi di Data prodi › Kepuasan pengguna.`;
   };
+}
+
+// Hapus jawaban survei (pemilik 2026-11-20): isian uji coba atau iseng. Hak hapus dari basis data (survei_jawaban: admin, GKM).
+// Jawaban yang dihapus hilang dari rekap; masih ada di cadangan harian (config.yaml) sampai cadangan berikutnya.
+function htmlJawabanResponden(s, rows){
+  if (!rows.length) return '';
+  const idn = rows.some(r => r.nama || r.nim || r.email);
+  const waktu = t => String(t || '').slice(0, 16).replace('T', ' ');
+  return `<details class="kartu" style="margin:10px 0" id="h_resp"><summary><b>Jawaban per responden</b> (${rows.length}) <span class="ket">— periksa dan hapus isian uji coba atau iseng</span></summary>
+    <p class="ket">Baris bertanda <b>seragam</b> memberi nilai skala yang sama untuk semua pertanyaan; belum tentu iseng, periksa isiannya.
+      Penghapusan tidak bisa dibatalkan dari halaman ini (masih ada di cadangan harian).</p>
+    <div class="gulir"><table class="ds"><thead><tr><th><input type="checkbox" id="h_semua" title="Centang semua"></th><th>#</th><th>Diisi</th>
+      ${idn ? '<th>Identitas</th>' : ''}<th>Skala</th><th>Isian lain</th></tr></thead><tbody>
+      ${rows.map((r, i) => { const g = ringkasJawaban(s.pertanyaan, r.jawaban);
+        return `<tr><td><input type="checkbox" data-jid="${r.id}"></td><td>${i + 1}</td><td style="white-space:nowrap">${esc(waktu(r.diisi))}</td>
+          ${idn ? `<td>${esc([r.nama, r.nim, r.email].filter(Boolean).join(' · '))}</td>` : ''}
+          <td style="font-family:var(--mono);font-size:12px">${esc(g.skala)}${g.seragam ? ' <span class="ket"><b>seragam</b></span>' : ''}</td>
+          <td style="font-size:12.5px">${esc(g.lain)}</td></tr>`; }).join('')}
+      </tbody></table></div>
+    <p><button class="b bahaya" id="h_hapus_pilih" disabled>Hapus yang dicentang</button>
+      <button class="b bahaya" id="h_hapus_semua">Hapus semua ${rows.length} jawaban</button> <span class="msg" id="h_hapus_msg"></span></p></details>`;
+}
+function pasangHapusJawaban(s, rows){
+  if (!$('h_resp')) return;
+  const cek = () => [...document.querySelectorAll('[data-jid]:checked')].map(c => +c.dataset.jid);
+  const segar = () => { const n = cek().length; $('h_hapus_pilih').disabled = !n; $('h_hapus_pilih').textContent = n ? `Hapus ${n} yang dicentang` : 'Hapus yang dicentang'; };
+  document.querySelectorAll('[data-jid]').forEach(c => { c.onchange = segar; });
+  $('h_semua').onchange = e => { document.querySelectorAll('[data-jid]').forEach(c => { c.checked = e.target.checked; }); segar(); };
+  const hapus = async (ids, tanya) => {
+    if (!ids.length || !confirm(tanya)) return;
+    const m = $('h_hapus_msg'); m.className = 'msg'; m.textContent = 'Menghapus…';
+    for (let a = 0; a < ids.length; a += 200) {
+      const { error } = await sb.from('survei_jawaban').delete().eq('survei_id', s.id).in('id', ids.slice(a, a + 200));
+      if (error) { m.className = 'msg buruk'; m.textContent = `Gagal: ${error.message}`; await muat(); gambar(); return; }
+    }
+    await muat(); gambar();
+    const b = $('h_resp'); if (b) b.open = true;
+    const m2 = $('h_hapus_msg'); if (m2) { m2.className = 'msg ok'; m2.textContent = `${ids.length} jawaban dihapus; rekap sudah diperbarui.`; }
+    else { const h = $('h_msg'); if (h) { h.className = 'msg ok'; h.textContent = `${ids.length} jawaban dihapus; survei ini kini tanpa responden.`; } }
+  };
+  $('h_hapus_pilih').onclick = () => { const ids = cek();
+    hapus(ids, `Hapus ${ids.length} jawaban dari survei "${s.judul}"? Rekap, komentar, dan salinan ke tabel LKPS berikutnya tidak lagi memuatnya.`); };
+  $('h_hapus_semua').onclick = () => hapus(rows.map(r => r.id),
+    `Hapus SEMUA ${rows.length} jawaban survei "${s.judul}" (mis. hasil uji coba)? Survei dan pertanyaannya tetap; tautan tetap bisa diisi lagi.`);
 }
 
 function pasang(){

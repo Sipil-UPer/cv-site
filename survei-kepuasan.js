@@ -5,7 +5,7 @@
 // disunting admin per survei; pengguna lulusan memakai 7 aspek resmi 6.g.2.
 // 2026-11-13 (pemilik): templat per kelompok menjawab butir LAM (bagian + butir per pertanyaan),
 // tracer memuat pertanyaan inti DIKTI, dan semua teks bisa dwibahasa (72-patch-survei-dwibahasa.sql).
-import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-20-85f5d3';
+import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-20-86a52b';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -490,6 +490,20 @@ export function csvJawaban(pertanyaan, rows){
     ...(rows || []).map(r => [String(r.diisi || '').slice(0, 16).replace('T', ' '), ...(idn ? [r.nama, r.nim, r.email] : []),
       ...kol.map(x => nilai(r.jawaban?.[x.id]))].map(q).join(';'))
   ].join('\r\n');
+}
+
+/**
+ * Ringkasan satu responden untuk daftar hapus jawaban (pemilik 2026-11-20: uji coba dan isian iseng).
+ * { skala: '4 4 3 …' (urut pertanyaan; '-' = tidak dijawab), seragam: semua skala sama (>= 3 butir), lain: 'pilihan/angka/teks' dipotong }.
+ */
+export function ringkasJawaban(pertanyaan, j = {}, panjang = 160){
+  const qs = pertanyaan || [];
+  const sk = qs.filter(q => q.jenis === 'skala').map(q => j?.[q.id]);
+  const isi = sk.filter(v => v != null && v !== '');
+  const lain = qs.filter(q => q.jenis !== 'skala').map(q => j?.[q.id]).filter(v => v != null && v !== '' && !(Array.isArray(v) && !v.length))
+    .map(v => Array.isArray(v) ? v.join('/') : String(v)).join(' · ');
+  return { skala: sk.map(v => (v == null || v === '' ? '-' : String(v))).join(' '), seragam: isi.length >= 3 && new Set(isi.map(String)).size === 1,
+           lain: lain.length > panjang ? lain.slice(0, panjang - 1) + '…' : lain };
 }
 
 const f2 = x => x == null ? '—' : (+x).toFixed(2).replace('.', ',');

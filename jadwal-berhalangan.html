@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Jadwal berhalangan — Ruang kerja</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tema.css?v=2026-11-20-86a52b">
+<link rel="stylesheet" href="kepala.css?v=2026-11-20-86a52b">
+<style>
+  /* Jadwal berhalangan dosen (132-patch-jadwal-berhalangan.sql, pemilik 2026-11-20) */
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
+  .wrap{max-width:1400px;margin:0 auto;padding:18px 20px 80px}
+  .kosong, .ket{color:var(--muted)}
+  .ket{font-size:13px}
+  .kartu{background:var(--panel);border:1px solid var(--line);padding:14px 18px;margin-bottom:16px}
+  .kartu h2{font-size:17px;margin:0 0 6px;color:var(--biru)}
+  .kartu h3{font-size:14.5px;margin:14px 0 6px}
+  .alat{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:8px 0}
+  select, input[type=text], input[type=date], input[type=time], input[type=search]{font:inherit;font-size:14px;padding:4px 6px;border:1px solid var(--line);background:var(--panel);color:var(--ink)}
+  .b{font:inherit;font-size:14px;padding:5px 12px;border:1px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer}
+  .b.utama{background:var(--biru);border-color:var(--biru);color:#fff}
+  .b.bahaya{color:var(--merah);border-color:var(--merah)}
+  .gulir{overflow-x:auto}
+  table.ds{border-collapse:collapse;font-size:13.5px;width:100%}
+  table.ds th{text-align:left;font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--line);padding:5px 6px;vertical-align:bottom}
+  table.ds td{padding:5px 6px;border-bottom:1px solid var(--line-soft);vertical-align:top}
+  table.kisi{border-collapse:collapse;font-size:13px;min-width:100%}
+  table.kisi th, table.kisi td{border:1px solid var(--line);padding:4px 6px;text-align:center;vertical-align:middle}
+  table.kisi th{background:var(--kertas, transparent);font-weight:600}
+  table.kisi th.slot{text-align:left;white-space:nowrap}
+  table.kisi td.sel{min-width:96px;height:38px}
+  table.kisi button.sel{width:100%;min-height:34px;font:inherit;font-size:12px;border:0;background:transparent;color:var(--ink);cursor:pointer}
+  table.kisi td.halang, table.kisi td.halang button{background:rgba(200,60,50,.16)}
+  table.kisi td.bisa{background:rgba(40,140,80,.14)}
+  table.kisi td.sebagian{background:rgba(200,140,0,.14)}
+  .nama{display:block;font-size:11.5px;line-height:1.3;text-align:left}
+  .tab{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 12px}
+  .tab button{font:inherit;font-size:14px;padding:6px 12px;border:1px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer}
+  .tab button[aria-pressed=true]{border-color:var(--ink);box-shadow:inset 0 -3px 0 var(--merah)}
+  .pilih-dosen{max-height:260px;overflow:auto;border:1px solid var(--line);padding:6px 8px;columns:2 260px}
+  .pilih-dosen label{display:block;font-size:13.5px;break-inside:avoid}
+  .pesan{font-size:13.5px;margin:6px 0}
+  .pesan.galat{color:var(--merah)} .pesan.ok{color:var(--hijau)}
+  @media(max-width:700px){.wrap{padding-left:16px;padding-right:16px}}
+</style>
+</head>
+<body>
+<header class="hero"><div class="hero-in">
+  <div class="hero-inst" data-identitas></div>
+  <h1>Jadwal berhalangan</h1>
+  <div class="sub" id="hSub">Memuat…</div>
+</div></header>
+<main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
+<script src="config.js?v=2026-11-20-86a52b"></script>
+<script>
+// Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
+addEventListener('error', function (e) {
+  if (document.getElementById('galat-muat')) return;
+  var d = document.createElement('div');
+  d.id = 'galat-muat';
+  d.style.cssText = 'margin:16px;padding:12px 14px;border:1px solid var(--merah);' +
+    'background:var(--merah-m3);color:var(--ink);font:14px/1.5 system-ui,sans-serif';
+  d.textContent = 'Halaman gagal dimuat: ' + (e.message || 'galat skrip') +
+    '. Tekan Ctrl+Shift+R untuk memuat ulang tanpa cache; bila tetap muncul, kirim pesan ini ke admin.';
+  document.body.insertBefore(d, document.body.firstChild);
+});
+</script>
+<script type="module">
+// Jadwal berhalangan dosen (132-patch-jadwal-berhalangan.sql, pemilik 2026-11-20): dosen mengisi slot jam kuliah yang tidak
+// bisa (mingguan per semester dan tanggal tertentu, termasuk jadwal di luar prodi); pengatur jadwal (admin, Kaprodi,
+// koordinator TA/KP) melihat semua dan mencari slot kosong; dosen lain hanya jumlah per slot. Logika: jadwal-berhalangan.js.
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
+import { gerbang } from './menu.js?v=2026-11-20-86a52b';
+import { punya } from './koordinator.js?v=2026-11-20-86a52b';
+import { semesterKini } from './evaluasi-pembelajaran.js?v=2026-11-20-86a52b';
+import { HARI, namaHari, JENIS_HALANGAN, namaJenis, labelSlot, cekSlot, perSel, cariSlotKosong, hariISO } from './jadwal-berhalangan.js?v=2026-11-20-86a52b';
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const sb = createClient(window.SB_URL, window.SB_KEY);
+const baca = q => q.then(r => r.error ? [] : (r.data || []), () => []);
+const iso = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+const tgl = s => String(s || '').split('-').reverse().join('/');
+let SAYA = null, SLOT = [], HARI_AKTIF = [], DOSEN = [], MILIK = [], MILIK_TGL = [], SEMUA = [], SEMUA_TGL = [], REKAP = null, ADA = true;
+let PERIODE = null, TAB = 'saya', PILIH_DOSEN = new Set(), TGL_CARI = '', CARI = '';
+const ADMIN = () => SAYA?.peran === 'admin';
+const PENGATUR = () => ADMIN() || ['kaprodi', 'koordinator_ta', 'koordinator_kp'].some(j => punya(SAYA, j));
+const namaDosen = id => { const d = DOSEN.find(x => x.id === id); return d ? (d.nama_gelar || d.nama) : '?'; };
+
+function periodeDaftar(){
+  const k = semesterKini(), [a] = k.ta.split('/').map(Number);
+  const lanjut = k.sm === 'Ganjil' ? { ta: k.ta, sm: 'Genap' } : { ta: `${a + 1}/${a + 2}`, sm: 'Ganjil' };
+  return [k, lanjut];
+}
+
+async function muat(){
+  const s = await sb.from('jadwal_slot').select('*').order('urutan').order('mulai');
+  ADA = !s.error;
+  if (!ADA) return;
+  SLOT = (s.data || []);
+  HARI_AKTIF = (await baca(sb.from('jadwal_hari').select('hari'))).map(h => h.hari).sort((a, b) => a - b);
+  DOSEN = (await baca(sb.from('dosen').select('id,nama,nama_gelar,aktif,peran').order('nama'))).filter(d => d.aktif !== false && d.peran !== 'asesor');
+  const p = PERIODE, dari = iso(new Date(Date.now() - 7 * 864e5));
+  MILIK = await baca(sb.from('dosen_berhalangan').select('*').eq('dosen_id', SAYA.id).eq('tahun_akademik', p.ta).eq('semester', p.sm));
+  MILIK_TGL = await baca(sb.from('dosen_berhalangan_tgl').select('*').eq('dosen_id', SAYA.id).gte('tanggal', dari).order('tanggal'));
+  if (PENGATUR()) {
+    SEMUA = await baca(sb.from('dosen_berhalangan').select('*').eq('tahun_akademik', p.ta).eq('semester', p.sm));
+    SEMUA_TGL = await baca(sb.from('dosen_berhalangan_tgl').select('*').gte('tanggal', dari).order('tanggal'));
+  } else {
+    const { data } = await sb.rpc('jadwal_berhalangan_rekap', { p_ta: p.ta, p_semester: p.sm, p_dari: null, p_sampai: null });
+    REKAP = data || { mingguan: [] };
+  }
+}
+
+const slotAktif = () => SLOT.filter(s => s.aktif !== false);
+function kisi(isiSel, hs = HARI_AKTIF){
+  const ss = slotAktif();
+  if (!hs.length || !ss.length) return `<p class="kosong">Slot jam kuliah dan hari belum diatur${ADMIN() ? ' (tab Atur slot dan hari).' : '; hubungi admin prodi.'}</p>`;
+  return `<div class="gulir"><table class="kisi"><thead><tr><th class="slot">Slot</th>${hs.map(h => `<th>${namaHari(h)}</th>`).join('')}</tr></thead><tbody>
+    ${ss.map(s => `<tr><th class="slot">${esc(labelSlot(s))}</th>${hs.map(h => isiSel(h, s)).join('')}</tr>`).join('')}</tbody></table></div>`;
+}
+
+function gambar(){
+  if (!ADA) { $('isi').innerHTML = '<div class="kartu"><p class="kosong">Tabel jadwal belum ada. Admin menjalankan supabase/132-patch-jadwal-berhalangan.sql di Supabase.</p></div>'; return; }
+  const tabs = [['saya', 'Jadwal saya'], ['rekap', PENGATUR() ? 'Rekap dan cari slot kosong' : 'Rekap prodi'], ...(ADMIN() ? [['atur', 'Atur slot dan hari']] : [])];
+  const per = periodeDaftar();
+  $('isi').innerHTML = `<div class="tab">${tabs.map(([k, l]) => `<button data-tab="${k}" aria-pressed="${TAB === k}">${l}</button>`).join('')}</div>
+    ${TAB !== 'atur' ? `<div class="alat"><label>Semester <select id="fPeriode">${per.map((p, i) => `<option value="${i}"${p.ta === PERIODE.ta && p.sm === PERIODE.sm ? ' selected' : ''}>${p.sm} ${p.ta}</option>`).join('')}</select></label></div>` : ''}
+    ${TAB === 'saya' ? gambarSaya() : TAB === 'rekap' ? gambarRekap() : gambarAtur()}`;
+  pasang();
+}
+
+function gambarSaya(){
+  const sel = perSel(MILIK);
+  return `<div class="kartu"><h2>Jadwal mingguan yang tidak bisa</h2>
+    <p class="ket">Klik sel untuk menandai atau membatalkan slot yang tidak bisa Anda pakai selama semester ini, termasuk jadwal di luar prodi
+      (mengajar prodi lain, tugas fakultas/universitas, kegiatan luar). Jenis dan alasan di bawah dipakai untuk sel yang Anda tandai berikutnya.
+      ${PENGATUR() ? '' : 'Nama dan alasan Anda hanya terlihat admin, Kaprodi, serta koordinator TA dan KP.'}</p>
+    <div class="alat"><label>Jenis <select id="fJenis">${JENIS_HALANGAN.map(([k, l]) => `<option value="${k}">${l}</option>`).join('')}</select></label>
+      <label>Alasan (opsional) <input type="text" id="fAlasan" maxlength="200" placeholder="mis. Mengajar Teknik Lingkungan" style="min-width:260px"></label></div>
+    ${kisi((h, s) => { const r = (sel.get(`${h}|${s.id}`) || [])[0];
+      return `<td class="sel${r ? ' halang' : ''}"><button class="sel" data-h="${h}" data-s="${s.id}" title="${r ? esc(`${namaJenis(r.jenis)}${r.alasan ? ': ' + r.alasan : ''}`) : 'Bisa'}">${r ? `✕ ${esc(namaJenis(r.jenis).split(' ')[0])}` : ''}</button></td>`; })}
+    <p class="pesan" id="mSaya"></p>
+    <p class="ket">${MILIK.length} slot ditandai untuk ${PERIODE.sm} ${PERIODE.ta}.</p></div>
+  <div class="kartu"><h2>Tanggal tertentu</h2>
+    <p class="ket">Untuk halangan sekali waktu (dinas luar, konferensi, cuti). Tanggal lampau lebih dari seminggu tidak ditampilkan.</p>
+    <div class="alat"><input type="date" id="tTanggal" min="${iso(new Date())}">
+      <select id="tSlot"><option value="">Sepanjang hari</option>${slotAktif().map(s => `<option value="${s.id}">${esc(labelSlot(s))}</option>`).join('')}</select>
+      <select id="tJenis">${JENIS_HALANGAN.map(([k, l]) => `<option value="${k}">${l}</option>`).join('')}</select>
+      <input type="text" id="tAlasan" maxlength="200" placeholder="Alasan (opsional)">
+      <button class="b utama" id="tTambah">Tambah</button></div><p class="pesan" id="mTgl"></p>
+    ${MILIK_TGL.length ? `<table class="ds"><thead><tr><th>Tanggal</th><th>Slot</th><th>Jenis</th><th>Alasan</th><th></th></tr></thead><tbody>
+      ${MILIK_TGL.map(t => `<tr><td>${namaHari(new Date(t.tanggal + 'T00:00:00').getDay() || 7)}, ${tgl(t.tanggal)}</td><td>${esc(labelSlot(SLOT.find(s => s.id === t.slot_id)))}</td>
+        <td>${esc(namaJenis(t.jenis))}</td><td>${esc(t.alasan || '')}</td><td><button class="b bahaya" data-hapus-tgl="${t.id}">Hapus</button></td></tr>`).join('')}</tbody></table>`
+      : '<p class="kosong">Belum ada.</p>'}</div>`;
+}
+
+function gambarRekap(){
+  if (!PENGATUR()) {
+    const m = new Map((REKAP?.mingguan || []).map(r => [`${r.hari}|${r.slot_id}`, r.n]));
+    return `<div class="kartu"><h2>Jumlah dosen berhalangan per slot</h2>
+      <p class="ket">Tanpa nama. Rincian nama hanya untuk admin, Kaprodi, serta koordinator TA dan KP.</p>
+      ${kisi((h, s) => { const n = m.get(`${h}|${s.id}`) || 0; return `<td class="sel${n ? ' sebagian' : ''}">${n ? `${n} dosen` : ''}</td>`; })}</div>`;
+  }
+  const sel = perSel(SEMUA);
+  const cari = PILIH_DOSEN.size ? cariSlotKosong({ slot: slotAktif(), hari: HARI_AKTIF, mingguan: SEMUA, tanggalan: SEMUA_TGL, dosen: [...PILIH_DOSEN], tanggal: TGL_CARI || null }) : null;
+  const daftar = DOSEN.filter(d => !CARI || (d.nama_gelar || d.nama).toLowerCase().includes(CARI.toLowerCase()));
+  const nTgl = SEMUA_TGL.length;
+  return `<div class="kartu"><h2>Cari slot kosong</h2>
+      <p class="ket">Pilih dosen yang harus hadir (mis. pembimbing dan penguji sidang). Sel hijau = semua yang dipilih bisa; merah = ada yang berhalangan.
+        Isi tanggal untuk ikut memperhitungkan halangan tanggal itu.</p>
+      <div class="alat"><input type="search" id="cDosen" placeholder="Saring nama dosen" value="${esc(CARI)}">
+        <label>Tanggal (opsional) <input type="date" id="cTanggal" value="${esc(TGL_CARI)}"></label>
+        <button class="b" id="cBersih">Kosongkan pilihan</button> <span class="ket">${PILIH_DOSEN.size} dosen dipilih</span></div>
+      <div class="pilih-dosen">${daftar.map(d => `<label><input type="checkbox" data-dosen="${d.id}"${PILIH_DOSEN.has(d.id) ? ' checked' : ''}> ${esc(d.nama_gelar || d.nama)}</label>`).join('') || '<span class="kosong">Tidak ada.</span>'}</div>
+      ${cari ? (cari.size ? kisi((h, s) => { const k = `${h}|${s.id}`; if (!cari.has(k)) return '<td></td>'; const xs = cari.get(k);
+          return `<td class="sel ${xs.length ? 'halang' : 'bisa'}">${xs.length ? xs.map(x => `<span class="nama" title="${esc(`${namaJenis(x.jenis)}${x.alasan ? ': ' + x.alasan : ''}`)}">${esc(namaDosen(x.dosen_id))}${x.sumber === 'tanggal' ? ' (tgl)' : ''}</span>`).join('') : 'Semua bisa'}</td>`; }, TGL_CARI ? [hariISO(TGL_CARI)] : HARI_AKTIF)
+        : '<p class="kosong">Tanggal itu bukan hari kuliah yang diatur.</p>') : ''}</div>
+    <div class="kartu"><h2>Semua dosen berhalangan, ${esc(PERIODE.sm)} ${esc(PERIODE.ta)}</h2>
+      <p class="ket">${new Set(SEMUA.map(r => r.dosen_id)).size} dari ${DOSEN.length} dosen sudah mengisi. Arahkan kursor ke nama untuk jenis dan alasan.</p>
+      ${kisi((h, s) => { const xs = sel.get(`${h}|${s.id}`) || [];
+        return `<td class="sel${xs.length ? ' sebagian' : ''}">${xs.map(x => `<span class="nama" title="${esc(`${namaJenis(x.jenis)}${x.alasan ? ': ' + x.alasan : ''}`)}">${esc(namaDosen(x.dosen_id))}</span>`).join('')}</td>`; })}
+      <h3>Halangan tanggal tertentu (${nTgl})</h3>
+      ${nTgl ? `<table class="ds"><thead><tr><th>Tanggal</th><th>Dosen</th><th>Slot</th><th>Jenis</th><th>Alasan</th></tr></thead><tbody>
+        ${SEMUA_TGL.map(t => `<tr><td>${tgl(t.tanggal)}</td><td>${esc(namaDosen(t.dosen_id))}</td><td>${esc(labelSlot(SLOT.find(s => s.id === t.slot_id)))}</td>
+          <td>${esc(namaJenis(t.jenis))}</td><td>${esc(t.alasan || '')}</td></tr>`).join('')}</tbody></table>` : '<p class="kosong">Belum ada.</p>'}</div>`;
+}
+
+let DRAF_SLOT = null;
+function gambarAtur(){
+  if (!DRAF_SLOT) DRAF_SLOT = SLOT.map(s => ({ ...s, mulai: String(s.mulai).slice(0, 5), selesai: String(s.selesai).slice(0, 5) }));
+  return `<div class="kartu"><h2>Slot jam kuliah</h2>
+    <p class="ket">Sesuaikan dengan jam kuliah universitas. Menghapus slot juga menghapus isian dosen pada slot itu; nonaktifkan saja bila ragu.</p>
+    <table class="ds"><thead><tr><th>Urutan</th><th>Label</th><th>Mulai</th><th>Selesai</th><th>Aktif</th><th></th></tr></thead><tbody>
+      ${DRAF_SLOT.map((s, i) => `<tr><td>${i + 1}</td><td><input type="text" data-sl="${i}" data-k="label" value="${esc(s.label)}" maxlength="40" placeholder="Jam ${i + 1}"></td>
+        <td><input type="time" data-sl="${i}" data-k="mulai" value="${esc(s.mulai)}"></td><td><input type="time" data-sl="${i}" data-k="selesai" value="${esc(s.selesai)}"></td>
+        <td><input type="checkbox" data-sl="${i}" data-k="aktif"${s.aktif !== false ? ' checked' : ''}></td>
+        <td><button class="b bahaya" data-hapus-slot="${i}">Hapus</button></td></tr>`).join('') || '<tr><td colspan="6" class="kosong">Belum ada slot.</td></tr>'}</tbody></table>
+    <div class="alat"><button class="b" id="aTambah">+ Slot</button></div>
+    <h3>Hari kuliah</h3>
+    <div class="alat">${HARI.map(([h, n]) => `<label><input type="checkbox" data-hari="${h}"${HARI_AKTIF.includes(h) ? ' checked' : ''}> ${n}</label>`).join('')}</div>
+    <div class="alat"><button class="b utama" id="aSimpan">Simpan slot dan hari</button><span class="pesan" id="mAtur"></span></div></div>`;
+}
+
+function tulis(id, kelas, t){ const m = $(id); if (m) { m.className = 'pesan ' + kelas; m.textContent = t; } }
+async function segar(){ await muat(); gambar(); }
+
+function pasang(){
+  document.querySelectorAll('[data-tab]').forEach(b => { b.onclick = () => { TAB = b.dataset.tab; gambar(); }; });
+  if ($('fPeriode')) $('fPeriode').onchange = async e => { PERIODE = periodeDaftar()[+e.target.value]; await segar(); };
+  // Jadwal saya: klik sel = tandai/batalkan.
+  document.querySelectorAll('button.sel[data-h]').forEach(b => { b.onclick = async () => {
+    const h = +b.dataset.h, s = +b.dataset.s, ada = MILIK.find(r => r.hari === h && r.slot_id === s);
+    b.disabled = true;
+    const { error } = ada ? await sb.from('dosen_berhalangan').delete().eq('id', ada.id)
+      : await sb.from('dosen_berhalangan').insert({ dosen_id: SAYA.id, tahun_akademik: PERIODE.ta, semester: PERIODE.sm, hari: h, slot_id: s,
+          jenis: $('fJenis').value, alasan: $('fAlasan').value.trim() || null });
+    if (error) { b.disabled = false; tulis('mSaya', 'galat', error.message); return; }
+    const jenis = $('fJenis').value, alasan = $('fAlasan').value;
+    await segar();
+    if ($('fJenis')) { $('fJenis').value = jenis; $('fAlasan').value = alasan; }
+  }; });
+  if ($('tTambah')) $('tTambah').onclick = async () => {
+    if (!$('tTanggal').value) return tulis('mTgl', 'galat', 'Pilih tanggal.');
+    const { error } = await sb.from('dosen_berhalangan_tgl').insert({ dosen_id: SAYA.id, tanggal: $('tTanggal').value, slot_id: $('tSlot').value ? +$('tSlot').value : null,
+      jenis: $('tJenis').value, alasan: $('tAlasan').value.trim() || null });
+    if (error) return tulis('mTgl', 'galat', /duplicate/i.test(error.message) ? 'Tanggal dan slot itu sudah ada.' : error.message);
+    await segar();
+  };
+  document.querySelectorAll('[data-hapus-tgl]').forEach(b => { b.onclick = async () => {
+    const { error } = await sb.from('dosen_berhalangan_tgl').delete().eq('id', +b.dataset.hapusTgl);
+    if (error) return tulis('mTgl', 'galat', error.message);
+    await segar();
+  }; });
+  // Rekap pengatur: cari slot kosong.
+  document.querySelectorAll('[data-dosen]').forEach(c => { c.onchange = () => { c.checked ? PILIH_DOSEN.add(c.dataset.dosen) : PILIH_DOSEN.delete(c.dataset.dosen); gambar(); }; });
+  if ($('cDosen')) $('cDosen').oninput = e => { CARI = e.target.value; const p = e.target.selectionStart; gambar(); $('cDosen').focus(); $('cDosen').setSelectionRange(p, p); };
+  if ($('cTanggal')) $('cTanggal').onchange = e => { TGL_CARI = e.target.value; gambar(); };
+  if ($('cBersih')) $('cBersih').onclick = () => { PILIH_DOSEN.clear(); gambar(); };
+  // Atur slot (admin).
+  document.querySelectorAll('[data-sl]').forEach(el => { el.onchange = () => { const s = DRAF_SLOT[+el.dataset.sl]; s[el.dataset.k] = el.type === 'checkbox' ? el.checked : el.value; }; });
+  document.querySelectorAll('[data-hapus-slot]').forEach(b => { b.onclick = () => { DRAF_SLOT.splice(+b.dataset.hapusSlot, 1); gambar(); }; });
+  if ($('aTambah')) $('aTambah').onclick = () => { DRAF_SLOT.push({ label: `Jam ${DRAF_SLOT.length + 1}`, mulai: '', selesai: '', aktif: true }); gambar(); };
+  if ($('aSimpan')) $('aSimpan').onclick = async () => {
+    const hari = [...document.querySelectorAll('[data-hari]:checked')].map(c => +c.dataset.hari);
+    const g = cekSlot(DRAF_SLOT);
+    if (!hari.length) g.push('Pilih minimal satu hari kuliah.');
+    if (g.length) return tulis('mAtur', 'galat', g.join(' '));
+    const dihapus = SLOT.filter(s => !DRAF_SLOT.some(d => d.id === s.id));
+    if (dihapus.length && !confirm(`Hapus ${dihapus.length} slot (${dihapus.map(s => s.label).join(', ')})? Isian dosen pada slot itu ikut terhapus.`)) return;
+    for (const s of dihapus) { const { error } = await sb.from('jadwal_slot').delete().eq('id', s.id); if (error) return tulis('mAtur', 'galat', error.message); }
+    for (const [i, s] of DRAF_SLOT.entries()) {
+      const isi = { urutan: i + 1, label: s.label.trim(), mulai: s.mulai, selesai: s.selesai, aktif: s.aktif !== false };
+      const { error } = s.id ? await sb.from('jadwal_slot').update(isi).eq('id', s.id) : await sb.from('jadwal_slot').insert(isi);
+      if (error) return tulis('mAtur', 'galat', error.message);
+    }
+    const hapusHari = HARI_AKTIF.filter(h => !hari.includes(h)), tambahHari = hari.filter(h => !HARI_AKTIF.includes(h));
+    if (hapusHari.length) { const { error } = await sb.from('jadwal_hari').delete().in('hari', hapusHari); if (error) return tulis('mAtur', 'galat', error.message); }
+    if (tambahHari.length) { const { error } = await sb.from('jadwal_hari').insert(tambahHari.map(h => ({ hari: h }))); if (error) return tulis('mAtur', 'galat', error.message); }
+    DRAF_SLOT = null; await segar(); tulis('mAtur', 'ok', 'Tersimpan.');
+  };
+}
+
+async function mulai(){
+  SAYA = await gerbang(sb);
+  if (!SAYA) return;
+  $('hSub').textContent = `Masuk sebagai ${SAYA.nama}`;
+  PERIODE = periodeDaftar()[0];
+  await muat();
+  gambar();
+}
+mulai().catch(e => { $('isi').innerHTML = `<p class="kosong">Gagal memuat: ${esc(e.message)}</p>`; });
+</script>
+</body>
+</html>

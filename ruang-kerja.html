@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-20-85f5d3">
+<link rel="stylesheet" href="tema.css?v=2026-11-20-86a52b">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
@@ -97,7 +97,7 @@
 
 <main class="wrap" id="isi"><p class="hint">Memuat&hellip;</p></main>
 
-<script src="config.js?v=2026-11-20-85f5d3"></script>
+<script src="config.js?v=2026-11-20-86a52b"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache) tampil sebagai pesan.
 addEventListener('error', function (e) {
@@ -113,14 +113,14 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { pengguna, pasangMenu, halamanBoleh, bolehBuka, identitas, pasangJudul, pintasanUntuk } from './menu.js?v=2026-11-20-85f5d3';
-import { hitungVerifikasi } from './verifikasi-hitung.js?v=2026-11-20-85f5d3';
-import { rubrikRps } from './rps.js?v=2026-11-20-85f5d3';
-import { bacaTinjauan } from './tinjauan-rps.js?v=2026-11-20-85f5d3';
-import { isoDari } from './pengingat-rps.js?v=2026-11-20-85f5d3';
-import { tugasSaya } from './tugas-saya.js?v=2026-11-20-85f5d3';
-import { fiturAktif, halamanAktif } from './fitur.js?v=2026-11-20-85f5d3';
-import { barisDosen } from './target-kinerja.js?v=2026-11-20-85f5d3';
+import { pengguna, pasangMenu, halamanBoleh, bolehBuka, identitas, pasangJudul, pintasanUntuk } from './menu.js?v=2026-11-20-86a52b';
+import { hitungVerifikasi } from './verifikasi-hitung.js?v=2026-11-20-86a52b';
+import { rubrikRps } from './rps.js?v=2026-11-20-86a52b';
+import { bacaTinjauan } from './tinjauan-rps.js?v=2026-11-20-86a52b';
+import { isoDari } from './pengingat-rps.js?v=2026-11-20-86a52b';
+import { tugasSaya } from './tugas-saya.js?v=2026-11-20-86a52b';
+import { fiturAktif, halamanAktif } from './fitur.js?v=2026-11-20-86a52b';
+import { barisDosen } from './target-kinerja.js?v=2026-11-20-86a52b';
 
 const sb = createClient(window.SB_URL, window.SB_KEY);
 const $ = id => document.getElementById(id);
