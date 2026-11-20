@@ -7348,11 +7348,7 @@
  "tempat_kp": [],
  "alumni": {
   "responden": 0,
-  "min": 5,
-  "isi": {
-   "judul": "Tracer alumni 2026/2027",
-   "token": "46d03c5a34b440409dbfce2fc274aa5d"
-  }
+  "min": 5
  },
  "akreditasi_prodi": {},
  "kerja_sama": [],
