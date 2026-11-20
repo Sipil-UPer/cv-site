@@ -124,3 +124,71 @@ export function buatSlot(dari, sampai, menit){
   for (let t = a; t + d <= b; t += d) out.push({ label: `Jam ${ff(t).slice(0, 2)}${t % 60 ? '.' + ff(t).slice(3) : ''}`, mulai: ff(t), selesai: ff(t + d), aktif: true });
   return out.length > 30 ? { galat: 'Paling banyak 30 slot; perbesar lama slot.' } : out;
 }
+
+// ---------- Kalender bertanggal (pemilik 2026-11-21): seret untuk blok jam pada tanggal tertentu, judul wajib + jenis,
+// opsi "ulangi tiap minggu sampai ...". Disimpan sebagai baris dosen_berhalangan_rentang (135): satu tanggal = mulai = selesai,
+// berulang = mulai..sampai dengan hari = [hari tanggal itu]. Judul disimpan di kolom alasan. Tanpa SQL baru. ----------
+
+/** 'YYYY-MM-DD' + n hari (tanpa geser zona waktu). */
+export const tambahHari = (tgl, n) => new Date(Date.parse(tgl + 'T00:00:00Z') + n * 864e5).toISOString().slice(0, 10);
+
+/** Tanggal Senin..Minggu pada minggu yang memuat tgl. */
+export function mingguDari(tgl){
+  const h = hariISO(tgl);
+  if (!h) return [];
+  const senin = tambahHari(tgl, 1 - h);
+  return [0, 1, 2, 3, 4, 5, 6].map(i => tambahHari(senin, i));
+}
+
+/** Id slot berurutan dari a sampai b (urutan daftar slot aktif; arah seret bebas). */
+export function slotAntara(slot = [], a, b){
+  const i = slot.findIndex(s => s.id === +a), j = slot.findIndex(s => s.id === +b);
+  if (i < 0 || j < 0) return [];
+  return slot.slice(Math.min(i, j), Math.max(i, j) + 1).map(s => s.id);
+}
+
+/**
+ * Baris rentang dari blok kalender (pemilik 2026-11-21: juga jam yang sama pada setiap hari terpilih dalam rentang tanggal).
+ * { tanggal, sampai, hari: [1..7], slot_ids, judul, jenis } -> { baris: {mulai, selesai, hari, slot_ids, jenis, alasan} } atau
+ * { galat: [..] }. Satu tanggal (sampai kosong/sama) = hari null. Rentang: hari wajib dipilih (minimal satu, ada di rentang).
+ */
+export function blokBaru({ tanggal, sampai = '', hari = [], slot_ids = [], judul = '', jenis = 'lainnya' } = {}){
+  const galat = [], j = String(judul || '').trim(), akhir = sampai || tanggal;
+  const rentang = !!sampai && sampai !== tanggal, hs = [...new Set(hari.map(Number))].sort((x, y) => x - y);
+  if (!hariISO(tanggal)) galat.push('Tanggal tidak sah.');
+  if (!slot_ids.length) galat.push('Pilih jam dengan menyeret pada kalender.');
+  if (!j) galat.push('Isi judul, mis. "Mengajar Teknik Lingkungan".');
+  if (j.length > 200) galat.push('Judul paling panjang 200 huruf.');
+  if (!JENIS_HALANGAN.some(([k]) => k === jenis)) galat.push('Jenis tidak sah.');
+  if (rentang && !hs.length) galat.push('Centang minimal satu hari.');
+  if (hariISO(tanggal)) galat.push(...cekRentang({ mulai: tanggal, selesai: akhir, hari: rentang ? hs : [], slot: slot_ids })
+    .map(g => g.replace('isi jadwal semesteran di Jadwal mingguan', 'pecah menjadi beberapa blok')));
+  if (galat.length) return { galat: [...new Set(galat)] };
+  return { baris: { mulai: tanggal, selesai: akhir, hari: rentang ? hs : null, slot_ids: [...slot_ids], jenis, alasan: j } };
+}
+
+/**
+ * Isi kalender: Map 'tanggal|slot_id' -> [{ sumber: 'blok'|'tanggal'|'mingguan', id, judul, jenis, ulang }] untuk tanggal dan slot
+ * yang diberikan. rentang (135) dan tanggalan (132, slot_id null = sepanjang hari) per tanggal; mingguan (132) dipakai bila
+ * semesterDari(tanggal) cocok dengan {ta, sm} barisnya.
+ */
+export function isiKalender({ tanggal = [], slot = [], rentang = [], tanggalan = [], mingguan = [], semesterDari = null } = {}){
+  const out = new Map();
+  const tambah = (t, sid, x) => { const k = `${t}|${sid}`; if (!out.has(k)) out.set(k, []); out.get(k).push(x); };
+  for (const t of tanggal) {
+    for (const r of rentang) {
+      if (!(r.mulai <= t && t <= (r.selesai || r.mulai))) continue;
+      if (r.hari?.length && !r.hari.map(Number).includes(hariISO(t))) continue;
+      const ulang = (r.selesai || r.mulai) !== r.mulai;
+      for (const s of slot) if (!r.slot_ids?.length || r.slot_ids.includes(s.id))
+        tambah(t, s.id, { sumber: 'blok', id: r.id, judul: r.alasan || '', jenis: r.jenis, ulang, mulai: r.mulai, selesai: r.selesai || r.mulai });
+    }
+    for (const r of tanggalan) if (r.tanggal === t)
+      for (const s of slot) if (r.slot_id == null || r.slot_id === s.id) tambah(t, s.id, { sumber: 'tanggal', id: r.id, judul: r.alasan || '', jenis: r.jenis });
+    const sem = semesterDari ? semesterDari(t) : null;
+    if (sem) for (const r of mingguan)
+      if (r.tahun_akademik === sem.ta && r.semester === sem.sm && +r.hari === hariISO(t))
+        for (const s of slot) if (r.slot_id === s.id) tambah(t, s.id, { sumber: 'mingguan', id: r.id, judul: r.alasan || '', jenis: r.jenis });
+  }
+  return out;
+}

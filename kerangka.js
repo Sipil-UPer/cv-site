@@ -1,12 +1,12 @@
 // Kerangka halaman publik (pemilik 2026-11-16): kepala bergaya situs universitas (deret logo di bilah
 // biru, nama prodi, menu turun) dan kaki halaman yang sama di halaman publik. Pemakaian:
-//   import { pasangKerangka, isiKerangka } from './kerangka.js?v=2026-11-21-9555b6';
+//   import { pasangKerangka, isiKerangka } from './kerangka.js?v=2026-11-21-7fa33c';
 //   pasangKerangka({ aktif: 'profil' });     // segera, sebelum data.json
 //   pasangKerangka({ aktif: 'profil', muat: true });   // atau: kerangka memuat data.json sendiri
 //   isiKerangka(D);                           // setelah data.json: nama prodi, kontak, media sosial
 // Logo: window.LOGO_KEPALA di config.js; tanpa itu logo.png. Menu hanya memuat halaman yang ada
 // dan modul yang menyala (fitur.js). Tautan relatif (situs akan pindah ke subdomain kampus).
-import { halamanAktif } from './fitur.js?v=2026-11-21-9555b6';
+import { halamanAktif } from './fitur.js?v=2026-11-21-7fa33c';
 
 // Lima kelompok menu (pemilik 2026-11-19, tahap 2): Profil, Dosen dan riset, Mahasiswa, Kinerja, Kontak;
 // Pendaftaran dan Masuk ruang kerja di baris atas. Kaki halaman disusun dari MENU yang sama.

@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-21-9555b6">
-<link rel="stylesheet" href="kepala.css?v=2026-11-21-9555b6">
+<link rel="stylesheet" href="tema.css?v=2026-11-21-7fa33c">
+<link rel="stylesheet" href="kepala.css?v=2026-11-21-7fa33c">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
@@ -53,7 +53,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-21-9555b6"></script>
+<script src="config.js?v=2026-11-21-7fa33c"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -72,16 +72,16 @@ addEventListener('error', function (e) {
 // Internal (login): koordinator MK, pengampu kelas, GKM, admin, pimpinan, asesor aktif. Auditor AMI: ?ami=<token>, hanya baca.
 // Berkas selalu privat; dibuka lewat Apps Script (portofolio_buka / ami_portofolio_buka) sesudah izin diperiksa basis data.
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-21-9555b6';
-import { bolehMutu } from './koordinator.js?v=2026-11-21-9555b6';
-import { bawaanHanyaSaya, ingatHanyaSaya, pesanKosongSaya } from './mk-saya.js?v=2026-11-21-9555b6';
-import { keB64 } from './pengajuan-mhs.js?v=2026-11-21-9555b6';
-import { semesterKini } from './evaluasi-pembelajaran.js?v=2026-11-21-9555b6';
-import { periksaStruktur } from './templat-cpl.js?v=2026-11-21-9555b6';
-import { cplMK, dataTemplat, statusStruktur } from './cpmk.js?v=2026-11-21-9555b6';
-import { judul, teks, tabel, tautan, run, buatDocx } from './docx-dasar.js?v=2026-11-21-9555b6';
-import { rubrikRps } from './rps.js?v=2026-11-21-9555b6';
-import { KOMPONEN, komponenUntuk, daftarSemester, mkSemester, kelengkapan, persen, labelBerkas } from './portofolio.js?v=2026-11-21-9555b6';
+import { gerbang } from './menu.js?v=2026-11-21-7fa33c';
+import { bolehMutu } from './koordinator.js?v=2026-11-21-7fa33c';
+import { bawaanHanyaSaya, ingatHanyaSaya, pesanKosongSaya } from './mk-saya.js?v=2026-11-21-7fa33c';
+import { keB64 } from './pengajuan-mhs.js?v=2026-11-21-7fa33c';
+import { semesterKini } from './evaluasi-pembelajaran.js?v=2026-11-21-7fa33c';
+import { periksaStruktur } from './templat-cpl.js?v=2026-11-21-7fa33c';
+import { cplMK, dataTemplat, statusStruktur } from './cpmk.js?v=2026-11-21-7fa33c';
+import { judul, teks, tabel, tautan, run, buatDocx } from './docx-dasar.js?v=2026-11-21-7fa33c';
+import { rubrikRps } from './rps.js?v=2026-11-21-7fa33c';
+import { KOMPONEN, komponenUntuk, daftarSemester, mkSemester, kelengkapan, persen, labelBerkas } from './portofolio.js?v=2026-11-21-7fa33c';
 
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));

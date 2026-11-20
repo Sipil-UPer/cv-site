@@ -1,5 +1,5 @@
-import { dosenLogin } from './dosen-login.js?v=2026-11-21-9555b6';
-import { aktifPada } from './koordinator.js?v=2026-11-21-9555b6';
+import { dosenLogin } from './dosen-login.js?v=2026-11-21-7fa33c';
+import { aktifPada } from './koordinator.js?v=2026-11-21-7fa33c';
 // Menu bersama ruang kerja (pemilik 2026-11-04).
 //
 // Situs dibagi dua:
@@ -25,8 +25,8 @@ const penyusun = s => admin(s) || (!!s.tim_penyusun && s.peran !== 'asesor');
 // Asesor, dan pimpinan yang bukan DTPS prodi ini (aktif=false), tidak mengisi karya.
 const isiKarya = s => s.peran !== 'asesor' && !(s.peran === 'pimpinan' && !s.aktif);
 
-import { halamanAktif } from './fitur.js?v=2026-11-21-9555b6';
-import { pasangPemicuBangun } from './pemicu-bangun.js?v=2026-11-21-9555b6';
+import { halamanAktif } from './fitur.js?v=2026-11-21-7fa33c';
+import { pasangPemicuBangun } from './pemicu-bangun.js?v=2026-11-21-7fa33c';
 
 export const MODUL = [
   // Susunan modul (pemilik 2026-11-17): mengikuti pembagian tugas koordinator prodi (kemahasiswaan,
@@ -402,7 +402,7 @@ export async function pasangMenu(sb){
   // Pencarian menyeluruh (pemilik 2026-11-12; cari-ui.js, cari.js): dimuat saat pertama dipakai.
   const kotak = nav.querySelector('.rk-cari input');
   let siapCari = null;
-  const muatCari = () => siapCari || (siapCari = import('./cari-ui.js?v=2026-11-21-9555b6').then(m =>
+  const muatCari = () => siapCari || (siapCari = import('./cari-ui.js?v=2026-11-21-7fa33c').then(m =>
     m.pasangCari(kotak, { sb, saya: u.saya, modul: halamanBoleh(u.saya), boleh: h => bolehBuka(u.saya, h) !== false })));
   kotak.addEventListener('focus', muatCari);
   document.addEventListener('keydown', e => {
