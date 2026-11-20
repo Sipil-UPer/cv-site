@@ -1,5 +1,5 @@
-import { dosenLogin } from './dosen-login.js?v=2026-11-20-86a52b';
-import { aktifPada } from './koordinator.js?v=2026-11-20-86a52b';
+import { dosenLogin } from './dosen-login.js?v=2026-11-20-90548a';
+import { aktifPada } from './koordinator.js?v=2026-11-20-90548a';
 // Menu bersama ruang kerja (pemilik 2026-11-04).
 //
 // Situs dibagi dua:
@@ -25,8 +25,8 @@ const penyusun = s => admin(s) || (!!s.tim_penyusun && s.peran !== 'asesor');
 // Asesor, dan pimpinan yang bukan DTPS prodi ini (aktif=false), tidak mengisi karya.
 const isiKarya = s => s.peran !== 'asesor' && !(s.peran === 'pimpinan' && !s.aktif);
 
-import { halamanAktif } from './fitur.js?v=2026-11-20-86a52b';
-import { pasangPemicuBangun } from './pemicu-bangun.js?v=2026-11-20-86a52b';
+import { halamanAktif } from './fitur.js?v=2026-11-20-90548a';
+import { pasangPemicuBangun } from './pemicu-bangun.js?v=2026-11-20-90548a';
 
 export const MODUL = [
   // Susunan modul (pemilik 2026-11-17): mengikuti pembagian tugas koordinator prodi (kemahasiswaan,
@@ -147,6 +147,9 @@ export const MODUL = [
       ket: 'Per bidang (TA, KP, kemahasiswaan, mutu, lab, administrasi): penanggung jawab, antrean, dan yang terlambat.' },
     { href: 'monitoring.html', judul: 'Pemantauan kinerja',
       ket: 'Rekap per tahun atau TS, per dosen, dan syarat unggul.' },
+    // Pemakaian ruang kerja (133-patch-pemakaian-halaman.sql, pemilik 2026-11-20): dasar memutuskan fitur yang dipertahankan/dibuang.
+    { href: 'pemakaian.html', judul: 'Pemakaian ruang kerja', boleh: admin,
+      ket: 'Halaman mana yang dibuka, oleh berapa pengguna dan peran apa; halaman yang tidak pernah dibuka sebagai calon dibuang.' },
     { href: 'grafik.html', judul: 'Grafik untuk LED',
       ket: 'Grafik siap pakai untuk laporan dan LED.' },
   ]},
@@ -324,11 +327,21 @@ const CSS = `
 
 // Menu atas untuk pengguna terdaftar; tidak tampil bila belum login atau
 // belum terdaftar (halaman menampilkan layar masuknya sendiri).
+// Pemakaian halaman ruang kerja (133-patch-pemakaian-halaman.sql, pemilik 2026-11-20): sekali per pemuatan halaman, di latar;
+// hanya nama berkas halaman yang dikirim (bukan isi atau parameter). Gagal (mis. patch belum dijalankan) diabaikan.
+let SUDAH_CATAT = false;
+function catatKunjungan(sb, halaman){
+  if (SUDAH_CATAT) return;
+  SUDAH_CATAT = true;
+  try { sb.rpc('catat_kunjungan', { p_halaman: halaman }).then(() => {}, () => {}); } catch { /* abaikan */ }
+}
+
 export async function pasangMenu(sb){
   let u = await pengguna(sb);
   if (!u?.saya) u = await pengguna(sb, true);   // mis. dipanggil lagi setelah SIGNED_IN
   if (!u?.saya) return null;
   const ini = berkasIni();
+  catatKunjungan(sb, ini);
   const { prodi, institusi } = await identitas();
   // Diperiksa SETELAH semua await: halaman bisa memanggil pasangMenu dua kali
   // hampir bersamaan (muat awal + SIGNED_IN); tanpa ini menu terpasang dua kali.
@@ -386,7 +399,7 @@ export async function pasangMenu(sb){
   // Pencarian menyeluruh (pemilik 2026-11-12; cari-ui.js, cari.js): dimuat saat pertama dipakai.
   const kotak = nav.querySelector('.rk-cari input');
   let siapCari = null;
-  const muatCari = () => siapCari || (siapCari = import('./cari-ui.js?v=2026-11-20-86a52b').then(m =>
+  const muatCari = () => siapCari || (siapCari = import('./cari-ui.js?v=2026-11-20-90548a').then(m =>
     m.pasangCari(kotak, { sb, saya: u.saya, modul: halamanBoleh(u.saya), boleh: h => bolehBuka(u.saya, h) !== false })));
   kotak.addEventListener('focus', muatCari);
   document.addEventListener('keydown', e => {

@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-20-86a52b">
-<link rel="stylesheet" href="kepala.css?v=2026-11-20-86a52b">
+<link rel="stylesheet" href="tema.css?v=2026-11-20-90548a">
+<link rel="stylesheet" href="kepala.css?v=2026-11-20-90548a">
 <style>
   .tag{display:inline-block;font-size:12px;padding:1px 8px;border:1px solid var(--line);background:var(--bg);white-space:nowrap}
   .tag.tinggi{border-color:var(--merah);color:var(--merah)}
@@ -43,7 +43,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-20-86a52b"></script>
+<script src="config.js?v=2026-11-20-90548a"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -62,12 +62,12 @@ addEventListener('error', function (e) {
 // dan beban membimbing/menguji per dosen pada periode terpilih (TS, 3 TS, tahun). Sumber: jadwal_ta (semua pengguna login
 // membaca). Unduh Excel khusus admin (memuat NIM).
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-20-86a52b';
-import { punya } from './koordinator.js?v=2026-11-20-86a52b';
-import { TAHAP, STATUS, waktuJadwal, rekapTA, lembarTA, revisiBerjalan } from './rekap-ta.js?v=2026-11-20-86a52b';
-import { opsiPeriode, cocokPeriode, labelPeriode, taTeks, tsKarya, tsBerjalan } from './sdgs-unduh.js?v=2026-11-20-86a52b';
-import { barisKuota } from './rekap-kp.js?v=2026-11-20-86a52b';
-import { SHEETJS } from './nilai-cpl.js?v=2026-11-20-86a52b';
+import { gerbang } from './menu.js?v=2026-11-20-90548a';
+import { punya } from './koordinator.js?v=2026-11-20-90548a';
+import { TAHAP, STATUS, waktuJadwal, rekapTA, lembarTA, revisiBerjalan } from './rekap-ta.js?v=2026-11-20-90548a';
+import { opsiPeriode, cocokPeriode, labelPeriode, taTeks, tsKarya, tsBerjalan } from './sdgs-unduh.js?v=2026-11-20-90548a';
+import { barisKuota } from './rekap-kp.js?v=2026-11-20-90548a';
+import { SHEETJS } from './nilai-cpl.js?v=2026-11-20-90548a';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);

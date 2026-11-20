@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Pemakaian ruang kerja — Ruang kerja</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tema.css?v=2026-11-20-90548a">
+<link rel="stylesheet" href="kepala.css?v=2026-11-20-90548a">
+<style>
+  /* Pemakaian ruang kerja (133-patch-pemakaian-halaman.sql, pemilik 2026-11-20) */
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
+  .wrap{max-width:1400px;margin:0 auto;padding:18px 20px 80px}
+  .kosong, .ket{color:var(--muted)}
+  .ket{font-size:13px}
+  .kartu{background:var(--panel);border:1px solid var(--line);padding:14px 18px;margin-bottom:16px}
+  .kartu h2{font-size:17px;margin:0 0 6px;color:var(--biru)}
+  .alat{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:8px 0}
+  select{font:inherit;font-size:14px;padding:4px 6px;border:1px solid var(--line);background:var(--panel);color:var(--ink)}
+  .gulir{overflow-x:auto}
+  table.ds{width:100%;border-collapse:collapse;font-size:13.5px}
+  table.ds th{text-align:left;font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--line);padding:5px 6px;vertical-align:bottom}
+  table.ds td{padding:5px 6px;border-bottom:1px solid var(--line-soft);vertical-align:top}
+  table.ds td.n{text-align:right;font-variant-numeric:tabular-nums}
+  .kode{font-family:var(--mono);font-size:12px;color:var(--muted)}
+  .chip{display:inline-block;font-size:11.5px;padding:1px 6px;border:1px solid var(--line);white-space:nowrap}
+  .chip.tidak{color:var(--merah);border-color:var(--merah)} .chip.jarang{color:#8A5A00;border-color:#8A5A00}
+  .chip.aktif{color:var(--hijau);border-color:var(--hijau)} .chip.publik{color:var(--muted)}
+  .kemajuan{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+  .angka-st{display:flex;flex-direction:column;min-width:130px;padding:8px 10px;border:1px solid var(--line);background:transparent;color:var(--ink);font:inherit;cursor:pointer;text-align:left}
+  .angka-st b{font-size:22px;line-height:1.1} .angka-st span{font-size:12px}
+  .angka-st.aktif{border-color:var(--ink);box-shadow:inset 0 -3px 0 var(--merah)}
+  @media(max-width:700px){.wrap{padding-left:16px;padding-right:16px}}
+</style>
+</head>
+<body>
+<header class="hero"><div class="hero-in">
+  <div class="hero-inst" data-identitas></div>
+  <h1>Pemakaian ruang kerja</h1>
+  <div class="sub" id="hSub">Memuat…</div>
+</div></header>
+<main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
+<script src="config.js?v=2026-11-20-90548a"></script>
+<script>
+// Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
+addEventListener('error', function (e) {
+  if (document.getElementById('galat-muat')) return;
+  var d = document.createElement('div');
+  d.id = 'galat-muat';
+  d.style.cssText = 'margin:16px;padding:12px 14px;border:1px solid var(--merah);' +
+    'background:var(--merah-m3);color:var(--ink);font:14px/1.5 system-ui,sans-serif';
+  d.textContent = 'Halaman gagal dimuat: ' + (e.message || 'galat skrip') +
+    '. Tekan Ctrl+Shift+R untuk memuat ulang tanpa cache; bila tetap muncul, kirim pesan ini ke admin.';
+  document.body.insertBefore(d, document.body.firstChild);
+});
+</script>
+<script type="module">
+// Pemakaian ruang kerja (133-patch-pemakaian-halaman.sql, pemilik 2026-11-20): rekap tanpa data per orang; halaman menu yang
+// tidak pernah dibuka tampil paling atas sebagai calon dibuang. Logika: pemakaian.js.
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
+import { gerbang, MODUL } from './menu.js?v=2026-11-20-90548a';
+import { gabungPemakaian, STATUS_PAKAI } from './pemakaian.js?v=2026-11-20-90548a';
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const sb = createClient(window.SB_URL, window.SB_KEY);
+const tgl = s => String(s || '').split('-').reverse().join('/');
+const LABEL_JABATAN = { kaprodi: 'Kaprodi', dekan: 'Dekan', gkm: 'GKM', koordinator_ta: 'Koord. TA', koordinator_kp: 'Koord. KP',
+  kepala_lab: 'Kepala lab', pembina_kemahasiswaan: 'Pembina kemahasiswaan' };
+let HARI = 60, REKAP = null, GALAT = '', F = '';
+
+async function muat(){
+  const { data, error } = await sb.rpc('pemakaian_rekap', { p_hari: HARI });
+  GALAT = error ? (/function|schema cache/i.test(error.message) ? 'Pencatat belum aktif: admin menjalankan supabase/133-patch-pemakaian-halaman.sql.' : error.message) : '';
+  REKAP = data || { halaman: [] };
+}
+
+const daftar = o => Object.entries(o || {}).sort((a, b) => b[1] - a[1]).map(([k, v]) => `${esc(LABEL_JABATAN[k] || k)} ${v}`).join(', ');
+function gambar(){
+  const g = gabungPemakaian(MODUL, REKAP), nama = Object.fromEntries(STATUS_PAKAI);
+  const xs = g.menu.filter(b => !F || b.status === F);
+  $('isi').innerHTML = `<div class="kartu"><h2>Halaman di menu ruang kerja</h2>
+    <p class="ket">Dicatat sejak ${REKAP?.mulai_catat ? tgl(REKAP.mulai_catat) : '(belum ada catatan)'}: satu baris per hari, per halaman, per pengguna yang masuk.
+      Hanya rekap yang tampil; isi halaman dan tindakan pengguna tidak dicatat. Catatan lebih tua dari 180 hari dihapus otomatis.
+      Kesimpulan baru bermakna setelah 1–2 bulan pencatatan; halaman musiman (mis. tracer, AMI, akreditasi) bisa jarang dibuka tetapi tetap perlu.</p>
+    ${GALAT ? `<p class="kosong">${esc(GALAT)}</p>` : ''}
+    <div class="alat"><label>Rentang <select id="fHari">${[30, 60, 90, 180].map(h => `<option value="${h}"${h === HARI ? ' selected' : ''}>${h} hari terakhir</option>`).join('')}</select></label>
+      <span class="ket">${REKAP?.pengguna_aktif ?? 0} pengguna membuka ruang kerja dalam rentang ini.</span></div>
+    <div class="kemajuan">${STATUS_PAKAI.map(([k, l]) => `<button class="angka-st${F === k ? ' aktif' : ''}" data-st="${k}"><b>${g.ringkas[k]}</b><span>${l}</span></button>`).join('')}</div>
+    <div class="gulir"><table class="ds"><thead><tr><th>Status</th><th>Halaman</th><th>Kelompok menu</th><th>Kunjungan</th><th>Pengguna</th><th>Hari dibuka</th>
+      <th>Terakhir</th><th>Pengguna per peran</th><th>Per jabatan</th></tr></thead><tbody>
+      ${xs.map(b => `<tr><td><span class="chip ${b.status}">${nama[b.status]}</span></td>
+        <td><a href="${esc(b.berkas)}">${esc(b.judul.join(' / '))}</a><br><span class="kode">${esc(b.berkas)}</span></td><td>${esc(b.modul.join(', '))}</td>
+        <td class="n">${b.kunjungan || ''}</td><td class="n">${b.pengguna || ''}</td><td class="n">${b.hari || ''}</td><td>${b.terakhir ? tgl(b.terakhir) : ''}</td>
+        <td>${daftar(b.peran)}</td><td>${daftar(b.jabatan)}</td></tr>`).join('') || '<tr><td colspan="9" class="kosong">Tidak ada.</td></tr>'}
+    </tbody></table></div></div>
+    ${g.lain.length ? `<div class="kartu"><h2>Halaman lain yang dibuka</h2>
+      <p class="ket">Tercatat tetapi tidak ada di menu (mis. Ruang kerja, halaman lama yang dialihkan, halaman yang dibuka lewat tautan).</p>
+      <div class="gulir"><table class="ds"><thead><tr><th>Halaman</th><th>Kunjungan</th><th>Pengguna</th><th>Terakhir</th></tr></thead><tbody>
+        ${g.lain.map(r => `<tr><td class="kode">${esc(r.halaman)}</td><td class="n">${r.kunjungan}</td><td class="n">${r.pengguna}</td><td>${tgl(r.terakhir)}</td></tr>`).join('')}
+      </tbody></table></div></div>` : ''}`;
+  $('fHari').onchange = async e => { HARI = +e.target.value; await muat(); gambar(); };
+  document.querySelectorAll('[data-st]').forEach(b => { b.onclick = () => { F = F === b.dataset.st ? '' : b.dataset.st; gambar(); }; });
+}
+
+async function mulai(){
+  const saya = await gerbang(sb);
+  if (!saya) return;
+  $('hSub').textContent = `Masuk sebagai ${saya.nama}`;
+  await muat();
+  gambar();
+}
+mulai().catch(e => { $('isi').innerHTML = `<p class="kosong">Gagal memuat: ${esc(e.message)}</p>`; });
+</script>
+</body>
+</html>
