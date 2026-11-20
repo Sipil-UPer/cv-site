@@ -2,11 +2,11 @@
 // ajuan perubahan, klaim penulis, dan publikasi/luaran tanpa payung. Dipindah dari tab Verifikasi di
 // karya.html saat verifikasi dijadikan halaman tersendiri (pemilik 2026-11-08).
 
-import { buangSemua } from './hapus-berkas.js?v=2026-11-20-7ad6c0';
-import { JENIS_BUKTI_KS } from './manfaat-kerjasama.js?v=2026-11-20-7ad6c0';
-import { labelKolom } from './form-karya.js?v=2026-11-20-7ad6c0';
+import { buangSemua } from './hapus-berkas.js?v=2026-11-20-63ad4d';
+import { JENIS_BUKTI_KS } from './manfaat-kerjasama.js?v=2026-11-20-63ad4d';
+import { labelKolom } from './form-karya.js?v=2026-11-20-63ad4d';
 import { esc, rapi, barisKarya, muatBuktiKarya, daftarBuktiKarya, berkasMilikKarya,
-  htmlDaftarBukti } from './karya-tampil.js?v=2026-11-20-7ad6c0';
+  htmlDaftarBukti } from './karya-tampil.js?v=2026-11-20-63ad4d';
 
 const PILIH = '*, karya_penulis(peran, korespondensi, dosen(nama)), karya_mahasiswa(nim), karya_mitra(institusi)';
 

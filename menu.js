@@ -1,5 +1,5 @@
-import { dosenLogin } from './dosen-login.js?v=2026-11-20-7ad6c0';
-import { aktifPada } from './koordinator.js?v=2026-11-20-7ad6c0';
+import { dosenLogin } from './dosen-login.js?v=2026-11-20-63ad4d';
+import { aktifPada } from './koordinator.js?v=2026-11-20-63ad4d';
 // Menu bersama ruang kerja (pemilik 2026-11-04).
 //
 // Situs dibagi dua:
@@ -25,8 +25,8 @@ const penyusun = s => admin(s) || (!!s.tim_penyusun && s.peran !== 'asesor');
 // Asesor, dan pimpinan yang bukan DTPS prodi ini (aktif=false), tidak mengisi karya.
 const isiKarya = s => s.peran !== 'asesor' && !(s.peran === 'pimpinan' && !s.aktif);
 
-import { halamanAktif } from './fitur.js?v=2026-11-20-7ad6c0';
-import { pasangPemicuBangun } from './pemicu-bangun.js?v=2026-11-20-7ad6c0';
+import { halamanAktif } from './fitur.js?v=2026-11-20-63ad4d';
+import { pasangPemicuBangun } from './pemicu-bangun.js?v=2026-11-20-63ad4d';
 
 export const MODUL = [
   // Susunan modul (pemilik 2026-11-17): mengikuti pembagian tugas koordinator prodi (kemahasiswaan,
@@ -368,10 +368,19 @@ export async function pasangMenu(sb){
     if (!nav.contains(e.target)) grupEl.forEach(x => { x.open = false; });
   });
   document.body.prepend(nav);
+  // Terakhir aktif (123, pemilik 2026-11-20): email pemeriksa yang tertunda (kuota habis) tidak dikirim ke dosen yang
+  // sudah membuka ruang kerja, karena pengajuannya tampil di Tugas saya. Paling sering 30 menit sekali; galat diabaikan.
+  let catat = true;
+  try {
+    const lalu = +localStorage.getItem('rk-aktif') || 0;
+    catat = Date.now() - lalu > 30 * 60e3;
+    if (catat) localStorage.setItem('rk-aktif', String(Date.now()));
+  } catch { /* penyimpanan peramban diblokir: tetap dicatat */ }
+  if (catat) sb.rpc('catat_aktif').then(() => {}, () => {});
   // Pencarian menyeluruh (pemilik 2026-11-12; cari-ui.js, cari.js): dimuat saat pertama dipakai.
   const kotak = nav.querySelector('.rk-cari input');
   let siapCari = null;
-  const muatCari = () => siapCari || (siapCari = import('./cari-ui.js?v=2026-11-20-7ad6c0').then(m =>
+  const muatCari = () => siapCari || (siapCari = import('./cari-ui.js?v=2026-11-20-63ad4d').then(m =>
     m.pasangCari(kotak, { sb, saya: u.saya, modul: halamanBoleh(u.saya), boleh: h => bolehBuka(u.saya, h) !== false })));
   kotak.addEventListener('focus', muatCari);
   document.addEventListener('keydown', e => {

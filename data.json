@@ -364,7 +364,9 @@
    "url": "https://ejournal.unitomo.ac.id/index.php/gestram/article/view/12683/5843",
    "mitra": [],
    "mahasiswa": 1,
-   "sdgs": [],
+   "sdgs": [
+    11
+   ],
    "topik": [
     {
      "t": "Air Traffic Management and Optimization",
@@ -2126,7 +2128,10 @@
    ],
    "relevan_visi": true,
    "ember_dana": "pt_mandiri",
-   "sdgs": []
+   "sdgs": [
+    7,
+    11
+   ]
   },
   {
    "judul": "SMART-WASTE: Penerapan Teknologi Bank Sampah Digital dan Internet of Things untuk Peningkatan Kinerja Bank Sampah Lapak Lontar Kabupaten Bogor",
@@ -7665,7 +7670,7 @@
    "tahun_ts": 2021,
    "dosen": "Gati Annisa Hayu",
    "bentuk": "editor",
-   "nama_kegiatan": "Editorial Board Jurnal Rekayasa Sipil dan Lingkungan",
+   "nama_kegiatan": "Editorial Board Jurnal Rekayasa Sipil dan Lingkungan ",
    "tingkat": "internasional"
   },
   {
