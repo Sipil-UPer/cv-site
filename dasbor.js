@@ -1,7 +1,7 @@
 // Dasbor operasional koordinator prodi (pemilik 2026-11-17, tahap 3 koordinator): per bidang, siapa penanggung jawabnya
 // (koordinator aktif) dan antrean/keterlambatan, dengan tautan ke halaman kerjanya. Dipakai dasbor.html.
-import { statusTindak, petaRps } from './tinjauan-rps.js?v=2026-11-20-450f90';
-import { aktifPada, labelJabatan } from './koordinator.js?v=2026-11-20-450f90';
+import { statusTindak, petaRps } from './tinjauan-rps.js?v=2026-11-20-9ce5c1';
+import { aktifPada, labelJabatan } from './koordinator.js?v=2026-11-20-9ce5c1';
 
 export const HARI_ANTRE = 7;     // pengajuan yang menunggu lebih dari ini = terlambat
 export const HARI_SK = 30;       // penugasan berakhir dalam sekian hari = perlu diperpanjang
@@ -109,4 +109,19 @@ export function ringkasBeban(rows = [], kk = []){
   const kelompok = [...new Set(baris.map(r => r.kk))].map(k => ({ kode: k, nama: nama.get(k) || 'Kelompok keahlian belum diisi',
     n: baris.filter(r => r.kk === k).length, rata_ta: bulat(k ? rataTA.get(k) : rata.ta) }));
   return { baris, kelompok, rata: Object.fromEntries(KOLOM_BEBAN.map(k => [k, bulat(rata[k])])) };
+}
+
+// Kesehatan sistem (125-patch-kesehatan-sistem.sql, pemilik 2026-11-20): hasil sistem_kesehatan() -> baris panel.
+// Penilaian (batas waktu, kuota, Drive) ada di basis data; di sini hanya label, kelas warna, dan "x jam lalu".
+export const LABEL_KESEHATAN = { baik: 'Baik', terlambat: 'Terlambat', gagal: 'Gagal', belum_ada: 'Belum pernah melapor',
+  perlu_dicek: 'Perlu dicek', info: 'Info' };
+export function lalu(waktu, kini = new Date()){
+  if (!waktu) return '—';
+  const m = Math.max(0, Math.round((kini - new Date(waktu)) / 60000));
+  return m < 60 ? `${m} menit lalu` : m < 48 * 60 ? `${Math.round(m / 60)} jam lalu` : `${Math.round(m / 1440)} hari lalu`;
+}
+export function ringkasKesehatan(x, kini = new Date()){
+  const butir = (x?.butir || []).map(b => ({ ...b, teks: LABEL_KESEHATAN[b.status] || b.status, kapan: lalu(b.waktu, kini),
+    kelas: b.status === 'baik' ? 'ok' : b.status === 'info' ? 'info' : 'awas' }));
+  return { butir, perlu: Number(x?.perlu_dicek || 0), mb: x?.basis_data_mb ?? null, ringkasan: x?.ringkasan_terakhir || null };
 }
