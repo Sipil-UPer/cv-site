@@ -8,7 +8,7 @@
 // Tabel yang dibaca bangun.py/halaman_publik.py untuk situs publik (sb.ambil / sb.ambil_opsional), 2026-11-19.
 export const TABEL_PUBLIK = new Set(['dosen', 'kabar_kegiatan', 'karya', 'karya_mahasiswa', 'karya_mitra', 'karya_penulis', 'lkps_bukti',
   'lkps_kerjasama', 'lkps_prasarana', 'lkps_prestasi_mahasiswa', 'lkps_prodi_upps', 'lkps_vmts', 'pengajuan_mahasiswa', 'pengelola_prodi',
-  'profil_prodi', 'ref_bidang_keahlian', 'ref_cpl', 'ref_kelompok_dana', 'ref_mata_kuliah', 'ref_mk_cpl', 'ref_profil_lulusan',
+  'profil_prodi', 'ref_bidang_keahlian', 'ref_cpl', 'ref_kelompok_dana', 'ref_mata_kuliah', 'ref_mk_cpl', 'ref_profil_lulusan', 'testimoni',
   'ref_skema_dana', 'ref_topik_keahlian', 'survei', 'survei_jawaban', 'laboratorium', 'laboratorium_baris', 'jadwal_ta', 'jadwal_ta_baris']);
 // RPC yang menyetujui/menerbitkan data publik.
 export const RPC_PUBLIK = new Set(['setujui_ajuan_prestasi', 'setujui_ajuan_ubah']);

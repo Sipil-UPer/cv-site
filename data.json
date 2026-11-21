@@ -7237,26 +7237,208 @@
    "Laboratorium Mekanika Tanah",
    "Laboratorium Struktur (Bahan dan Konstruksi)"
   ],
+  "kuis": [
+   {
+    "tanya": "Saat melihat sebuah kota, apa yang paling membuatmu penasaran?",
+    "pilihan": [
+     {
+      "teks": "Bagaimana gedung tinggi dan jembatan bisa berdiri kokoh",
+      "kk": [
+       "STR"
+      ]
+     },
+     {
+      "teks": "Ke mana air hujan mengalir dan mengapa bisa banjir",
+      "kk": [
+       "AIR"
+      ]
+     },
+     {
+      "teks": "Mengapa jalan macet dan bagaimana mengatur lalu lintas",
+      "kk": [
+       "TRN"
+      ]
+     },
+     {
+      "teks": "Apa yang ada di bawah tanah tempat bangunan berdiri",
+      "kk": [
+       "GEO"
+      ]
+     },
+     {
+      "teks": "Bagaimana proyek besar diatur supaya selesai tepat waktu dan sesuai anggaran",
+      "kk": [
+       "MRK"
+      ]
+     }
+    ]
+   },
+   {
+    "tanya": "Kegiatan mana yang paling ingin kamu coba?",
+    "pilihan": [
+     {
+      "teks": "Menguji kekuatan beton dan baja sampai patah",
+      "kk": [
+       "STR"
+      ]
+     },
+     {
+      "teks": "Memodelkan aliran sungai atau gelombang laut di komputer",
+      "kk": [
+       "AIR"
+      ]
+     },
+     {
+      "teks": "Menghitung arus kendaraan dan merancang persimpangan",
+      "kk": [
+       "TRN"
+      ]
+     },
+     {
+      "teks": "Mengambil contoh tanah dan menguji daya dukungnya",
+      "kk": [
+       "GEO"
+      ]
+     },
+     {
+      "teks": "Menyusun jadwal, biaya, dan rencana keselamatan proyek",
+      "kk": [
+       "MRK"
+      ]
+     }
+    ]
+   },
+   {
+    "tanya": "Masalah mana yang paling ingin kamu bantu selesaikan?",
+    "pilihan": [
+     {
+      "teks": "Bangunan yang tidak tahan gempa",
+      "kk": [
+       "STR"
+      ]
+     },
+     {
+      "teks": "Banjir, kekeringan, dan pemanfaatan air untuk energi",
+      "kk": [
+       "AIR"
+      ]
+     },
+     {
+      "teks": "Kemacetan dan keselamatan di jalan",
+      "kk": [
+       "TRN"
+      ]
+     },
+     {
+      "teks": "Tanah lunak yang ambles dan fondasi yang gagal",
+      "kk": [
+       "GEO"
+      ]
+     },
+     {
+      "teks": "Proyek yang terlambat dan biayanya membengkak",
+      "kk": [
+       "MRK"
+      ]
+     }
+    ]
+   },
+   {
+    "tanya": "Infrastruktur energi mana yang paling menarik bagimu?",
+    "pilihan": [
+     {
+      "teks": "Anjungan lepas pantai, pipa bawah laut, dan bangunan terapung",
+      "kk": [
+       "STR"
+      ]
+     },
+     {
+      "teks": "Bendungan dan pembangkit listrik tenaga air (hydropower)",
+      "kk": [
+       "AIR"
+      ]
+     },
+     {
+      "teks": "Jalan, bandara, dan transportasi berkelanjutan",
+      "kk": [
+       "TRN"
+      ]
+     },
+     {
+      "teks": "Fondasi dan perbaikan tanah untuk bangunan berat",
+      "kk": [
+       "GEO"
+      ]
+     },
+     {
+      "teks": "Mengelola proyek konstruksi dari perencanaan sampai pelaksanaan yang aman",
+      "kk": [
+       "MRK"
+      ]
+     }
+    ]
+   },
+   {
+    "tanya": "Kamu paling menikmati pekerjaan yang ...",
+    "pilihan": [
+     {
+      "teks": "menghitung dan menggambar rancangan secara teliti",
+      "kk": [
+       "STR"
+      ]
+     },
+     {
+      "teks": "membaca data alam (hujan, sungai, laut) lalu membuat model",
+      "kk": [
+       "AIR"
+      ]
+     },
+     {
+      "teks": "mengamati perilaku orang dan kendaraan, lalu merancang solusinya",
+      "kk": [
+       "TRN"
+      ]
+     },
+     {
+      "teks": "turun ke lapangan dan memeriksa kondisi tanah",
+      "kk": [
+       "GEO"
+      ]
+     },
+     {
+      "teks": "mengatur orang, waktu, dan biaya agar tujuan tercapai",
+      "kk": [
+       "MRK"
+      ]
+     }
+    ]
+   }
+  ],
   "kelompok_keahlian": [
    {
     "kode": "STR",
-    "nama": "Rekayasa Struktur dan Material"
+    "nama": "Rekayasa Struktur dan Material",
+    "cakupan": "Struktur beton dan baja, bangunan tahan gempa, struktur lepas pantai dan bangunan terapung, material konstruksi"
    },
    {
     "kode": "AIR",
-    "nama": "Rekayasa Sumber Daya Air"
+    "nama": "Rekayasa Sumber Daya Air",
+    "cakupan": "Hidrologi dan hidraulika, bendungan dan tenaga air (hydropower), drainase, pantai, pelabuhan, dan pesisir"
    },
    {
     "kode": "TRN",
-    "nama": "Rekayasa Transportasi"
+    "nama": "Rekayasa Transportasi",
+    "cakupan": "Lalu lintas dan sistem transportasi, geometri dan perkerasan jalan, bandara, transportasi berkelanjutan"
    },
    {
     "kode": "GEO",
-    "nama": "Rekayasa Geoteknik"
+    "nama": "Rekayasa Geoteknik",
+    "cakupan": "Geologi dan mekanika tanah, fondasi, gempa dalam geoteknik, perbaikan tanah"
    },
    {
     "kode": "MRK",
-    "nama": "Manajemen dan Rekayasa Konstruksi"
+    "nama": "Manajemen dan Rekayasa Konstruksi",
+    "cakupan": "Manajemen dan ekonomi proyek, metode pelaksanaan dan K3, aspek hukum dan standar internasional konstruksi"
    }
   ]
  },
@@ -7480,6 +7662,7 @@
    }
   ]
  },
+ "testimoni": [],
  "prestasi_agregat": [
   {
    "tahun": 2026,

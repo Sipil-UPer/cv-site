@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-21-5372d8">
+<link rel="stylesheet" href="tema.css?v=2026-11-21-1a1e77">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
@@ -101,7 +101,7 @@
   .masuk{max-width:420px;margin:40px auto;background:#fff;border:1px solid var(--line);padding:20px}
   .masuk input{width:100%;padding:8px 10px;margin:8px 0;font:inherit}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-21-5372d8">
+<link rel="stylesheet" href="kepala.css?v=2026-11-21-1a1e77">
 </head>
 <body>
 
@@ -115,7 +115,7 @@
 
 <main class="wrap" id="isi"></main>
 
-<script src="config.js?v=2026-11-21-5372d8"></script>
+<script src="config.js?v=2026-11-21-1a1e77"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -132,27 +132,27 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { buangBerkas, buangSemua, PESAN_SAMPAH, fotoPrestasiPublik, PERINGATAN_FOTO } from './hapus-berkas.js?v=2026-11-21-5372d8';
-import { pasangMenu } from './menu.js?v=2026-11-21-5372d8';
-import { dosenLogin } from './dosen-login.js?v=2026-11-21-5372d8';
-import { aktifPada, tabBoleh, labelJabatan, labelPeran } from './koordinator.js?v=2026-11-21-5372d8';
-import { unggahKePustaka, opsiPustaka, opsiJenis, labelDokumen, cariDokumen } from './pustaka-dokumen.js?v=2026-11-21-5372d8';
-import { pasangRapikan } from './rapikan-berkas.js?v=2026-11-21-5372d8';
-import { UNSUR, skorUnsur, pihakUnsur } from './unsur-butir.js?v=2026-11-21-5372d8';
-import { OPSI_SUMBER } from './iku-otomatis.js?v=2026-11-21-5372d8';
-import { denganOtomatis as otomatisDari, tsTersedia, tsAwal, htmlCapaianIKU, KET_CAPAIAN, muatTambahan, denganTambahan } from './capaian-iku.js?v=2026-11-21-5372d8';
-import { KATEGORI_TEMUAN, STATUS_TEMUAN, PIHAK_TEMUAN, ringkasTemuan, htmlRingkasTemuan } from './temuan-ami.js?v=2026-11-21-5372d8';
-import { bacaRekapSPM, rencanaImporSPM, tsDariTanggal, labelTS, ringkasLembar, picProdi } from './standar-spmi.js?v=2026-11-21-5372d8';
-import { SHEETJS } from './nilai-cpl.js?v=2026-11-21-5372d8';
-import { bacaCSV, normKur, normCpl, KOLOM_IMPOR, CONTOH_IMPOR, rencanaImpor, sebaranCPL, htmlSebaran } from './kurikulum-cpl.js?v=2026-11-21-5372d8';
-import { htmlContoh, pasangContoh, JENIS_BUKTI_KS } from './manfaat-kerjasama.js?v=2026-11-21-5372d8';
-import { infoJenis } from './rencana-bukti.js?v=2026-11-21-5372d8';
-import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-21-5372d8';
-import { nomorButir, htmlTautanButir } from './tautan-butir.js?v=2026-11-21-5372d8';
-import { htmlSaran } from './saran-bukti.js?v=2026-11-21-5372d8';
-import { tautanBerkas, privatkanLama, adalahPrivat } from './tautan-privat.js?v=2026-11-21-5372d8';
-import { unggahLKD, buangLKD, bukaLKD, pendidikanTotal, pendidikanPS } from './bkd.js?v=2026-11-21-5372d8';
-import { teksPelaksanaan } from './rekap-kp.js?v=2026-11-21-5372d8';
+import { buangBerkas, buangSemua, PESAN_SAMPAH, fotoPrestasiPublik, PERINGATAN_FOTO } from './hapus-berkas.js?v=2026-11-21-1a1e77';
+import { pasangMenu } from './menu.js?v=2026-11-21-1a1e77';
+import { dosenLogin } from './dosen-login.js?v=2026-11-21-1a1e77';
+import { aktifPada, tabBoleh, labelJabatan, labelPeran } from './koordinator.js?v=2026-11-21-1a1e77';
+import { unggahKePustaka, opsiPustaka, opsiJenis, labelDokumen, cariDokumen } from './pustaka-dokumen.js?v=2026-11-21-1a1e77';
+import { pasangRapikan } from './rapikan-berkas.js?v=2026-11-21-1a1e77';
+import { UNSUR, skorUnsur, pihakUnsur } from './unsur-butir.js?v=2026-11-21-1a1e77';
+import { OPSI_SUMBER } from './iku-otomatis.js?v=2026-11-21-1a1e77';
+import { denganOtomatis as otomatisDari, tsTersedia, tsAwal, htmlCapaianIKU, KET_CAPAIAN, muatTambahan, denganTambahan } from './capaian-iku.js?v=2026-11-21-1a1e77';
+import { KATEGORI_TEMUAN, STATUS_TEMUAN, PIHAK_TEMUAN, ringkasTemuan, htmlRingkasTemuan } from './temuan-ami.js?v=2026-11-21-1a1e77';
+import { bacaRekapSPM, rencanaImporSPM, tsDariTanggal, labelTS, ringkasLembar, picProdi } from './standar-spmi.js?v=2026-11-21-1a1e77';
+import { SHEETJS } from './nilai-cpl.js?v=2026-11-21-1a1e77';
+import { bacaCSV, normKur, normCpl, KOLOM_IMPOR, CONTOH_IMPOR, rencanaImpor, sebaranCPL, htmlSebaran } from './kurikulum-cpl.js?v=2026-11-21-1a1e77';
+import { htmlContoh, pasangContoh, JENIS_BUKTI_KS } from './manfaat-kerjasama.js?v=2026-11-21-1a1e77';
+import { infoJenis } from './rencana-bukti.js?v=2026-11-21-1a1e77';
+import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-21-1a1e77';
+import { nomorButir, htmlTautanButir } from './tautan-butir.js?v=2026-11-21-1a1e77';
+import { htmlSaran } from './saran-bukti.js?v=2026-11-21-1a1e77';
+import { tautanBerkas, privatkanLama, adalahPrivat } from './tautan-privat.js?v=2026-11-21-1a1e77';
+import { unggahLKD, buangLKD, bukaLKD, pendidikanTotal, pendidikanPS } from './bkd.js?v=2026-11-21-1a1e77';
+import { teksPelaksanaan } from './rekap-kp.js?v=2026-11-21-1a1e77';
 // Pelaksanaan KP per kerja sama (105, pemilik 2026-11-18): KP selesai di instansi bernama sama = bukti kegiatan.
 let KP_MITRA = new Map();
 
@@ -473,6 +473,30 @@ const TABEL = [
     },
     cek: r => !/^K\d{2}$/.test(r.kurikulum || '') ? 'Kurikulum: huruf K dan dua angka tahun, mis. K26.'
       : !/^[A-Za-z0-9.-]{1,10}$/.test(r.kode || '') ? 'Kode: 1–10 huruf/angka, mis. PL1.' : '' },
+  // Testimoni alumni dan mahasiswa (141-patch-testimoni.sql, pemilik 2026-11-21): tampil di Untuk calon mahasiswa HANYA
+  // bila tanggal persetujuan diisi dan "Tampil" dicentang.
+  { id: 'testimoni', tabel: 'testimoni', judul: 'Testimoni', butir: 'Situs publik',
+    patch: '141-patch-testimoni.sql', urut: ['urutan', 'id'], tanpaBukti: true,
+    ket: 'Kutipan alumni atau mahasiswa untuk halaman publik Untuk calon mahasiswa. Tampil HANYA bila tanggal persetujuan '
+       + 'diisi (orangnya setuju nama, pekerjaan, dan kutipannya dimuat) dan "Tampil" dicentang. Catat cara persetujuan '
+       + '(mis. surel, formulir). Bila orangnya menarik persetujuan: hilangkan centang Tampil atau hapus barisnya.',
+    label: r => `${r.nama || 'Testimoni'}${r.pekerjaan ? ' — ' + r.pekerjaan : ''}`, tahun: () => null,
+    kolom: [
+      { k: 'nama', l: 'Nama', t: 'teks', wajib: true },
+      { k: 'peran', l: 'Peran', t: 'pilihan', o: [['alumni', 'Alumni'], ['mahasiswa', 'Mahasiswa']], wajib: true },
+      { k: 'angkatan', l: 'Angkatan (tahun masuk)', t: 'int' },
+      { k: 'tahun_lulus', l: 'Tahun lulus (alumni)', t: 'int' },
+      { k: 'pekerjaan', l: 'Pekerjaan (jabatan, instansi)', t: 'teks', lebar: true },
+      { k: 'kutipan', l: 'Kutipan (20–400 huruf)', t: 'paragraf', wajib: true },
+      { k: 'persetujuan_tanggal', l: 'Tanggal persetujuan', t: 'tanggal' },
+      { k: 'persetujuan_cara', l: 'Cara persetujuan (mis. surel, formulir)', t: 'teks' },
+      { k: 'tampil', l: 'Tampil di situs', t: 'cek', awal: true },
+      { k: 'urutan', l: 'Urutan tampil', t: 'int' },
+    ],
+    olah: r => { if (r.urutan == null) r.urutan = 100; if (r.tampil == null) r.tampil = true; if (!r.peran) r.peran = 'alumni'; },
+    cek: r => String(r.kutipan || '').trim().length < 20 ? 'Kutipan paling sedikit 20 huruf.'
+      : String(r.kutipan || '').trim().length > 400 ? 'Kutipan paling banyak 400 huruf.'
+      : (r.tampil && !r.persetujuan_tanggal) ? 'Isi tanggal persetujuan sebelum menampilkan, atau hilangkan centang Tampil.' : '' },
   { id: 'tema', tabel: 'ref_tema_peta_jalan', judul: 'Peta jalan', butir: '22–25',
     patch: '25-patch-isian-karya.sql', urut: ['urutan', 'nama'],
     ket: 'Tema peta jalan penelitian dan PkM prodi. Dosen memilih temanya di isian karya penelitian/PkM; '
@@ -1748,7 +1772,7 @@ const GRUP_TAB = [
   ['Dosen & SDM', ['bkd', 'tendik', 'bidang_keahlian', 'topik_keahlian']],
   ['Kurikulum & CPL', ['mk', 'cpl', 'mk_cpl', 'korelasi_cpl', 'profil_lulusan']],
   ['Penelitian & kerja sama', ['tema', 'peta_dok', 'kerjasama']],
-  ['Mahasiswa & lulusan', ['mahasiswa', 'jadwal_ta', 'kohort', 'prestasi', 'publikasi', 'luaran', 'tracer', 'kepuasan']],
+  ['Mahasiswa & lulusan', ['mahasiswa', 'jadwal_ta', 'kohort', 'prestasi', 'publikasi', 'luaran', 'tracer', 'kepuasan', 'testimoni']],
   ['Institusi & keuangan', ['vmts', 'prodi_upps', 'dana']],
   ['Sarana & K3L', ['prasarana', 'dok_k3l', 'fas_k3l']],
   ['SPMI', ['standar', 'revisi', 'spmi', 'target', 'temuan']],

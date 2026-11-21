@@ -36,6 +36,7 @@ const ISI = {
   prestasi: { judul: 'Verifikasi data (prestasi)', href: 'verifikasi.html' },
   kabar: { judul: 'Kabar kegiatan', href: 'kabar-kegiatan.html' },
   tracer: { judul: 'Data prodi › Tracer', href: 'data-prodi.html?tab=tracer' },
+  testimoni: { judul: 'Data prodi › Testimoni', href: 'data-prodi.html?tab=testimoni' },
   config: { judul: 'config.yaml › public_site (admin repo)', href: '' },
 };
 
@@ -109,6 +110,8 @@ export function periksaKelengkapan(D = {}){
     `${n(s.karier)} karier`, ISI.config));
   out.push(baris('pendaftaran', H.calon, 'Tautan pendaftaran (PMB)', ada(s.pendaftaran) ? 'terisi' : 'kosong', '', ISI.config));
   out.push(baris('instagram', H.calon, 'Akun Instagram prodi', ada((s.sosial || {}).instagram) ? 'terisi' : 'kosong', '', ISI.config));
+  out.push(baris('testimoni', H.calon, 'Testimoni alumni dan mahasiswa', n(D.testimoni) ? 'terisi' : 'kosong',
+    `${n(D.testimoni)} testimoni`, ISI.testimoni, 'Tampil hanya bila tanggal persetujuan orangnya dicatat.'));
   return out;
 }
 
