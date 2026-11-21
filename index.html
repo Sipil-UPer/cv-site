@@ -8,14 +8,18 @@
 <meta property="og:type" content="website">
 <meta property="og:title" content="Program Studi Teknik Sipil — Universitas Pertamina">
 <meta property="og:description" content="Kurikulum, dosen dan kepakaran, penelitian, pengabdian kepada masyarakat, dan layanan mahasiswa.">
-<meta property="og:image" content="logo-up.webp">
+<!-- Pratinjau tautan (2026-11-21): alamat lengkap, og:url, canonical, dan url + sameAs JSON-LD diisi
+     `python bangun.py --beranda <folder situs>` sesudah site/ disalin, dari alamat situs (CNAME) dan data.json. -->
+<meta property="og:image" content="https://sipil-uper.github.io/cv-site/bagikan.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"CollegeOrUniversity","name":"Program Studi Teknik Sipil","parentOrganization":{"@type":"CollegeOrUniversity","name":"Universitas Pertamina"}}
+{"@context":"https://schema.org","@type":"CollegeOrUniversity","name":"Program Studi Teknik Sipil","parentOrganization":{"@type":"CollegeOrUniversity","name":"Universitas Pertamina"},"url":"https://sipil-uper.github.io/cv-site/","sameAs":["https://www.instagram.com/tekniksipil.uper/"]}
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-21-fa1459">
+<link rel="stylesheet" href="tema.css?v=2026-11-21-b207df">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:#fff;color:var(--ink);font-family:var(--sans);font-size:15.5px;line-height:1.6;-webkit-font-smoothing:antialiased}
@@ -205,6 +209,11 @@
     .berita-band{padding:16px 18px}
   }
 </style>
+<link rel="canonical" href="https://sipil-uper.github.io/cv-site/">
+<meta property="og:site_name" content="Program Studi Teknik Sipil — Universitas Pertamina">
+<meta property="og:url" content="https://sipil-uper.github.io/cv-site/">
+<meta property="og:locale" content="id_ID">
+<meta name="twitter:card" content="summary_large_image">
 </head>
 <body>
 <div class="pita" id="pita" hidden></div>
@@ -312,7 +321,7 @@
 
 </main>
 
-<script src="config.js?v=2026-11-21-fa1459"></script>
+<script src="config.js?v=2026-11-21-b207df"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -330,8 +339,8 @@ addEventListener('error', function (e) {
 // Beranda program studi (pemilik 2026-11-16). Data dari data.json (bangun.py); pita dari RPC publik.
 // Isi yang belum ada (config.yaml public_site: tagline, kontak, media sosial, PMB) tidak ditampilkan.
 // Dasbor kinerja yang dulu di sini pindah ke kinerja.html.
-import { pasangKerangka, isiKerangka } from './kerangka.js?v=2026-11-21-fa1459';
-import { halamanAktif } from './fitur.js?v=2026-11-21-fa1459';
+import { pasangKerangka, isiKerangka } from './kerangka.js?v=2026-11-21-b207df';
+import { halamanAktif } from './fitur.js?v=2026-11-21-b207df';
 pasangKerangka({ aktif: '' });
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -495,7 +504,7 @@ function gambar(d){
 }
 
 function pasangCari(D){
-  import('./cari.js?v=2026-11-21-fa1459').then(m => {
+  import('./cari.js?v=2026-11-21-b207df').then(m => {
     const idx = m.indeksPublik(D, k => !(window.FITUR_MATI || []).includes(k));
     const kotak = $('cariUmum'), panel = $('hasilUmum');
     let aktif = -1;

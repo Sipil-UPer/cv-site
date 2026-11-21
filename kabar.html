@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-21-fa1459">
+<link rel="stylesheet" href="tema.css?v=2026-11-21-b207df">
 <style>
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15.5px;line-height:1.6}
@@ -36,6 +36,16 @@ h2{font-family:var(--serif);font-size:23px;color:var(--biru);margin:8px 0 6px;li
 .kosong{color:var(--muted)}
 @media(max-width:760px){.kartu{grid-template-columns:1fr}.kartu>img{min-height:0;aspect-ratio:16/10}}
 </style>
+<link rel="canonical" href="https://sipil-uper.github.io/cv-site/kabar.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Program Studi Teknik Sipil — Universitas Pertamina">
+<meta property="og:description" content="Kegiatan Program Studi Teknik Sipil, Universitas Pertamina: kuliah tamu, kunjungan lapangan, seminar, pengabdian kepada masyarakat, dan kerja sama.">
+<meta property="og:url" content="https://sipil-uper.github.io/cv-site/kabar.html">
+<meta property="og:locale" content="id_ID">
+<meta property="og:image" content="https://sipil-uper.github.io/cv-site/bagikan.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
 </head>
 <body>
 <main id="utama">
@@ -47,9 +57,9 @@ h2{font-family:var(--serif);font-size:23px;color:var(--biru);margin:8px 0 6px;li
   <div class="daftar"><p class="kosong">Kabar kegiatan program studi akan tampil di sini.</p></div>
   <p class="univ">Berita program studi juga dimuat di <a href="https://universitaspertamina.ac.id/prodi/teknik-sipil/berita" rel="noopener">laman berita universitas &#8599;</a>.</p>
 </main>
-<script src="config.js?v=2026-11-21-fa1459"></script>
+<script src="config.js?v=2026-11-21-b207df"></script>
 <script type="module">
-import { pasangKerangka, isiKerangka } from './kerangka.js?v=2026-11-21-fa1459';
+import { pasangKerangka, isiKerangka } from './kerangka.js?v=2026-11-21-b207df';
 pasangKerangka({ aktif: 'profil' });
 fetch('data.json?v=' + Date.now()).then(r => r.json()).then(isiKerangka).catch(() => {});
 </script>
