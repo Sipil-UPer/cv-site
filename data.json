@@ -7408,7 +7408,15 @@
  },
  "akreditasi_prodi": {},
  "kerja_sama": [],
- "profil": {},
+ "profil": {
+  "pengelola": [
+   {
+    "jabatan": "Ketua Program Studi",
+    "nama": "Dr. Arianta, ST., MT",
+    "slug": "arianta"
+   }
+  ]
+ },
  "prestasi_agregat": [
   {
    "tahun": 2026,

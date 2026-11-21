@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-21-b207df">
-<link rel="stylesheet" href="kepala.css?v=2026-11-21-b207df">
+<link rel="stylesheet" href="tema.css?v=2026-11-21-4ede98">
+<link rel="stylesheet" href="kepala.css?v=2026-11-21-4ede98">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
@@ -43,7 +43,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-21-b207df"></script>
+<script src="config.js?v=2026-11-21-4ede98"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -62,12 +62,13 @@ addEventListener('error', function (e) {
 // Tampil di profil-prodi.html (dibangun bangun.py tiap jam) bersama visi-misi (Data prodi > VMTS), profil lulusan
 // (Kurikulum > Profil lulusan), dan status akreditasi (Data prodi > Prodi di UPPS).
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-21-b207df';
+import { gerbang } from './menu.js?v=2026-11-21-4ede98';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
 const sb = createClient(window.SB_URL, window.SB_KEY);
-const JABATAN = ['Ketua Program Studi', 'Sekretaris Program Studi', 'Koordinator Tugas Akhir', 'Koordinator Kerja Praktik',
+// Ketua Program Studi tidak di daftar: diambil dari penugasan Kaprodi yang berlaku (bangun.py, pemilik 2026-11-21).
+const JABATAN = ['Sekretaris Program Studi', 'Koordinator Tugas Akhir', 'Koordinator Kerja Praktik',
   'Koordinator Kemahasiswaan', 'Koordinator Laboratorium', 'Gugus Penjaminan Mutu', 'Tenaga Kependidikan'];
 
 let SAYA = null, DOSEN = [], PENGELOLA = [], SUNTING = null;
@@ -84,7 +85,8 @@ function kerangka(){
         Data prodi › Prodi di UPPS.</p>
       <div class="grid">
         <label class="lebar">Sambutan (maks. 2500 huruf)<textarea id="pS" maxlength="2500"></textarea></label>
-        <label>Disampaikan oleh<select id="pP">${opsiDosen('(tanpa nama)')}</select></label>
+        <label>Disampaikan oleh (hanya bila belum ada Kaprodi di <a href="koordinator.html">Penugasan koordinator</a>)
+          <select id="pP">${opsiDosen('(tanpa nama)')}</select></label>
         <label class="lebar">Sejarah singkat (maks. 4000 huruf)<textarea id="pJ" maxlength="4000"
           placeholder="Tahun berdiri, SK pendirian, tonggak penting, akreditasi pertama."></textarea></label>
       </div>
@@ -92,7 +94,9 @@ function kerangka(){
     </div>
     <div class="kartu"><h2>Pengelola program studi</h2>
       <p class="ket">Dosen dipilih dari daftar (tertaut ke halaman dosennya, dengan fotonya bila ada); yang bukan dosen ditulis namanya.
-        Urutan kecil tampil lebih dulu.</p>
+        Urutan kecil tampil lebih dulu. Ketua Program Studi tidak diisi di sini: situs memakai Kaprodi yang berlaku di
+        <a href="koordinator.html">Penugasan koordinator</a> (menurut tanggal mulai dan selesai), yang juga menjadi penanda
+        tangan sambutan.</p>
       <div class="grid">
         <label>Jabatan<input id="gJ" list="dlJabatan" maxlength="120" autocomplete="off">
           <datalist id="dlJabatan">${JABATAN.map(j => `<option value="${esc(j)}">`).join('')}</datalist></label>
