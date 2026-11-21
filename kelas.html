@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Penyusunan kelas — Ruang kerja</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tema.css?v=2026-11-21-4089e7">
+<link rel="stylesheet" href="kepala.css?v=2026-11-21-4089e7">
+<style>
+  /* Penyusunan kelas (136-patch-penyusunan-kelas.sql, pemilik 2026-11-21) */
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
+  .wrap{max-width:1300px;margin:0 auto;padding:18px 20px 80px}
+  .kosong, .ket{color:var(--muted)}
+  .ket{font-size:13px}
+  .kartu{background:var(--panel);border:1px solid var(--line);padding:14px 18px;margin-bottom:16px}
+  .kartu h2{font-size:17px;margin:0 0 6px;color:var(--biru)}
+  .alat{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:8px 0}
+  select, input[type=search], input[type=text], input[type=number]{font:inherit;font-size:14px;padding:5px 7px;border:1px solid var(--line);background:var(--panel);color:var(--ink)}
+  .b{font:inherit;font-size:14px;padding:5px 12px;border:1px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer}
+  .b.utama{background:var(--biru);border-color:var(--biru);color:#fff}
+  .b.bahaya{color:var(--merah);border-color:var(--merah)}
+  .b.kecil{font-size:12.5px;padding:2px 8px}
+  .b:disabled{opacity:.5;cursor:default}
+  .pesan{font-size:13.5px;margin:6px 0} .pesan.galat{color:var(--merah)} .pesan.ok{color:var(--hijau)}
+  .periksa{border-left:4px solid var(--merah);background:var(--merah-m3);padding:8px 12px;margin:8px 0;font-size:13.5px}
+  .ringkas{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+  .ringkas div{min-width:130px;padding:6px 10px;border:1px solid var(--line)} .ringkas b{display:block;font-size:20px;line-height:1.1} .ringkas span{font-size:12px;color:var(--muted)}
+  .gulir{overflow-x:auto}
+  table.ds{width:100%;border-collapse:collapse;font-size:13.5px}
+  table.ds th{text-align:left;font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--line);padding:5px 6px}
+  table.ds td{padding:5px 6px;border-bottom:1px solid var(--line-soft);vertical-align:top}
+  tr.mk td{background:rgba(30,90,200,.06);border-top:1px solid var(--line)}
+  tr.paket th{background:transparent;color:var(--biru);font-size:12.5px;text-transform:none;letter-spacing:0;padding-top:14px}
+  .kode{font-family:var(--mono);font-size:12px;color:var(--muted)}
+  .chip{display:inline-block;font-size:12px;padding:1px 7px;border:1px solid var(--line);margin:1px 3px 1px 0;white-space:nowrap}
+  .chip.koor{border-color:var(--biru);color:var(--biru);font-weight:600}
+  .panel{border:1px solid var(--biru);padding:10px 14px;margin:10px 0;background:var(--panel)}
+  .panel .baris-dosen{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:4px 0}
+  .panel select{min-width:260px}
+  details summary{cursor:pointer}
+  ul.galat{margin:4px 0;padding-left:18px;font-size:13px;color:var(--merah)}
+  @media(max-width:700px){.wrap{padding-left:16px;padding-right:16px}}
+</style>
+</head>
+<body>
+<header class="hero"><div class="hero-in">
+  <div class="hero-inst" data-identitas></div>
+  <h1>Penyusunan kelas</h1>
+  <div class="sub" id="hSub">Memuat…</div>
+</div></header>
+<main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
+<script src="config.js?v=2026-11-21-4089e7"></script>
+<script>
+// Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
+addEventListener('error', function (e) {
+  if (document.getElementById('galat-muat')) return;
+  var d = document.createElement('div');
+  d.id = 'galat-muat';
+  d.style.cssText = 'margin:16px;padding:12px 14px;border:1px solid var(--merah);' +
+    'background:var(--merah-m3);color:var(--ink);font:14px/1.5 system-ui,sans-serif';
+  d.textContent = 'Halaman gagal dimuat: ' + (e.message || 'galat skrip') +
+    '. Tekan Ctrl+Shift+R untuk memuat ulang tanpa cache; bila tetap muncul, kirim pesan ini ke admin.';
+  document.body.insertBefore(d, document.body.firstChild);
+});
+</script>
+<script type="module">
+// Penyusunan kelas per semester (136-patch-penyusunan-kelas.sql, pemilik 2026-11-21): prodi menyusun kelas (satu MK boleh
+// beberapa kelas, team teaching = satu koordinator + anggota), manual atau impor CSV; ekspor CSV untuk optimasi jadwal di luar
+// situs; salin ke daftar kelas nilai CPL. Admin dan Kaprodi aktif menyusun; dosen lain membaca. Logika: kelas.js.
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
+import { gerbang } from './menu.js?v=2026-11-21-4089e7';
+import { punya } from './koordinator.js?v=2026-11-21-4089e7';
+import { semesterKini } from './evaluasi-pembelajaran.js?v=2026-11-21-4089e7';
+import { mkDitawarkan, kelasBerikut, usulanKelasAwal, csvKelas, bacaCsvKelas } from './kelas.js?v=2026-11-21-4089e7';
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const sb = createClient(window.SB_URL, window.SB_KEY);
+const baca = q => q.then(r => r.error ? [] : (r.data || []), () => []);
+let SAYA = null, MK = [], DOSEN = [], KELAS = [], KD = [], ADA = true, PERIODE = null, KUR = '', CARI = '', F_SAYA = false, DRAF = null;
+const PENGATUR = () => SAYA?.peran === 'admin' || punya(SAYA, 'kaprodi');
+const namaD = id => { const d = DOSEN.find(x => x.id === id); return d ? (d.nama_gelar || d.nama) : '?'; };
+
+// Semester lalu, ini, dan berikutnya.
+function periodeDaftar(){
+  const k = semesterKini(), [a] = k.ta.split('/').map(Number);
+  const lalu = k.sm === 'Genap' ? { ta: k.ta, sm: 'Ganjil' } : { ta: `${a - 1}/${a}`, sm: 'Genap' };
+  const lanjut = k.sm === 'Ganjil' ? { ta: k.ta, sm: 'Genap' } : { ta: `${a + 1}/${a + 2}`, sm: 'Ganjil' };
+  return [lalu, k, lanjut];
+}
+
+async function muat(){
+  const k = await sb.from('kelas_kuliah').select('*').eq('tahun_akademik', PERIODE.ta).eq('semester', PERIODE.sm).order('kode_mk').order('kelas');
+  ADA = !k.error;
+  KELAS = k.data || [];
+  KD = KELAS.length ? await baca(sb.from('kelas_dosen').select('*').in('kelas_id', KELAS.map(x => x.id))) : [];
+}
+
+function mkTampil(){
+  const tawar = mkDitawarkan(MK, KUR, PERIODE.sm);
+  // MK yang sudah punya kelas periode ini tetap tampil walau di luar paritas semester.
+  const lain = MK.filter(m => m.kurikulum === KUR && !tawar.some(t => t.kode === m.kode) && KELAS.some(k => k.kurikulum === KUR && k.kode_mk === m.kode))
+    .map(m => ({ ...m, pilihan: m.sifat === 'pilihan' }));
+  const q = CARI.trim().toLowerCase();
+  return [...tawar, ...lain].filter(m => {
+    const ks = kelasMK(m);
+    if (F_SAYA && !ks.some(k => KD.some(d => d.kelas_id === k.id && d.dosen_id === SAYA.id))) return false;
+    if (!q) return true;
+    return `${m.kode} ${m.nama} ${ks.flatMap(k => KD.filter(d => d.kelas_id === k.id).map(d => namaD(d.dosen_id))).join(' ')}`.toLowerCase().includes(q);
+  });
+}
+const kelasMK = m => KELAS.filter(k => k.kurikulum === m.kurikulum && k.kode_mk === m.kode).sort((a, b) => a.kelas.localeCompare(b.kelas, 'id', { numeric: true }));
+const dosenKelas = k => KD.filter(d => d.kelas_id === k.id).sort((a, b) => (a.peran === 'koordinator' ? -1 : 0) - (b.peran === 'koordinator' ? -1 : 0) || a.urutan - b.urutan);
+
+function gambar(){
+  if (!ADA) { $('isi').innerHTML = '<div class="kartu"><p class="kosong">Tabel kelas belum ada. Admin menjalankan supabase/136-patch-penyusunan-kelas.sql di Supabase.</p></div>'; return; }
+  const per = periodeDaftar(), kurs = [...new Set(MK.map(m => m.kurikulum))].sort().reverse();
+  const xs = mkTampil(), tawar = mkDitawarkan(MK, KUR, PERIODE.sm);
+  const kelasKur = KELAS.filter(k => k.kurikulum === KUR);
+  const belum = tawar.filter(m => !kelasMK(m).length).length, tim = kelasKur.filter(k => KD.filter(d => d.kelas_id === k.id).length > 1).length;
+  const tanpaKoor = kelasKur.filter(k => !KD.some(d => d.kelas_id === k.id && d.peran === 'koordinator')).length;
+  let paket = null;
+  const baris = xs.map(m => {
+    const p = m.pilihan ? 'MK pilihan' : `Semester ${m.semester}`, kepala = p !== paket ? `<tr class="paket"><th colspan="6">${esc(p)}</th></tr>` : '';
+    paket = p;
+    const ks = kelasMK(m);
+    return kepala + `<tr class="mk"><td colspan="5"><span class="kode">${esc(m.kode)}</span> <b>${esc(m.nama)}</b> <span class="ket">${esc(m.sks)} sks · ${ks.length} kelas</span></td>
+      <td>${PENGATUR() ? `<button class="b kecil" data-tambah="${esc(m.kode)}">+ Kelas</button>` : ''}</td></tr>`
+      + (ks.map(k => `<tr><td>Kelas <b>${esc(k.kelas)}</b></td>
+          <td>${dosenKelas(k).map(d => `<span class="chip${d.peran === 'koordinator' ? ' koor' : ''}" title="${d.peran === 'koordinator' ? 'Koordinator kelas' : 'Anggota team teaching'}${d.pertemuan ? `, ${d.pertemuan} pertemuan` : ''}">${esc(namaD(d.dosen_id))}${d.peran === 'koordinator' && dosenKelas(k).length > 1 ? ' (K)' : ''}${d.pertemuan ? ` · ${d.pertemuan}×` : ''}</span>`).join('') || '<span class="ket">belum ada dosen</span>'}</td>
+          <td>${k.kapasitas ? `${esc(k.kapasitas)} mhs` : ''}</td><td>${esc(k.angkatan || '')}</td><td class="ket">${esc(k.catatan || '')}</td>
+          <td>${PENGATUR() ? `<button class="b kecil" data-ubah="${k.id}">Ubah</button>` : ''}</td></tr>`).join('')
+        || `<tr><td colspan="6" class="ket">Belum ada kelas.</td></tr>`);
+  }).join('');
+  $('isi').innerHTML = `<div class="kartu"><div class="alat">
+      <label>Semester <select id="fPer">${per.map((p, i) => `<option value="${i}"${p.ta === PERIODE.ta && p.sm === PERIODE.sm ? ' selected' : ''}>${p.sm} ${p.ta}</option>`).join('')}</select></label>
+      <label>Kurikulum <select id="fKur">${kurs.map(k => `<option${k === KUR ? ' selected' : ''}>${esc(k)}</option>`).join('')}</select></label>
+      <input type="search" id="fCari" placeholder="Cari MK atau dosen" value="${esc(CARI)}">
+      <label class="ket"><input type="checkbox" id="fSaya"${F_SAYA ? ' checked' : ''}> Hanya kelas saya</label></div>
+    <p class="ket">Satu mata kuliah boleh dibagi beberapa kelas. Tiap kelas punya dosen pengampu; untuk team teaching tetapkan satu
+      <b>koordinator kelas</b> (ditandai K) dan anggota. MK yang tampil: MK ${esc(KUR)} semester ${PERIODE.sm === 'Ganjil' ? 'ganjil' : 'genap'} ditambah MK pilihan.
+      Jam, hari, dan ruang diisi kemudian (penyusunan jadwal). ${PENGATUR() ? '' : 'Kelas disusun admin dan Kaprodi; Anda hanya melihat.'}</p>
+    <div class="ringkas"><div><b>${tawar.length}</b><span>MK ditawarkan</span></div><div><b>${kelasKur.length}</b><span>kelas</span></div>
+      <div><b>${belum}</b><span>MK belum ada kelas</span></div><div><b>${tim}</b><span>kelas team teaching</span></div></div>
+    ${tanpaKoor ? `<p class="periksa">${tanpaKoor} kelas belum punya koordinator.</p>` : ''}
+    ${PENGATUR() ? htmlAlat() : ''}
+    ${DRAF ? htmlEditor() : ''}<p class="pesan" id="mKelas"></p>
+    <div class="gulir"><table class="ds"><thead><tr><th>Kelas</th><th>Dosen</th><th>Kapasitas</th><th>Angkatan</th><th>Catatan</th><th></th></tr></thead>
+      <tbody>${baris || `<tr><td colspan="6" class="kosong">${F_SAYA && !CARI.trim()
+        ? `Anda belum punya kelas ${esc(KUR)} pada ${esc(PERIODE.sm)} ${esc(PERIODE.ta)}. Hilangkan centang <b>Hanya kelas saya</b> untuk melihat semua kelas.`
+        : 'Tidak ada mata kuliah yang cocok.'}</td></tr>`}</tbody></table></div></div>`;
+  pasang();
+}
+
+function htmlAlat(){
+  return `<div class="alat"><button class="b" id="aUsul">Buat kelas A untuk MK yang belum punya kelas</button>
+      <button class="b" id="aUnduh">Unduh CSV</button><button class="b" id="aCpl">Salin ke daftar kelas nilai CPL</button></div>
+    <details><summary><b>Impor CSV</b></summary>
+      <p class="ket">Pemisah titik koma. Kolom wajib <code>kode_mk</code>, <code>kelas</code>, dan <code>dosen</code> (NIDN atau email, dipisah <code>|</code>;
+        dosen pertama = koordinator kelas); opsional <code>kurikulum</code> (kosong = ${esc(KUR)}), <code>kapasitas</code>, <code>angkatan</code>, <code>catatan</code>.
+        Berkas hasil <b>Unduh CSV</b> (kolom <code>koordinator</code> + <code>anggota</code>) juga bisa diimpor ulang. Kelas yang sudah ada diperbarui.</p>
+      <div class="alat"><input type="file" id="iBerkas" accept=".csv,text/csv">
+        <label class="ket"><input type="checkbox" id="iGanti"> hapus kelas ${esc(PERIODE.sm)} ${esc(PERIODE.ta)} yang tidak ada di berkas</label>
+        <button class="b utama" id="iImpor">Impor</button></div><div id="iGalat"></div></details>`;
+}
+
+function htmlEditor(){
+  const m = MK.find(x => x.kurikulum === DRAF.kurikulum && x.kode === DRAF.kode_mk) || {};
+  const opsi = v => `<option value="">— pilih dosen —</option>` + DOSEN.map(d => `<option value="${d.id}"${d.id === v ? ' selected' : ''}>${esc(d.nama_gelar || d.nama)}</option>`).join('');
+  return `<div class="panel"><b>${DRAF.id ? 'Ubah' : 'Tambah'} kelas: <span class="kode">${esc(DRAF.kode_mk)}</span> ${esc(m.nama || '')}</b>
+    <div class="alat"><label>Kelas <input type="text" id="eKelas" maxlength="10" value="${esc(DRAF.kelas)}" style="width:70px"></label>
+      <label>Kapasitas <input type="number" id="eKap" min="1" max="500" value="${esc(DRAF.kapasitas ?? '')}" style="width:80px"></label>
+      <label>Angkatan <input type="text" id="eAng" maxlength="40" value="${esc(DRAF.angkatan || '')}" placeholder="mis. 2025" style="width:110px"></label>
+      <label>Catatan <input type="text" id="eCat" maxlength="500" value="${esc(DRAF.catatan || '')}" style="min-width:220px"></label></div>
+    <div class="ket">Dosen pengampu (pilih satu koordinator kelas; tambah dosen untuk team teaching; pertemuan opsional):</div>
+    ${DRAF.dosen.map((d, i) => `<div class="baris-dosen"><select data-dsel="${i}">${opsi(d.dosen_id)}</select>
+      <label><input type="radio" name="eKoor" data-koor="${i}"${d.peran === 'koordinator' ? ' checked' : ''}> koordinator</label>
+      <label class="ket">pertemuan <input type="number" data-pert="${i}" min="1" max="32" value="${esc(d.pertemuan ?? '')}" style="width:64px"></label>
+      ${DRAF.dosen.length > 1 ? `<button class="b kecil bahaya" data-buang="${i}">Hapus</button>` : ''}</div>`).join('')}
+    <div class="alat"><button class="b kecil" id="eTambahD">+ Dosen (team teaching)</button></div>
+    <div class="alat"><button class="b utama" id="eSimpan">Simpan kelas</button><button class="b" id="eBatal">Batal</button>
+      ${DRAF.id ? '<button class="b bahaya" id="eHapus">Hapus kelas</button>' : ''}</div></div>`;
+}
+
+const tulis = (id, kelas, t) => { const el = $(id); if (el) { el.className = 'pesan ' + kelas; el.textContent = t; } };
+async function segar(){ await muat(); gambar(); }
+
+function pasang(){
+  $('fPer').onchange = async e => { PERIODE = periodeDaftar()[+e.target.value]; DRAF = null; await segar(); };
+  $('fKur').onchange = e => { KUR = e.target.value; DRAF = null; gambar(); };
+  $('fCari').oninput = e => { CARI = e.target.value; const p = e.target.selectionStart; gambar(); $('fCari').focus(); $('fCari').setSelectionRange(p, p); };
+  $('fSaya').onchange = e => { F_SAYA = e.target.checked; gambar(); };
+  document.querySelectorAll('[data-tambah]').forEach(b => { b.onclick = () => {
+    const m = MK.find(x => x.kurikulum === KUR && x.kode === b.dataset.tambah);
+    const ids = (m.pengampu || []).map(n => DOSEN.find(d => String(d.nidn) === String(n))?.id).filter(Boolean);
+    DRAF = { kurikulum: KUR, kode_mk: m.kode, kelas: kelasBerikut(kelasMK(m).map(k => k.kelas)), kapasitas: null, angkatan: '', catatan: '',
+             dosen: (ids.length ? ids : ['']).map((id, i) => ({ dosen_id: id, peran: i ? 'anggota' : 'koordinator', pertemuan: null })) };
+    gambar(); $('eKelas')?.scrollIntoView({ block: 'center' }); }; });
+  document.querySelectorAll('[data-ubah]').forEach(b => { b.onclick = () => {
+    const k = KELAS.find(x => x.id === +b.dataset.ubah);
+    DRAF = { id: k.id, kurikulum: k.kurikulum, kode_mk: k.kode_mk, kelas: k.kelas, kapasitas: k.kapasitas, angkatan: k.angkatan || '', catatan: k.catatan || '',
+             dosen: dosenKelas(k).map(d => ({ dosen_id: d.dosen_id, peran: d.peran, pertemuan: d.pertemuan })) };
+    gambar(); $('eKelas')?.scrollIntoView({ block: 'center' }); }; });
+  if (DRAF) pasangEditor();
+  if ($('aUsul')) $('aUsul').onclick = buatUsulan;
+  if ($('aUnduh')) $('aUnduh').onclick = () => {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob(['﻿' + csvKelas(KELAS, KD, MK, DOSEN)], { type: 'text/csv;charset=utf-8' }));
+    a.download = `kelas_${PERIODE.ta.replace('/', '-')}_${PERIODE.sm}.csv`; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  };
+  if ($('aCpl')) $('aCpl').onclick = async () => {
+    if (!confirm(`Salin kelas ${PERIODE.sm} ${PERIODE.ta} ke daftar kelas nilai CPL? Koordinator kelas menjadi dosen kelas di sana; kelas yang sudah ada diperbarui.`)) return;
+    const { data, error } = await sb.rpc('kelas_ke_cpl', { p_ta: PERIODE.ta, p_semester: PERIODE.sm });
+    if (error) return tulis('mKelas', 'galat', error.message);
+    tulis('mKelas', 'ok', `${data.disalin} kelas disalin ke daftar kelas nilai CPL.` + (data.bentrok_kurikulum.length ? ` Dilewati (kode MK dan kelas sama di dua kurikulum; ganti nama kelasnya): ${data.bentrok_kurikulum.join(', ')}.` : '')
+      + (data.tanpa_koordinator.length ? ` Tanpa koordinator: ${data.tanpa_koordinator.join(', ')}.` : ''));
+  };
+  if ($('iImpor')) $('iImpor').onclick = impor;
+}
+
+function pasangEditor(){
+  const ambil = () => { DRAF.kelas = $('eKelas').value; DRAF.kapasitas = $('eKap').value ? +$('eKap').value : null; DRAF.angkatan = $('eAng').value; DRAF.catatan = $('eCat').value; };
+  document.querySelectorAll('[data-dsel]').forEach(s => { s.onchange = () => { DRAF.dosen[+s.dataset.dsel].dosen_id = s.value; }; });
+  document.querySelectorAll('[data-koor]').forEach(r => { r.onchange = () => { DRAF.dosen.forEach((d, i) => { d.peran = i === +r.dataset.koor ? 'koordinator' : 'anggota'; }); }; });
+  document.querySelectorAll('[data-pert]').forEach(x => { x.onchange = () => { DRAF.dosen[+x.dataset.pert].pertemuan = x.value ? +x.value : null; }; });
+  document.querySelectorAll('[data-buang]').forEach(b => { b.onclick = () => { ambil(); const i = +b.dataset.buang, koor = DRAF.dosen[i].peran === 'koordinator';
+    DRAF.dosen.splice(i, 1); if (koor) DRAF.dosen[0].peran = 'koordinator'; gambar(); }; });
+  $('eTambahD').onclick = () => { ambil(); DRAF.dosen.push({ dosen_id: '', peran: 'anggota', pertemuan: null }); gambar(); };
+  $('eBatal').onclick = () => { DRAF = null; gambar(); };
+  $('eSimpan').onclick = async () => {
+    ambil();
+    const ds = DRAF.dosen.filter(d => d.dosen_id);
+    if (!/^[A-Za-z0-9._ -]{1,10}$/.test(DRAF.kelas.trim())) return tulis('mKelas', 'galat', 'Nama kelas 1–10 huruf/angka, mis. A.');
+    if (!ds.length) return tulis('mKelas', 'galat', 'Pilih minimal satu dosen.');
+    if (new Set(ds.map(d => d.dosen_id)).size !== ds.length) return tulis('mKelas', 'galat', 'Dosen yang sama dipilih dua kali.');
+    if (!ds.some(d => d.peran === 'koordinator')) ds[0].peran = 'koordinator';
+    $('eSimpan').disabled = true;
+    const { error } = await sb.rpc('kelas_simpan', { p: { ...DRAF, kelas: DRAF.kelas.trim(), dosen: ds, tahun_akademik: PERIODE.ta, semester: PERIODE.sm } });
+    if (error) { $('eSimpan').disabled = false; return tulis('mKelas', 'galat', /duplicate|unique/i.test(error.message) ? `Kelas ${DRAF.kelas} sudah ada untuk MK ini.` : error.message); }
+    DRAF = null; await segar(); tulis('mKelas', 'ok', 'Kelas tersimpan.');
+  };
+  if ($('eHapus')) $('eHapus').onclick = async () => {
+    if (!confirm(`Hapus kelas ${DRAF.kode_mk} ${DRAF.kelas}? Daftar dosennya ikut terhapus.`)) return;
+    const { error } = await sb.from('kelas_kuliah').delete().eq('id', DRAF.id);
+    if (error) return tulis('mKelas', 'galat', error.message);
+    DRAF = null; await segar(); tulis('mKelas', 'ok', 'Kelas dihapus.');
+  };
+}
+
+async function buatUsulan(){
+  const u = usulanKelasAwal(mkDitawarkan(MK, KUR, PERIODE.sm), KELAS, DOSEN);
+  if (!u.baris.length) return tulis('mKelas', 'galat', u.tanpaPengampu.length
+    ? `Semua MK sudah punya kelas atau belum punya pengampu di Data prodi (${u.tanpaPengampu.join(', ')}).` : 'Semua MK sudah punya kelas.');
+  if (!confirm(`Buat ${u.baris.length} kelas A (${KUR}, ${PERIODE.sm} ${PERIODE.ta}) dengan dosen dari pengampu MK?`
+    + (u.tanpaPengampu.length ? ` ${u.tanpaPengampu.length} MK tanpa pengampu dilewati: ${u.tanpaPengampu.join(', ')}.` : ''))) return;
+  $('aUsul').disabled = true;
+  let n = 0; const galat = [];
+  for (const b of u.baris) {
+    const { error } = await sb.rpc('kelas_simpan', { p: { ...b, tahun_akademik: PERIODE.ta, semester: PERIODE.sm } });
+    if (error) galat.push(`${b.kode_mk}: ${error.message}`); else n++;
+  }
+  await segar();
+  tulis('mKelas', galat.length ? 'galat' : 'ok', `${n} kelas dibuat.` + (galat.length ? ` Gagal: ${galat.join('; ')}` : '')
+    + (u.tanpaPengampu.length ? ` Tanpa pengampu (tambahkan manual): ${u.tanpaPengampu.join(', ')}.` : ''));
+}
+
+async function impor(){
+  const f = $('iBerkas').files[0];
+  if (!f) return tulis('mKelas', 'galat', 'Pilih berkas CSV.');
+  const { baris, galat } = bacaCsvKelas(await f.text(), { mk: MK, kurikulumBawaan: KUR });
+  const ganti = $('iGanti').checked;
+  if (!baris.length) { $('iGalat').innerHTML = galat.length ? `<ul class="galat">${galat.map(g => `<li>${esc(g)}</li>`).join('')}</ul>` : ''; return tulis('mKelas', 'galat', 'Tidak ada baris yang bisa diimpor.'); }
+  if (ganti && !confirm(`Kelas ${PERIODE.sm} ${PERIODE.ta} yang tidak ada di berkas akan dihapus. Lanjutkan?`)) return;
+  $('iImpor').disabled = true;
+  const { data, error } = await sb.rpc('kelas_impor', { p_ta: PERIODE.ta, p_semester: PERIODE.sm, p_baris: baris, p_ganti: ganti });
+  if (error) { $('iImpor').disabled = false; return tulis('mKelas', 'galat', error.message); }
+  await segar();
+  const semua = [...galat, ...(data.galat || [])];
+  $('iGalat').innerHTML = semua.length ? `<ul class="galat">${semua.map(g => `<li>${esc(g)}</li>`).join('')}</ul>` : '';
+  tulis('mKelas', semua.length ? 'galat' : 'ok', `${data.masuk} kelas diimpor${data.dihapus ? `, ${data.dihapus} dihapus` : ''}.${semua.length ? ` ${semua.length} baris dilewati (lihat daftar).` : ''}`);
+}
+
+async function mulai(){
+  SAYA = await gerbang(sb);
+  if (!SAYA) return;
+  $('hSub').textContent = `Masuk sebagai ${SAYA.nama}`;
+  PERIODE = periodeDaftar()[1];
+  F_SAYA = !PENGATUR();
+  [MK, DOSEN] = await Promise.all([
+    baca(sb.from('ref_mata_kuliah').select('kurikulum,kode,nama,sks,semester,sifat,aktif,pengampu')),
+    baca(sb.from('dosen').select('id,nidn,nama,nama_gelar,email,aktif,peran').order('nama'))]);
+  DOSEN = DOSEN.filter(d => d.aktif !== false && d.peran !== 'asesor');
+  const kurs = [...new Set(MK.map(m => m.kurikulum))].sort().reverse();
+  KUR = kurs[0] || '';
+  await muat();
+  gambar();
+}
+mulai().catch(e => { $('isi').innerHTML = `<p class="kosong">Gagal memuat: ${esc(e.message)}</p>`; });
+</script>
+</body>
+</html>

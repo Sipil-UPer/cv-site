@@ -152,19 +152,20 @@ export function slotAntara(slot = [], a, b){
  * { tanggal, sampai, hari: [1..7], slot_ids, judul, jenis } -> { baris: {mulai, selesai, hari, slot_ids, jenis, alasan} } atau
  * { galat: [..] }. Satu tanggal (sampai kosong/sama) = hari null. Rentang: hari wajib dipilih (minimal satu, ada di rentang).
  */
-export function blokBaru({ tanggal, sampai = '', hari = [], slot_ids = [], judul = '', jenis = 'lainnya' } = {}){
+export function blokBaru({ tanggal, sampai = '', hari = [], slot_ids = [], judul = '', jenis = 'lainnya', sepanjang = false } = {}){
   const galat = [], j = String(judul || '').trim(), akhir = sampai || tanggal;
   const rentang = !!sampai && sampai !== tanggal, hs = [...new Set(hari.map(Number))].sort((x, y) => x - y);
   if (!hariISO(tanggal)) galat.push('Tanggal tidak sah.');
-  if (!slot_ids.length) galat.push('Pilih jam dengan menyeret pada kalender.');
+  if (!sepanjang && !slot_ids.length) galat.push('Pilih jam dengan menyeret pada kalender, atau centang Sepanjang hari.');
   if (!j) galat.push('Isi judul, mis. "Mengajar Teknik Lingkungan".');
   if (j.length > 200) galat.push('Judul paling panjang 200 huruf.');
   if (!JENIS_HALANGAN.some(([k]) => k === jenis)) galat.push('Jenis tidak sah.');
   if (rentang && !hs.length) galat.push('Centang minimal satu hari.');
-  if (hariISO(tanggal)) galat.push(...cekRentang({ mulai: tanggal, selesai: akhir, hari: rentang ? hs : [], slot: slot_ids })
+  if (hariISO(tanggal)) galat.push(...cekRentang({ mulai: tanggal, selesai: akhir, hari: rentang ? hs : [], slot: sepanjang ? [] : slot_ids })
     .map(g => g.replace('isi jadwal semesteran di Jadwal mingguan', 'pecah menjadi beberapa blok')));
   if (galat.length) return { galat: [...new Set(galat)] };
-  return { baris: { mulai: tanggal, selesai: akhir, hari: rentang ? hs : null, slot_ids: [...slot_ids], jenis, alasan: j } };
+  // Sepanjang hari (pemilik 2026-11-21) = slot_ids null, sama dengan isian formulir tanpa jam dicentang.
+  return { baris: { mulai: tanggal, selesai: akhir, hari: rentang ? hs : null, slot_ids: sepanjang ? null : [...slot_ids], jenis, alasan: j } };
 }
 
 /**
@@ -191,4 +192,44 @@ export function isiKalender({ tanggal = [], slot = [], rentang = [], tanggalan =
         for (const s of slot) if (r.slot_id === s.id) tambah(t, s.id, { sumber: 'mingguan', id: r.id, judul: r.alasan || '', jenis: r.jenis });
   }
   return out;
+}
+
+// ---------- Ekspor Excel berhalangan untuk pengatur jadwal (pemilik 2026-11-21, tahap 1 penyusunan jadwal) ----------
+export const EKSPOR_MAKS_HARI = 200;
+const jam5 = t => String(t || '').slice(0, 5);
+
+/**
+ * Isi lembar Excel. dosen [{id, nama}], slot aktif berurutan, mingguan (132, satu semester), tanggalan (132), rentang (135),
+ * dari..sampai 'YYYY-MM-DD' (paling lama EKSPOR_MAKS_HARI hari), hariAktif [1..7]. Hasil { mingguan: [[..]], tanggal: [[..]], galat }.
+ * Lembar Tanggal: slot bersambung dengan isian yang sama digabung menjadi satu baris jam mulai-selesai.
+ */
+export function barisEkspor({ dosen = [], slot = [], mingguan = [], tanggalan = [], rentang = [], dari, sampai, hariAktif = [1, 2, 3, 4, 5] } = {}){
+  const nama = id => dosen.find(d => d.id === id)?.nama || '?';
+  const urutSlot = new Map(slot.map((s, i) => [s.id, i]));
+  const M = [['Dosen', 'Hari', 'Slot', 'Mulai', 'Selesai', 'Jenis', 'Judul/alasan']];
+  [...mingguan].filter(r => urutSlot.has(r.slot_id))
+    .sort((a, b) => nama(a.dosen_id).localeCompare(nama(b.dosen_id)) || a.hari - b.hari || urutSlot.get(a.slot_id) - urutSlot.get(b.slot_id))
+    .forEach(r => { const s = slot[urutSlot.get(r.slot_id)];
+      M.push([nama(r.dosen_id), namaHari(r.hari), s.label, jam5(s.mulai), jam5(s.selesai), namaJenis(r.jenis), r.alasan || '']); });
+  const T = [['Dosen', 'Tanggal', 'Hari', 'Mulai', 'Selesai', 'Jenis', 'Judul/alasan', 'Sumber']];
+  if (!hariISO(dari) || !hariISO(sampai) || sampai < dari) return { mingguan: M, tanggal: T, galat: 'Isi rentang tanggal ekspor.' };
+  if (selisihHari(dari, sampai) > EKSPOR_MAKS_HARI) return { mingguan: M, tanggal: T, galat: `Rentang ekspor paling lama ${EKSPOR_MAKS_HARI} hari.` };
+  const tgl = [];
+  for (let t = dari; t <= sampai; t = tambahHari(t, 1)) if (hariAktif.includes(hariISO(t))) tgl.push(t);
+  const SUMBER = { blok: 'Kalender/rentang', tanggal: 'Isian tanggal' };
+  for (const d of [...dosen].sort((a, b) => a.nama.localeCompare(b.nama))) {
+    const isi = isiKalender({ tanggal: tgl, slot, rentang: rentang.filter(r => r.dosen_id === d.id), tanggalan: tanggalan.filter(r => r.dosen_id === d.id) });
+    for (const t of tgl) {
+      let kini = null;
+      const tutup = () => { if (kini) T.push([d.nama, t, namaHari(hariISO(t)), jam5(kini.mulai), jam5(kini.selesai), namaJenis(kini.jenis), kini.judul, SUMBER[kini.sumber]]); kini = null; };
+      for (const s of slot) {
+        const x = (isi.get(`${t}|${s.id}`) || [])[0];
+        if (x && kini && kini.sumber === x.sumber && kini.id === x.id) { kini.selesai = s.selesai; continue; }
+        tutup();
+        if (x) kini = { ...x, mulai: s.mulai, selesai: s.selesai };
+      }
+      tutup();
+    }
+  }
+  return { mingguan: M, tanggal: T, galat: '' };
 }

@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-21-7fa33c">
-<link rel="stylesheet" href="kepala.css?v=2026-11-21-7fa33c">
+<link rel="stylesheet" href="tema.css?v=2026-11-21-4089e7">
+<link rel="stylesheet" href="kepala.css?v=2026-11-21-4089e7">
 <style>
   /* Jadwal berhalangan dosen (132-patch-jadwal-berhalangan.sql, pemilik 2026-11-20) */
   *{box-sizing:border-box}
@@ -74,7 +74,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-21-7fa33c"></script>
+<script src="config.js?v=2026-11-21-4089e7"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -93,11 +93,12 @@ addEventListener('error', function (e) {
 // bisa (mingguan per semester dan tanggal tertentu, termasuk jadwal di luar prodi); pengatur jadwal (admin, Kaprodi,
 // koordinator TA/KP) melihat semua dan mencari slot kosong; dosen lain hanya jumlah per slot. Logika: jadwal-berhalangan.js.
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-21-7fa33c';
-import { punya } from './koordinator.js?v=2026-11-21-7fa33c';
-import { semesterKini } from './evaluasi-pembelajaran.js?v=2026-11-21-7fa33c';
+import { gerbang } from './menu.js?v=2026-11-21-4089e7';
+import { punya } from './koordinator.js?v=2026-11-21-4089e7';
+import { semesterKini } from './evaluasi-pembelajaran.js?v=2026-11-21-4089e7';
 import { HARI, namaHari, JENIS_HALANGAN, namaJenis, labelSlot, cekSlot, perSel, cariSlotKosong, hariISO,
-  cekRentang, labelRentang, rentangPadaTanggal, buatSlot, tambahHari, mingguDari, slotAntara, blokBaru, isiKalender } from './jadwal-berhalangan.js?v=2026-11-21-7fa33c';
+  cekRentang, labelRentang, rentangPadaTanggal, buatSlot, tambahHari, mingguDari, slotAntara, blokBaru, isiKalender, barisEkspor, EKSPOR_MAKS_HARI } from './jadwal-berhalangan.js?v=2026-11-21-4089e7';
+import { SHEETJS } from './nilai-cpl.js?v=2026-11-21-4089e7';
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const sb = createClient(window.SB_URL, window.SB_KEY);
@@ -234,6 +235,13 @@ function gambarRekap(){
       ${cari ? (cari.size ? kisi((h, s) => { const k = `${h}|${s.id}`; if (!cari.has(k)) return '<td></td>'; const xs = cari.get(k);
           return `<td class="sel ${xs.length ? 'halang' : 'bisa'}">${xs.length ? xs.map(x => `<span class="nama" title="${esc(`${namaJenis(x.jenis)}${x.alasan ? ': ' + x.alasan : ''}`)}">${esc(namaDosen(x.dosen_id))}${x.sumber === 'tanggal' ? ' (tgl)' : ''}</span>`).join('') : 'Semua bisa'}</td>`; }, TGL_CARI ? [hariISO(TGL_CARI)] : HARI_AKTIF)
         : '<p class="kosong">Tanggal itu bukan hari kuliah yang diatur.</p>') : ''}</div>
+    <div class="kartu"><h2>Unduh Excel berhalangan</h2>
+      <p class="ket">Untuk menyusun jadwal kuliah dan rapat (manual atau dengan penjalan optimasi). Lembar <b>Mingguan</b>: isian semester
+        ${esc(PERIODE.sm)} ${esc(PERIODE.ta)}; lembar <b>Tanggal</b>: blok kalender, rentang, dan isian tanggal dalam rentang di bawah (paling lama
+        ${EKSPOR_MAKS_HARI} hari, hanya hari kuliah). Memuat nama dan alasan: simpan di tempat yang hanya bisa dibuka pengatur jadwal.</p>
+      <div class="alat"><label>Dari <input type="date" id="eDari" value="${iso(new Date())}"></label>
+        <label>Sampai <input type="date" id="eSampai" value="${iso(new Date(Date.now() + 120 * 864e5))}"></label>
+        <button class="b utama" id="eUnduh">Unduh Excel</button><span class="pesan" id="mEkspor"></span></div></div>
     <div class="kartu"><h2>Semua dosen berhalangan, ${esc(PERIODE.sm)} ${esc(PERIODE.ta)}</h2>
       <p class="ket">${new Set(SEMUA.map(r => r.dosen_id)).size} dari ${DOSEN.length} dosen sudah mengisi. Arahkan kursor ke nama untuk jenis dan alasan.</p>
       ${kisi((h, s) => { const xs = sel.get(`${h}|${s.id}`) || [];
@@ -277,7 +285,7 @@ function gambarKalender(){
     <div class="alat"><button class="b" id="kSebelum">‹ Minggu sebelumnya</button><b>${esc(label)}</b>
       <button class="b" id="kSesudah">Minggu berikutnya ›</button><button class="b" id="kIni">Minggu ini</button></div>
     <div class="legenda"><span class="l-blok">Blok kalender</span><span class="l-tgl">Isian tanggal</span><span class="l-mg">Mingguan semester</span><span class="l-pilih">Dipilih</span></div>
-    ${tgl.length ? `<div class="gulir"><table class="kal" id="kal"><thead><tr><th class="jam"></th>${tgl.map(t => `<th class="${t === kini ? 'hari-ini' : ''}">${namaHari(hariISO(t))} ${tglPendek(t)}</th>`).join('')}</tr></thead>
+    ${tgl.length ? `<div class="gulir"><table class="kal" id="kal"><thead><tr><th class="jam"></th>${tgl.map(t => `<th class="${t === kini ? 'hari-ini' : ''}"${t >= kini ? ` data-hari-t="${t}" title="Klik untuk blok sepanjang hari" style="cursor:pointer"` : ''}>${namaHari(hariISO(t))} ${tglPendek(t)}</th>`).join('')}</tr></thead>
       <tbody>${ss.map((s, i) => `<tr><th class="jam">${esc(jamMulai(s))}</th>${tgl.map(t => sel(t, s, i)).join('')}</tr>`).join('')}</tbody></table></div>`
       : '<p class="kosong">Minggu ini tidak memuat hari kuliah.</p>'}
     ${htmlFormKal()}${htmlDetailKal(isi)}<p class="pesan" id="mKal"></p></div>
@@ -293,8 +301,10 @@ function kunciPilih(p){
 function htmlFormKal(){
   if (!FORM_KAL) return '';
   const ss = slotAktif().filter(s => FORM_KAL.slot_ids.includes(s.id));
-  const jam = ss.length ? `${String(ss[0].mulai).slice(0, 5)}–${String(ss[ss.length - 1].selesai).slice(0, 5)}` : '';
-  return `<div class="panel-blok"><b>Blok baru: jam ${esc(jam)}</b>
+  const jam = FORM_KAL.sehari ? 'sepanjang hari' : ss.length ? `${String(ss[0].mulai).slice(0, 5)}–${String(ss[ss.length - 1].selesai).slice(0, 5)}` : '';
+  return `<div class="panel-blok"><b>Blok baru: ${esc(jam)}</b>
+    <div class="alat"><label><input type="checkbox" id="bSehari"${FORM_KAL.sehari ? ' checked' : ''}> Sepanjang hari</label>
+      <span class="ket">semua jam pada hari-hari itu, mis. dinas luar atau cuti</span></div>
     <div class="alat"><input type="text" id="bJudul" maxlength="200" placeholder="Judul, mis. Mengajar Teknik Lingkungan" style="min-width:300px">
       <select id="bJenis">${JENIS_HALANGAN.map(([k, l]) => `<option value="${k}">${l}</option>`).join('')}</select></div>
     <div class="alat"><label>Dari <input type="date" id="bDari" value="${FORM_KAL.tanggal}" min="${iso(new Date())}"></label>
@@ -350,11 +360,20 @@ function pasangKalender(){
       if ($('bJudul')) $('bJudul').focus();
     };
   }
+  // Klik judul kolom hari = blok sepanjang hari tanggal itu (pemilik 2026-11-21).
+  document.querySelectorAll('#kal th[data-hari-t]').forEach(th => { th.onclick = () => { const t = th.dataset.hariT;
+    FORM_KAL = { tanggal: t, sampai: t, hari: [hariISO(t)], sehari: true, slot_ids: slotAktif().map(s => s.id), kunci: slotAktif().map(s => `${t}|${s.id}`) };
+    DETAIL_KAL = null; gambar(); if ($('bJudul')) $('bJudul').focus(); }; });
+  // Tanpa gambar ulang, supaya tanggal/hari/jenis yang sudah diubah tidak hilang; cukup judul panel.
+  if ($('bSehari')) $('bSehari').onchange = e => { FORM_KAL.sehari = e.target.checked;
+    const ss = slotAktif().filter(s => FORM_KAL.slot_ids.includes(s.id)), b = document.querySelector('.panel-blok b');
+    if (b) b.textContent = 'Blok baru: ' + (FORM_KAL.sehari ? 'sepanjang hari' : ss.length ? `${String(ss[0].mulai).slice(0, 5)}–${String(ss[ss.length - 1].selesai).slice(0, 5)}` : ''); };
   if ($('bBatal')) $('bBatal').onclick = () => { FORM_KAL = null; gambar(); };
   if ($('dTutup')) $('dTutup').onclick = () => { DETAIL_KAL = null; gambar(); };
   if ($('bSimpan')) $('bSimpan').onclick = async () => {
     const h = blokBaru({ tanggal: $('bDari').value, sampai: $('bSampai').value, slot_ids: FORM_KAL.slot_ids, judul: $('bJudul').value,
-                         jenis: $('bJenis').value, hari: [...document.querySelectorAll('[data-b-hari]:checked')].map(c => +c.dataset.bHari) });
+                         jenis: $('bJenis').value, hari: [...document.querySelectorAll('[data-b-hari]:checked')].map(c => +c.dataset.bHari),
+                         sepanjang: $('bSehari').checked });
     if (h.galat) return tulis('mKal', 'galat', h.galat.join(' '));
     $('bSimpan').disabled = true;
     const { error } = await sb.from('dosen_berhalangan_rentang').insert({ dosen_id: SAYA.id, ...h.baris });
@@ -451,6 +470,16 @@ function pasang(){
   if ($('cDosen')) $('cDosen').oninput = e => { CARI = e.target.value; const p = e.target.selectionStart; gambar(); $('cDosen').focus(); $('cDosen').setSelectionRange(p, p); };
   if ($('cTanggal')) $('cTanggal').onchange = e => { TGL_CARI = e.target.value; gambar(); };
   if ($('cBersih')) $('cBersih').onclick = () => { PILIH_DOSEN.clear(); gambar(); };
+  if ($('eUnduh')) $('eUnduh').onclick = async () => {
+    const e = barisEkspor({ dosen: DOSEN.map(d => ({ id: d.id, nama: d.nama_gelar || d.nama })), slot: slotAktif(), mingguan: SEMUA,
+      tanggalan: SEMUA_TGL, rentang: SEMUA_RENTANG, dari: $('eDari').value, sampai: $('eSampai').value, hariAktif: HARI_AKTIF });
+    if (e.galat) return tulis('mEkspor', 'galat', e.galat);
+    const X = await import(SHEETJS), wb = X.utils.book_new();
+    X.utils.book_append_sheet(wb, X.utils.aoa_to_sheet(e.mingguan), 'Mingguan');
+    X.utils.book_append_sheet(wb, X.utils.aoa_to_sheet(e.tanggal), 'Tanggal');
+    X.writeFile(wb, `berhalangan_${$('eDari').value}_${$('eSampai').value}.xlsx`);
+    tulis('mEkspor', 'ok', `${e.mingguan.length - 1} baris mingguan, ${e.tanggal.length - 1} baris tanggal.`);
+  };
   // Atur slot (admin).
   document.querySelectorAll('[data-sl]').forEach(el => { el.onchange = () => { const s = DRAF_SLOT[+el.dataset.sl]; s[el.dataset.k] = el.type === 'checkbox' ? el.checked : el.value; }; });
   document.querySelectorAll('[data-hapus-slot]').forEach(b => { b.onclick = () => { DRAF_SLOT.splice(+b.dataset.hapusSlot, 1); gambar(); }; });
