@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-21-204437">
-<link rel="stylesheet" href="kepala.css?v=2026-11-21-204437">
+<link rel="stylesheet" href="tema.css?v=2026-11-21-f258d2">
+<link rel="stylesheet" href="kepala.css?v=2026-11-21-f258d2">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
@@ -53,7 +53,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-21-204437"></script>
+<script src="config.js?v=2026-11-21-f258d2"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -72,16 +72,17 @@ addEventListener('error', function (e) {
 // Internal (login): koordinator MK, pengampu kelas, GKM, admin, pimpinan, asesor aktif. Auditor AMI: ?ami=<token>, hanya baca.
 // Berkas selalu privat; dibuka lewat Apps Script (portofolio_buka / ami_portofolio_buka) sesudah izin diperiksa basis data.
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-21-204437';
-import { bolehMutu } from './koordinator.js?v=2026-11-21-204437';
-import { bawaanHanyaSaya, ingatHanyaSaya, pesanKosongSaya } from './mk-saya.js?v=2026-11-21-204437';
-import { keB64 } from './pengajuan-mhs.js?v=2026-11-21-204437';
-import { semesterKini } from './evaluasi-pembelajaran.js?v=2026-11-21-204437';
-import { periksaStruktur } from './templat-cpl.js?v=2026-11-21-204437';
-import { cplMK, dataTemplat, statusStruktur } from './cpmk.js?v=2026-11-21-204437';
-import { judul, teks, tabel, tautan, run, buatDocx } from './docx-dasar.js?v=2026-11-21-204437';
-import { rubrikRps } from './rps.js?v=2026-11-21-204437';
-import { KOMPONEN, komponenUntuk, daftarSemester, mkSemester, kelengkapan, persen, labelBerkas } from './portofolio.js?v=2026-11-21-204437';
+import { gerbang } from './menu.js?v=2026-11-21-f258d2';
+import { bolehMutu } from './koordinator.js?v=2026-11-21-f258d2';
+import { kelasMengajarSaya, kunciKelasSaya } from './mk-saya.js?v=2026-11-21-f258d2';
+import { bawaanHanyaSaya, ingatHanyaSaya, pesanKosongSaya } from './mk-saya.js?v=2026-11-21-f258d2';
+import { keB64 } from './pengajuan-mhs.js?v=2026-11-21-f258d2';
+import { semesterKini } from './evaluasi-pembelajaran.js?v=2026-11-21-f258d2';
+import { periksaStruktur } from './templat-cpl.js?v=2026-11-21-f258d2';
+import { cplMK, dataTemplat, statusStruktur } from './cpmk.js?v=2026-11-21-f258d2';
+import { judul, teks, tabel, tautan, run, buatDocx } from './docx-dasar.js?v=2026-11-21-f258d2';
+import { rubrikRps } from './rps.js?v=2026-11-21-f258d2';
+import { KOMPONEN, komponenUntuk, daftarSemester, mkSemester, kelengkapan, persen, labelBerkas } from './portofolio.js?v=2026-11-21-f258d2';
 
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -112,6 +113,7 @@ async function muat(){
     MK = mk; CPL = cpl; PETA = peta; KELAS = ringkas.kelas || []; EVAL = ringkas.evaluasi || []; BERKAS = berkas;
     STR = new Map(str.map(s => [`${s.kurikulum}|${s.kode_mk}`, s]));
     BOLEH = new Set(KELOLA ? MK.map(m => `${m.kurikulum}|${m.kode}`) : boleh.map(b => `${b.kurikulum}|${b.kode_mk}`));
+    TIM = kunciKelasSaya(await kelasMengajarSaya(sb, SAYA));   // 137: anggota team teaching (Penyusunan kelas)
     // Rubrik dari RPS (versi disahkan bila ada), pemilik 2026-11-19.
     RUBRIK = new Map((await baca(sb.from('mk_rps').select('kurikulum,kode_mk,data,sah'))).map(r => [`${r.kurikulum}|${r.kode_mk}`, rubrikRps(r.sah?.rps || r.data)]));
   }
@@ -151,9 +153,13 @@ const daftarMK = () => SEM ? mkSemester(KELAS, BERKAS, MK, SEM.ta, SEM.sm) : [];
 const bolehMK = x => !AMI && BOLEH.has(`${x.kurikulum}|${x.kode}`);
 // Kelas: admin/GKM, koordinator MK yang ditetapkan, atau pengampu kelas itu sendiri (boleh_portofolio_tulis di basis data).
 const koordinatorMK = x => (MK.find(m => m.kurikulum === x.kurikulum && m.kode === x.kode)?.pengampu || []).includes(SAYA?.nidn);
-const bolehKelas = (x, kelas) => !AMI && (KELOLA || koordinatorMK(x)
+let TIM = new Set();
+// Baris MK (portofolio.mkSemester) tidak membawa semester; semester yang dilihat = SEM.
+const kelasTim = (x, kelas) => !!SEM && TIM.has(`${SEM.ta}|${SEM.sm}|${String(x.kode).toUpperCase()}|${kelas}`);
+const bolehKelas = (x, kelas) => !AMI && (KELOLA || koordinatorMK(x) || kelasTim(x, kelas)
   || x.kelas.some(c => c.kelas === kelas && String(c.dosen_email || '').toLowerCase() === String(SAYA?.email || '').toLowerCase()));
-const bolehUnggahMK = x => bolehMK(x) || (!AMI && x.kelas.some(c => String(c.dosen_email || '').toLowerCase() === String(SAYA?.email || '').toLowerCase()));
+const bolehUnggahMK = x => bolehMK(x) || (!AMI && x.kelas.some(c => String(c.dosen_email || '').toLowerCase() === String(SAYA?.email || '').toLowerCase()
+  || kelasTim(x, c.kelas)));
 
 // ---------- tampilan ----------
 function htmlDaftar(){

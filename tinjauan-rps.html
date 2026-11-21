@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-21-204437">
-<link rel="stylesheet" href="kepala.css?v=2026-11-21-204437">
+<link rel="stylesheet" href="tema.css?v=2026-11-21-f258d2">
+<link rel="stylesheet" href="kepala.css?v=2026-11-21-f258d2">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
@@ -52,7 +52,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-21-204437"></script>
+<script src="config.js?v=2026-11-21-f258d2"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -71,11 +71,12 @@ addEventListener('error', function (e) {
 // Dibuka setelah nilai akhir keluar (berkas nilai akhir di ringkasan CPL); diisi koordinator MK (atau MK padanannya) atau
 // pengampu kelasnya, disetujui Kaprodi. Revisi = tindak lanjut; RPS sasaran diajukan ulang (selesai bila disahkan lagi).
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-21-204437';
-import { punya } from './koordinator.js?v=2026-11-21-204437';
-import { bawaanHanyaSaya, ingatHanyaSaya, pesanKosongSaya } from './mk-saya.js?v=2026-11-21-204437';
+import { gerbang } from './menu.js?v=2026-11-21-f258d2';
+import { kelasMengajarSaya } from './mk-saya.js?v=2026-11-21-f258d2';
+import { punya } from './koordinator.js?v=2026-11-21-f258d2';
+import { bawaanHanyaSaya, ingatHanyaSaya, pesanKosongSaya } from './mk-saya.js?v=2026-11-21-f258d2';
 import { VERSI_DATA, MULAI_BAWAAN, UNSUR, KEPUTUSAN, STATUS, pecahTerm, daftarSemester, mkSemester, analisisCpl, sasaranRps,
-  bolehTinjau, tinjauanKosong, periksaTinjauan, statusTindak, bacaCsvPadanan, rekapSemester, csvTinjauan, kalimatLed } from './tinjauan-rps.js?v=2026-11-21-204437';
+  bolehTinjau, tinjauanKosong, periksaTinjauan, statusTindak, bacaCsvPadanan, rekapSemester, csvTinjauan, kalimatLed } from './tinjauan-rps.js?v=2026-11-21-f258d2';
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const sb = createClient(window.SB_URL, window.SB_KEY);
@@ -85,6 +86,7 @@ const kunci = (kur, kode) => `${kur}|${kode}`;
 const waktu = s => (s ? new Date(s).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' }) : '');
 const koma = v => String(v).replace('.', ',');
 let SAYA = null, ADMIN = false, KAPRODI_SAYA = false, PATCH = true, RG = null, MK = [], PAD = [], TIN = [], LOG = [], RPS = new Map();
+let TIM = [];   // kelas yang saya ajar menurut Penyusunan kelas (137), termasuk team teaching
 let KELAS = [], EVAL = [], DOSEN = [], MULAI = MULAI_BAWAAN, TERMS = [], TERM = '', PILIH = null, T = null, KOTOR = false;
 let F_SAYA = false, F_MENUNGGU = false;
 const URL_AWAL = new URLSearchParams(location.search);
@@ -98,7 +100,7 @@ const namaNidn = n => DOSEN.find(d => d.nidn === n)?.nama || n;
 const namaId = id => DOSEN.find(d => d.id === id)?.nama || '';
 const labelTerm = u => `${Math.floor(u / 10)}/${Math.floor(u / 10) + 1} ${u % 10 === 2 ? 'Genap' : 'Ganjil'}`;
 const boleh = (kur, kode) => { const { ta, semester } = termInfo();
-  return bolehTinjau({ saya: SAYA, mk: MK, padanan: PAD, kelas: KELAS, kur, kode, ta, semester }); };
+  return bolehTinjau({ saya: SAYA, mk: MK, padanan: PAD, kelas: KELAS, tim: TIM, kur, kode, ta, semester }); };
 const chipStatus = t => !t ? '<span class="kosong">belum</span>'
   : `<span class="chip${t.status === 'disetujui' ? ' ok' : t.status === 'dikembalikan' ? ' galat' : t.status === 'diajukan' ? ' saran' : ''}">${esc(STATUS[t.status])}</span>`;
 
@@ -116,6 +118,7 @@ async function muat(){
     baca(sb.from('dosen').select('id,nama,nidn')),
     baca(sb.from('evaluasi_mk').select('tahun_akademik,semester,kode_mk,rps_sesuai,rps_catatan,metode_catatan'))]);
   RG = rg[0]?.data || null; MK = mk; PAD = pad; LOG = log; KELAS = kelas; DOSEN = dosen; EVAL = ev;
+  TIM = await kelasMengajarSaya(sb, SAYA);
   RPS = new Map(rps.map(r => [kunci(r.kurikulum, r.kode_mk), r]));
   MULAI = +peng[0]?.nilai || MULAI_BAWAAN;
   TERMS = daftarSemester(RG, MULAI);

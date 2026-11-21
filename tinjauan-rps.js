@@ -89,12 +89,14 @@ export function sasaranRps(padanan = [], mk = [], kur, kode){
 }
 
 /** Boleh mengisi (sama dengan tinjauan_boleh di SQL): koordinator MK, koordinator MK padanannya, atau pengampu kelas semester itu. */
-export function bolehTinjau({ saya, mk = [], padanan = [], kelas = [], kur, kode, ta, semester }){
+export function bolehTinjau({ saya, mk = [], padanan = [], kelas = [], tim = [], kur, kode, ta, semester }){
   if (!saya?.nidn && !saya?.email) return false;
   const koor = m => !!m && (m.pengampu || []).includes(saya.nidn);
   if (koor(mk.find(m => m.kurikulum === kur && m.kode === kode))) return true;
   if (padanan.some(p => p.kurikulum_lama === kur && p.kode_lama === kode && koor(mk.find(m => m.kurikulum === p.kurikulum_baru && m.kode === p.kode_baru)))) return true;
   const e = String(saya.email || '').toLowerCase();
+  // Penyusunan kelas (137, pemilik 2026-11-21): juga anggota team teaching kelas MK itu pada semester itu.
+  if (tim.some(k => String(k.kode_mk).toUpperCase() === String(kode).toUpperCase() && k.tahun_akademik === ta && k.semester === semester)) return true;
   return kelas.some(k => String(k.kode_mk).toUpperCase() === String(kode).toUpperCase() && k.tahun_akademik === ta && k.semester === semester
     && String(k.dosen_email).toLowerCase() === e);
 }

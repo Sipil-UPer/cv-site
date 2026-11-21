@@ -45,3 +45,24 @@ export const pesanKosongSaya = nSemua => nSemua
       Anda ajar semester terakhir). Hilangkan centang <b>Hanya MK saya</b> untuk melihat semua MK, atau minta admin menetapkan
       Anda sebagai koordinator/pengampu MK.</p>`
   : '';
+
+/**
+ * Kelas tempat saya mengajar menurut Penyusunan kelas (136/137), termasuk anggota team teaching:
+ * [{ tahun_akademik, semester, kurikulum, kode_mk, kelas, peran }]. Sebelum patch 136 atau tanpa data: [].
+ * Dua kueri sederhana (tanpa embed) supaya juga jalan di situs contoh.
+ */
+export async function kelasMengajarSaya(sb, saya){
+  if (!saya?.id) return [];
+  try {
+    const kd = await sb.from('kelas_dosen').select('kelas_id,peran').eq('dosen_id', saya.id);
+    if (kd.error || !kd.data?.length) return [];
+    const k = await sb.from('kelas_kuliah').select('id,tahun_akademik,semester,kurikulum,kode_mk,kelas').in('id', kd.data.map(x => x.kelas_id));
+    if (k.error) return [];
+    const peran = new Map(kd.data.map(x => [x.kelas_id, x.peran]));
+    return (k.data || []).map(x => ({ tahun_akademik: x.tahun_akademik, semester: x.semester, kurikulum: x.kurikulum, kode_mk: x.kode_mk,
+      kelas: x.kelas, peran: peran.get(x.id) }));
+  } catch { return []; }
+}
+
+/** Kunci 'TA|semester|KODE|kelas' (kode huruf besar) dari kelas yang saya ajar, untuk pemeriksaan hak di halaman. */
+export const kunciKelasSaya = tim => new Set((tim || []).map(k => `${k.tahun_akademik}|${k.semester}|${String(k.kode_mk).toUpperCase()}|${k.kelas}`));

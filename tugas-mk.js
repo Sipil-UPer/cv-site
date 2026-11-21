@@ -1,10 +1,10 @@
 // Tugas saya untuk koordinator MK dan pengampu kelas (pemilik 2026-11-17; OBE O2 dan O3).
 // Hanya yang belum punya pengingat lain: CPMK/RPS (cpmk.html) dan unggahan portofolio (portofolio.html).
 // Berkas nilai CPL dan refleksi evaluasi sudah diingatkan tugas-saya.js / evaluasi-pembelajaran.js.
-import { periksaStruktur } from './templat-cpl.js?v=2026-11-21-204437';
-import { cplMK, dataTemplat, statusStruktur } from './cpmk.js?v=2026-11-21-204437';
-import { bolehTinjau, cariTinjauan, statusTindak, petaRps, daftarSemester as semesterTinjau, mkSemester as mkTinjau } from './tinjauan-rps.js?v=2026-11-21-204437';
-import { kelengkapan, mkSemester, daftarSemester } from './portofolio.js?v=2026-11-21-204437';
+import { periksaStruktur } from './templat-cpl.js?v=2026-11-21-f258d2';
+import { cplMK, dataTemplat, statusStruktur } from './cpmk.js?v=2026-11-21-f258d2';
+import { bolehTinjau, cariTinjauan, statusTindak, petaRps, daftarSemester as semesterTinjau, mkSemester as mkTinjau } from './tinjauan-rps.js?v=2026-11-21-f258d2';
+import { kelengkapan, mkSemester, daftarSemester } from './portofolio.js?v=2026-11-21-f258d2';
 
 const kecil = s => String(s || '').trim().toLowerCase();
 const potong = (xs, n = 6) => xs.slice(0, n).join('; ') + (xs.length > n ? `; dan ${xs.length - n} lagi` : '');
@@ -39,7 +39,7 @@ export function tugasMK(d){
   const T = d.tinjau;
   if (T?.patch && T.ringkasan) {
     const tm = semesterTinjau(T.ringkasan, T.mulai)[0];
-    const perlu = tm ? mkTinjau(T.ringkasan, tm.term).filter(m => bolehTinjau({ saya: d.saya, mk, padanan: T.padanan, kelas: d.kelas,
+    const perlu = tm ? mkTinjau(T.ringkasan, tm.term).filter(m => bolehTinjau({ saya: d.saya, mk, padanan: T.padanan, kelas: d.kelas, tim: d.tim || [],
       kur: m.kurikulum, kode: m.kode, ta: tm.ta, semester: tm.semester }) && ['draf', 'dikembalikan', undefined].includes(cariTinjauan(T.tinjauan, m.kurikulum, m.kode, tm.term)?.status)) : [];
     if (perlu.length) out.push({ jenis: 'tinjauan', judul: `Tinjauan RPS ${tm.term}: ${perlu.length} mata kuliah belum diajukan`,
       rinci: potong(perlu.map(m => `${m.kode} ${m.nama}`)) + '. Nilai akhir sudah keluar; isi analisis CPL, materi dan metode, penilaian, dan pembaruan materi.',
@@ -61,7 +61,9 @@ export function tugasMK(d){
   for (const x of mkSemester(d.kelas, d.berkas, mk, sem.ta, sem.sm)) {
     const ref = mk.find(m => m.kurikulum === x.kurikulum && m.kode === x.kode);
     const sayaKoor = !!nidn && koor(ref).includes(nidn);
-    const kelasSaya = x.kelas.filter(c => email && kecil(c.dosen_email) === email).map(c => c.kelas);
+    // 137: juga kelas tempat saya anggota team teaching (Penyusunan kelas).
+    const kelasSaya = x.kelas.filter(c => (email && kecil(c.dosen_email) === email) || (d.tim || []).some(k => k.tahun_akademik === sem.ta
+      && k.semester === sem.sm && String(k.kode_mk).toUpperCase() === String(x.kode).toUpperCase() && k.kelas === c.kelas)).map(c => c.kelas);
     if (!sayaKoor && !kelasSaya.length) continue;
     const s = str.get(`${x.kurikulum}|${x.kode}`);
     const berkas = (d.berkas || []).filter(b => b.tahun_akademik === sem.ta && b.semester === sem.sm && b.kurikulum === x.kurikulum && b.kode_mk === x.kode);
