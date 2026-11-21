@@ -7493,6 +7493,16 @@
     ]
    }
   ],
+  "tahap": {
+   "1": "Sains dasar",
+   "2": "Sains dasar",
+   "3": "Dasar teknik",
+   "4": "Dasar teknik",
+   "5": "Keahlian dan perancangan",
+   "6": "Keahlian dan perancangan",
+   "7": "Penerapan",
+   "8": "Penerapan"
+  },
   "kelompok_keahlian": [
    {
     "kode": "STR",
