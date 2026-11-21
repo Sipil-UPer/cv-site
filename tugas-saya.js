@@ -1,14 +1,14 @@
 // "Tugas saya" di Ruang kerja (pemilik 2026-11-12): hal yang menunggu tindakan dosen yang
 // sedang masuk, dari data yang sudah boleh ia baca (RLS). Aturan tenggat sama dengan halaman
 // Pengingat: rapat.js, hibah.js, temuan-ami.js, pengingat-dosen.js.
-import { kurangProfil } from './pengingat-dosen.js?v=2026-11-21-2ea609';
-import { tindakTerbuka, tglID } from './rapat.js?v=2026-11-21-2ea609';
-import { tenggatBerikut, teksHari, HARI_LEWAT } from './hibah.js?v=2026-11-21-2ea609';
-import { hariKeTenggat, labelStatus, HARI_DEKAT } from './temuan-ami.js?v=2026-11-21-2ea609';
-import { tugasEvaluasi } from './evaluasi-pembelajaran.js?v=2026-11-21-2ea609';
-import { bolehPengajuan } from './koordinator.js?v=2026-11-21-2ea609';
-import { tenggatReview, hariKe, teksHari as teksHariRv, tugasTenggatRps, tugasTetapDekan, tanggalPanjang as tglRv } from './pengingat-rps.js?v=2026-11-21-2ea609';
-import { tugasMK } from './tugas-mk.js?v=2026-11-21-2ea609';
+import { kurangProfil } from './pengingat-dosen.js?v=2026-11-21-6fb559';
+import { tindakTerbuka, tglID } from './rapat.js?v=2026-11-21-6fb559';
+import { tenggatBerikut, teksHari, HARI_LEWAT } from './hibah.js?v=2026-11-21-6fb559';
+import { hariKeTenggat, labelStatus, HARI_DEKAT } from './temuan-ami.js?v=2026-11-21-6fb559';
+import { tugasEvaluasi } from './evaluasi-pembelajaran.js?v=2026-11-21-6fb559';
+import { bolehPengajuan } from './koordinator.js?v=2026-11-21-6fb559';
+import { tenggatReview, hariKe, teksHari as teksHariRv, tugasTenggatRps, tugasTetapDekan, tanggalPanjang as tglRv } from './pengingat-rps.js?v=2026-11-21-6fb559';
+import { tugasMK } from './tugas-mk.js?v=2026-11-21-6fb559';
 
 const SELESAI_AMI = new Set(['selesai', 'ditutup']);
 const tingkat = h => h == null ? 'biasa' : h < 0 ? 'lewat' : h <= HARI_DEKAT ? 'dekat' : 'biasa';
@@ -114,12 +114,14 @@ export function tugasSaya(d, kini = new Date()){
 
   // Pengajuan mahasiswa KP/lomba (90-patch-pengajuan-mahasiswa.sql): tahap pembimbing untuk pembimbingnya, tahap admin untuk admin.
   // Umur dihitung sejak pengajuan terakhir berubah; lebih dari 7 hari = lewat (tidak ada tenggat resmi).
+  // 144: kabar kegiatan tanpa dosen pendamping menunggu pembina kemahasiswaan/admin sejak tahap pertama.
   const mhs = (d.pengajuanMhs || []).filter(p => (p.status === 'pembimbing' && p.pembimbing_id === s.id)
+    || (p.status === 'pembimbing' && p.jenis === 'kabar' && !p.pembimbing_id && bolehPengajuan(s, p.jenis))
     || (p.status === 'admin' && bolehPengajuan(s, p.jenis)));   // koordinator bidangnya (97)
   if (mhs.length) {
     const tertua = Math.min(...mhs.map(p => +new Date(p.diperbarui)));
     tambah('pengajuan_mhs', `Periksa ${mhs.length} pengajuan mahasiswa (KP/lomba)`,
-      mhs.slice(0, 3).map(p => `${p.nama} (${p.jenis === 'kp' ? 'KP' : 'lomba'})`).join(', ') + (mhs.length > 3 ? ', …' : ''),
+      mhs.slice(0, 3).map(p => `${p.nama} (${p.jenis === 'kp' ? 'KP' : p.jenis === 'kabar' ? 'kabar kegiatan' : 'lomba'})`).join(', ') + (mhs.length > 3 ? ', …' : ''),
       'pengajuan-mahasiswa.html', 7 - Math.floor((+kini - tertua) / 864e5));
   }
 

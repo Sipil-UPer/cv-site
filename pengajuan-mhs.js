@@ -16,7 +16,17 @@ export const JENIS = {
   // Berkas yudisium (122-patch-yudisium.sql, pemilik 2026-11-19/20): admin prodi saja, tanpa pembimbing. Jenis berkas
   // = kode yud_* dari yudisium_berkas_daftar() (admin bisa mengubah daftarnya); berkas besar boleh tautan Google Drive.
   yudisium: { label: 'Berkas yudisium', singkat: 'Yudisium', wajib: null, tanpaPembimbing: true, berkas: [] },
+  // Kabar kegiatan dari mahasiswa (144-patch-kabar-mahasiswa.sql, pemilik 2026-11-21): dosen pendamping opsional; satu
+  // persetujuan (pendamping, pembina kemahasiswaan, atau admin) lalu terbit di kabar.html dan beranda. Foto maks. 6 tampil.
+  kabar: { label: 'Kabar kegiatan', singkat: 'Kabar', wajib: 'foto', pembimbingOpsional: true, berkas: ['foto', 'lainnya'] },
 };
+
+// Jenis kegiatan kabar = kabar_kegiatan_jenis_check (patch 81), tanpa 'penelitian' (khusus kabar dosen, patch 92).
+export const JENIS_KEGIATAN = [['kuliah_tamu', 'Kuliah tamu'], ['kunjungan_lapangan', 'Kunjungan lapangan'], ['seminar', 'Seminar'],
+  ['pengabdian', 'Pengabdian kepada masyarakat'], ['kerja_praktik', 'Kerja praktik'], ['kompetisi', 'Kompetisi'],
+  ['kerja_sama', 'Kerja sama'], ['lainnya', 'Lainnya']];
+export const NAMA_TAHAP_KABAR = ['Isi kabar dan unggah foto', 'Diperiksa dosen pendamping atau pembina kemahasiswaan',
+                                 'Disahkan (satu persetujuan)', 'Terbit di situs prodi'];
 
 // Daftar bawaan = isi awal tabel yudisium_berkas (patch 122); dipakai bila RPC belum ada (situs coba, contoh).
 export const BERKAS_YUDISIUM_BAWAAN = [
@@ -120,6 +130,9 @@ export function labelStatus(p){
     || LABEL_STATUS[p.status] || p.status;
   if (p.jenis === 'lomba') return { pembimbing: 'Diperiksa dosen pembimbing atau pembina kemahasiswaan', admin: 'Diperiksa pembina kemahasiswaan/admin',
     disetujui: 'Disahkan; tercatat sebagai prestasi' }[p.status] || LABEL_STATUS[p.status] || p.status;
+  if (p.jenis === 'kabar') return { pembimbing: p.pembimbing_id ? 'Diperiksa dosen pendamping atau pembina kemahasiswaan'
+    : 'Diperiksa pembina kemahasiswaan/admin', admin: 'Diperiksa pembina kemahasiswaan/admin',
+    disetujui: 'Disahkan; terbit di situs prodi' }[p.status] || LABEL_STATUS[p.status] || p.status;
   if (p.jenis === 'kp' && p.tahap === 'selesai') return { pembimbing: 'Laporan selesai: diperiksa dosen pembimbing',
     admin: 'Laporan selesai: diperiksa koordinator KP/admin', disetujui: 'KP selesai', dikembalikan: 'Laporan selesai dikembalikan untuk diperbaiki',
     ditolak: 'Laporan selesai ditolak' }[p.status] || p.status;
@@ -134,7 +147,7 @@ export function labelStatus(p){
 // Jalur satu tahap KP (atau lomba): status dan riwayat tahap itu saja. Riwayat tanpa tahap = pengajuan (patch 90).
 export function jalurTahap(p, tahap = 'pengajuan'){
   const r = (p.riwayat || p.pengajuan_riwayat || []).filter(x => (x.tahap || 'pengajuan') === tahap);
-  if (tahap === 'pengajuan') return jalur(p.tahap === 'selesai' ? 'disetujui' : p.status, r, p.jenis === 'surat' ? NAMA_TAHAP_SURAT : p.jenis === 'ta' ? (penetapanTA(p) ? NAMA_TAHAP_PEMBIMBING_TA : NAMA_TAHAP_TA) : p.jenis === 'kp' ? NAMA_TAHAP_KP : p.jenis === 'lomba' ? NAMA_TAHAP_LOMBA : p.jenis === 'yudisium' ? NAMA_TAHAP_YUDISIUM : null);
+  if (tahap === 'pengajuan') return jalur(p.tahap === 'selesai' ? 'disetujui' : p.status, r, p.jenis === 'surat' ? NAMA_TAHAP_SURAT : p.jenis === 'ta' ? (penetapanTA(p) ? NAMA_TAHAP_PEMBIMBING_TA : NAMA_TAHAP_TA) : p.jenis === 'kp' ? NAMA_TAHAP_KP : p.jenis === 'lomba' ? NAMA_TAHAP_LOMBA : p.jenis === 'yudisium' ? NAMA_TAHAP_YUDISIUM : p.jenis === 'kabar' ? NAMA_TAHAP_KABAR : null);
   return jalur(p.tahap === 'selesai' ? p.status : 'draf', r, NAMA_TAHAP_SELESAI);
 }
 
@@ -182,7 +195,7 @@ export function periksaIsian(jenis, { nim, nama, pembimbing, data = {} }){
   const g = [];
   if (nim !== undefined && !/^\d{6,15}$/.test(String(nim).trim())) g.push('NIM harus angka 6–15 digit.');
   if (String(nama || '').trim().length < 2) g.push('Isi nama lengkap.');
-  if (!pembimbing && !JENIS[jenis]?.tanpaPembimbing) g.push('Pilih dosen pembimbing.');
+  if (!pembimbing && !JENIS[jenis]?.tanpaPembimbing && !JENIS[jenis]?.pembimbingOpsional) g.push('Pilih dosen pembimbing.');
   if (jenis === 'kp' && !String(data.instansi || '').trim()) g.push('Isi nama instansi tujuan KP.');
   if (jenis === 'lomba') {
     if (!String(data.nama_kegiatan || '').trim()) g.push('Isi nama kegiatan/lomba.');
@@ -204,6 +217,13 @@ export function periksaIsian(jenis, { nim, nama, pembimbing, data = {} }){
     if (String(data.judul || '').trim().length < 3) g.push(data.tahap_ta === TAHAP_PEMBIMBING_TA ? 'Tulis judul awal TA.' : 'Tulis judul TA.');
     if (data.pembimbing_2 && data.pembimbing_2 === pembimbing) g.push('Pembimbing 2 harus berbeda dari pembimbing 1.');
   }
+  if (jenis === 'kabar') {   // 144: batas kabar_kegiatan (judul 3-200, ringkasan 20-1200)
+    if (String(data.judul || '').trim().length < 3) g.push('Tulis judul kegiatan.');
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(String(data.tanggal || ''))) g.push('Isi tanggal kegiatan.');
+    const n = String(data.ringkasan || '').trim().length;
+    if (n < 20 || n > 1200) g.push('Tulis ringkasan kegiatan (20–1200 huruf).');
+    if (data.tautan && !/^https?:\/\/\S+$/i.test(data.tautan)) g.push('Tautan harus diawali https://');
+  }
   if (jenis === 'surat') {
     if (!data.jenis_surat) g.push('Pilih jenis surat.');
     if (String(data.keperluan || '').trim().length < 5) g.push('Tulis keperluan surat.');
@@ -215,6 +235,7 @@ export function periksaIsian(jenis, { nim, nama, pembimbing, data = {} }){
 
 export const judulPengajuan = p => p.jenis === 'kp' ? (p.data?.instansi || 'KP') : p.jenis === 'ta' ? (p.data?.judul || 'Tugas Akhir')
   : p.jenis === 'luaran' ? (p.data?.judul || 'Publikasi/luaran') : p.jenis === 'yudisium' ? 'Berkas yudisium'
+  : p.jenis === 'kabar' ? (p.data?.judul || 'Kabar kegiatan')
   : p.jenis === 'surat' ? ((JENIS_SURAT.find(x => x[0] === p.data?.jenis_surat) || [, 'Surat'])[1]) : (p.data?.nama_kegiatan || 'Lomba');
 
 export const keB64 = f => new Promise((ok, gagal) => {

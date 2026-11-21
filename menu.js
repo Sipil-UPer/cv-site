@@ -1,5 +1,5 @@
-import { dosenLogin } from './dosen-login.js?v=2026-11-21-2ea609';
-import { aktifPada } from './koordinator.js?v=2026-11-21-2ea609';
+import { dosenLogin } from './dosen-login.js?v=2026-11-21-6fb559';
+import { aktifPada } from './koordinator.js?v=2026-11-21-6fb559';
 // Menu bersama ruang kerja (pemilik 2026-11-04).
 //
 // Situs dibagi dua:
@@ -25,8 +25,8 @@ const penyusun = s => admin(s) || (!!s.tim_penyusun && s.peran !== 'asesor');
 // Asesor, dan pimpinan yang bukan DTPS prodi ini (aktif=false), tidak mengisi karya.
 const isiKarya = s => s.peran !== 'asesor' && !(s.peran === 'pimpinan' && !s.aktif);
 
-import { halamanAktif } from './fitur.js?v=2026-11-21-2ea609';
-import { pasangPemicuBangun } from './pemicu-bangun.js?v=2026-11-21-2ea609';
+import { halamanAktif } from './fitur.js?v=2026-11-21-6fb559';
+import { pasangPemicuBangun } from './pemicu-bangun.js?v=2026-11-21-6fb559';
 
 export const MODUL = [
   // Susunan modul (pemilik 2026-11-17): mengikuti pembagian tugas koordinator prodi (kemahasiswaan,
@@ -83,7 +83,7 @@ export const MODUL = [
     { href: 'data-prodi.html?tab=mk', judul: 'Mata kuliah dan CPL', boleh: admin,
       ket: 'Data prodi › Kurikulum & CPL: mata kuliah, CPL per kurikulum, peta MK–CPL, korelasi CPL antar kurikulum.' },
   ]},
-  { judul: 'Kemahasiswaan', ket: 'Pengajuan mahasiswa (KP, TA, lomba, luaran, surat, yudisium), seminar/sidang TA, dan layanan mahasiswa.', halaman: [
+  { judul: 'Kemahasiswaan', ket: 'Pengajuan mahasiswa (KP, TA, lomba, luaran, kabar kegiatan, surat, yudisium), seminar/sidang TA, dan layanan mahasiswa.', halaman: [
     // Pengajuan KP dan laporan lomba (90, pemilik 2026-11-17): pembimbing lalu admin; mahasiswa tanpa masuk akun.
     { href: 'pengajuan-mahasiswa.html', judul: 'Pengajuan mahasiswa', boleh: s => s.peran !== 'asesor',
       ket: 'KP, laporan lomba, dan permohonan surat dari mahasiswa: pembimbing lalu admin; surat pengantar dan surat bertanda tangan.' },
@@ -411,7 +411,7 @@ export async function pasangMenu(sb){
   // Pencarian menyeluruh (pemilik 2026-11-12; cari-ui.js, cari.js): dimuat saat pertama dipakai.
   const kotak = nav.querySelector('.rk-cari input');
   let siapCari = null;
-  const muatCari = () => siapCari || (siapCari = import('./cari-ui.js?v=2026-11-21-2ea609').then(m =>
+  const muatCari = () => siapCari || (siapCari = import('./cari-ui.js?v=2026-11-21-6fb559').then(m =>
     m.pasangCari(kotak, { sb, saya: u.saya, modul: halamanBoleh(u.saya), boleh: h => bolehBuka(u.saya, h) !== false })));
   kotak.addEventListener('focus', muatCari);
   document.addEventListener('keydown', e => {

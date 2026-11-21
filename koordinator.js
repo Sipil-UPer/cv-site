@@ -12,7 +12,8 @@ export const JABATAN = [['koordinator_ta', 'Koordinator TA'], ['koordinator_kp',
 export const labelJabatan = j => (JABATAN.find(x => x[0] === j) || [, j])[1];
 
 // Jenis pengajuan mahasiswa -> jabatan yang menggantikan admin (surat: admin saja).
-const PENGAJUAN = { ta: 'koordinator_ta', kp: 'koordinator_kp', lomba: 'pembina_kemahasiswaan', luaran: 'pembina_kemahasiswaan' };
+const PENGAJUAN = { ta: 'koordinator_ta', kp: 'koordinator_kp', lomba: 'pembina_kemahasiswaan', luaran: 'pembina_kemahasiswaan',
+  kabar: 'pembina_kemahasiswaan' };   // 144: kabar kegiatan dari mahasiswa
 // Tab Data prodi per jabatan (boleh_tabel di basis data).
 export const TAB_KOORDINATOR = { koordinator_ta: ['jadwal_ta'], pembina_kemahasiswaan: ['prestasi', 'publikasi', 'luaran'],
   // GKM (98-patch-koordinator-mutu-lab.sql): tab mutu Data prodi.
