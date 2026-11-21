@@ -4048,7 +4048,79 @@
  "kurikulum": [
   {
    "kode": "K26",
-   "profil": [],
+   "profil": [
+    {
+     "kode": "PL-1",
+     "nama": "Civil Engineer Pemula",
+     "nama_en": "",
+     "deskripsi": "Mampu berperan sebagai insinyur sipil pemula dalam perencanaan, perancangan, pelaksanaan, pengoperasian, dan pemeliharaan infrastruktur dengan menerapkan prinsip rekayasa, standar teknis, etika profesi, keberlanjutan, dan ketahanan energi.",
+     "cpl": [
+      "A",
+      "B",
+      "C",
+      "G",
+      "I",
+      "J",
+      "K"
+     ]
+    },
+    {
+     "kode": "PL-2",
+     "nama": "Analis dan Perencana Infrastruktur",
+     "nama_en": "",
+     "deskripsi": "Mampu melakukan identifikasi, analisis, pemodelan, dan perencanaan solusi terhadap permasalahan teknik sipil dengan memanfaatkan pendekatan saintifik, teknologi komputasi, data, dan perangkat rekayasa modern.",
+     "cpl": [
+      "C",
+      "D",
+      "G",
+      "H",
+      "J"
+     ]
+    },
+    {
+     "kode": "PL-3",
+     "nama": "Pengelola Konstruksi dan Infrastruktur",
+     "nama_en": "",
+     "deskripsi": "Mampu berkontribusi dalam pengelolaan proyek konstruksi dan infrastruktur dengan mempertimbangkan mutu, biaya, waktu, keselamatan dan kesehatan kerja, risiko, serta keberlanjutan.",
+     "cpl": [
+      "A",
+      "B",
+      "C",
+      "G",
+      "I",
+      "J",
+      "K"
+     ]
+    },
+    {
+     "kode": "PL-4",
+     "nama": "Peneliti Pemula Bidang Teknik Sipil",
+     "nama_en": "",
+     "deskripsi": "Mampu melakukan investigasi, pengumpulan dan analisis data, serta pengembangan solusi dan inovasi teknologi untuk mendukung kemajuan ilmu pengetahuan dan praktik rekayasa teknik sipil.",
+     "cpl": [
+      "C",
+      "D",
+      "G",
+      "H",
+      "J"
+     ]
+    },
+    {
+     "kode": "PL-5",
+     "nama": "Profesional Teknik Sipil Adaptif",
+     "nama_en": "",
+     "deskripsi": "Mampu bekerja secara efektif dalam lingkungan multidisiplin dan multikultural pada tingkat nasional maupun global, berkomunikasi dan memimpin secara profesional, berpola pikir kewirausahaan, beradaptasi terhadap perkembangan teknologi dan kebutuhan industri, serta melaksanakan pembelajaran sepanjang hayat dan pengembangan profesi berkelanjutan.",
+     "cpl": [
+      "A",
+      "B",
+      "C",
+      "D",
+      "E",
+      "F",
+      "J"
+     ]
+    }
+   ],
    "cpl": [
     {
      "kode": "A",
@@ -4322,7 +4394,6 @@
      "unit": "universitas",
      "capstone": false,
      "cpl": [
-      "E",
       "H"
      ]
     },
@@ -4341,8 +4412,7 @@
      "capstone": false,
      "cpl": [
       "B",
-      "G",
-      "K"
+      "G"
      ]
     },
     {
@@ -4359,7 +4429,6 @@
      "unit": "prodi",
      "capstone": false,
      "cpl": [
-      "E",
       "H",
       "J"
      ]
@@ -4379,7 +4448,6 @@
      "capstone": false,
      "cpl": [
       "E",
-      "I",
       "J"
      ]
     },
@@ -4397,7 +4465,6 @@
      "unit": "prodi",
      "capstone": false,
      "cpl": [
-      "I",
       "J"
      ]
     },
@@ -4415,7 +4482,6 @@
      "unit": "prodi",
      "capstone": false,
      "cpl": [
-      "B",
       "D",
       "K"
      ]
@@ -4453,7 +4519,6 @@
      "capstone": false,
      "cpl": [
       "C",
-      "E",
       "J"
      ]
     },
@@ -4525,8 +4590,7 @@
      "unit": "prodi",
      "capstone": false,
      "cpl": [
-      "H",
-      "I"
+      "H"
      ]
     },
     {
@@ -4579,7 +4643,6 @@
      "capstone": false,
      "cpl": [
       "C",
-      "E",
       "H"
      ]
     },
@@ -4812,7 +4875,6 @@
      "capstone": false,
      "cpl": [
       "C",
-      "G",
       "I"
      ]
     },
@@ -4919,9 +4981,7 @@
      "unit": "prodi",
      "capstone": false,
      "cpl": [
-      "E",
-      "H",
-      "I"
+      "H"
      ]
     },
     {
@@ -5124,7 +5184,6 @@
      "unit": "prodi",
      "capstone": false,
      "cpl": [
-      "E",
       "F",
       "H"
      ]
@@ -5217,8 +5276,7 @@
      "capstone": false,
      "cpl": [
       "C",
-      "G",
-      "J"
+      "G"
      ]
     },
     {
@@ -5308,8 +5366,7 @@
      "capstone": false,
      "cpl": [
       "C",
-      "I",
-      "J"
+      "I"
      ]
     },
     {
@@ -5381,8 +5438,7 @@
      "capstone": false,
      "cpl": [
       "C",
-      "I",
-      "J"
+      "I"
      ]
     },
     {
@@ -5400,8 +5456,7 @@
      "capstone": false,
      "cpl": [
       "C",
-      "I",
-      "J"
+      "I"
      ]
     },
     {
@@ -5562,7 +5617,6 @@
      "capstone": false,
      "cpl": [
       "G",
-      "I",
       "J"
      ]
     },
