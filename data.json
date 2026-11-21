@@ -4052,7 +4052,7 @@
     {
      "kode": "PL-1",
      "nama": "Civil Engineer Pemula",
-     "nama_en": "",
+     "nama_en": "Junior Civil Engineer",
      "deskripsi": "Mampu berperan sebagai insinyur sipil pemula dalam perencanaan, perancangan, pelaksanaan, pengoperasian, dan pemeliharaan infrastruktur dengan menerapkan prinsip rekayasa, standar teknis, etika profesi, keberlanjutan, dan ketahanan energi.",
      "cpl": [
       "A",
@@ -4067,7 +4067,7 @@
     {
      "kode": "PL-2",
      "nama": "Analis dan Perencana Infrastruktur",
-     "nama_en": "",
+     "nama_en": "Infrastructure Analyst and Planner",
      "deskripsi": "Mampu melakukan identifikasi, analisis, pemodelan, dan perencanaan solusi terhadap permasalahan teknik sipil dengan memanfaatkan pendekatan saintifik, teknologi komputasi, data, dan perangkat rekayasa modern.",
      "cpl": [
       "C",
@@ -4080,7 +4080,7 @@
     {
      "kode": "PL-3",
      "nama": "Pengelola Konstruksi dan Infrastruktur",
-     "nama_en": "",
+     "nama_en": "Construction and Infrastructure Manager",
      "deskripsi": "Mampu berkontribusi dalam pengelolaan proyek konstruksi dan infrastruktur dengan mempertimbangkan mutu, biaya, waktu, keselamatan dan kesehatan kerja, risiko, serta keberlanjutan.",
      "cpl": [
       "A",
@@ -4095,7 +4095,7 @@
     {
      "kode": "PL-4",
      "nama": "Peneliti Pemula Bidang Teknik Sipil",
-     "nama_en": "",
+     "nama_en": "Junior Civil Engineering Researcher",
      "deskripsi": "Mampu melakukan investigasi, pengumpulan dan analisis data, serta pengembangan solusi dan inovasi teknologi untuk mendukung kemajuan ilmu pengetahuan dan praktik rekayasa teknik sipil.",
      "cpl": [
       "C",
@@ -4108,7 +4108,7 @@
     {
      "kode": "PL-5",
      "nama": "Profesional Teknik Sipil Adaptif",
-     "nama_en": "",
+     "nama_en": "Adaptive Civil Engineering Professional",
      "deskripsi": "Mampu bekerja secara efektif dalam lingkungan multidisiplin dan multikultural pada tingkat nasional maupun global, berkomunikasi dan memimpin secara profesional, berpola pikir kewirausahaan, beradaptasi terhadap perkembangan teknologi dan kebutuhan industri, serta melaksanakan pembelajaran sepanjang hayat dan pengembangan profesi berkelanjutan.",
      "cpl": [
       "A",
@@ -4194,6 +4194,7 @@
      "kode": "01207",
      "nama": "Bahasa Inggris 1",
      "semester": 1,
+     "nama_en": "English 1",
      "sks": 2.0,
      "bagian": {
       "kuliah": 2.0,
@@ -4211,6 +4212,7 @@
      "kode": "01209",
      "nama": "Literasi Digital",
      "semester": 1,
+     "nama_en": "Digital Literation",
      "sks": 2.0,
      "bagian": {
       "kuliah": 2.0,
@@ -4229,6 +4231,7 @@
      "kode": "01211",
      "nama": "Berpikir Integratif",
      "semester": 1,
+     "nama_en": "Integrative Thingking",
      "sks": 2.0,
      "bagian": {
       "kuliah": 2.0,
@@ -4246,6 +4249,7 @@
      "kode": "01X01",
      "nama": "Kalkulus 1",
      "semester": 1,
+     "nama_en": "Calculus 1",
      "sks": 4.0,
      "bagian": {
       "kuliah": 4.0,
@@ -4263,6 +4267,7 @@
      "kode": "01X02",
      "nama": "Fisika Dasar 1",
      "semester": 1,
+     "nama_en": "Basic Physics 1",
      "sks": 3.0,
      "bagian": {
       "kuliah": 3.0,
@@ -4280,6 +4285,7 @@
      "kode": "01X03",
      "nama": "Kimia Dasar 1",
      "semester": 1,
+     "nama_en": "Basic Chemistry 1",
      "sks": 2.0,
      "bagian": {
       "kuliah": 2.0,
@@ -4297,6 +4303,7 @@
      "kode": "01X04",
      "nama": "Praktikum Kimia Dasar",
      "semester": 1,
+     "nama_en": "General Chemistry Laboratory",
      "sks": 1.0,
      "bagian": {
       "kuliah": 0.0,
@@ -4314,6 +4321,7 @@
      "kode": "01X05",
      "nama": "Praktikum Fisika Dasar 1",
      "semester": 1,
+     "nama_en": "General Physics Laboratory 1",
      "sks": 1.0,
      "bagian": {
       "kuliah": 0.0,
@@ -4331,6 +4339,7 @@
      "kode": "01104",
      "nama": "Bahasa Indonesia",
      "semester": 2,
+     "nama_en": "Indonesian Language",
      "sks": 2.0,
      "bagian": {
       "kuliah": 2.0,
@@ -4349,6 +4358,7 @@
      "kode": "01X06",
      "nama": "Fisika Dasar 2",
      "semester": 2,
+     "nama_en": "Basic Physics 2",
      "sks": 3.0,
      "bagian": {
       "kuliah": 3.0,
@@ -4367,6 +4377,7 @@
      "kode": "01X07",
      "nama": "Kalkulus 2",
      "semester": 2,
+     "nama_en": "Calculus 2",
      "sks": 4.0,
      "bagian": {
       "kuliah": 4.0,
@@ -4384,6 +4395,7 @@
      "kode": "01X08",
      "nama": "Praktikum Fisika Dasar 2",
      "semester": 2,
+     "nama_en": "General Physics Laboratory 2",
      "sks": 1.0,
      "bagian": {
       "kuliah": 0.0,
@@ -4401,6 +4413,7 @@
      "kode": "41301",
      "nama": "Geologi Dasar",
      "semester": 2,
+     "nama_en": "Basic Geology",
      "sks": 2.0,
      "bagian": {
       "kuliah": 2.0,
@@ -4419,6 +4432,7 @@
      "kode": "41302",
      "nama": "Pengantar Surveying dan Pemetaan",
      "semester": 2,
+     "nama_en": "Introduction to Surveying and Mapping",
      "sks": 2.0,
      "bagian": {
       "kuliah": 2.0,
@@ -4437,6 +4451,7 @@
      "kode": "41303",
      "nama": "Gambar Teknik",
      "semester": 2,
+     "nama_en": "Engineering Drawing",
      "sks": 2.0,
      "bagian": {
       "kuliah": 2.0,
@@ -4455,6 +4470,7 @@
      "kode": "41304",
      "nama": "Praktikum Gambar Teknik",
      "semester": 2,
+     "nama_en": "Engineering Drawing Laboratory",
      "sks": 1.0,
      "bagian": {
       "kuliah": 0.0,
@@ -4472,6 +4488,7 @@
      "kode": "41501",
      "nama": "Pengantar Infrastruktur",
      "semester": 2,
+     "nama_en": "Introduction to Infrastructure",
      "sks": 2.0,
      "bagian": {
       "kuliah": 2.0,
@@ -4490,6 +4507,7 @@
      "kode": "01205",
      "nama": "Literasi Energi",
      "semester": 3,
+     "nama_en": "Energy Literacy",
      "sks": 2.0,
      "bagian": {
       "kuliah": 2.0,
@@ -4508,6 +4526,7 @@
      "kode": "41305",
      "nama": "Pemrograman dan Aplikasi Komputer",
      "semester": 3,
+     "nama_en": "Computer Programming and Applications",
      "sks": 2.0,
      "bagian": {
       "kuliah": 2.0,
@@ -4526,6 +4545,7 @@
      "kode": "41306",
      "nama": "Statistika",
      "semester": 3,
+     "nama_en": "Statistics",
      "sks": 3.0,
      "bagian": {
       "kuliah": 3.0,
@@ -4544,6 +4564,7 @@
      "kode": "41307",
      "nama": "Analisis Struktur Statis Tertentu",
      "semester": 3,
+     "nama_en": "Analysis of Certain Static Structures",
      "sks": 3.0,
      "bagian": {
       "kuliah": 3.0,
@@ -4562,6 +4583,7 @@
      "kode": "41308",
      "nama": "Rekayasa Bahan",
      "semester": 3,
+     "nama_en": "Materials Engineering",
      "sks": 2.0,
      "bagian": {
       "kuliah": 2.0,
@@ -4580,6 +4602,7 @@
      "kode": "41309",
      "nama": "Praktikum Teknologi Bahan",
      "semester": 3,
+     "nama_en": "Materials Technology Laboratory",
      "sks": 1.0,
      "bagian": {
       "kuliah": 0.0,
@@ -4597,6 +4620,7 @@
      "kode": "41310",
      "nama": "Mekanika Fluida dan Hidraulika",
      "semester": 3,
+     "nama_en": "Fluid and Hydraulic Mechanics",
      "sks": 3.0,
      "bagian": {
       "kuliah": 3.0,
@@ -4615,6 +4639,7 @@
      "kode": "41311",
      "nama": "Praktikum Mekanika Fluida dan Hidraulika",
      "semester": 3,
+     "nama_en": "Fluid and Hydraulic Mechanics Laboratory",
      "sks": 1.0,
      "bagian": {
       "kuliah": 0.0,
@@ -4632,6 +4657,7 @@
      "kode": "41312",
      "nama": "Rekayasa Lalulintas dan Sistem Transportasi",
      "semester": 3,
+     "nama_en": "Traffic Engineering and Transportation Systems",
      "sks": 3.0,
      "bagian": {
       "kuliah": 3.0,
@@ -4650,6 +4676,7 @@
      "kode": "01103",
      "nama": "Kewarganegaraan",
      "semester": 4,
+     "nama_en": "Civics",
      "sks": 2.0,
      "bagian": {
       "kuliah": 2.0,
@@ -4668,6 +4695,7 @@
      "kode": "41313",
      "nama": "Persamaan Diferensial",
      "semester": 4,
+     "nama_en": "Differential Equation",
      "sks": 3.0,
      "bagian": {
       "kuliah": 3.0,
@@ -4686,6 +4714,7 @@
      "kode": "41314",
      "nama": "Mekanika Bahan",
      "semester": 4,
+     "nama_en": "Material Mechanics",
      "sks": 2.0,
      "bagian": {
       "kuliah": 2.0,
@@ -4704,6 +4733,7 @@
      "kode": "41315",
      "nama": "Mekanika Tanah 1",
      "semester": 4,
+     "nama_en": "Soil Mechanics 1",
      "sks": 2.0,
      "bagian": {
       "kuliah": 2.0,
@@ -4722,6 +4752,7 @@
      "kode": "41316",
      "nama": "Praktikum Mekanika Tanah 1",
      "semester": 4,
+     "nama_en": "Soil Mechanics Laboratory 1",
      "sks": 1.0,
      "bagian": {
       "kuliah": 1.0,
@@ -4739,6 +4770,7 @@
      "kode": "41317",
      "nama": "Hidrologi",
      "semester": 4,
+     "nama_en": "Hydrology",
      "sks": 3.0,
      "bagian": {
       "kuliah": 3.0,
@@ -4757,6 +4789,7 @@
      "kode": "41318",
      "nama": "Geometri Jalan Raya",
      "semester": 4,
+     "nama_en": "Road Geometry",
      "sks": 2.0,
      "bagian": {
       "kuliah": 2.0,
@@ -4775,6 +4808,7 @@
      "kode": "41319",
      "nama": "Mekanika Gelombang Laut",
      "semester": 4,
+     "nama_en": "Ocean Wave Mechanics",
      "sks": 3.0,
      "bagian": {
       "kuliah": 3.0,
@@ -4793,6 +4827,7 @@
      "kode": "41502",
      "nama": "Manajemen Konstruksi",
      "semester": 4,
+     "nama_en": "Construction Management",
      "sks": 2.0,
      "bagian": {
       "kuliah": 2.0,
@@ -4811,6 +4846,7 @@
      "kode": "01208",
      "nama": "Bahasa Inggris 2",
      "semester": 5,
+     "nama_en": "English 2",
      "sks": 2.0,
      "bagian": {
       "kuliah": 2.0,
@@ -4828,6 +4864,7 @@
      "kode": "41320",
      "nama": "Metoda Numerik",
      "semester": 5,
+     "nama_en": "Numerical Method",
      "sks": 3.0,
      "bagian": {
       "kuliah": 3.0,
@@ -4846,6 +4883,7 @@
      "kode": "41321",
      "nama": "Struktur Baja",
      "semester": 5,
+     "nama_en": "Steel Structure",
      "sks": 3.0,
      "bagian": {
       "kuliah": 3.0,
@@ -4864,6 +4902,7 @@
      "kode": "41322",
      "nama": "Mekanika Tanah 2",
      "semester": 5,
+     "nama_en": "Soil Mechanics 2",
      "sks": 2.0,
      "bagian": {
       "kuliah": 2.0,
@@ -4882,6 +4921,7 @@
      "kode": "41323",
      "nama": "Praktikum Mekanika Tanah 2",
      "semester": 5,
+     "nama_en": "Soil Mechanics 2",
      "sks": 1.0,
      "bagian": {
       "kuliah": 0.0,
@@ -4899,6 +4939,7 @@
      "kode": "41324",
      "nama": "Analisis Struktur Dengan Matriks",
      "semester": 5,
+     "nama_en": "Structural Analysis with Matrix",
      "sks": 3.0,
      "bagian": {
       "kuliah": 3.0,
@@ -4917,6 +4958,7 @@
      "kode": "41325",
      "nama": "Struktur Beton",
      "semester": 5,
+     "nama_en": "Concrete Structure",
      "sks": 3.0,
      "bagian": {
       "kuliah": 3.0,
@@ -4935,6 +4977,7 @@
      "kode": "41503",
      "nama": "Ekonomi Rekayasa",
      "semester": 5,
+     "nama_en": "Engineering Economics",
      "sks": 2.0,
      "bagian": {
       "kuliah": 2.0,
@@ -4953,6 +4996,7 @@
      "kode": "41326",
      "nama": "Rekayasa Perkerasan Jalan",
      "semester": 6,
+     "nama_en": "Road Pavement Engineering",
      "sks": 2.0,
      "bagian": {
       "kuliah": 2.0,
@@ -4971,6 +5015,7 @@
      "kode": "41327",
      "nama": "Praktikum Bahan Perkerasan Jalan",
      "semester": 6,
+     "nama_en": "Road Pavement Materials Laboratory",
      "sks": 1.0,
      "bagian": {
       "kuliah": 0.0,
@@ -4988,6 +5033,7 @@
      "kode": "41328",
      "nama": "Desain Struktur Baja Lepas Pantai",
      "semester": 6,
+     "nama_en": "Offshore Platform Steel Structure Design",
      "sks": 3.0,
      "bagian": {
       "kuliah": 3.0,
@@ -5006,6 +5052,7 @@
      "kode": "41329",
      "nama": "Rekayasa Fondasi",
      "semester": 6,
+     "nama_en": "Foundation Engineering",
      "sks": 3.0,
      "bagian": {
       "kuliah": 3.0,
@@ -5024,6 +5071,7 @@
      "kode": "41330",
      "nama": "Desain Struktur Beton Tahan Gempa",
      "semester": 6,
+     "nama_en": "Earthquake Resistant Concrete Structure",
      "sks": 3.0,
      "bagian": {
       "kuliah": 3.0,
@@ -5042,6 +5090,7 @@
      "kode": "41331",
      "nama": "Metode Pelaksanaan Konstruksi dan K3",
      "semester": 6,
+     "nama_en": "Construction Implementation Methods and HSE",
      "sks": 2.0,
      "bagian": {
       "kuliah": 2.0,
@@ -5060,6 +5109,7 @@
      "kode": "41332",
      "nama": "Hidrologi Bendungan dan Energi Air",
      "semester": 6,
+     "nama_en": "Dam Hydrology and Water Energy",
      "sks": 3.0,
      "bagian": {
       "kuliah": 3.0,
@@ -5078,6 +5128,7 @@
      "kode": "01206",
      "nama": "Inovasi dan Kewirausahaan",
      "semester": 7,
+     "nama_en": "Innovation and Entrepreneurship",
      "sks": 2.0,
      "bagian": {
       "kuliah": 2.0,
@@ -5096,6 +5147,7 @@
      "kode": "01210",
      "nama": "Pembangunan Berkelanjutan",
      "semester": 7,
+     "nama_en": "Sustainable Development",
      "sks": 2.0,
      "bagian": {
       "kuliah": 2.0,
@@ -5131,6 +5183,7 @@
      "kode": "41333",
      "nama": "Kerja Praktik",
      "semester": 7,
+     "nama_en": "Internship",
      "sks": 2.0,
      "bagian": {
       "kuliah": 0.0,
@@ -5152,6 +5205,7 @@
      "kode": "41334",
      "nama": "Perancangan Bangunan dan Inovasi Teknik Sipil",
      "semester": 7,
+     "nama_en": "Building Design and Civil Engineering Innovation",
      "sks": 4.0,
      "bagian": {
       "kuliah": 4.0,
@@ -5174,6 +5228,7 @@
      "kode": "41335",
      "nama": "Metodologi Penelitian",
      "semester": 7,
+     "nama_en": "Research Methodology",
      "sks": 2.0,
      "bagian": {
       "kuliah": 2.0,
@@ -5192,6 +5247,7 @@
      "kode": "01101",
      "nama": "Agama dan Etika",
      "semester": 8,
+     "nama_en": "Religion and Ethics",
      "sks": 2.0,
      "bagian": {
       "kuliah": 2.0,
@@ -5226,6 +5282,7 @@
      "kode": "01214",
      "nama": "Etika Profesi Keinsinyuran",
      "semester": 8,
+     "nama_en": "Engineering Ethics",
      "sks": 2.0,
      "bagian": {
       "kuliah": 2.0,
@@ -5243,6 +5300,7 @@
      "kode": "41336",
      "nama": "Tugas Akhir",
      "semester": 8,
+     "nama_en": "Final Project",
      "sks": 4.0,
      "bagian": {
       "kuliah": 4.0,
@@ -5265,6 +5323,7 @@
      "kode": "41401",
      "nama": "Dinamika Struktur",
      "semester": null,
+     "nama_en": "Structural Dynamics",
      "sks": 3.0,
      "bagian": {
       "kuliah": 3.0,
@@ -5283,6 +5342,7 @@
      "kode": "41402",
      "nama": "Analisis Konstruksi Anjungan Lepas Pantai",
      "semester": null,
+     "nama_en": "Offshore Platform Construction Analysis",
      "sks": 3.0,
      "bagian": {
       "kuliah": 3.0,
@@ -5301,6 +5361,7 @@
      "kode": "41403",
      "nama": "Desain Bangunan Terapung",
      "semester": null,
+     "nama_en": "Design of Floating Structure",
      "sks": 3.0,
      "bagian": {
       "kuliah": 3.0,
@@ -5319,6 +5380,7 @@
      "kode": "41404",
      "nama": "Manajemen Konstruksi dan Aspek Hukum Proyek",
      "semester": null,
+     "nama_en": "Construction Management and Legal Aspects of the Project",
      "sks": 2.0,
      "bagian": {
       "kuliah": 2.0,
@@ -5337,6 +5399,7 @@
      "kode": "41405",
      "nama": "Standar Internasional dalam Manajemen Konstruksi",
      "semester": null,
+     "nama_en": "International Standards in Construction Management",
      "sks": 2.0,
      "bagian": {
       "kuliah": 2.0,
@@ -5355,6 +5418,7 @@
      "kode": "41406",
      "nama": "Rekayasa Fondasi Lanjut",
      "semester": null,
+     "nama_en": "Advance Foundation Engineering",
      "sks": 3.0,
      "bagian": {
       "kuliah": 3.0,
@@ -5373,6 +5437,7 @@
      "kode": "41407",
      "nama": "Mekanika Tanah Lanjut",
      "semester": null,
+     "nama_en": "Advance Soil Mechanics",
      "sks": 3.0,
      "bagian": {
       "kuliah": 3.0,
@@ -5391,6 +5456,7 @@
      "kode": "41408",
      "nama": "Rekayasa Gempa dalam Geoteknik",
      "semester": null,
+     "nama_en": "Geotechnical Earthquake Engineering",
      "sks": 2.0,
      "bagian": {
       "kuliah": 2.0,
@@ -5409,6 +5475,7 @@
      "kode": "41409",
      "nama": "Perbaikan Tanah",
      "semester": null,
+     "nama_en": "Soil Improvement and Stabilization",
      "sks": 2.0,
      "bagian": {
       "kuliah": 2.0,
@@ -5427,6 +5494,7 @@
      "kode": "41410",
      "nama": "Analisis Kebutuhan Pergerakan",
      "semester": null,
+     "nama_en": "Transportation Modelling and Analysis",
      "sks": 3.0,
      "bagian": {
       "kuliah": 3.0,
@@ -5445,6 +5513,7 @@
      "kode": "41411",
      "nama": "Rekayasa Bandara",
      "semester": null,
+     "nama_en": "Airport Engineering",
      "sks": 2.0,
      "bagian": {
       "kuliah": 2.0,
@@ -5463,6 +5532,7 @@
      "kode": "41412",
      "nama": "Transportasi Berkelanjutan",
      "semester": null,
+     "nama_en": "Sustainable Transportation",
      "sks": 2.0,
      "bagian": {
       "kuliah": 2.0,
@@ -5481,6 +5551,7 @@
      "kode": "41413",
      "nama": "Hidrologi Lanjut",
      "semester": null,
+     "nama_en": "Advanced Hydrology",
      "sks": 3.0,
      "bagian": {
       "kuliah": 3.0,
@@ -5499,6 +5570,7 @@
      "kode": "41414",
      "nama": "Rekayasa Pelabuhan",
      "semester": null,
+     "nama_en": "Port Engineering",
      "sks": 3.0,
      "bagian": {
       "kuliah": 3.0,
@@ -5517,6 +5589,7 @@
      "kode": "41415",
      "nama": "Perencanaan Drainase",
      "semester": null,
+     "nama_en": "Drainage Planning",
      "sks": 3.0,
      "bagian": {
       "kuliah": 3.0,
@@ -5535,6 +5608,7 @@
      "kode": "41416",
      "nama": "Model Sumberdaya Air",
      "semester": null,
+     "nama_en": "Water Resources Model",
      "sks": 3.0,
      "bagian": {
       "kuliah": 3.0,
@@ -5553,6 +5627,7 @@
      "kode": "41417",
      "nama": "Proses dan Bangunan Pantai",
      "semester": null,
+     "nama_en": "Coastal Process and Structure",
      "sks": 3.0,
      "bagian": {
       "kuliah": 3.0,
@@ -5571,6 +5646,7 @@
      "kode": "41418",
      "nama": "Manajemen Perencanaan Pesisir",
      "semester": null,
+     "nama_en": "Coastal Planning Management",
      "sks": 3.0,
      "bagian": {
       "kuliah": 3.0,
@@ -5589,6 +5665,7 @@
      "kode": "41419",
      "nama": "Aspek Kebencanaan dan Kegagalan Infrastruktur",
      "semester": null,
+     "nama_en": "Aspects of Disaster and Infrastructure Failure",
      "sks": 3.0,
      "bagian": {
       "kuliah": 3.0,
@@ -5606,6 +5683,7 @@
      "kode": "41504",
      "nama": "Metoda Elemen Hingga",
      "semester": null,
+     "nama_en": "Finite Element Method",
      "sks": 3.0,
      "bagian": {
       "kuliah": 3.0,
@@ -5624,6 +5702,7 @@
      "kode": "41505",
      "nama": "Desain Pipa Bawah Laut",
      "semester": null,
+     "nama_en": "Design of Offshore Pipeline",
      "sks": 3.0,
      "bagian": {
       "kuliah": 3.0,
@@ -7418,29 +7497,42 @@
    {
     "kode": "STR",
     "nama": "Rekayasa Struktur dan Material",
-    "cakupan": "Struktur beton dan baja, bangunan tahan gempa, struktur lepas pantai dan bangunan terapung, material konstruksi"
+    "cakupan": "Struktur beton dan baja, bangunan tahan gempa, struktur lepas pantai dan bangunan terapung, material konstruksi",
+    "nama_en": "Structural Engineering and Materials",
+    "cakupan_en": "Concrete and steel structures, earthquake-resistant buildings, offshore and floating structures, construction materials"
    },
    {
     "kode": "AIR",
     "nama": "Rekayasa Sumber Daya Air",
-    "cakupan": "Hidrologi dan hidraulika, bendungan dan tenaga air (hydropower), drainase, pantai, pelabuhan, dan pesisir"
+    "cakupan": "Hidrologi dan hidraulika, bendungan dan tenaga air (hydropower), drainase, pantai, pelabuhan, dan pesisir",
+    "nama_en": "Water Resources Engineering",
+    "cakupan_en": "Hydrology and hydraulics, dams and hydropower, drainage, coastal, port, and marine engineering"
    },
    {
     "kode": "TRN",
     "nama": "Rekayasa Transportasi",
-    "cakupan": "Lalu lintas dan sistem transportasi, geometri dan perkerasan jalan, bandara, transportasi berkelanjutan"
+    "cakupan": "Lalu lintas dan sistem transportasi, geometri dan perkerasan jalan, bandara, transportasi berkelanjutan",
+    "nama_en": "Transportation Engineering",
+    "cakupan_en": "Traffic and transportation systems, highway geometry and pavements, airports, sustainable transportation"
    },
    {
     "kode": "GEO",
     "nama": "Rekayasa Geoteknik",
-    "cakupan": "Geologi dan mekanika tanah, fondasi, gempa dalam geoteknik, perbaikan tanah"
+    "cakupan": "Geologi dan mekanika tanah, fondasi, gempa dalam geoteknik, perbaikan tanah",
+    "nama_en": "Geotechnical Engineering",
+    "cakupan_en": "Geology and soil mechanics, foundations, geotechnical earthquake engineering, ground improvement"
    },
    {
     "kode": "MRK",
     "nama": "Manajemen dan Rekayasa Konstruksi",
-    "cakupan": "Manajemen dan ekonomi proyek, metode pelaksanaan dan K3, aspek hukum dan standar internasional konstruksi"
+    "cakupan": "Manajemen dan ekonomi proyek, metode pelaksanaan dan K3, aspek hukum dan standar internasional konstruksi",
+    "nama_en": "Construction Engineering and Management",
+    "cakupan_en": "Project management and economics, construction methods and safety, legal aspects and international construction standards"
    }
-  ]
+  ],
+  "tagline_en": "Innovative civil engineering for sustainable infrastructure, with a focus on the energy sector.",
+  "prodi_en": "Civil Engineering",
+  "gelar": "Sarjana Teknik (S.T.)"
  },
  "prestasi": [
   {

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Kunjungan situs publik — Ruang kerja</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tema.css?v=2026-11-21-c1759d">
+<link rel="stylesheet" href="kepala.css?v=2026-11-21-c1759d">
+<style>
+  /* Kunjungan situs publik (142-patch-kunjungan-publik.sql, pemilik 2026-11-21) */
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
+  .wrap{max-width:1400px;margin:0 auto;padding:18px 20px 80px}
+  .kosong, .ket{color:var(--muted)}
+  .ket{font-size:13px}
+  .kartu{background:var(--panel);border:1px solid var(--line);padding:14px 18px;margin-bottom:16px}
+  .kartu h2{font-size:17px;margin:0 0 6px;color:var(--biru)}
+  .alat{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:8px 0}
+  select{font:inherit;font-size:14px;padding:4px 6px;border:1px solid var(--line);background:var(--panel);color:var(--ink)}
+  .gulir{overflow-x:auto}
+  table.ds{width:100%;border-collapse:collapse;font-size:13.5px}
+  table.ds th{text-align:left;font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--line);padding:5px 6px;vertical-align:bottom}
+  table.ds td{padding:5px 6px;border-bottom:1px solid var(--line-soft);vertical-align:top}
+  table.ds td.n{text-align:right;font-variant-numeric:tabular-nums}
+  .kode{font-family:var(--mono);font-size:12px;color:var(--muted)}
+  .chip{display:inline-block;font-size:11.5px;padding:1px 6px;border:1px solid var(--line);white-space:nowrap}
+  .chip.kosong{color:var(--merah);border-color:var(--merah)} .chip.sebagian{color:#8A5A00;border-color:#8A5A00}
+  .chip.terisi{color:var(--hijau);border-color:var(--hijau)} .chip.boleh{color:var(--muted)}
+  .dua{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px}
+  .batang{height:8px;background:var(--biru);min-width:2px}
+  tr.grup td{background:var(--bg);font-weight:600;color:var(--biru);padding-top:12px}
+  .kemajuan{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+  .angka-st{display:flex;flex-direction:column;min-width:130px;padding:8px 10px;border:1px solid var(--line);background:transparent;color:var(--ink);font:inherit;cursor:pointer;text-align:left}
+  .angka-st b{font-size:22px;line-height:1.1} .angka-st span{font-size:12px}
+  .angka-st.aktif{border-color:var(--ink);box-shadow:inset 0 -3px 0 var(--merah)}
+  @media(max-width:700px){.wrap{padding-left:16px;padding-right:16px}}
+</style>
+</head>
+<body>
+<header class="hero"><div class="hero-in">
+  <div class="hero-inst" data-identitas></div>
+  <h1>Kunjungan situs publik</h1>
+  <div class="sub" id="hSub">Memuat…</div>
+</div></header>
+<main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
+<script src="config.js?v=2026-11-21-c1759d"></script>
+<script>
+// Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
+addEventListener('error', function (e) {
+  if (document.getElementById('galat-muat')) return;
+  var d = document.createElement('div');
+  d.id = 'galat-muat';
+  d.style.cssText = 'margin:16px;padding:12px 14px;border:1px solid var(--merah);' +
+    'background:var(--merah-m3);color:var(--ink);font:14px/1.5 system-ui,sans-serif';
+  d.textContent = 'Halaman gagal dimuat: ' + (e.message || 'galat skrip') +
+    '. Tekan Ctrl+Shift+R untuk memuat ulang tanpa cache; bila tetap muncul, kirim pesan ini ke admin.';
+  document.body.insertBefore(d, document.body.firstChild);
+});
+</script>
+<script type="module">
+// Kunjungan situs publik (142-patch-kunjungan-publik.sql, pemilik 2026-11-21): jumlah per hari, halaman, asal, peristiwa;
+// tanpa data pengunjung. Logika rekap: kunjungan-publik.js. Hanya admin (menu Pemantauan).
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
+import { gerbang } from './menu.js?v=2026-11-21-c1759d';
+import { rekapKunjungan } from './kunjungan-publik.js?v=2026-11-21-c1759d';
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const sb = createClient(window.SB_URL, window.SB_KEY);
+const tgl = s => String(s || '').split('-').reverse().join('/');
+const NAMA_RUJ = { langsung: 'Langsung (ketik alamat, markah, aplikasi)', google: 'Google', bing: 'Bing', instagram: 'Instagram',
+  facebook: 'Facebook', whatsapp: 'WhatsApp', linkedin: 'LinkedIn', youtube: 'YouTube', tiktok: 'TikTok', x: 'X (Twitter)',
+  kampus: 'Situs Universitas Pertamina', lainnya: 'Situs lain' };
+let HARI = 30, DATA = null, GALAT = '';
+
+async function muat(){
+  const { data, error } = await sb.rpc('kunjungan_publik_rekap', { p_hari: HARI });
+  GALAT = error ? (/function|schema cache/i.test(error.message) ? 'Pencatat belum aktif: admin menjalankan supabase/142-patch-kunjungan-publik.sql.' : error.message) : '';
+  DATA = data || { baris: [] };
+}
+
+const tabel = (judul, xs, nama = k => k) => {
+  const maks = Math.max(1, ...xs.map(x => x[1]));
+  return `<div class="kartu"><h2>${judul}</h2><div class="gulir"><table class="ds"><tbody>${xs.map(([k, n]) =>
+    `<tr><td>${esc(nama(k))}</td><td class="n">${n}</td><td style="width:40%"><div class="batang" style="width:${Math.round(n / maks * 100)}%"></div></td></tr>`).join('')
+    || '<tr><td class="kosong">Belum ada catatan.</td></tr>'}</tbody></table></div></div>`;
+};
+
+function gambar(){
+  const r = rekapKunjungan(DATA?.baris || []);
+  $('isi').innerHTML = `<div class="kartu"><h2>Ringkasan</h2>
+    <p class="ket">Dicatat sejak ${DATA?.mulai_catat ? tgl(DATA.mulai_catat) : '(belum ada catatan)'}. Hanya jumlah per hari, halaman, asal, dan
+      peristiwa; tidak ada cookie, alamat IP, atau penanda pengunjung, jadi satu orang yang membuka 3 halaman terhitung 3 kunjungan.
+      Perayap mesin pencari dan uji lokal tidak dihitung. Catatan lebih tua dari 400 hari dihapus otomatis.</p>
+    ${GALAT ? `<p class="kosong">${esc(GALAT)}</p>` : ''}
+    <div class="alat"><label>Rentang <select id="fHari">${[7, 30, 90, 180, 365].map(h => `<option value="${h}"${h === HARI ? ' selected' : ''}>${h} hari terakhir</option>`).join('')}</select></label></div>
+    <div class="kemajuan">${[[r.kunjungan, 'Halaman dibuka'], [r.dariLuar, 'Datang dari luar situs'], [r.kuis, 'Kuis minat selesai'],
+      [r.daftar, 'Klik ke pendaftaran PMB']].map(([n, l]) => `<div class="angka-st"><b>${n}</b><span>${l}</span></div>`).join('')}</div></div>
+    <div class="dua">${tabel('Asal pengunjung (dari luar situs)', r.perRujukan, k => NAMA_RUJ[k] || k)}
+      ${tabel('Halaman paling sering dibuka', r.perHalaman.slice(0, 20))}</div>
+    ${tabel('Halaman dibuka per hari', r.perHari.slice().reverse(), tgl)}`;
+  $('fHari').onchange = async e => { HARI = +e.target.value; await muat(); gambar(); };
+}
+
+async function mulai(){
+  const saya = await gerbang(sb);
+  if (!saya) return;
+  $('hSub').textContent = `Masuk sebagai ${saya.nama}`;
+  await muat();
+  gambar();
+}
+mulai().catch(e => { $('isi').innerHTML = `<p class="kosong">Gagal memuat: ${esc(e.message)}</p>`; });
+</script>
+</body>
+</html>

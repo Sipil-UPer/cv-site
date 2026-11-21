@@ -1,12 +1,13 @@
 // Kerangka halaman publik (pemilik 2026-11-16): kepala bergaya situs universitas (deret logo di bilah
 // biru, nama prodi, menu turun) dan kaki halaman yang sama di halaman publik. Pemakaian:
-//   import { pasangKerangka, isiKerangka } from './kerangka.js?v=2026-11-21-1a1e77';
+//   import { pasangKerangka, isiKerangka } from './kerangka.js?v=2026-11-21-c1759d';
 //   pasangKerangka({ aktif: 'profil' });     // segera, sebelum data.json
 //   pasangKerangka({ aktif: 'profil', muat: true });   // atau: kerangka memuat data.json sendiri
 //   isiKerangka(D);                           // setelah data.json: nama prodi, kontak, media sosial
 // Logo: window.LOGO_KEPALA di config.js; tanpa itu logo.png. Menu hanya memuat halaman yang ada
 // dan modul yang menyala (fitur.js). Tautan relatif (situs akan pindah ke subdomain kampus).
-import { halamanAktif } from './fitur.js?v=2026-11-21-1a1e77';
+import { halamanAktif } from './fitur.js?v=2026-11-21-c1759d';
+import { catatKunjunganPublik } from './kunjungan-publik.js?v=2026-11-21-c1759d';
 
 // Lima kelompok menu (pemilik 2026-11-19, tahap 2): Profil, Dosen dan riset, Mahasiswa, Kinerja, Kontak;
 // Pendaftaran dan Masuk ruang kerja di baris atas. Kaki halaman disusun dari MENU yang sama.
@@ -169,7 +170,7 @@ export function pasangKerangka({ aktif = '', muat = false } = {}){
       `<img src="${esc(l.src)}" alt="${esc(l.alt)}"${l.w ? ` width="${l.w}" height="${l.h}"` : ''}>`).join('')}</a>
     <div class="kr-kanan">
       <div class="kr-baris1"><a class="kr-merek" href="index.html">Program Studi<b data-kr="prodi"></b></a>
-        <span class="kr-tautan"><a href="#" data-kr="daftar" class="kr-daftar" hidden>Pendaftaran</a><a href="ruang-kerja.html" class="kr-masuk">Masuk ruang kerja</a></span></div>
+        <span class="kr-tautan"><a href="#" data-kr="daftar" class="kr-daftar" hidden>Pendaftaran</a><a href="english.html" data-kr="english" lang="en" hidden>English</a><a href="ruang-kerja.html" class="kr-masuk">Masuk ruang kerja</a></span></div>
       <nav class="kr-nav" id="krNav" aria-label="Menu utama"><ul>${menuAtas(aktif)}<li class="kr-hp"><a href="ruang-kerja.html">Masuk ruang kerja &rarr;</a></li></ul></nav>
     </div>
     <button class="kr-burger" type="button" aria-expanded="false" aria-controls="krNav">Menu</button>
@@ -208,7 +209,16 @@ export function pasangKerangka({ aktif = '', muat = false } = {}){
     kp.classList.toggle('buka', buka); burger.setAttribute('aria-expanded', String(buka));
     burger.textContent = buka ? 'Tutup' : 'Menu';
   });
+  // Statistik kunjungan ramah privasi (142-patch-kunjungan-publik.sql): satu "lihat" per halaman dibuka, dan klik ke
+  // laman pendaftaran (PMB). Hanya jumlah; tanpa cookie atau penanda pengunjung.
+  catatKunjunganPublik('lihat');
+  document.addEventListener('click', e => {
+    const a = e.target.closest?.('a[href]');
+    if (a && (a.classList.contains('kr-daftar') || /(^|\.)pmb\./i.test(a.hostname || ''))) catatKunjunganPublik('daftar_klik');
+  });
 }
+
+export { catatKunjunganPublik };
 
 /** Nama prodi/institusi, kontak, dan media sosial dari data.json (config.yaml public_site). */
 export function isiKerangka(D){
@@ -241,6 +251,8 @@ export function isiKerangka(D){
     el.hidden = !daftar;
     if (daftar) Object.assign(el, { href: daftar, rel: 'noopener' });
   });
+  // Ringkasan bahasa Inggris (english.html, pemilik 2026-11-21): hanya bila halamannya dibuat (programme_name_en diisi).
+  document.querySelectorAll('[data-kr="english"]').forEach(el => { el.hidden = !D.situs?.prodi_en; });
   const s = Object.entries(D.situs?.sosial || {});
   document.querySelectorAll('[data-kr="sosial"]').forEach(el => {
     el.innerHTML = s.length ? `<h4>Ikuti kami</h4><ul>${s.map(([n, u]) =>
