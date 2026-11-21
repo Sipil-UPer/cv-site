@@ -9,6 +9,8 @@ const MAKS_JUDUL = 5;
 export const ISIAN_PROFIL_WAJIB = [
   ['sinta_id', 'SINTA ID'], ['orcid', 'ORCID'], ['scopus_id', 'Scopus ID (bila sudah punya)'],
   ['jabatan', 'Jabatan akademik'], ['riwayat_pendidikan', 'Riwayat pendidikan'], ['topik_keahlian', 'Topik keahlian'],
+  // 2026-11-21 (pemilik): foto tampil di daftar dosen, halaman dosen, dan profil prodi; baru 3 dari 11 dosen berfoto.
+  ['foto_url', 'Foto profil (tampil di situs publik)'],
 ];
 const kosong = v => v == null || (Array.isArray(v) ? !v.length : !String(v).trim());
 // Dosen aktif ber-email, bukan asesor, dan bukan staf non-DTPS (admin staf: dtps = false; patch 16).
