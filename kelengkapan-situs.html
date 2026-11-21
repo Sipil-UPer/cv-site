@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Kelengkapan situs publik — Ruang kerja</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tema.css?v=2026-11-21-5372d8">
+<link rel="stylesheet" href="kepala.css?v=2026-11-21-5372d8">
+<style>
+  /* Kelengkapan situs publik (pemilik 2026-11-21) */
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
+  .wrap{max-width:1400px;margin:0 auto;padding:18px 20px 80px}
+  .kosong, .ket{color:var(--muted)}
+  .ket{font-size:13px}
+  .kartu{background:var(--panel);border:1px solid var(--line);padding:14px 18px;margin-bottom:16px}
+  .kartu h2{font-size:17px;margin:0 0 6px;color:var(--biru)}
+  .alat{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:8px 0}
+  select{font:inherit;font-size:14px;padding:4px 6px;border:1px solid var(--line);background:var(--panel);color:var(--ink)}
+  .gulir{overflow-x:auto}
+  table.ds{width:100%;border-collapse:collapse;font-size:13.5px}
+  table.ds th{text-align:left;font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--line);padding:5px 6px;vertical-align:bottom}
+  table.ds td{padding:5px 6px;border-bottom:1px solid var(--line-soft);vertical-align:top}
+  table.ds td.n{text-align:right;font-variant-numeric:tabular-nums}
+  .kode{font-family:var(--mono);font-size:12px;color:var(--muted)}
+  .chip{display:inline-block;font-size:11.5px;padding:1px 6px;border:1px solid var(--line);white-space:nowrap}
+  .chip.kosong{color:var(--merah);border-color:var(--merah)} .chip.sebagian{color:#8A5A00;border-color:#8A5A00}
+  .chip.terisi{color:var(--hijau);border-color:var(--hijau)} .chip.boleh{color:var(--muted)}
+  tr.grup td{background:var(--bg);font-weight:600;color:var(--biru);padding-top:12px}
+  .kemajuan{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+  .angka-st{display:flex;flex-direction:column;min-width:130px;padding:8px 10px;border:1px solid var(--line);background:transparent;color:var(--ink);font:inherit;cursor:pointer;text-align:left}
+  .angka-st b{font-size:22px;line-height:1.1} .angka-st span{font-size:12px}
+  .angka-st.aktif{border-color:var(--ink);box-shadow:inset 0 -3px 0 var(--merah)}
+  @media(max-width:700px){.wrap{padding-left:16px;padding-right:16px}}
+</style>
+</head>
+<body>
+<header class="hero"><div class="hero-in">
+  <div class="hero-inst" data-identitas></div>
+  <h1>Kelengkapan situs publik</h1>
+  <div class="sub" id="hSub">Memuat…</div>
+</div></header>
+<main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
+<script src="config.js?v=2026-11-21-5372d8"></script>
+<script>
+// Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
+addEventListener('error', function (e) {
+  if (document.getElementById('galat-muat')) return;
+  var d = document.createElement('div');
+  d.id = 'galat-muat';
+  d.style.cssText = 'margin:16px;padding:12px 14px;border:1px solid var(--merah);' +
+    'background:var(--merah-m3);color:var(--ink);font:14px/1.5 system-ui,sans-serif';
+  d.textContent = 'Halaman gagal dimuat: ' + (e.message || 'galat skrip') +
+    '. Tekan Ctrl+Shift+R untuk memuat ulang tanpa cache; bila tetap muncul, kirim pesan ini ke admin.';
+  document.body.insertBefore(d, document.body.firstChild);
+});
+</script>
+<script type="module">
+// Kelengkapan situs publik (pemilik 2026-11-21): bagian halaman publik yang kosong/sebagian, dari data.json situs ini
+// (sama dengan yang dibaca pengunjung). Logika: kelengkapan-situs.js. Hanya admin (menu Pemantauan).
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
+import { gerbang } from './menu.js?v=2026-11-21-5372d8';
+import { periksaKelengkapan, ringkasKelengkapan, STATUS_KS } from './kelengkapan-situs.js?v=2026-11-21-5372d8';
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const sb = createClient(window.SB_URL, window.SB_KEY);
+let XS = [], DIPERBARUI = '', F = '';
+
+function gambar(){
+  const r = ringkasKelengkapan(XS), nama = Object.fromEntries(STATUS_KS);
+  const xs = XS.filter(x => !F || (F === 'boleh' ? x.bolehKosong && x.status === 'kosong' : x.status === F && !(F === 'kosong' && x.bolehKosong)));
+  let grup = '';
+  const baris = xs.map(x => {
+    const kepala = x.halaman.judul !== grup ? (grup = x.halaman.judul,
+      `<tr class="grup"><td colspan="5">${esc(x.halaman.judul)} <a class="kode" href="${esc(x.halaman.href)}" target="_blank" rel="noopener">lihat ↗</a></td></tr>`) : '';
+    const st = x.bolehKosong && x.status === 'kosong' ? '<span class="chip boleh">Boleh kosong</span>' : `<span class="chip ${x.status}">${nama[x.status]}</span>`;
+    const isi = !x.isi ? '' : x.isi.href ? `<a href="${esc(x.isi.href)}">${esc(x.isi.judul)}</a>` : esc(x.isi.judul);
+    return `${kepala}<tr><td>${st}</td><td>${esc(x.judul)}</td><td>${esc(x.nilai)}</td><td>${isi}</td><td class="ket">${esc(x.catatan)}</td></tr>`;
+  }).join('');
+  $('isi').innerHTML = `<div class="kartu"><h2>Bagian situs publik</h2>
+    <p class="ket">Dihitung dari data situs publik yang sedang tayang (diperbarui ${esc(DIPERBARUI || '?')}). Isian baru tampil di sini
+      setelah pembangunan situs berikutnya (beberapa menit setelah disimpan, paling lama sejam). Bagian yang kosong tidak tampil di
+      halaman publik, jadi pengunjung tidak melihat kotak kosong, tetapi halaman terasa sepi.</p>
+    <div class="kemajuan">${[...STATUS_KS, ['boleh', 'Boleh kosong']].map(([k, l]) =>
+      `<button class="angka-st${F === k ? ' aktif' : ''}" data-st="${k}"><b>${k === 'boleh' ? r.bolehKosong : r[k]}</b><span>${l}</span></button>`).join('')}</div>
+    <div class="gulir"><table class="ds"><thead><tr><th>Status</th><th>Bagian</th><th>Isi sekarang</th><th>Isi di</th><th>Catatan</th></tr></thead>
+      <tbody>${baris || '<tr><td colspan="5" class="kosong">Tidak ada.</td></tr>'}</tbody></table></div></div>`;
+  document.querySelectorAll('[data-st]').forEach(b => { b.onclick = () => { F = F === b.dataset.st ? '' : b.dataset.st; gambar(); }; });
+}
+
+async function mulai(){
+  const saya = await gerbang(sb);
+  if (!saya) return;
+  $('hSub').textContent = `Masuk sebagai ${saya.nama}`;
+  const D = await fetch('data.json?v=' + Date.now()).then(r => { if (!r.ok) throw new Error(`data.json ${r.status}`); return r.json(); });
+  DIPERBARUI = D.diperbarui || '';
+  XS = periksaKelengkapan(D);
+  gambar();
+}
+mulai().catch(e => { $('isi').innerHTML = `<p class="kosong">Gagal memuat: ${esc(e.message)}</p>`; });
+</script>
+</body>
+</html>

@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-21-4ede98">
+<link rel="stylesheet" href="tema.css?v=2026-11-21-5372d8">
 <style>
   /* Pengajuan mahasiswa, publik tanpa masuk akun (pemilik 2026-11-17; patch 90). Warna dari tema.css. */
   *{box-sizing:border-box}
@@ -99,7 +99,7 @@
   <h1>Pengajuan KP, seminar/sidang TA, lomba, publikasi/luaran, surat, dan yudisium</h1><div class="prodi" id="hProdi"></div>
 </div></header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-21-4ede98"></script>
+<script src="config.js?v=2026-11-21-5372d8"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -115,7 +115,7 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 // Kepala dan kaki bersama situs umum (pemilik 2026-11-19, tahap 2).
-import { pasangKerangka } from './kerangka.js?v=2026-11-21-4ede98';
+import { pasangKerangka } from './kerangka.js?v=2026-11-21-5372d8';
 pasangKerangka({ aktif: 'mahasiswa', muat: true });
 // Mahasiswa tidak login (pemilik 2026-11-17). Tanpa token: formulir baru dan minta tautan lagi; Apps Script
 // membuat pengajuan dan mengirim tautan pribadi ke <NIM>@<domain kampus>. Dengan #t=<token> (dari email):
@@ -124,9 +124,9 @@ import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 import { JENIS, LABEL_BERKAS, LABEL_STATUS, TINGKAT, BIDANG, jalur, bolehUbah, bacaAnggota, teksAnggota,
          periksaIsian, judulPengajuan, keB64, bukaIsi, appsScript, labelStatus, jalurTahap, BERKAS_SELESAI, PROGRAM_KP, labelProgram,
          periksaSelesai, JENIS_SURAT, TAHAP_TA, TAHAP_TA_AJU, TAHAP_PEMBIMBING_TA, penetapanTA, pembimbingCocok, JENIS_PUB, TINGKAT_PUB, INDEKSASI, JENIS_LUARAN,
-         BERKAS_YUDISIUM_BAWAAN, kelengkapanYudisium, labelBerkas } from './pengajuan-mhs.js?v=2026-11-21-4ede98';
-import { saranInstansi } from './rekap-kp.js?v=2026-11-21-4ede98';
-import { CONTOH_PENGAJUAN, contohPengajuan } from './pengajuan-contoh.js?v=2026-11-21-4ede98';
+         BERKAS_YUDISIUM_BAWAAN, kelengkapanYudisium, labelBerkas } from './pengajuan-mhs.js?v=2026-11-21-5372d8';
+import { saranInstansi } from './rekap-kp.js?v=2026-11-21-5372d8';
+import { CONTOH_PENGAJUAN, contohPengajuan } from './pengajuan-contoh.js?v=2026-11-21-5372d8';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);

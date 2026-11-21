@@ -1,5 +1,5 @@
-import { dosenLogin } from './dosen-login.js?v=2026-11-21-4ede98';
-import { aktifPada } from './koordinator.js?v=2026-11-21-4ede98';
+import { dosenLogin } from './dosen-login.js?v=2026-11-21-5372d8';
+import { aktifPada } from './koordinator.js?v=2026-11-21-5372d8';
 // Menu bersama ruang kerja (pemilik 2026-11-04).
 //
 // Situs dibagi dua:
@@ -25,8 +25,8 @@ const penyusun = s => admin(s) || (!!s.tim_penyusun && s.peran !== 'asesor');
 // Asesor, dan pimpinan yang bukan DTPS prodi ini (aktif=false), tidak mengisi karya.
 const isiKarya = s => s.peran !== 'asesor' && !(s.peran === 'pimpinan' && !s.aktif);
 
-import { halamanAktif } from './fitur.js?v=2026-11-21-4ede98';
-import { pasangPemicuBangun } from './pemicu-bangun.js?v=2026-11-21-4ede98';
+import { halamanAktif } from './fitur.js?v=2026-11-21-5372d8';
+import { pasangPemicuBangun } from './pemicu-bangun.js?v=2026-11-21-5372d8';
 
 export const MODUL = [
   // Susunan modul (pemilik 2026-11-17): mengikuti pembagian tugas koordinator prodi (kemahasiswaan,
@@ -156,6 +156,9 @@ export const MODUL = [
     // Pemakaian ruang kerja (133-patch-pemakaian-halaman.sql, pemilik 2026-11-20): dasar memutuskan fitur yang dipertahankan/dibuang.
     { href: 'pemakaian.html', judul: 'Pemakaian ruang kerja', boleh: admin,
       ket: 'Halaman mana yang dibuka, oleh berapa pengguna dan peran apa; halaman yang tidak pernah dibuka sebagai calon dibuang.' },
+    // Kelengkapan situs publik (pemilik 2026-11-21): bagian publik yang kosong dan tempat mengisinya.
+    { href: 'kelengkapan-situs.html', judul: 'Kelengkapan situs publik', boleh: admin,
+      ket: 'Bagian situs publik yang masih kosong atau sebagian (profil, akreditasi, laboratorium, kerja sama, kabar, foto dosen) dan tempat mengisinya.' },
     { href: 'grafik.html', judul: 'Grafik untuk LED',
       ket: 'Grafik siap pakai untuk laporan dan LED.' },
   ]},
@@ -405,7 +408,7 @@ export async function pasangMenu(sb){
   // Pencarian menyeluruh (pemilik 2026-11-12; cari-ui.js, cari.js): dimuat saat pertama dipakai.
   const kotak = nav.querySelector('.rk-cari input');
   let siapCari = null;
-  const muatCari = () => siapCari || (siapCari = import('./cari-ui.js?v=2026-11-21-4ede98').then(m =>
+  const muatCari = () => siapCari || (siapCari = import('./cari-ui.js?v=2026-11-21-5372d8').then(m =>
     m.pasangCari(kotak, { sb, saya: u.saya, modul: halamanBoleh(u.saya), boleh: h => bolehBuka(u.saya, h) !== false })));
   kotak.addEventListener('focus', muatCari);
   document.addEventListener('keydown', e => {
