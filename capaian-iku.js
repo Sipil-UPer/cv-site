@@ -2,8 +2,8 @@
 // Target IKU/IKT dan Monitoring agar angkanya sama di kedua halaman.
 // Arah minimal: % = capaian / target; maksimal: % = target / capaian.
 // Status: tercapai, hampir (>= 80%), belum, atau capaian belum diisi.
-import { hitungSumber, petunjukSumber } from './iku-otomatis.js?v=2026-11-21-f4b0df';
-export { muatTambahan, denganTambahan } from './iku-otomatis.js?v=2026-11-21-f4b0df';
+import { hitungSumber, petunjukSumber } from './iku-otomatis.js?v=2026-11-21-4e1914';
+export { muatTambahan, denganTambahan } from './iku-otomatis.js?v=2026-11-21-4e1914';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));

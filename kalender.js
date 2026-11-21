@@ -3,8 +3,10 @@
 // melihat; ekspor berupa unduhan .ics. Tenggat pribadi (tindak lanjut rapat, proposal/laporan
 // hibah, temuan AMI) tampil untuk yang bersangkutan; admin melihat semuanya.
 // Jam di situs ini WIB (UTC+7, tanpa musim panas); di .ics ditulis sebagai UTC.
+import { JENIS_LIBUR } from './hari-libur.js?v=2026-11-21-4e1914';
 
 export const JENIS_ACARA = {
+  libur:     { label: 'Hari libur', warna: '#9E3A26' },   // 139-patch-hari-libur.sql, pemilik 2026-11-21
   rapat:     { label: 'Rapat prodi', warna: '#1F4E79' },
   kegiatan:  { label: 'Kegiatan prodi', warna: '#2E7D32' },
   panggilan: { label: 'Panggilan hibah', warna: '#6A1B9A' },
@@ -35,6 +37,10 @@ export function kumpulkanAcara(d, saya){
   const out = [];
   const tambah = a => { if (a.mulai) out.push({ selesai: a.mulai, jamMulai: null, jamSelesai: null, tempat: '', ket: '', href: '', ...a,
     selesai: a.selesai && a.selesai >= a.mulai ? a.selesai : a.mulai }); };
+
+  // Hari libur (139): untuk semua pengguna, sepanjang hari.
+  for (const l of d.libur || [])
+    tambah({ uid: `libur-${iso(l.tanggal)}`, sumber: 'libur', judul: l.nama, mulai: iso(l.tanggal), ket: JENIS_LIBUR[l.jenis] || '' });
 
   for (const k of d.kegiatan || [])
     tambah({ uid: `kegiatan-${k.id}`, sumber: 'kegiatan', judul: k.judul, mulai: iso(k.mulai), selesai: iso(k.selesai),

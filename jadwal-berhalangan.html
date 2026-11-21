@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-21-f4b0df">
-<link rel="stylesheet" href="kepala.css?v=2026-11-21-f4b0df">
+<link rel="stylesheet" href="tema.css?v=2026-11-21-4e1914">
+<link rel="stylesheet" href="kepala.css?v=2026-11-21-4e1914">
 <style>
   /* Jadwal berhalangan dosen (132-patch-jadwal-berhalangan.sql, pemilik 2026-11-20) */
   *{box-sizing:border-box}
@@ -57,6 +57,8 @@
   table.kal td.pilih{background:rgba(30,90,200,.30)}
   table.kal td .judul{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:150px;font-size:11.5px;line-height:21px}
   table.kal th.hari-ini{box-shadow:inset 0 -3px 0 var(--merah)}
+  table.kal th.libur{color:#9E3A26} table.kal th .nama-libur{display:block;font-size:10.5px;font-weight:400;white-space:normal}
+  table.kal td.libur:not([data-ada]){background:#FBF1EE}   /* hari libur (139) */
   .legenda{display:flex;gap:12px;flex-wrap:wrap;font-size:12.5px;color:var(--muted);margin:6px 0}
   .legenda span::before{content:'';display:inline-block;width:12px;height:12px;margin-right:4px;vertical-align:-2px;border:1px solid var(--line)}
   .legenda .l-blok::before{background:rgba(200,60,50,.20)} .legenda .l-tgl::before{background:rgba(200,140,0,.22)}
@@ -74,7 +76,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-21-f4b0df"></script>
+<script src="config.js?v=2026-11-21-4e1914"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -93,12 +95,13 @@ addEventListener('error', function (e) {
 // bisa (mingguan per semester dan tanggal tertentu, termasuk jadwal di luar prodi); pengatur jadwal (admin, Kaprodi,
 // koordinator TA/KP) melihat semua dan mencari slot kosong; dosen lain hanya jumlah per slot. Logika: jadwal-berhalangan.js.
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-21-f4b0df';
-import { punya } from './koordinator.js?v=2026-11-21-f4b0df';
-import { semesterKini } from './evaluasi-pembelajaran.js?v=2026-11-21-f4b0df';
+import { gerbang } from './menu.js?v=2026-11-21-4e1914';
+import { punya } from './koordinator.js?v=2026-11-21-4e1914';
+import { semesterKini } from './evaluasi-pembelajaran.js?v=2026-11-21-4e1914';
 import { HARI, namaHari, JENIS_HALANGAN, namaJenis, labelSlot, cekSlot, perSel, cariSlotKosong, hariISO,
-  cekRentang, labelRentang, rentangPadaTanggal, buatSlot, tambahHari, mingguDari, slotAntara, blokBaru, isiKalender, barisEkspor, EKSPOR_MAKS_HARI, ringkasBlok } from './jadwal-berhalangan.js?v=2026-11-21-f4b0df';
-import { SHEETJS } from './nilai-cpl.js?v=2026-11-21-f4b0df';
+  cekRentang, labelRentang, rentangPadaTanggal, buatSlot, tambahHari, mingguDari, slotAntara, blokBaru, isiKalender, barisEkspor, EKSPOR_MAKS_HARI, ringkasBlok } from './jadwal-berhalangan.js?v=2026-11-21-4e1914';
+import { SHEETJS } from './nilai-cpl.js?v=2026-11-21-4e1914';
+import { petaLibur } from './hari-libur.js?v=2026-11-21-4e1914';
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const sb = createClient(window.SB_URL, window.SB_KEY);
@@ -111,6 +114,7 @@ let MILIK_RENTANG = [], SEMUA_RENTANG = [], ADA_RENTANG = true;
 let PERIODE = null, TAB = 'kalender', PILIH_DOSEN = new Set(), TGL_CARI = '', CARI = '';
 // Kalender saya (pemilik 2026-11-21): minggu yang tampil, pilihan seret, blok baru, rincian blok, semua isian mingguan sendiri.
 let MINGGU = '', PILIH_KAL = null, FORM_KAL = null, DETAIL_KAL = null, MILIK_SEMUA_MG = [];
+let LIBUR = new Map();   // hari libur (139): 'YYYY-MM-DD' -> { nama, jenis }; tabel belum ada = kosong
 const ADMIN = () => SAYA?.peran === 'admin';
 const PENGATUR = () => ADMIN() || ['kaprodi', 'koordinator_ta', 'koordinator_kp'].some(j => punya(SAYA, j));
 const namaDosen = id => { const d = DOSEN.find(x => x.id === id); return d ? (d.nama_gelar || d.nama) : '?'; };
@@ -132,6 +136,7 @@ async function muat(){
   MILIK = await baca(sb.from('dosen_berhalangan').select('*').eq('dosen_id', SAYA.id).eq('tahun_akademik', p.ta).eq('semester', p.sm));
   MILIK_SEMUA_MG = await baca(sb.from('dosen_berhalangan').select('*').eq('dosen_id', SAYA.id));
   MILIK_TGL = await baca(sb.from('dosen_berhalangan_tgl').select('*').eq('dosen_id', SAYA.id).gte('tanggal', dari).order('tanggal'));
+  LIBUR = petaLibur(await baca(sb.from('hari_libur').select('tanggal,nama,jenis').gte('tanggal', dari)));
   const r = await sb.from('dosen_berhalangan_rentang').select('*').eq('dosen_id', SAYA.id).gte('selesai', dari).order('mulai');
   ADA_RENTANG = !r.error; MILIK_RENTANG = r.error ? [] : r.data || [];
   if (PENGATUR()) {
@@ -273,7 +278,7 @@ function gambarKalender(){
     const k = `${t}|${s.id}`, xs = isi.get(k) || [], x = xs[0];
     const atas = i > 0 ? (isi.get(`${t}|${ss[i - 1].id}`) || [])[0] : null;
     const awal = x && !(atas && atas.sumber === x.sumber && atas.id === x.id);
-    const kelas = [t < kini ? 'lalu' : '', x ? x.sumber : '', pilih.has(k) || form.has(k) ? 'pilih' : ''].filter(Boolean).join(' ');
+    const kelas = [t < kini ? 'lalu' : '', x ? x.sumber : '', pilih.has(k) || form.has(k) ? 'pilih' : '', LIBUR.has(t) ? 'libur' : ''].filter(Boolean).join(' ');
     const judul = xs.map(y => `${y.judul || namaJenis(y.jenis)} (${SUMBER_KAL[y.sumber]})`).join('; ');
     return `<td data-t="${t}" data-s="${s.id}"${x ? ' data-ada="1"' : ''} class="${kelas}" title="${esc(`${labelSlot(s)}${judul ? ' · ' + judul : ''}`)}">${
       awal ? `<span class="judul">${esc(x.judul || namaJenis(x.jenis))}</span>` : ''}</td>`;
@@ -285,7 +290,9 @@ function gambarKalender(){
     <div class="alat"><button class="b" id="kSebelum">‹ Minggu sebelumnya</button><b>${esc(label)}</b>
       <button class="b" id="kSesudah">Minggu berikutnya ›</button><button class="b" id="kIni">Minggu ini</button></div>
     <div class="legenda"><span class="l-blok">Blok kalender</span><span class="l-tgl">Isian tanggal</span><span class="l-mg">Mingguan semester</span><span class="l-pilih">Dipilih</span></div>
-    ${tgl.length ? `<div class="gulir"><table class="kal" id="kal"><thead><tr><th class="jam"></th>${tgl.map(t => `<th class="${t === kini ? 'hari-ini' : ''}"${t >= kini ? ` data-hari-t="${t}" title="Klik untuk blok sepanjang hari" style="cursor:pointer"` : ''}>${namaHari(hariISO(t))} ${tglPendek(t)}</th>`).join('')}</tr></thead>
+    ${tgl.length ? `<div class="gulir"><table class="kal" id="kal"><thead><tr><th class="jam"></th>${tgl.map(t => { const lb = LIBUR.get(t);
+        return `<th class="${[t === kini ? 'hari-ini' : '', lb ? 'libur' : ''].join(' ')}"${t >= kini ? ` data-hari-t="${t}" title="${lb ? esc(lb.nama) + ' · ' : ''}Klik untuk blok sepanjang hari" style="cursor:pointer"` : ''}>${namaHari(hariISO(t))} ${tglPendek(t)}${
+          lb ? `<span class="nama-libur">${esc(lb.nama)}</span>` : ''}</th>`; }).join('')}</tr></thead>
       <tbody>${ss.map((s, i) => `<tr><th class="jam">${esc(jamMulai(s))}</th>${tgl.map(t => sel(t, s, i)).join('')}</tr>`).join('')}</tbody></table></div>`
       : '<p class="kosong">Minggu ini tidak memuat hari kuliah.</p>'}
     ${htmlFormKal()}${htmlDetailKal(isi)}<p class="pesan" id="mKal"></p></div>
