@@ -3,7 +3,7 @@
 // "Integrasi ke pembelajaran" (ada bukti sahih dan verifikasi admin). RPS yang DISAHKAN dipakai untuk (1) mengisi otomatis kolom
 // "Sudah tercantum di RPS" bila RPS MK itu memuat penelitian/PkM yang sama, dan (2) menandai yang tidak cocok: ada di RPS tetapi
 // belum dicatat sebagai karya, atau dicatat tetapi tidak ada di RPS disahkan. Rekap SCL/integrasi prodi untuk narasi LED.
-import { BENTUK_INTEGRASI, SCL } from './rps.js?v=2026-11-21-6fb559';
+import { BENTUK_INTEGRASI, SCL } from './rps.js?v=2026-11-22-6542cc';
 
 const norm = s => String(s ?? '').trim().toLowerCase();
 /** Kunci pencocokan: kegiatan induk (id karya penelitian/PkM) + nama MK (karya integrasi menyimpan nama MK). */

@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-21-6fb559">
+<link rel="stylesheet" href="tema.css?v=2026-11-22-6542cc">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
@@ -60,7 +60,7 @@
   /* .fld input melebarkan semua input; kotak centang topik tetap kecil dan di kiri teksnya */
   .fld label.pilih-topik input[type=checkbox]{width:auto;padding:0;margin:0;flex:none}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-21-6fb559">
+<link rel="stylesheet" href="kepala.css?v=2026-11-22-6542cc">
 </head>
 <body>
 
@@ -74,7 +74,7 @@
 
 <main class="wrap" id="isi"></main>
 
-<script src="config.js?v=2026-11-21-6fb559"></script>
+<script src="config.js?v=2026-11-22-6542cc"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -91,16 +91,16 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { pasangMenu } from './menu.js?v=2026-11-21-6fb559';
-import { dosenLogin } from './dosen-login.js?v=2026-11-21-6fb559';
-import { unduhCV, htmlTombolCV, mkDiampu } from './cv-dosen.js?v=2026-11-21-6fb559';
-import { keBase64 } from './pustaka-dokumen.js?v=2026-11-21-6fb559';
-import { tautanBerkas, temuanPakai } from './tautan-privat.js?v=2026-11-21-6fb559';
-import { periksaBerkas, sidikBerkas } from './sidik-berkas.js?v=2026-11-21-6fb559';
-import { buangBuktiLepas } from './hapus-berkas.js?v=2026-11-21-6fb559';
+import { pasangMenu } from './menu.js?v=2026-11-22-6542cc';
+import { dosenLogin } from './dosen-login.js?v=2026-11-22-6542cc';
+import { unduhCV, htmlTombolCV, mkDiampu } from './cv-dosen.js?v=2026-11-22-6542cc';
+import { keBase64 } from './pustaka-dokumen.js?v=2026-11-22-6542cc';
+import { tautanBerkas, temuanPakai } from './tautan-privat.js?v=2026-11-22-6542cc';
+import { periksaBerkas, sidikBerkas } from './sidik-berkas.js?v=2026-11-22-6542cc';
+import { buangBuktiLepas } from './hapus-berkas.js?v=2026-11-22-6542cc';
 import { ISIAN_PROFIL, KOLOM_PROFIL, tampil as tampilIsian, sama, formLKPS, bacaFormLKPS, pasangEditor, bacaKataKunci,
-  setelNamaTopik, htmlPilihTopik, bacaPilihTopik, MAKS_TOPIK, urlBukti, berkasLepas }
-  from './profil-dosen.js?v=2026-11-21-6fb559';
+  setelNamaTopik, htmlPilihTopik, bacaPilihTopik, MAKS_TOPIK, urlBukti, berkasLepas, bacaTautanLain, teksTautanLain, MAKS_TAUTAN }
+  from './profil-dosen.js?v=2026-11-22-6542cc';
 
 /* =====================================================================
    PROFIL SAYA — dosen mengajukan perubahan profilnya sendiri (keputusan
@@ -138,6 +138,7 @@ const POLA = {
 // Kolom yang boleh diajukan, berurutan seperti form; label untuk tabel.
 const ISIAN = ISIAN_PROFIL;
 
+let ADA_TAUTAN = false;   // patch 146
 let SAYA = null, ADA_LKPS = true, ADA_ALT = false, ADA_FOTO = false, ADA_GELAR = false, ADA_NOMOR = false, MK_PRODI = null;
 let BAKU = null;   // daftar keahlian baku aktif (61-patch-keahlian-baku.sql); null bila belum ada
 // CV dosen otomatis (pemilik 2026-11-11): tombol di kartu "CV saya".
@@ -224,6 +225,11 @@ async function mulai(){
   const { data: alt, error: eAlt } = await sb.from('dosen').select('email_alternatif').eq('id', saya.id).maybeSingle();
   ADA_ALT = !eAlt;
   if (ADA_ALT) SAYA.email_alternatif = alt?.email_alternatif ?? null;
+  // Tautan lain (patch 146); kueri terpisah: gagal = belum ada patch, isian tidak tampil.
+  const { data: tl, error: eTl } = await sb.from('dosen').select('tautan_lain').eq('id', saya.id).maybeSingle();
+  ADA_TAUTAN = !eTl;
+  // jsonb mengurutkan kunci (url sebelum label); diseragamkan supaya isian yang tidak diubah tidak terbaca berubah.
+  if (ADA_TAUTAN) SAYA.tautan_lain = tl?.tautan_lain ? tl.tautan_lain.map(t => ({ label: t.label, url: t.url })) : null;
   // Foto profil (patch 85); kueri terpisah: gagal = belum ada patch, kartu foto tidak tampil.
   const { data: fp, error: eFp } = await sb.from('dosen').select('foto_url').eq('id', saya.id).maybeSingle();
   ADA_FOTO = !eFp && !!String(window.UPLOAD_URL || '').trim();
@@ -307,6 +313,10 @@ async function gambar(){
         <div class="fld"><label>SINTA ID</label><input id="f_sinta_id" value="${esc(SAYA.sinta_id)}"></div>
         <div class="fld"><label>Scopus ID</label><input id="f_scopus_id" value="${esc(SAYA.scopus_id)}"></div>
         <div class="fld"><label>ORCID</label><input id="f_orcid" value="${esc(SAYA.orcid)}"></div>
+        ${ADA_TAUTAN ? `<div class="fld penuh"><label>Tautan lain (tampil di halaman publik Anda)</label>
+          <textarea id="f_tautan_lain" rows="3" placeholder="HESLab (Hydro-Environmental System Lab) | https://...">${esc(teksTautanLain(SAYA.tautan_lain))}</textarea>
+          <small>Satu tautan per baris: <code>Label | https://alamat</code>, paling banyak ${MAKS_TAUTAN}; mis. laboratorium riset,
+          Google Scholar, ResearchGate. Kosongkan untuk menghapus.</small></div>` : ''}
         ${ADA_ALT ? `<div class="fld penuh"><label>Email alternatif untuk masuk</label><input id="f_email_alternatif" type="email"
           value="${esc(SAYA.email_alternatif)}" placeholder="mis. nama@gmail.com" autocomplete="email">
           <small>Dipakai bila tautan masuk tidak sampai ke email kampus: masukkan email ini di halaman masuk.
@@ -446,9 +456,15 @@ async function kirim(){
     ...(ADA_LKPS ? bacaFormLKPS(SAYA.pendidikan) : {}),
     ...(ADA_LKPS ? { kata_kunci: bacaKataKunci(v('kata_kunci')) } : {}),
     ...(ADA_ALT ? { email_alternatif: v('email_alternatif').toLowerCase() || null } : {}),
+    ...(ADA_TAUTAN ? { tautan_lain: bacaTautanLain(v('tautan_lain')).tautan } : {}),
     ...(BAKU && $('pilihTopik') ? { topik_keahlian: bacaPilihTopik($('pilihTopik')) } : {}),
   };
   if (!baru.nama) return tulis('buruk', 'Nama wajib diisi.');
+  if (ADA_TAUTAN) {
+    const { tautan, salah } = bacaTautanLain(v('tautan_lain'));
+    if (salah.length) return tulis('buruk', `Tautan lain tidak sah (format: Label | https://alamat): ${salah[0]}`);
+    if ((tautan || []).length > MAKS_TAUTAN) return tulis('buruk', `Tautan lain paling banyak ${MAKS_TAUTAN}.`);
+  }
   if (baru.email_alternatif && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(baru.email_alternatif)) return tulis('buruk', 'Email alternatif tidak sah.');
   if (baru.email_alternatif && baru.email_alternatif === String(SAYA.email).toLowerCase()) return tulis('buruk', 'Email alternatif sama dengan email kampus.');
   const kk = v('kata_kunci').split(/[,;\n]+/).map(x => x.trim()).filter(Boolean);

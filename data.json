@@ -5324,6 +5324,7 @@
      "nama": "Dinamika Struktur",
      "semester": null,
      "nama_en": "Structural Dynamics",
+     "peminatan": "STR",
      "sks": 3.0,
      "bagian": {
       "kuliah": 3.0,
@@ -5343,6 +5344,7 @@
      "nama": "Analisis Konstruksi Anjungan Lepas Pantai",
      "semester": null,
      "nama_en": "Offshore Platform Construction Analysis",
+     "peminatan": "STR",
      "sks": 3.0,
      "bagian": {
       "kuliah": 3.0,
@@ -5362,6 +5364,7 @@
      "nama": "Desain Bangunan Terapung",
      "semester": null,
      "nama_en": "Design of Floating Structure",
+     "peminatan": "STR",
      "sks": 3.0,
      "bagian": {
       "kuliah": 3.0,
@@ -5381,6 +5384,7 @@
      "nama": "Manajemen Konstruksi dan Aspek Hukum Proyek",
      "semester": null,
      "nama_en": "Construction Management and Legal Aspects of the Project",
+     "peminatan": "MRK",
      "sks": 2.0,
      "bagian": {
       "kuliah": 2.0,
@@ -5400,6 +5404,7 @@
      "nama": "Standar Internasional dalam Manajemen Konstruksi",
      "semester": null,
      "nama_en": "International Standards in Construction Management",
+     "peminatan": "MRK",
      "sks": 2.0,
      "bagian": {
       "kuliah": 2.0,
@@ -5419,6 +5424,7 @@
      "nama": "Rekayasa Fondasi Lanjut",
      "semester": null,
      "nama_en": "Advance Foundation Engineering",
+     "peminatan": "GEO",
      "sks": 3.0,
      "bagian": {
       "kuliah": 3.0,
@@ -5438,6 +5444,7 @@
      "nama": "Mekanika Tanah Lanjut",
      "semester": null,
      "nama_en": "Advance Soil Mechanics",
+     "peminatan": "GEO",
      "sks": 3.0,
      "bagian": {
       "kuliah": 3.0,
@@ -5457,6 +5464,7 @@
      "nama": "Rekayasa Gempa dalam Geoteknik",
      "semester": null,
      "nama_en": "Geotechnical Earthquake Engineering",
+     "peminatan": "GEO",
      "sks": 2.0,
      "bagian": {
       "kuliah": 2.0,
@@ -5476,6 +5484,7 @@
      "nama": "Perbaikan Tanah",
      "semester": null,
      "nama_en": "Soil Improvement and Stabilization",
+     "peminatan": "GEO",
      "sks": 2.0,
      "bagian": {
       "kuliah": 2.0,
@@ -5495,6 +5504,7 @@
      "nama": "Analisis Kebutuhan Pergerakan",
      "semester": null,
      "nama_en": "Transportation Modelling and Analysis",
+     "peminatan": "TRN",
      "sks": 3.0,
      "bagian": {
       "kuliah": 3.0,
@@ -5514,6 +5524,7 @@
      "nama": "Rekayasa Bandara",
      "semester": null,
      "nama_en": "Airport Engineering",
+     "peminatan": "TRN",
      "sks": 2.0,
      "bagian": {
       "kuliah": 2.0,
@@ -5533,6 +5544,7 @@
      "nama": "Transportasi Berkelanjutan",
      "semester": null,
      "nama_en": "Sustainable Transportation",
+     "peminatan": "TRN",
      "sks": 2.0,
      "bagian": {
       "kuliah": 2.0,
@@ -5552,6 +5564,7 @@
      "nama": "Hidrologi Lanjut",
      "semester": null,
      "nama_en": "Advanced Hydrology",
+     "peminatan": "AIR",
      "sks": 3.0,
      "bagian": {
       "kuliah": 3.0,
@@ -5571,6 +5584,7 @@
      "nama": "Rekayasa Pelabuhan",
      "semester": null,
      "nama_en": "Port Engineering",
+     "peminatan": "AIR",
      "sks": 3.0,
      "bagian": {
       "kuliah": 3.0,
@@ -5590,6 +5604,7 @@
      "nama": "Perencanaan Drainase",
      "semester": null,
      "nama_en": "Drainage Planning",
+     "peminatan": "AIR",
      "sks": 3.0,
      "bagian": {
       "kuliah": 3.0,
@@ -5609,6 +5624,7 @@
      "nama": "Model Sumberdaya Air",
      "semester": null,
      "nama_en": "Water Resources Model",
+     "peminatan": "AIR",
      "sks": 3.0,
      "bagian": {
       "kuliah": 3.0,
@@ -5628,6 +5644,7 @@
      "nama": "Proses dan Bangunan Pantai",
      "semester": null,
      "nama_en": "Coastal Process and Structure",
+     "peminatan": "AIR",
      "sks": 3.0,
      "bagian": {
       "kuliah": 3.0,
@@ -5647,6 +5664,7 @@
      "nama": "Manajemen Perencanaan Pesisir",
      "semester": null,
      "nama_en": "Coastal Planning Management",
+     "peminatan": "AIR",
      "sks": 3.0,
      "bagian": {
       "kuliah": 3.0,
@@ -5666,6 +5684,7 @@
      "nama": "Aspek Kebencanaan dan Kegagalan Infrastruktur",
      "semester": null,
      "nama_en": "Aspects of Disaster and Infrastructure Failure",
+     "peminatan": "UMUM",
      "sks": 3.0,
      "bagian": {
       "kuliah": 3.0,
@@ -5684,6 +5703,7 @@
      "nama": "Metoda Elemen Hingga",
      "semester": null,
      "nama_en": "Finite Element Method",
+     "peminatan": "STR",
      "sks": 3.0,
      "bagian": {
       "kuliah": 3.0,
@@ -5703,6 +5723,7 @@
      "nama": "Desain Pipa Bawah Laut",
      "semester": null,
      "nama_en": "Design of Offshore Pipeline",
+     "peminatan": "STR",
      "sks": 3.0,
      "bagian": {
       "kuliah": 3.0,
@@ -7491,6 +7512,12 @@
       ]
      }
     ]
+   }
+  ],
+  "peminatan_lain": [
+   {
+    "kode": "UMUM",
+    "nama": "Sipil umum"
    }
   ],
   "tahap": {

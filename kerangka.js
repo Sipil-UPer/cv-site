@@ -1,13 +1,13 @@
 // Kerangka halaman publik (pemilik 2026-11-16): kepala bergaya situs universitas (deret logo di bilah
 // biru, nama prodi, menu turun) dan kaki halaman yang sama di halaman publik. Pemakaian:
-//   import { pasangKerangka, isiKerangka } from './kerangka.js?v=2026-11-21-6fb559';
+//   import { pasangKerangka, isiKerangka } from './kerangka.js?v=2026-11-22-6542cc';
 //   pasangKerangka({ aktif: 'profil' });     // segera, sebelum data.json
 //   pasangKerangka({ aktif: 'profil', muat: true });   // atau: kerangka memuat data.json sendiri
 //   isiKerangka(D);                           // setelah data.json: nama prodi, kontak, media sosial
 // Logo: window.LOGO_KEPALA di config.js; tanpa itu logo.png. Menu hanya memuat halaman yang ada
 // dan modul yang menyala (fitur.js). Tautan relatif (situs akan pindah ke subdomain kampus).
-import { halamanAktif } from './fitur.js?v=2026-11-21-6fb559';
-import { catatKunjunganPublik } from './kunjungan-publik.js?v=2026-11-21-6fb559';
+import { halamanAktif } from './fitur.js?v=2026-11-22-6542cc';
+import { catatKunjunganPublik } from './kunjungan-publik.js?v=2026-11-22-6542cc';
 
 // Lima kelompok menu (pemilik 2026-11-19, tahap 2): Profil, Dosen dan riset, Mahasiswa, Kinerja, Kontak;
 // Pendaftaran dan Masuk ruang kerja di baris atas. Kaki halaman disusun dari MENU yang sama.
@@ -20,6 +20,8 @@ export const MENU = [
     { judul: 'Laboratorium', href: 'laboratorium.html' },
     { judul: 'Kerja sama', href: 'kerja-sama.html' },
     { judul: 'Berita dan kegiatan', href: '#', kr: 'berita' },
+    // Galeri foto (pemilik 2026-11-22): tampil bila ada foto kabar, prestasi, atau laboratorium.
+    { judul: 'Galeri foto', href: 'galeri.html', kr: 'galeri' },
   ] },
   { id: 'dosen', judul: 'Dosen dan riset', isi: [
     { judul: 'Daftar dosen', href: 'daftar.html?jenis=dosen' },
@@ -241,6 +243,8 @@ export function isiKerangka(D){
     el.hidden = !berita;
     if (berita) Object.assign(el.querySelector('a'), { href: berita, ...(berita.startsWith('http') ? { rel: 'noopener' } : {}) });
   });
+  const nFoto = [...(D.kabar || []), ...(D.prestasi || []), ...(D.laboratorium || [])].reduce((n, x) => n + (x.foto || []).length, 0);
+  document.querySelectorAll('[data-kr-menu="galeri"]').forEach(el => { el.hidden = !nFoto; });
   // Status akreditasi di kaki halaman (hanya bila masih berlaku; bangun.py akreditasi_publik).
   const ak = D.akreditasi_prodi || {};
   document.querySelectorAll('[data-kr="akreditasi"]').forEach(el => {

@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-21-6fb559">
+<link rel="stylesheet" href="tema.css?v=2026-11-22-6542cc">
 <style>
   *{box-sizing:border-box}
   html{scroll-behavior:smooth}
@@ -63,6 +63,8 @@
   .smt-kepala{display:flex;justify-content:space-between;align-items:baseline;gap:10px;border-bottom:2px solid var(--biru);padding-bottom:4px}
   .smt-kepala b{font-family:var(--serif);font-size:16px;color:var(--biru)}
   .smt-kepala span{font-family:var(--mono);font-size:12px;color:var(--muted)}
+  .pem-kepala{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin:12px 0 2px;font-weight:600}
+  .pem-kepala span{font-family:var(--mono);font-size:12px;font-weight:400;color:var(--muted)}
   table{width:100%;border-collapse:collapse;font-size:13.5px}
   td{padding:7px 10px 7px 0;border-bottom:1px solid var(--line-soft);vertical-align:top}
   td.k{font-family:var(--mono);font-size:12.5px;white-space:nowrap;width:1%}
@@ -83,7 +85,7 @@
   </div>
 </header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-21-6fb559"></script>
+<script src="config.js?v=2026-11-22-6542cc"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -99,7 +101,7 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 // Kepala dan kaki bersama situs umum (pemilik 2026-11-19, tahap 2).
-import { pasangKerangka } from './kerangka.js?v=2026-11-21-6fb559';
+import { pasangKerangka } from './kerangka.js?v=2026-11-22-6542cc';
 pasangKerangka({ aktif: 'profil', muat: true });
 // Kurikulum publik (pemilik 2026-11-16): visi, profil lulusan (79-patch-profil-lulusan.sql),
 // CPL (71) dan mata kuliah per semester, dari data.json (bangun.py kurikulum_publik). Kurikulum
@@ -161,6 +163,20 @@ function barisMK(m){
     <td class="num">${angka(m.sks)} sks${rinci.length > 1 ? `<span class="rinci">${rinci.join(' · ')}</span>` : ''}</td></tr>`;
 }
 
+// MK pilihan per peminatan (145-patch-peminatan-mk.sql, pemilik 2026-11-22): urutan kelompok keahlian lalu
+// peminatan lain di config; MK tanpa peminatan di akhir. Tanpa peminatan sama sekali: satu tabel seperti dulu.
+function tabelMK(s, xs){
+  if (s || !xs.every(m => m.sifat === 'pilihan') || !xs.some(m => m.peminatan)) return `<table>${xs.map(barisMK).join('')}</table>`;
+  const kel = [...(D.situs?.kelompok_keahlian || []), ...(D.situs?.peminatan_lain || [])];
+  const urut = k => { const i = kel.findIndex(x => x.kode === k); return i < 0 ? (k ? kel.length : kel.length + 1) : i; };
+  const grup = new Map();
+  for (const m of [...xs].sort((a, b) => urut(a.peminatan) - urut(b.peminatan))) {
+    const k = m.peminatan || ''; if (!grup.has(k)) grup.set(k, []); grup.get(k).push(m);
+  }
+  return [...grup].map(([k, ms]) => `<div class="pem-kepala">${esc(kel.find(x => x.kode === k)?.nama || (k ? k : 'Lainnya'))}
+      <span>${ms.length} MK · ${angka(jumlahSks(ms))} sks</span></div><table>${ms.map(barisMK).join('')}</table>`).join('');
+}
+
 function gambarStruktur(){
   const el = $('struktur');
   if (!el) return;
@@ -175,7 +191,7 @@ function gambarStruktur(){
   const wajib = mk.filter(m => m.sifat !== 'pilihan'), pilihan = mk.filter(m => m.sifat === 'pilihan');
   el.innerHTML = urut.map(s => `<div class="smt"><div class="smt-kepala"><b>${judul(s)}</b>
       <span>${smt.get(s).length} MK · ${angka(jumlahSks(smt.get(s)))} sks</span></div>
-      <table>${smt.get(s).map(barisMK).join('')}</table></div>`).join('')
+      ${tabelMK(s, smt.get(s))}</div>`).join('')
     + `<div class="total"><span>Wajib: ${wajib.length} MK, <b>${angka(jumlahSks(wajib))} sks</b></span>`
     + (pilihan.length ? `<span>· Pilihan: ${pilihan.length} MK, ${angka(jumlahSks(pilihan))} sks</span>` : '') + `</div>`;
 }

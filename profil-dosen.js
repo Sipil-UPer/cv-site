@@ -30,6 +30,7 @@ export const ISIAN_PROFIL = [
   ['nama', 'Nama lengkap'], ['jabatan', 'Jabatan akademik'],
   ['sinta_id', 'SINTA ID'], ['scopus_id', 'Scopus ID'], ['orcid', 'ORCID'],
   ['email_alternatif', 'Email alternatif untuk masuk'],   // patch 69
+  ['tautan_lain', 'Tautan lain'],   // patch 146 (pemilik 2026-11-22): mis. laboratorium riset, Google Scholar
   ['riwayat_pendidikan', 'Riwayat pendidikan'], ['pendidikan', 'Pendidikan tertinggi'],
   ['bidang_keahlian', 'Bidang keahlian'], ['topik_keahlian', 'Topik keahlian'], ['kata_kunci', 'Kata kunci tambahan'], ['perusahaan', 'Perusahaan / industri'],
   ['nomor_serdos', 'Nomor sertifikat pendidik'], ['sertifikat', 'Sertifikat kompetensi/profesi/industri'],
@@ -106,6 +107,21 @@ const ringkasRiwayat = r => `${label(JENJANG, r.jenjang)}: ${[r.program_studi, r
 const ringkasSertifikat = s => `${label(JENIS_SERTIFIKAT, s.jenis)}: ${s.bidang || '—'}` +
   (s.lembaga ? `, ${s.lembaga}` : '') + (s.nomor ? `, no. ${s.nomor}` : '') + (s.url ? ' · ada bukti' : '');
 
+// Tautan lain (146-patch-tautan-lain-dosen.sql, pemilik 2026-11-22): satu baris "Label | https://...".
+export const MAKS_TAUTAN = 5;
+/** Baca isian teks -> { tautan: [{label, url}] | null, salah: [baris yang tidak sah] }. */
+export function bacaTautanLain(teks){
+  const tautan = [], salah = [];
+  for (const baris of String(teks || '').split(/\r?\n/).map(x => x.trim()).filter(Boolean)) {
+    const i = baris.lastIndexOf('|');
+    const label = (i < 0 ? '' : baris.slice(0, i)).trim(), url = (i < 0 ? baris : baris.slice(i + 1)).trim();
+    if (!label || label.length > 60 || !/^https:\/\/\S+$/.test(url) || url.length > 500) salah.push(baris);
+    else tautan.push({ label, url });
+  }
+  return { tautan: tautan.length ? tautan : null, salah };
+}
+export const teksTautanLain = xs => (xs || []).map(t => `${t.label} | ${t.url}`).join('\n');
+
 // Teks tampilan satu isian (tabel ajuan, daftar admin).
 export function tampil(k, v, JABATAN = []){
   if (k === 'jabatan') return label(JABATAN, v);
@@ -113,6 +129,7 @@ export function tampil(k, v, JABATAN = []){
   if (k === 'riwayat_pendidikan') return (v || []).length ? v.map(ringkasRiwayat).join('; ') : '—';
   if (k === 'sertifikat') return (v || []).length ? v.map(ringkasSertifikat).join('; ') : '—';
   if (k === 'kata_kunci') return (v || []).length ? v.join(', ') : '—';
+  if (k === 'tautan_lain') return (v || []).length ? v.map(t => `${t.label} (${t.url})`).join('; ') : '—';
   if (k === 'topik_keahlian') return (v || []).length ? v.map(x => NAMA_TOPIK.get(x) || x).join('; ') : '—';
   if (k === 'sesuai_kompetensi_inti' || k === 'sesuai_keahlian_mk') return v === true ? 'V' : v === false ? 'tidak' : '—';
   return v || '—';
