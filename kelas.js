@@ -98,3 +98,50 @@ export function bacaCsvKelas(isi, { mk = [], kurikulumBawaan = '' } = {}){
   });
   return { baris, galat };
 }
+
+// ---------- Rekap beban per dosen (pemilik 2026-11-21, usulan nomor 3) ----------
+/**
+ * Beban satu periode. kelas/kd/mk seperti di atas (semua kurikulum); dosen = [{id, nama, peran}]; bimbingan = baris
+ * beban_bimbingan(TS) (109; per tahun akademik). sks mengajar = sks MK x porsi dosen di kelas itu: menurut pertemuan bila
+ * semua dosen kelas itu mengisi pertemuan, selain itu dibagi rata. Tidak ada batas atau konversi bimbingan ke sks
+ * (kebijakan, belum diputuskan). Dosen peran 'dosen' tetap tampil walau tanpa beban. Urut sks terbesar.
+ * -> { baris: [{ dosen_id, nama, kelas, mk: [kode], sks, sks_penuh, tim, kp, ta, uji, lomba }], ringkas: { n, rata, min, max } }
+ */
+export function rekapBeban({ kelas = [], kd = [], mk = [], dosen = [], bimbingan = [] } = {}){
+  const M = new Map(mk.map(m => [`${m.kurikulum}|${m.kode}`, m])), per = new Map();
+  const baris = id => {
+    if (!per.has(id)) per.set(id, { dosen_id: id, nama: dosen.find(d => d.id === id)?.nama || '?', kelas: 0, mk: new Set(), sks: 0, sks_penuh: 0,
+      tim: 0, kp: 0, ta: 0, uji: 0, lomba: 0 });
+    return per.get(id);
+  };
+  for (const k of kelas) {
+    const ds = kd.filter(x => x.kelas_id === k.id);
+    if (!ds.length) continue;
+    const sks = +(M.get(`${k.kurikulum}|${k.kode_mk}`)?.sks) || 0;
+    const semuaPert = ds.every(x => +x.pertemuan > 0), total = ds.reduce((a, x) => a + (+x.pertemuan || 0), 0);
+    for (const x of ds) {
+      const b = baris(x.dosen_id), porsi = semuaPert && total ? +x.pertemuan / total : 1 / ds.length;
+      b.kelas++; b.mk.add(k.kode_mk); b.sks += sks * porsi; b.sks_penuh += sks; if (ds.length > 1) b.tim++;
+    }
+  }
+  for (const r of bimbingan) {
+    if (!r.dosen_id) continue;
+    const b = baris(r.dosen_id);
+    if (b.nama === '?' && r.nama) b.nama = r.nama;
+    for (const k of ['kp', 'ta', 'uji', 'lomba']) b[k] = +r[k] || 0;
+  }
+  for (const d of dosen) if (d.peran === 'dosen') baris(d.id);
+  const out = [...per.values()].map(b => ({ ...b, mk: [...b.mk].sort(), sks: Math.round(b.sks * 100) / 100 }))
+    .sort((a, b) => b.sks - a.sks || b.kelas - a.kelas || a.nama.localeCompare(b.nama));
+  const xs = out.map(b => b.sks);
+  return { baris: out, ringkas: { n: out.length, rata: xs.length ? Math.round(xs.reduce((a, x) => a + x, 0) / xs.length * 100) / 100 : 0,
+    min: xs.length ? Math.min(...xs) : 0, max: xs.length ? Math.max(...xs) : 0 } };
+}
+
+/** CSV rekap beban (pemisah ';'). */
+export function csvBeban(rekap, { ta = '', semester = '', ts = '' } = {}){
+  const k = ['tahun_akademik', 'semester', 'dosen', 'kelas', 'mk', 'sks_mengajar', 'sks_penuh', 'kelas_team_teaching', `kp_ts${ts}`, `ta_ts${ts}`,
+    `menguji_ts${ts}`, `lomba_ts${ts}`];
+  return [k, ...rekap.baris.map(b => [ta, semester, b.nama, b.kelas, b.mk.join('|'), String(b.sks).replace('.', ','), b.sks_penuh, b.tim, b.kp, b.ta, b.uji, b.lomba])]
+    .map(r => r.map(v => String(v ?? '').replace(/;/g, ',')).join(';')).join('\r\n');
+}

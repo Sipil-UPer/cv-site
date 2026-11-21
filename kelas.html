@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-21-408ca6">
-<link rel="stylesheet" href="kepala.css?v=2026-11-21-408ca6">
+<link rel="stylesheet" href="tema.css?v=2026-11-21-2968e5">
+<link rel="stylesheet" href="kepala.css?v=2026-11-21-2968e5">
 <style>
   /* Penyusunan kelas (136-patch-penyusunan-kelas.sql, pemilik 2026-11-21) */
   *{box-sizing:border-box}
@@ -54,7 +54,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-21-408ca6"></script>
+<script src="config.js?v=2026-11-21-2968e5"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -73,14 +73,15 @@ addEventListener('error', function (e) {
 // beberapa kelas, team teaching = satu koordinator + anggota), manual atau impor CSV; ekspor CSV untuk optimasi jadwal di luar
 // situs; salin ke daftar kelas nilai CPL. Admin dan Kaprodi aktif menyusun; dosen lain membaca. Logika: kelas.js.
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-21-408ca6';
-import { punya } from './koordinator.js?v=2026-11-21-408ca6';
-import { semesterKini } from './evaluasi-pembelajaran.js?v=2026-11-21-408ca6';
-import { mkDitawarkan, kelasBerikut, usulanKelasAwal, csvKelas, bacaCsvKelas } from './kelas.js?v=2026-11-21-408ca6';
+import { gerbang } from './menu.js?v=2026-11-21-2968e5';
+import { punya } from './koordinator.js?v=2026-11-21-2968e5';
+import { semesterKini, tsDariTA } from './evaluasi-pembelajaran.js?v=2026-11-21-2968e5';
+import { mkDitawarkan, kelasBerikut, usulanKelasAwal, csvKelas, bacaCsvKelas, rekapBeban, csvBeban } from './kelas.js?v=2026-11-21-2968e5';
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const sb = createClient(window.SB_URL, window.SB_KEY);
 const baca = q => q.then(r => r.error ? [] : (r.data || []), () => []);
+let BIMBINGAN = [], ADA_BIMBINGAN = true;   // beban_bimbingan(TS), 109
 let SAYA = null, MK = [], DOSEN = [], KELAS = [], KD = [], ADA = true, PERIODE = null, KUR = '', CARI = '', F_SAYA = false, DRAF = null;
 const PENGATUR = () => SAYA?.peran === 'admin' || punya(SAYA, 'kaprodi');
 const namaD = id => { const d = DOSEN.find(x => x.id === id); return d ? (d.nama_gelar || d.nama) : '?'; };
@@ -98,6 +99,8 @@ async function muat(){
   ADA = !k.error;
   KELAS = k.data || [];
   KD = KELAS.length ? await baca(sb.from('kelas_dosen').select('*').in('kelas_id', KELAS.map(x => x.id))) : [];
+  const bb = await sb.rpc('beban_bimbingan', { p_ts: tsDariTA(PERIODE.ta) });
+  ADA_BIMBINGAN = !bb.error; BIMBINGAN = bb.error ? [] : bb.data || [];
 }
 
 function mkTampil(){
@@ -153,7 +156,27 @@ function gambar(){
       <tbody>${baris || `<tr><td colspan="6" class="kosong">${F_SAYA && !CARI.trim()
         ? `Anda belum punya kelas ${esc(KUR)} pada ${esc(PERIODE.sm)} ${esc(PERIODE.ta)}. Hilangkan centang <b>Hanya kelas saya</b> untuk melihat semua kelas.`
         : 'Tidak ada mata kuliah yang cocok.'}</td></tr>`}</tbody></table></div></div>`;
+  $('isi').insertAdjacentHTML('beforeend', htmlBeban());
   pasang();
+}
+
+// Beban per dosen periode ini, semua kurikulum (pemilik 2026-11-21, usulan nomor 3): sks mengajar dari kelas ini (porsi
+// menurut pertemuan, selain itu rata) + bimbingan per TS (beban_bimbingan, 109). Tanpa batas dan tanpa konversi ke sks.
+function htmlBeban(){
+  const r = rekapBeban({ kelas: KELAS, kd: KD, mk: MK, dosen: DOSEN.map(d => ({ id: d.id, nama: d.nama_gelar || d.nama, peran: d.peran })), bimbingan: BIMBINGAN });
+  const ts = tsDariTA(PERIODE.ta), maks = r.ringkas.max || 1, koma = x => String(x).replace('.', ',');
+  return `<div class="kartu"><h2>Beban per dosen, ${esc(PERIODE.sm)} ${esc(PERIODE.ta)}</h2>
+    <p class="ket">Untuk memeratakan beban saat menyusun kelas (semua kurikulum). <b>sks mengajar</b> = sks MK × bagian dosen di kelas itu: menurut
+      jumlah pertemuan bila semua dosen kelas itu mengisinya, selain itu dibagi rata; <b>sks penuh</b> = bila tiap kelas dihitung utuh.
+      Bimbingan KP, TA, menguji, dan lomba dihitung per tahun akademik (TS ${esc(ts)}) dari pengajuan dan jadwal TA.
+      ${ADA_BIMBINGAN ? '' : 'Data bimbingan belum tersedia (patch 109). '}Rata-rata ${koma(r.ringkas.rata)} sks · terendah ${koma(r.ringkas.min)} · tertinggi ${koma(r.ringkas.max)}.</p>
+    <div class="alat"><button class="b" id="bbUnduh">Unduh CSV beban</button></div>
+    <div class="gulir"><table class="ds"><thead><tr><th>Dosen</th><th>Kelas</th><th>MK</th><th>sks mengajar</th><th>sks penuh</th><th>Team teaching</th>
+      <th>KP</th><th>TA</th><th>Menguji</th><th>Lomba</th></tr></thead><tbody>
+      ${r.baris.map(b => `<tr><td>${esc(b.nama)}</td><td>${b.kelas || ''}</td><td class="kode">${esc(b.mk.join(', '))}</td>
+        <td><div style="display:flex;gap:6px;align-items:center"><span style="display:inline-block;height:10px;width:${Math.round(b.sks / maks * 120)}px;background:var(--biru)"></span>${koma(b.sks)}</div></td>
+        <td>${b.sks_penuh || ''}</td><td>${b.tim || ''}</td><td>${b.kp || ''}</td><td>${b.ta || ''}</td><td>${b.uji || ''}</td><td>${b.lomba || ''}</td></tr>`).join('')
+        || '<tr><td colspan="10" class="kosong">Belum ada data.</td></tr>'}</tbody></table></div></div>`;
 }
 
 function htmlAlat(){
@@ -220,6 +243,12 @@ function pasang(){
       + (data.tanpa_koordinator.length ? ` Tanpa koordinator: ${data.tanpa_koordinator.join(', ')}.` : ''));
   };
   if ($('iImpor')) $('iImpor').onclick = impor;
+  if ($('bbUnduh')) $('bbUnduh').onclick = () => {
+    const r = rekapBeban({ kelas: KELAS, kd: KD, mk: MK, dosen: DOSEN.map(d => ({ id: d.id, nama: d.nama_gelar || d.nama, peran: d.peran })), bimbingan: BIMBINGAN });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob(['﻿' + csvBeban(r, { ta: PERIODE.ta, semester: PERIODE.sm, ts: tsDariTA(PERIODE.ta) })], { type: 'text/csv;charset=utf-8' }));
+    a.download = `beban_${PERIODE.ta.replace('/', '-')}_${PERIODE.sm}.csv`; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  };
 }
 
 function pasangEditor(){
