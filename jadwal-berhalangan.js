@@ -233,3 +233,21 @@ export function barisEkspor({ dosen = [], slot = [], mingguan = [], tanggalan = 
   }
   return { mingguan: M, tanggal: T, galat: '' };
 }
+
+/**
+ * Ringkasan sebelum disimpan (pemilik 2026-11-21: blok "Senin saja tiap pekan" sempat tersimpan untuk setiap hari).
+ * { tanggal, sampai, hari: [1..7], slot_ids, sepanjang } + slot -> "setiap Senin, 07:00–08:30, 30/11/2026 s.d. 18/1/2027 (8 kali)".
+ * Satu tanggal: "Senin 30/11/2026, 07:00–08:30". Hari kosong pada rentang: "SETIAP HARI ..." (huruf besar sebagai peringatan).
+ */
+export function ringkasBlok({ tanggal, sampai = '', hari = [], slot_ids = [], sepanjang = false } = {}, slot = []){
+  if (!hariISO(tanggal)) return '';
+  const ss = slot.filter(s => (slot_ids || []).includes(s.id));
+  const jam = sepanjang || !ss.length ? 'sepanjang hari' : `${jam5(ss[0].mulai)}–${jam5(ss[ss.length - 1].selesai)}`;
+  const akhir = sampai || tanggal;
+  if (akhir <= tanggal) return `${namaHari(hariISO(tanggal))} ${tglID(tanggal)}, ${jam}`;
+  const hs = [...new Set(hari.map(Number))].sort((a, b) => a - b);
+  let n = 0;
+  for (let t = tanggal; t <= akhir && n < 400; t = tambahHari(t, 1)) if (!hs.length || hs.includes(hariISO(t))) n++;
+  const siapa = hs.length ? `setiap ${hs.map(namaHari).join(', ')}` : 'SETIAP HARI (termasuk Sabtu dan Minggu)';
+  return `${siapa}, ${jam}, ${tglID(tanggal)} s.d. ${tglID(akhir)} (${n} kali)`;
+}

@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-21-4089e7">
-<link rel="stylesheet" href="kepala.css?v=2026-11-21-4089e7">
+<link rel="stylesheet" href="tema.css?v=2026-11-21-204437">
+<link rel="stylesheet" href="kepala.css?v=2026-11-21-204437">
 <style>
   /* Jadwal berhalangan dosen (132-patch-jadwal-berhalangan.sql, pemilik 2026-11-20) */
   *{box-sizing:border-box}
@@ -74,7 +74,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-21-4089e7"></script>
+<script src="config.js?v=2026-11-21-204437"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -93,12 +93,12 @@ addEventListener('error', function (e) {
 // bisa (mingguan per semester dan tanggal tertentu, termasuk jadwal di luar prodi); pengatur jadwal (admin, Kaprodi,
 // koordinator TA/KP) melihat semua dan mencari slot kosong; dosen lain hanya jumlah per slot. Logika: jadwal-berhalangan.js.
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-21-4089e7';
-import { punya } from './koordinator.js?v=2026-11-21-4089e7';
-import { semesterKini } from './evaluasi-pembelajaran.js?v=2026-11-21-4089e7';
+import { gerbang } from './menu.js?v=2026-11-21-204437';
+import { punya } from './koordinator.js?v=2026-11-21-204437';
+import { semesterKini } from './evaluasi-pembelajaran.js?v=2026-11-21-204437';
 import { HARI, namaHari, JENIS_HALANGAN, namaJenis, labelSlot, cekSlot, perSel, cariSlotKosong, hariISO,
-  cekRentang, labelRentang, rentangPadaTanggal, buatSlot, tambahHari, mingguDari, slotAntara, blokBaru, isiKalender, barisEkspor, EKSPOR_MAKS_HARI } from './jadwal-berhalangan.js?v=2026-11-21-4089e7';
-import { SHEETJS } from './nilai-cpl.js?v=2026-11-21-4089e7';
+  cekRentang, labelRentang, rentangPadaTanggal, buatSlot, tambahHari, mingguDari, slotAntara, blokBaru, isiKalender, barisEkspor, EKSPOR_MAKS_HARI, ringkasBlok } from './jadwal-berhalangan.js?v=2026-11-21-204437';
+import { SHEETJS } from './nilai-cpl.js?v=2026-11-21-204437';
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const sb = createClient(window.SB_URL, window.SB_KEY);
@@ -194,8 +194,8 @@ function htmlRentangSaya(){
                                           jenis: t.jenis, alasan: t.alasan, hapus: `data-hapus-tgl="${t.id}"` }))].sort((a, b) => a.urut.localeCompare(b.urut));
   return `<div class="kartu"><h2>Tanggal atau rentang tanggal</h2>
     <p class="ket">Untuk halangan di luar jadwal mingguan: satu tanggal (dinas luar, konferensi) atau rentang tanggal, mis. 1 Desember s.d.
-      15 Januari setiap Selasa dan Kamis pada Jam 1–2. Kosongkan <b>Sampai</b> untuk satu tanggal; tanpa hari dicentang = setiap hari dalam
-      rentang; tanpa jam dicentang = sepanjang hari. Isian yang sudah lewat lebih dari seminggu tidak ditampilkan.</p>
+      15 Januari setiap Selasa dan Kamis pada Jam 1–2. Kosongkan <b>Sampai</b> untuk satu tanggal; untuk rentang, <b>centang hari yang berlaku</b> (mis. hanya Senin untuk
+      jadwal tiap Senin); tanpa jam dicentang = sepanjang hari. Periksa ringkasan sebelum menekan Tambah. Isian yang sudah lewat lebih dari seminggu tidak ditampilkan.</p>
     <div class="alat"><label>Dari <input type="date" id="rMulai" min="${iso(new Date())}"></label>
       <label>Sampai <input type="date" id="rSelesai" min="${iso(new Date())}"></label></div>
     <div class="alat"><span class="ket">Hari:</span>${HARI.map(([h, n]) => `<label><input type="checkbox" data-r-hari="${h}"> ${n}</label>`).join('')}</div>
@@ -203,7 +203,7 @@ function htmlRentangSaya(){
       || '<span class="kosong">Slot jam belum diatur admin; isian berlaku sepanjang hari.</span>'}</div>
     <div class="alat"><select id="rJenis">${JENIS_HALANGAN.map(([k, l]) => `<option value="${k}">${l}</option>`).join('')}</select>
       <input type="text" id="rAlasan" maxlength="200" placeholder="Alasan (opsional)" style="min-width:240px">
-      <button class="b utama" id="rTambah">Tambah</button></div><p class="pesan" id="mTgl"></p>
+      <button class="b utama" id="rTambah">Tambah</button></div><p class="ket" id="rRingkas"></p><p class="pesan" id="mTgl"></p>
     ${baris.length ? `<table class="ds"><thead><tr><th>Tanggal · hari · jam</th><th>Jenis</th><th>Alasan</th><th></th></tr></thead><tbody>
       ${baris.map(b => `<tr><td>${esc(b.label)}</td><td>${esc(namaJenis(b.jenis))}</td><td>${esc(b.alasan || '')}</td>
         <td><button class="b bahaya" ${b.hapus}>Hapus</button></td></tr>`).join('')}</tbody></table>` : '<p class="kosong">Belum ada.</p>'}</div>`;
@@ -311,6 +311,7 @@ function htmlFormKal(){
       <label>Sampai <input type="date" id="bSampai" value="${FORM_KAL.sampai}" min="${FORM_KAL.tanggal}"></label>
       <span class="ket">jam yang sama pada setiap hari yang dicentang dalam rentang ini; untuk jadwal rutin, isi Sampai dengan akhir semester.</span></div>
     <div class="alat"><span class="ket">Hari:</span>${HARI.map(([h, n]) => `<label><input type="checkbox" data-b-hari="${h}"${FORM_KAL.hari.includes(h) ? ' checked' : ''}> ${n}</label>`).join('')}</div>
+    <p class="ket"><b>Akan diblok:</b> <span id="bRingkas"></span></p>
     <div class="alat"><button class="b utama" id="bSimpan">Simpan blok</button><button class="b" id="bBatal">Batal</button></div></div>`;
 }
 
@@ -368,6 +369,18 @@ function pasangKalender(){
   if ($('bSehari')) $('bSehari').onchange = e => { FORM_KAL.sehari = e.target.checked;
     const ss = slotAktif().filter(s => FORM_KAL.slot_ids.includes(s.id)), b = document.querySelector('.panel-blok b');
     if (b) b.textContent = 'Blok baru: ' + (FORM_KAL.sehari ? 'sepanjang hari' : ss.length ? `${String(ss[0].mulai).slice(0, 5)}–${String(ss[ss.length - 1].selesai).slice(0, 5)}` : ''); };
+  // Ringkasan sebelum disimpan (pemilik 2026-11-21), diperbarui tiap isian berubah.
+  const ringkasKal = () => { if (!$('bRingkas')) return; $('bRingkas').textContent = ringkasBlok({ tanggal: $('bDari').value, sampai: $('bSampai').value,
+    hari: [...document.querySelectorAll('[data-b-hari]:checked')].map(c => +c.dataset.bHari), slot_ids: FORM_KAL.slot_ids, sepanjang: $('bSehari').checked }, slotAktif()); };
+  ['bDari', 'bSampai', 'bSehari'].forEach(id => { if ($(id)) $(id).addEventListener('change', ringkasKal); });
+  document.querySelectorAll('[data-b-hari]').forEach(c => c.addEventListener('change', ringkasKal));
+  ringkasKal();
+  const ringkasForm = () => { if (!$('rRingkas')) return; const m = $('rMulai').value;
+    $('rRingkas').textContent = m ? 'Akan diblok: ' + ringkasBlok({ tanggal: m, sampai: $('rSelesai').value,
+      hari: [...document.querySelectorAll('[data-r-hari]:checked')].map(c => +c.dataset.rHari),
+      slot_ids: [...document.querySelectorAll('[data-r-slot]:checked')].map(c => +c.dataset.rSlot) }, slotAktif()) : ''; };
+  ['rMulai', 'rSelesai'].forEach(id => { if ($(id)) $(id).addEventListener('change', ringkasForm); });
+  document.querySelectorAll('[data-r-hari],[data-r-slot]').forEach(c => c.addEventListener('change', ringkasForm));
   if ($('bBatal')) $('bBatal').onclick = () => { FORM_KAL = null; gambar(); };
   if ($('dTutup')) $('dTutup').onclick = () => { DETAIL_KAL = null; gambar(); };
   if ($('bSimpan')) $('bSimpan').onclick = async () => {
@@ -448,6 +461,8 @@ function pasang(){
     const hari = [...document.querySelectorAll('[data-r-hari]:checked')].map(c => +c.dataset.rHari);
     const slot = [...document.querySelectorAll('[data-r-slot]:checked')].map(c => +c.dataset.rSlot);
     const g = cekRentang({ mulai, selesai, hari, slot });
+    // Rentang wajib berhari (pemilik 2026-11-21: tanpa centang hari dulu berarti setiap hari dan membingungkan).
+    if (selesai > mulai && !hari.length) g.unshift('Centang hari yang berlaku (mis. hanya Senin untuk jadwal tiap Senin).');
     if (g.length) return tulis('mTgl', 'galat', g.join(' '));
     $('rTambah').disabled = true;
     const { error } = await sb.from('dosen_berhalangan_rentang').insert({ dosen_id: SAYA.id, mulai, selesai, hari: hari.length ? hari : null,
