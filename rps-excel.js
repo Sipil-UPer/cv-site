@@ -3,7 +3,7 @@
 // {nama lembar: baris} kembali menjadi RPS (bagian A, C, D, E) dan struktur (bagian B: CPMK, Sub-CPMK, asesmen, bobot).
 // Tidak lewat Excel: rubrik, Peta Analisis, pilihan karya integrasi penelitian/PkM, dosen pengembang (diisi di halaman).
 // Isi lembar menggantikan isian bagian itu (templat sudah memuat isian lama); lembar yang dihapus = bagian itu tidak diubah.
-import { BENTUK, SCL, JENIS_MK, DIREKTORI, JENIS_ASESMEN, KELOMPOK_ASESMEN } from './rps.js?v=2026-11-21-f258d2';
+import { BENTUK, SCL, JENIS_MK, DIREKTORI, JENIS_ASESMEN, KELOMPOK_ASESMEN } from './rps.js?v=2026-11-21-408ca6';
 
 export const VERSI_TEMPLAT = 'RPS-XLSX-1';
 export const LEMBAR = {

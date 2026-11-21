@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-21-f258d2">
-<link rel="stylesheet" href="kepala.css?v=2026-11-21-f258d2">
+<link rel="stylesheet" href="tema.css?v=2026-11-21-408ca6">
+<link rel="stylesheet" href="kepala.css?v=2026-11-21-408ca6">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
@@ -57,7 +57,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-21-f258d2"></script>
+<script src="config.js?v=2026-11-21-408ca6"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -77,11 +77,12 @@ addEventListener('error', function (e) {
 // masuk Pengingat dan Monitoring. Notulen Word disusun di peramban; admin mengunggah notulen
 // bertanda tangan ke pustaka dan menautkannya sebagai bukti butir/unsur.
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-21-f258d2';
+import { gerbang } from './menu.js?v=2026-11-21-408ca6';
 import { JENIS_RAPAT, jenisRapat, STATUS_TINDAK, tanggalPanjang, waktuRapat, tokenBaru, tindakTerbuka, saranBukti, buatNotulen,
-  namaBerkasNotulen, tglID } from './rapat.js?v=2026-11-21-f258d2';
-import { UNSUR_BUTIR } from './unsur-butir.js?v=2026-11-21-f258d2';
-import { unggahKePustaka } from './pustaka-dokumen.js?v=2026-11-21-f258d2';
+  namaBerkasNotulen, tglID } from './rapat.js?v=2026-11-21-408ca6';
+import { UNSUR_BUTIR } from './unsur-butir.js?v=2026-11-21-408ca6';
+import { unggahKePustaka } from './pustaka-dokumen.js?v=2026-11-21-408ca6';
+import { durasiDari, usulanWaktu } from './cari-waktu.js?v=2026-11-21-408ca6';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
@@ -195,6 +196,7 @@ function htmlForm(){
     </div>
     <h3>Peserta dosen</h3>
     <div class="dosen">${DOSEN.map(d => `<label><input type="checkbox" data-pd="${d.id}"${pesertaDosen.has(d.id) ? ' checked' : ''}${daring.has(d.id) ? ' disabled title="hadir lewat daftar hadir daring"' : ''}> ${esc(d.nama)}</label>`).join('')}</div>
+    ${htmlCariWaktu()}
     <h3>Peserta lain (tamu, mahasiswa, mitra)</h3>
     <div id="f_tamu"></div><button type="button" class="b" id="f_tamu_tambah">+ Tambah peserta lain</button>
     ${tamuDaring.length ? `<p class="ket">Hadir lewat daftar hadir daring: ${esc(tamuDaring.map(p => p.nama + (p.instansi ? ` (${p.instansi})` : '')).join(', '))}</p>` : ''}
@@ -370,6 +372,63 @@ function pasangBukti(){
   };
 }
 
+// ---------- Cari waktu rapat (138-patch-cari-waktu-rapat.sql, pemilik 2026-11-21) ----------
+// Peserta dosen yang dicentang -> jam yang bisa semua (berhalangan, kalender, rapat lain). Nama yang tidak bisa hanya untuk
+// pengatur jadwal; alasan tidak pernah tampil. Jadwal kuliah belum dihitung (kelas belum berjam).
+let SLOT_CW = null;
+const HARI_CW = ['', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
+const isoCW = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+const tambahHariCW = (t, n) => new Date(Date.parse(t + 'T00:00:00Z') + n * 864e5).toISOString().slice(0, 10);
+const hariCW = t => { const d = new Date(Date.parse(t + 'T00:00:00Z')).getUTCDay(); return d === 0 ? 7 : d; };
+
+function htmlCariWaktu(){
+  const awal = BUKA.r.tanggal && String(BUKA.r.tanggal).slice(0, 10) >= isoCW(new Date()) ? String(BUKA.r.tanggal).slice(0, 10) : isoCW(new Date());
+  return `<h3>Cari waktu</h3>
+    <p class="ket">Centang peserta dosen di atas, lalu cari jam yang bisa dihadiri semuanya menurut jadwal berhalangan, kalender, dan rapat lain
+      mereka (jadwal kuliah belum ikut dihitung). Alasan tidak pernah ditampilkan.</p>
+    <div class="saring"><label class="ket">Dari <input type="date" id="cw_dari" value="${awal}"></label>
+      <label class="ket">Sampai <input type="date" id="cw_sampai" value="${tambahHariCW(awal, 13)}"></label>
+      <label class="ket">Durasi <input type="number" id="cw_durasi" min="30" max="480" step="30" style="width:80px"
+        value="${durasiDari(String(BUKA.r.mulai || '').slice(0, 5), String(BUKA.r.selesai || '').slice(0, 5))}"> menit</label>
+      <button type="button" class="b" id="cw_cari">Cari waktu</button><span class="msg" id="cw_msg"></span></div>
+    <div id="cw_hasil"></div>`;
+}
+
+async function cariWaktu(){
+  const m = $('cw_msg'), tulis = (k, t) => { m.className = 'msg ' + k; m.textContent = t; };
+  const peserta = [...document.querySelectorAll('[data-pd]:checked')].map(c => c.dataset.pd);
+  const dari = $('cw_dari').value, sampai = $('cw_sampai').value, durasi = +$('cw_durasi').value || 60;
+  if (!peserta.length) return tulis('buruk', 'Centang minimal satu peserta dosen.');
+  if (!dari || !sampai || sampai < dari) return tulis('buruk', 'Isi rentang tanggal.');
+  tulis('', 'Mencari…');
+  if (!SLOT_CW) {
+    const [s, h] = await Promise.all([sb.from('jadwal_slot').select('id,mulai,selesai,aktif').order('urutan'), sb.from('jadwal_hari').select('hari')]);
+    SLOT_CW = { slot: (s.data || []).filter(x => x.aktif !== false), hari: (h.data || []).map(x => x.hari) };
+  }
+  if (!SLOT_CW.slot.length || !SLOT_CW.hari.length) return tulis('buruk', 'Slot jam atau hari kuliah belum diatur (Jadwal berhalangan › Atur slot dan hari).');
+  const { data, error } = await sb.rpc('cari_waktu_rapat', { p_peserta: peserta, p_dari: dari, p_sampai: sampai, p_kecuali: BUKA.r.id || null });
+  if (error) return tulis('buruk', /function|schema cache/i.test(error.message) ? 'Fitur belum aktif: admin menjalankan supabase/138-patch-cari-waktu-rapat.sql.' : error.message);
+  const tanggal = [];
+  for (let t = dari; t <= sampai; t = tambahHariCW(t, 1)) if (SLOT_CW.hari.includes(hariCW(t))) tanggal.push(t);
+  const kini = new Date(), u = usulanWaktu({ tanggal, slot: SLOT_CW.slot, sibuk: data.sibuk, durasi,
+    kini: { tanggal: isoCW(kini), menit: kini.getHours() * 60 + kini.getMinutes() }, maks: 12 });
+  tulis('', '');
+  const nama = ids => (ids || []).map(namaDosen).filter(Boolean).join(', ');
+  $('cw_hasil').innerHTML = u.length ? `<div class="gulir"><table class="ds"><thead><tr><th>Tanggal</th><th>Jam</th><th>Peserta</th><th></th></tr></thead><tbody>
+    ${u.map((x, i) => `<tr><td>${HARI_CW[hariCW(x.tanggal)]}, ${tglID(x.tanggal)}</td><td>${x.mulai}–${x.selesai}</td>
+      <td>${x.n ? `<span class="lewat">${x.n} dari ${peserta.length} tidak bisa</span>${data.nama && x.dosen?.length ? `<br><small class="ket">${esc(nama(x.dosen))}</small>` : ''}`
+        : `<b>Semua ${peserta.length} bisa</b>`}</td>
+      <td><button type="button" class="b" data-cw="${i}">Pakai</button></td></tr>`).join('')}</tbody></table></div>
+    ${data.nama ? '' : '<p class="ket">Nama yang tidak bisa hanya terlihat admin, Kaprodi, serta koordinator TA dan KP.</p>'}`
+    : '<p class="kosong">Tidak ada jam yang cukup untuk durasi itu pada rentang tanggal ini.</p>';
+  document.querySelectorAll('[data-cw]').forEach(b => b.onclick = () => {
+    const x = u[+b.dataset.cw];
+    $('f_tanggal').value = x.tanggal; $('f_mulai').value = x.mulai; $('f_selesai').value = x.selesai;
+    tulis('ok', `Dipakai: ${HARI_CW[hariCW(x.tanggal)]}, ${tglID(x.tanggal)} ${x.mulai}–${x.selesai}. Simpan rapat untuk menetapkannya.`);
+    $('f_tanggal').scrollIntoView({ block: 'center' });
+  });
+}
+
 // ---------------------------------------------------------------------
 function gambar(){
   const editor = BUKA && (BUKA.r.id ? bolehUbah(BUKA.r) : true);
@@ -389,6 +448,7 @@ function gambar(){
   if ($('f_word')) $('f_word').onclick = unduhWord;
   if (!editor) return;
   gambarTamu(); gambarKep();
+  if ($('cw_cari')) $('cw_cari').onclick = cariWaktu;
   $('f_tamu_tambah').onclick = () => { TAMU.push({ nama: '', instansi: '' }); gambarTamu(); };
   $('f_kep_tambah').onclick = () => { KEP.push({ keputusan: '', pj_dosen_id: '', pj_nama: '', tenggat: '', status: 'terbuka' }); gambarKep(); };
   $('f_simpan').onclick = simpan;
