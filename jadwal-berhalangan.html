@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-21-4e1914">
-<link rel="stylesheet" href="kepala.css?v=2026-11-21-4e1914">
+<link rel="stylesheet" href="tema.css?v=2026-11-21-430cf1">
+<link rel="stylesheet" href="kepala.css?v=2026-11-21-430cf1">
 <style>
   /* Jadwal berhalangan dosen (132-patch-jadwal-berhalangan.sql, pemilik 2026-11-20) */
   *{box-sizing:border-box}
@@ -66,6 +66,10 @@
   .panel-blok{border:1px solid var(--biru);padding:10px 14px;margin:10px 0;background:var(--panel)}
   .pesan{font-size:13.5px;margin:6px 0}
   .pesan.galat{color:var(--merah)} .pesan.ok{color:var(--hijau)}
+  /* kelengkapan isian (140) */
+  .pesan.peringatan{background:#FFF3D6;color:#7A5A00;padding:6px 10px}
+  .kartu.konfirmasi{border-left:4px solid #C9A227} .kartu.konfirmasi.ok{border-left-color:var(--hijau)}
+  .status-ok{color:var(--hijau);font-weight:600} .status-sebagian{color:#7A5A00} .status-kosong{color:var(--merah)}
   @media(max-width:700px){.wrap{padding-left:16px;padding-right:16px}}
 </style>
 </head>
@@ -76,7 +80,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-21-4e1914"></script>
+<script src="config.js?v=2026-11-21-430cf1"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -95,13 +99,14 @@ addEventListener('error', function (e) {
 // bisa (mingguan per semester dan tanggal tertentu, termasuk jadwal di luar prodi); pengatur jadwal (admin, Kaprodi,
 // koordinator TA/KP) melihat semua dan mencari slot kosong; dosen lain hanya jumlah per slot. Logika: jadwal-berhalangan.js.
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-21-4e1914';
-import { punya } from './koordinator.js?v=2026-11-21-4e1914';
-import { semesterKini } from './evaluasi-pembelajaran.js?v=2026-11-21-4e1914';
+import { gerbang } from './menu.js?v=2026-11-21-430cf1';
+import { punya } from './koordinator.js?v=2026-11-21-430cf1';
+import { semesterKini } from './evaluasi-pembelajaran.js?v=2026-11-21-430cf1';
 import { HARI, namaHari, JENIS_HALANGAN, namaJenis, labelSlot, cekSlot, perSel, cariSlotKosong, hariISO,
-  cekRentang, labelRentang, rentangPadaTanggal, buatSlot, tambahHari, mingguDari, slotAntara, blokBaru, isiKalender, barisEkspor, EKSPOR_MAKS_HARI, ringkasBlok } from './jadwal-berhalangan.js?v=2026-11-21-4e1914';
-import { SHEETJS } from './nilai-cpl.js?v=2026-11-21-4e1914';
-import { petaLibur } from './hari-libur.js?v=2026-11-21-4e1914';
+  cekRentang, labelRentang, rentangPadaTanggal, buatSlot, tambahHari, mingguDari, slotAntara, blokBaru, isiKalender, barisEkspor, EKSPOR_MAKS_HARI, ringkasBlok,
+  kelengkapanBerhalangan, LABEL_KELENGKAPAN } from './jadwal-berhalangan.js?v=2026-11-21-430cf1';
+import { SHEETJS } from './nilai-cpl.js?v=2026-11-21-430cf1';
+import { petaLibur } from './hari-libur.js?v=2026-11-21-430cf1';
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const sb = createClient(window.SB_URL, window.SB_KEY);
@@ -115,6 +120,8 @@ let PERIODE = null, TAB = 'kalender', PILIH_DOSEN = new Set(), TGL_CARI = '', CA
 // Kalender saya (pemilik 2026-11-21): minggu yang tampil, pilihan seret, blok baru, rincian blok, semua isian mingguan sendiri.
 let MINGGU = '', PILIH_KAL = null, FORM_KAL = null, DETAIL_KAL = null, MILIK_SEMUA_MG = [];
 let LIBUR = new Map();   // hari libur (139): 'YYYY-MM-DD' -> { nama, jenis }; tabel belum ada = kosong
+// Konfirmasi isian lengkap per semester (140); ADA_KONF = false sebelum patch 140 dijalankan.
+let KONF_SAYA = [], SEMUA_KONF = [], ADA_KONF = true;
 const ADMIN = () => SAYA?.peran === 'admin';
 const PENGATUR = () => ADMIN() || ['kaprodi', 'koordinator_ta', 'koordinator_kp'].some(j => punya(SAYA, j));
 const namaDosen = id => { const d = DOSEN.find(x => x.id === id); return d ? (d.nama_gelar || d.nama) : '?'; };
@@ -139,6 +146,9 @@ async function muat(){
   LIBUR = petaLibur(await baca(sb.from('hari_libur').select('tanggal,nama,jenis').gte('tanggal', dari)));
   const r = await sb.from('dosen_berhalangan_rentang').select('*').eq('dosen_id', SAYA.id).gte('selesai', dari).order('mulai');
   ADA_RENTANG = !r.error; MILIK_RENTANG = r.error ? [] : r.data || [];
+  const kf = await sb.from('berhalangan_konfirmasi').select('*').eq('dosen_id', SAYA.id);
+  ADA_KONF = !kf.error; KONF_SAYA = kf.error ? [] : kf.data || [];
+  SEMUA_KONF = ADA_KONF && PENGATUR() ? await baca(sb.from('berhalangan_konfirmasi').select('*').eq('tahun_akademik', p.ta).eq('semester', p.sm)) : [];
   if (PENGATUR()) {
     SEMUA = await baca(sb.from('dosen_berhalangan').select('*').eq('tahun_akademik', p.ta).eq('semester', p.sm));
     SEMUA_TGL = await baca(sb.from('dosen_berhalangan_tgl').select('*').gte('tanggal', dari).order('tanggal'));
@@ -167,9 +177,29 @@ function gambar(){
   pasang();
 }
 
+// Tanda "isian lengkap" (140) untuk semester terpilih, termasuk bila memang tidak ada halangan.
+const konfSaya = ({ ta, sm }) => KONF_SAYA.find(k => k.tahun_akademik === ta && k.semester === sm);
+function htmlKonfirmasi(){
+  if (!ADA_KONF) return '';
+  const k = konfSaya(PERIODE), sem = `${PERIODE.sm} ${PERIODE.ta}`;
+  return `<div class="kartu konfirmasi${k ? ' ok' : ''}"><h2>Kelengkapan isian ${esc(sem)}</h2>
+    ${k ? `<p>Sudah Anda tandai lengkap pada ${esc(tgl(String(k.dikonfirmasi_pada).slice(0, 10)))}. Bila ada perubahan, ubah isiannya saja; tanda ini tetap.</p>
+      <p><button class="b" id="kBatal">Batalkan tanda lengkap</button> <span class="pesan" id="mKonf"></span></p>`
+    : `<p>Setelah semua jadwal yang tidak bisa Anda pakai selama ${esc(sem)} diisi (mingguan di bawah dan tanggal/rentang di Kalender saya),
+        tandai lengkap. <b>Bila memang tidak ada halangan, tetap tandai lengkap</b> supaya penyusun jadwal tahu Anda sudah memeriksa.</p>
+      <p><button class="b utama" id="kTandai">Tandai isian ${esc(sem)} lengkap</button> <span class="pesan" id="mKonf"></span></p>`}</div>`;
+}
+// Pengingat kecil di Kalender saya bila semester berikutnya belum ditandai lengkap.
+function bannerKonfirmasi(){
+  if (!ADA_KONF) return '';
+  const p = periodeDaftar()[1];
+  return konfSaya(p) ? '' : `<p class="pesan peringatan" style="margin:0 0 10px">Isian berhalangan ${esc(p.sm)} ${esc(p.ta)} belum Anda tandai lengkap.
+    Isi dulu bila ada, lalu tandai di tab <a href="#" id="keKonf">Mingguan semester</a>.</p>`;
+}
+
 function gambarSaya(){
   const sel = perSel(MILIK);
-  return `<div class="kartu"><h2>Jadwal mingguan yang tidak bisa</h2>
+  return `${htmlKonfirmasi()}<div class="kartu"><h2>Jadwal mingguan yang tidak bisa</h2>
     <p class="ket">Klik sel untuk menandai atau membatalkan slot yang tidak bisa Anda pakai selama semester ini, termasuk jadwal di luar prodi
       (mengajar prodi lain, tugas fakultas/universitas, kegiatan luar). Jenis dan alasan di bawah dipakai untuk sel yang Anda tandai berikutnya.
       ${PENGATUR() ? '' : 'Nama dan alasan Anda hanya terlihat admin, Kaprodi, serta koordinator TA dan KP.'}</p>
@@ -214,6 +244,22 @@ function htmlRentangSaya(){
         <td><button class="b bahaya" ${b.hapus}>Hapus</button></td></tr>`).join('')}</tbody></table>` : '<p class="kosong">Belum ada.</p>'}</div>`;
 }
 
+// Kelengkapan isian per dosen untuk semester terpilih (140), hanya pengatur jadwal.
+function htmlKelengkapan(){
+  if (!ADA_KONF) return `<div class="kartu"><h2>Kelengkapan isian</h2><p class="kosong">Butuh supabase/140-patch-berhalangan-konfirmasi.sql; hubungi admin.</p></div>`;
+  const { baris, ringkas: r } = kelengkapanBerhalangan({ dosen: DOSEN, mingguan: SEMUA, tanggalan: SEMUA_TGL, rentang: SEMUA_RENTANG,
+    konfirmasi: SEMUA_KONF, ta: PERIODE.ta, sm: PERIODE.sm });
+  const chip = { lengkap: 'ok', diisi: 'sebagian', belum: 'kosong' };
+  return `<div class="kartu"><h2>Kelengkapan isian, ${esc(PERIODE.sm)} ${esc(PERIODE.ta)}</h2>
+    <p class="ket"><b>${r.lengkap}</b> lengkap · <b>${r.diisi}</b> diisi tetapi belum ditandai · <b>${r.belum}</b> belum ada isian, dari ${r.n} dosen.
+      "Lengkap" = dosen menandai isiannya lengkap (juga bila tidak ada halangan). Pengingat email: Ruang kerja › Pengingat › Jadwal berhalangan belum lengkap.</p>
+    <details${r.lengkap < r.n ? ' open' : ''}><summary>Rincian per dosen</summary>
+      <table class="ds"><thead><tr><th>Dosen</th><th>Status</th><th>Isian mingguan</th><th>Isian tanggal/rentang</th></tr></thead><tbody>
+      ${baris.map(x => `<tr><td>${esc(x.dosen.nama_gelar || x.dosen.nama)}</td><td><span class="status-${chip[x.status]}">${esc(LABEL_KELENGKAPAN[x.status])}</span>${
+        x.dikonfirmasi_pada ? ` <small class="ket">${esc(tgl(String(x.dikonfirmasi_pada).slice(0, 10)))}</small>` : ''}</td><td>${x.mingguan}</td><td>${x.tanggal}</td></tr>`).join('')}
+      </tbody></table></details></div>`;
+}
+
 function gambarRekap(){
   if (!PENGATUR()) {
     const m = new Map((REKAP?.mingguan || []).map(r => [`${r.hari}|${r.slot_id}`, r.n]));
@@ -230,7 +276,7 @@ function gambarRekap(){
       label: labelRentang({ mulai: t.tanggal, selesai: t.tanggal, slot_ids: t.slot_id ? [t.slot_id] : null }, SLOT) })),
     ...SEMUA_RENTANG.map(r => ({ urut: r.mulai, dosen_id: r.dosen_id, jenis: r.jenis, alasan: r.alasan, label: labelRentang(r, SLOT) }))]
     .sort((a, b) => a.urut.localeCompare(b.urut));
-  return `<div class="kartu"><h2>Cari slot kosong</h2>
+  return `${htmlKelengkapan()}<div class="kartu"><h2>Cari slot kosong</h2>
       <p class="ket">Pilih dosen yang harus hadir (mis. pembimbing dan penguji sidang). Sel hijau = semua yang dipilih bisa; merah = ada yang berhalangan.
         Isi tanggal untuk ikut memperhitungkan halangan tanggal itu.</p>
       <div class="alat"><input type="search" id="cDosen" placeholder="Saring nama dosen" value="${esc(CARI)}">
@@ -283,7 +329,7 @@ function gambarKalender(){
     return `<td data-t="${t}" data-s="${s.id}"${x ? ' data-ada="1"' : ''} class="${kelas}" title="${esc(`${labelSlot(s)}${judul ? ' · ' + judul : ''}`)}">${
       awal ? `<span class="judul">${esc(x.judul || namaJenis(x.jenis))}</span>` : ''}</td>`;
   };
-  return `<div class="kartu"><h2>Kalender saya</h2>
+  return `<div class="kartu"><h2>Kalender saya</h2>${bannerKonfirmasi()}
     <p class="ket">Seret dari jam mulai sampai jam selesai yang tidak bisa Anda pakai, lalu isi judulnya (mis. "Mengajar Teknik Lingkungan"). Seret melintasi
       beberapa hari untuk jam yang sama di hari-hari itu; ubah <b>Sampai</b> dan centang <b>Hari</b> untuk rentang tanggal atau jadwal rutin. Klik blok yang sudah ada untuk melihat atau menghapusnya.
       ${PENGATUR() ? '' : 'Judul Anda hanya terlihat admin, Kaprodi, serta koordinator TA dan KP; dosen lain hanya melihat jumlah.'}</p>
@@ -443,6 +489,20 @@ function pasang(){
   document.querySelectorAll('[data-tab]').forEach(b => { b.onclick = () => { TAB = b.dataset.tab; gambar(); }; });
   pasangKalender();
   if ($('fPeriode')) $('fPeriode').onchange = async e => { PERIODE = periodeDaftar()[+e.target.value]; await segar(); };
+  // Tanda isian lengkap (140).
+  if ($('kTandai')) $('kTandai').onclick = async () => {
+    $('kTandai').disabled = true;
+    const { error } = await sb.from('berhalangan_konfirmasi').upsert({ dosen_id: SAYA.id, tahun_akademik: PERIODE.ta, semester: PERIODE.sm,
+      dikonfirmasi_pada: new Date().toISOString() }, { onConflict: 'dosen_id,tahun_akademik,semester' });
+    if (error) { $('kTandai').disabled = false; return tulis('mKonf', 'galat', error.message); }
+    await segar();
+  };
+  if ($('kBatal')) $('kBatal').onclick = async () => {
+    const { error } = await sb.from('berhalangan_konfirmasi').delete().eq('dosen_id', SAYA.id).eq('tahun_akademik', PERIODE.ta).eq('semester', PERIODE.sm);
+    if (error) return tulis('mKonf', 'galat', error.message);
+    await segar();
+  };
+  if ($('keKonf')) $('keKonf').onclick = async e => { e.preventDefault(); TAB = 'saya'; PERIODE = periodeDaftar()[1]; await segar(); };
   // Jadwal saya: klik sel = tandai/batalkan.
   document.querySelectorAll('button.sel[data-h]').forEach(b => { b.onclick = async () => {
     const h = +b.dataset.h, s = +b.dataset.s, ada = MILIK.find(r => r.hari === h && r.slot_id === s);

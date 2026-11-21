@@ -251,3 +251,50 @@ export function ringkasBlok({ tanggal, sampai = '', hari = [], slot_ids = [], se
   const siapa = hs.length ? `setiap ${hs.map(namaHari).join(', ')}` : 'SETIAP HARI (termasuk Sabtu dan Minggu)';
   return `${siapa}, ${jam}, ${tglID(tanggal)} s.d. ${tglID(akhir)} (${n} kali)`;
 }
+
+// ---------- Kelengkapan isian per dosen (140-patch-berhalangan-konfirmasi.sql, pemilik 2026-11-21) ----------
+/** Rentang tanggal semester (sama dengan semester_tanggal di 138): Ganjil 1 Sep - akhir Feb, Genap 1 Mar - 31 Agu. */
+export function tanggalSemester(ta, sm){
+  const m = String(ta || '').match(/^(\d{4})\/(\d{4})$/);
+  if (!m) return null;
+  const b = +m[2];
+  if (sm === 'Genap') return { dari: `${b}-03-01`, sampai: `${b}-08-31` };
+  const kabisat = (b % 4 === 0 && b % 100 !== 0) || b % 400 === 0;
+  return { dari: `${m[1]}-09-01`, sampai: `${b}-02-${kabisat ? 29 : 28}` };
+}
+/** Semester sesudah { ta, sm }. */
+export function semesterBerikut({ ta, sm }){
+  const a = +String(ta).slice(0, 4);
+  return sm === 'Ganjil' ? { ta, sm: 'Genap' } : { ta: `${a + 1}/${a + 2}`, sm: 'Ganjil' };
+}
+/** Dosen yang diminta mengisi: aktif, bukan asesor, bukan pimpinan di luar prodi. */
+export const wajibIsi = d => d && d.aktif !== false && !['asesor', 'pimpinan'].includes(d.peran);
+export const LABEL_KELENGKAPAN = { lengkap: 'lengkap', diisi: 'diisi, belum ditandai lengkap', belum: 'belum ada isian' };
+
+/**
+ * Status isian berhalangan tiap dosen untuk semester { ta, sm }: lengkap (ditandai, 140) | diisi (ada isian mingguan semester
+ * itu, atau isian tanggal/rentang yang jatuh di semester itu) | belum. -> { baris: [{ dosen, status, mingguan, tanggal,
+ * dikonfirmasi_pada }], ringkas: { lengkap, diisi, belum, n } }; urut belum, diisi, lengkap, lalu nama.
+ */
+export function kelengkapanBerhalangan({ dosen = [], mingguan = [], tanggalan = [], rentang = [], konfirmasi = [], ta, sm } = {}){
+  const s = tanggalSemester(ta, sm);
+  const di = t => s && t >= s.dari && t <= s.sampai;
+  const kena = (a, b) => s && a <= s.sampai && (b || a) >= s.dari;
+  const urut = { belum: 0, diisi: 1, lengkap: 2 };
+  const baris = dosen.filter(wajibIsi).map(d => {
+    const k = konfirmasi.find(x => x.dosen_id === d.id && x.tahun_akademik === ta && x.semester === sm);
+    const nMg = mingguan.filter(r => r.dosen_id === d.id && r.tahun_akademik === ta && r.semester === sm).length;
+    const nTg = tanggalan.filter(r => r.dosen_id === d.id && di(r.tanggal)).length
+      + rentang.filter(r => r.dosen_id === d.id && kena(r.mulai, r.selesai)).length;
+    return { dosen: d, status: k ? 'lengkap' : nMg + nTg ? 'diisi' : 'belum', mingguan: nMg, tanggal: nTg, dikonfirmasi_pada: k?.dikonfirmasi_pada || null };
+  }).sort((a, b) => urut[a.status] - urut[b.status] || String(a.dosen.nama || '').localeCompare(String(b.dosen.nama || '')));
+  const hit = st => baris.filter(x => x.status === st).length;
+  return { baris, ringkas: { lengkap: hit('lengkap'), diisi: hit('diisi'), belum: hit('belum'), n: baris.length } };
+}
+
+/** Penerima pengingat: dosen yang belum lengkap dan punya email. -> [{ nama, email, rinci }] */
+export function penerimaBerhalangan(kel, { ta, sm } = {}){
+  return (kel?.baris || []).filter(x => x.status !== 'lengkap' && x.dosen.email)
+    .map(x => ({ nama: x.dosen.nama, email: x.dosen.email,
+      rinci: `- Semester ${sm} ${ta}: ${x.status === 'diisi' ? `${x.mingguan + x.tanggal} isian, belum ditandai lengkap` : 'belum ada isian dan belum ditandai lengkap'}` }));
+}
