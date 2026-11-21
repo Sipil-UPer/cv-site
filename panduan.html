@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-21-430cf1">
+<link rel="stylesheet" href="tema.css?v=2026-11-21-fa1459">
 <style>
   /* Panduan pengguna ruang kerja (pemilik 2026-11-04). Bagian admin hanya
      tampil untuk peran admin. Perbarui bila tombol atau halaman berubah. */
@@ -40,7 +40,7 @@
   @media(max-width:640px){nav.isi ol{columns:1}.wrap{padding:18px 16px 60px}}
   @media print{nav.isi{display:none}section{break-inside:avoid}}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-21-430cf1">
+<link rel="stylesheet" href="kepala.css?v=2026-11-21-fa1459">
 </head>
 <body>
 
@@ -61,10 +61,13 @@
       <li><a href="#ubah">Mengubah atau menghapus karya</a></li>
       <li><a href="#rekan">Karya rekan dan klaim penulis</a></li>
       <li><a href="#profil">Profil saya</a></li>
+      <li><a href="#rps">Menyusun RPS</a> · <a href="#rps-review">review sejawat</a></li>
+      <li><a href="#evaluasi">Evaluasi pembelajaran</a></li>
+      <li><a href="#kelas">Kelas, beban mengajar, dan ekuivalensi</a></li>
+      <li><a href="#berhalangan">Jadwal berhalangan</a></li>
+      <li data-fitur="rapat"><a href="#cari-waktu">Mencari waktu rapat</a></li>
       <li><a href="#lihat">Monitoring dan skor</a></li>
       <li><a href="#publik">Apa yang tampil untuk umum</a></li>
-      <li><a href="#evaluasi">Evaluasi pembelajaran</a></li>
-      <li><a href="#rps">Menyusun RPS</a> · <a href="#rps-review">review sejawat</a></li>
       <li class="adm" hidden><a href="#verifikasi">Admin: verifikasi dan ajuan</a></li>
       <li class="adm" hidden><a href="#dosen">Admin: kelola dosen</a></li>
       <li class="adm" hidden><a href="#dataprodi">Admin: data prodi</a></li>
@@ -161,48 +164,8 @@
       menambah jenjang atau sertifikat. Pendidikan tertinggi dihitung otomatis dari riwayat pendidikan.</p>
   </section>
 
-  <section id="lihat">
-    <h2>7. Monitoring dan skor</h2>
-    <ul>
-      <li><b>Pemantauan ▾ › Pemantauan kinerja</b>: rekap per tahun atau TS, per dosen, dan syarat unggul.</li>
-      <li><b>Data saya ▾ › Target kinerja dosen</b>: target tahun ini (publikasi, penelitian, PkM, luaran, rekognisi, proposal hibah eksternal) dan capaian Anda. Capaian dihitung dari karya tahun itu yang mencantumkan Anda sebagai penulis atau anggota: yang terverifikasi masuk "Tercapai", yang masih diajukan tampil sebagai "menunggu". Target ditetapkan admin per jabatan akademik (bisa khusus per dosen). Yang belum tercapai juga tampil di <b>Tugas saya</b>. Admin dan pimpinan melihat semua dosen; admin mengisi target baku dan target khusus di halaman yang sama.</li>
-      <li><b>Pemantauan ▾ › Grafik untuk LED</b>: grafik siap tempel untuk laporan dan LED.</li>
-      <li><b>Mutu dan akreditasi ▾ › Skor akreditasi dan LED</b>: perkiraan skor tiap butir LAM. Pilih TS di bagian atas; klik nomor butir untuk membuka kartunya.</li>
-      <li><b>Mutu dan akreditasi ▾ › Rincian butir</b>: data di balik angka tiap butir.</li>
-    </ul>
-    <p class="cat">Angka baru tampil setelah situs diperbarui: otomatis tiap jam (menit ke-23).</p>
-  </section>
-
-  <section id="publik">
-    <h2>8. Apa yang tampil untuk umum</h2>
-    <p>Beranda tanpa masuk akun hanya menampilkan grafik dan angka rekap; daftar dosen, publikasi, penelitian,
-      pengabdian, prestasi, dan mitra dibuka dengan mengklik angkanya. Yang tampil hanya karya
-      <b>terverifikasi</b>, tanpa tautan bukti, tanpa nominal dana, tanpa beban kerja dosen, dan tanpa
-      nama atau NIM mahasiswa.</p>
-  </section>
-
-  <section id="evaluasi">
-    <h2>9. Evaluasi pembelajaran</h2>
-    <p>Buka <b>Mata kuliah saya ▾ › Evaluasi pembelajaran</b> dan pilih semester. Setiap mata kuliah yang Anda ampu tampil dengan nilai EDOM
-      (evaluasi dosen oleh mahasiswa, skala 0–4, rekap dari kampus), capaian CPL kelasnya, dan refleksi Anda.</p>
-    <ol>
-      <li><b>Isi refleksi</b> di akhir semester: klik <b>Isi</b>, pilih apakah pelaksanaan <b>sesuai RPS</b> (materi, jadwal, penilaian), tulis catatan,
-        dan evaluasi metode pembelajaran beserta peluang perbaikannya, lalu <b>Simpan evaluasi</b>.</li>
-      <li><b>Tindak lanjut</b>: baris ditandai perlu tindak lanjut bila EDOM di bawah ambang (bawaan 3,00), ada CPL kelas yang belum tercapai,
-        atau pelaksanaan tidak sesuai RPS. Klik <b>+ Tambah tindak lanjut</b>: masalah, penyebab, rencana, penanggung jawab, dan tenggat.
-        Tindak lanjut masuk <b>Tugas saya</b> dan <b>Kalender</b> penanggung jawabnya.</li>
-      <li><b>Selesaikan</b>: pada tindak lanjut, pilih <b>Selesai</b>, tulis hasilnya dan tanggal selesai, lalu <b>Perbarui</b>.</li>
-    </ol>
-    <p>Dosen hanya melihat nilai EDOM-nya sendiri; admin dan pimpinan melihat semua; asesor hanya rekap prodi tanpa angka per dosen.</p>
-    <p class="adm-p" hidden><b>Admin:</b> buka <b>Alat admin</b> di halaman itu. (1) <b>Siapkan dari daftar kelas</b> membuat baris dari daftar kelas
-      Berkas nilai CPL semester itu, supaya dosen bisa mengisi refleksi. (2) <b>Tempel rekap EDOM</b>: salin tabel rekap dari kampus di Excel
-      (kode MK, dosen sebagai email/NIDN/nama, nilai, boleh jumlah responden dan nama MK), tempel, <b>Periksa</b>, lalu <b>Simpan</b>; baris yang ada
-      diperbarui angkanya saja. (3) Ubah <b>ambang</b> bila perlu. Tindak lanjut yang ditautkan ke butir standar SPMI ikut terhitung di Siklus PPEPP.
-      <b>Unduh CSV</b> menyimpan tabel semester untuk rapat evaluasi akhir semester (bukti butir 16, tinjauan rutin proses pembelajaran).</p>
-  </section>
-
   <section id="rps">
-    <h2>10. Menyusun RPS</h2>
+    <h2>7. Menyusun RPS</h2>
     <p>RPS disusun di situs mengikuti formulir RPS universitas (UP-SPMI/FR008/R05) dan Panduan Pengisian RPS, lalu diunduh sebagai Word.
       Pilih kurikulumnya (K21, K26, atau kurikulum berikutnya) di daftar mata kuliah.
       Yang menyusun: <b>koordinator MK</b> (ditetapkan admin/GKM) atau <b>dosen pengampu</b> kelas MK itu semester ini.
@@ -305,6 +268,9 @@
       dan pembaruan materi, lalu pilih keputusan: RPS tetap atau direvisi (dengan rencana dan tenggat). Ajukan ke Kaprodi. Bila revisi disetujui,
       RPS mata kuliahnya kembali menjadi draf; perbaiki dan ajukan lagi, dan tindak lanjut selesai saat RPS revisi disahkan. MK kurikulum lama
       (mis. K21) ditinjau oleh koordinator MK padanannya di kurikulum baru.</p>
+    <p>Daftar mata kuliah di halaman CPMK dan penilaian, RPS, Silabus, Portofolio, dan Tinjauan RPS bisa disaring dengan <b>Hanya MK saya</b>:
+      mata kuliah yang Anda ampu atau ajar bersama. Anggota team teaching (Penyusunan kelas) ikut menyusun CPMK dan RPS MK itu selama kelasnya
+      di semester berjalan atau sesudahnya.</p>
     <p class="adm-p" hidden><b>Admin, tanggal dan tenggat:</b> di halaman RPS buka kotak <b>Tanggal dokumen dan tenggat RPS (admin)</b>: tanggal
       dokumen semester (dicetak di Word), tenggat pengajuan RPS semester ganjil/genap, dan tenggat review (hari sejak ditunjuk). Pengingat ke
       penyusun dan reviewer dikirim dari <b>Pengingat</b> (kelompok <i>RPS belum diajukan</i>, <i>Review RPS belum dikirim</i>,
@@ -319,9 +285,96 @@
       semester mulai ditinjau dan mengimpor CSV padanan MK kurikulum lama ke baru.</p>
   </section>
 
+  <section id="evaluasi">
+    <h2>8. Evaluasi pembelajaran</h2>
+    <p>Buka <b>Mata kuliah saya ▾ › Evaluasi pembelajaran</b> dan pilih semester. Setiap mata kuliah yang Anda ampu tampil dengan nilai EDOM
+      (evaluasi dosen oleh mahasiswa, skala 0–4, rekap dari kampus), capaian CPL kelasnya, dan refleksi Anda.</p>
+    <ol>
+      <li><b>Isi refleksi</b> di akhir semester: klik <b>Isi</b>, pilih apakah pelaksanaan <b>sesuai RPS</b> (materi, jadwal, penilaian), tulis catatan,
+        dan evaluasi metode pembelajaran beserta peluang perbaikannya, lalu <b>Simpan evaluasi</b>.</li>
+      <li><b>Tindak lanjut</b>: baris ditandai perlu tindak lanjut bila EDOM di bawah ambang (bawaan 3,00), ada CPL kelas yang belum tercapai,
+        atau pelaksanaan tidak sesuai RPS. Klik <b>+ Tambah tindak lanjut</b>: masalah, penyebab, rencana, penanggung jawab, dan tenggat.
+        Tindak lanjut masuk <b>Tugas saya</b> dan <b>Kalender</b> penanggung jawabnya.</li>
+      <li><b>Selesaikan</b>: pada tindak lanjut, pilih <b>Selesai</b>, tulis hasilnya dan tanggal selesai, lalu <b>Perbarui</b>.</li>
+    </ol>
+    <p>Dosen hanya melihat nilai EDOM-nya sendiri; admin dan pimpinan melihat semua; asesor hanya rekap prodi tanpa angka per dosen.</p>
+    <p class="adm-p" hidden><b>Admin:</b> buka <b>Alat admin</b> di halaman itu. (1) <b>Siapkan dari daftar kelas</b> membuat baris dari daftar kelas
+      Berkas nilai CPL semester itu, supaya dosen bisa mengisi refleksi. (2) <b>Tempel rekap EDOM</b>: salin tabel rekap dari kampus di Excel
+      (kode MK, dosen sebagai email/NIDN/nama, nilai, boleh jumlah responden dan nama MK), tempel, <b>Periksa</b>, lalu <b>Simpan</b>; baris yang ada
+      diperbarui angkanya saja. (3) Ubah <b>ambang</b> bila perlu. Tindak lanjut yang ditautkan ke butir standar SPMI ikut terhitung di Siklus PPEPP.
+      <b>Unduh CSV</b> menyimpan tabel semester untuk rapat evaluasi akhir semester (bukti butir 16, tinjauan rutin proses pembelajaran).</p>
+  </section>
+
+  <section id="kelas">
+    <h2>9. Kelas, beban mengajar, dan ekuivalensi</h2>
+    <ul>
+      <li><b>Kurikulum dan CPL prodi ▾ › Penyusunan kelas</b>: pilih semester. Dosen melihat kelasnya; Kaprodi dan admin menyusun kelas.
+        Satu MK boleh beberapa kelas; tiap kelas punya satu koordinator dan boleh beberapa anggota team teaching, masing-masing dengan jumlah
+        pertemuan. <b>Buat kelas A untuk MK yang belum punya kelas</b> membuat usulan awal; <b>Impor</b> dan <b>Unduh CSV</b> untuk bertukar dengan
+        berkas penyusunan jadwal; <b>Salin ke daftar kelas nilai CPL</b> menyiapkan Berkas nilai CPL semester itu.</li>
+      <li><b>Beban per dosen</b> (bagian bawah halaman yang sama): sks mengajar = sks MK × bagian dosen di kelas itu (menurut jumlah pertemuan bila
+        semua dosen kelas itu mengisinya, selain itu dibagi rata), ditambah bimbingan KP, TA, menguji, dan lomba per tahun akademik.
+        <b>Unduh CSV beban</b> untuk rapat. Belum ada batas sks atau konversi bimbingan ke sks.</li>
+      <li><b>Kurikulum dan CPL prodi ▾ › Ekuivalensi mata kuliah</b>: padanan MK kurikulum lama ke baru untuk mahasiswa angkatan lama. Admin mengisi
+        padanan (langsung atau <b>Impor CSV</b>), Kaprodi menekan <b>Sahkan (Kaprodi)</b>, lalu Dekan menekan <b>Tetapkan (Dekan)</b>; tabel yang
+        ditetapkan terbit di halaman publik. Kaprodi atau Dekan bisa <b>Kembalikan ke admin</b>. Padanan yang diubah kembali berstatus draf.</li>
+    </ul>
+  </section>
+
+  <section id="berhalangan">
+    <h2>10. Jadwal berhalangan</h2>
+    <p>Buka <b>Kegiatan ▾ › Jadwal berhalangan</b>. Isinya dipakai untuk menyusun jadwal kuliah, mencari waktu sidang, dan mencari waktu rapat.
+      Judul atau alasan Anda hanya terlihat admin, Kaprodi, serta koordinator TA dan KP; dosen lain hanya melihat jumlahnya.</p>
+    <ol>
+      <li><b>Kalender saya</b>: seret dari jam mulai sampai jam selesai yang tidak bisa Anda pakai, lalu isi judul (wajib) dan jenis. Seret melintasi
+        beberapa hari untuk jam yang sama di hari-hari itu. Klik nama hari di kepala kolom untuk memblok sepanjang hari. Klik blok yang sudah ada
+        untuk melihat atau menghapusnya. Hari libur ditandai di kepala kolom.</li>
+      <li><b>Jadwal rutin atau rentang tanggal</b>: di formulir blok, ubah <b>Sampai</b> dan centang <b>Hari</b> (mis. hanya Senin tiap minggu sampai
+        akhir semester). Sebelum menyimpan, baca ringkasan <i>Akan diblok: …</i> untuk memastikan hari dan jamnya benar.</li>
+      <li><b>Mingguan semester</b>: klik sel slot yang tidak bisa selama satu semester penuh (mis. mengajar di prodi lain).</li>
+      <li><b>Tandai isian lengkap</b> (tab Mingguan semester): tekan setelah semua halangan semester itu diisi. <b>Bila tidak ada halangan, tetap
+        tandai lengkap</b>, supaya penyusun jadwal tahu Anda sudah memeriksa. Selama semester berikutnya belum ditandai, Kalender saya menampilkan
+        pengingat kuning.</li>
+    </ol>
+    <p class="adm-p" hidden><b>Admin:</b> tab <b>Atur slot dan hari</b>: <b>Buat slot otomatis</b> (mis. 07.00–17.00 per 30 menit), <b>Simpan slot</b>,
+      lalu pilih hari kuliah. Tab <b>Rekap dan cari slot kosong</b> (juga untuk Kaprodi dan koordinator TA/KP) memuat kelengkapan isian per dosen,
+      pencarian slot kosong untuk beberapa dosen, dan <b>Unduh Excel berhalangan</b> untuk penyusunan jadwal. Pengingat email: <b>Pengingat ›
+      Jadwal berhalangan belum lengkap</b>. Hari libur diisi di <b>Kalender kegiatan</b>, kartu <b>Hari libur</b> (satu per satu, rentang, atau
+      Impor CSV <span class="tbl">tanggal;nama;jenis</span>); pada hari libur email kabar pemeriksa tidak dikirim dan Cari waktu rapat tidak
+      mengusulkannya. Tenggat tidak digeser.</p>
+  </section>
+
+  <section id="cari-waktu" data-fitur="rapat">
+    <h2>11. Mencari waktu rapat</h2>
+    <p>Di <b>Kegiatan ▾ › Rapat dan notulen</b>, saat membuat atau mengubah rapat: centang peserta dosen, lalu di bagian <b>Cari waktu</b> isi
+      rentang tanggal (paling lama 32 hari) dan durasi, dan klik <b>Cari waktu</b>. Usulan diambil dari jadwal berhalangan dan rapat lain para
+      peserta: yang paling sedikit bentrok di atas, paling banyak dua per tanggal, hari libur dilewati. <b>Pakai</b> mengisi tanggal dan jam rapat.
+      Nama peserta yang tidak bisa hanya terlihat admin, Kaprodi, serta koordinator TA dan KP. Jadwal kuliah belum ikut dihitung.</p>
+  </section>
+
+  <section id="lihat">
+    <h2>12. Monitoring dan skor</h2>
+    <ul>
+      <li><b>Pemantauan ▾ › Pemantauan kinerja</b>: rekap per tahun atau TS, per dosen, dan syarat unggul.</li>
+      <li><b>Data saya ▾ › Target kinerja dosen</b>: target tahun ini (publikasi, penelitian, PkM, luaran, rekognisi, proposal hibah eksternal) dan capaian Anda. Capaian dihitung dari karya tahun itu yang mencantumkan Anda sebagai penulis atau anggota: yang terverifikasi masuk "Tercapai", yang masih diajukan tampil sebagai "menunggu". Target ditetapkan admin per jabatan akademik (bisa khusus per dosen). Yang belum tercapai juga tampil di <b>Tugas saya</b>. Admin dan pimpinan melihat semua dosen; admin mengisi target baku dan target khusus di halaman yang sama.</li>
+      <li><b>Pemantauan ▾ › Grafik untuk LED</b>: grafik siap tempel untuk laporan dan LED.</li>
+      <li><b>Mutu dan akreditasi ▾ › Skor akreditasi dan LED</b>: perkiraan skor tiap butir LAM. Pilih TS di bagian atas; klik nomor butir untuk membuka kartunya.</li>
+      <li><b>Mutu dan akreditasi ▾ › Rincian butir</b>: data di balik angka tiap butir.</li>
+    </ul>
+    <p class="cat">Angka baru tampil setelah situs diperbarui: otomatis tiap jam (menit ke-23).</p>
+  </section>
+
+  <section id="publik">
+    <h2>13. Apa yang tampil untuk umum</h2>
+    <p>Beranda tanpa masuk akun hanya menampilkan grafik dan angka rekap; daftar dosen, publikasi, penelitian,
+      pengabdian, prestasi, dan mitra dibuka dengan mengklik angkanya. Yang tampil hanya karya
+      <b>terverifikasi</b>, tanpa tautan bukti, tanpa nominal dana, tanpa beban kerja dosen, dan tanpa
+      nama atau NIM mahasiswa.</p>
+  </section>
+
   <div id="bagian-admin" hidden>
   <section id="verifikasi" class="admin">
-    <h2>11. Verifikasi dan ajuan <span class="peran">admin</span></h2>
+    <h2>14. Verifikasi dan ajuan <span class="peran">admin</span></h2>
     <p>Buka halaman <b>Verifikasi</b> (menu Admin prodi, atau tautan <b>Verifikasi</b> di
       Karya dosen). Tab <b>Karya dosen</b>, <b>Profil dosen</b>, <b>BKD</b>, dan <b>Prestasi mahasiswa</b>
       masing-masing menampilkan jumlah yang menunggu; angka total juga tampil di kartu ruang kerja.
@@ -345,7 +398,7 @@
   </section>
 
   <section id="dosen" class="admin">
-    <h2>12. Kelola dosen <span class="peran">admin</span></h2>
+    <h2>15. Kelola dosen <span class="peran">admin</span></h2>
     <ul>
       <li>Tambah dosen: email (untuk masuk), NIDN, nama, peran, pendidikan, jabatan. Staf tanpa NIDN memakai nomor pegawai.</li>
       <li>Peran: <span class="tbl">dosen</span> mengisi karya; <span class="tbl">admin</span> semua halaman;
@@ -360,7 +413,7 @@
   </section>
 
   <section id="dataprodi" class="admin">
-    <h2>13. Data prodi <span class="peran">admin</span></h2>
+    <h2>16. Data prodi <span class="peran">admin</span></h2>
     <p>Buka <b>Pengelolaan ▾ › Data prodi</b>. Tiap tab satu tabel LKPS; <b>Tambah baris</b>, <b>Ubah</b>,
       <b>Hapus</b>, dan bukti per baris. Tab dikelompokkan: baris atas memilih kelompok (Dokumen,
       Dosen &amp; SDM, Kurikulum &amp; CPL, Penelitian &amp; kerja sama, Mahasiswa &amp; lulusan,
@@ -407,7 +460,7 @@
   </section>
 
   <section id="butir" class="admin">
-    <h2>14. Isian butir dan dokumen <span class="peran">admin</span></h2>
+    <h2>17. Isian butir dan dokumen <span class="peran">admin</span></h2>
     <ul>
       <li>Butir yang dinilai dengan matriks: isi skor 0–4 dan bukti, lalu <b>Simpan perubahan</b>.</li>
       <li><b>Dokumen</b>: pustaka dokumen (statuta, kurikulum, SK, notulen, …). Unggah ulang dengan tahun sama mengganti versi lama; yang lama diarsipkan.</li>
@@ -416,7 +469,7 @@
   </section>
 
   <section id="ppepp" class="admin">
-    <h2>15. Standar SPMI dan siklus PPEPP <span class="peran">admin</span></h2>
+    <h2>18. Standar SPMI dan siklus PPEPP <span class="peran">admin</span></h2>
     <ol>
       <li><b>Impor standar.</b> Buka <b>Data prodi › SPMI › Standar SPMI</b>, pada <b>Impor rekap standar SPM</b> pilih berkas Excel dari SPM
         (mis. "Draft Rekap Standar"). Lembar Pendidikan, Penelitian, PkM, Akreditasi Unggul LAMTEK, dan IKU PT tercentang; lembar unit lain bisa
@@ -447,7 +500,7 @@
   </section>
 
   <section id="skor" class="admin">
-    <h2>16. Skor dan draf LED <span class="peran">admin</span></h2>
+    <h2>19. Skor dan draf LED <span class="peran">admin</span></h2>
     <p><b>Mutu dan akreditasi ▾ › Kelengkapan LED</b> menghitung sendiri yang sudah dan belum terisi: tim, narasi, Data prodi, dokumen, bukti, dan karya, dengan tautan ke tempat mengisinya. "Selesai" berarti datanya ada, bukan isinya sudah benar.</p>
     <p>Di halaman <b>Narasi LED</b>, tombol di atas daftar menyaring bagian yang tampil, dan kotak cari menemukan satu butir. Tombol <b>Identitas</b> memuat isian Identitas Pengusul, kota pada sampul, folder induk, dan narahubung; <b>A</b> dan <b>B</b> sama dengan bagian A dan B pada Bab II. Daftar program studi dan akreditasi diambil dari <b>Data prodi</b>, tab Prodi di UPPS. Buka <b>Tim penyusun dan pembagian bagian</b>, centang yang masuk tim penyusun (dosen yang dicentang bisa menulis narasi tanpa hak admin lainnya), atur urutan dan deskripsi kerjanya, tambahkan orang di luar sistem bila ada (namanya tertulis di LED tanpa akun), lalu pilih penanggung jawab tiap bagian; tombol <b>Bagian saya</b> lalu menampilkan bagian masing-masing. Admin lain tetap boleh menyunting. Bila dua admin mengubah kotak yang sama, yang menyimpan belakangan diberi peringatan sebelum menimpa.</p>
     <p>Tombol unduh ada di panel <b>Unduh dokumen akreditasi</b>, paling atas halaman Skor; pilih TS lebih dulu. Isi narasi di halaman <b>Mutu dan akreditasi ▾ › Narasi LED</b>: tiap kotak tersimpan sendiri dan masuk draf LED saat diunduh, jadi tidak perlu mengetik ulang di Word. Yang masih tertinggal di draf bertanda [isi].</p>
@@ -458,12 +511,15 @@
       <li><b>Perbarui sitasi dari OpenAlex</b>: mengisi sitasi per tahun semua publikasi ber-DOI yang sudah diajukan atau terverifikasi, dalam beberapa permintaan saja. Tahun yang kosong atau bersumber OpenAlex diperbarui; angka yang diisi dosen (Google Scholar, Scopus, manual) tidak diubah. Jalankan sebelum mengunduh tabel LKPS, karena Tabel 4.i menjumlahkan sitasi tahun yang beririsan dengan TS-2 s.d. TS. Publikasi tanpa DOI diisi dosen sendiri.</li>
       <li><b>Unduh indeks bukti LKPS TS … (.docx)</b>: Word berisi No tabel LKPS, item, dan link untuk ke-44 tabel wajib Sarjana. Tautan diambil dari bukti karya, DOI, bukti baris Data prodi, dan pustaka; tabel tanpa bukti tetap tampil dengan sel kosong. Simpan sebagai PDF dari Word bila perlu.</li>
       <li><b>Unduh tabel LKPS TS … (.xlsx)</b>: workbook sendiri berisi <b>ke-44 tabel wajib Sarjana</b> LAM Teknik, yang kosong juga, pada alamat sel yang sama dengan templat resmi. Lembar <b>Petunjuk</b> menjadi daftar isi: status tiap tabel, tempat mengisi datanya di situs, dan blok salin (tidak menutup sel rumus). Salin blok, lalu di templat klik sel kiri atas yang sama dan pakai <b>Tempel Spesial › Values + Skip blanks</b>. Di lembar tabel: kuning = data situs, putih = belum ada data, abu-abu = dihitung rumus templat; tab hijau = tabel berisi data. Isian lembar Menu ditolak Excel bila ditempel, jadi diketik; nilainya tertulis di Petunjuk.</li>
+      <li><b>Rekap bukti</b>: 60 butir dengan status lengkap, sebagian, atau kosong, beserta skor, penanggung jawab, dan bukti tertaut dibanding yang
+        dianjurkan. Saring per penanggung jawab atau status, buka <b>Kesiapan per penanggung jawab</b>, lalu <b>Unduh CSV kesiapan</b> untuk dikirim
+        ke tiap pihak; pengingat emailnya ada di <b>Pengingat › Bukti akreditasi per pihak</b>.</li>
       <li>Kedua berkas memakai TS yang dipilih di bagian atas halaman; TS-nya tertulis pada label tombol.</li>
     </ul>
   </section>
 
   <section id="perbarui" class="admin">
-    <h2>17. Kapan situs diperbarui <span class="peran">admin</span></h2>
+    <h2>20. Kapan situs diperbarui <span class="peran">admin</span></h2>
     <p>Situs dibangun ulang otomatis tiap jam pada menit ke-23 (GitHub Actions). Untuk memperbarui saat itu
       juga, pengelola teknis menjalankan <span class="tbl">bangun-dan-push.bat</span> lalu menjawab
       <b>y</b> pada "Bangun dan terbitkan sekarang?".</p>
@@ -471,7 +527,7 @@
   </div>
 </main>
 
-<script src="config.js?v=2026-11-21-430cf1"></script>
+<script src="config.js?v=2026-11-21-fa1459"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -488,7 +544,7 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-21-430cf1';
+import { gerbang } from './menu.js?v=2026-11-21-fa1459';
 
 // Bagian admin hanya untuk peran admin (isinya bukan rahasia; disembunyikan
 // supaya panduan dosen tetap ringkas).
