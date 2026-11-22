@@ -46,9 +46,12 @@
   .nip{font-family:var(--mono);font-size:12.5px;color:var(--muted);margin-top:2px}
   .tb{display:inline-block;margin-top:5px;font-size:12.5px;color:var(--biru-gelap);background:var(--aksen);padding:1px 8px}
   .topik span{font-size:12px;background:var(--biru-m10);color:var(--biru);padding:1px 7px}
-  .hitung{display:flex;gap:14px;margin-top:9px;font-size:12.5px;color:var(--muted)}
+  .dsn .k > div{min-width:0}
+  /* Empat hitungan (publikasi, penelitian, pengabdian, rekognisi) dalam kisi 2 x 2 yang sejajar (pemilik 2026-11-22). */
+  .hitung{display:grid;grid-template-columns:repeat(2,max-content);gap:3px 22px;margin-top:9px;font-size:12.5px;color:var(--muted)}
+  .hitung span{white-space:nowrap}
   .hitung b{font-family:var(--mono);color:var(--ink);font-weight:500;margin-right:3px}
-  .profil{display:flex;gap:6px;margin-top:9px}
+  .profil{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}
   .profil a{font-family:var(--mono);font-size:11px;padding:1px 7px;border:1px solid var(--line);color:var(--biru-2);text-decoration:none}
   .profil a:hover{border-color:var(--biru-2)}
   /* Daftar karya per tahun */
