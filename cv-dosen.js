@@ -206,7 +206,7 @@ export const buatBiodataHibah = (P, D, o) => buatDocx(isiBiodataHibah(P, D, o));
 
 /** Unduh CV di peramban. gaya: 'cv' (CV akademik) atau 'hibah' (biodata pengusul; perlu sb untuk dana dan MK). */
 export async function unduhCV(P, pilihPeriode = 'semua', gaya = 'cv', sb = null){
-  const D = await fetch('data.json?v=' + Date.now()).then(r => { if (!r.ok) throw new Error('data.json ' + r.status); return r.json(); });
+  const D = await fetch('data.json', {cache: 'no-cache'}).then(r => { if (!r.ok) throw new Error('data.json ' + r.status); return r.json(); });
   const tanggal = new Date().toISOString().slice(0, 10);
   let blob, nama;
   if (gaya === 'hibah') {

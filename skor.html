@@ -2969,7 +2969,7 @@ async function mulai(){
 
   document.getElementById('nama-prodi').textContent = 'Memuat data\u2026';
   const [jsonR, danaR, pengR, buktiR, dokR, bbR, kbR] = await Promise.all([
-    fetch('data.json?v=' + Date.now()),
+    fetch('data.json', {cache: 'no-cache'}),
     sb.from('karya').select('id,induk_id,tahun,bulan,kategori,besaran_dana,judul,bukti_url')
       .eq('status', 'terverifikasi').in('kategori', ['penelitian', 'pkm']),
     sb.from('pengaturan').select('kunci,nilai'),

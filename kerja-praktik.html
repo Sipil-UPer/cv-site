@@ -55,10 +55,10 @@
 </style>
 </head>
 <body>
-<header class="hero"><div class="hero-in">
+<div class="hero"><div class="hero-in">
   <a class="balik" href="layanan-mahasiswa.html">&larr; Layanan mahasiswa</a>
   <h1>Kerja praktik dan magang</h1><div class="prodi" id="hProdi"></div>
-</div></header>
+</div></div>
 <main class="wrap">
   <p>Semua urusan KP dan magang ada di sini: alur dan syarat, dokumen, tempat KP kakak tingkat, pengajuan surat pengantar,
     dan laporan selesai KP. Pengajuan dibuat tanpa akun; tautan pribadi dikirim ke <b>email kampus</b> Anda.</p>
@@ -165,7 +165,7 @@ const $ = id => document.getElementById(id);
 const sb = createClient(window.SB_URL, window.SB_KEY, { auth: { persistSession: false } });
 const DOK_KP = /\b(kp|kerja\s+praktik|kerja\s+praktek|magang)\b/i;
 
-fetch('data.json?v=' + Date.now()).then(r => r.ok ? r.json() : {}).catch(() => ({})).then(D => {
+fetch('data.json', {cache: 'no-cache'}).then(r => r.ok ? r.json() : {}).catch(() => ({})).then(D => {
   if (D.prodi) document.title = 'Kerja praktik dan magang — ' + ['Program Studi ' + D.prodi, D.institusi].filter(Boolean).join(' ');
   $('hProdi').textContent = [D.prodi, D.institusi].filter(Boolean).join(' · ');
   const xs = D.tempat_kp || [];

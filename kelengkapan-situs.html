@@ -42,11 +42,11 @@
 </style>
 </head>
 <body>
-<header class="hero"><div class="hero-in">
+<div class="hero"><div class="hero-in">
   <div class="hero-inst" data-identitas></div>
   <h1>Kelengkapan situs publik</h1>
   <div class="sub" id="hSub">Memuat…</div>
-</div></header>
+</div></div>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
 <script src="config.js?v=2026-11-22-866c27"></script>
 <script>
@@ -153,7 +153,7 @@ async function mulai(){
   const saya = await gerbang(sb);
   if (!saya) return;
   $('hSub').textContent = `Masuk sebagai ${saya.nama}`;
-  const D = await fetch('data.json?v=' + Date.now()).then(r => { if (!r.ok) throw new Error(`data.json ${r.status}`); return r.json(); });
+  const D = await fetch('data.json', {cache: 'no-cache'}).then(r => { if (!r.ok) throw new Error(`data.json ${r.status}`); return r.json(); });
   DIPERBARUI = D.diperbarui || '';
   XS = periksaKelengkapan(D);
   gambar();

@@ -42,12 +42,12 @@
 </style>
 </head>
 <body>
-<header class="hero">
+<div class="hero">
   <div class="hero-in">
     <h1>Kebijakan privasi</h1>
     <div class="prodi" id="hProdi">Situs kinerja program studi</div>
   </div>
-</header>
+</div>
 <main class="wrap">
   <div class="ringkas">
     <b>Ringkasnya</b>
@@ -181,7 +181,7 @@
   var esc = function (s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
     return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
   var tbody = document.getElementById('tMasa');
-  fetch('data.json?v=' + Date.now())
+  fetch('data.json', {cache: 'no-cache'})
     .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
     .then(function (d) {
       var nama = [d.prodi ? 'Program Studi ' + d.prodi : '', d.institusi].filter(Boolean).join(', ');

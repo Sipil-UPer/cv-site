@@ -108,13 +108,13 @@
 </head>
 <body>
 
-<header class="hero">
+<div class="hero">
   <div class="hero-in">
     <div class="hero-inst" data-identitas></div>
     <h1>Data prodi</h1>
     <div class="sub" id="hSub">Memuat&hellip;</div>
   </div>
-</header>
+</div>
 
 <main class="wrap" id="isi"></main>
 
@@ -1084,7 +1084,7 @@ async function mulai(){
   ADA70 = !(await sb.from('ref_mata_kuliah').select('kurikulum').limit(1)).error;
   ADA145 = !(await sb.from('ref_mata_kuliah').select('peminatan').limit(1)).error;
   ADA149 = !(await sb.from('jadwal_ta').select('bidang').limit(1)).error;
-  if (ADA145 || ADA149) PEMINATAN = await fetch('data.json?v=' + Date.now()).then(r => r.ok ? r.json() : {}).catch(() => ({}))
+  if (ADA145 || ADA149) PEMINATAN = await fetch('data.json', {cache: 'no-cache'}).then(r => r.ok ? r.json() : {}).catch(() => ({}))
     .then(d => [...(d.situs?.kelompok_keahlian || []), ...(d.situs?.peminatan_lain || [])].map(x => [x.kode, x.nama]));
   ADA48 = !(await sb.from('lkps_target_kinerja').select('sumber').limit(1)).error;
   await muatDaftarSPMI();
@@ -1152,7 +1152,7 @@ function blokBukti(T){
 let D_PUBLIK, D_PUBLIK_JANJI = null;
 function dataPublik(){
   if (D_PUBLIK !== undefined) return D_PUBLIK;
-  if (!D_PUBLIK_JANJI) D_PUBLIK_JANJI = fetch('data.json?v=' + Date.now()).then(r => r.ok ? r.json() : null)
+  if (!D_PUBLIK_JANJI) D_PUBLIK_JANJI = fetch('data.json', {cache: 'no-cache'}).then(r => r.ok ? r.json() : null)
     .catch(() => null).then(d => { D_PUBLIK = d; if (AKTIF?.id === 'target') gambarCapaianIKU($('ci_ts')?.value); });
   return null;
 }

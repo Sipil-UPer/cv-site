@@ -78,11 +78,11 @@
 <link rel="stylesheet" href="kepala.css?v=2026-11-22-866c27">
 </head>
 <body>
-<header class="hero"><div class="hero-in">
+<div class="hero"><div class="hero-in">
   <div class="hero-inst" data-identitas></div>
   <h1>Narasi LED</h1>
   <div class="sub" id="hSub">Memuat…</div>
-</div></header>
+</div></div>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
 <div id="simpan" role="status"></div>
 <script src="config.js?v=2026-11-22-866c27"></script>
@@ -360,7 +360,7 @@ async function mulai(){
   SAYA = saya;
   const adminSaya = saya.peran === 'admin' || (await jabatanSaya(sb, saya.id)).includes('gkm');   // GKM (98)
   $('hSub').textContent = `Masuk sebagai ${saya.nama} (${adminSaya ? 'admin' : 'tim penyusun'})`;
-  const [r, daftar, narasi, tugas, dosen] = await Promise.all([fetch('data.json?v=' + Date.now()), ambilDaftarLKPS(sb), ambilNarasi(sb),
+  const [r, daftar, narasi, tugas, dosen] = await Promise.all([fetch('data.json', {cache: 'no-cache'}), ambilDaftarLKPS(sb), ambilNarasi(sb),
     ambilPenugasan(sb), sb.from('dosen').select('*').eq('aktif', true).order('nama')]);
   const D = await r.json();
   ISI = narasi; TUGAS = tugas; DOSEN = dosen.data || []; TIM = daftar.tim || [];

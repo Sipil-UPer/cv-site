@@ -72,11 +72,11 @@
 </style>
 </head>
 <body>
-<header class="hero"><div class="hero-in">
+<div class="hero"><div class="hero-in">
   <div class="hero-inst" data-identitas></div>
   <h1>Pengajuan mahasiswa</h1>
   <div class="sub" id="hSub">Memuat…</div>
-</div></header>
+</div></div>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
 <script src="config.js?v=2026-11-22-866c27"></script>
 <script>
@@ -166,7 +166,7 @@ async function muat(){
     DEKAT = dk.error ? [] : dk.data || [];
     for (const ts of tsTa) { const { data: b, error: eb } = await sb.rpc('ta_beban', { p_ts: ts }); if (!eb) BEBAN_TA.set(ts, b || []); }
   }
-  if (!MODEL) MODEL = await fetch('data.json?v=' + Date.now()).then(r => r.ok ? r.json() : null)
+  if (!MODEL) MODEL = await fetch('data.json', {cache: 'no-cache'}).then(r => r.ok ? r.json() : null)
     .then(d => { if (d) KK = d.situs?.kelompok_keahlian || []; return d ? siapkan(d) : null; }).catch(() => null);
 }
 

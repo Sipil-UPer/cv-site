@@ -62,13 +62,13 @@ details.en summary{cursor:pointer;font-weight:600;color:var(--biru)}
 </head>
 <body>
 <main id="utama">
-  <header class="kepala"><div class="kepala-in">
+  <div class="kepala"><div class="kepala-in">
     <nav class="jejak" aria-label="Breadcrumb"><a href="index.html" hreflang="id">Home</a> › <a href="english.html">Programme overview</a> › Structural Analysis with Matrix</nav>
     <div class="eyebrow">Civil Engineering Study Program, Universitas Pertamina · Course</div>
     <h1>Structural Analysis with Matrix</h1>
     <p class="en-nama" lang="id">Analisis Struktur Dengan Matriks</p>
     <p class="bahasa"><a href="mk-41324-analisis-struktur-dengan-matriks.html" lang="id" hreflang="id">Bahasa Indonesia</a></p>
-  </div></header>
+  </div></div>
   <div class="isi">
     <dl class="fakta"><div><dt>Code</dt><dd>41324</dd></div><div><dt>Credits</dt><dd>3 credits</dd></div><div><dt>Semester</dt><dd>5</dd></div><div><dt>Type</dt><dd>Compulsory</dd></div><div><dt>Curriculum</dt><dd>K26</dd></div></dl>
     <section><h2>Programme learning outcomes supported</h2><ul class="cpl"><li><span class="kode">C</span><span>Able to think critically, creatively, efficiently, and innovatively in identifying, formulating, analyzing, and solving complex problems in the field of study, by applying relevant principles, theories, and disciplinary methodologies and making data- and evidence-based decisions, in both the science-engineering and social-humanities domains.</span></li><li><span class="kode">G</span><span>Able to apply concepts of mathematics, basic science, and engineering principles to formulate civil engineering problems into models that can be solved systematically.</span></li></ul><p class="ket"><a href="english.html#outcomes">All learning outcomes</a></p></section><p class="ket">The full syllabus will appear here once approved by the Head of Study Program.</p><section><h2>Other courses in semester 5</h2><ul class="daftar"><li><a href="course-01208-english-2.html">English 2</a><span class="sks">2 credits</span></li><li><a href="course-41320-numerical-method.html">Numerical Method</a><span class="sks">3 credits</span></li><li><a href="course-41321-steel-structure.html">Steel Structure</a><span class="sks">3 credits</span></li><li><a href="course-41322-soil-mechanics-2.html">Soil Mechanics 2</a><span class="sks">2 credits</span></li><li><a href="course-41323-soil-mechanics-2.html">Soil Mechanics 2</a><span class="sks">1 credits</span></li><li><a href="course-41325-concrete-structure.html">Concrete Structure</a><span class="sks">3 credits</span></li><li><a href="course-41503-engineering-economics.html">Engineering Economics</a><span class="sks">2 credits</span></li></ul></section>
@@ -78,7 +78,7 @@ details.en summary{cursor:pointer;font-weight:600;color:var(--biru)}
 <script type="module">
 import { pasangKerangka, isiKerangka } from './kerangka.js?v=2026-11-22-866c27';
 pasangKerangka({ aktif: 'profil' });
-fetch('kerangka.json?v=' + Date.now()).then(r => r.json()).then(isiKerangka).catch(() => {});
+fetch('kerangka.json', {cache: 'no-cache'}).then(r => r.json()).then(isiKerangka).catch(() => {});
 </script>
 </body>
 </html>

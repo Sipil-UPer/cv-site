@@ -672,7 +672,7 @@ function pasangKendali(){
 }
 
 // Dipanggil skrip modul di akhir halaman setelah gerbang login (menu.js) lolos.
-window.mulaiHalaman = () => fetch('data.json?v=' + Date.now())
+window.mulaiHalaman = () => fetch('data.json', {cache: 'no-cache'})
   .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
   .then(d => {
     D = d;

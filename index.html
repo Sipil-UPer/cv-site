@@ -535,7 +535,7 @@ function pasangCari(D){
 }
 
 muatPita();
-fetch('data.json?v=' + Date.now())
+fetch('data.json', {cache: 'no-cache'})
   .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
   .then(d => { gambar(d); pasangCari(d); })
   .catch(() => { document.querySelector('.cari-umum')?.remove(); });

@@ -59,13 +59,13 @@
 </style>
 </head>
 <body>
-<header class="hero">
+<div class="hero">
   <div class="hero-in">
     <h1>Kepakaran dosen</h1>
     <div class="prodi" id="hProdi"></div>
     <div class="angka" id="angka"></div>
   </div>
-</header>
+</div>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
 <script src="config.js?v=2026-11-22-866c27"></script>
 <script>
@@ -236,7 +236,7 @@ function gambar(){
   if (TAB === 'ta') { $('taUsul').onclick = gambarTA; $('taCsv').onclick = unduhCSV; }
 }
 
-fetch('data.json?v=' + Date.now())
+fetch('data.json', {cache: 'no-cache'})
   .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
   .then(d => {
     D = d; P = profilKeahlian(d); B = daftarBaku(d);

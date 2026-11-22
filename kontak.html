@@ -47,11 +47,11 @@ ul{margin:0;padding-left:18px}
 </head>
 <body>
 <main id="utama">
-  <header class="kepala"><div class="kepala-in">
+  <div class="kepala"><div class="kepala-in">
     <div class="eyebrow">Program Studi Teknik Sipil, Universitas Pertamina</div>
     <h1>Kontak</h1>
     <p>Alamat, telepon, dan email, serta formulir untuk bertanya langsung kepada program studi.</p>
-  </div></header>
+  </div></div>
   <div class="isi">
     <div class="kotak"><dl><div><dt>Alamat</dt><dd>Jl. Teuku Nyak Arief, Simprug, Kebayoran Lama, Jakarta 12220<br><a href="https://www.google.com/maps/search/?api=1&amp;query=Jl.%20Teuku%20Nyak%20Arief%2C%20Simprug%2C%20Kebayoran%20Lama%2C%20Jakarta%2012220" target="_blank" rel="noopener">Buka di peta ↗</a></dd></div><div><dt>Telepon</dt><dd><a href="tel:+6281211499919">+62 812-1149-9919 (Pusat Informasi Universitas Pertamina)</a></dd></div><div><dt>Email</dt><dd><a href="mailto:info@universitaspertamina.ac.id">info@universitaspertamina.ac.id</a></dd></div></dl></div>
     <div>
@@ -67,7 +67,7 @@ ul{margin:0;padding-left:18px}
 <script type="module">
 import { pasangKerangka, isiKerangka } from './kerangka.js?v=2026-11-22-866c27';
 pasangKerangka({ aktif: 'kontak' });
-fetch('kerangka.json?v=' + Date.now()).then(r => r.json()).then(isiKerangka).catch(() => {});
+fetch('kerangka.json', {cache: 'no-cache'}).then(r => r.json()).then(isiKerangka).catch(() => {});
 </script>
 </body>
 </html>

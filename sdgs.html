@@ -99,13 +99,13 @@
 </head>
 <body>
 
-<header class="hero">
+<div class="hero">
   <div class="hero-in">
     <h1>Kontribusi SDGs</h1>
     <div class="prodi" id="hProdi"></div>
     <div class="angka" id="angka"></div>
   </div>
-</header>
+</div>
 
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
 
@@ -181,7 +181,7 @@ function gambar(){
   document.querySelectorAll('[data-sdg]').forEach(b => { b.onclick = () => { PILIH = PILIH === +b.dataset.sdg ? null : +b.dataset.sdg; gambar(); }; });
 }
 
-fetch('data.json?v=' + Date.now())
+fetch('data.json', {cache: 'no-cache'})
   .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
   .then(d => { D = d; document.getElementById('hProdi').textContent = [d.prodi, d.institusi].filter(Boolean).join(' · '); gambar(); })
   .catch(() => { document.getElementById('isi').innerHTML = '<p class="kosong">Data sedang diperbarui. Silakan muat ulang beberapa saat lagi.</p>'; });

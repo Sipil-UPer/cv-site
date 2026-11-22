@@ -47,11 +47,11 @@
 </style>
 </head>
 <body>
-<header class="hero"><div class="hero-in">
+<div class="hero"><div class="hero-in">
   <div class="hero-inst" data-identitas></div>
   <h1>Kelola laboratorium</h1>
   <div class="sub" id="hSub">Memuat…</div>
-</div></header>
+</div></div>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
 <script src="config.js?v=2026-11-22-866c27"></script>
 <script>
@@ -271,7 +271,7 @@ async function muatPilihan(){
   RUANG = [...new Set(ALAT.map(x => x.prasarana).filter(Boolean))];
   ADA147 = !(await sb.from('laboratorium').select('bidang').limit(1)).error;
   try {
-    const D = await (await fetch('data.json?v=' + Date.now())).json();
+    const D = await (await fetch('data.json', {cache: 'no-cache'})).json();
     BIDANG = (D.situs?.kelompok_keahlian || []).filter(b => b.kode && b.nama);
   } catch { BIDANG = []; }
 }

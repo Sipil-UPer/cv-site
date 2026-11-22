@@ -66,11 +66,11 @@ td.naik{color:var(--biru);font-weight:700}
 </head>
 <body>
 <main id="utama">
-  <header class="kepala"><div class="kepala-in">
+  <div class="kepala"><div class="kepala-in">
     <div class="eyebrow">Program Studi Teknik Sipil, Universitas Pertamina</div>
     <h1>Alumni dan tracer study</h1>
     <p>Ke mana lulusan kami bekerja, seberapa cepat, dan seberapa sesuai dengan bidang studinya.</p>
-  </div></header>
+  </div></div>
   
   <div class="isi"><p class="kosong">Data alumni dan tracer study akan tampil di sini.</p></div>
 </main>
@@ -78,7 +78,7 @@ td.naik{color:var(--biru);font-weight:700}
 <script type="module">
 import { pasangKerangka, isiKerangka } from './kerangka.js?v=2026-11-22-866c27';
 pasangKerangka({ aktif: 'mahasiswa' });
-fetch('kerangka.json?v=' + Date.now()).then(r => r.json()).then(isiKerangka).catch(() => {});
+fetch('kerangka.json', {cache: 'no-cache'}).then(r => r.json()).then(isiKerangka).catch(() => {});
 </script>
 </body>
 </html>

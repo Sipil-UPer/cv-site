@@ -49,12 +49,12 @@ h2.sub{font-family:var(--serif);font-size:22px;color:var(--biru);margin:28px 0 8
 </head>
 <body>
 <main id="utama">
-  <header class="kepala"><div class="kepala-in">
+  <div class="kepala"><div class="kepala-in">
     <div class="eyebrow">Program Studi Teknik Sipil, Universitas Pertamina · Calon mahasiswa</div>
     <h1>Biaya dan beasiswa</h1>
     <p>Biaya pendidikan, jalur masuk, dan beasiswa ditetapkan universitas dan dapat berubah setiap tahun. Karena itu halaman ini
       tidak memuat angka; rinciannya ada di halaman resmi berikut.</p>
-  </div></header>
+  </div></div>
   <div class="isi">
     <div class="kisi"><a class="kartu" href="https://pmb.universitaspertamina.ac.id/admisi" target="_blank" rel="noopener"><h2>Penerimaan Mahasiswa Baru (PMB)</h2><p>Jalur seleksi, pilihan program studi, pengumuman, FAQ dan panduan pendaftaran, termasuk biaya pendaftaran tiap jalur.</p><span class="host">pmb.universitaspertamina.ac.id ↗</span></a><a class="kartu" href="https://universitaspertamina.ac.id/pendaftaran" target="_blank" rel="noopener"><h2>Langkah pendaftaran dan pembayaran</h2><p>Tahapan daftar online, pembayaran seleksi lewat virtual account, dan informasi biaya yang dikirim lewat email konfirmasi.</p><span class="host">universitaspertamina.ac.id ↗</span></a><a class="kartu" href="https://universitaspertamina.ac.id/beasiswa" target="_blank" rel="noopener"><h2>Daftar beasiswa</h2><p>Beasiswa yang tersedia di Universitas Pertamina beserta persyaratannya.</p><span class="host">universitaspertamina.ac.id ↗</span></a></div>
     <h2 class="sub">Masih ada pertanyaan?</h2>
@@ -67,7 +67,7 @@ h2.sub{font-family:var(--serif);font-size:22px;color:var(--biru);margin:28px 0 8
 <script type="module">
 import { pasangKerangka, isiKerangka } from './kerangka.js?v=2026-11-22-866c27';
 pasangKerangka({ aktif: 'mahasiswa' });
-fetch('kerangka.json?v=' + Date.now()).then(r => r.json()).then(isiKerangka).catch(() => {});
+fetch('kerangka.json', {cache: 'no-cache'}).then(r => r.json()).then(isiKerangka).catch(() => {});
 </script>
 </body>
 </html>

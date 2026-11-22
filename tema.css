@@ -59,7 +59,7 @@
   --bg:#F3F5F7;
   --panel:#fff;
   --ink:#111827;
-  --muted:#6B7280;
+  --muted:#656C7A;   /* abu UPer #6B7280 sedikit digelapkan: 4,42 -> 4,83 di --bg, batas WCAG AA 4,5 (audit aksesibilitas 2026-11-22) */
   --line:#E5E7EB;
   --line-soft:#F0F1F3;
 

@@ -92,14 +92,14 @@
 </head>
 <body>
 
-<header class="hero">
+<div class="hero">
   <div class="hero-in">
     <div class="hero-inst" data-identitas></div>
     <div class="no" id="hNo"></div>
     <h1 id="hJudul">Memuat&hellip;</h1>
     <div class="sub" id="hSub"></div>
   </div>
-</header>
+</div>
 
 <main class="wrap" id="isi"></main>
 
@@ -173,7 +173,7 @@ async function mulai(){
   pasangMenu(sb);
 
   const [jsonR, buktiR, kbR] = await Promise.all([
-    fetch('data.json?v=' + Date.now()),
+    fetch('data.json', {cache: 'no-cache'}),
     sb.from('karya').select('id,induk_id,tahun,kategori,judul,bukti_url')
       .eq('status', 'terverifikasi'),
     sb.from('karya_bukti').select('karya_id,jenis,judul,url'),

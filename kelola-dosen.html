@@ -61,13 +61,13 @@
 </head>
 <body>
 
-<header class="hero">
+<div class="hero">
   <div class="hero-in">
     <div class="hero-inst" data-identitas></div>
     <h1>Kelola dosen</h1>
     <div class="sub" id="hSub">Memuat&hellip;</div>
   </div>
-</header>
+</div>
 
 <main class="wrap" id="isi"></main>
 
@@ -240,7 +240,7 @@ async function muat(){
   const gq = await sb.from('dosen').select('id,nama_gelar');
   ADA_GELAR = !gq.error;
   if (ADA_GELAR) { const m = new Map((gq.data || []).map(x => [x.id, x.nama_gelar])); DOSEN.forEach(d => { d.nama_gelar = m.get(d.id) ?? null; }); }
-  if (KK === null) KK = await fetch('data.json?v=' + Date.now()).then(r => r.ok ? r.json() : {}).then(d => d.situs?.kelompok_keahlian || []).catch(() => []);
+  if (KK === null) KK = await fetch('data.json', {cache: 'no-cache'}).then(r => r.ok ? r.json() : {}).then(d => d.situs?.kelompok_keahlian || []).catch(() => []);
   gambarDaftar();
   isiForm(SUNTING ? DOSEN.find(d => d.id === SUNTING) : null);
 }

@@ -53,11 +53,11 @@ h2{font-family:var(--serif);font-size:23px;color:var(--biru);margin:8px 0 6px;li
 </head>
 <body>
 <main id="utama">
-  <header class="kepala"><div class="kepala-in">
+  <div class="kepala"><div class="kepala-in">
     <div class="eyebrow">Program Studi Teknik Sipil, Universitas Pertamina</div>
     <h1>Kabar kegiatan</h1>
     <p>Kuliah tamu, kunjungan lapangan, seminar, pengabdian kepada masyarakat, kompetisi, dan kerja sama program studi.</p>
-  </div></header>
+  </div></div>
   <div class="daftar"><p class="kosong">Kabar kegiatan program studi akan tampil di sini.</p></div>
   <p class="univ">Berita program studi juga dimuat di <a href="https://universitaspertamina.ac.id/prodi/teknik-sipil/berita" rel="noopener">laman berita universitas &#8599;</a>.</p>
 </main>
@@ -65,7 +65,7 @@ h2{font-family:var(--serif);font-size:23px;color:var(--biru);margin:8px 0 6px;li
 <script type="module">
 import { pasangKerangka, isiKerangka } from './kerangka.js?v=2026-11-22-866c27';
 pasangKerangka({ aktif: 'profil' });
-fetch('kerangka.json?v=' + Date.now()).then(r => r.json()).then(isiKerangka).catch(() => {});
+fetch('kerangka.json', {cache: 'no-cache'}).then(r => r.json()).then(isiKerangka).catch(() => {});
 </script>
 </body>
 </html>

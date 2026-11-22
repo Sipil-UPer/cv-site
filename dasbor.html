@@ -58,11 +58,11 @@
 </style>
 </head>
 <body>
-<header class="hero"><div class="hero-in">
+<div class="hero"><div class="hero-in">
   <div class="hero-inst" data-identitas></div>
   <h1>Dasbor operasional</h1>
   <div class="sub" id="hSub">Memuat…</div>
-</div></header>
+</div></div>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
 <script src="config.js?v=2026-11-22-866c27"></script>
 <script>
@@ -157,7 +157,7 @@ const labelTS = ts => `${ts - 1}/${ts}`;
 const angka = v => String(v).replace('.', ',');   // desimal Indonesia
 let KK = [];
 async function siapkanBeban(){
-  const D = await fetch('data.json?v=' + Date.now()).then(r => (r.ok ? r.json() : null)).catch(() => null);
+  const D = await fetch('data.json', {cache: 'no-cache'}).then(r => (r.ok ? r.json() : null)).catch(() => null);
   KK = D?.situs?.kelompok_keahlian || [];
   const kini = tsBerjalan();
   $('beban').innerHTML = `<h2>Beban bimbingan per dosen</h2>

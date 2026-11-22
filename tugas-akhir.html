@@ -51,12 +51,12 @@ ol.ta a{color:var(--biru-2)}
 </head>
 <body>
 <main id="utama">
-  <header class="kepala"><div class="kepala-in">
+  <div class="kepala"><div class="kepala-in">
     <div class="eyebrow">Program Studi Teknik Sipil, Universitas Pertamina · Mahasiswa</div>
     <h1>Arsip tugas akhir</h1>
     <p>Judul tugas akhir mahasiswa yang telah lulus sidang akhir, per bidang keahlian.
       Nama mahasiswa tidak dicantumkan.</p>
-  </div></header>
+  </div></div>
   
   <div class="isi"><p class="kosong">Arsip judul tugas akhir akan tampil di sini setelah sidang akhir pertama dicatat.</p></div>
 </main>
@@ -64,7 +64,7 @@ ol.ta a{color:var(--biru-2)}
 <script type="module">
 import { pasangKerangka, isiKerangka } from './kerangka.js?v=2026-11-22-866c27';
 pasangKerangka({ aktif: 'mahasiswa' });
-fetch('kerangka.json?v=' + Date.now()).then(r => r.json()).then(isiKerangka).catch(() => {});
+fetch('kerangka.json', {cache: 'no-cache'}).then(r => r.json()).then(isiKerangka).catch(() => {});
 </script>
 </body>
 </html>

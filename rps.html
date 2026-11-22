@@ -115,11 +115,11 @@
 </style>
 </head>
 <body>
-<header class="hero"><div class="hero-in">
+<div class="hero"><div class="hero-in">
   <div class="hero-inst" data-identitas></div>
   <h1>Rencana Pembelajaran Semester (RPS)</h1>
   <div class="sub" id="hSub">Memuat…</div>
-</div></header>
+</div></div>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
 <script src="config.js?v=2026-11-22-866c27"></script>
 <script>
@@ -216,7 +216,7 @@ async function muat(){
     baca(sb.from('mk_struktur').select('kurikulum,kode_mk,data')),
     baca(sb.rpc('rps_boleh_saya')),
     bacaKoordinator(),
-    fetch('data.json?v=' + Date.now()).then(r => (r.ok ? r.json() : {})).catch(() => ({})),
+    fetch('data.json', {cache: 'no-cache'}).then(r => (r.ok ? r.json() : {})).catch(() => ({})),
     baca(sb.from('mk_rps_pengesahan').select('*').order('waktu')),   // * : penyusun_sendiri (114) bila patch sudah dijalankan
     baca(sb.from('cpl_kelas').select('tahun_akademik,semester,kode_mk,dosen_email'))]);
   REVIEW_TBL = await baca(sb.from('mk_rps_review').select('kurikulum,kode_mk,reviewer_id,kirim_pada,kesimpulan'));   // 118 ([] sebelum patch)

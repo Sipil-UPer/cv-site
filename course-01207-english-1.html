@@ -62,13 +62,13 @@ details.en summary{cursor:pointer;font-weight:600;color:var(--biru)}
 </head>
 <body>
 <main id="utama">
-  <header class="kepala"><div class="kepala-in">
+  <div class="kepala"><div class="kepala-in">
     <nav class="jejak" aria-label="Breadcrumb"><a href="index.html" hreflang="id">Home</a> › <a href="english.html">Programme overview</a> › English 1</nav>
     <div class="eyebrow">Civil Engineering Study Program, Universitas Pertamina · Course</div>
     <h1>English 1</h1>
     <p class="en-nama" lang="id">Bahasa Inggris 1</p>
     <p class="bahasa"><a href="mk-01207-bahasa-inggris-1.html" lang="id" hreflang="id">Bahasa Indonesia</a></p>
-  </div></header>
+  </div></div>
   <div class="isi">
     <dl class="fakta"><div><dt>Code</dt><dd>01207</dd></div><div><dt>Credits</dt><dd>2 credits</dd></div><div><dt>Semester</dt><dd>1</dd></div><div><dt>Type</dt><dd>Compulsory</dd></div><div><dt>Offered by</dt><dd>University (shared course)</dd></div><div><dt>Curriculum</dt><dd>K26</dd></div></dl>
     <section><h2>Programme learning outcomes supported</h2><ul class="cpl"><li><span class="kode">E</span><span>Able to communicate effectively, both orally and in writing, to a range of audiences.</span></li></ul><p class="ket"><a href="english.html#outcomes">All learning outcomes</a></p></section><p class="ket">The full syllabus will appear here once approved by the Head of Study Program.</p><section><h2>Other courses in semester 1</h2><ul class="daftar"><li><a href="course-01209-digital-literation.html">Digital Literation</a><span class="sks">2 credits</span></li><li><a href="course-01211-integrative-thingking.html">Integrative Thingking</a><span class="sks">2 credits</span></li><li><a href="course-01x01-calculus-1.html">Calculus 1</a><span class="sks">4 credits</span></li><li><a href="course-01x02-basic-physics-1.html">Basic Physics 1</a><span class="sks">3 credits</span></li><li><a href="course-01x03-basic-chemistry-1.html">Basic Chemistry 1</a><span class="sks">2 credits</span></li><li><a href="course-01x04-general-chemistry-laboratory.html">General Chemistry Laboratory</a><span class="sks">1 credits</span></li><li><a href="course-01x05-general-physics-laboratory-1.html">General Physics Laboratory 1</a><span class="sks">1 credits</span></li></ul></section>
@@ -78,7 +78,7 @@ details.en summary{cursor:pointer;font-weight:600;color:var(--biru)}
 <script type="module">
 import { pasangKerangka, isiKerangka } from './kerangka.js?v=2026-11-22-866c27';
 pasangKerangka({ aktif: 'profil' });
-fetch('kerangka.json?v=' + Date.now()).then(r => r.json()).then(isiKerangka).catch(() => {});
+fetch('kerangka.json', {cache: 'no-cache'}).then(r => r.json()).then(isiKerangka).catch(() => {});
 </script>
 </body>
 </html>

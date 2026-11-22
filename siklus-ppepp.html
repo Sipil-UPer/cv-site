@@ -50,11 +50,11 @@
 </style>
 </head>
 <body>
-<header class="hero"><div class="hero-in">
+<div class="hero"><div class="hero-in">
   <div class="hero-inst" data-identitas></div>
   <h1>Siklus PPEPP</h1>
   <div class="sub" id="hSub">Memuat…</div>
-</div></header>
+</div></div>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
 <script src="config.js?v=2026-11-22-866c27"></script>
 <script>
@@ -174,7 +174,7 @@ async function unduhRTM(){
       baca(sb.from('evaluasi_tindak').select('id,masalah,rencana,status,tenggat,pj_id,evaluasi_mk(kode_mk,tahun_akademik,semester)')),
       sb.rpc('rekap_evaluasi').then(r => r.error ? [] : (r.data || []), () => []),
       baca(sb.from('dosen').select('id,nama')),
-      fetch('data.json?v=' + Date.now()).then(r => r.json()).catch(() => ({})),
+      fetch('data.json', {cache: 'no-cache'}).then(r => r.json()).catch(() => ({})),
       import('./bahan-rtm.js?v=2026-11-22-866c27'), muatSurvei().catch(() => null)]);
     const nama = new Map(ds.map(d => [d.id, d.nama]));
     const blob = await mod.buatBahanRTM({ ...X, ts: TS, prodi: ['Program Studi', dj.prodi, dj.institusi].filter(Boolean).join(' '),
@@ -243,7 +243,7 @@ async function muat(){
     baca(sb.from('lkps_target_kinerja').select('*')),          // admin saja (RLS); lainnya kosong
     baca(sb.from('ami_temuan').select('id,kode,uraian,kategori,status,rencana,tenggat,tahun_ts,standar_id')),
     baca(sb.from('rapat').select('id,judul,jenis,tanggal')),
-    fetch('data.json?v=' + Date.now()).then(r => r.json()).catch(() => null),
+    fetch('data.json', {cache: 'no-cache'}).then(r => r.json()).catch(() => null),
     // Tindak lanjut evaluasi pembelajaran bertaut standar (68-patch); RLS: admin/pimpinan semua, lainnya miliknya.
     baca(sb.from('evaluasi_tindak').select('id,rencana,status,standar_id,evaluasi_mk(kode_mk,tahun_akademik,semester)').not('standar_id', 'is', null))]);
   const djT = denganTambahan(dj, await muatTambahan(sb));   // kurikulum + rekap EDOM (sumber otomatis)

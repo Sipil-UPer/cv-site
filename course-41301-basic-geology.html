@@ -62,13 +62,13 @@ details.en summary{cursor:pointer;font-weight:600;color:var(--biru)}
 </head>
 <body>
 <main id="utama">
-  <header class="kepala"><div class="kepala-in">
+  <div class="kepala"><div class="kepala-in">
     <nav class="jejak" aria-label="Breadcrumb"><a href="index.html" hreflang="id">Home</a> › <a href="english.html">Programme overview</a> › Basic Geology</nav>
     <div class="eyebrow">Civil Engineering Study Program, Universitas Pertamina · Course</div>
     <h1>Basic Geology</h1>
     <p class="en-nama" lang="id">Geologi Dasar</p>
     <p class="bahasa"><a href="mk-41301-geologi-dasar.html" lang="id" hreflang="id">Bahasa Indonesia</a></p>
-  </div></header>
+  </div></div>
   <div class="isi">
     <dl class="fakta"><div><dt>Code</dt><dd>41301</dd></div><div><dt>Credits</dt><dd>2 credits</dd></div><div><dt>Semester</dt><dd>2</dd></div><div><dt>Type</dt><dd>Compulsory</dd></div><div><dt>Curriculum</dt><dd>K26</dd></div></dl>
     <section><h2>Programme learning outcomes supported</h2><ul class="cpl"><li><span class="kode">B</span><span>Able to act ethically, professionally, and accountably in decision-making, and to take responsibility toward oneself, society, and the organization for its impact in social, economic, environmental, and global contexts.</span></li><li><span class="kode">G</span><span>Able to apply concepts of mathematics, basic science, and engineering principles to formulate civil engineering problems into models that can be solved systematically.</span></li></ul><p class="ket"><a href="english.html#outcomes">All learning outcomes</a></p></section><p class="ket">The full syllabus will appear here once approved by the Head of Study Program.</p><section><h2>Other courses in semester 2</h2><ul class="daftar"><li><a href="course-01104-indonesian-language.html">Indonesian Language</a><span class="sks">2 credits</span></li><li><a href="course-01x06-basic-physics-2.html">Basic Physics 2</a><span class="sks">3 credits</span></li><li><a href="course-01x07-calculus-2.html">Calculus 2</a><span class="sks">4 credits</span></li><li><a href="course-01x08-general-physics-laboratory-2.html">General Physics Laboratory 2</a><span class="sks">1 credits</span></li><li><a href="course-41302-introduction-to-surveying-and-mapping.html">Introduction to Surveying and Mapping</a><span class="sks">2 credits</span></li><li><a href="course-41303-engineering-drawing.html">Engineering Drawing</a><span class="sks">2 credits</span></li><li><a href="course-41304-engineering-drawing-laboratory.html">Engineering Drawing Laboratory</a><span class="sks">1 credits</span></li><li><a href="course-41501-introduction-to-infrastructure.html">Introduction to Infrastructure</a><span class="sks">2 credits</span></li></ul></section>
@@ -78,7 +78,7 @@ details.en summary{cursor:pointer;font-weight:600;color:var(--biru)}
 <script type="module">
 import { pasangKerangka, isiKerangka } from './kerangka.js?v=2026-11-22-866c27';
 pasangKerangka({ aktif: 'profil' });
-fetch('kerangka.json?v=' + Date.now()).then(r => r.json()).then(isiKerangka).catch(() => {});
+fetch('kerangka.json', {cache: 'no-cache'}).then(r => r.json()).then(isiKerangka).catch(() => {});
 </script>
 </body>
 </html>

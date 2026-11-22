@@ -51,11 +51,11 @@
 </style>
 </head>
 <body>
-<header class="hero"><div class="hero-in">
+<div class="hero"><div class="hero-in">
   <div class="hero-inst" data-identitas></div>
   <h1>Kelengkapan LED</h1>
   <div class="sub" id="hSub">Memuat…</div>
-</div></header>
+</div></div>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
 <script src="config.js?v=2026-11-22-866c27"></script>
 <script>
@@ -108,7 +108,7 @@ async function mulai(){
   $('hSub').textContent = `Masuk sebagai ${saya.nama} · dihitung saat halaman dibuka`;
   const baca = async t => (await sb.from(t).select('*')).data || [];
   const [r, daftar, narasi, tugas, dosen, butirBukti, pengaturan, karyaBukti, karya, jumlah] = await Promise.all([
-    fetch('data.json?v=' + Date.now()), ambilDaftarLKPS(sb), ambilNarasi(sb), ambilPenugasan(sb), baca('dosen'), baca('butir_bukti'),
+    fetch('data.json', {cache: 'no-cache'}), ambilDaftarLKPS(sb), ambilNarasi(sb), ambilPenugasan(sb), baca('dosen'), baca('butir_bukti'),
     baca('pengaturan'), baca('karya_bukti'), (async () => (await sb.from('karya').select('id,status,bukti_url').limit(5000)).data || [])(),
     Promise.all(TAB_DATA.map(async ([, t]) => [t, await jumlahBaris(t)])).then(Object.fromEntries)]);
   const D = await r.json();

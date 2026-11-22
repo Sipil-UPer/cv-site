@@ -48,11 +48,11 @@
 </style>
 </head>
 <body>
-<header class="hero"><div class="hero-in">
+<div class="hero"><div class="hero-in">
   <div class="hero-inst" data-identitas></div>
   <h1>Pengajuan hibah</h1>
   <div class="sub" id="hSub">Memuat…</div>
-</div></header>
+</div></div>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
 <script src="config.js?v=2026-11-22-866c27"></script>
 <script>
@@ -271,7 +271,7 @@ async function usulkanAnggota(){
   box.innerHTML = '<p class="ket">Mencari…</p>';
   try {
     if (!PROFIL) {
-      const dj = await fetch('data.json?v=' + Date.now()).then(r => { if (!r.ok) throw new Error('data.json ' + r.status); return r.json(); });
+      const dj = await fetch('data.json', {cache: 'no-cache'}).then(r => { if (!r.ok) throw new Error('data.json ' + r.status); return r.json(); });
       PROFIL = profilKeahlian(dj); BAKU = daftarBaku(dj);
     }
   } catch (e) { box.innerHTML = `<p class="msg buruk">Data keahlian belum tersedia (${esc(e.message)}).</p>`; return; }

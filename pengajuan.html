@@ -97,10 +97,10 @@
 </style>
 </head>
 <body>
-<header class="hero"><div class="hero-in">
+<div class="hero"><div class="hero-in">
   <a class="balik" href="layanan-mahasiswa.html">&larr; Layanan mahasiswa</a>
   <h1>Pengajuan KP, seminar/sidang TA, lomba, publikasi/luaran, kabar kegiatan, surat, dan yudisium</h1><div class="prodi" id="hProdi"></div>
-</div></header>
+</div></div>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
 <script src="config.js?v=2026-11-22-866c27"></script>
 <script>
@@ -827,7 +827,7 @@ function halamanContoh(){
 }
 
 async function mulai(){
-  const D = await fetch('data.json?v=' + Date.now()).then(r => r.ok ? r.json() : {}).catch(() => ({}));
+  const D = await fetch('data.json', {cache: 'no-cache'}).then(r => r.ok ? r.json() : {}).catch(() => ({}));
   if (D.prodi) document.title = document.title.split(' — ')[0] + ' — ' + ['Program Studi ' + D.prodi, D.institusi].filter(Boolean).join(' ');
   $('hProdi').textContent = [D.prodi, D.institusi].filter(Boolean).join(' · '); SARAN = saranInstansi(D); isiSaran();
   KK = D.situs?.kelompok_keahlian || [];

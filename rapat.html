@@ -54,11 +54,11 @@
 </style>
 </head>
 <body>
-<header class="hero"><div class="hero-in">
+<div class="hero"><div class="hero-in">
   <div class="hero-inst" data-identitas></div>
   <h1>Rapat dan notulen</h1>
   <div class="sub" id="hSub">Memuat…</div>
-</div></header>
+</div></div>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
 <script src="config.js?v=2026-11-22-866c27"></script>
 <script>
@@ -477,7 +477,7 @@ async function mulai(){
   $('hSub').textContent = `Masuk sebagai ${SAYA.nama}`;
   const [ds, dj] = await Promise.all([
     sb.from('dosen').select('id,nama,peran,aktif').order('nama'),
-    fetch('data.json?v=' + Date.now()).then(r => r.ok ? r.json() : {}).catch(() => ({}))]);
+    fetch('data.json', {cache: 'no-cache'}).then(r => r.ok ? r.json() : {}).catch(() => ({}))]);
   DOSEN = (ds.data || []).filter(d => d.aktif !== false && d.peran !== 'asesor');
   PRODI = { prodi: dj.prodi || '', institusi: dj.institusi || '' };
   await muat();

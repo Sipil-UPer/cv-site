@@ -32,10 +32,10 @@
 </style>
 </head>
 <body>
-<header class="hero"><div class="hero-in">
+<div class="hero"><div class="hero-in">
   <h1>Hasil survei kepuasan</h1>
   <div class="prodi" id="hProdi"></div>
-</div></header>
+</div></div>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
 <script src="config.js?v=2026-11-22-866c27"></script>
 <script>
@@ -69,7 +69,7 @@ const f2 = x => x == null ? '—' : (+x).toFixed(2).replace('.', ',');
 document.head.insertAdjacentHTML('beforeend', `<style>${CSS_SURVEI}</style>`);
 let DATA = [], PILIH = '';
 
-fetch('data.json?v=' + Date.now()).then(r => r.ok ? r.json() : {}).catch(() => ({}))
+fetch('data.json', {cache: 'no-cache'}).then(r => r.ok ? r.json() : {}).catch(() => ({}))
   .then(d => { $('hProdi').textContent = [d.prodi, d.institusi].filter(Boolean).join(' · ');
     if (d.prodi) document.title = 'Hasil survei kepuasan — ' + ['Program Studi ' + d.prodi, d.institusi].filter(Boolean).join(' '); });
 

@@ -72,12 +72,12 @@ li{margin:3px 0}
 </head>
 <body>
 <main id="utama">
-  <header class="kepala"><div class="kepala-in">
+  <div class="kepala"><div class="kepala-in">
     <div class="eyebrow">Program Studi Teknik Sipil, Universitas Pertamina</div>
     <h1>Laboratorium</h1>
     <p>Fasilitas praktikum dan penelitian program studi: peralatan utama, mata kuliah praktikum, layanan pengujian, dan
       kegiatan riset yang memakainya.</p>
-  </div></header>
+  </div></div>
   
   <div class="daftar"><section class="lab"><div class="isi"><ul class="nama"><li>Laboratorium Transportasi dan Rekayasa Jalan</li><li>Laboratorium Mekanika Tanah</li><li>Laboratorium Struktur (Bahan dan Konstruksi)</li></ul></div></section></div>
 </main>
@@ -85,7 +85,7 @@ li{margin:3px 0}
 <script type="module">
 import { pasangKerangka, isiKerangka } from './kerangka.js?v=2026-11-22-866c27';
 pasangKerangka({ aktif: 'profil' });
-fetch('kerangka.json?v=' + Date.now()).then(r => r.json()).then(isiKerangka).catch(() => {});
+fetch('kerangka.json', {cache: 'no-cache'}).then(r => r.json()).then(isiKerangka).catch(() => {});
 </script>
 </body>
 </html>

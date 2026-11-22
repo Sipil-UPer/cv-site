@@ -181,14 +181,14 @@
 </head>
 <body>
 
-<header class="hero">
+<div class="hero">
   <div class="hero-in">
     <div class="hero-inst" data-identitas></div>
     <h1>Pemantauan kinerja</h1>
     <div class="prodi" id="hProdi"></div>
     <div class="periode" id="periode"></div>
   </div>
-</header>
+</div>
 
 <main class="wrap" id="isi"></main>
 <div class="wrap" id="ami-admin" hidden></div>
@@ -336,7 +336,7 @@ function muatAmbang(){
 
 // Dipanggil skrip modul di akhir halaman setelah gerbang login (menu.js) lolos.
 window.mulaiHalaman = () => muatAmbang()
-  .then(()=>fetch('data.json?v=' + Date.now()))
+  .then(()=>fetch('data.json', {cache: 'no-cache'}))
   .then(r=>{ if(!r.ok) throw new Error(r.status); return r.json(); })
   .then(d=>{ D=d; awal(); pasangSeksi(); angkaNaik('.ringkas b'); })
   .catch(()=>{

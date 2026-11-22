@@ -62,13 +62,13 @@ details.en summary{cursor:pointer;font-weight:600;color:var(--biru)}
 </head>
 <body>
 <main id="utama">
-  <header class="kepala"><div class="kepala-in">
+  <div class="kepala"><div class="kepala-in">
     <nav class="jejak" aria-label="Jejak halaman"><a href="index.html">Beranda</a> › <a href="kurikulum.html">Kurikulum</a> › Perbaikan Tanah</nav>
     <div class="eyebrow">Program Studi Teknik Sipil, Universitas Pertamina · Mata kuliah</div>
     <h1>Perbaikan Tanah</h1>
     <p class="en-nama" lang="en">Soil Improvement and Stabilization</p>
     <p class="bahasa"><a href="course-41409-soil-improvement-and-stabilization.html" lang="en" hreflang="en">English</a></p>
-  </div></header>
+  </div></div>
   <div class="isi">
     <dl class="fakta"><div><dt>Kode</dt><dd>41409</dd></div><div><dt>Beban</dt><dd>2 sks</dd></div><div><dt>Sifat</dt><dd>Pilihan</dd></div><div><dt>Bidang</dt><dd><a href="bidang-rekayasa-geoteknik.html">Rekayasa Geoteknik</a></dd></div><div><dt>Kurikulum</dt><dd>K26</dd></div></dl>
     <section><h2>Capaian pembelajaran lulusan yang didukung</h2><ul class="cpl"><li><span class="kode">C</span><span>Mampu berpikir kritis, kreatif, efisien, dan inovatif dalam mengidentifikasi, merumuskan, menganalisis, dan memecahkan permasalahan kompleks di bidang keilmuannya, dengan menerapkan prinsip, teori, dan metodologi keilmuan yang relevan serta mengambil keputusan berbasis data dan bukti, baik pada ranah sains-rekayasa maupun sosial-humaniora.</span></li><li><span class="kode">I</span><span>Mampu merancang sistem, komponen, atau proses teknik sipil yang memenuhi kebutuhan teknis dalam batasan realistis, dengan mempertimbangkan keselamatan, keberlanjutan, lingkungan, dan ketahanan energi.</span></li></ul><p class="ket"><a href="kurikulum.html#cpl">Semua CPL</a></p></section><p class="ket">Silabus lengkap mata kuliah ini tampil di sini setelah disahkan Ketua Program Studi.</p><section><h2>Mata kuliah pilihan lain bidang Rekayasa Geoteknik</h2><ul class="daftar"><li><a href="mk-41406-rekayasa-fondasi-lanjut.html">Rekayasa Fondasi Lanjut</a><span class="sks">3 sks</span></li><li><a href="mk-41407-mekanika-tanah-lanjut.html">Mekanika Tanah Lanjut</a><span class="sks">3 sks</span></li><li><a href="mk-41408-rekayasa-gempa-dalam-geoteknik.html">Rekayasa Gempa dalam Geoteknik</a><span class="sks">2 sks</span></li></ul></section>
@@ -78,7 +78,7 @@ details.en summary{cursor:pointer;font-weight:600;color:var(--biru)}
 <script type="module">
 import { pasangKerangka, isiKerangka } from './kerangka.js?v=2026-11-22-866c27';
 pasangKerangka({ aktif: 'profil' });
-fetch('kerangka.json?v=' + Date.now()).then(r => r.json()).then(isiKerangka).catch(() => {});
+fetch('kerangka.json', {cache: 'no-cache'}).then(r => r.json()).then(isiKerangka).catch(() => {});
 </script>
 </body>
 </html>

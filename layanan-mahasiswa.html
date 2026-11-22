@@ -74,6 +74,7 @@
   .pilih label{flex:1 1 200px;border:1px solid var(--line);border-radius:8px;padding:10px 12px;cursor:pointer;display:flex;gap:8px;align-items:flex-start}
   .pilih label:has(input:checked){border-color:var(--biru);background:var(--biru-m4, rgba(0,0,0,.03))}
   .pilih small{display:block;color:var(--muted);font-size:12.5px}
+  .pilih label:has(input:checked) small{color:var(--biru-gelap)}   /* abu di --biru-m4 hanya 3,4:1 (audit 2026-11-22) */
   .fld{margin:10px 0}
   .fld label{display:block;font-size:13.5px;font-weight:600;margin-bottom:4px}
   .fld label span{font-weight:400;color:var(--muted)}
@@ -116,7 +117,7 @@
 </style>
 </head>
 <body>
-<header class="hero"><div class="hero-in">
+<div class="hero"><div class="hero-in">
   <h1>Layanan mahasiswa</h1><div class="prodi" id="hProdi"></div>
   <nav class="pintu" aria-label="Layanan utama">
     <a class="utama" href="pengajuan.html">Ajukan<small>KP, seminar/sidang TA, lomba, luaran, kabar kegiatan, surat, yudisium</small></a>
@@ -133,7 +134,7 @@
     <a href="#berkas" data-ada="berkas" hidden>Pedoman dan berkas</a>
     <a href="#tanya-jawab" data-ada="faq" hidden>Tanya-jawab</a>
   </nav>
-</div></header>
+</div></div>
 <main class="wrap">
   <div class="cari" id="kotakCari" hidden><input id="cari" type="search" placeholder="Cari pengumuman, pedoman, tanya-jawab…" aria-label="Cari" autocomplete="off"></div>
   <div id="isiPeng"></div>
@@ -266,7 +267,7 @@ function gambarKalender(xs, resmi){
   }).join('')}</ol>`).join('');
 }
 
-fetch('data.json?v=' + Date.now()).then(r => r.ok ? r.json() : {}).catch(() => ({}))
+fetch('data.json', {cache: 'no-cache'}).then(r => r.ok ? r.json() : {}).catch(() => ({}))
   .then(d => {
     gambarKalender(d.kalender || [], d.situs?.kalender_resmi || '');
     const p = [d.prodi, d.institusi].filter(Boolean).join(' · ');

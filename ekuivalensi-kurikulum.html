@@ -46,10 +46,10 @@
 </style>
 </head>
 <body>
-<header class="hero"><div class="hero-in">
+<div class="hero"><div class="hero-in">
   <h1>Ekuivalensi kurikulum</h1>
   <div class="prodi" id="hProdi"></div>
-</div></header>
+</div></div>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
 <script src="config.js?v=2026-11-22-866c27"></script>
 <script>
@@ -121,7 +121,7 @@ function gambar(){
     E = xs.find(x => `${x.kurikulum_lama}-${x.kurikulum_baru}` === b.dataset.p); gambar(); });
 }
 
-fetch('data.json?v=' + Date.now())
+fetch('data.json', {cache: 'no-cache'})
   .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
   .then(d => {
     D = d;

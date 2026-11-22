@@ -82,12 +82,12 @@
 </style>
 </head>
 <body>
-<header class="hero"><div class="hero-in">
+<div class="hero"><div class="hero-in">
   <div><h1 id="judul">Survei kepuasan</h1><div class="prodi" id="hProdi"></div></div>
   <div class="bahasa" id="bahasa" hidden role="group" aria-label="Bahasa / Language">
     <button type="button" data-lang="id" aria-pressed="true">ID</button><button type="button" data-lang="en" aria-pressed="false">EN</button>
   </div>
-</div></header>
+</div></div>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
 <script src="config.js?v=2026-11-22-866c27"></script>
 <script>
@@ -165,7 +165,7 @@ const t = () => L[bahasa];
 const en = () => bahasa === 'en';
 const selesai = ([judul, teks]) => { $('isi').innerHTML = `<div class="selesai"><b>${esc(judul)}</b><p>${esc(teks)}</p></div>`; };
 
-fetch('data.json?v=' + Date.now()).then(r => r.ok ? r.json() : {}).catch(() => ({}))
+fetch('data.json', {cache: 'no-cache'}).then(r => r.ok ? r.json() : {}).catch(() => ({}))
   .then(d => { $('hProdi').textContent = [d.prodi, d.institusi].filter(Boolean).join(' · '); });
 
 async function mulai(){

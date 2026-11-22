@@ -86,7 +86,7 @@
 </head>
 <body>
 
-<header class="hero">
+<div class="hero">
   <div class="hero-in">
     <a class="balik" href="index.html">&larr; Beranda</a>
     <h1 id="hNama">Memuat…</h1>
@@ -94,7 +94,7 @@
     <div class="tautan" id="hTautan"></div>
     <div class="angka" id="angka"></div>
   </div>
-</header>
+</div>
 
 <main class="wrap" id="isi"></main>
 
@@ -120,7 +120,7 @@ const tandaSDG = xs => (xs||[]).map(n => NYALA('sdgs')
 const tautanPakar = t => NYALA('kepakaran')
   ? `<a href="keahlian.html?tab=cari&amp;q=${encodeURIComponent(t)}">${esc(t)}</a>` : `<span>${esc(t)}</span>`;
 
-fetch('data.json?v=' + Date.now())
+fetch('data.json', {cache: 'no-cache'})
   .then(r => { if(!r.ok) throw new Error(r.status); return r.json(); })
   .then(render)
   .catch(()=>{

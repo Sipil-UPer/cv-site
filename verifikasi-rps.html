@@ -41,13 +41,13 @@
 </style>
 </head>
 <body>
-<header class="hero">
+<div class="hero">
   <div class="hero-in">
     <a class="balik" href="index.html">&larr; Beranda</a>
     <h1>Verifikasi RPS</h1>
     <div class="prodi" id="hProdi">Pengesahan elektronik Rencana Pembelajaran Semester</div>
   </div>
-</header>
+</div>
 <main class="wrap" id="isi"><p class="ket">Memeriksa…</p></main>
 <script src="config.js?v=2026-11-22-866c27"></script>
 <script>
@@ -115,7 +115,7 @@ async function tampilDokumen(sb, kode){
   const { data: D, error } = await sb.rpc('rps_dokumen', { p_kode: kode });
   if (error || !D?.mk || !D?.rps?.sah?.rps) { el.innerHTML = error && !/does not exist|schema cache|Could not find/i.test(error.message)
     ? `<p class="ket">Isi RPS tidak dapat dimuat: ${esc(error.message)}</p>` : ''; return; }
-  const situs = await fetch('data.json?v=' + Date.now()).then(r => (r.ok ? r.json() : {})).catch(() => ({}));
+  const situs = await fetch('data.json', {cache: 'no-cache'}).then(r => (r.ok ? r.json() : {})).catch(() => ({}));
   const c = konteksDokumen(D, { situs, url: location.href }), R = c.rps, S = c.struktur || { cpmk: [], sub: [], asesmen: [], bobot: {} }, I = R.identitas || {};
   const sks = ['t', 'p', 'pl', 's'].map(k => +(I.sks?.[k] || 0));
   const label = (xs, k) => (xs.find(x => x[0] === k) || [, k])[1];

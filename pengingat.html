@@ -69,11 +69,11 @@
 </style>
 </head>
 <body>
-<header class="hero"><div class="hero-in">
+<div class="hero"><div class="hero-in">
   <div class="hero-inst" data-identitas></div>
   <h1>Pengingat</h1>
   <div class="sub" id="hSub">Memuat…</div>
-</div></header>
+</div></div>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
 <script src="config.js?v=2026-11-22-866c27"></script>
 <script>
@@ -374,7 +374,7 @@ async function mulai(){
     sb.from('lkps_bkd').select('nidn,tahun_akademik,semester'),
     sb.from('karya').select('judul,catatan,karya_penulis(dosen(nama,email))').eq('status', 'ditolak').limit(500),
     sb.from('butir_bukti').select('butir,unsur'),
-    fetch('data.json?v=' + Date.now()).then(r => r.ok ? r.json() : {}).catch(() => ({})),
+    fetch('data.json', {cache: 'no-cache'}).then(r => r.ok ? r.json() : {}).catch(() => ({})),
     sb.from('ami_temuan').select('kode,siklus,uraian,pihak,pj_nama,pj_email,tenggat,status')]);
   PRODI = [dj.prodi, dj.institusi].filter(Boolean).join(' ') || 'Program Studi';
   // Hibah (58-patch-hibah.sql); tabel belum ada = pesan, bukan halaman gagal.

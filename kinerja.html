@@ -83,7 +83,7 @@
 </head>
 <body>
 <main id="utama">
-  <header class="kepala"><div class="kepala-in">
+  <div class="kepala"><div class="kepala-in">
     <div><div class="eyebrow" id="hProdi">Program studi</div>
       <h1>Kinerja program studi</h1>
       <p>Dosen, publikasi, penelitian dan pengabdian, prestasi mahasiswa, serta kerja sama, dari data terverifikasi.</p></div>
@@ -91,7 +91,7 @@
       <button type="button" data-p="semua" aria-pressed="true">Semua tahun</button>
       <button type="button" data-p="3ts" aria-pressed="false">3 TS terakhir</button>
     </div>
-  </div></header>
+  </div></div>
   <nav class="ringkas" id="ringkas" aria-label="Angka utama"></nav>
   <div class="isi" id="isi"><p class="kosong">Memuat…</p></div>
 </main>
@@ -324,7 +324,7 @@ document.querySelectorAll('.periode button').forEach(b => b.onclick = () => {
   gambar();
 });
 
-fetch('data.json?v=' + Date.now())
+fetch('data.json', {cache: 'no-cache'})
   .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
   .then(d => {
     D = d;

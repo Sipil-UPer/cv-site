@@ -43,18 +43,18 @@ h2{font-family:var(--serif);font-size:24px;color:var(--biru);margin:18px 0 10px}
 </head>
 <body>
 <main id="utama">
-  <header class="kepala"><div class="kepala-in">
+  <div class="kepala"><div class="kepala-in">
     <div class="eyebrow">Program Studi Teknik Sipil, Universitas Pertamina</div>
     <h1>Galeri foto</h1>
     <p>Suasana kegiatan, prestasi mahasiswa, dan fasilitas laboratorium. Klik foto untuk membaca ceritanya.</p>
-  </div></header>
+  </div></div>
   <div class="isi"><section><h2>2026</h2><div class="kisi"><a class="foto" href="prestasi.html#prestasi-7"><img src="prestasi/1nbkLSwjf7kynuCd7UAYBWcmWX8Vso6vi.jpg?v=2026-11-22-866c27" alt="Juara 1 — Civil National Expo 2026" loading="lazy"><span><small>Prestasi mahasiswa · Mei 2026</small>Juara 1 — Civil National Expo 2026</span></a></div></section></div>
 </main>
 <script src="config.js?v=2026-11-22-866c27"></script>
 <script type="module">
 import { pasangKerangka, isiKerangka } from './kerangka.js?v=2026-11-22-866c27';
 pasangKerangka({ aktif: 'profil' });
-fetch('kerangka.json?v=' + Date.now()).then(r => r.json()).then(isiKerangka).catch(() => {});
+fetch('kerangka.json', {cache: 'no-cache'}).then(r => r.json()).then(isiKerangka).catch(() => {});
 </script>
 </body>
 </html>

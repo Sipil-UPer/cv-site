@@ -85,11 +85,11 @@
 </style>
 </head>
 <body>
-<header class="hero"><div class="hero-in">
+<div class="hero"><div class="hero-in">
   <div class="hero-inst" data-identitas></div>
   <h1>CPMK dan penilaian</h1>
   <div class="sub" id="hSub">Memuat…</div>
-</div></header>
+</div></div>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
 <script src="config.js?v=2026-11-22-866c27"></script>
 <script>
@@ -526,7 +526,7 @@ async function unduhTemplat(){
   $('unduhTemplat').disabled = true; tulis('mTemplat', '', 'Menyiapkan templat…');
   try {
     const { default: JSZip } = await import('https://cdn.jsdelivr.net/npm/jszip@3.10.1/+esm');
-    const r = await fetch('Template_Input_Data_CPL.xlsx?v=' + Date.now());
+    const r = await fetch('Template_Input_Data_CPL.xlsx', {cache: 'no-cache'});
     if (!r.ok) throw new Error('Templat resmi tidak terbaca.');
     const zip = await JSZip.loadAsync(await r.arrayBuffer(), { createFolders: false });
     await isiTemplat(zip, dataTemplat(D, CI), info);

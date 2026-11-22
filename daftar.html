@@ -72,12 +72,12 @@
 </head>
 <body>
 <main id="utama">
-  <header class="kepala"><div class="kepala-in">
+  <div class="kepala"><div class="kepala-in">
     <div class="eyebrow" id="hInst">Program studi</div>
     <h1 id="hJudul">Daftar</h1>
     <p id="hKet">&nbsp;</p>
     <nav class="jenis" id="nav" aria-label="Jenis daftar"></nav>
-  </div></header>
+  </div></div>
   <div class="isi" id="isi"><p class="kosong">Memuat…</p></div>
 </main>
 <script src="config.js?v=2026-11-22-866c27"></script>
@@ -124,7 +124,7 @@ const lencanaMutu = p => { const [l, k] = MUTU[p.indeksasi] || [rapi(p.tingkat) 
 
 let D = null;
 
-fetch('data.json?v=' + Date.now())
+fetch('data.json', {cache: 'no-cache'})
   .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
   .then(d => { D = d; isiKerangka(d); render(); })
   .catch(() => { $('hJudul').textContent = 'Data belum tersedia'; $('isi').innerHTML = '<p class="kosong">Data sedang diperbarui. Silakan muat ulang beberapa saat lagi.</p>'; });

@@ -62,13 +62,13 @@ details.en summary{cursor:pointer;font-weight:600;color:var(--biru)}
 </head>
 <body>
 <main id="utama">
-  <header class="kepala"><div class="kepala-in">
+  <div class="kepala"><div class="kepala-in">
     <nav class="jejak" aria-label="Jejak halaman"><a href="index.html">Beranda</a> › <a href="kurikulum.html">Kurikulum</a> › Pancasila</nav>
     <div class="eyebrow">Program Studi Teknik Sipil, Universitas Pertamina · Mata kuliah</div>
     <h1>Pancasila</h1>
     
     <p class="bahasa"><a href="course-01102-pancasila.html" lang="en" hreflang="en">English</a></p>
-  </div></header>
+  </div></div>
   <div class="isi">
     <dl class="fakta"><div><dt>Kode</dt><dd>01102</dd></div><div><dt>Beban</dt><dd>2 sks</dd></div><div><dt>Semester</dt><dd>8 · Penerapan</dd></div><div><dt>Sifat</dt><dd>Wajib</dd></div><div><dt>Penyelenggara</dt><dd>Universitas (mata kuliah bersama)</dd></div><div><dt>Kurikulum</dt><dd>K26</dd></div></dl>
     <section><h2>Capaian pembelajaran lulusan yang didukung</h2><ul class="cpl"><li><span class="kode">A</span><span>Mampu menunjukkan sikap bertakwa, berintegritas, serta menjunjung tinggi nilai kemanusiaan, kebangsaan, dan cinta tanah air.</span></li></ul><p class="ket"><a href="kurikulum.html#cpl">Semua CPL</a></p></section><p class="ket">Silabus lengkap mata kuliah ini tampil di sini setelah disahkan Ketua Program Studi.</p><section><h2>Mata kuliah lain di semester 8</h2><ul class="daftar"><li><a href="mk-01101-agama-dan-etika.html">Agama dan Etika</a><span class="sks">2 sks</span></li><li><a href="mk-01214-etika-profesi-keinsinyuran.html">Etika Profesi Keinsinyuran</a><span class="sks">2 sks</span></li><li><a href="mk-41336-tugas-akhir.html">Tugas Akhir</a><span class="sks">4 sks</span></li></ul></section>
@@ -78,7 +78,7 @@ details.en summary{cursor:pointer;font-weight:600;color:var(--biru)}
 <script type="module">
 import { pasangKerangka, isiKerangka } from './kerangka.js?v=2026-11-22-866c27';
 pasangKerangka({ aktif: 'profil' });
-fetch('kerangka.json?v=' + Date.now()).then(r => r.json()).then(isiKerangka).catch(() => {});
+fetch('kerangka.json', {cache: 'no-cache'}).then(r => r.json()).then(isiKerangka).catch(() => {});
 </script>
 </body>
 </html>

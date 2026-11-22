@@ -62,13 +62,13 @@ details.en summary{cursor:pointer;font-weight:600;color:var(--biru)}
 </head>
 <body>
 <main id="utama">
-  <header class="kepala"><div class="kepala-in">
+  <div class="kepala"><div class="kepala-in">
     <nav class="jejak" aria-label="Breadcrumb"><a href="index.html" hreflang="id">Home</a> › <a href="english.html">Programme overview</a> › Foundation Engineering</nav>
     <div class="eyebrow">Civil Engineering Study Program, Universitas Pertamina · Course</div>
     <h1>Foundation Engineering</h1>
     <p class="en-nama" lang="id">Rekayasa Fondasi</p>
     <p class="bahasa"><a href="mk-41329-rekayasa-fondasi.html" lang="id" hreflang="id">Bahasa Indonesia</a></p>
-  </div></header>
+  </div></div>
   <div class="isi">
     <dl class="fakta"><div><dt>Code</dt><dd>41329</dd></div><div><dt>Credits</dt><dd>3 credits</dd></div><div><dt>Semester</dt><dd>6</dd></div><div><dt>Type</dt><dd>Compulsory</dd></div><div><dt>Curriculum</dt><dd>K26</dd></div></dl>
     <section><h2>Programme learning outcomes supported</h2><ul class="cpl"><li><span class="kode">C</span><span>Able to think critically, creatively, efficiently, and innovatively in identifying, formulating, analyzing, and solving complex problems in the field of study, by applying relevant principles, theories, and disciplinary methodologies and making data- and evidence-based decisions, in both the science-engineering and social-humanities domains.</span></li><li><span class="kode">I</span><span>Able to design civil engineering systems, components, or processes that meet technical needs within realistic constraints, considering safety, sustainability, the environment, and energy resilience.</span></li></ul><p class="ket"><a href="english.html#outcomes">All learning outcomes</a></p></section><p class="ket">The full syllabus will appear here once approved by the Head of Study Program.</p><section><h2>Other courses in semester 6</h2><ul class="daftar"><li><a href="course-41326-road-pavement-engineering.html">Road Pavement Engineering</a><span class="sks">2 credits</span></li><li><a href="course-41327-road-pavement-materials-laboratory.html">Road Pavement Materials Laboratory</a><span class="sks">1 credits</span></li><li><a href="course-41328-offshore-platform-steel-structure-design.html">Offshore Platform Steel Structure Design</a><span class="sks">3 credits</span></li><li><a href="course-41330-earthquake-resistant-concrete-structure.html">Earthquake Resistant Concrete Structure</a><span class="sks">3 credits</span></li><li><a href="course-41331-construction-implementation-methods-and-hse.html">Construction Implementation Methods and HSE</a><span class="sks">2 credits</span></li><li><a href="course-41332-dam-hydrology-and-water-energy.html">Dam Hydrology and Water Energy</a><span class="sks">3 credits</span></li></ul></section>
@@ -78,7 +78,7 @@ details.en summary{cursor:pointer;font-weight:600;color:var(--biru)}
 <script type="module">
 import { pasangKerangka, isiKerangka } from './kerangka.js?v=2026-11-22-866c27';
 pasangKerangka({ aktif: 'profil' });
-fetch('kerangka.json?v=' + Date.now()).then(r => r.json()).then(isiKerangka).catch(() => {});
+fetch('kerangka.json', {cache: 'no-cache'}).then(r => r.json()).then(isiKerangka).catch(() => {});
 </script>
 </body>
 </html>

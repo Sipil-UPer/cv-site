@@ -62,11 +62,11 @@
 </style>
 </head>
 <body>
-<header class="hero"><div class="hero-in">
+<div class="hero"><div class="hero-in">
   <div class="hero-inst" data-identitas></div>
   <h1>Kalender kegiatan</h1>
   <div class="sub" id="hSub">Memuat…</div>
-</div></header>
+</div></div>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
 <script src="config.js?v=2026-11-22-866c27"></script>
 <script>
@@ -354,7 +354,7 @@ async function mulai(){
   if (!SAYA) return;
   ADMIN = SAYA.peran === 'admin';
   $('hSub').textContent = `Masuk sebagai ${SAYA.nama}`;
-  fetch('data.json?v=' + Date.now()).then(r => r.ok ? r.json() : {}).then(d => { PRODI = [d.prodi, d.institusi].filter(Boolean).join(' '); }).catch(() => {});
+  fetch('data.json', {cache: 'no-cache'}).then(r => r.ok ? r.json() : {}).then(d => { PRODI = [d.prodi, d.institusi].filter(Boolean).join(' '); }).catch(() => {});
   await muat();
 }
 mulai().catch(e => { $('isi').innerHTML = `<p class="kosong">Gagal memuat: ${esc(e.message || String(e))}</p>`; });

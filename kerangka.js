@@ -135,7 +135,7 @@ const CSS = `
 @media (max-width:420px){ .kr-kepala-in{min-height:46px} .kr-logo img{height:46px} .kr-burger{margin-right:10px;padding:6px 10px} }
 .kr-kaki{background:var(--biru);color:var(--biru-m4);margin-top:70px;font-size:14px}
 .kr-kaki-in{max-width:1180px;margin:0 auto;padding:44px 20px 28px;display:grid;grid-template-columns:1.3fr repeat(5,1fr);gap:28px}
-.kr-kaki h4{border-bottom:2px solid var(--aksen,transparent);padding-bottom:6px;display:inline-block;font-family:var(--mono);font-size:11px;
+.kr-kaki h2{border-bottom:2px solid var(--aksen,transparent);padding-bottom:6px;display:inline-block;font-family:var(--mono);font-size:11px;
   letter-spacing:.12em;text-transform:uppercase;color:#fff;margin:0 0 12px;font-weight:500}
 .kr-kaki ul{list-style:none;margin:0;padding:0}
 .kr-kaki li{margin:0 0 7px}
@@ -171,13 +171,13 @@ function menuAtas(aktif){
 // Kaki halaman: kelompok menu yang sama (tanpa keterangan kecil), ditambah tautan umum.
 function menuKaki(){
   return menuAda().filter(m => m.isi.length).map(m =>
-    `<div class="kr-kaki-grup"><h4>${esc(m.judul)}</h4><ul>${m.isi.map(x => butir({ ...x, ket: '' })).join('')}</ul></div>`).join('');
+    `<div class="kr-kaki-grup"><h2>${esc(m.judul)}</h2><ul>${m.isi.map(x => butir({ ...x, ket: '' })).join('')}</ul></div>`).join('');
 }
 
 export function pasangKerangka({ aktif = '', muat = false } = {}){
   // muat: halaman yang tidak memanggil isiKerangka sendiri; nama prodi, kontak, berita dari data.json.
   // kerangka.json (beberapa KB, bangun.py) cukup untuk kepala/kaki; data.json lengkap hanya bila kerangka.json belum ada.
-  if (muat) fetch('kerangka.json?v=' + Date.now()).then(r => r.ok ? r.json() : fetch('data.json?v=' + Date.now()).then(r => r.ok ? r.json() : null))
+  if (muat) fetch('kerangka.json', {cache: 'no-cache'}).then(r => r.ok ? r.json() : fetch('data.json', {cache: 'no-cache'}).then(r => r.ok ? r.json() : null))
     .then(d => { if (d) isiKerangka(d); }).catch(() => {});
   const gaya = document.createElement('style');
   gaya.textContent = CSS;
@@ -210,7 +210,7 @@ export function pasangKerangka({ aktif = '', muat = false } = {}){
     <div><div class="kr-nama">Program Studi <span data-kr="prodi"></span></div><div data-kr="institusi"></div><div data-kr="akreditasi" hidden style="margin-top:6px;color:#fff;font-weight:600"></div>
       <address data-kr="kontak" hidden></address></div>
     ${menuKaki()}
-    <div><div data-kr="sosial" hidden></div><h4>Tautan</h4><ul>
+    <div><div data-kr="sosial" hidden></div><h2>Tautan</h2><ul>
       <li><a href="ruang-kerja.html">Ruang kerja dosen</a></li><li><a href="privasi.html">Kebijakan privasi</a></li><li><a href="peta-situs.html">Peta situs</a></li></ul></div>
   </div>
   <div class="kr-kaki-bawah"><div><span>© ${new Date().getFullYear()} Program Studi <span data-kr="prodi"></span><span data-kr="koma-institusi"></span></span>
@@ -259,7 +259,7 @@ function pasangCariKepala(kp, burger){
   let siap = null, aktif = -1;
   const muat = () => siap ??= Promise.all([
     import('./cari.js?v=2026-11-22-866c27'),
-    DATA_KERANGKA ? Promise.resolve(DATA_KERANGKA) : fetch('data.json?v=' + Date.now()).then(r => r.json()),
+    DATA_KERANGKA ? Promise.resolve(DATA_KERANGKA) : fetch('data.json', {cache: 'no-cache'}).then(r => r.json()),
   ]).then(([m, D]) => ({ m, idx: m.indeksPublik(D, k => !(window.FITUR_MATI || []).includes(k)) }));
   const tampil = async () => {
     const q = kotak.value.trim();
@@ -341,7 +341,7 @@ export function isiKerangka(D){
   document.querySelectorAll('[data-kr="english"]').forEach(el => { el.hidden = !D.situs?.prodi_en; });
   const s = Object.entries(D.situs?.sosial || {});
   document.querySelectorAll('[data-kr="sosial"]').forEach(el => {
-    el.innerHTML = s.length ? `<h4>Ikuti kami</h4><ul>${s.map(([n, u]) =>
+    el.innerHTML = s.length ? `<h2>Ikuti kami</h2><ul>${s.map(([n, u]) =>
       `<li><a href="${esc(u)}" rel="noopener">${esc(SOSIAL[n] || n)}</a></li>`).join('')}</ul><br>` : '';
     el.hidden = !s.length;
   });
