@@ -79,7 +79,7 @@ import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 import { gerbang } from './menu.js?v=2026-11-22-866c27';
 import { punya } from './koordinator.js?v=2026-11-22-866c27';
 import { semesterKini, tsDariTA } from './evaluasi-pembelajaran.js?v=2026-11-22-866c27';
-import { mkDitawarkan, kelasBerikut, usulanKelasAwal, csvKelas, bacaCsvKelas, rekapBeban, csvBeban } from './kelas.js?v=2026-11-22-866c27';
+import { mkDitawarkan, kelasBerikut, usulanKelasAwal, tanpaDosenBoleh, csvKelas, bacaCsvKelas, rekapBeban, csvBeban } from './kelas.js?v=2026-11-22-866c27';
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const sb = createClient(window.SB_URL, window.SB_KEY);
@@ -202,7 +202,8 @@ function htmlEditor(){
       <label>Kapasitas <input type="number" id="eKap" min="1" max="500" value="${esc(DRAF.kapasitas ?? '')}" style="width:80px"></label>
       <label>Angkatan <input type="text" id="eAng" maxlength="40" value="${esc(DRAF.angkatan || '')}" placeholder="mis. 2025" style="width:110px"></label>
       <label>Catatan <input type="text" id="eCat" maxlength="500" value="${esc(DRAF.catatan || '')}" style="min-width:220px"></label></div>
-    <div class="ket">Dosen pengampu (pilih satu koordinator kelas; tambah dosen untuk team teaching; pertemuan opsional):</div>
+    <div class="ket">Dosen pengampu (pilih satu koordinator kelas; tambah dosen untuk team teaching; pertemuan opsional)${tanpaDosenBoleh(m)
+      ? `. MK ${esc(m.unit_penyelenggara)}: dosen boleh dikosongkan (dosen dari ${esc(m.unit_penyelenggara)}); jadwalnya diisi di Jadwal kuliah` : ''}:</div>
     ${DRAF.dosen.map((d, i) => `<div class="baris-dosen"><select data-dsel="${i}">${opsi(d.dosen_id)}</select>
       <label><input type="radio" name="eKoor" data-koor="${i}"${d.peran === 'koordinator' ? ' checked' : ''}> koordinator</label>
       <label class="ket">pertemuan <input type="number" data-pert="${i}" min="1" max="32" value="${esc(d.pertemuan ?? '')}" style="width:64px"></label>
@@ -267,9 +268,10 @@ function pasangEditor(){
     ambil();
     const ds = DRAF.dosen.filter(d => d.dosen_id);
     if (!/^[A-Za-z0-9._ -]{1,10}$/.test(DRAF.kelas.trim())) return tulis('mKelas', 'galat', 'Nama kelas 1–10 huruf/angka, mis. A.');
-    if (!ds.length) return tulis('mKelas', 'galat', 'Pilih minimal satu dosen.');
+    const mkIni = MK.find(x => x.kurikulum === DRAF.kurikulum && x.kode === DRAF.kode_mk);
+    if (!ds.length && !tanpaDosenBoleh(mkIni)) return tulis('mKelas', 'galat', 'Pilih minimal satu dosen.');
+    if (ds.length && !ds.some(d => d.peran === 'koordinator')) ds[0].peran = 'koordinator';
     if (new Set(ds.map(d => d.dosen_id)).size !== ds.length) return tulis('mKelas', 'galat', 'Dosen yang sama dipilih dua kali.');
-    if (!ds.some(d => d.peran === 'koordinator')) ds[0].peran = 'koordinator';
     $('eSimpan').disabled = true;
     const { error } = await sb.rpc('kelas_simpan', { p: { ...DRAF, kelas: DRAF.kelas.trim(), dosen: ds, tahun_akademik: PERIODE.ta, semester: PERIODE.sm } });
     if (error) { $('eSimpan').disabled = false; return tulis('mKelas', 'galat', /duplicate|unique/i.test(error.message) ? `Kelas ${DRAF.kelas} sudah ada untuk MK ini.` : error.message); }
@@ -323,7 +325,7 @@ async function mulai(){
   PERIODE = periodeDaftar()[1];
   F_SAYA = !PENGATUR();
   [MK, DOSEN] = await Promise.all([
-    baca(sb.from('ref_mata_kuliah').select('kurikulum,kode,nama,sks,semester,sifat,aktif,pengampu')),
+    baca(sb.from('ref_mata_kuliah').select('kurikulum,kode,nama,sks,semester,sifat,aktif,pengampu,unit_penyelenggara')),
     baca(sb.from('dosen').select('id,nidn,nama,nama_gelar,email,aktif,peran').order('nama'))]);
   DOSEN = DOSEN.filter(d => d.aktif !== false && d.peran !== 'asesor');
   const kurs = [...new Set(MK.map(m => m.kurikulum))].sort().reverse();

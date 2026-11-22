@@ -26,7 +26,10 @@ export function kelasBerikut(ada = []){
 /**
  * Usulan kelas A untuk MK yang belum punya kelas; dosen dari pengampu MK (Data prodi), pengampu pertama = koordinator.
  * dosen = [{ id, nidn }]. Hasil { baris: [{ kurikulum, kode_mk, kelas, dosen: [{dosen_id, peran}] }], tanpaPengampu: [kode] }.
+ * MKU (unit_penyelenggara universitas) dan MK fakultas tanpa pengampu prodi tetap dibuat, tanpa dosen (151, pemilik 2026-11-22):
+ * jadwalnya ditetapkan universitas/fakultas dan dosennya dari luar prodi.
  */
+export const tanpaDosenBoleh = m => ['universitas', 'fakultas'].includes(m?.unit_penyelenggara);
 export function usulanKelasAwal(mk = [], kelasAda = [], dosen = []){
   const ada = new Set(kelasAda.map(k => `${k.kurikulum}|${k.kode_mk}`));
   const perNidn = new Map(dosen.filter(d => d.nidn).map(d => [String(d.nidn), d.id]));
@@ -34,7 +37,7 @@ export function usulanKelasAwal(mk = [], kelasAda = [], dosen = []){
   for (const m of mk) {
     if (ada.has(`${m.kurikulum}|${m.kode}`)) continue;
     const ids = [...new Set((m.pengampu || []).map(String).map(n => perNidn.get(n)).filter(Boolean))];
-    if (!ids.length) { tanpaPengampu.push(m.kode); continue; }
+    if (!ids.length && !tanpaDosenBoleh(m)) { tanpaPengampu.push(m.kode); continue; }
     baris.push({ kurikulum: m.kurikulum, kode_mk: m.kode, kelas: 'A', dosen: ids.map((id, i) => ({ dosen_id: id, peran: i ? 'anggota' : 'koordinator' })) });
   }
   return { baris, tanpaPengampu };
@@ -88,7 +91,7 @@ export function bacaCsvKelas(isi, { mk = [], kurikulumBawaan = '' } = {}){
     if (!/^[A-Za-z0-9._ -]{1,10}$/.test(kelas)) return galat.push(`${no}: nama kelas "${kelas}" tidak sah (1–10 huruf/angka).`);
     const pecah = s => String(s || '').split('|').map(x => x.trim()).filter(Boolean);
     const dosen = [...new Set(iDosen >= 0 ? pecah(c[iDosen]) : [...pecah(c[iKoor]), ...pecah(iAng >= 0 ? c[iAng] : '')])];
-    if (!dosen.length) return galat.push(`${no}: dosen kosong.`);
+    if (!dosen.length && !tanpaDosenBoleh(mk.find(m => m.kurikulum === kur && m.kode === kode))) return galat.push(`${no}: dosen kosong.`);
     const k = `${kur}|${kode}|${kelas.toUpperCase()}`;
     if (sudah.has(k)) return galat.push(`${no}: kelas ${kode} ${kelas} ganda di berkas.`);
     sudah.add(k);

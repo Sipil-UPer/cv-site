@@ -3,6 +3,10 @@
 // dengan run_jadwal.py: dosen tidak bentrok, kelas berlabel sama satu semester paket tidak bentrok + jeda, MK pilihan satu
 // kurikulum tidak saling bentrok, jam wajib kosong, berhalangan mingguan; anjuran: jam yang dihindari, batas jam dosen per hari.
 // Situs menambah dua pemeriksaan yang tidak dilakukan penjalan: ruang dipakai ganda dan kelas tanpa jadwal.
+// MKU (penyelenggara universitas) dan MK fakultas: jadwalnya ditetapkan lebih dulu, per kelas paralel (pemilik 2026-11-22);
+// di berkas masukan selalu tetap bila sudah berjadwal, boleh tanpa dosen prodi, dan lamanya tidak dicocokkan dengan sks.
+export const LUAR = { universitas: 'MKU', fakultas: 'Fakultas' };
+export const luarProdi = m => !!LUAR[m?.unit_penyelenggara];
 
 export const HARI = { 1: 'Senin', 2: 'Selasa', 3: 'Rabu', 4: 'Kamis', 5: 'Jumat', 6: 'Sabtu', 7: 'Minggu' };
 export const menit = j => { const [h, m] = String(j || '').split(':').map(Number); return h * 60 + (m || 0); };
@@ -67,7 +71,7 @@ export function masukanPenjadwalan({ ta, sm, kelas = [], kd = [], mk = [], dosen
       const m = M.get(`${k.kurikulum}|${k.kode_mk}`) || {}, j = J.get(k.id);
       const pilihan = m.sifat === 'pilihan' || !m.semester;
       return { id: k.id, kurikulum: k.kurikulum, kode_mk: k.kode_mk, nama_mk: m.nama || '', sks: +m.sks || 0,
-        semester_paket: pilihan ? null : +m.semester, pilihan, kelas: k.kelas,
+        semester_paket: pilihan ? null : +m.semester, pilihan, kelas: k.kelas, penyelenggara: m.unit_penyelenggara || 'prodi',
         dosen: kd.filter(d => d.kelas_id === k.id).sort((a, b) => a.urutan - b.urutan).map(d => d.dosen_id),
         jadwal: j ? { hari: j.hari, mulai: jamPendek(j.mulai), selesai: jamPendek(j.selesai), kunci: !!j.kunci } : null };
     }),
@@ -122,7 +126,7 @@ export function periksaJadwal({ kelas = [], kd = [], mk = [], jadwal = [], berha
       if (kena) catat(wajib, `${w}: ${nama(d)} berhalangan mingguan`, k.id);
     }
     const harus = durasiMenit(info(k).m.sks, aturan, panjang);
-    if (info(k).m.sks && b - a !== harus) catat(anjuran, `${w}: lama ${b - a} menit, menurut sks ${harus} menit`, k.id);
+    if (info(k).m.sks && !luarProdi(info(k).m) && b - a !== harus) catat(anjuran, `${w}: lama ${b - a} menit, menurut sks ${harus} menit`, k.id);
   }
   for (let x = 0; x < isi.length; x++) for (let y = x + 1; y < isi.length; y++) {
     const p = isi[x], q = isi[y], jp = J.get(p.id), jq = J.get(q.id);

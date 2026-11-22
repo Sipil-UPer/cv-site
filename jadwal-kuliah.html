@@ -82,7 +82,7 @@ import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 import { gerbang } from './menu.js?v=2026-11-22-866c27';
 import { punya } from './koordinator.js?v=2026-11-22-866c27';
 import { semesterKini } from './evaluasi-pembelajaran.js?v=2026-11-22-866c27';
-import { HARI, menit, durasiMenit, masaDariKalender, masukanPenjadwalan, bacaCsvHasil, periksaJadwal, csvJadwal } from './jadwal-kuliah.js?v=2026-11-22-866c27';
+import { HARI, LUAR, luarProdi, menit, durasiMenit, masaDariKalender, masukanPenjadwalan, bacaCsvHasil, periksaJadwal, csvJadwal } from './jadwal-kuliah.js?v=2026-11-22-866c27';
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const sb = createClient(window.SB_URL, window.SB_KEY);
@@ -144,10 +144,10 @@ function gambar(){
     const ds = KD.filter(d => d.kelas_id === k.id).sort((a, b) => a.urutan - b.urutan);
     const isiBaris = UBAH?.kelas_id === k.id ? htmlUbah(k, j) : `
       <td class="jam">${j ? `${jp(j.mulai)}–${jp(j.selesai)}${j.kunci ? ' <span title="Dikunci: dipertahankan penjalan dan impor">🔒</span>' : ''}` : '—'}</td>
-      <td><span class="kode">${esc(k.kode_mk)}</span> ${esc(m.nama || '')}<div class="ket">${esc(k.kurikulum)} · ${m.sifat === 'pilihan' || !m.semester ? 'MK pilihan' : `semester ${esc(m.semester)}`} · ${esc(m.sks ?? '?')} sks</div>
+      <td><span class="kode">${esc(k.kode_mk)}</span> ${esc(m.nama || '')}<div class="ket">${esc(k.kurikulum)} · ${m.sifat === 'pilihan' || !m.semester ? 'MK pilihan' : `semester ${esc(m.semester)}`} · ${esc(m.sks ?? '?')} sks${luarProdi(m) ? ` · <b>${LUAR[m.unit_penyelenggara]}</b>, jadwal ditetapkan ${esc(m.unit_penyelenggara)}` : ''}</div>
         ${masalah.map(t => `<div class="catat">${esc(t)}</div>`).join('')}</td>
       <td><b>${esc(k.kelas)}</b></td>
-      <td>${ds.map(d => `<span class="chip">${esc(namaD(d.dosen_id))}</span>`).join('') || '<span class="ket">belum ada dosen</span>'}</td>
+      <td>${ds.map(d => `<span class="chip">${esc(namaD(d.dosen_id))}</span>`).join('') || `<span class="ket">${luarProdi(m) ? `dosen dari ${esc(m.unit_penyelenggara)}` : 'belum ada dosen'}</span>`}</td>
       <td>${esc(j?.ruang || '')}</td>
       <td>${PENGATUR() ? `<button class="b kecil" data-ubah="${k.id}">Ubah</button>` : ''}</td>`;
     return kepala + `<tr${masalah.length ? ' class="masalah"' : ''}><td></td>${isiBaris}</tr>`;
@@ -181,6 +181,7 @@ function htmlPeriksa(cek){
 }
 
 function htmlSahkan(cek){
+  if (!KELAS.length && !SAH) return '';
   if (!KAPRODI()) return SAH ? '' : '<p class="ket">Jadwal disahkan Kaprodi. Setelah sah, jadwal tampil untuk semua dosen; hari dan jam terkunci, ruang tetap bisa diisi.</p>';
   return SAH ? '<div class="alat"><button class="b" id="sBuka">Buka kembali (ubah hari/jam)</button></div>'
     : `<div class="alat"><button class="b utama" id="sSahkan"${cek.wajib.length ? ' disabled title="Perbaiki pelanggaran wajib dulu"' : ''}>Sahkan jadwal ${esc(PERIODE.sm)} ${esc(PERIODE.ta)}</button>
@@ -211,7 +212,8 @@ function htmlUbah(k, j){
   const awal = j || {};
   const durasi = durasiMenit(m.sks, ATURAN, panjang);
   return `<td colspan="6"><div class="panel"><b><span class="kode">${esc(k.kode_mk)}</span> ${esc(m.nama || '')} kelas ${esc(k.kelas)}</b>
-    <span class="ket">· ${esc(m.sks ?? '?')} sks = ${durasi} menit</span>
+    <span class="ket">· ${luarProdi(m) ? `${LUAR[m.unit_penyelenggara]}: isi hari dan jam yang ditetapkan ${esc(m.unit_penyelenggara)}; kelas ini selalu dipertahankan penjalan`
+      : `${esc(m.sks ?? '?')} sks = ${durasi} menit`}</span>
     <div class="alat"><label>Hari <select id="uHari"${SAH ? ' disabled' : ''}><option value="">— belum —</option>${(HARI_KULIAH.length ? HARI_KULIAH : [1, 2, 3, 4, 5]).map(h =>
         `<option value="${h}"${+awal.hari === h ? ' selected' : ''}>${HARI[h]}</option>`).join('')}</select></label>
       <label>Mulai <input type="time" id="uMulai" step="1800" value="${esc(jp(awal.mulai))}"${SAH ? ' disabled' : ''}></label>
@@ -326,7 +328,7 @@ async function mulai(){
   F_SAYA = !PENGATUR();
   let d = {};
   [MK, DOSEN, KALENDER, d] = await Promise.all([
-    baca(sb.from('ref_mata_kuliah').select('kurikulum,kode,nama,sks,semester,sifat')),
+    baca(sb.from('ref_mata_kuliah').select('kurikulum,kode,nama,sks,semester,sifat,unit_penyelenggara')),
     baca(sb.from('dosen').select('id,nama,nama_gelar,aktif,peran').order('nama')),
     baca(sb.from('kalender_akademik').select('semester,kategori,mulai,selesai')),
     fetch('data.json', { cache: 'no-cache' }).then(r => r.ok ? r.json() : {}).catch(() => ({}))]);
