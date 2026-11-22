@@ -80,6 +80,9 @@ export const MODUL = [
     // Penyusunan kelas (136, pemilik 2026-11-21): admin/Kaprodi menyusun, dosen melihat kelasnya.
     { href: 'kelas.html', judul: 'Penyusunan kelas', boleh: s => s.peran !== 'asesor',
       ket: 'Kelas per semester: satu MK beberapa kelas, dosen pengampu dan team teaching; isi manual atau impor CSV, unduh CSV untuk penyusunan jadwal.' },
+    // Jadwal kuliah (150, pemilik 2026-11-22): admin/Kaprodi menyusun (run_jadwal.py), Kaprodi mengesahkan, lalu dosen melihat.
+    { href: 'jadwal-kuliah.html', judul: 'Jadwal kuliah', boleh: s => s.peran !== 'asesor',
+      ket: 'Hari, jam, dan ruang tiap kelas: disusun dengan run_jadwal.py atau manual, diperiksa bentroknya, disahkan Kaprodi, lalu tampil untuk semua dosen.' },
     { href: 'data-prodi.html?tab=mk', judul: 'Mata kuliah dan CPL', boleh: admin,
       ket: 'Data prodi › Kurikulum & CPL: mata kuliah, CPL per kurikulum, peta MK–CPL, korelasi CPL antar kurikulum.' },
   ]},
@@ -218,7 +221,7 @@ export function bolehBuka(saya, href){
 const jab = j => s => (s.koordinator || []).includes(j);
 export const PINTASAN = [
   { label: 'Admin prodi', cocok: admin, href: ['verifikasi.html', 'pengajuan-mahasiswa.html', 'data-prodi.html', 'pengingat.html', 'dasbor.html', 'kelola-dosen.html'] },
-  { label: 'Kaprodi', cocok: s => jab('kaprodi')(s) || s.peran === 'pimpinan', href: ['dasbor.html', 'tinjauan-rps.html', 'silabus.html', 'ekuivalensi.html', 'kelas.html', 'rps-kurikulum.html', 'monitoring.html', 'pjp.html'] },
+  { label: 'Kaprodi', cocok: s => jab('kaprodi')(s) || s.peran === 'pimpinan', href: ['dasbor.html', 'tinjauan-rps.html', 'silabus.html', 'ekuivalensi.html', 'kelas.html', 'jadwal-kuliah.html', 'rps-kurikulum.html', 'monitoring.html', 'pjp.html'] },
   { label: 'Dekan', cocok: jab('dekan'), href: ['rps.html', 'ekuivalensi.html', 'monitoring.html'] },
   { label: 'Gugus kendali mutu (GKM)', cocok: jab('gkm'), href: ['skor.html', 'mutu-data.html', 'siklus-ppepp.html', 'kelola-survei.html', 'monitoring.html#cpl', 'evaluasi-pembelajaran.html'] },
   { label: 'Koordinator KP/Magang', cocok: jab('koordinator_kp'), href: ['pengajuan-mahasiswa.html', 'rekap-kp.html', 'kelola-layanan-mahasiswa.html'] },

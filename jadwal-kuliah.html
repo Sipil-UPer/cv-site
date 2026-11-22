@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="robots" content="noindex, nofollow">
+<title>Jadwal kuliah — Ruang kerja</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tema.css?v=2026-11-22-866c27">
+<link rel="stylesheet" href="kepala.css?v=2026-11-22-866c27">
+<style>
+  /* Jadwal kuliah (150-patch-jadwal-kuliah.sql, pemilik 2026-11-22) */
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
+  .wrap{max-width:1300px;margin:0 auto;padding:18px 20px 80px}
+  .kosong, .ket{color:var(--muted)}
+  .ket{font-size:13px}
+  .kartu{background:var(--panel);border:1px solid var(--line);padding:14px 18px;margin-bottom:16px}
+  .kartu h2{font-size:17px;margin:0 0 6px;color:var(--biru)}
+  .alat{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:8px 0}
+  select, input[type=search], input[type=text], input[type=date], input[type=time]{font:inherit;font-size:14px;padding:5px 7px;border:1px solid var(--line);background:var(--panel);color:var(--ink)}
+  .b{font:inherit;font-size:14px;padding:5px 12px;border:1px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer}
+  .b.utama{background:var(--biru);border-color:var(--biru);color:#fff}
+  .b.bahaya{color:var(--merah);border-color:var(--merah)}
+  .b.kecil{font-size:12.5px;padding:2px 8px}
+  .b:disabled{opacity:.5;cursor:default}
+  .pesan{font-size:13.5px;margin:6px 0} .pesan.galat{color:var(--merah)} .pesan.ok{color:var(--hijau)}
+  .status{display:inline-block;font-size:12.5px;font-weight:600;padding:2px 10px;border:1px solid var(--line)}
+  .status.sah{color:var(--hijau);border-color:var(--hijau)} .status.draf{color:var(--emas);border-color:var(--emas)}
+  .ringkas{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+  .ringkas div{min-width:130px;padding:6px 10px;border:1px solid var(--line)} .ringkas b{display:block;font-size:20px;line-height:1.1} .ringkas span{font-size:12px;color:var(--muted)}
+  .periksa{border-left:4px solid var(--merah);background:var(--merah-m3);padding:8px 12px;margin:8px 0;font-size:13.5px}
+  .periksa.anjur{border-left-color:var(--emas);background:var(--biru-m11)}
+  .periksa ul{margin:4px 0;padding-left:18px}
+  .gulir{overflow-x:auto}
+  table.ds{width:100%;border-collapse:collapse;font-size:13.5px}
+  table.ds th{text-align:left;font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--line);padding:5px 6px}
+  table.ds td{padding:5px 6px;border-bottom:1px solid var(--line-soft);vertical-align:top}
+  tr.hari th{background:transparent;color:var(--biru);font-size:12.5px;text-transform:none;letter-spacing:0;padding-top:14px}
+  tr.masalah td{background:var(--merah-m5)}
+  .kode{font-family:var(--mono);font-size:12px;color:var(--muted)}
+  .jam{font-family:var(--mono);font-size:13px;white-space:nowrap}
+  .chip{display:inline-block;font-size:12px;padding:1px 7px;border:1px solid var(--line);margin:1px 3px 1px 0;white-space:nowrap}
+  .catat{font-size:12px;color:var(--merah)}
+  .panel{border:1px solid var(--biru);padding:10px 14px;margin:10px 0;background:var(--panel)}
+  details summary{cursor:pointer}
+  ul.galat{margin:4px 0;padding-left:18px;font-size:13px;color:var(--merah)}
+  @media(max-width:700px){.wrap{padding-left:16px;padding-right:16px}}
+</style>
+</head>
+<body>
+<div class="hero" role="region" aria-label="Pembuka halaman"><div class="hero-in">
+  <div class="hero-inst" data-identitas></div>
+  <h1>Jadwal kuliah</h1>
+  <div class="sub" id="hSub">Memuat…</div>
+</div></div>
+<main class="wrap" id="isi"></main>
+<script src="config.js?v=2026-11-22-866c27"></script>
+<script>
+// Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
+addEventListener('error', function (e) {
+  if (document.getElementById('galat-muat')) return;
+  var d = document.createElement('div');
+  d.id = 'galat-muat';
+  d.style.cssText = 'margin:16px;padding:12px 14px;border:1px solid var(--merah);' +
+    'background:var(--merah-m3);color:var(--ink);font:14px/1.5 system-ui,sans-serif';
+  d.textContent = 'Halaman gagal dimuat: ' + (e.message || 'galat skrip') +
+    '. Tekan Ctrl+Shift+R untuk memuat ulang tanpa cache; bila tetap muncul, kirim pesan ini ke admin.';
+  document.body.insertBefore(d, document.body.firstChild);
+});
+</script>
+<script type="module">
+// Jadwal kuliah per semester (150-patch-jadwal-kuliah.sql, pemilik 2026-11-22): hari dan jam tiap kelas disusun run_jadwal.py
+// di luar situs (unduh masukan di sini, impor hasilnya kembali) atau diisi manual; ruang dari universitas diisi prodi di sini.
+// Admin dan Kaprodi aktif menyusun; hanya Kaprodi mengesahkan; sebelum sah hanya penyusun yang melihat. Logika: jadwal-kuliah.js.
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
+import { gerbang } from './menu.js?v=2026-11-22-866c27';
+import { punya } from './koordinator.js?v=2026-11-22-866c27';
+import { semesterKini } from './evaluasi-pembelajaran.js?v=2026-11-22-866c27';
+import { HARI, menit, durasiMenit, masaDariKalender, masukanPenjadwalan, bacaCsvHasil, periksaJadwal, csvJadwal } from './jadwal-kuliah.js?v=2026-11-22-866c27';
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const sb = createClient(window.SB_URL, window.SB_KEY);
+const baca = q => q.then(r => r.error ? [] : (r.data || []), () => []);
+const jp = j => String(j || '').slice(0, 5);
+let SAYA = null, MK = [], DOSEN = [], ATURAN = {}, PERIODE = null;
+let KELAS = [], KD = [], JADWAL = [], SAH = null, ADA = true, SLOT = [], HARI_KULIAH = [], BERH = [], KALENDER = [];
+let CARI = '', F_SAYA = false, UBAH = null;
+const PENGATUR = () => SAYA?.peran === 'admin' || punya(SAYA, 'kaprodi');
+const KAPRODI = () => punya(SAYA, 'kaprodi');
+const namaD = id => { const d = DOSEN.find(x => x.id === id); return d ? (d.nama_gelar || d.nama) : '?'; };
+const mkDari = k => MK.find(m => m.kurikulum === k.kurikulum && m.kode === k.kode_mk) || {};
+
+function periodeDaftar(){
+  const k = semesterKini(), [a] = k.ta.split('/').map(Number);
+  const lalu = k.sm === 'Genap' ? { ta: k.ta, sm: 'Ganjil' } : { ta: `${a - 1}/${a}`, sm: 'Genap' };
+  const lanjut = k.sm === 'Ganjil' ? { ta: k.ta, sm: 'Genap' } : { ta: `${a + 1}/${a + 2}`, sm: 'Ganjil' };
+  return [lalu, k, lanjut];
+}
+
+async function muat(){
+  KELAS = await baca(sb.from('kelas_kuliah').select('*').eq('tahun_akademik', PERIODE.ta).eq('semester', PERIODE.sm));
+  const ids = KELAS.map(k => k.id);
+  KD = ids.length ? await baca(sb.from('kelas_dosen').select('*').in('kelas_id', ids)) : [];
+  const j = ids.length ? await sb.from('jadwal_kuliah').select('*').in('kelas_id', ids) : await sb.from('jadwal_kuliah').select('kelas_id').limit(1);
+  ADA = !j.error;
+  JADWAL = ids.length && !j.error ? j.data || [] : [];
+  SAH = (await baca(sb.from('jadwal_kuliah_sah').select('*').eq('tahun_akademik', PERIODE.ta).eq('semester', PERIODE.sm)))[0] || null;
+  [SLOT, HARI_KULIAH] = await Promise.all([
+    baca(sb.from('jadwal_slot').select('id,urutan,label,mulai,selesai,aktif').eq('aktif', true).order('mulai')),
+    baca(sb.from('jadwal_hari').select('hari').order('hari')).then(r => r.map(x => x.hari))]);
+  BERH = PENGATUR() ? await baca(sb.from('dosen_berhalangan').select('dosen_id,hari,slot_id').eq('tahun_akademik', PERIODE.ta).eq('semester', PERIODE.sm)) : [];
+}
+
+const hasilPeriksa = () => periksaJadwal({ kelas: KELAS, kd: KD, mk: MK, jadwal: JADWAL, berhalangan: BERH, slot: SLOT, aturan: ATURAN, nama: namaD });
+
+function gambar(){
+  if (!ADA) { $('isi').innerHTML = '<div class="kartu"><p class="kosong">Tabel jadwal kuliah belum ada. Admin menjalankan supabase/150-patch-jadwal-kuliah.sql di Supabase.</p></div>'; return; }
+  const per = periodeDaftar(), nPer = `${PERIODE.sm} ${PERIODE.ta}`;
+  const lihat = PENGATUR() || SAH;
+  const cek = PENGATUR() ? hasilPeriksa() : { wajib: [], anjuran: [], perKelas: new Map() };
+  const J = new Map(JADWAL.map(j => [j.kelas_id, j]));
+  const q = CARI.trim().toLowerCase();
+  const xs = KELAS.filter(k => {
+    const ds = KD.filter(d => d.kelas_id === k.id);
+    if (F_SAYA && !ds.some(d => d.dosen_id === SAYA.id)) return false;
+    return !q || `${k.kode_mk} ${mkDari(k).nama || ''} ${k.kelas} ${ds.map(d => namaD(d.dosen_id)).join(' ')} ${J.get(k.id)?.ruang || ''}`.toLowerCase().includes(q);
+  }).sort((a, b) => {
+    const ja = J.get(a.id), jb = J.get(b.id);
+    return (ja ? ja.hari : 9) - (jb ? jb.hari : 9) || String(ja?.mulai || '').localeCompare(String(jb?.mulai || ''))
+      || a.kode_mk.localeCompare(b.kode_mk) || a.kelas.localeCompare(b.kelas, 'id', { numeric: true });
+  });
+  let grup = null;
+  const baris = xs.map(k => {
+    const j = J.get(k.id), m = mkDari(k), g = j ? HARI[j.hari] : 'Belum berjadwal';
+    const kepala = g !== grup ? `<tr class="hari"><th colspan="7">${esc(g)}</th></tr>` : '';
+    grup = g;
+    const masalah = cek.perKelas.get(k.id) || [];
+    const ds = KD.filter(d => d.kelas_id === k.id).sort((a, b) => a.urutan - b.urutan);
+    const isiBaris = UBAH?.kelas_id === k.id ? htmlUbah(k, j) : `
+      <td class="jam">${j ? `${jp(j.mulai)}–${jp(j.selesai)}${j.kunci ? ' <span title="Dikunci: dipertahankan penjalan dan impor">🔒</span>' : ''}` : '—'}</td>
+      <td><span class="kode">${esc(k.kode_mk)}</span> ${esc(m.nama || '')}<div class="ket">${esc(k.kurikulum)} · ${m.sifat === 'pilihan' || !m.semester ? 'MK pilihan' : `semester ${esc(m.semester)}`} · ${esc(m.sks ?? '?')} sks</div>
+        ${masalah.map(t => `<div class="catat">${esc(t)}</div>`).join('')}</td>
+      <td><b>${esc(k.kelas)}</b></td>
+      <td>${ds.map(d => `<span class="chip">${esc(namaD(d.dosen_id))}</span>`).join('') || '<span class="ket">belum ada dosen</span>'}</td>
+      <td>${esc(j?.ruang || '')}</td>
+      <td>${PENGATUR() ? `<button class="b kecil" data-ubah="${k.id}">Ubah</button>` : ''}</td>`;
+    return kepala + `<tr${masalah.length ? ' class="masalah"' : ''}><td></td>${isiBaris}</tr>`;
+  }).join('');
+  const berjadwal = KELAS.filter(k => J.has(k.id)).length;
+  $('isi').innerHTML = `<div class="kartu"><div class="alat">
+      <label>Semester <select id="fPer">${per.map((p, i) => `<option value="${i}"${p.ta === PERIODE.ta && p.sm === PERIODE.sm ? ' selected' : ''}>${p.sm} ${p.ta}</option>`).join('')}</select></label>
+      <input type="search" id="fCari" placeholder="Cari MK, dosen, atau ruang" value="${esc(CARI)}">
+      <label class="ket"><input type="checkbox" id="fSaya"${F_SAYA ? ' checked' : ''}> Hanya kelas saya</label>
+      ${SAH ? `<span class="status sah">Disahkan Kaprodi ${esc(String(SAH.sah_pada).slice(0, 10))}</span>` : '<span class="status draf">Draf</span>'}</div>
+    <p class="ket">Hari dan jam disusun penjalan <code>run_jadwal.py</code> di komputer prodi (unduh masukan di bawah, impor hasilnya), atau diisi manual.
+      Ruang dari universitas diisi di sini, juga setelah jadwal disahkan. ${PENGATUR() ? '' : 'Jadwal disusun admin dan Kaprodi.'}</p>
+    ${lihat ? `<div class="ringkas"><div><b>${KELAS.length}</b><span>kelas ${esc(nPer)}</span></div><div><b>${berjadwal}</b><span>berjadwal</span></div>
+      <div><b>${KELAS.filter(k => J.get(k.id)?.ruang).length}</b><span>sudah ada ruang</span></div>
+      ${PENGATUR() ? `<div><b>${cek.wajib.length}</b><span>pelanggaran wajib</span></div><div><b>${cek.anjuran.length}</b><span>catatan anjuran</span></div>` : ''}</div>` : ''}
+    ${PENGATUR() ? htmlPeriksa(cek) + htmlSahkan(cek) : ''}
+    <p class="pesan" id="mJadwal"></p></div>
+    ${PENGATUR() ? htmlAlat() : ''}
+    <div class="kartu">${!lihat ? `<p class="kosong">Jadwal ${esc(nPer)} belum disahkan Kaprodi.</p>` : `
+      <div class="gulir"><table class="ds"><thead><tr><th></th><th>Jam</th><th>Mata kuliah</th><th>Kelas</th><th>Dosen</th><th>Ruang</th><th></th></tr></thead>
+      <tbody>${baris || `<tr><td colspan="7" class="kosong">${F_SAYA && !q ? `Anda tidak mengajar kelas ${esc(nPer)}. Hilangkan centang <b>Hanya kelas saya</b> untuk melihat semua.`
+        : KELAS.length ? 'Tidak ada kelas yang cocok.' : `Belum ada kelas ${esc(nPer)}. Susun kelas dulu di <a href="kelas.html">Penyusunan kelas</a>.`}</td></tr>`}</tbody></table></div>`}</div>`;
+  pasang();
+}
+
+function htmlPeriksa(cek){
+  if (!KELAS.length) return '';
+  if (!cek.wajib.length && !cek.anjuran.length) return '<p class="pesan ok">Tidak ada bentrok atau catatan.</p>';
+  return (cek.wajib.length ? `<div class="periksa"><b>Wajib diperbaiki (${cek.wajib.length})</b><ul>${cek.wajib.slice(0, 50).map(t => `<li>${esc(t)}</li>`).join('')}</ul>${cek.wajib.length > 50 ? '<div class="ket">… dan seterusnya</div>' : ''}</div>` : '')
+    + (cek.anjuran.length ? `<details class="periksa anjur"><summary><b>Anjuran (${cek.anjuran.length})</b>: boleh dibiarkan bila tidak bisa dihindari</summary><ul>${cek.anjuran.map(t => `<li>${esc(t)}</li>`).join('')}</ul></details>` : '');
+}
+
+function htmlSahkan(cek){
+  if (!KAPRODI()) return SAH ? '' : '<p class="ket">Jadwal disahkan Kaprodi. Setelah sah, jadwal tampil untuk semua dosen; hari dan jam terkunci, ruang tetap bisa diisi.</p>';
+  return SAH ? '<div class="alat"><button class="b" id="sBuka">Buka kembali (ubah hari/jam)</button></div>'
+    : `<div class="alat"><button class="b utama" id="sSahkan"${cek.wajib.length ? ' disabled title="Perbaiki pelanggaran wajib dulu"' : ''}>Sahkan jadwal ${esc(PERIODE.sm)} ${esc(PERIODE.ta)}</button>
+       <span class="ket">Setelah sah jadwal tampil untuk semua dosen; hari dan jam terkunci, ruang tetap bisa diisi.</span></div>`;
+}
+
+function htmlAlat(){
+  const masa = masaDariKalender(KALENDER, PERIODE.ta, PERIODE.sm);
+  return `<div class="kartu"><h2>Penyusunan dengan run_jadwal.py</h2>
+    <p class="ket">1. Unduh berkas masukan (kelas, dosen, slot jam, berhalangan dosen) dan simpan di folder <code>paths.schedule_dir</code>
+      komputer prodi. 2. Jalankan <code>python run_jadwal.py</code>. 3. Impor <code>hasil_jadwal_*.csv</code> di sini. Kelas yang dikunci 🔒 tidak diubah.</p>
+    <div class="alat"><b>Masa kuliah</b> ${masa.length ? `<span class="ket">dari Kalender akademik: ${masa.map(r => `${esc(r.mulai)} s.d. ${esc(r.selesai)}`).join('; ')}</span>`
+      : `<span class="ket">belum ada di Kalender akademik (kategori perkuliahan, semester "${esc(PERIODE.sm)} ${esc(PERIODE.ta)}"); isi di sini:</span>
+         <input type="date" id="mMulai"> s.d. <input type="date" id="mSelesai">`}</div>
+    <p class="ket">Masa kuliah dipakai menghitung pertemuan yang kena berhalangan bertanggal. Tanpa masa kuliah, hanya berhalangan mingguan yang dipakai.</p>
+    <div class="alat"><button class="b utama" id="aMasukan"${SAH ? ' disabled title="Jadwal sudah sah"' : ''}>Unduh masukan penjadwalan</button>
+      <button class="b" id="aCsv">Unduh jadwal (CSV)</button></div>
+    <details><summary><b>Impor hasil penjadwalan</b></summary>
+      <p class="ket">Berkas <code>hasil_jadwal_*.csv</code> dari run_jadwal.py (pemisah titik koma; kolom kelas_id, hari, mulai, selesai). Ruang yang sudah
+        diisi tetap. ${SAH ? '<b>Jadwal sudah sah: minta Kaprodi membuka kembali dulu.</b>' : ''}</p>
+      <div class="alat"><input type="file" id="iBerkas" accept=".csv,text/csv">
+        <label class="ket"><input type="checkbox" id="iGanti"> hapus jadwal kelas yang tidak ada di berkas (kecuali dikunci)</label>
+        <button class="b utama" id="iImpor"${SAH ? ' disabled' : ''}>Impor</button></div><div id="iGalat"></div></details></div>`;
+}
+
+function htmlUbah(k, j){
+  const m = mkDari(k), panjang = SLOT.length ? menit(SLOT[0].selesai) - menit(SLOT[0].mulai) : 30;
+  const awal = j || {};
+  const durasi = durasiMenit(m.sks, ATURAN, panjang);
+  return `<td colspan="6"><div class="panel"><b><span class="kode">${esc(k.kode_mk)}</span> ${esc(m.nama || '')} kelas ${esc(k.kelas)}</b>
+    <span class="ket">· ${esc(m.sks ?? '?')} sks = ${durasi} menit</span>
+    <div class="alat"><label>Hari <select id="uHari"${SAH ? ' disabled' : ''}><option value="">— belum —</option>${(HARI_KULIAH.length ? HARI_KULIAH : [1, 2, 3, 4, 5]).map(h =>
+        `<option value="${h}"${+awal.hari === h ? ' selected' : ''}>${HARI[h]}</option>`).join('')}</select></label>
+      <label>Mulai <input type="time" id="uMulai" step="1800" value="${esc(jp(awal.mulai))}"${SAH ? ' disabled' : ''}></label>
+      <label>Selesai <input type="time" id="uSelesai" step="1800" value="${esc(jp(awal.selesai))}"${SAH ? ' disabled' : ''}></label>
+      <label>Ruang <input type="text" id="uRuang" maxlength="60" value="${esc(j?.ruang || '')}" placeholder="dari universitas" style="width:150px"></label>
+      <label class="ket" title="Dipertahankan saat run_jadwal.py dan impor"><input type="checkbox" id="uKunci"${j?.kunci ? ' checked' : ''}${SAH ? ' disabled' : ''}> kunci</label></div>
+    ${SAH ? '<div class="ket">Jadwal sudah sah: hanya ruang yang bisa diubah.</div>' : '<div class="ket">Selesai terisi otomatis dari sks bila dikosongkan.</div>'}
+    <div class="alat"><button class="b utama" id="uSimpan">Simpan</button><button class="b" id="uBatal">Batal</button>
+      ${j && !SAH ? '<button class="b bahaya" id="uHapus">Hapus jadwal kelas ini</button>' : ''}</div></div></td>`;
+}
+
+const tulis = (kelas, t) => { const el = $('mJadwal'); if (el) { el.className = 'pesan ' + kelas; el.textContent = t; } };
+const unduh = (isi, nama, jenis) => {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([isi], { type: jenis }));
+  a.download = nama; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+};
+async function segar(){ await muat(); gambar(); }
+
+function pasang(){
+  $('fPer').onchange = async e => { PERIODE = periodeDaftar()[+e.target.value]; UBAH = null; await segar(); };
+  $('fCari').oninput = e => { CARI = e.target.value; const p = e.target.selectionStart; gambar(); $('fCari').focus(); $('fCari').setSelectionRange(p, p); };
+  $('fSaya').onchange = e => { F_SAYA = e.target.checked; gambar(); };
+  document.querySelectorAll('[data-ubah]').forEach(b => { b.onclick = () => { UBAH = { kelas_id: +b.dataset.ubah }; gambar(); $('uRuang')?.focus(); }; });
+  if (UBAH) pasangUbah();
+  const nama = `${PERIODE.ta.replace('/', '-')}_${PERIODE.sm}`;
+  if ($('aCsv')) $('aCsv').onclick = () => unduh('﻿' + csvJadwal({ kelas: KELAS, kd: KD, mk: MK, jadwal: JADWAL, nama: namaD }),
+    `jadwal_kuliah_${nama}.csv`, 'text/csv;charset=utf-8');
+  if ($('aMasukan')) $('aMasukan').onclick = unduhMasukan;
+  if ($('iImpor')) $('iImpor').onclick = impor;
+  if ($('sSahkan')) $('sSahkan').onclick = () => sahkan(true);
+  if ($('sBuka')) $('sBuka').onclick = () => sahkan(false);
+}
+
+function pasangUbah(){
+  const k = KELAS.find(x => x.id === UBAH.kelas_id), j = JADWAL.find(x => x.kelas_id === UBAH.kelas_id);
+  $('uBatal').onclick = () => { UBAH = null; gambar(); };
+  $('uSimpan').onclick = async () => {
+    const hari = SAH ? j?.hari : ($('uHari').value ? +$('uHari').value : null);
+    let mulai = SAH ? jp(j?.mulai) : $('uMulai').value, selesai = SAH ? jp(j?.selesai) : $('uSelesai').value;
+    if (!SAH && hari && mulai && !selesai) {
+      const panjang = SLOT.length ? menit(SLOT[0].selesai) - menit(SLOT[0].mulai) : 30, akhir = menit(mulai) + durasiMenit(mkDari(k).sks, ATURAN, panjang);
+      selesai = `${String(Math.floor(akhir / 60)).padStart(2, '0')}:${String(akhir % 60).padStart(2, '0')}`;
+    }
+    if (hari && (!mulai || !selesai)) return tulis('galat', 'Isi jam mulai (dan selesai).');
+    if (!hari && !SAH && !j) { UBAH = null; return gambar(); }
+    $('uSimpan').disabled = true;
+    const { error } = await sb.rpc('jadwal_simpan', { p: { kelas_id: k.id, hari, mulai, selesai, ruang: $('uRuang').value, ...(SAH ? {} : { kunci: $('uKunci').checked }) } });
+    if (error) { $('uSimpan').disabled = false; return tulis('galat', error.message); }
+    UBAH = null; await segar(); tulis('ok', `Jadwal ${k.kode_mk} ${k.kelas} tersimpan.`);
+  };
+  if ($('uHapus')) $('uHapus').onclick = async () => {
+    if (!confirm(`Hapus jadwal ${k.kode_mk} ${k.kelas}? Kelasnya tetap ada.`)) return;
+    const { error } = await sb.rpc('jadwal_simpan', { p: { kelas_id: k.id, hari: null } });
+    if (error) return tulis('galat', error.message);
+    UBAH = null; await segar(); tulis('ok', 'Jadwal kelas dihapus.');
+  };
+}
+
+async function unduhMasukan(){
+  let masa = masaDariKalender(KALENDER, PERIODE.ta, PERIODE.sm);
+  if (!masa.length && $('mMulai')?.value && $('mSelesai')?.value) {
+    if ($('mSelesai').value < $('mMulai').value) return tulis('galat', 'Tanggal selesai masa kuliah sebelum tanggal mulai.');
+    masa = [{ mulai: $('mMulai').value, selesai: $('mSelesai').value }];
+  }
+  if (!KELAS.length) return tulis('galat', 'Belum ada kelas periode ini.');
+  if (!SLOT.length) return tulis('galat', 'Slot jam kuliah belum diatur (Jadwal berhalangan, admin).');
+  $('aMasukan').disabled = true;
+  const ids = [...new Set(KD.map(d => d.dosen_id))];
+  const [tgl, rentang, libur] = await Promise.all([
+    ids.length ? baca(sb.from('dosen_berhalangan_tgl').select('dosen_id,tanggal,slot_id').in('dosen_id', ids)) : [],
+    ids.length ? baca(sb.from('dosen_berhalangan_rentang').select('dosen_id,mulai,selesai,hari,slot_ids').in('dosen_id', ids)) : [],
+    baca(sb.from('hari_libur').select('tanggal'))]);
+  const m = masukanPenjadwalan({ ta: PERIODE.ta, sm: PERIODE.sm, kelas: KELAS, kd: KD, mk: MK, dosen: DOSEN, jadwal: JADWAL, slot: SLOT,
+    hari: HARI_KULIAH.length ? HARI_KULIAH : [1, 2, 3, 4, 5], berhalangan: BERH, tgl, rentang, libur: libur.map(x => x.tanggal), masa });
+  unduh(JSON.stringify(m, null, 1), `jadwal_masukan_${PERIODE.ta.replace('/', '-')}_${PERIODE.sm}.json`, 'application/json');
+  $('aMasukan').disabled = false;
+  tulis('ok', `Berkas masukan diunduh: ${m.kelas.length} kelas, ${m.dosen.length} dosen, ${m.berhalangan.length} slot berhalangan mingguan, `
+    + `${m.berhalangan_tanggal.length} berhalangan bertanggal${masa.length ? '' : ' (tanpa masa kuliah: tidak dipakai)'}.`);
+}
+
+async function impor(){
+  const f = $('iBerkas').files[0];
+  if (!f) return tulis('galat', 'Pilih berkas hasil_jadwal_*.csv.');
+  const { baris, galat } = bacaCsvHasil(await f.text());
+  if (!baris.length) { $('iGalat').innerHTML = `<ul class="galat">${galat.map(g => `<li>${esc(g)}</li>`).join('')}</ul>`; return tulis('galat', 'Tidak ada baris yang bisa diimpor.'); }
+  const ganti = $('iGanti').checked;
+  if (ganti && !confirm(`Jadwal kelas ${PERIODE.sm} ${PERIODE.ta} yang tidak ada di berkas akan dihapus (kecuali dikunci). Lanjutkan?`)) return;
+  $('iImpor').disabled = true;
+  const { data, error } = await sb.rpc('jadwal_impor', { p_ta: PERIODE.ta, p_semester: PERIODE.sm, p_baris: baris, p_ganti: ganti });
+  if (error) { $('iImpor').disabled = false; return tulis('galat', error.message); }
+  await segar();
+  const semua = [...galat, ...(data.galat || [])];
+  if ($('iGalat')) $('iGalat').innerHTML = semua.length ? `<ul class="galat">${semua.map(g => `<li>${esc(g)}</li>`).join('')}</ul>` : '';
+  tulis(semua.length ? 'galat' : 'ok', `${data.masuk} jadwal diimpor${data.berkunci ? `, ${data.berkunci} kelas dikunci tidak diubah` : ''}${data.dihapus ? `, ${data.dihapus} dihapus` : ''}.`
+    + (semua.length ? ` ${semua.length} baris dilewati.` : ''));
+}
+
+async function sahkan(sah){
+  const n = `${PERIODE.sm} ${PERIODE.ta}`;
+  if (!confirm(sah ? `Sahkan jadwal ${n}? Jadwal tampil untuk semua dosen; hari dan jam terkunci.` : `Buka kembali jadwal ${n}? Jadwal tidak tampil untuk dosen sampai disahkan lagi.`)) return;
+  const { error } = await sb.rpc('jadwal_sahkan', { p_ta: PERIODE.ta, p_semester: PERIODE.sm, p_sah: sah });
+  if (error) return tulis('galat', error.message);
+  await segar(); tulis('ok', sah ? `Jadwal ${n} disahkan.` : `Jadwal ${n} dibuka kembali.`);
+}
+
+async function mulai(){
+  SAYA = await gerbang(sb);
+  if (!SAYA) return;
+  $('hSub').textContent = `Masuk sebagai ${SAYA.nama}`;
+  PERIODE = periodeDaftar()[1];
+  F_SAYA = !PENGATUR();
+  let d = {};
+  [MK, DOSEN, KALENDER, d] = await Promise.all([
+    baca(sb.from('ref_mata_kuliah').select('kurikulum,kode,nama,sks,semester,sifat')),
+    baca(sb.from('dosen').select('id,nama,nama_gelar,aktif,peran').order('nama')),
+    baca(sb.from('kalender_akademik').select('semester,kategori,mulai,selesai')),
+    fetch('data.json', { cache: 'no-cache' }).then(r => r.ok ? r.json() : {}).catch(() => ({}))]);
+  ATURAN = d.jadwal_aturan || {};
+  await muat();
+  gambar();
+}
+mulai().catch(e => { $('isi').innerHTML = `<p class="kosong">Gagal memuat: ${esc(e.message)}</p>`; });
+</script>
+</body>
+</html>

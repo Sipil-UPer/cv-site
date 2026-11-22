@@ -7768,6 +7768,26 @@
   "prodi_en": "Civil Engineering",
   "gelar": "Sarjana Teknik (S.T.)"
  },
+ "jadwal_aturan": {
+  "minutes_per_sks": 50,
+  "same_label_break_minutes": 30,
+  "electives_no_overlap": true,
+  "blocked": [
+   {
+    "day": 5,
+    "start": "11:30",
+    "end": "13:00"
+   }
+  ],
+  "avoid": [
+   {
+    "day": "all",
+    "start": "12:00",
+    "end": "13:00"
+   }
+  ],
+  "lecturer_daily_max_hours": 6
+ },
  "prestasi": [
   {
    "id": 7,
