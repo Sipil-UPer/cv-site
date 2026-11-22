@@ -107,6 +107,8 @@ import { SHEETJS } from './nilai-cpl.js?v=2026-11-22-866c27';
 import { barisKuota, teksPilihanPembimbing } from './rekap-kp.js?v=2026-11-22-866c27';
 import { siapkan } from './pembimbing.js?v=2026-11-22-866c27';
 import { usulPenguji, bebanUji, tsDari } from './usulan-penguji.js?v=2026-11-22-866c27';
+import { usulanWaktu } from './cari-waktu.js?v=2026-11-22-866c27';
+import { bacaJam, formatJam, sibukSidang, gabungSibuk, periksaWaktu } from './jadwal-sidang.js?v=2026-11-22-866c27';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
@@ -148,7 +150,7 @@ async function muat(){
   const yd = await sb.rpc('yudisium_berkas_daftar');
   YUD = !yd.error && Array.isArray(yd.data) && yd.data.length ? yd.data : BERKAS_YUDISIUM_BAWAAN;
   const [dq, jq] = await Promise.all([sb.from('dosen').select('id,nidn,nama,aktif,peran,dtps').order('nama'),
-    sb.from('jadwal_ta').select('pengajuan_id,tanggal,jam,ruang,tautan_daring,status,penguji,penguji_luar')]);
+    sb.from('jadwal_ta').select('pengajuan_id,tahap,tanggal,jam,ruang,tautan_daring,status,pembimbing,penguji,penguji_luar')]);
   // Calon penguji = aturan daftar dosen Data prodi: DTPS atau berperan dosen/pimpinan; staf admin non-dosen tidak.
   DOSEN = (dq.data || []).filter(d => d.aktif && d.nidn && (d.dtps || ['dosen', 'pimpinan'].includes(d.peran)));
   SEMUA_JADWAL = jq.error ? [] : jq.data || [];
@@ -388,10 +390,71 @@ function htmlJadwal(p){
     ${htmlUsulan(p, pb)}
     <div class="ket" style="margin-top:6px">Penguji (prodi):</div>
     <div class="penguji">${DOSEN.filter(x => !pb.includes(x.id)).map(x => `<label><input type="checkbox" data-uji="${p.id}" value="${esc(x.nidn)}"> ${esc(x.nama)}</label>`).join('')}</div>
-    <div class="baris"><label>Penguji luar prodi <input id="jl_${p.id}" placeholder="nama, instansi (opsional)" size="30"></label>
-      <button class="b utama" data-jadwalkan="${p.id}">Jadwalkan</button></div>
+    <div class="baris"><label>Penguji luar prodi <input id="jl_${p.id}" placeholder="nama, instansi (opsional)" size="30"></label></div>
+    <div class="baris"><label>Durasi <input type="number" id="jdur_${p.id}" value="90" min="30" max="300" step="15" style="width:70px"> menit</label>
+      <button class="b" type="button" data-cekjadwal="${p.id}">Periksa jadwal dosen</button>
+      <span class="ket">pembimbing + penguji yang dicentang: berhalangan, mengajar, rapat, dan sidang TA lain; plus usulan jam kosong 14 hari</span></div>
+    <div id="jcek_${p.id}"></div>
+    <div class="baris"><button class="b utama" data-jadwalkan="${p.id}">Jadwalkan</button></div>
     <p class="ket">Jadwalkan = pengajuan disetujui; mahasiswa dikabari jadwalnya lewat email lalu menginput ke SIUP. Jadwal tampil di
       Layanan mahasiswa dan bisa diubah kemudian di Data prodi › Jadwal seminar/sidang TA.</p></div>`;
+}
+
+// Periksa jadwal dosen sebelum menjadwalkan (pemilik 2026-11-22): cari_waktu_rapat (berhalangan, rapat, kuliah sah; 138/152)
+// + sidang TA lain (jadwal-sidang.js). Usulan jam kosong untuk semua pembimbing dan penguji yang dicentang, 14 hari.
+let SLOT_SIDANG = null;
+async function periksaJadwalDosen(id, b){
+  const p = DATA.find(x => x.id === id), el = $('jcek_' + id);
+  const pb = [p.pembimbing_id, p.data?.pembimbing_2].filter(Boolean);
+  const uji = [...document.querySelectorAll(`[data-uji="${id}"]:checked`)].map(c => DOSEN.find(d => d.nidn === c.value)?.id).filter(Boolean);
+  const peserta = [...new Set([...pb, ...uji])];
+  const durasi = Math.min(300, Math.max(30, +$('jdur_' + id).value || 90));
+  const hariIni = new Date().toISOString().slice(0, 10), dari = $('jt_' + id).value && $('jt_' + id).value >= hariIni ? $('jt_' + id).value : hariIni;
+  const sampai = new Date(Date.parse(dari + 'T00:00:00Z') + 13 * 864e5).toISOString().slice(0, 10);
+  if (!peserta.length) { el.innerHTML = '<p class="pesan buruk">Belum ada pembimbing atau penguji yang dipilih.</p>'; return; }
+  b.disabled = true; el.innerHTML = '<p class="ket">Memeriksa…</p>';
+  try {
+    if (!SLOT_SIDANG) {
+      const [s, h] = await Promise.all([sb.from('jadwal_slot').select('id,mulai,selesai').eq('aktif', true).order('mulai'), sb.from('jadwal_hari').select('hari')]);
+      SLOT_SIDANG = { slot: s.data || [], hari: (h.data || []).map(x => +x.hari) };
+    }
+    if (!SLOT_SIDANG.slot.length) throw new Error('Slot jam kuliah belum diatur (Jadwal berhalangan, admin).');
+    const { data, error } = await sb.rpc('cari_waktu_rapat', { p_peserta: peserta, p_dari: dari, p_sampai: sampai });
+    if (error) throw error;
+    const tanggal = [];
+    for (let t = Date.parse(dari + 'T00:00:00Z'); t <= Date.parse(sampai + 'T00:00:00Z'); t += 864e5) {
+      const d = new Date(t), h = d.getUTCDay() || 7;
+      if (!SLOT_SIDANG.hari.length || SLOT_SIDANG.hari.includes(h)) tanggal.push(d.toISOString().slice(0, 10));
+    }
+    const sid = sibukSidang({ jadwal: SEMUA_JADWAL, slot: SLOT_SIDANG.slot, dosen: DOSEN, tanggal, kecuali: id, durasi });
+    const sibuk = gabungSibuk(data.sibuk || [], data.nama ? sid : []);
+    const namaD = x => DOSEN.find(d => d.id === x)?.nama || '?';
+    const k = new Date(), kini = { tanggal: hariIni, menit: k.getHours() * 60 + k.getMinutes() };
+    const u = usulanWaktu({ tanggal, slot: SLOT_SIDANG.slot, sibuk, durasi, kini, maks: 6 });
+    const tgl = t => new Date(t + 'T00:00:00').toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+    let html = '';
+    const w = $('jt_' + id).value ? bacaJam($('jj_' + id).value, durasi) : null;
+    if (w) {
+      const r = periksaWaktu({ tanggal: $('jt_' + id).value, mulai: w.mulai, selesai: w.selesai, slot: SLOT_SIDANG.slot, sibukRapat: data.sibuk || [],
+        jadwal: data.nama ? SEMUA_JADWAL : [], dosen: DOSEN, peserta, kecuali: id, nama: namaD, durasi });
+      const waktu = `${tgl($('jt_' + id).value)}, ${formatJam(w.mulai, w.selesai)}`;
+      html += r.bentrok.length || r.tanpaNama
+        ? `<div class="pesan buruk"><b>Bentrok pada ${esc(waktu)}:</b><ul>${r.bentrok.map(x => `<li>${esc(x.nama)}: ${esc(x.sebab.join('; '))}</li>`).join('')}`
+          + `${r.tanpaNama ? `<li>${r.tanpaNama} dosen tidak bisa</li>` : ''}</ul></div>`
+        : `<p class="pesan ok">Semua ${peserta.length} dosen bisa pada ${esc(waktu)}.</p>`;
+      html += r.tidakTerbaca.map(x => `<p class="ket">${esc(x)}</p>`).join('');
+    } else if ($('jt_' + id).value && $('jj_' + id).value) html += '<p class="ket">Jam belum terbaca; tulis seperti 09.00–10.30.</p>';
+    const j = x => x.replace(':', '.');
+    html += u.length ? `<div class="ket" style="margin-top:6px">Usulan jam (${durasi} menit) untuk ${peserta.length} dosen, ${esc(tgl(dari))} s.d. ${esc(tgl(sampai))}:</div><ul>`
+      + u.map(x => `<li>${esc(tgl(x.tanggal))}, ${esc(j(x.mulai))}–${esc(j(x.selesai))} · `
+        + (x.n ? `<span class="buruk">${x.dosen ? 'tidak bisa: ' + esc(x.dosen.map(namaD).join(', ')) : x.n + ' dosen tidak bisa'}</span>` : '<b>semua bisa</b>')
+        + ` <button class="b" type="button" data-pakai="${id}" data-t="${x.tanggal}" data-j="${j(x.mulai)}–${j(x.selesai)}">Pakai</button></li>`).join('') + '</ul>'
+      : '<p class="ket">Tidak ada jam kuliah yang cukup panjang dalam 14 hari itu.</p>';
+    if (!data.nama) html += '<p class="ket">Nama dosen yang tidak bisa dan sidang TA lain hanya terlihat oleh pengatur jadwal (admin, Kaprodi, koordinator TA/KP).</p>';
+    el.innerHTML = html;
+    el.querySelectorAll('[data-pakai]').forEach(x => { x.onclick = () => { $('jt_' + id).value = x.dataset.t; $('jj_' + id).value = x.dataset.j; periksaJadwalDosen(id, b); }; });
+  } catch (e) { el.innerHTML = `<p class="pesan buruk">${esc(/cari_waktu_rapat/.test(e.message || '') ? 'Fungsi Cari waktu belum ada (patch 138).' : (e.message || String(e)))}</p>`; }
+  b.disabled = false;
 }
 
 async function jadwalkan(id, b){
@@ -433,6 +496,7 @@ function gambar(){
   document.querySelectorAll('[data-buka]').forEach(b => { b.onclick = () => buka(b); });
   document.querySelectorAll('[data-aksi]').forEach(b => { b.onclick = () => putuskan(+b.dataset.p, b.dataset.aksi, b); });
   document.querySelectorAll('[data-jadwalkan]').forEach(b => { b.onclick = () => jadwalkan(+b.dataset.jadwalkan, b); });
+  document.querySelectorAll('[data-cekjadwal]').forEach(b => { b.onclick = () => periksaJadwalDosen(+b.dataset.cekjadwal, b); });
   document.querySelectorAll('[data-tetapkan]').forEach(b => { b.onclick = () => tetapkan(+b.dataset.tetapkan, b); });
   document.querySelectorAll('[data-tetapkan-ta]').forEach(b => { b.onclick = () => tetapkanTA(+b.dataset.tetapkanTa, b); });
   document.querySelectorAll('[data-usul]').forEach(b => { b.onclick = () => {

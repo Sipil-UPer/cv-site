@@ -7,7 +7,7 @@ export const JABATAN = [
   ['tenaga_pengajar', 'Tenaga pengajar'], ['asisten_ahli', 'Asisten ahli'], ['lektor', 'Lektor'],
   ['lektor_kepala', 'Lektor kepala'], ['guru_besar', 'Guru besar'],
 ];
-const BEREPUTASI = new Set(['scopus_q1', 'scopus_q2', 'scopus_q3', 'scopus_q4', 'wos']);
+const BEREPUTASI = new Set(['scopus_q1', 'scopus_q2', 'scopus_q3', 'scopus_q4', 'scopus', 'wos']);   // scopus = tanpa kuartil (153)
 const SINTA = new Set(['sinta_1_2', 'sinta_3_4', 'sinta_5_6']);
 // Hibah eksternal: kelompok dana di luar kampus (ref_kelompok_dana, 01-skema.sql).
 export const KELOMPOK_EKSTERNAL = new Set(['nasional', 'pemerintah', 'industri', 'internasional']);

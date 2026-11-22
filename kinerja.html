@@ -122,7 +122,7 @@ const rapi = s => { const t = String(s || '').replace(/_/g, ' '); return t.charA
 const mati = k => (window.FITUR_MATI || []).includes(k);
 
 // Mutu publikasi dalam 4 tingkat berurutan (8 kelas indeksasi terlalu banyak untuk satu rona).
-const MUTU = [['o1', 'Scopus Q1–Q2', ['scopus_q1', 'scopus_q2']], ['o2', 'Scopus Q3–Q4', ['scopus_q3', 'scopus_q4']],
+const MUTU = [['o1', 'Scopus Q1–Q2', ['scopus_q1', 'scopus_q2']], ['o2', 'Scopus Q3–Q4 / tanpa kuartil', ['scopus_q3', 'scopus_q4', 'scopus']],
   ['o3', 'SINTA 1–4', ['sinta_1_2', 'sinta_3_4']], ['o4', 'SINTA 5–6 / lainnya', null]];
 const mutu = p => (MUTU.find(m => m[2] && m[2].includes(p.indeksasi)) || MUTU[3])[0];
 const TINGKAT = [['o1', 'Internasional', 'internasional'], ['o2', 'Nasional', 'nasional'], ['o4', 'Wilayah/lokal', 'wilayah_lokal']];
@@ -220,7 +220,7 @@ function gambar(){
   const M = mitra([...pub, ...keg]);
   const nIntl = [...M.values()].filter(t => t === 'internasional').length;
   const sdgSet = new Set([...pub, ...keg, ...lua].flatMap(k => k.sdgs || []));
-  const scopus = pub.filter(p => /^scopus_/.test(p.indeksasi || '')).length;
+  const scopus = pub.filter(p => /^scopus(_|$)/.test(p.indeksasi || '')).length;   // Q1-Q4 dan tanpa kuartil (153)
 
   // Angka utama, masing-masing menaut ke rinciannya.
   $('ringkas').innerHTML = [

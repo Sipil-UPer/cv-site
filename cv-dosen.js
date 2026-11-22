@@ -8,7 +8,7 @@ import { JENJANG, JENIS_SERTIFIKAT, JABATAN, KATEGORI } from './profil-dosen.js?
 const label = (xs, k) => (xs.find(x => x[0] === k) || [, k || ''])[1];
 const rapi = s => String(s || '').replace(/_/g, ' ').trim();
 const nm = s => String(s || '').trim().toLowerCase();
-const INDEKS = { scopus_q1: 'Scopus Q1', scopus_q2: 'Scopus Q2', scopus_q3: 'Scopus Q3', scopus_q4: 'Scopus Q4', wos: 'Web of Science',
+const INDEKS = { scopus_q1: 'Scopus Q1', scopus_q2: 'Scopus Q2', scopus_q3: 'Scopus Q3', scopus_q4: 'Scopus Q4', scopus: 'Scopus', wos: 'Web of Science',
   sinta_1_2: 'SINTA 1–2', sinta_3_4: 'SINTA 3–4', sinta_5_6: 'SINTA 5–6', tidak_terindeks: 'tidak terindeks' };
 const URUT_JENJANG = JENJANG.map(x => x[0]);
 

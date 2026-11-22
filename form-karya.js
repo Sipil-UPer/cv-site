@@ -7,6 +7,9 @@ const rapi = s => s ? String(s).replace(/_/g,' ') : '';
 
 export const TH = new Date().getFullYear();
 export const TAHUN = Array.from({length:12},(_,i)=>String(TH+1-i));
+// Publikasi (pemilik 2026-11-22): tahun terbit sampai 1980 (batas karya.tahun, 01-skema.sql) supaya publikasi lama dosen
+// bisa dicatat untuk CV; formulir lain tetap 12 tahun terakhir.
+export const TAHUN_PUBLIKASI = Array.from({length:TH+2-1980},(_,i)=>String(TH+1-i));
 // Bulan opsional: memetakan karya ke tahun akademik (TS, Sep-Agu).
 export const BULAN = [['1','Januari'],['2','Februari'],
   ['3','Maret'],['4','April'],['5','Mei'],['6','Juni'],['7','Juli'],
@@ -97,7 +100,7 @@ export const FORM = {
       {n:'jenis', l:'Jenis', t:'select', w:1, o:[['jurnal','Artikel jurnal'],
         ['prosiding','Prosiding'],['buku','Buku'],['bab_buku','Bab dalam buku'],
         ['haki_paten','HKI / paten'],['lainnya','Lainnya']]},
-      {n:'tahun', l:'Tahun terbit', t:'select', w:1, o:TAHUN.map(y=>[y,y])},
+      {n:'tahun', l:'Tahun terbit', t:'select', w:1, o:TAHUN_PUBLIKASI.map(y=>[y,y])},
       F_BULAN,
       F_INDUK,
       {n:'nama_terbitan', l:'Nama jurnal / penerbit', t:'text'},
@@ -107,6 +110,7 @@ export const FORM = {
       {n:'tingkat', l:'Tingkat', t:'select', w:1, o:TINGKAT},
       {n:'indeksasi', l:'Indeksasi', t:'select', o:[['scopus_q1','Scopus Q1'],
         ['scopus_q2','Scopus Q2'],['scopus_q3','Scopus Q3'],['scopus_q4','Scopus Q4'],
+        ['scopus','Scopus (tanpa kuartil)'],
         ['wos','Web of Science'],['sinta_1_2','SINTA 1–2'],['sinta_3_4','SINTA 3–4'],
         ['sinta_5_6','SINTA 5–6'],['tidak_terindeks','Tidak terindeks']]},
       {n:'doi', l:'DOI', t:'text', ph:'10.1016/j.jhydrol.2025.132000',

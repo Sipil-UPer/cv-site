@@ -117,7 +117,7 @@ if (pilih === 'mitra') location.replace('kerja-sama.html');
 pasangKerangka({ aktif: JENIS.find(([k]) => k === pilih)[2] });
 
 // Mutu publikasi: label pendek dan tingkat warna (sama dengan kinerja.html, gelap = tertinggi).
-const MUTU = { scopus_q1: ['Scopus Q1', 'o1'], scopus_q2: ['Scopus Q2', 'o1'], scopus_q3: ['Scopus Q3', 'o2'], scopus_q4: ['Scopus Q4', 'o2'],
+const MUTU = { scopus_q1: ['Scopus Q1', 'o1'], scopus_q2: ['Scopus Q2', 'o1'], scopus_q3: ['Scopus Q3', 'o2'], scopus_q4: ['Scopus Q4', 'o2'], scopus: ['Scopus', 'o2'],
   sinta_1_2: ['SINTA 1–2', 'o3'], sinta_3_4: ['SINTA 3–4', 'o3'], sinta_5_6: ['SINTA 5–6', 'o4'], tidak_terindeks: ['Tidak terindeks', 'o4'] };
 const lencanaMutu = p => { const [l, k] = MUTU[p.indeksasi] || [rapi(p.tingkat) || 'Publikasi', 'o4'];
   return `<span class="lencana ${k}${k === 'o4' ? ' terang' : ''}">${esc(l)}</span>`; };
