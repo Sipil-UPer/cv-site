@@ -65,6 +65,48 @@ const LOGO = () => (Array.isArray(globalThis.LOGO_KEPALA) && globalThis.LOGO_KEP
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
+// Kaki halaman tampil setelah isi halaman tenang (audit kecepatan 2026-11-22). Halaman yang menggambar isinya dari
+// data.json sempat menampilkan kaki di bawah isi yang masih kosong, lalu mendorongnya saat data tiba: lompatan tata
+// letak (CLS) 0,7-0,8 di kurikulum, daftar, kinerja. Kaki yang muncul belakangan tidak menggeser apa pun.
+// Tenang = tidak ada fetch berjalan dan halaman (di luar kepala dan kaki) tidak berubah KAKI_TENANG_MS ms;
+// paling lambat KAKI_MAKS_MS ms kaki tetap tampil. fetch dihitung sejak modul ini dimuat (sebelum kode halaman).
+const KAKI_TENANG_MS = 400;
+const KAKI_MAKS_MS = 5000;
+let fetchBerjalan = 0;
+let jadwalKaki = () => {};
+if (typeof window !== 'undefined' && typeof window.fetch === 'function' && !window.__krHitungFetch) {
+  window.__krHitungFetch = true;
+  const fetchAsli = window.fetch.bind(window);
+  window.fetch = (...arg) => {
+    fetchBerjalan++;
+    const p = fetchAsli(...arg);
+    p.finally(() => { fetchBerjalan--; jadwalKaki(); }).catch(() => {});
+    return p;
+  };
+}
+
+function tampilkanKakiSetelahTenang(kaki, kepala) {
+  if (typeof MutationObserver === 'undefined') return;
+  kaki.hidden = true;
+  let tunggu = 0;
+  const tampil = () => {
+    if (!kaki.hidden) return;
+    kaki.hidden = false;
+    amat.disconnect(); clearTimeout(tunggu); clearTimeout(batas);
+    jadwalKaki = () => {};
+  };
+  jadwalKaki = () => {
+    clearTimeout(tunggu);
+    tunggu = setTimeout(() => { if (fetchBerjalan === 0) tampil(); }, KAKI_TENANG_MS);
+  };
+  const amat = new MutationObserver(ubah => {
+    if (ubah.some(m => !kaki.contains(m.target) && !(kepala && kepala.contains(m.target)))) jadwalKaki();
+  });
+  amat.observe(document.body, { childList: true, subtree: true, characterData: true });
+  const batas = setTimeout(tampil, KAKI_MAKS_MS);
+  jadwalKaki();
+}
+
 const CSS = `
 .kr-lewati{position:absolute;left:-999px;top:0;background:#fff;color:var(--biru);padding:8px 12px;z-index:50}
 .kr-lewati:focus{left:8px;top:8px}
@@ -216,6 +258,7 @@ export function pasangKerangka({ aktif = '', muat = false } = {}){
   <div class="kr-kaki-bawah"><div><span>© ${new Date().getFullYear()} Program Studi <span data-kr="prodi"></span><span data-kr="koma-institusi"></span></span>
     <span><a href="privasi.html">Kebijakan privasi</a></span></div></div>`;
   document.body.appendChild(kaki);
+  tampilkanKakiSetelahTenang(kaki, document.getElementById('krKepala'));
 
   // Menu turun: klik membuka satu, klik di luar / Escape menutup. Di ponsel tombol Menu membuka panel.
   const nav = document.getElementById('krNav');

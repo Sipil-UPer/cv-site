@@ -92,8 +92,8 @@
       <button type="button" data-p="3ts" aria-pressed="false">3 TS terakhir</button>
     </div>
   </div></div>
-  <nav class="ringkas" id="ringkas" aria-label="Angka utama"></nav>
-  <div class="isi" id="isi"><p class="kosong">Memuat…</p></div>
+  <nav class="ringkas" id="ringkas" aria-label="Angka utama"><p class="kosong">Memuat…</p></nav>
+  <div class="isi" id="isi"></div>
 </main>
 <div id="tip" hidden></div>
 <script src="config.js?v=2026-11-22-866c27"></script>
@@ -333,7 +333,7 @@ fetch('data.json', {cache: 'no-cache'})
     document.title = 'Kinerja program studi — ' + ['Program Studi ' + d.prodi, d.institusi].filter(Boolean).join(' ');
     gambar();
   })
-  .catch(() => { $('isi').innerHTML = '<p class="kosong">Data sedang diperbarui. Silakan muat ulang beberapa saat lagi.</p>'; });
+  .catch(() => { $('ringkas').textContent = ''; $('isi').innerHTML = '<p class="kosong">Data sedang diperbarui. Silakan muat ulang beberapa saat lagi.</p>'; });
 </script>
 </body>
 </html>

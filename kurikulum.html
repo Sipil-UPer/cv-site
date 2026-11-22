@@ -85,11 +85,11 @@
 <div class="hero" role="region" aria-label="Pembuka halaman">
   <div class="hero-in">
     <h1>Kurikulum</h1>
-    <div class="prodi" id="hProdi"></div>
-    <div class="angka" id="angka"></div>
+    <div class="prodi" id="hProdi">&nbsp;</div>
+    <div class="angka" id="angka"><div><span>Memuat…</span></div></div>
   </div>
 </div>
-<main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
+<main class="wrap" id="isi"></main>
 <script src="config.js?v=2026-11-22-866c27"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
@@ -254,12 +254,12 @@ fetch('data.json', {cache: 'no-cache'})
     $('hProdi').textContent = [d.prodi, d.institusi].filter(Boolean).join(' · ');
     if (d.prodi) document.title = 'Kurikulum — ' + ['Program Studi ' + d.prodi, d.institusi].filter(Boolean).join(' ');
     const kur = d.kurikulum || [];
-    if (!kur.length) { $('isi').innerHTML = '<p class="kosong">Kurikulum sedang disiapkan.</p>'; return; }
+    if (!kur.length) { $('angka').textContent = ''; $('isi').innerHTML = '<p class="kosong">Kurikulum sedang disiapkan.</p>'; return; }
     const minta = new URLSearchParams(location.search).get('k');
     K = kur.find(k => k.kode === String(minta || '').toUpperCase()) || kur[0];
     gambar();
   })
-  .catch(() => { $('isi').innerHTML = '<p class="kosong">Data sedang diperbarui. Silakan muat ulang beberapa saat lagi.</p>'; });
+  .catch(() => { $('angka').textContent = ''; $('isi').innerHTML = '<p class="kosong">Data sedang diperbarui. Silakan muat ulang beberapa saat lagi.</p>'; });
 </script>
 </body>
 </html>

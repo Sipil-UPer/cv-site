@@ -102,12 +102,12 @@
 <div class="hero" role="region" aria-label="Pembuka halaman">
   <div class="hero-in">
     <h1>Kontribusi SDGs</h1>
-    <div class="prodi" id="hProdi"></div>
-    <div class="angka" id="angka"></div>
+    <div class="prodi" id="hProdi">&nbsp;</div>
+    <div class="angka" id="angka">Memuat…</div>
   </div>
 </div>
 
-<main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
+<main class="wrap" id="isi"></main>
 
 <script src="config.js?v=2026-11-22-866c27"></script>
 <script>
@@ -184,7 +184,7 @@ function gambar(){
 fetch('data.json', {cache: 'no-cache'})
   .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
   .then(d => { D = d; document.getElementById('hProdi').textContent = [d.prodi, d.institusi].filter(Boolean).join(' · '); gambar(); })
-  .catch(() => { document.getElementById('isi').innerHTML = '<p class="kosong">Data sedang diperbarui. Silakan muat ulang beberapa saat lagi.</p>'; });
+  .catch(() => { document.getElementById('angka').textContent = ''; document.getElementById('isi').innerHTML = '<p class="kosong">Data sedang diperbarui. Silakan muat ulang beberapa saat lagi.</p>'; });
 </script>
 </body>
 </html>

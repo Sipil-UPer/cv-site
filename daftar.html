@@ -75,10 +75,10 @@
   <div class="kepala" role="region" aria-label="Pembuka halaman"><div class="kepala-in">
     <div class="eyebrow" id="hInst">Program studi</div>
     <h1 id="hJudul">Daftar</h1>
-    <p id="hKet">&nbsp;</p>
+    <p id="hKet">Memuat…</p>
     <nav class="jenis" id="nav" aria-label="Jenis daftar"></nav>
   </div></div>
-  <div class="isi" id="isi"><p class="kosong">Memuat…</p></div>
+  <div class="isi" id="isi"></div>
 </main>
 <script src="config.js?v=2026-11-22-866c27"></script>
 <script>
@@ -127,9 +127,10 @@ let D = null;
 fetch('data.json', {cache: 'no-cache'})
   .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
   .then(d => { D = d; isiKerangka(d); render(); })
-  .catch(() => { $('hJudul').textContent = 'Data belum tersedia'; $('isi').innerHTML = '<p class="kosong">Data sedang diperbarui. Silakan muat ulang beberapa saat lagi.</p>'; });
+  .catch(() => { $('hJudul').textContent = 'Data belum tersedia'; $('hKet').textContent = ''; $('isi').innerHTML = '<p class="kosong">Data sedang diperbarui. Silakan muat ulang beberapa saat lagi.</p>'; });
 
 function render(){
+  $('hKet').textContent = '';   // "Memuat…" di sini, bukan di bawah kepala (audit CLS 2026-11-22)
   const judul = JENIS.find(([k]) => k === pilih)[1];
   $('hInst').textContent = [D.prodi && 'Program Studi ' + D.prodi, D.institusi].filter(Boolean).join(' · ');
   $('hJudul').textContent = judul;
