@@ -408,6 +408,7 @@ import { BUTIR, isiPetaBukti, cariBukti, daftarBukti, kolomBukti } from './rinci
 import { BUTIR_MANUAL, SEKSI_MANUAL, kunciButir, kunciBuktiButir, skorManual, tkKepuasan }
   from './butir-manual.js?v=2026-11-22-866c27';
 import { BOBOT_TOTAL, bobotButir } from './bobot.js?v=2026-11-22-866c27';
+import { hitungTS, ampuPerTA } from './dosen-hitung.js?v=2026-11-22-866c27';
 import { isiPotret, bulanDari, svgTrenPotret, htmlRiwayatPotret } from './potret-skor.js?v=2026-11-22-866c27';
 import { bacaTinjauan, unsurDariTinjauan } from './tinjauan-rps.js?v=2026-11-22-866c27';
 import { UNSUR, hitungUnsur, UNSUR_BUTIR, KUNCI_UNSUR, skorKunci, unsurAda, pihakUnsur, pihakButir } from './unsur-butir.js?v=2026-11-22-866c27';
@@ -1307,7 +1308,7 @@ async function muatSitasiKarya(){
 //   19: Σ SKS mata kuliah aktif bertanda basic science (Tabel 3.a.4)
 //   9:  Σ dana PS baris a–f Tabel 2.b ("Biaya Operasional Pendidikan") ÷ mahasiswa aktif,
 //       per tahun akademik, dirata-rata TS-2 s.d. TS (satuan rupiah)
-let MK_DATA = null, DANA_PRODI = null, MHS_TA = null, DOSEN_KAT = null;
+let MK_DATA = null, DANA_PRODI = null, MHS_TA = null, DOSEN_KAT = null, AMPU = new Map();
 // Butir 20, 22, 24 (43-patch-unsur-bukti.sql): dokumen peta jalan dan nomor unsur
 // yang ada buktinya (unsur_bukti(), tanpa tautan). null = belum terbaca.
 let PETA_JALAN = null, UNSUR_BUKTI = null;
@@ -1319,7 +1320,7 @@ async function muatDataProdiSkor(){
     sb.from('ref_mata_kuliah').select(kolMK + ',capstone,rps_ada,rps_url,rps_9_komponen'),
     sb.from('lkps_penggunaan_dana').select('tahun_akademik,jenis,dana_ps'),
     sb.from('lkps_mahasiswa_ta').select('tahun_akademik,jumlah_mahasiswa_aktif'),
-    sb.from('dosen').select('kategori,aktif,peran'),
+    sb.from('dosen').select('id,nama,kategori,aktif,peran,dtps,tugas_belajar'),
     sb.from('lkps_peta_jalan').select('id,jenis,judul,tahun_mulai,tahun_selesai'),
     sb.rpc('unsur_bukti'),
   ]);
@@ -1330,6 +1331,13 @@ async function muatDataProdiSkor(){
   DANA_PRODI = dn.error ? null : (dn.data || []);
   MHS_TA = mh.error ? null : (mh.data || []);
   DOSEN_KAT = ds.error ? null : (ds.data || []);
+  if (ds.error) { const ds2 = await sb.from('dosen').select('kategori,aktif,peran'); DOSEN_KAT = ds2.error ? null : (ds2.data || []); }
+  // Mengampu MK per tahun akademik (154, pemilik 2026-11-22): kelas Penyusunan kelas + centang manual; tabel yang belum
+  // ada dibaca kosong (aturan mengampu lalu tidak diterapkan).
+  const kosong = q => q.then(r => r.error ? [] : (r.data || []), () => []);
+  const [kl, kdd, man] = await Promise.all([kosong(sb.from('kelas_kuliah').select('id,tahun_akademik')),
+    kosong(sb.from('kelas_dosen').select('kelas_id,dosen_id')), kosong(sb.from('dosen_ampu_ts').select('dosen_id,tahun_akademik'))]);
+  AMPU = ampuPerTA({ kelas: kl, kd: kdd, manual: man });
   PETA_JALAN = pj.error ? null : (pj.data || []);
   UNSUR_BUKTI = ub.error ? null : (ub.data || []);
   TINJAU = unsurDariTinjauan(await bacaTinjauan(sb));
@@ -1503,12 +1511,11 @@ function catatanUnsur(no){
 // Butir 26 (pemilik 2026-11-10): NDT = dosen aktif berkategori tetap (DTPS dan dosen
 // tetap PT dari prodi lain); NDTT = berkategori tidak tetap atau industri. Kategori
 // diisi di Kelola dosen. null = belum ada dosen berkategori (kartu: belum ada data).
+// 154 (pemilik 2026-11-22): hanya dosen yang mengampu MK prodi pada TS terpilih (dosen-hitung.js); staf, asesor, dan
+// dosen tugas belajar tidak dihitung. Tanpa data mengampu untuk TS itu, syarat mengampu tidak diterapkan.
 function hitungDosen(){
-  const xs = (DOSEN_KAT || []).filter(d => d.aktif !== false && d.peran !== 'asesor' && d.kategori);
-  if (!xs.length) return null;
-  return { ndt: xs.filter(d => d.kategori === 'tetap').length,
-           ndtt: xs.filter(d => d.kategori === 'tidak_tetap' || d.kategori === 'industri').length,
-           industri: xs.filter(d => d.kategori === 'industri').length };
+  if (!(DOSEN_KAT || []).some(d => d.kategori)) return null;
+  return hitungTS(DOSEN_KAT, `${TS - 1}/${TS}`, AMPU);
 }
 // SKS satu mata kuliah: jumlah komponen kuliah/seminar/praktikum bila diisi, selain itu kolom sks.
 function sksMK(m){
@@ -1708,6 +1715,10 @@ function butir26(){
     ? `Dihitung dari kategori dosen aktif di Kelola dosen: ${h.ndt} tetap, ${h.ndtt} tidak tetap/industri`
       + (h.industri ? ` (${h.industri} industri)` : '') + '.'
       + (h.ndt < N ? ` Ada DTPS yang kategorinya belum diisi; NDT memakai NDTPS (${N}).` : '')
+      + (h.diterapkan ? ` Hanya yang mengampu MK pada ${TS - 1}/${TS} (Penyusunan kelas atau centang di Kelola dosen)`
+          + (h.tidakMengampu.length ? `; tidak dihitung: ${h.tidakMengampu.length} dosen` : '') + '.'
+        : ` Data mengampu MK ${TS - 1}/${TS} belum ada, jadi syarat mengampu belum diterapkan.`)
+      + ((D.dtps || {}).ampu?.ta && (D.dtps || {}).ampu.ta !== `${TS - 1}/${TS}` ? ` NDTPS dihitung untuk ${(D.dtps || {}).ampu.ta}.` : '')
     : 'Kategori dosen belum diisi di Kelola dosen; NDTT memakai isian manual dan NDT dianggap sama dengan NDTPS.');
 }
 

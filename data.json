@@ -8752,6 +8752,11 @@
   "doktor": 7,
   "dosen_tetap": 11,
   "tugas_belajar": 1,
+  "ampu": {
+   "ta": "2026/2027",
+   "diterapkan": false,
+   "tidak_mengampu": 0
+  },
   "jabatan": {
    "lektor": 5,
    "asisten_ahli": 3,

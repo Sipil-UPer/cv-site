@@ -14,6 +14,8 @@
 <link rel="stylesheet" href="tema.css?v=2026-11-22-866c27">
 <style>
   *{box-sizing:border-box}
+  /* Daftar per kelompok (154, pemilik 2026-11-22) */
+  h3.kel{font-size:15px;color:var(--biru);margin:18px 0 6px} .ringkas-ts{margin-bottom:10px} .ringkas-ts select{margin:0 8px 0 4px}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
        font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
   .wrap{max-width:1100px;margin:0 auto;padding:0 20px 80px}
@@ -95,6 +97,7 @@ import { unduhCV } from './cv-dosen.js?v=2026-11-22-866c27';
 import { KOLOM_PROFIL, KATEGORI, JABATAN,
   formLKPS, bacaFormLKPS, pasangEditor } from './profil-dosen.js?v=2026-11-22-866c27';
 import { hitungVerifikasi } from './verifikasi-hitung.js?v=2026-11-22-866c27';
+import { KELOMPOK as KELOMPOK_LABEL, URUT_KELOMPOK, kelompokDosen, ampuPerTA, statusTS, hitungTS } from './dosen-hitung.js?v=2026-11-22-866c27';
 
 /* =====================================================================
    KELOLA DOSEN — daftar dosen prodi diisi admin di situs (keputusan
@@ -149,6 +152,7 @@ const POLA = {
 const KOLOM = 'id,nidn,nama,email,peran,pendidikan,jabatan,sinta_id,scopus_id,orcid,aktif,dtps';
 
 // ADA_LKPS: kolom profil LKPS 4.a ada (supabase/22-patch-profil-dosen.sql).
+let AMPU = new Map(), SUMBER = new Map(), ADA_AMPU = false;   // 154: mengampu per tahun akademik
 let SAYA = null, DOSEN = [], SUNTING = null, ADA_LKPS = true, ADA_ALT = false, ADA_KK = false, KK = null, ADA_TB = false, ADA_NIP = false, ADA_NUPTK = false, ADA_GELAR = false;
 
 const nama = (daftar, v) => (daftar.find(x => x[0] === (v || '')) || [, v || '—'])[1];
@@ -184,10 +188,12 @@ async function mulai(){
   }
   $('hSub').textContent = `Masuk sebagai ${saya.nama} (admin)`;
   $('isi').innerHTML = `
-    <div class="info">Daftar dosen prodi. <b>aktif</b> = boleh masuk situs; <b>DTPS</b> = dihitung
-      sebagai dosen tetap prodi (pembagi NDTPS, daftar dosen publik). Admin staf, dekan yang bukan
-      DTPS prodi ini, dan asesor: aktif ya, DTPS tidak. Dosen yang pindah tidak dihapus, cukup
-      dinonaktifkan. Skor berubah setelah situs dibangun ulang (otomatis tiap jam).</div>
+    <div class="info">Daftar orang di situs prodi, dikelompokkan. <b>Peran</b> = hak di situs (Admin, Dosen, Pimpinan, Asesor);
+      <b>kelompok</b> = jenis untuk akreditasi: DTPS (dosen tetap, homebase prodi ini), DT bukan DTPS (homebase prodi lain),
+      tugas belajar, DTT, industri, dan <b>staf (bukan dosen)</b>. Untuk akreditasi, DTPS/DT/DTT dihitung <b>hanya bila
+      mengampu MK prodi pada TS</b> (kelas di Penyusunan kelas, atau centang <b>manual</b> di kolom Mengampu); tugas belajar,
+      staf, dan asesor tidak pernah dihitung. Dosen yang pindah tidak dihapus, cukup dinonaktifkan. Skor berubah setelah situs
+      dibangun ulang (otomatis tiap jam).</div>
     ${htmlSaran('dosen')}
     <div class="b"><p class="ket" style="margin:0">Ajuan perubahan profil dari dosen diputuskan di
       <a href="verifikasi.html#profil">halaman Verifikasi</a><span id="nProfil"></span>.</p></div>
@@ -241,27 +247,75 @@ async function muat(){
   ADA_GELAR = !gq.error;
   if (ADA_GELAR) { const m = new Map((gq.data || []).map(x => [x.id, x.nama_gelar])); DOSEN.forEach(d => { d.nama_gelar = m.get(d.id) ?? null; }); }
   if (KK === null) KK = await fetch('data.json', {cache: 'no-cache'}).then(r => r.ok ? r.json() : {}).then(d => d.situs?.kelompok_keahlian || []).catch(() => []);
+  await muatAmpu();
   gambarDaftar();
   isiForm(SUNTING ? DOSEN.find(d => d.id === SUNTING) : null);
 }
 
+// Mengampu MK per tahun akademik (154): kelas Penyusunan kelas + centang manual; tabel yang belum ada dibaca kosong.
+async function muatAmpu(){
+  const baca = q => q.then(r => ({ ok: !r.error, data: r.error ? [] : (r.data || []) }), () => ({ ok: false, data: [] }));
+  const [kl, kd, man] = await Promise.all([baca(sb.from('kelas_kuliah').select('id,tahun_akademik')),
+    baca(sb.from('kelas_dosen').select('kelas_id,dosen_id')), baca(sb.from('dosen_ampu_ts').select('dosen_id,tahun_akademik'))]);
+  ADA_AMPU = man.ok;
+  AMPU = ampuPerTA({ kelas: kl.data, kd: kd.data, manual: man.data });
+  const taKelas = new Map(kl.data.map(k => [k.id, k.tahun_akademik]));
+  SUMBER = new Map();
+  const catat = (ta, id, s) => { if (!ta) return; if (!SUMBER.has(ta)) SUMBER.set(ta, new Map()); if (SUMBER.get(ta).get(id) !== 'kelas') SUMBER.get(ta).set(id, s); };
+  kd.data.forEach(r => catat(taKelas.get(r.kelas_id), r.dosen_id, 'kelas'));
+  man.data.forEach(r => catat(r.tahun_akademik, r.dosen_id, 'manual'));
+}
+
+// Daftar per kelompok dan status hitungan pada TS (154, pemilik 2026-11-22): DTPS, DT bukan DTPS, tugas belajar, DTT,
+// industri, pimpinan, staf (bukan dosen), asesor. "Dihitung TS" = masuk NDTPS/NDT/NDTT pada TS terpilih (dosen-hitung.js,
+// aturan yang sama dengan bangun.py dan Skor). "Mengampu" = punya kelas di Penyusunan kelas pada TS itu, atau dicentang.
+const tsBerjalanKD = () => { const d = new Date(); return d.getMonth() >= 8 ? d.getFullYear() + 1 : d.getFullYear(); };
+let TS_KD = null;
 function gambarDaftar(){
-  const n = DOSEN.filter(d => d.dtps && d.aktif !== false).length;
-  $('daftar').innerHTML = `<p class="ket">${DOSEN.length} orang; ${n} dihitung DTPS.${ADA_LKPS ? '' :
-      ' Profil LKPS 4.a belum tersedia: jalankan supabase/22-patch-profil-dosen.sql.'}
+  TS_KD ??= tsBerjalanKD();
+  const ta = `${TS_KD - 1}/${TS_KD}`, h = hitungTS(DOSEN, ta, AMPU);
+  const pilihTS = [0, 1, 2].map(n => tsBerjalanKD() - n).map(x => `<option value="${x}"${x === TS_KD ? ' selected' : ''}>${x - 1}/${x}</option>`).join('');
+  const kolomKK = ADA_KK && KK.length;
+  const baris = d => {
+    const st = statusTS(d, ta, AMPU, SUMBER), dosenProdi = !['staf', 'pimpinan', 'asesor'].includes(st.kelompok);
+    const ampu = !dosenProdi ? '—' : SUMBER.get(ta)?.get(d.id) === 'kelas' ? 'ya (kelas)'
+      : ADA_AMPU ? `<label class="cek"><input type="checkbox" data-ampu="${esc(d.id)}"${SUMBER.get(ta)?.get(d.id) === 'manual' ? ' checked' : ''}> manual</label>` : '—';
+    const hitung = st.dtps ? 'DTPS' : st.dt ? 'DT' : st.dtt ? 'DTT' : `<span class="ket">tidak${st.alasan ? ': ' + esc(st.alasan) : ''}</span>`;
+    return `<tr class="${d.id === SUNTING ? 'sunting' : ''}${d.aktif ? '' : ' nonaktif'}">
+      <td>${esc(d.nama)}${d.tugas_belajar ? `<div class="ket">${esc(d.tugas_belajar)}</div>` : ''}</td><td>${esc(d.nidn)}</td><td>${esc(d.email)}</td>
+      <td>${esc(nama(PERAN, d.peran))}</td><td>${esc(d.pendidikan || '—')}</td><td>${esc(nama(JABATAN, d.jabatan))}</td>
+      ${kolomKK ? `<td>${esc(KK.find(k => k.kode === d.kelompok_keahlian)?.nama || '—')}</td>` : ''}<td>${d.aktif ? 'ya' : 'tidak'}</td>
+      <td>${ampu}</td><td>${hitung}</td>
+      <td><button class="btn ghost kecil" data-ubah="${esc(d.id)}">Ubah</button>
+        <button class="btn ghost kecil" data-cv-dosen="${esc(d.id)}" title="Unduh CV dosen ini (.docx)">CV</button></td></tr>`;
+  };
+  const grup = URUT_KELOMPOK.map(k => [k, DOSEN.filter(d => kelompokDosen(d) === k)]).filter(([, xs]) => xs.length);
+  $('daftar').innerHTML = `<div class="b ringkas-ts"><label>TS <select id="ts_kd">${pilihTS}</select></label>
+      <b>NDTPS ${h.ndtps}</b> · <b>NDT ${h.ndt}</b> · <b>NDTT ${h.ndtt}</b>${h.industri ? ` (${h.industri} industri)` : ''}
+      <div class="ket">${h.diterapkan ? `Hanya dosen yang mengampu MK prodi pada ${ta} yang dihitung (kelas di
+        <a href="kelas.html">Penyusunan kelas</a> atau centang <b>manual</b> di kolom Mengampu)${h.tidakMengampu.length ? `; tidak mengampu: ${esc(h.tidakMengampu.join(', '))}` : ''}.`
+        : `Belum ada data mengampu MK untuk ${ta} (kelas atau centang), jadi syarat mengampu <b>belum diterapkan</b>: semua dosen aktif
+        sesuai kelompoknya dihitung. Centang <b>manual</b> dosen yang mengampu, atau susun kelasnya di <a href="kelas.html">Penyusunan kelas</a>.`}
+        ${ADA_AMPU ? '' : ' Centang manual tersedia setelah supabase/154-patch-dosen-mengampu-ts.sql dijalankan.'}
+        Tugas belajar, staf, pimpinan bukan dosen prodi, dan asesor tidak pernah dihitung. Skor berubah setelah situs dibangun ulang.</div></div>
+    <p class="ket">${DOSEN.length} orang.${ADA_LKPS ? '' : ' Profil LKPS 4.a belum tersedia: jalankan supabase/22-patch-profil-dosen.sql.'}
       <label class="ket" style="margin-left:12px">CV: <select id="cv_gaya"><option value="cv">CV akademik</option>
         <option value="hibah">Biodata pengusul hibah (A–J)</option></select> periode karya <select id="cv_periode"><option value="semua">semua tahun</option>
         <option value="5">5 tahun terakhir</option></select></label> <span class="msg" id="cv_msg"></span></p>
-    <table class="t"><thead><tr><th>Nama</th><th>NIDN/kode</th><th>Email</th><th>Peran</th>
-      ${ADA_LKPS ? '<th>Kategori</th>' : ''}<th>Pendidikan</th><th>Jabatan</th>${ADA_KK && KK.length ? '<th>KK</th>' : ''}<th>Aktif</th><th>DTPS</th><th></th></tr></thead><tbody>${
-    DOSEN.map(d => `<tr class="${d.id === SUNTING ? 'sunting' : ''}${d.aktif ? '' : ' nonaktif'}">
-      <td>${esc(d.nama)}</td><td>${esc(d.nidn)}</td><td>${esc(d.email)}</td>
-      <td>${esc(nama(PERAN, d.peran))}</td>${ADA_LKPS ? `<td>${esc(nama(KATEGORI, d.kategori))}</td>` : ''}<td>${esc(d.pendidikan || '—')}</td>
-      <td>${esc(nama(JABATAN, d.jabatan))}</td>${ADA_KK && KK.length ? `<td>${esc(KK.find(k => k.kode === d.kelompok_keahlian)?.nama || '—')}</td>` : ''}<td>${d.aktif ? 'ya' : 'tidak'}</td>
-      <td>${d.tugas_belajar ? 'tugas belajar' : d.dtps ? 'ya' : 'tidak'}</td>
-      <td><button class="btn ghost kecil" data-ubah="${esc(d.id)}">Ubah</button>
-        <button class="btn ghost kecil" data-cv-dosen="${esc(d.id)}" title="Unduh CV dosen ini (.docx)">CV</button></td></tr>`).join('')
-  }</tbody></table>`;
+    ${grup.map(([k, xs]) => `<h3 class="kel">${esc(KELOMPOK_LABEL[k])} <span class="ket">${xs.length} orang</span></h3>
+    <table class="t"><thead><tr><th>Nama</th><th>NIDN/kode</th><th>Email</th><th>Peran</th><th>Pendidikan</th><th>Jabatan</th>
+      ${kolomKK ? '<th>KK</th>' : ''}<th>Aktif</th><th>Mengampu ${esc(ta)}</th><th>Dihitung TS</th><th></th></tr></thead>
+      <tbody>${xs.map(baris).join('')}</tbody></table>`).join('')}`;
+  $('ts_kd').onchange = e => { TS_KD = +e.target.value; gambarDaftar(); };
+  $('daftar').querySelectorAll('[data-ampu]').forEach(c => { c.onchange = async () => {
+    c.disabled = true;
+    const ta2 = `${TS_KD - 1}/${TS_KD}`;
+    const { error } = c.checked
+      ? await sb.from('dosen_ampu_ts').insert({ dosen_id: c.dataset.ampu, tahun_akademik: ta2, oleh: SAYA.email })
+      : await sb.from('dosen_ampu_ts').delete().eq('dosen_id', c.dataset.ampu).eq('tahun_akademik', ta2);
+    if (error) { tulis('err', 'Centang mengampu gagal: ' + error.message); c.checked = !c.checked; c.disabled = false; return; }
+    await muatAmpu(); gambarDaftar();
+  }; });
   // CV dosen otomatis (pemilik 2026-11-11): admin mengunduh CV dosen mana pun.
   $('daftar').querySelectorAll('[data-cv-dosen]').forEach(b => {
     b.onclick = async () => {
