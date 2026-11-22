@@ -3,7 +3,7 @@
 // melihat; ekspor berupa unduhan .ics. Tenggat pribadi (tindak lanjut rapat, proposal/laporan
 // hibah, temuan AMI) tampil untuk yang bersangkutan; admin melihat semuanya.
 // Jam di situs ini WIB (UTC+7, tanpa musim panas); di .ics ditulis sebagai UTC.
-import { JENIS_LIBUR } from './hari-libur.js?v=2026-11-22-9325ba';
+import { JENIS_LIBUR } from './hari-libur.js?v=2026-11-22-866c27';
 
 export const JENIS_ACARA = {
   libur:     { label: 'Hari libur', warna: '#9E3A26' },   // 139-patch-hari-libur.sql, pemilik 2026-11-21

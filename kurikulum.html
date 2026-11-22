@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-22-9325ba">
+<link rel="stylesheet" href="tema.css?v=2026-11-22-866c27">
 <style>
   *{box-sizing:border-box}
   html{scroll-behavior:smooth}
@@ -85,7 +85,7 @@
   </div>
 </header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-22-9325ba"></script>
+<script src="config.js?v=2026-11-22-866c27"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -101,7 +101,7 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 // Kepala dan kaki bersama situs umum (pemilik 2026-11-19, tahap 2).
-import { pasangKerangka } from './kerangka.js?v=2026-11-22-9325ba';
+import { pasangKerangka } from './kerangka.js?v=2026-11-22-866c27';
 pasangKerangka({ aktif: 'profil', muat: true });
 // Kurikulum publik (pemilik 2026-11-16): visi, profil lulusan (79-patch-profil-lulusan.sql),
 // CPL (71) dan mata kuliah per semester, dari data.json (bangun.py kurikulum_publik). Kurikulum
@@ -168,12 +168,15 @@ function barisMK(m){
 function tabelMK(s, xs){
   if (s || !xs.every(m => m.sifat === 'pilihan') || !xs.some(m => m.peminatan)) return `<table>${xs.map(barisMK).join('')}</table>`;
   const kel = [...(D.situs?.kelompok_keahlian || []), ...(D.situs?.peminatan_lain || [])];
+  // Aturan MK pilihan (config public_site.elective_rule, pemilik 2026-11-22): hanya untuk kurikulum terbaru.
+  const aturan = K === (D.kurikulum || [])[0] && D.situs?.aturan_pilihan
+    ? `<p class="ket">${esc(D.situs.aturan_pilihan)}</p>` : '';
   const urut = k => { const i = kel.findIndex(x => x.kode === k); return i < 0 ? (k ? kel.length : kel.length + 1) : i; };
   const grup = new Map();
   for (const m of [...xs].sort((a, b) => urut(a.peminatan) - urut(b.peminatan))) {
     const k = m.peminatan || ''; if (!grup.has(k)) grup.set(k, []); grup.get(k).push(m);
   }
-  return [...grup].map(([k, ms]) => `<div class="pem-kepala">${esc(kel.find(x => x.kode === k)?.nama || (k ? k : 'Lainnya'))}
+  return aturan + [...grup].map(([k, ms]) => `<div class="pem-kepala">${esc(kel.find(x => x.kode === k)?.nama || (k ? k : 'Lainnya'))}
       <span>${ms.length} MK · ${angka(jumlahSks(ms))} sks</span></div><table>${ms.map(barisMK).join('')}</table>`).join('');
 }
 

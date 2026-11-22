@@ -7520,6 +7520,7 @@
     ]
    }
   ],
+  "aturan_pilihan": "Setiap mahasiswa wajib mengambil 2 mata kuliah pilihan sesuai bidang peminatan topik tugas akhirnya.",
   "peminatan_lain": [
    {
     "kode": "UMUM",
