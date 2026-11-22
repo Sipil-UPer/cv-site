@@ -106,7 +106,8 @@ import { KELOMPOK as KELOMPOK_LABEL, URUT_KELOMPOK, kelompokDosen, ampuPerTA, st
    kolom pendidikan + jabatan sejak supabase/18-patch-dosen-web.sql).
    Hak tulis: policy dosen_admin (admin saja). Aturan isian (dulu juga di
    sinkron_dosen() bangun.py, dipensiunkan 2026-11-04):
-     - nidn, nama, email wajib; nidn dan email unik; admin staf tanpa NIDN
+     - nidn dan nama wajib; email wajib untuk DTPS dan admin, boleh kosong untuk
+       DT/DTT/industri (155, pemilik 2026-11-22); nidn dan email unik; admin staf tanpa NIDN
        memakai NIP/NUP atau kode STAF-001;
      - asesor tidak pernah DTPS;
      - dosen tidak dihapus (karya merujuk ke barisnya): set aktif = tidak.
@@ -153,6 +154,7 @@ const KOLOM = 'id,nidn,nama,email,peran,pendidikan,jabatan,sinta_id,scopus_id,or
 
 // ADA_LKPS: kolom profil LKPS 4.a ada (supabase/22-patch-profil-dosen.sql).
 let AMPU = new Map(), SUMBER = new Map(), ADA_AMPU = false;   // 154: mengampu per tahun akademik
+let ADA_155 = false;   // 155: kolom boleh_masuk + email boleh kosong
 let SAYA = null, DOSEN = [], SUNTING = null, ADA_LKPS = true, ADA_ALT = false, ADA_KK = false, KK = null, ADA_TB = false, ADA_NIP = false, ADA_NUPTK = false, ADA_GELAR = false;
 
 const nama = (daftar, v) => (daftar.find(x => x[0] === (v || '')) || [, v || '—'])[1];
@@ -246,6 +248,10 @@ async function muat(){
   const gq = await sb.from('dosen').select('id,nama_gelar');
   ADA_GELAR = !gq.error;
   if (ADA_GELAR) { const m = new Map((gq.data || []).map(x => [x.id, x.nama_gelar])); DOSEN.forEach(d => { d.nama_gelar = m.get(d.id) ?? null; }); }
+  // Boleh masuk (patch 155, pemilik 2026-11-22): DT/DTT bisa ada di daftar tanpa bisa masuk; kolom dibaca terpisah.
+  const bm = await sb.from('dosen').select('id,boleh_masuk');
+  ADA_155 = !bm.error;
+  if (ADA_155) { const m = new Map((bm.data || []).map(x => [x.id, x.boleh_masuk])); DOSEN.forEach(d => { d.boleh_masuk = m.get(d.id) ?? true; }); }
   if (KK === null) KK = await fetch('data.json', {cache: 'no-cache'}).then(r => r.ok ? r.json() : {}).then(d => d.situs?.kelompok_keahlian || []).catch(() => []);
   await muatAmpu();
   gambarDaftar();
@@ -282,7 +288,8 @@ function gambarDaftar(){
       : ADA_AMPU ? `<label class="cek"><input type="checkbox" data-ampu="${esc(d.id)}"${SUMBER.get(ta)?.get(d.id) === 'manual' ? ' checked' : ''}> manual</label>` : '—';
     const hitung = st.dtps ? 'DTPS' : st.dt ? 'DT' : st.dtt ? 'DTT' : `<span class="ket">tidak${st.alasan ? ': ' + esc(st.alasan) : ''}</span>`;
     return `<tr class="${d.id === SUNTING ? 'sunting' : ''}${d.aktif ? '' : ' nonaktif'}">
-      <td>${esc(d.nama)}${d.tugas_belajar ? `<div class="ket">${esc(d.tugas_belajar)}</div>` : ''}</td><td>${esc(d.nidn)}</td><td>${esc(d.email)}</td>
+      <td>${esc(d.nama)}${d.tugas_belajar ? `<div class="ket">${esc(d.tugas_belajar)}</div>` : ''}</td><td>${esc(d.nidn)}</td><td>${d.email ? esc(d.email) : '<span class="ket">tanpa email</span>'}${
+        ADA_155 && d.boleh_masuk === false ? '<div class="ket">tidak boleh masuk</div>' : ''}</td>
       <td>${esc(nama(PERAN, d.peran))}</td><td>${esc(d.pendidikan || '—')}</td><td>${esc(nama(JABATAN, d.jabatan))}</td>
       ${kolomKK ? `<td>${esc(KK.find(k => k.kode === d.kelompok_keahlian)?.nama || '—')}</td>` : ''}<td>${d.aktif ? 'ya' : 'tidak'}</td>
       <td>${ampu}</td><td>${hitung}</td>
@@ -348,8 +355,8 @@ function isiForm(d){
         <small>Tampil di situs (daftar dan halaman dosen) untuk keperluan mahasiswa. Kosong = tidak tampil.${ADA_NUPTK ? ' Dosen juga bisa mengisinya sendiri di Profil.' : ''}</small></div>` : ''}
       ${ADA_NUPTK ? `<div class="fld"><label>NUPTK</label><input id="f_nuptk" maxlength="40" value="${esc(r.nuptk || '')}">
         <small>Biasanya 16 angka. Tidak tampil di situs publik. Dosen juga bisa mengisinya sendiri di Profil.</small></div>` : ''}
-      <div class="fld"><label>Email kampus <span class="wj">*</span></label><input id="f_email" type="email" value="${esc(r.email)}">
-        <small>Dipakai untuk masuk situs.</small></div>
+      <div class="fld"><label>Email kampus${ADA_155 ? '' : ' <span class="wj">*</span>'}</label><input id="f_email" type="email" value="${esc(r.email)}">
+        <small>Dipakai untuk masuk situs.${ADA_155 ? ' Wajib untuk DTPS dan admin; DT, DTT, dan industri boleh kosong (= tidak bisa masuk).' : ''}</small></div>
       ${ADA_ALT ? `<div class="fld"><label>Email alternatif untuk masuk</label><input id="f_email_alternatif" type="email"
         value="${esc(r.email_alternatif)}" placeholder="mis. nama@gmail.com">
         <small>Bila tautan masuk tidak sampai ke email kampus. Data tetap atas email kampus.</small></div>` : ''}
@@ -367,7 +374,9 @@ function isiForm(d){
       <div class="fld"><label>Scopus ID</label><input id="f_scopus_id" value="${esc(r.scopus_id)}"></div>
       <div class="fld"><label>ORCID</label><input id="f_orcid" value="${esc(r.orcid)}"></div>
       <div class="fld"><label>Status</label>
-        <label class="cek"><input type="checkbox" id="f_aktif"${r.aktif ? ' checked' : ''}${diriSendiri ? ' disabled' : ''}>Aktif (boleh masuk situs)</label>
+        <label class="cek"><input type="checkbox" id="f_aktif"${r.aktif ? ' checked' : ''}${diriSendiri ? ' disabled' : ''}>Aktif (masih bertugas; nonaktif = tidak masuk dan tidak dihitung)</label>
+        ${ADA_155 ? `<label class="cek"><input type="checkbox" id="f_boleh_masuk"${r.boleh_masuk !== false ? ' checked' : ''}${diriSendiri ? ' disabled' : ''}>Boleh masuk situs (menginput data)</label>
+        <small>Tanpa centang: tetap di daftar dan dihitung bila mengampu, tetapi tidak bisa masuk; kelasnya diinput koordinator MK atau admin.</small>` : ''}
         ${ADA_LKPS ? '' : `<label class="cek"><input type="checkbox" id="f_dtps"${r.dtps ? ' checked' : ''}>Dihitung DTPS prodi</label>`}</div>
       ${ADA_LKPS ? `<div class="fld"><label>Kelompok dosen</label>
         ${KELOMPOK.map(([k, ket]) => `<label class="cek"><input type="checkbox" data-kelompok="${k}"${
@@ -397,6 +406,10 @@ function isiForm(d){
     if (asesor) kotak.forEach(c => { c.checked = false; });
     const pilih = kotak.find(c => c.checked);
     kotak.forEach(c => { c.disabled = asesor || (pilih && c !== pilih); });
+    // Bawaan boleh masuk (155): formulir baru DT/DTT/industri tanpa centang, selama admin belum mengubahnya sendiri.
+    const bm = $('f_boleh_masuk');
+    if (bm && !d && !bm.dataset.disentuh) bm.checked = !['dt', 'dtt', 'industri'].includes(pilih?.dataset.kelompok);
+    if (bm && !diriSendiri) { const admin = $('f_peran').value === 'admin'; bm.disabled = admin; if (admin) bm.checked = true; }
     const inti = $('f_sesuai_kompetensi_inti');
     const dtps = pilih?.dataset.kelompok === 'dtps';
     if (dtps) inti.checked = true;   // DTPS = keahlian sesuai kompetensi inti
@@ -404,6 +417,7 @@ function isiForm(d){
   };
   document.querySelectorAll('[data-kelompok]').forEach(c => { c.onchange = sinkronDtps; });
   $('f_peran').onchange = sinkronDtps;
+  if ($('f_boleh_masuk')) $('f_boleh_masuk').onchange = e => { e.target.dataset.disentuh = '1'; };
   sinkronDtps();
   if (ADA_LKPS) pasangEditor($('form'));
   $('simpan').onclick = simpan;
@@ -413,7 +427,7 @@ function isiForm(d){
 async function simpan(){
   const v = k => $('f_' + k).value.trim();
   const isi = {
-    nama: v('nama'), nidn: v('nidn'), email: v('email').toLowerCase(), peran: $('f_peran').value,
+    nama: v('nama'), nidn: v('nidn'), email: v('email').toLowerCase() || null, peran: $('f_peran').value,
     pendidikan: v('pendidikan') || null, jabatan: v('jabatan') || null,
     sinta_id: idSaja(v('sinta_id')) || null, scopus_id: idSaja(v('scopus_id')) || null,
     orcid: idSaja(v('orcid')) || null,
@@ -447,9 +461,13 @@ async function simpan(){
     isi.tugas_belajar = $('f_tb').value.trim() || null;
     if (isi.tugas_belajar) { isi.dtps = false; if (ADA_LKPS) isi.kategori = 'tetap'; }
   }
-  if (!isi.nama || !isi.nidn || !isi.email) return tulis('buruk', 'Nama, NIDN/kode, dan email wajib diisi.');
-  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(isi.email)) return tulis('buruk', 'Email tidak sah.');
   if (PERAN_BUKAN_DTPS.includes(isi.peran)) isi.dtps = false;
+  if (!isi.nama || !isi.nidn) return tulis('buruk', 'Nama dan NIDN/kode wajib diisi.');
+  // Email (155, pemilik 2026-11-22): wajib untuk DTPS dan admin; DT/DTT/industri boleh kosong. Sebelum patch: selalu wajib.
+  if (!isi.email && (!ADA_155 || isi.dtps || isi.peran === 'admin'))
+    return tulis('buruk', ADA_155 ? 'Email wajib untuk DTPS dan admin.' : 'Nama, NIDN/kode, dan email wajib diisi.');
+  if (isi.email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(isi.email)) return tulis('buruk', 'Email tidak sah.');
+  if (ADA_155 && $('f_boleh_masuk')) isi.boleh_masuk = isi.peran === 'admin' || $('f_boleh_masuk').checked;
   // Pengaman (pemilik 2026-11-17): admin bisa dosen atau staf; staf tidak boleh terhitung DTPS karena lupa mengganti kelompok.
   const sudahDtps = !!(SUNTING && DOSEN.find(d => d.id === SUNTING)?.dtps);   // admin dosen yang sudah DTPS: tanpa tanya ulang
   if (isi.peran === 'admin' && isi.dtps && !sudahDtps && !confirm(`${isi.nama} berperan Admin dan bertanda DTPS (dihitung dosen tetap prodi untuk `
@@ -457,7 +475,7 @@ async function simpan(){
   const lain = DOSEN.filter(d => d.id !== SUNTING);
   if (lain.some(d => String(d.nidn).toLowerCase() === isi.nidn.toLowerCase()))
     return tulis('buruk', `NIDN/kode ${isi.nidn} sudah dipakai.`);
-  if (lain.some(d => String(d.email).toLowerCase() === isi.email))
+  if (isi.email && lain.some(d => String(d.email || '').toLowerCase() === isi.email))
     return tulis('buruk', `Email ${isi.email} sudah terdaftar.`);
   if (ADA_ALT) {
     isi.email_alternatif = v('email_alternatif').toLowerCase() || null;
@@ -466,10 +484,10 @@ async function simpan(){
     if (alt && alt === isi.email) return tulis('buruk', 'Email alternatif sama dengan email kampus.');
     if (alt && lain.some(d => [d.email, d.email_alternatif].map(x => String(x || '').toLowerCase()).includes(alt)))
       return tulis('buruk', `Email ${alt} sudah dipakai dosen lain.`);
-    if (lain.some(d => String(d.email_alternatif || '').toLowerCase() === isi.email))
+    if (isi.email && lain.some(d => String(d.email_alternatif || '').toLowerCase() === isi.email))
       return tulis('buruk', `Email ${isi.email} sudah menjadi email alternatif dosen lain.`);
   }
-  if (SUNTING === SAYA.id) { isi.peran = 'admin'; isi.aktif = true; }
+  if (SUNTING === SAYA.id) { isi.peran = 'admin'; isi.aktif = true; if (ADA_155) isi.boleh_masuk = true; }
   const adminTersisa = lain.some(d => d.peran === 'admin' && d.aktif) || (isi.peran === 'admin' && isi.aktif);
   if (!adminTersisa) return tulis('buruk', 'Harus tersisa minimal satu admin aktif.');
   const ingat = Object.entries(POLA)
@@ -485,7 +503,9 @@ async function simpan(){
   const baru = !SUNTING;
   SUNTING = null;
   await muat();
-  tulis('ok', baru ? `${isi.nama} ditambahkan. Ia sekarang bisa masuk dengan ${isi.email}.` : 'Perubahan tersimpan.');
+  const bisaMasuk = isi.email && isi.aktif && isi.boleh_masuk !== false;
+  tulis('ok', baru ? `${isi.nama} ditambahkan. ${bisaMasuk ? `Ia sekarang bisa masuk dengan ${isi.email}.`
+    : 'Ia tidak bisa masuk situs (tanpa email, nonaktif, atau tidak boleh masuk).'}` : 'Perubahan tersimpan.');
 }
 
 function layarMasuk(){

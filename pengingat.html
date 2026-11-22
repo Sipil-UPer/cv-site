@@ -146,7 +146,7 @@ function htmlJenis(id, judul, ket, penerima, subjek, isi){
 async function kirim(id, penerima, setelah){
   const box = $('j-' + id), m = $('m-' + id);
   const subjek = box.querySelector('.subjek').value.trim(), pola = box.querySelector('textarea').value;
-  const pilih = [...box.querySelectorAll('[data-i]:checked')].map(c => penerima[+c.dataset.i]);
+  const pilih = [...box.querySelectorAll('[data-i]:checked')].map(c => penerima[+c.dataset.i]).filter(p => p?.email);
   if (!pilih.length) { m.className = 'msg buruk'; m.textContent = 'Belum ada penerima yang dicentang.'; return; }
   if (pilih.length > 30) { m.className = 'msg buruk'; m.textContent = 'Paling banyak 30 sekali kirim.'; return; }
   if (!confirm(`Kirim ${pilih.length} email dari akun Google prodi?`)) return;

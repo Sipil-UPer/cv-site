@@ -203,8 +203,13 @@ function layarMasuk(){
   };
 }
 
-function layarTidakTerdaftar(email){
-  $('isi').innerHTML = `<div class="panel"><h2>Email belum terdaftar</h2>
+async function layarTidakTerdaftar(email){
+  // 155 (pemilik 2026-11-22): terdaftar tetapi tidak boleh masuk -> pesan sendiri. RPC belum ada = dianggap belum terdaftar.
+  const ditutup = await sb.rpc('akses_masuk_ditutup').then(r => r.data === true, () => false);
+  $('isi').innerHTML = ditutup ? `<div class="panel"><h2>Akses masuk belum dibuka</h2>
+    <p class="hint"><strong>${esc(email)}</strong> terdaftar di prodi, tetapi belum diberi akses masuk situs.
+    Hubungi admin prodi bila Anda perlu menginput data.</p>
+    <button class="btn ghost" id="kl">Keluar</button></div>` : `<div class="panel"><h2>Email belum terdaftar</h2>
     <p class="hint"><strong>${esc(email)}</strong> belum ada di daftar prodi.
     Hubungi admin prodi untuk didaftarkan.</p>
     <button class="btn ghost" id="kl">Keluar</button></div>`;

@@ -118,7 +118,7 @@ const sb = createClient(window.SB_URL, window.SB_KEY);
 let SAYA = null, ISI = {}, TUGAS = null, DOSEN = [], TIM = [], PILIH = new Set();
 const INGAT = 'narasi-led-pilih';
 const ingat = () => { try { return JSON.parse(localStorage.getItem(INGAT)); } catch { return null; } };
-const namaPenulis = e => (DOSEN.find(a => a.email.toLowerCase() === String(e).toLowerCase()) || {}).nama || e || 'anggota tim lain';
+const namaPenulis = e => (DOSEN.find(a => a.email && a.email.toLowerCase() === String(e).toLowerCase()) || {}).nama || e || 'anggota tim lain';
 const sel = (kolom, d) => d.dosen_id ? esc(d[kolom === 'nomor' ? 'nomor' : kolom]) || '—'
   : `<input data-kolom="${kolom}" value="${esc(d[kolom])}" aria-label="${kolom} ${esc(d.nama)}">`;
 const htmlSusunan = () => {
@@ -135,7 +135,7 @@ const htmlSusunan = () => {
     : '<p class="kosong">Belum ada anggota. Centang nama di atas atau tambahkan orang di luar sistem.</p>';
 };
 const opsiTugas = id => `<option value="">Belum dibagi</option>${penulisNarasi(DOSEN).map(a =>
-  `<option value="${esc(a.email)}"${String(TUGAS[id] || '').toLowerCase() === a.email.toLowerCase() ? ' selected' : ''}>${esc(a.nama)}</option>`).join('')}`;
+  `<option value="${esc(a.email)}"${String(TUGAS[id] || '').toLowerCase() === String(a.email || '').toLowerCase() ? ' selected' : ''}>${esc(a.nama)}</option>`).join('')}`;
 
 function layarMasuk(){
   $('hSub').textContent = 'Perlu masuk';
