@@ -392,11 +392,11 @@ export async function pasangMenu(sb){
     <button type="button" class="rk-burger" aria-expanded="false">Menu</button>
     ${grup}
     <div class="rk-user"><div class="rk-cari"><input type="search" placeholder="Cari… (tekan /)" aria-label="Cari di situs"
-        autocomplete="off"></div><a href="index.html">Beranda umum</a>
+        autocomplete="off"></div>${halamanAktif('index.html') ? '<a href="index.html">Beranda umum</a>' : ''}
       <span>${esc(u.saya.nama)}</span><button type="button" title="Mengakhiri sesi akun ini di semua perangkat dan tab">Keluar</button></div></div>`;
   nav.querySelector('.rk-user button').onclick = async () => {
     await sb.auth.signOut();
-    location.href = 'index.html';
+    location.href = halamanAktif('index.html') ? 'index.html' : 'ruang-kerja.html';
   };
   const burger = nav.querySelector('.rk-burger');
   burger.onclick = () => {

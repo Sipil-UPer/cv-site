@@ -9,6 +9,7 @@ import { tugasEvaluasi } from './evaluasi-pembelajaran.js?v=2026-11-22-866c27';
 import { bolehPengajuan } from './koordinator.js?v=2026-11-22-866c27';
 import { tenggatReview, hariKe, teksHari as teksHariRv, tugasTenggatRps, tugasTetapDekan, tanggalPanjang as tglRv } from './pengingat-rps.js?v=2026-11-22-866c27';
 import { tugasMK } from './tugas-mk.js?v=2026-11-22-866c27';
+import { halamanAktif } from './fitur.js?v=2026-11-22-866c27';
 
 const SELESAI_AMI = new Set(['selesai', 'ditutup']);
 const tingkat = h => h == null ? 'biasa' : h < 0 ? 'lewat' : h <= HARI_DEKAT ? 'dekat' : 'biasa';
@@ -38,7 +39,8 @@ export function tugasSaya(d, kini = new Date()){
   const s = d.saya;
   if (!s || s.peran === 'asesor') return [];
   const out = [];
-  const tambah = (jenis, judul, rinci, href, hari = null) => out.push({ jenis, judul, rinci, href, hari, tingkat: tingkat(hari) });
+  // Modul yang dimatikan (fitur.js, templat akreditasi): tugasnya tidak ditampilkan.
+  const tambah = (jenis, judul, rinci, href, hari = null) => { if (!href || halamanAktif(href)) out.push({ jenis, judul, rinci, href, hari, tingkat: tingkat(hari) }); };
 
   // Profil (staf non-DTPS tidak diingatkan, sama dengan pengingat-dosen.js).
   if (s.dtps !== false) {

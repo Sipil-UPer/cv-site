@@ -124,6 +124,8 @@ import { bacaTinjauan } from './tinjauan-rps.js?v=2026-11-22-866c27';
 import { isoDari } from './pengingat-rps.js?v=2026-11-22-866c27';
 import { tugasSaya } from './tugas-saya.js?v=2026-11-22-866c27';
 import { fiturAktif, halamanAktif } from './fitur.js?v=2026-11-22-866c27';
+// Situs publik mati (templat akreditasi, pemilik 2026-11-23): tanpa tautan ke beranda umum.
+if (!halamanAktif('index.html')) document.querySelector('a.balik[href="index.html"]')?.remove();
 import { barisDosen } from './target-kinerja.js?v=2026-11-22-866c27';
 
 const sb = createClient(window.SB_URL, window.SB_KEY);

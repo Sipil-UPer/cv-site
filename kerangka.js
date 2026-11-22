@@ -6,7 +6,7 @@
 //   isiKerangka(D);                           // setelah data.json: nama prodi, kontak, media sosial
 // Logo: window.LOGO_KEPALA di config.js; tanpa itu logo.png. Menu hanya memuat halaman yang ada
 // dan modul yang menyala (fitur.js). Tautan relatif (situs akan pindah ke subdomain kampus).
-import { halamanAktif } from './fitur.js?v=2026-11-22-866c27';
+import { halamanAktif, alihkanBilaMati } from './fitur.js?v=2026-11-22-866c27';
 import { catatKunjunganPublik } from './kunjungan-publik.js?v=2026-11-22-866c27';
 
 // Lima kelompok menu (pemilik 2026-11-19, tahap 2): Profil, Dosen dan riset, Mahasiswa, Kinerja, Kontak;
@@ -217,6 +217,8 @@ function menuKaki(){
 }
 
 export function pasangKerangka({ aktif = '', muat = false } = {}){
+  // Situs publik atau modul halaman ini dimatikan (templat akreditasi, pemilik 2026-11-23): alihkan.
+  if (alihkanBilaMati()) return;
   // muat: halaman yang tidak memanggil isiKerangka sendiri; nama prodi, kontak, berita dari data.json.
   // kerangka.json (beberapa KB, bangun.py) cukup untuk kepala/kaki; data.json lengkap hanya bila kerangka.json belum ada.
   if (muat) fetch('kerangka.json', {cache: 'no-cache'}).then(r => r.ok ? r.json() : fetch('data.json', {cache: 'no-cache'}).then(r => r.ok ? r.json() : null))
