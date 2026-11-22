@@ -169,6 +169,67 @@ export function periksaMutu(M, kini = new Date()){
   return hasil;
 }
 
+// Situs publik (pemilik 2026-11-22): yang benar-benar tayang, dibaca dari data.json. Pengampu tidak diperiksa (tidak
+// tampil di situs). judul diawali "Situs publik:" supaya terkelompok di daftar dan CSV.
+export function periksaSitus(D){
+  const hasil = [];
+  const tambah = (id, judul, tingkat, ket, ke, temuan) => hasil.push({ id, judul: `Situs publik: ${judul}`, tingkat, ket, ke, temuan });
+  const dosen = D?.dosen || [];
+  const kel = D?.situs?.kelompok_keahlian || [];
+  const kodeKel = new Set(kel.map(k => k.kode));
+  tambah('situs_dosen_foto', 'Dosen tanpa foto', 'periksa',
+    'Halaman dosen dan daftar dosen menampilkan inisial bila foto kosong. Dosen mengunggah foto sendiri di Profil saya.', 'profil.html',
+    dosen.filter(d => !d.foto).map(d => ({ teks: d.nama_gelar || d.nama })));
+  tambah('situs_dosen_kelompok', 'Dosen tanpa kelompok keahlian', 'periksa',
+    'Dosen tanpa kelompok tidak muncul di halaman bidang keahlian.', 'kelola-dosen.html',
+    kodeKel.size ? dosen.filter(d => !kodeKel.has(d.kelompok)).map(d => ({ teks: d.nama_gelar || d.nama })) : []);
+  tambah('situs_dosen_topik', 'Dosen tanpa topik keahlian', 'info',
+    'Topik keahlian mengisi "Topik riset dosen" di halaman bidang dan pencarian pakar. Dosen mengisinya di Profil saya.', 'profil.html',
+    dosen.filter(d => !(d.topik_keahlian || []).length).map(d => ({ teks: d.nama_gelar || d.nama })));
+  tambah('situs_bidang_kosong', 'Bidang keahlian tanpa dosen atau tanpa cakupan', 'periksa',
+    'Halaman bidang tampil tipis bila belum ada dosen atau uraian cakupannya.', 'kelola-dosen.html',
+    kel.map(k => ({ k, kurang: [!dosen.some(d => d.kelompok === k.kode) && 'dosen', !k.cakupan && 'cakupan'].filter(Boolean) }))
+      .filter(x => x.kurang.length).map(x => ({ teks: `${x.k.nama}: tanpa ${x.kurang.join(' dan ')}` })));
+  const kur = (D?.kurikulum || [])[0];
+  tambah('situs_mk_silabus', `MK ${kur?.kode || 'kurikulum terbaru'} tanpa silabus yang disahkan`, 'periksa',
+    'Halaman mata kuliah menampilkan deskripsi, tujuan, dan pustaka hanya setelah silabusnya disahkan Kaprodi.', 'silabus.html',
+    (kur?.mk || []).filter(m => m.berkas && !m.silabus).map(m => ({ teks: `${m.kode} ${m.nama}` })));
+  const lab = D?.laboratorium || [];
+  tambah('situs_lab', 'Laboratorium belum lengkap di situs', 'periksa',
+    'Halaman Laboratorium, halaman bidang, dan halaman mata kuliah memakai profil lab: foto, bidang keahlian (patch 147), mata kuliah praktikum.',
+    'kelola-laboratorium.html',
+    lab.length ? lab.map(l => ({ l, kurang: [!(l.foto || []).length && 'foto', !(l.bidang || []).length && 'bidang keahlian',
+      !(l.mk || []).length && 'mata kuliah praktikum'].filter(Boolean) })).filter(x => x.kurang.length)
+      .map(x => ({ teks: `${x.l.nama}: tanpa ${x.kurang.join(', ')}` }))
+      : [{ teks: 'Belum ada laboratorium yang tampil di situs.' }]);
+  const P = D?.profil || {};
+  tambah('situs_profil', 'Profil program studi belum lengkap', 'periksa',
+    'Profil program studi, beranda, dan halaman calon mahasiswa memakai isian ini.', 'data-prodi.html?tab=prodi_upps',
+    [!P.sejarah && 'Sejarah belum diisi', !P.sambutan && 'Sambutan Kaprodi belum diisi',
+     !(D?.akreditasi_prodi || {}).peringkat && 'Status akreditasi belum tampil (Data prodi › Prodi di UPPS)',
+     !(D?.testimoni || []).length && 'Belum ada testimoni alumni/mahasiswa yang tampil (Data prodi › Testimoni)']
+      .filter(Boolean).map(teks => ({ teks })));
+  return hasil;
+}
+
+/**
+ * Tautan internal satu halaman: alamat lengkap tanpa #/? yang berada di bawah akar dan menuju .html (atau folder).
+ * html = isi halaman, dari = alamat halaman itu, akar = alamat folder situs (berakhir '/').
+ */
+export function tautanInternal(html, dari, akar){
+  const out = new Set();
+  for (const m of String(html || '').matchAll(/\shref="([^"]+)"/g)) {
+    const h = m[1].replace(/&amp;/g, '&');
+    if (/^(#|mailto:|tel:|javascript:|data:)/i.test(h) || h.includes('${')) continue;
+    let u;
+    try { u = new URL(h, dari); } catch { continue; }
+    u.hash = ''; u.search = '';
+    const s = u.href;
+    if (s.startsWith(akar) && (/\.html$/.test(u.pathname) || s.endsWith('/'))) out.add(s);
+  }
+  return [...out];
+}
+
 export const TINGKAT = { penting: ['Penting', 'var(--merah)'], periksa: ['Periksa', '#B8860B'], info: ['Info', 'var(--muted)'] };
 
 // CSV semua temuan (pemisah ; untuk Excel berbahasa Indonesia), dengan BOM UTF-8.

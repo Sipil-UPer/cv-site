@@ -7622,6 +7622,7 @@
    {
     "kode": "STR",
     "nama": "Rekayasa Struktur dan Material",
+    "berkas": "bidang-rekayasa-struktur-dan-material.html",
     "cakupan": "Struktur beton dan baja, bangunan tahan gempa, struktur lepas pantai dan bangunan terapung, material konstruksi",
     "nama_en": "Structural Engineering and Materials",
     "cakupan_en": "Concrete and steel structures, earthquake-resistant buildings, offshore and floating structures, construction materials"
@@ -7629,6 +7630,7 @@
    {
     "kode": "AIR",
     "nama": "Rekayasa Sumber Daya Air",
+    "berkas": "bidang-rekayasa-sumber-daya-air.html",
     "cakupan": "Hidrologi dan hidraulika, bendungan dan tenaga air (hydropower), drainase, pantai, pelabuhan, dan pesisir",
     "nama_en": "Water Resources Engineering",
     "cakupan_en": "Hydrology and hydraulics, dams and hydropower, drainage, coastal, port, and marine engineering"
@@ -7636,6 +7638,7 @@
    {
     "kode": "TRN",
     "nama": "Rekayasa Transportasi",
+    "berkas": "bidang-rekayasa-transportasi.html",
     "cakupan": "Lalu lintas dan sistem transportasi, geometri dan perkerasan jalan, bandara, transportasi berkelanjutan",
     "nama_en": "Transportation Engineering",
     "cakupan_en": "Traffic and transportation systems, highway geometry and pavements, airports, sustainable transportation"
@@ -7643,6 +7646,7 @@
    {
     "kode": "GEO",
     "nama": "Rekayasa Geoteknik",
+    "berkas": "bidang-rekayasa-geoteknik.html",
     "cakupan": "Geologi dan mekanika tanah, fondasi, gempa dalam geoteknik, perbaikan tanah",
     "nama_en": "Geotechnical Engineering",
     "cakupan_en": "Geology and soil mechanics, foundations, geotechnical earthquake engineering, ground improvement"
@@ -7650,6 +7654,7 @@
    {
     "kode": "MRK",
     "nama": "Manajemen dan Rekayasa Konstruksi",
+    "berkas": "bidang-manajemen-dan-rekayasa-konstruksi.html",
     "cakupan": "Manajemen dan ekonomi proyek, metode pelaksanaan dan K3, aspek hukum dan standar internasional konstruksi",
     "nama_en": "Construction Engineering and Management",
     "cakupan_en": "Project management and economics, construction methods and safety, legal aspects and international construction standards"

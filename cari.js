@@ -11,9 +11,12 @@ const AKSEN = new RegExp('[\\u0300-\\u036f]', 'g');
 export const normal = s => String(s ?? '').normalize('NFD').replace(AKSEN, '').toLowerCase()
   .replace(/[^a-z0-9]+/g, ' ').trim();
 
+// Bidang keahlian, mata kuliah, laboratorium, prestasi, dan kabar (pemilik 2026-11-22): pencarian situs publik
+// mencakup halaman per bidang dan per mata kuliah, dan bisa dibuka dari kepala setiap halaman (kerangka.js).
 export const JENIS_CARI = [
-  ['halaman', 'Halaman'], ['butir', 'Butir akreditasi'], ['dosen', 'Dosen'], ['karya', 'Karya'],
-  ['mitra', 'Mitra'], ['dokumen', 'Dokumen'], ['rapat', 'Rapat'], ['tindak', 'Tindak lanjut rapat'],
+  ['halaman', 'Halaman'], ['butir', 'Butir akreditasi'], ['bidang', 'Bidang keahlian'], ['mk', 'Mata kuliah'],
+  ['dosen', 'Dosen'], ['lab', 'Laboratorium'], ['karya', 'Karya'], ['prestasi', 'Prestasi mahasiswa'],
+  ['kabar', 'Kabar kegiatan'], ['mitra', 'Mitra'], ['dokumen', 'Dokumen'], ['rapat', 'Rapat'], ['tindak', 'Tindak lanjut rapat'],
   ['temuan', 'Temuan AMI'],
 ];
 export const MAKS_PER_JENIS = 6;
@@ -70,7 +73,8 @@ export function indeksButir(manual, data){
 
 const daftarNama = xs => (xs || []).map(p => (typeof p === 'string' ? p : p?.nama)).filter(Boolean);
 
-/** Data publik dari data.json: halaman umum, dosen, karya, mitra. aktif(k) = modul opsional menyala. */
+/** Data publik dari data.json: halaman umum, bidang keahlian, mata kuliah, dosen, laboratorium, karya, prestasi, kabar,
+ *  mitra. aktif(k) = modul opsional menyala. */
 export function indeksPublik(D, aktif = () => true){
   const xs = [];
   const umum = [
@@ -87,15 +91,53 @@ export function indeksPublik(D, aktif = () => true){
      'kp kerja praktik magang surat pengantar laporan selesai'],
     ['alumni.html', 'Alumni dan tracer study', 'waktu tunggu, kesesuaian bidang, tempat kerja lulusan', 'tracer lulusan alumni'],
     ['hasil-survei.html', 'Hasil survei kepuasan', 'rekap survei', 'kepuasan'],
+    ['profil-prodi.html', 'Profil program studi', 'sejarah, visi dan misi, sambutan, pengelola',
+     'sejarah visi misi tujuan sambutan kaprodi ketua program studi pengelola'],
+    ['kurikulum.html', 'Kurikulum', 'profil lulusan, capaian pembelajaran lulusan, mata kuliah per semester',
+     'cpl obe sks semester mata kuliah wajib pilihan profil lulusan'],
+    ['laboratorium.html', 'Laboratorium', 'fasilitas praktikum, peralatan, layanan pengujian', 'lab praktikum alat uji'],
+    ['calon-mahasiswa.html', 'Untuk calon mahasiswa', 'bidang, perjalanan kuliah, prestasi, karier, pendaftaran',
+     'pendaftaran pmb daftar kuliah calon mahasiswa baru karier'],
+    ['layanan-mahasiswa.html', 'Layanan mahasiswa', 'pengumuman, jadwal, berkas, tanya-jawab', 'pengumuman jadwal formulir tanya'],
+    ['ekuivalensi-kurikulum.html', 'Ekuivalensi kurikulum', 'padanan mata kuliah kurikulum lama ke baru', 'konversi padanan transisi'],
+    ['pengajuan.html', 'Pengajuan mahasiswa', 'KP, TA, lomba, luaran, kabar kegiatan, surat, yudisium',
+     'ajukan surat yudisium tugas akhir skripsi lomba'],
+    ['peta-situs.html', 'Peta situs', 'daftar seluruh halaman', 'sitemap'],
   ];
+  if ((D?.kabar || []).length) umum.push(['kabar.html', 'Kabar kegiatan', 'kegiatan program studi', 'berita']);
+  if ([...(D?.kabar || []), ...(D?.prestasi || []), ...(D?.laboratorium || [])].some(x => (x.foto || []).length))
+    umum.push(['galeri.html', 'Galeri foto', 'foto kegiatan, prestasi, dan laboratorium', 'foto dokumentasi']);
+  if (D?.situs?.prodi_en) umum.push(['english.html', 'English', 'programme overview in English', 'english inggris']);
   if (aktif('sdgs')) umum.push(['sdgs.html', 'Rekap SDGs', 'karya per tujuan pembangunan berkelanjutan', 'sdg']);
   if (aktif('kepakaran')) umum.push(['keahlian.html', 'Kepakaran dosen', 'cari pakar dan peta topik', 'keahlian pakar']);
   for (const [href, j, k, e] of umum) xs.push(entri('halaman', j, k, href, e));
 
   const slug = new Map((D?.dosen || []).map(d => [d.nama, d.slug]));
   const keDosen = nama => slug.get(nama) ? `dosen/${encodeURIComponent(slug.get(nama))}.html` : 'daftar.html?jenis=dosen';
+  // Bidang keahlian (halaman bidang-*.html, pemilik 2026-11-22); berkas dari bangun.py.
+  const kel = [...(D?.situs?.kelompok_keahlian || []), ...(D?.situs?.peminatan_lain || [])];
+  const namaKel = k => kel.find(x => x.kode === k)?.nama || '';
+  for (const b of D?.situs?.kelompok_keahlian || []) if (b.berkas && b.nama)
+    xs.push(entri('bidang', b.nama, b.cakupan || 'Bidang keahlian', b.berkas, [b.kode, b.nama_en].join(' ')));
+  // Mata kuliah kurikulum terbaru yang punya halaman (mk-*.html, bangun.py).
+  const angka = v => String(Number(v || 0)).replace('.', ',');
+  for (const m of (D?.kurikulum || [])[0]?.mk || []) if (m.berkas)
+    xs.push(entri('mk', m.nama, [m.kode, `${angka(m.sks)} sks`, m.sifat === 'pilihan' ? `Pilihan ${namaKel(m.peminatan)}`.trim()
+      : (m.semester ? `Semester ${m.semester}` : '')].filter(Boolean).join(' · '), m.berkas,
+      [m.nama_en, m.silabus?.nama_en, 'mata kuliah matkul'].filter(Boolean).join(' ')));
+  // Dosen dengan nama bergelar bila diisi (pemilik 2026-11-22); nama tanpa gelar tetap ikut dicari.
   for (const d of D?.dosen || [])
-    xs.push(entri('dosen', d.nama, d.bidang_keahlian || 'Dosen', `dosen/${encodeURIComponent(d.slug)}.html`, (d.kata_kunci || []).join(' ')));
+    xs.push(entri('dosen', d.nama_gelar || d.nama, d.bidang_keahlian || 'Dosen', `dosen/${encodeURIComponent(d.slug)}.html`,
+      [d.nama, ...(d.kata_kunci || [])].join(' ')));
+  for (const l of D?.laboratorium || [])
+    xs.push(entri('lab', l.nama, String(l.ringkasan || '').slice(0, 120), `laboratorium.html#lab-${encodeURIComponent(l.id)}`,
+      [...(l.layanan || []), ...(l.alat || []).map(a => a.nama), ...(l.mk || []).map(m => m.nama), ...(l.bidang || []).map(namaKel)].join(' ')));
+  for (const p of D?.prestasi || [])
+    xs.push(entri('prestasi', [p.capaian, p.kegiatan].filter(Boolean).join(' '), [p.tahun, p.tingkat, p.penyelenggara].filter(Boolean).join(' · '),
+      `prestasi.html#prestasi-${encodeURIComponent(p.id)}`, [p.bidang, daftarNama(p.mahasiswa).join(' ')].join(' ')));
+  for (const k of D?.kabar || [])
+    xs.push(entri('kabar', k.judul, [k.tanggal, String(k.ringkasan || '').slice(0, 100)].filter(Boolean).join(' · '),
+      `kabar.html#kabar-${encodeURIComponent(k.id)}`, k.jenis || ''));
   const mitra = new Map();
   const catatMitra = k => daftarNama(k.mitra).forEach(m => mitra.set(m, (mitra.get(m) || 0) + 1));
   for (const p of D?.publikasi || []) {

@@ -92,6 +92,19 @@ const CSS = `
 .kr-sub a:hover{background:var(--biru-m11);color:var(--biru)}
 .kr-sub small{display:block;font-size:12px;color:var(--muted)}
 .kr-hp{display:none}
+.kr-tautan .kr-cari-buka{background:none;border:0;font:inherit;color:#fff;cursor:pointer;padding:0;display:inline-flex;align-items:center;gap:5px}
+.kr-tautan .kr-cari-buka:hover{color:var(--aksen,#fff)}
+.kr-cari{background:#fff;color:var(--ink);border-bottom:1px solid var(--line);box-shadow:0 12px 24px rgba(0,0,0,.12)}
+.kr-cari-in{max-width:760px;margin:0 auto;padding:14px 16px 16px}
+.kr-cari input{width:100%;font:inherit;font-size:16px;padding:10px 12px;border:1px solid var(--line);border-radius:2px}
+.kr-cari input:focus{outline:2px solid var(--biru-2,#06c);outline-offset:-1px}
+.kr-cari-hasil{max-height:min(60vh,520px);overflow:auto;margin-top:8px}
+.kr-cari-hasil h4{margin:12px 0 4px;font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.kr-cari-hasil a{display:block;padding:7px 10px;color:var(--ink);text-decoration:none;border-left:3px solid transparent}
+.kr-cari-hasil a:hover,.kr-cari-hasil a.aktif{background:var(--biru-m11,#eef3fb);border-left-color:var(--aksen,var(--merah))}
+.kr-cari-hasil b{display:block;font-weight:600;color:var(--biru)}
+.kr-cari-hasil span{display:block;font-size:13px;color:var(--muted)}
+.kr-cari-hasil p{margin:8px 0;color:var(--muted)}
 .kr-burger{display:none;align-self:center;margin:0 16px 0 auto;font:inherit;font-size:14px;background:none;border:1px solid rgba(255,255,255,.55);padding:8px 12px;cursor:pointer;color:#fff;flex:none}
 @media (max-width:1100px){
   .kr-kanan{justify-content:center}
@@ -172,11 +185,14 @@ export function pasangKerangka({ aktif = '', muat = false } = {}){
       `<img src="${esc(l.src)}" alt="${esc(l.alt)}"${l.w ? ` width="${l.w}" height="${l.h}"` : ''}>`).join('')}</a>
     <div class="kr-kanan">
       <div class="kr-baris1"><a class="kr-merek" href="index.html">Program Studi<b data-kr="prodi"></b></a>
-        <span class="kr-tautan"><a href="#" data-kr="daftar" class="kr-daftar" hidden>Pendaftaran</a><a href="english.html" data-kr="english" lang="en" hidden>English</a><a href="ruang-kerja.html" class="kr-masuk">Masuk ruang kerja</a></span></div>
-      <nav class="kr-nav" id="krNav" aria-label="Menu utama"><ul>${menuAtas(aktif)}<li class="kr-hp"><a href="ruang-kerja.html">Masuk ruang kerja &rarr;</a></li></ul></nav>
+        <span class="kr-tautan"><button type="button" class="kr-cari-buka" aria-expanded="false" aria-controls="krCari">${IKON_CARI} Cari</button><a href="#" data-kr="daftar" class="kr-daftar" hidden>Pendaftaran</a><a href="english.html" data-kr="english" lang="en" hidden>English</a><a href="ruang-kerja.html" class="kr-masuk">Masuk ruang kerja</a></span></div>
+      <nav class="kr-nav" id="krNav" aria-label="Menu utama"><ul>${menuAtas(aktif)}<li class="kr-hp"><a href="#cari" class="kr-cari-buka" role="button" aria-controls="krCari">Cari di situs</a></li><li class="kr-hp"><a href="ruang-kerja.html">Masuk ruang kerja &rarr;</a></li></ul></nav>
     </div>
     <button class="kr-burger" type="button" aria-expanded="false" aria-controls="krNav">Menu</button>
-  </div></header>`;
+  </div>
+  <div class="kr-cari" id="krCari" hidden><div class="kr-cari-in" role="search">
+    <input type="search" id="krCariKotak" autocomplete="off" placeholder="Cari dosen, mata kuliah, bidang, publikasi, halaman…" aria-label="Cari di situs">
+    <div class="kr-cari-hasil" id="krCariHasil" aria-live="polite"></div></div></div></header>`;
   document.body.prepend(...kepala.childNodes);
 
   const kaki = document.createElement('footer');
@@ -211,6 +227,7 @@ export function pasangKerangka({ aktif = '', muat = false } = {}){
     kp.classList.toggle('buka', buka); burger.setAttribute('aria-expanded', String(buka));
     burger.textContent = buka ? 'Tutup' : 'Menu';
   });
+  pasangCariKepala(kp, burger);
   // Statistik kunjungan ramah privasi (142-patch-kunjungan-publik.sql): satu "lihat" per halaman dibuka, dan klik ke
   // laman pendaftaran (PMB). Hanya jumlah; tanpa cookie atau penanda pengunjung.
   catatKunjunganPublik('lihat');
@@ -222,8 +239,61 @@ export function pasangKerangka({ aktif = '', muat = false } = {}){
 
 export { catatKunjunganPublik };
 
+// Pencarian dari kepala setiap halaman (pemilik 2026-11-22): indeks publik cari.js dari data.json, dimuat saat panel
+// pertama kali dibuka. Data diambil dari isiKerangka bila sudah ada; selain itu data.json diambil sendiri.
+const IKON_CARI = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true">'
+  + '<circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>';
+let DATA_KERANGKA = null;
+
+function pasangCariKepala(kp, burger){
+  const panel = document.getElementById('krCari'), kotak = document.getElementById('krCariKotak'),
+        hasil = document.getElementById('krCariHasil'), tombol = [...kp.querySelectorAll('.kr-cari-buka')];
+  let siap = null, aktif = -1;
+  const muat = () => siap ??= Promise.all([
+    import('./cari.js?v=2026-11-22-866c27'),
+    DATA_KERANGKA ? Promise.resolve(DATA_KERANGKA) : fetch('data.json?v=' + Date.now()).then(r => r.json()),
+  ]).then(([m, D]) => ({ m, idx: m.indeksPublik(D, k => !(window.FITUR_MATI || []).includes(k)) }));
+  const tampil = async () => {
+    const q = kotak.value.trim();
+    if (!q) { hasil.innerHTML = ''; return; }
+    try {
+      const { m, idx } = await muat();
+      if (kotak.value.trim() !== q) return;
+      const g = m.kelompokkan(m.cari(idx, q));
+      hasil.innerHTML = g.length ? g.map(x => `<h4>${esc(x.label)}</h4>` + x.entri.map(r =>
+        `<a href="${esc(r.href)}"><b>${esc(r.judul)}</b>${r.ket ? `<span>${esc(r.ket)}</span>` : ''}</a>`).join('')).join('')
+        : `<p>Tidak ada yang cocok dengan "${esc(q)}".</p>`;
+      aktif = -1;
+    } catch { hasil.innerHTML = '<p>Pencarian belum bisa dimuat. Coba muat ulang halaman.</p>'; }
+  };
+  const buka = b => {
+    panel.hidden = !b;
+    tombol.forEach(t => t.setAttribute('aria-expanded', String(b)));
+    if (b) {
+      // Di ponsel: tutup panel menu dulu (langsung, bukan burger.click(), yang akan menutup panel cari lagi).
+      if (kp.classList.contains('buka')) { kp.classList.remove('buka'); burger.setAttribute('aria-expanded', 'false'); burger.textContent = 'Menu'; }
+      kotak.focus(); muat().catch(() => {}); tampil();
+    }
+  };
+  tombol.forEach(t => t.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); buka(panel.hidden); }));
+  kotak.addEventListener('input', tampil);
+  kotak.addEventListener('keydown', ev => {
+    const xs = [...hasil.querySelectorAll('a')];
+    const tandai = i => { aktif = Math.max(-1, Math.min(i, xs.length - 1)); xs.forEach((a, j) => a.classList.toggle('aktif', j === aktif));
+      xs[aktif]?.scrollIntoView({ block: 'nearest' }); };
+    if (ev.key === 'ArrowDown') { ev.preventDefault(); tandai(aktif + 1); }
+    else if (ev.key === 'ArrowUp') { ev.preventDefault(); tandai(aktif - 1); }
+    else if (ev.key === 'Enter') { const a = xs[Math.max(aktif, 0)]; if (a) location.href = a.getAttribute('href'); }
+    else if (ev.key === 'Escape') { buka(false); tombol[0]?.focus(); }
+  });
+  document.addEventListener('click', e => { if (!panel.hidden && !panel.contains(e.target)) buka(false); });
+  // Hasil yang menuju anchor di halaman yang sama: tutup panel supaya isinya terlihat.
+  hasil.addEventListener('click', e => { if (e.target.closest('a')) buka(false); });
+}
+
 /** Nama prodi/institusi, kontak, dan media sosial dari data.json (config.yaml public_site). */
 export function isiKerangka(D){
+  DATA_KERANGKA = D;   // untuk pencarian kepala (pasangCariKepala)
   const isi = (k, html) => document.querySelectorAll(`[data-kr="${k}"]`).forEach(el => { el.innerHTML = html; });
   isi('prodi', esc(D.prodi || ''));
   isi('institusi', esc(D.institusi || ''));
