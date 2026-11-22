@@ -33,6 +33,7 @@ a{color:var(--biru-2)}
 .peran{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--biru-m2)}
 h1{font-family:var(--serif);font-weight:700;font-size:clamp(28px,4.4vw,42px);line-height:1.1;margin:6px 0 8px;letter-spacing:-.01em}
 .bidang{font-size:17px;color:var(--biru-m5)}
+.bidang a{color:#fff;text-decoration:underline;text-underline-offset:3px}.bidang a:hover{color:var(--biru-m3)}
 .tautan{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
 .tautan a{display:inline-flex;align-items:center;gap:6px;font-size:13.5px;font-weight:600;color:#fff;text-decoration:none;
   border:1px solid rgba(255,255,255,.45);padding:6px 12px;border-radius:2px}
@@ -79,7 +80,7 @@ footer a{color:#fff;margin-right:14px}
 </head>
 <body>
 <a class="lewati" href="#isi">Lewati ke isi</a>
-<div class="hero"><div class="hero-in">
+<div class="hero" role="region" aria-label="Pembuka halaman"><div class="hero-in">
   <div class="atas"><div class="logo-deret"><img src="../logo-up.webp?v=2026-11-22-866c27" alt="Universitas Pertamina" width="271" height="200"><img src="../logo-dekade.webp?v=2026-11-22-866c27" alt="1 Dekade" width="271" height="200"><img src="../logo-diktisaintek.webp?v=2026-11-22-866c27" alt="Diktisaintek Berdampak" width="397" height="136"></div></div>
   <nav class="jejak" aria-label="Jejak halaman"><a href="../index.html">Beranda</a> › <a href="../daftar.html?jenis=dosen">Dosen</a> › M Fanshurullah Asa</nav>
   <div class="profil">
@@ -96,7 +97,7 @@ footer a{color:#fff;margin-right:14px}
     </div>
   </div>
 </div></div>
-<div class="angka"><div class="angka-in"><div><b>0</b><span>Publikasi</span></div><div><b>0</b><span>Internasional</span></div><div><b>1</b><span>Penelitian</span></div><div><b>0</b><span>Pengabdian</span></div><div><b>0</b><span>Rekognisi & luaran</span></div></div></div>
+<section class="angka" aria-label="Ringkasan karya"><div class="angka-in"><div><b>0</b><span>Publikasi</span></div><div><b>0</b><span>Internasional</span></div><div><b>1</b><span>Penelitian</span></div><div><b>0</b><span>Pengabdian</span></div><div><b>0</b><span>Rekognisi & luaran</span></div></div></section>
 <main id="isi">
   
   
