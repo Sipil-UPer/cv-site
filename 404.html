@@ -49,12 +49,33 @@ fetch('kerangka.json?v=' + Date.now()).then(r => r.json()).then(isiKerangka).cat
 const akhir = decodeURIComponent(location.pathname.split('/').filter(Boolean).pop() || '');
 document.getElementById('alamat').textContent = location.pathname;
 document.getElementById('kata404').value = akhir.replace(/\.html?$/i, '').replace(/^(mk|course|bidang)-/, '').replace(/[-_]+/g, ' ').replace(/\b\d{3,}\b/g, '').trim();
-// Cari memakai panel cari di kepala halaman (kerangka.js).
-document.getElementById('cari404').addEventListener('submit', ev => {
+// Cari memakai panel cari di kepala halaman (kerangka.js). Kata yang tidak cocok dengan apa pun (mis. "lama" dari
+// alamat lama) dibuang dulu, karena pencarian mewajibkan semua kata cocok (pemilik 2026-11-22).
+let INDEKS = null;
+async function rapikan(q) {
+  try {
+    if (!INDEKS) {
+      const [m, D] = await Promise.all([import('./cari.js?v=2026-11-22-866c27'), fetch('data.json?v=' + Date.now()).then(r => r.json())]);
+      INDEKS = { m, idx: m.indeksPublik(D, k => !(window.FITUR_MATI || []).includes(k)) };
+    }
+    // Kueri lengkap tanpa hasil: buang satu kata (dari belakang) sampai ada hasil. Menyaring per kata tidak cukup karena
+    // pencarian mencocokkan potongan kata ("lama" ada di "alamat").
+    const ada = ks => INDEKS.m.cari(INDEKS.idx, ks.join(' ')).length > 0;
+    let kata = q.split(/\s+/).filter(Boolean);
+    while (kata.length > 1 && !ada(kata)) {
+      const i = [...kata.keys()].reverse().find(j => ada(kata.filter((_, n) => n !== j)));
+      kata = i === undefined ? kata.slice(0, -1) : kata.filter((_, n) => n !== i);
+    }
+    return ada(kata) ? kata.join(' ') : q;
+  } catch { return q; }
+}
+document.getElementById('cari404').addEventListener('submit', async ev => {
   ev.preventDefault();
+  const q = await rapikan(document.getElementById('kata404').value.trim());
+  document.getElementById('kata404').value = q;
   document.querySelector('.kr-cari-buka')?.click();
   const kotak = document.getElementById('krCariKotak');
-  if (kotak) { kotak.value = document.getElementById('kata404').value; kotak.dispatchEvent(new Event('input')); }
+  if (kotak) { kotak.value = q; kotak.dispatchEvent(new Event('input')); }
 });
 </script>
 </body>
