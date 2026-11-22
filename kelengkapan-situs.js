@@ -22,6 +22,8 @@ const H = {
   calon: { judul: 'Untuk calon mahasiswa', href: 'calon-mahasiswa.html' },
   biaya: { judul: 'Biaya dan beasiswa', href: 'biaya-beasiswa.html' },
   english: { judul: 'English', href: 'english.html' },
+  ta: { judul: 'Arsip tugas akhir', href: 'tugas-akhir.html' },
+  kontak: { judul: 'Kontak', href: 'kontak.html' },
 };
 const ISI = {
   profil: { judul: 'Kelola profil prodi', href: 'kelola-profil.html' },
@@ -41,6 +43,7 @@ const ISI = {
   testimoni: { judul: 'Data prodi › Testimoni', href: 'data-prodi.html?tab=testimoni' },
   silabus: { judul: 'Silabus (disahkan Kaprodi)', href: 'silabus.html' },
   kalender: { judul: 'Data prodi › Kalender akademik', href: 'data-prodi.html?tab=kalender_akademik' },
+  jadwalTa: { judul: 'Data prodi › Jadwal seminar/sidang TA', href: 'data-prodi.html?tab=jadwal_ta' },
   config: { judul: 'config.yaml › public_site (admin repo)', href: '' },
 };
 
@@ -134,6 +137,15 @@ export function periksaKelengkapan(D = {}){
   out.push(baris('instagram', H.calon, 'Akun Instagram prodi', ada((s.sosial || {}).instagram) ? 'terisi' : 'kosong', '', ISI.config));
   out.push(baris('testimoni', H.calon, 'Testimoni alumni dan mahasiswa', n(D.testimoni) ? 'terisi' : 'kosong',
     `${n(D.testimoni)} testimoni`, ISI.testimoni, 'Tampil hanya bila tanggal persetujuan orangnya dicatat.'));
+  // Arsip judul TA (pemilik 2026-11-22): sidang akhir yang selesai di Data prodi.
+  const ta = D.arsip_ta || [], taBidang = ta.filter(t => t.bidang).length;
+  out.push(baris('arsip-ta', H.ta, 'Arsip judul tugas akhir', !ta.length ? 'kosong' : taBidang < ta.length ? 'sebagian' : 'terisi',
+    `${ta.length} judul`, ISI.jadwalTa, ta.length ? (taBidang < ta.length ? `${ta.length - taBidang} judul tanpa bidang.` : '')
+      : 'Dari sidang akhir berstatus selesai; judul TA lama boleh dicatat sebagai sidang akhir yang selesai.'));
+  const k = s.kontak || {};
+  out.push(baris('kontak', H.kontak, 'Alamat, telepon, email, jam layanan', ['address', 'phone', 'email', 'hours'].every(x => ada(k[x])) ? 'terisi'
+    : ['address', 'phone', 'email', 'hours'].some(x => ada(k[x])) ? 'sebagian' : 'kosong',
+    ['address', 'phone', 'email', 'hours'].filter(x => ada(k[x])).length + ' dari 4', ISI.config, 'Kini kontak universitas; ganti dengan kontak prodi bila ada.'));
   out.push(baris('biaya', H.biaya, 'Tautan resmi biaya dan beasiswa', n(s.biaya) ? 'terisi' : 'kosong', `${n(s.biaya)} tautan`, ISI.config,
     'Hanya tautan ke halaman resmi universitas, tanpa angka biaya.'));
   // Nama Inggris mata kuliah: halaman English dan halaman mata kuliah berbahasa Inggris (pemilik 2026-11-22).

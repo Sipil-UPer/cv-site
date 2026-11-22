@@ -40,6 +40,8 @@ export const MENU = [
     // Kalender akademik (patch 148) dan Biaya dan beasiswa (tautan resmi), pemilik 2026-11-22.
     { judul: 'Kalender akademik', href: 'layanan-mahasiswa.html#kalender' },
     { judul: 'Biaya dan beasiswa', href: 'biaya-beasiswa.html', kr: 'biaya' },
+    // Arsip judul TA (pemilik 2026-11-22): tampil bila ada judul.
+    { judul: 'Arsip tugas akhir', href: 'tugas-akhir.html', kr: 'ta' },
     { judul: 'Ajukan KP, TA, lomba, luaran, kabar kegiatan, surat, yudisium', href: 'pengajuan.html' },
     { judul: 'Jadwal seminar/sidang TA', href: 'layanan-mahasiswa.html#jadwal-ta' },
     { judul: 'Kerja praktik dan magang', href: 'kerja-praktik.html' },
@@ -52,7 +54,8 @@ export const MENU = [
     { judul: 'Kinerja program studi', href: 'kinerja.html', ket: 'angka dan grafik kinerja' },
     { judul: 'Hasil survei kepuasan', href: 'hasil-survei.html' },
   ] },
-  { id: 'kontak', judul: 'Kontak', href: '#kontak', isi: [] },
+  // Halaman Kontak (pemilik 2026-11-22); tampil bila kontak diisi di config.
+  { id: 'kontak', judul: 'Kontak', href: 'kontak.html', isi: [] },
 ];
 // Nilai aktif lama (sebelum 2026-11-19) tetap dikenali, mis. halaman buatan halaman_publik.py versi lama.
 const AKTIF_LAMA = { akademik: 'profil', riset: 'dosen', berita: 'profil' };
@@ -319,6 +322,7 @@ export function isiKerangka(D){
   const nFoto = [...(D.kabar || []), ...(D.prestasi || []), ...(D.laboratorium || [])].reduce((n, x) => n + (x.foto || []).length, 0);
   document.querySelectorAll('[data-kr-menu="galeri"]').forEach(el => { el.hidden = !nFoto; });
   document.querySelectorAll('[data-kr-menu="biaya"]').forEach(el => { el.hidden = !(D.situs?.biaya || []).length; });
+  document.querySelectorAll('[data-kr-menu="ta"]').forEach(el => { el.hidden = !(D.arsip_ta || []).length; });
   // Status akreditasi di kaki halaman (hanya bila masih berlaku; bangun.py akreditasi_publik).
   const ak = D.akreditasi_prodi || {};
   document.querySelectorAll('[data-kr="akreditasi"]').forEach(el => {

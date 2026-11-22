@@ -7449,6 +7449,11 @@
  },
  "situs": {
   "tagline": "Rekayasa teknik sipil yang inovatif untuk infrastruktur berkelanjutan, khususnya di bidang energi.",
+  "kontak": {
+   "address": "Jl. Teuku Nyak Arief, Simprug, Kebayoran Lama, Jakarta 12220",
+   "phone": "+62 812-1149-9919 (Pusat Informasi Universitas Pertamina)",
+   "email": "info@universitaspertamina.ac.id"
+  },
   "sosial": {
    "instagram": "https://www.instagram.com/tekniksipil.uper/",
    "instagram_himpunan": "https://www.instagram.com/hmts.uper/"
@@ -8661,5 +8666,6 @@
   "publikasi": [],
   "luaran": []
  },
+ "arsip_ta": [],
  "laboratorium": []
 }

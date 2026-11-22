@@ -16,7 +16,7 @@ export const normal = s => String(s ?? '').normalize('NFD').replace(AKSEN, '').t
 export const JENIS_CARI = [
   ['halaman', 'Halaman'], ['butir', 'Butir akreditasi'], ['bidang', 'Bidang keahlian'], ['mk', 'Mata kuliah'],
   ['dosen', 'Dosen'], ['lab', 'Laboratorium'], ['karya', 'Karya'], ['prestasi', 'Prestasi mahasiswa'],
-  ['kabar', 'Kabar kegiatan'], ['mitra', 'Mitra'], ['dokumen', 'Dokumen'], ['rapat', 'Rapat'], ['tindak', 'Tindak lanjut rapat'],
+  ['kabar', 'Kabar kegiatan'], ['ta', 'Tugas akhir'], ['mitra', 'Mitra'], ['dokumen', 'Dokumen'], ['rapat', 'Rapat'], ['tindak', 'Tindak lanjut rapat'],
   ['temuan', 'Temuan AMI'],
 ];
 export const MAKS_PER_JENIS = 6;
@@ -111,6 +111,10 @@ export function indeksPublik(D, aktif = () => true){
   if ((D?.kalender || []).length || D?.situs?.kalender_resmi)
     umum.push(['layanan-mahasiswa.html#kalender', 'Kalender akademik', 'registrasi, perkuliahan, ujian, yudisium, libur',
       'jadwal kuliah krs uts uas libur semester wisuda']);
+  if ((D?.arsip_ta || []).length)
+    umum.push(['tugas-akhir.html', 'Arsip tugas akhir', 'judul tugas akhir mahasiswa per bidang keahlian', 'ta skripsi judul tugas akhir']);
+  if (Object.keys(D?.situs?.kontak || {}).length)
+    umum.push(['kontak.html', 'Kontak', 'alamat, telepon, email, formulir pertanyaan', 'kontak alamat lokasi peta telepon email hubungi']);
   if ((D?.situs?.biaya || []).length)
     umum.push(['biaya-beasiswa.html', 'Biaya dan beasiswa', 'tautan resmi biaya pendidikan, pendaftaran, dan beasiswa universitas',
       'biaya kuliah ukt spp uang kuliah beasiswa pembayaran']);
@@ -141,6 +145,10 @@ export function indeksPublik(D, aktif = () => true){
   for (const p of D?.prestasi || [])
     xs.push(entri('prestasi', [p.capaian, p.kegiatan].filter(Boolean).join(' '), [p.tahun, p.tingkat, p.penyelenggara].filter(Boolean).join(' · '),
       `prestasi.html#prestasi-${encodeURIComponent(p.id)}`, [p.bidang, daftarNama(p.mahasiswa).join(' ')].join(' ')));
+  // Arsip judul TA (pemilik 2026-11-22): tanpa nama mahasiswa.
+  for (const t of D?.arsip_ta || [])
+    xs.push(entri('ta', t.judul, ['Tugas akhir', t.tahun, namaKel(t.bidang)].filter(Boolean).join(' · '),
+      `tugas-akhir.html#ta-${encodeURIComponent(t.id)}`, (t.pembimbing || []).map(o => o.nama).join(' ')));
   for (const k of D?.kabar || [])
     xs.push(entri('kabar', k.judul, [k.tanggal, String(k.ringkasan || '').slice(0, 100)].filter(Boolean).join(' · '),
       `kabar.html#kabar-${encodeURIComponent(k.id)}`, k.jenis || ''));
