@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-22-6542cc">
-<link rel="stylesheet" href="kepala.css?v=2026-11-22-6542cc">
+<link rel="stylesheet" href="tema.css?v=2026-11-22-9325ba">
+<link rel="stylesheet" href="kepala.css?v=2026-11-22-9325ba">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
@@ -61,7 +61,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></header>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-22-6542cc"></script>
+<script src="config.js?v=2026-11-22-9325ba"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -79,10 +79,10 @@ addEventListener('error', function (e) {
 // Dasbor operasional (pemilik 2026-11-17): koordinator prodi melihat per bidang siapa penanggung jawabnya dan antrean yang
 // menunggu/terlambat. Hanya membaca; tindakan dilakukan di halaman kerja masing-masing (tautan di tiap baris).
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-22-6542cc';
-import { ringkasDasbor, HARI_ANTRE, ringkasBeban, ringkasKesehatan } from './dasbor.js?v=2026-11-22-6542cc';
-import { tsBerjalan } from './sdgs-unduh.js?v=2026-11-22-6542cc';
-import { labelPeran } from './koordinator.js?v=2026-11-22-6542cc';
+import { gerbang } from './menu.js?v=2026-11-22-9325ba';
+import { ringkasDasbor, HARI_ANTRE, ringkasBeban, ringkasKesehatan } from './dasbor.js?v=2026-11-22-9325ba';
+import { tsBerjalan } from './sdgs-unduh.js?v=2026-11-22-9325ba';
+import { labelPeran } from './koordinator.js?v=2026-11-22-9325ba';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
