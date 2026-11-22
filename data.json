@@ -8748,22 +8748,31 @@
   }
  ],
  "dtps": {
-  "jumlah": 7,
-  "doktor": 5,
+  "jumlah": 10,
+  "doktor": 7,
   "dosen_tetap": 11,
   "tugas_belajar": 1,
   "ampu": {
    "ta": "2026/2027",
    "diterapkan": true,
-   "tidak_mengampu": 3
+   "tidak_mengampu": 0
   },
   "jabatan": {
-   "lektor": 3,
+   "lektor": 5,
    "asisten_ahli": 3,
+   "guru_besar": 1,
    "tanpa_jabatan": 1
   },
-  "karya_utama_internasional": 3,
+  "karya_utama_internasional": 5,
   "karya_utama_rinci": [
+   {
+    "slug": "adita-utami",
+    "tahun": 2026
+   },
+   {
+    "slug": "arianta",
+    "tahun": 2026
+   },
    {
     "slug": "gati-annisa-hayu",
     "tahun": 2026
@@ -8771,6 +8780,10 @@
    {
     "slug": "vani-arliani",
     "tahun": 2026
+   },
+   {
+    "slug": "arianta",
+    "tahun": 2025
    },
    {
     "slug": "gati-annisa-hayu",
@@ -9134,8 +9147,16 @@
   ],
   "rekognisi_dtps": [
    {
+    "slug": "adita-utami",
+    "tahun": 2027
+   },
+   {
     "slug": "gati-annisa-hayu",
     "tahun": 2027
+   },
+   {
+    "slug": "adita-utami",
+    "tahun": 2026
    },
    {
     "slug": "gati-annisa-hayu",
