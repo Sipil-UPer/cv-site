@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<base href="https://sipil-uper.github.io/cv-site/">
+<meta name="generator" content="bangun.py halaman_publik">
+<meta name="robots" content="noindex">
+<title>Halaman tidak ditemukan — Program Studi Teknik Sipil Universitas Pertamina</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tema.css?v=2026-11-22-866c27">
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15.5px;line-height:1.6}
+main{max-width:760px;margin:0 auto;padding:48px 20px 40px}
+.kode{font-family:var(--mono);font-size:13px;letter-spacing:.14em;color:var(--muted)}
+h1{font-family:var(--serif);font-size:clamp(30px,4.6vw,44px);color:var(--biru);margin:6px 0 8px;line-height:1.1}
+form{display:flex;gap:8px;margin:18px 0 26px}
+input{flex:1;font:inherit;font-size:16px;padding:10px 12px;border:1px solid var(--line);border-radius:2px}
+button{font:inherit;font-weight:600;padding:10px 18px;border:0;background:var(--biru);color:#fff;cursor:pointer}
+ul{list-style:none;margin:0;padding:0;background:#fff;border:1px solid var(--line)}
+li a{display:block;padding:10px 16px;border-top:1px solid var(--line);color:var(--biru-2);text-decoration:none}
+li:first-child a{border-top:0}
+li a:hover{background:var(--biru-m11,#eef3fb)}
+.ket{color:var(--muted)}
+</style>
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+</head>
+<body>
+<main id="utama">
+  <div class="kode">404</div>
+  <h1>Halaman tidak ditemukan</h1>
+  <p class="ket">Alamat <code id="alamat"></code> tidak ada di situs Program Studi Teknik Sipil, Universitas Pertamina. Mungkin halamannya sudah dipindah atau alamatnya
+    salah ketik. Coba cari, atau buka salah satu halaman berikut.</p>
+  <form id="cari404" role="search"><input id="kata404" type="search" aria-label="Cari di situs" placeholder="Cari dosen, mata kuliah, halaman…">
+    <button type="submit">Cari</button></form>
+  <ul><li><a href="index.html">Beranda</a></li><li><a href="kurikulum.html">Kurikulum dan mata kuliah</a></li><li><a href="daftar.html?jenis=dosen">Daftar dosen</a></li><li><a href="calon-mahasiswa.html">Untuk calon mahasiswa</a></li><li><a href="layanan-mahasiswa.html">Layanan mahasiswa</a></li><li><a href="kontak.html">Kontak</a></li><li><a href="peta-situs.html">Peta situs: semua halaman</a></li></ul>
+</main>
+<script src="config.js?v=2026-11-22-866c27"></script>
+<script type="module">
+import { pasangKerangka, isiKerangka } from './kerangka.js?v=2026-11-22-866c27';
+pasangKerangka({ aktif: '' });
+fetch('kerangka.json?v=' + Date.now()).then(r => r.json()).then(isiKerangka).catch(() => {});
+// Alamat yang dicari menjadi saran kata cari: bagian terakhir alamat tanpa .html, tanda hubung menjadi spasi.
+const akhir = decodeURIComponent(location.pathname.split('/').filter(Boolean).pop() || '');
+document.getElementById('alamat').textContent = location.pathname;
+document.getElementById('kata404').value = akhir.replace(/\.html?$/i, '').replace(/^(mk|course|bidang)-/, '').replace(/[-_]+/g, ' ').replace(/\b\d{3,}\b/g, '').trim();
+// Cari memakai panel cari di kepala halaman (kerangka.js).
+document.getElementById('cari404').addEventListener('submit', ev => {
+  ev.preventDefault();
+  document.querySelector('.kr-cari-buka')?.click();
+  const kotak = document.getElementById('krCariKotak');
+  if (kotak) { kotak.value = document.getElementById('kata404').value; kotak.dispatchEvent(new Event('input')); }
+});
+</script>
+</body>
+</html>

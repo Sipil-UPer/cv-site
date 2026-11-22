@@ -27,6 +27,7 @@ a:hover{text-decoration:underline}
 </style>
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
 <link rel="canonical" href="https://sipil-uper.github.io/cv-site/peta-situs.html">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Program Studi Teknik Sipil — Universitas Pertamina">
@@ -48,7 +49,7 @@ a:hover{text-decoration:underline}
 <script type="module">
 import { pasangKerangka, isiKerangka } from './kerangka.js?v=2026-11-22-866c27';
 pasangKerangka({ aktif: '' });
-fetch('data.json?v=' + Date.now()).then(r => r.json()).then(isiKerangka).catch(() => {});
+fetch('kerangka.json?v=' + Date.now()).then(r => r.json()).then(isiKerangka).catch(() => {});
 </script>
 </body>
 </html>

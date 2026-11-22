@@ -42,6 +42,7 @@ ol.karya li{background:#fff;border:1px solid var(--line);padding:10px 14px}
 </style>
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
 <link rel="canonical" href="https://sipil-uper.github.io/cv-site/bidang-rekayasa-struktur-dan-material.html">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Program Studi Teknik Sipil — Universitas Pertamina">
@@ -70,7 +71,7 @@ ol.karya li{background:#fff;border:1px solid var(--line);padding:10px 14px}
 <script type="module">
 import { pasangKerangka, isiKerangka } from './kerangka.js?v=2026-11-22-866c27';
 pasangKerangka({ aktif: 'profil' });
-fetch('data.json?v=' + Date.now()).then(r => r.json()).then(isiKerangka).catch(() => {});
+fetch('kerangka.json?v=' + Date.now()).then(r => r.json()).then(isiKerangka).catch(() => {});
 </script>
 </body>
 </html>

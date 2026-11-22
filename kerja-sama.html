@@ -66,6 +66,7 @@ table.kp td:not(:first-child){white-space:nowrap}
 </style>
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
 <link rel="canonical" href="https://sipil-uper.github.io/cv-site/kerja-sama.html">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Program Studi Teknik Sipil — Universitas Pertamina">
@@ -92,7 +93,7 @@ table.kp td:not(:first-child){white-space:nowrap}
 <script type="module">
 import { pasangKerangka, isiKerangka } from './kerangka.js?v=2026-11-22-866c27';
 pasangKerangka({ aktif: 'profil' });
-fetch('data.json?v=' + Date.now()).then(r => r.json()).then(isiKerangka).catch(() => {});
+fetch('kerangka.json?v=' + Date.now()).then(r => r.json()).then(isiKerangka).catch(() => {});
 </script>
 </body>
 </html>

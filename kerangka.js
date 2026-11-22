@@ -176,7 +176,9 @@ function menuKaki(){
 
 export function pasangKerangka({ aktif = '', muat = false } = {}){
   // muat: halaman yang tidak memanggil isiKerangka sendiri; nama prodi, kontak, berita dari data.json.
-  if (muat) fetch('data.json?v=' + Date.now()).then(r => r.ok ? r.json() : null).then(d => { if (d) isiKerangka(d); }).catch(() => {});
+  // kerangka.json (beberapa KB, bangun.py) cukup untuk kepala/kaki; data.json lengkap hanya bila kerangka.json belum ada.
+  if (muat) fetch('kerangka.json?v=' + Date.now()).then(r => r.ok ? r.json() : fetch('data.json?v=' + Date.now()).then(r => r.ok ? r.json() : null))
+    .then(d => { if (d) isiKerangka(d); }).catch(() => {});
   const gaya = document.createElement('style');
   gaya.textContent = CSS;
   document.head.appendChild(gaya);
@@ -299,7 +301,9 @@ function pasangCariKepala(kp, burger){
 
 /** Nama prodi/institusi, kontak, dan media sosial dari data.json (config.yaml public_site). */
 export function isiKerangka(D){
-  DATA_KERANGKA = D;   // untuk pencarian kepala (pasangCariKepala)
+  // Pencarian kepala memakai data lengkap: kerangka.json (punya 'jumlah') tidak cukup, jadi data.json diambil saat panel dibuka.
+  if (!D.jumlah) DATA_KERANGKA = D;
+  const J = D.jumlah || {};
   const isi = (k, html) => document.querySelectorAll(`[data-kr="${k}"]`).forEach(el => { el.innerHTML = html; });
   isi('prodi', esc(D.prodi || ''));
   isi('institusi', esc(D.institusi || ''));
@@ -314,15 +318,15 @@ export function isiKerangka(D){
   document.querySelectorAll('[data-kr-menu="kontak"]').forEach(el => { el.hidden = !baris.length; });
   // Berita prodi dan pendaftaran: tautan luar dari config.yaml public_site (news_url, admission_url).
   // Berita: kabar kegiatan prodi sendiri (kabar.html) bila ada yang terbit; selain itu laman berita universitas.
-  const berita = (D.kabar || []).length ? 'kabar.html' : D.situs?.berita, daftar = D.situs?.pendaftaran;
+  const berita = (J.kabar ?? (D.kabar || []).length) ? 'kabar.html' : D.situs?.berita, daftar = D.situs?.pendaftaran;
   document.querySelectorAll('[data-kr-menu="berita"]').forEach(el => {
     el.hidden = !berita;
     if (berita) Object.assign(el.querySelector('a'), { href: berita, ...(berita.startsWith('http') ? { rel: 'noopener' } : {}) });
   });
-  const nFoto = [...(D.kabar || []), ...(D.prestasi || []), ...(D.laboratorium || [])].reduce((n, x) => n + (x.foto || []).length, 0);
+  const nFoto = J.foto ?? [...(D.kabar || []), ...(D.prestasi || []), ...(D.laboratorium || [])].reduce((n, x) => n + (x.foto || []).length, 0);
   document.querySelectorAll('[data-kr-menu="galeri"]').forEach(el => { el.hidden = !nFoto; });
   document.querySelectorAll('[data-kr-menu="biaya"]').forEach(el => { el.hidden = !(D.situs?.biaya || []).length; });
-  document.querySelectorAll('[data-kr-menu="ta"]').forEach(el => { el.hidden = !(D.arsip_ta || []).length; });
+  document.querySelectorAll('[data-kr-menu="ta"]').forEach(el => { el.hidden = !(J.arsip_ta ?? (D.arsip_ta || []).length); });
   // Status akreditasi di kaki halaman (hanya bila masih berlaku; bangun.py akreditasi_publik).
   const ak = D.akreditasi_prodi || {};
   document.querySelectorAll('[data-kr="akreditasi"]').forEach(el => {
