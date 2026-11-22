@@ -1332,6 +1332,9 @@ async function muatDataProdiSkor(){
   MHS_TA = mh.error ? null : (mh.data || []);
   DOSEN_KAT = ds.error ? null : (ds.data || []);
   if (ds.error) { const ds2 = await sb.from('dosen').select('kategori,aktif,peran'); DOSEN_KAT = ds2.error ? null : (ds2.data || []); }
+  // Periode tugas belajar (156, pemilik 2026-11-22): kolom opsional, digabung per id; tanpa patch = keterangan saja.
+  if (DOSEN_KAT && DOSEN_KAT[0]?.id) { const tp = await sb.from('dosen').select('id,tugas_belajar_mulai,tugas_belajar_selesai');
+    if (!tp.error) { const m = new Map((tp.data || []).map(x => [x.id, x])); DOSEN_KAT.forEach(d => Object.assign(d, m.get(d.id) || {})); } }
   // Mengampu MK per tahun akademik (154, pemilik 2026-11-22): kelas Penyusunan kelas + centang manual; tabel yang belum
   // ada dibaca kosong (aturan mengampu lalu tidak diterapkan).
   const kosong = q => q.then(r => r.error ? [] : (r.data || []), () => []);

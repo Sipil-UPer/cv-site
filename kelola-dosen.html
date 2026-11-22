@@ -16,6 +16,21 @@
   *{box-sizing:border-box}
   /* Daftar per kelompok (154, pemilik 2026-11-22) */
   h3.kel{font-size:15px;color:var(--biru);margin:18px 0 6px} .ringkas-ts{margin-bottom:10px} .ringkas-ts select{margin:0 8px 0 4px}
+  /* Daftar ringkas + panel samping (pemilik 2026-11-22) */
+  .alat{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:6px 0 4px}
+  .alat input[type=search]{flex:1 1 240px;max-width:360px;padding:7px 9px;border:1px solid var(--line);border-radius:2px;font:inherit;font-size:13.5px}
+  table.t.ringkas td:first-child{white-space:normal;min-width:240px} table.t.ringkas td .ket{margin:0;font-size:12px}
+  button.nama{background:none;border:0;padding:0;font:inherit;font-size:13.5px;font-weight:600;color:var(--biru-2);cursor:pointer;text-align:left}
+  button.nama:hover,button.nama:focus-visible{text-decoration:underline}
+  .akses{font-size:12px;padding:1px 7px;border-radius:9px;border:1px solid var(--line);white-space:nowrap}
+  .akses.ya{color:var(--hijau);border-color:currentColor} .akses.lihat{color:var(--biru-2);border-color:currentColor} .akses.tidak{color:var(--muted)}
+  .ket.peringatan{background:#FFFBEF;border-left:3px solid var(--emas);padding:6px 10px;color:var(--ink)} b.awas{color:var(--merah)}
+  aside#panel{position:fixed;top:0;right:0;bottom:0;width:min(600px,100%);background:var(--panel,#fff);border-left:1px solid var(--line);
+    box-shadow:-10px 0 30px rgba(0,0,0,.15);overflow-y:auto;padding:0 18px 40px;z-index:60}
+  aside#panel[hidden]{display:none}
+  .panel-kepala{position:sticky;top:0;display:flex;justify-content:space-between;align-items:center;gap:10px;
+    background:var(--panel,#fff);border-bottom:1px solid var(--line);padding:12px 0;margin-bottom:10px;z-index:1}
+  #panel .grid{grid-template-columns:1fr 1fr} @media (max-width:640px){#panel .grid{grid-template-columns:1fr}}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
        font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
   .wrap{max-width:1100px;margin:0 auto;padding:0 20px 80px}
@@ -90,14 +105,14 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { pasangMenu } from './menu.js?v=2026-11-22-866c27';
+import { pasangMenu, hanyaBaca } from './menu.js?v=2026-11-22-866c27';
 import { dosenLogin } from './dosen-login.js?v=2026-11-22-866c27';
 import { htmlSaran } from './saran-bukti.js?v=2026-11-22-866c27';
 import { unduhCV } from './cv-dosen.js?v=2026-11-22-866c27';
 import { KOLOM_PROFIL, KATEGORI, JABATAN,
   formLKPS, bacaFormLKPS, pasangEditor } from './profil-dosen.js?v=2026-11-22-866c27';
 import { hitungVerifikasi } from './verifikasi-hitung.js?v=2026-11-22-866c27';
-import { KELOMPOK as KELOMPOK_LABEL, URUT_KELOMPOK, kelompokDosen, ampuPerTA, statusTS, hitungTS } from './dosen-hitung.js?v=2026-11-22-866c27';
+import { KELOMPOK as KELOMPOK_LABEL, URUT_KELOMPOK, kelompokDosen, ampuPerTA, statusTS, hitungTS, catatTB, tbLewat } from './dosen-hitung.js?v=2026-11-22-866c27';
 
 /* =====================================================================
    KELOLA DOSEN — daftar dosen prodi diisi admin di situs (keputusan
@@ -140,7 +155,7 @@ const KELOMPOK = [
   ['staf', 'Bukan dosen (admin/tenaga kependidikan): tidak dihitung dosen', false, null],
 ];
 function kelompokDari(r){
-  if (r.dtps) return 'dtps';
+  if (r.dtps || String(r.tugas_belajar || '').trim()) return 'dtps';   // tugas belajar = dosen homebase (156)
   // Baris tersimpan tanpa DTPS dan tanpa kategori = bukan dosen (staf); formulir baru tetap kosong.
   return { tetap: 'dt', tidak_tetap: 'dtt', industri: 'industri' }[r.kategori] || (r.id ? 'staf' : '');
 }
@@ -155,13 +170,18 @@ const KOLOM = 'id,nidn,nama,email,peran,pendidikan,jabatan,sinta_id,scopus_id,or
 // ADA_LKPS: kolom profil LKPS 4.a ada (supabase/22-patch-profil-dosen.sql).
 let AMPU = new Map(), SUMBER = new Map(), ADA_AMPU = false;   // 154: mengampu per tahun akademik
 let ADA_155 = false;   // 155: kolom boleh_masuk + email boleh kosong
+let ADA_156 = false;   // 156: periode tugas belajar
 let SAYA = null, DOSEN = [], SUNTING = null, ADA_LKPS = true, ADA_ALT = false, ADA_KK = false, KK = null, ADA_TB = false, ADA_NIP = false, ADA_NUPTK = false, ADA_GELAR = false;
 
 const nama = (daftar, v) => (daftar.find(x => x[0] === (v || '')) || [, v || '—'])[1];
 const opsi = (daftar, v) => daftar.map(([k, l]) =>
   `<option value="${esc(k)}"${k === (v || '') ? ' selected' : ''}>${esc(l)}</option>`).join('');
 
-function tulis(jenis, teks){ const m = $('pesan'); m.className = 'msg ' + jenis; m.textContent = teks; }
+function tulis(jenis, teks){
+  const m = $('panel') && !$('panel').hidden && $('pesan') ? $('pesan') : $('pesan_atas');
+  if (!m) return;
+  m.className = 'msg ' + jenis; m.textContent = teks;
+}
 
 // Tempel URL profil -> ambil ID-nya (sama dengan id_saja() di bangun.py).
 function idSaja(v){
@@ -199,9 +219,16 @@ async function mulai(){
     ${htmlSaran('dosen')}
     <div class="b"><p class="ket" style="margin:0">Ajuan perubahan profil dari dosen diputuskan di
       <a href="verifikasi.html#profil">halaman Verifikasi</a><span id="nProfil"></span>.</p></div>
-    <div class="b" id="form"></div>
     <h2>Daftar dosen</h2>
-    <div class="gulir" id="daftar"><p class="kosong">Memuat&hellip;</p></div>`;
+    <div class="alat"><input id="cari" type="search" placeholder="Cari nama, NIDN, atau email…" aria-label="Cari dosen">
+      <button class="btn" id="tambah">+ Tambah dosen atau admin</button><span class="msg" id="pesan_atas" role="status"></span></div>
+    <div id="daftar"><p class="kosong">Memuat&hellip;</p></div>
+    <aside id="panel" hidden aria-label="Ubah data dosen"><div class="panel-kepala"><b id="panelJudul">Ubah data</b>
+      <button class="btn ghost kecil" id="tutupPanel">Tutup (Esc)</button></div><div id="form"></div></aside>`;
+  $('cari').oninput = e => { CARI = e.target.value.trim(); gambarDaftar(); };
+  $('tambah').onclick = () => bukaPanel(null);
+  $('tutupPanel').onclick = tutupPanel;
+  addEventListener('keydown', e => { if (e.key === 'Escape' && !$('panel').hidden) tutupPanel(); });
   await muat();
   hitungVerifikasi(sb).then(n => { if (n.profil) $('nProfil').textContent = ` (${n.profil} menunggu)`; });
 }
@@ -249,13 +276,17 @@ async function muat(){
   ADA_GELAR = !gq.error;
   if (ADA_GELAR) { const m = new Map((gq.data || []).map(x => [x.id, x.nama_gelar])); DOSEN.forEach(d => { d.nama_gelar = m.get(d.id) ?? null; }); }
   // Boleh masuk (patch 155, pemilik 2026-11-22): DT/DTT bisa ada di daftar tanpa bisa masuk; kolom dibaca terpisah.
+  // Periode tugas belajar (patch 156): kolom opsional.
+  const tp = await sb.from('dosen').select('id,tugas_belajar_mulai,tugas_belajar_selesai');
+  ADA_156 = !tp.error;
+  if (ADA_156) { const m = new Map((tp.data || []).map(x => [x.id, x])); DOSEN.forEach(d => Object.assign(d, m.get(d.id) || {})); }
   const bm = await sb.from('dosen').select('id,boleh_masuk');
   ADA_155 = !bm.error;
   if (ADA_155) { const m = new Map((bm.data || []).map(x => [x.id, x.boleh_masuk])); DOSEN.forEach(d => { d.boleh_masuk = m.get(d.id) ?? true; }); }
   if (KK === null) KK = await fetch('data.json', {cache: 'no-cache'}).then(r => r.ok ? r.json() : {}).then(d => d.situs?.kelompok_keahlian || []).catch(() => []);
   await muatAmpu();
   gambarDaftar();
-  isiForm(SUNTING ? DOSEN.find(d => d.id === SUNTING) : null);
+  if (!$('panel').hidden) isiForm(SUNTING ? DOSEN.find(d => d.id === SUNTING) : null);
 }
 
 // Mengampu MK per tahun akademik (154): kelas Penyusunan kelas + centang manual; tabel yang belum ada dibaca kosong.
@@ -272,47 +303,57 @@ async function muatAmpu(){
   man.data.forEach(r => catat(r.tahun_akademik, r.dosen_id, 'manual'));
 }
 
-// Daftar per kelompok dan status hitungan pada TS (154, pemilik 2026-11-22): DTPS, DT bukan DTPS, tugas belajar, DTT,
-// industri, pimpinan, staf (bukan dosen), asesor. "Dihitung TS" = masuk NDTPS/NDT/NDTT pada TS terpilih (dosen-hitung.js,
-// aturan yang sama dengan bangun.py dan Skor). "Mengampu" = punya kelas di Penyusunan kelas pada TS itu, atau dicentang.
+// Daftar ringkas per kelompok (pemilik 2026-11-22): Nama · Mengampu TS · Dihitung TS · Akses · CV; klik nama membuka panel
+// ubah di samping. Kelompok dan "Dihitung TS" = dosen-hitung.js pada TS terpilih (aturan yang sama dengan bangun.py, Skor,
+// dan LKPS). Mengampu = kelas di Penyusunan kelas pada TS itu, atau centang manual.
 const tsBerjalanKD = () => { const d = new Date(); return d.getMonth() >= 8 ? d.getFullYear() + 1 : d.getFullYear(); };
-let TS_KD = null;
+let TS_KD = null, CARI = '';
+// Akses masuk (155, 157): masuk / hanya lihat (pimpinan bukan DTPS) / tidak (alasan).
+function aksesMasuk(d){
+  if (d.aktif === false) return ['tidak', 'nonaktif'];
+  if (!d.email) return ['tidak', 'tanpa email'];
+  if (d.boleh_masuk === false) return ['tidak', 'akses ditutup'];
+  if (hanyaBaca(d)) return ['lihat', 'hanya lihat'];
+  return ['ya', 'masuk'];
+}
 function gambarDaftar(){
   TS_KD ??= tsBerjalanKD();
   const ta = `${TS_KD - 1}/${TS_KD}`, h = hitungTS(DOSEN, ta, AMPU);
   const pilihTS = [0, 1, 2].map(n => tsBerjalanKD() - n).map(x => `<option value="${x}"${x === TS_KD ? ' selected' : ''}>${x - 1}/${x}</option>`).join('');
-  const kolomKK = ADA_KK && KK.length;
+  const cocok = d => !CARI || `${d.nama} ${d.nidn} ${d.email || ''}`.toLowerCase().includes(CARI.toLowerCase());
   const baris = d => {
     const st = statusTS(d, ta, AMPU, SUMBER), dosenProdi = !['staf', 'pimpinan', 'asesor'].includes(st.kelompok);
     const ampu = !dosenProdi ? '—' : SUMBER.get(ta)?.get(d.id) === 'kelas' ? 'ya (kelas)'
       : ADA_AMPU ? `<label class="cek"><input type="checkbox" data-ampu="${esc(d.id)}"${SUMBER.get(ta)?.get(d.id) === 'manual' ? ' checked' : ''}> manual</label>` : '—';
-    const hitung = st.dtps ? 'DTPS' : st.dt ? 'DT' : st.dtt ? 'DTT' : `<span class="ket">tidak${st.alasan ? ': ' + esc(st.alasan) : ''}</span>`;
+    const hitung = st.dtps ? '<b>DTPS</b>' : st.dt ? '<b>DT</b>' : st.dtt ? '<b>DTT</b>' : `<span class="ket">tidak${st.alasan ? ': ' + esc(st.alasan) : ''}</span>`;
+    const [ak, akTeks] = aksesMasuk(d);
+    const tb = catatTB(d) ? `<div class="ket">Tugas belajar: ${esc(d.tugas_belajar)}${d.tugas_belajar_mulai ? ` (${esc(d.tugas_belajar_mulai)} s/d ${esc(d.tugas_belajar_selesai || 'sekarang')})` : ''}${
+      tbLewat(d) ? ' <b class="awas">masa selesai: kosongkan keterangan</b>' : ''}</div>` : '';
     return `<tr class="${d.id === SUNTING ? 'sunting' : ''}${d.aktif ? '' : ' nonaktif'}">
-      <td>${esc(d.nama)}${d.tugas_belajar ? `<div class="ket">${esc(d.tugas_belajar)}</div>` : ''}</td><td>${esc(d.nidn)}</td><td>${d.email ? esc(d.email) : '<span class="ket">tanpa email</span>'}${
-        ADA_155 && d.boleh_masuk === false ? '<div class="ket">tidak boleh masuk</div>' : ''}</td>
-      <td>${esc(nama(PERAN, d.peran))}</td><td>${esc(d.pendidikan || '—')}</td><td>${esc(nama(JABATAN, d.jabatan))}</td>
-      ${kolomKK ? `<td>${esc(KK.find(k => k.kode === d.kelompok_keahlian)?.nama || '—')}</td>` : ''}<td>${d.aktif ? 'ya' : 'tidak'}</td>
-      <td>${ampu}</td><td>${hitung}</td>
-      <td><button class="btn ghost kecil" data-ubah="${esc(d.id)}">Ubah</button>
-        <button class="btn ghost kecil" data-cv-dosen="${esc(d.id)}" title="Unduh CV dosen ini (.docx)">CV</button></td></tr>`;
+      <td><button type="button" class="nama" data-ubah="${esc(d.id)}" title="Ubah data ${esc(d.nama)}">${esc(d.nama)}</button>
+        <div class="ket">${esc(nama(PERAN, d.peran))} · ${d.email ? esc(d.email) : 'tanpa email'}${d.aktif === false ? ' · nonaktif' : ''}</div>${tb}</td>
+      <td>${ampu}</td><td>${hitung}</td><td><span class="akses ${ak}">${esc(akTeks)}</span></td>
+      <td><button class="btn ghost kecil" data-cv-dosen="${esc(d.id)}" title="Unduh CV dosen ini (.docx)">CV</button></td></tr>`;
   };
-  const grup = URUT_KELOMPOK.map(k => [k, DOSEN.filter(d => kelompokDosen(d) === k)]).filter(([, xs]) => xs.length);
+  const grup = URUT_KELOMPOK.map(k => [k, DOSEN.filter(d => kelompokDosen(d, ta) === k && cocok(d))]).filter(([, xs]) => xs.length);
   $('daftar').innerHTML = `<div class="b ringkas-ts"><label>TS <select id="ts_kd">${pilihTS}</select></label>
       <b>NDTPS ${h.ndtps}</b> · <b>NDT ${h.ndt}</b> · <b>NDTT ${h.ndtt}</b>${h.industri ? ` (${h.industri} industri)` : ''}
-      <div class="ket">${h.diterapkan ? `Hanya dosen yang mengampu MK prodi pada ${ta} yang dihitung (kelas di
+      <div class="ket${h.diterapkan ? '' : ' peringatan'}">${h.diterapkan ? `Hanya dosen yang mengampu MK prodi pada ${ta} yang dihitung (kelas di
         <a href="kelas.html">Penyusunan kelas</a> atau centang <b>manual</b> di kolom Mengampu)${h.tidakMengampu.length ? `; tidak mengampu: ${esc(h.tidakMengampu.join(', '))}` : ''}.`
-        : `Belum ada data mengampu MK untuk ${ta} (kelas atau centang), jadi syarat mengampu <b>belum diterapkan</b>: semua dosen aktif
-        sesuai kelompoknya dihitung. Centang <b>manual</b> dosen yang mengampu, atau susun kelasnya di <a href="kelas.html">Penyusunan kelas</a>.`}
+        : `<b>Perhatian:</b> belum ada data mengampu MK untuk ${ta} (kelas atau centang), jadi syarat mengampu <b>belum diterapkan</b>: semua dosen aktif
+        sesuai kelompoknya dihitung. Begitu satu kelas atau centang masuk, hanya yang tercatat mengampu yang dihitung. Centang <b>manual</b> dosen
+        yang mengampu, atau susun kelasnya di <a href="kelas.html">Penyusunan kelas</a>.`}
         ${ADA_AMPU ? '' : ' Centang manual tersedia setelah supabase/154-patch-dosen-mengampu-ts.sql dijalankan.'}
-        Tugas belajar, staf, pimpinan bukan dosen prodi, dan asesor tidak pernah dihitung. Skor berubah setelah situs dibangun ulang.</div></div>
-    <p class="ket">${DOSEN.length} orang.${ADA_LKPS ? '' : ' Profil LKPS 4.a belum tersedia: jalankan supabase/22-patch-profil-dosen.sql.'}
+        Tugas belajar (pada TS yang beririsan dengan masa tugas belajarnya), staf, pimpinan bukan dosen prodi, dan asesor tidak dihitung.
+        Skor berubah setelah situs dibangun ulang.</div></div>
+    <p class="ket">${DOSEN.length} orang${CARI ? `, ${grup.reduce((a, [, xs]) => a + xs.length, 0)} cocok dengan "${esc(CARI)}"` : ''}.
+      ${ADA_LKPS ? '' : ' Profil LKPS 4.a belum tersedia: jalankan supabase/22-patch-profil-dosen.sql.'}
       <label class="ket" style="margin-left:12px">CV: <select id="cv_gaya"><option value="cv">CV akademik</option>
         <option value="hibah">Biodata pengusul hibah (A–J)</option></select> periode karya <select id="cv_periode"><option value="semua">semua tahun</option>
         <option value="5">5 tahun terakhir</option></select></label> <span class="msg" id="cv_msg"></span></p>
     ${grup.map(([k, xs]) => `<h3 class="kel">${esc(KELOMPOK_LABEL[k])} <span class="ket">${xs.length} orang</span></h3>
-    <table class="t"><thead><tr><th>Nama</th><th>NIDN/kode</th><th>Email</th><th>Peran</th><th>Pendidikan</th><th>Jabatan</th>
-      ${kolomKK ? '<th>KK</th>' : ''}<th>Aktif</th><th>Mengampu ${esc(ta)}</th><th>Dihitung TS</th><th></th></tr></thead>
-      <tbody>${xs.map(baris).join('')}</tbody></table>`).join('')}`;
+    <div class="gulir"><table class="t ringkas"><thead><tr><th>Nama</th><th>Mengampu ${esc(ta)}</th><th>Dihitung TS</th><th>Akses</th><th></th></tr></thead>
+      <tbody>${xs.map(baris).join('')}</tbody></table></div>`).join('') || '<p class="kosong">Tidak ada yang cocok.</p>'}`;
   $('ts_kd').onchange = e => { TS_KD = +e.target.value; gambarDaftar(); };
   $('daftar').querySelectorAll('[data-ampu]').forEach(c => { c.onchange = async () => {
     c.disabled = true;
@@ -320,7 +361,7 @@ function gambarDaftar(){
     const { error } = c.checked
       ? await sb.from('dosen_ampu_ts').insert({ dosen_id: c.dataset.ampu, tahun_akademik: ta2, oleh: SAYA.email })
       : await sb.from('dosen_ampu_ts').delete().eq('dosen_id', c.dataset.ampu).eq('tahun_akademik', ta2);
-    if (error) { tulis('err', 'Centang mengampu gagal: ' + error.message); c.checked = !c.checked; c.disabled = false; return; }
+    if (error) { tulis('buruk', 'Centang mengampu gagal: ' + error.message); c.checked = !c.checked; c.disabled = false; return; }
     await muatAmpu(); gambarDaftar();
   }; });
   // CV dosen otomatis (pemilik 2026-11-11): admin mengunduh CV dosen mana pun.
@@ -333,18 +374,31 @@ function gambarDaftar(){
       finally { b.disabled = false; }
     };
   });
-  $('daftar').querySelectorAll('[data-ubah]').forEach(b => {
-    b.onclick = () => { SUNTING = b.dataset.ubah; gambarDaftar(); isiForm(DOSEN.find(d => d.id === SUNTING));
-                        $('form').scrollIntoView({ behavior: 'smooth' }); };
-  });
+  $('daftar').querySelectorAll('[data-ubah]').forEach(b => { b.onclick = () => bukaPanel(DOSEN.find(d => d.id === b.dataset.ubah)); });
+}
+
+// Panel ubah di samping (pemilik 2026-11-22): tidak perlu menggeser tabel; Esc atau Tutup menutupnya.
+function bukaPanel(d = null){
+  SUNTING = d ? d.id : null;
+  isiForm(d);
+  $('panel').hidden = false;
+  document.body.classList.add('panel-buka');
+  gambarDaftar();
+  $('f_nama')?.focus();
+}
+function tutupPanel(){
+  $('panel').hidden = true;
+  document.body.classList.remove('panel-buka');
+  SUNTING = null;
+  gambarDaftar();
 }
 
 function isiForm(d){
   const r = d || { peran: 'dosen', aktif: true, dtps: true };
   const diriSendiri = d && d.id === SAYA.id;
+  if ($('panelJudul')) $('panelJudul').textContent = d ? 'Ubah: ' + d.nama : 'Tambah dosen atau admin';
   $('form').innerHTML = `
-    <p class="ket"><b>${d ? 'Ubah: ' + esc(d.nama) : 'Tambah dosen atau admin'}</b>${
-      diriSendiri ? ' — ini akun Anda sendiri: peran admin dan aktif tidak bisa dicabut di sini.' : ''}</p>
+    ${diriSendiri ? '<p class="ket">Ini akun Anda sendiri: peran admin dan aktif tidak bisa dicabut di sini.</p>' : ''}
     <div class="grid">
       <div class="fld"><label>Nama lengkap <span class="wj">*</span></label><input id="f_nama" value="${esc(r.nama)}"></div>
       <div class="fld"><label>NIDN <span class="wj">*</span></label><input id="f_nidn" value="${esc(r.nidn)}">
@@ -369,7 +423,12 @@ function isiForm(d){
         <small>Pengelompokan di daftar dosen publik.</small></div>` : ''}
       ${ADA_TB ? `<div class="fld"><label>Sedang tugas belajar (keterangan)</label><input id="f_tb" maxlength="200"
         value="${esc(r.tugas_belajar || '')}" placeholder="S3, Kyoto University (2024–2028)">
-        <small>Diisi = tampil di situs dengan keterangan ini, tetapi tidak dihitung DTPS. Kosongkan bila sudah kembali.</small></div>` : ''}
+        <small>Diisi = dosen homebase yang tugas belajar: tampil di situs dengan keterangan ini; tidak dihitung DTPS pada TS yang
+          beririsan dengan masa tugas belajarnya. Kosongkan bila sudah kembali.</small></div>` : ''}
+      ${ADA_TB && ADA_156 ? `<div class="fld"><label>Tugas belajar mulai</label><input id="f_tb_mulai" type="date" value="${esc(r.tugas_belajar_mulai || '')}">
+        <small>Kosong = dianggap tugas belajar di semua TS.</small></div>
+      <div class="fld"><label>Tugas belajar selesai</label><input id="f_tb_selesai" type="date" value="${esc(r.tugas_belajar_selesai || '')}">
+        <small>Rencana atau realisasi; kosong = masih tugas belajar.</small></div>` : ''}
       <div class="fld"><label>SINTA ID</label><input id="f_sinta_id" value="${esc(r.sinta_id)}"></div>
       <div class="fld"><label>Scopus ID</label><input id="f_scopus_id" value="${esc(r.scopus_id)}"></div>
       <div class="fld"><label>ORCID</label><input id="f_orcid" value="${esc(r.orcid)}"></div>
@@ -421,7 +480,7 @@ function isiForm(d){
   sinkronDtps();
   if (ADA_LKPS) pasangEditor($('form'));
   $('simpan').onclick = simpan;
-  if (d) $('batal').onclick = () => { SUNTING = null; gambarDaftar(); isiForm(null); };
+  if (d) $('batal').onclick = tutupPanel;
 }
 
 async function simpan(){
@@ -460,6 +519,13 @@ async function simpan(){
   if (ADA_TB && $('f_tb')) {
     isi.tugas_belajar = $('f_tb').value.trim() || null;
     if (isi.tugas_belajar) { isi.dtps = false; if (ADA_LKPS) isi.kategori = 'tetap'; }
+    // Periode (156): hanya bersama keterangan; selesai tidak sebelum mulai.
+    if (ADA_156 && $('f_tb_mulai')) {
+      isi.tugas_belajar_mulai = isi.tugas_belajar ? ($('f_tb_mulai').value || null) : null;
+      isi.tugas_belajar_selesai = isi.tugas_belajar ? ($('f_tb_selesai').value || null) : null;
+      if (isi.tugas_belajar_mulai && isi.tugas_belajar_selesai && isi.tugas_belajar_selesai < isi.tugas_belajar_mulai)
+        return tulis('buruk', 'Tanggal selesai tugas belajar sebelum tanggal mulai.');
+    }
   }
   if (PERAN_BUKAN_DTPS.includes(isi.peran)) isi.dtps = false;
   if (!isi.nama || !isi.nidn) return tulis('buruk', 'Nama dan NIDN/kode wajib diisi.');
@@ -502,6 +568,7 @@ async function simpan(){
   if (error) { $('simpan').disabled = false; return tulis('buruk', 'Gagal menyimpan: ' + error.message); }
   const baru = !SUNTING;
   SUNTING = null;
+  $('panel').hidden = true; document.body.classList.remove('panel-buka');
   await muat();
   const bisaMasuk = isi.email && isi.aktif && isi.boleh_masuk !== false;
   tulis('ok', baru ? `${isi.nama} ditambahkan. ${bisaMasuk ? `Ia sekarang bisa masuk dengan ${isi.email}.`

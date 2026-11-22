@@ -22,8 +22,15 @@ const mutu = s => admin(s) || (s.koordinator || []).includes('gkm');
 const kalab = s => admin(s) || (s.koordinator || []).includes('kepala_lab');
 // Sama dengan boleh_narasi() di supabase/36-patch-tim-penyusun.sql.
 const penyusun = s => admin(s) || (!!s.tim_penyusun && s.peran !== 'asesor');
-// Asesor, dan pimpinan yang bukan DTPS prodi ini (aktif=false), tidak mengisi karya.
-const isiKarya = s => s.peran !== 'asesor' && !(s.peran === 'pimpinan' && !s.aktif);
+// Pimpinan yang bukan DTPS prodi ini (mis. Dekan) = hanya-baca (157-patch-pimpinan-hanya-baca.sql, pemilik 2026-11-22):
+// menu hanya halaman pantauan; basis data menolak semua tulisan kecuali penetapan oleh Dekan aktif.
+export const hanyaBaca = s => s?.peran === 'pimpinan' && !(s.dtps === true || ['ya', 'y', 'true', '1'].includes(String(s.dtps ?? '').toLowerCase()));
+const PANTAUAN = ['dasbor.html', 'monitoring.html', 'skor.html', 'grafik.html', 'hasil-survei.html', 'kalender.html', 'panduan.html'];
+// Dekan aktif (Penugasan koordinator) tetap menetapkan RPS dan ekuivalensi (116, 134).
+const PENETAPAN_DEKAN = ['rps.html', 'ekuivalensi.html'];
+const pantauanBoleh = (s, href) => PANTAUAN.includes(berkas(href)) || ((s.koordinator || []).includes('dekan') && PENETAPAN_DEKAN.includes(berkas(href)));
+// Asesor dan pimpinan hanya-baca tidak mengisi karya.
+const isiKarya = s => s.peran !== 'asesor' && !hanyaBaca(s);
 
 import { halamanAktif } from './fitur.js?v=2026-11-22-866c27';
 import { pasangPemicuBangun } from './pemicu-bangun.js?v=2026-11-22-866c27';
@@ -201,9 +208,12 @@ const esc = s => String(s ?? '').replace(/[&<>"']/g, c =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
 // Halaman ruang kerja yang boleh dibuka `saya` (baris tabel dosen).
+// Pimpinan hanya-baca: hanya halaman pantauan (aturan boleh halaman itu dilewati, karena isinya hanya dibaca).
+const bolehHalaman = (s, h) => hanyaBaca(s) ? pantauanBoleh(s, h.href) : (!h.boleh || h.boleh(s));
+
 export function halamanBoleh(saya){
   // Modul yang dimatikan di config.js (FITUR_MATI, fitur.js) tidak tampil.
-  return MODUL.map(m => ({ ...m, halaman: m.halaman.filter(h => halamanAktif(h.href) && (!h.boleh || h.boleh(saya))) }))
+  return MODUL.map(m => ({ ...m, halaman: m.halaman.filter(h => halamanAktif(h.href) && bolehHalaman(saya, h)) }))
     .filter(m => m.halaman.length);
 }
 
@@ -213,7 +223,7 @@ export function bolehBuka(saya, href){
   const b = berkas(href);
   const h = MODUL.flatMap(m => m.halaman).find(x => berkas(x.href) === b);
   if (!h) return null;
-  return halamanAktif(h.href) && (!h.boleh || h.boleh(saya));
+  return halamanAktif(h.href) && bolehHalaman(saya, h);
 }
 
 // Pintasan di halaman depan ruang kerja (pemilik 2026-11-20, tahap 3): per peran/jabatan, jabatan lebih dulu,

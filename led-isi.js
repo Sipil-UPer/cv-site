@@ -13,6 +13,7 @@ import { versiUntukTS } from './pustaka-dokumen.js?v=2026-11-22-866c27';
 import { infoJenis, JENIS_DOKUMEN, kelompokDokumen, buktiButir, saranDokumen } from './rencana-bukti.js?v=2026-11-22-866c27';
 import { teksPendidikan, nidnNuptk } from './profil-dosen.js?v=2026-11-22-866c27';
 import { karya4i } from './sitasi.js?v=2026-11-22-866c27';
+import { ampuPerTA, dosenTS } from './dosen-hitung.js?v=2026-11-22-866c27';
 
 export const tokenTautan = (url, label) => `⟦${url}|${String(label).replace(/[⟦⟧|]/g, ' ')}⟧`;
 const isi = t => `[isi: ${t}]`;
@@ -244,6 +245,8 @@ const potong = (baris, maks, ket) => baris.length <= maks ? { baris, catatan: ''
 // Tabel pendukung penjelasan per butir, [{judul, baris, catatan}]; kosong bila datanya belum ada.
 export function tabelPenjelas(no, C){
   const X = C.daftar || {}, ts = C.ts, dok = C.dokumen || [];
+  // DTPS pada TS (pemilik 2026-11-22): sama dengan LKPS 4.a.
+  const dtpsTS = () => dosenTS(X.dosen || [], `${ts - 1}/${ts}`, ampuPerTA(X.ampu || {})).dtps;
   const buat = (judul, kepala, baris, ket = 'pada LKPS', maks = 40) => {
     if (!baris.length) return [];
     const p = potong(baris, maks, ket);
@@ -277,10 +280,10 @@ export function tabelPenjelas(no, C){
         (X.tema || []).filter(t => t.aktif !== false && (t.jenis === jenis || t.jenis === 'keduanya')).map(t => [t.nama]));
     }
     case '26': return buat('Daftar dosen tetap program studi (DTPS)', ['No', 'Nama', 'NIDN/NUPTK', 'Pendidikan', 'Bidang keahlian', 'Jabatan akademik'],
-      (X.dosen || []).filter(d => d.dtps && d.aktif !== false).sort((a, b) => String(a.nama).localeCompare(String(b.nama)))
+      dtpsTS().sort((a, b) => String(a.nama).localeCompare(String(b.nama)))
         .map(d => [d.nama, nidnNuptk(d) || '—', d.pendidikan || '—', d.bidang_keahlian || '—', JABATAN[d.jabatan] || '—']), 'pada Tabel 4.a LKPS', 80);
     case '27': return buat('Riwayat pendidikan DTPS', ['No', 'Nama', 'Sarjana', 'Magister', 'Doktor'],
-      (X.dosen || []).filter(d => d.dtps && d.aktif !== false && (d.riwayat_pendidikan || []).length)
+      dtpsTS().filter(d => (d.riwayat_pendidikan || []).length)
         .sort((a, b) => String(a.nama).localeCompare(String(b.nama)))
         .map(d => [d.nama, ...['sarjana', 'magister', 'doktor'].map(k => teksPendidikan(d.riwayat_pendidikan, k) || '—')]), 'pada Tabel 4.a LKPS', 80);
     case '29': return buat('Daftar tenaga kependidikan', ['No', 'Nama', 'Jabatan', 'Pendidikan', 'Sertifikat', 'Unit kerja'],

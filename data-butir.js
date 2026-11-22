@@ -25,6 +25,7 @@
    ===================================================================== */
 
 import { barisBkd } from './tautan-butir.js?v=2026-11-22-866c27';
+import { ampuPerTA, dosenTS, bacaAmpu } from './dosen-hitung.js?v=2026-11-22-866c27';
 
 const angka = v => { const x = parseFloat(String(v ?? '').replace(',', '.')); return Number.isFinite(x) ? x : 0; };
 const bulat = v => Math.trunc(angka(v));
@@ -53,6 +54,9 @@ const pasang = (tabel, P) => r => ({ ...r, _bukti: buktiBaris(tabel, r, P.bukti)
 function jumlah(baris, kunci, a, b){
   return (baris || []).filter(r => dalam(r.tahun, a, b)).reduce((s, r) => s + kunci.reduce((t, k) => t + (r[k] || 0), 0), 0);
 }
+
+// DTPS pada TS (pemilik 2026-11-22): aturan dosen-hitung.js bila data mengampu dimuat (P.ampu), selain itu rumus lama.
+const dtpsPada = (P, TS) => P.ampu ? dosenTS(P.dosen, `${TS - 1}/${TS}`, ampuPerTA(P.ampu)).dtps : dosenDTPS(P.dosen);
 
 // Rumus masuk_dtps bangun.py: asesor tidak pernah; kolom dtps menentukan; tanpa nilai, aktif.
 export function dosenDTPS(dosen){
@@ -217,7 +221,7 @@ const DEF = {
   // dosennya. Hanya DTPS, TS-2..TS. Skor menghitung DOSEN unik.
   '35': (P, TS, D) => {
     const slug = n => String(n || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
-    const dtps = new Set(dosenDTPS(P.dosen).map(d => slug(d.nama)));
+    const dtps = new Set(dtpsPada(P, TS).map(d => slug(d.nama)));
     const b = [], lihat = new Set();
     const tambah = (k, nama, peran) => {
       const sg = slug(nama), ts = tsBaris(k.tahun, k.bulan);
@@ -250,11 +254,11 @@ const DEF = {
   '10': (P, TS) => dana(P, TS, 'penelitian'),
   '11': (P, TS) => dana(P, TS, 'pkm'),
   // butir27/28: dosen DTPS (masuk_dtps bangun.py).
-  '27': (P, TS, D) => dtpsBaris(P, D, 'Pendidikan', 'pendidikan', d => doktor(d) ? 'doktor' : ''),
+  '27': (P, TS, D) => dtpsBaris(P, TS, D, 'Pendidikan', 'pendidikan', d => doktor(d) ? 'doktor' : ''),
   // butir26: NDTPS = jumlah DTPS (NDTT dari isian ndtt, bukan baris).
-  '26': (P, TS, D) => ({ ...dtpsBaris(P, D, 'Jabatan', 'jabatan', d => rapi(d.pendidikan) || '—'),
+  '26': (P, TS, D) => ({ ...dtpsBaris(P, TS, D, 'Jabatan', 'jabatan', d => rapi(d.pendidikan) || '—'),
     kolom: [['Dosen', 'nama'], ['Jabatan', '_isi'], ['Pendidikan', '_hitung']] }),
-  '28': (P, TS, D) => dtpsBaris(P, D, 'Jabatan', 'jabatan',
+  '28': (P, TS, D) => dtpsBaris(P, TS, D, 'Jabatan', 'jabatan',
     d => ['lektor', 'lektor_kepala', 'guru_besar'].includes(jabatanKey(d)) ? 'L/LK/GB' : ''),
 };
 // Tracer 49-51 (tracerJendela): tahun lulus TS-2..TS-1.
@@ -281,8 +285,8 @@ function dana(P, TS, kategori){
   return { judul: `${kategori === 'pkm' ? 'PkM' : 'Penelitian'} terverifikasi, 3 TS`, tab: null, tabel: 'karya',
     kolom: [['Th', 'tahun'], ['Judul', 'judul'], ['Dana', '_dana']], baris: b, pakai: b.length, pembanding: null, labelPakai: 'kegiatan' };
 }
-function dtpsBaris(P, D, th, kunci, tanda){
-  const b = dosenDTPS(P.dosen).map(d => ({ ...d, _isi: rapi(d[kunci]) || '—', _hitung: tanda(d) }))
+function dtpsBaris(P, TS, D, th, kunci, tanda){
+  const b = dtpsPada(P, TS).map(d => ({ ...d, _isi: rapi(d[kunci]) || '—', _hitung: tanda(d) }))
     .sort((x, y) => String(x.nama).localeCompare(String(y.nama)));
   return { judul: 'Dosen DTPS', tab: null, tabel: 'dosen', tanpaBukti: true, kolom: [['Dosen', 'nama'], [th, '_isi'], ['Terhitung', '_hitung']],
     baris: b, pakai: b.length, pembanding: (D.dtps || {}).jumlah ?? null, labelPakai: 'DTPS' };
@@ -397,8 +401,11 @@ export async function ambilDataButir(sb, { dana = [] } = {}){
     // RLS lkps_bkd: admin semua baris, dosen hanya miliknya.
     semua(sb, 'lkps_bkd', q => q.eq('verifikasi', 'terverifikasi')), rbk(),
     ...TABEL_PENDUKUNG.map(t => semua(sb, t))]);
-  return { ...ks, mhs, kohort, tracer, kepuasan, prestasi, pubMhs, luaranMhs, dana, bkd, rbk: rb,
-    dosen: dosen.map(d => ({ nama: d.nama, nidn: d.nidn, peran: d.peran, dtps: d.dtps, aktif: d.aktif, pendidikan: d.pendidikan, jabatan: d.jabatan })),
+  const ampu = await bacaAmpu(sb);   // 154: DTPS pada TS terpilih
+  return { ...ks, mhs, kohort, tracer, kepuasan, prestasi, pubMhs, luaranMhs, dana, bkd, rbk: rb, ampu,
+    dosen: dosen.map(d => ({ id: d.id, nama: d.nama, nidn: d.nidn, peran: d.peran, dtps: d.dtps, aktif: d.aktif, kategori: d.kategori,
+      tugas_belajar: d.tugas_belajar, tugas_belajar_mulai: d.tugas_belajar_mulai, tugas_belajar_selesai: d.tugas_belajar_selesai,
+      pendidikan: d.pendidikan, jabatan: d.jabatan })),
     pendukung: Object.fromEntries(TABEL_PENDUKUNG.map((t, i) => [t, pend[i]])) };
 }
 

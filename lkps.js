@@ -20,6 +20,7 @@ import { teksPendidikan, nidnNuptk } from './profil-dosen.js?v=2026-11-22-866c27
 import { barisKerjaSama } from './kerjasama-karya.js?v=2026-11-22-866c27';
 import { kunciIntegrasi } from './rps-integrasi.js?v=2026-11-22-866c27';
 import { karya4i } from './sitasi.js?v=2026-11-22-866c27';
+import { ampuPerTA, dosenTS } from './dosen-hitung.js?v=2026-11-22-866c27';
 
 const TEMPLATE = 'lkps-template.xlsx';
 export const JSZIP = 'https://cdn.jsdelivr.net/npm/jszip@3.10.1/+esm';
@@ -183,15 +184,13 @@ export function petaDaftar(C){
   const dalam = (t, n = 3) => t >= ts - n + 1 && t <= ts;
   const urut = (a, b) => (a.tahun - b.tahun) || String(a.judul).localeCompare(String(b.judul));
 
-  // 4.a profil dosen: semua yang berkategori (Dosen Tetap / Tidak Tetap /
-  // Industri; DTPS tanpa kategori = Dosen Tetap). Nama di sini = daftar
-  // ValidDosen di lembar lain. Kolom E-P, R, S dari profil-dosen.js
-  // (supabase/22-patch-profil-dosen.sql); "V" hanya bila admin menilai.
-  const dtps = (X.dosen || []).filter(d => d.dtps && d.peran !== 'asesor')
-    .sort((a, b) => a.nama.localeCompare(b.nama));
-  // Yang tidak aktif tidak dihitung (pemilik 2026-11-10), sama dengan butir 26.
-  const profil = (X.dosen || []).filter(d => d.aktif !== false && d.peran !== 'asesor' && (d.kategori || d.dtps))
-    .sort((a, b) => a.nama.localeCompare(b.nama));
+  // 4.a profil dosen: yang DIHITUNG pada TS laporan (pemilik 2026-11-22, dosen-hitung.js = Kelola dosen dan Skor):
+  // DTPS, DT, dan DTT/industri yang aktif dan mengampu MK prodi pada TS; tugas belajar yang beririsan dengan TS, staf,
+  // pimpinan bukan dosen, dan asesor tidak. Nama di sini = daftar ValidDosen di lembar lain (4.h, 4.i memakai DTPS
+  // ini). Kolom E-P, R, S dari profil-dosen.js (supabase/22-patch-profil-dosen.sql); "V" hanya bila admin menilai.
+  const diTS = dosenTS(X.dosen || [], `${ts - 1}/${ts}`, ampuPerTA(X.ampu || {}));
+  const dtps = diTS.dtps.sort((a, b) => a.nama.localeCompare(b.nama));
+  const profil = diTS.hitung.sort((a, b) => a.nama.localeCompare(b.nama));
   const mk = (X.mk || []).filter(m => m.aktif !== false)
     .sort((a, b) => ((a.semester ?? 99) - (b.semester ?? 99)) || ((a.urutan ?? 100) - (b.urutan ?? 100))
       || String(a.kode).localeCompare(String(b.kode)));
@@ -250,7 +249,7 @@ export function petaDaftar(C){
   // semester); tanda V hanya DTPS. Dosen lain tampil bila BKD-nya diisi admin.
   // Memakai SKS BKD; SKS Lebih tidak masuk (pemilik 2026-11-06).
   const bkd = (X.bkd || []).filter(b => b.tahun_akademik === `${ts - 1}/${ts}`);
-  const dosenLain = (X.dosen || []).filter(d => !dtps.includes(d) && d.peran !== 'asesor' && bkd.some(b => b.nidn === d.nidn));
+  const dosenLain = profil.filter(d => !dtps.includes(d) && bkd.some(b => b.nidn === d.nidn));
   [...dtps, ...dosenLain].forEach((d, i) => {
     const rows = bkd.filter(b => b.nidn === d.nidn);
     if (!rows.length) return;
