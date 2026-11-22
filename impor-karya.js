@@ -328,3 +328,17 @@ export function drafDariBib(e, { namaSaya = '' } = {}) {
     sitasiTS: null,
   };
 }
+
+// Formulir publikasi manual (pemilik 2026-11-22): tombol "Tarik data dan sitasi dari OpenAlex" mengisi juga kolom
+// bibliografi dari DOI, dengan pemetaan yang sama dengan impor (drafDari). Hanya kolom yang MASIH KOSONG di formulir yang
+// diisi; isian dosen tidak ditimpa. sekarang = { kolom: nilai formulir }. -> { kolom: nilai } untuk diisi.
+export const KOLOM_FORM_DOI = ['judul', 'jenis', 'tahun', 'bulan', 'nama_terbitan', 'volume', 'nomor', 'halaman', 'url'];
+export function isianFormDari(w, sekarang = {}, hariIni = new Date().toISOString().slice(0, 10)) {
+  const k = drafDari(w, { hariIni }).karya, out = {};
+  for (const c of KOLOM_FORM_DOI) {
+    const v = k[c];
+    if (v == null || String(v).trim() === '' || String(sekarang[c] ?? '').trim()) continue;
+    out[c] = String(v).trim();
+  }
+  return out;
+}

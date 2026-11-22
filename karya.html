@@ -227,7 +227,7 @@ import { barisKarya as htmlBarisKarya, muatBuktiKarya, daftarBuktiKarya as dafta
 import { saringKarya, daftarNegara, ADA, TANPA } from './saring-karya.js?v=2026-11-22-866c27';
 import { hitungVerifikasi } from './verifikasi-hitung.js?v=2026-11-22-866c27';
 import { daftarDoi, ambilDoi, drafDari, rapiDoi, sitasiTahunan, cariJudul, bacaBibtex, judulRapi, pilihCocok,
-  drafDariBib, teksBatas, karyaOrcid } from './impor-karya.js?v=2026-11-22-866c27';
+  drafDariBib, teksBatas, karyaOrcid, isianFormDari, KOLOM_FORM_DOI } from './impor-karya.js?v=2026-11-22-866c27';
 import { SUMBER_SITASI } from './sitasi.js?v=2026-11-22-866c27';
 
 const app = document.getElementById('app');
@@ -1974,7 +1974,8 @@ function htmlSitasi(){
       tahun terakhir, hanya jurnal/prosiding terindeks <b>Scopus atau WoS</b>) dihitung situs dari tahun yang beririsan
       dengan TS-2 s.d. TS. Kolom LKPS meminta angka <b>Google Scholar</b>: salin batang grafik sitasi per tahun dari
       halaman artikel. Angka bisa diubah kapan saja, juga setelah karya terverifikasi; tahun berjalan diperbarui tiap tahun.
-      <br><button type="button" class="btn ghost sm" id="sitasi_tarik">Tarik dari OpenAlex</button>
+      <br><button type="button" class="btn ghost sm" id="sitasi_tarik">Tarik data dan sitasi dari OpenAlex</button>
+      <span class="sub">Dari DOI: judul, jenis, tahun, bulan, nama jurnal, volume, nomor, halaman, dan tautan yang masih kosong ikut diisi.</span>
       <span class="msg" id="sitasi_msg"></span></div></div>`;
 }
 
@@ -2006,6 +2007,15 @@ function pasangSitasi(awal){
     try{
       const w = await ambilDoi(doi);
       if(!w){ msg.className = 'msg err'; msg.textContent = 'DOI tidak ditemukan di OpenAlex.'; return; }
+      // Kolom bibliografi yang masih kosong (pemilik 2026-11-22); isian dosen tidak ditimpa.
+      const frm = document.getElementById('frm'), terisi = [], tanpaPilihan = [];
+      const sekarang = Object.fromEntries(KOLOM_FORM_DOI.map(c => [c, frm?.elements[c]?.value ?? 'x']));
+      for(const [c, v] of Object.entries(isianFormDari(w, sekarang, hariIniTeks()))){
+        const el = frm.elements[c];
+        if(el.tagName === 'SELECT' && ![...el.options].some(o => o.value === v)){ tanpaPilihan.push(`${c} ${v}`); continue; }
+        el.value = v; el.dispatchEvent(new Event('input', { bubbles: true })); el.dispatchEvent(new Event('change', { bubbles: true }));
+        terisi.push(document.querySelector(`label[for="f_${c}"]`)?.textContent.replace('*', '').trim() || c);
+      }
       let n = 0;
       sitasiTahunan(w, tahunIni).forEach(r => {
         const s = sitasiSementara.get(r.tahun);
@@ -2013,7 +2023,11 @@ function pasangSitasi(awal){
         sitasiSementara.set(r.tahun, { jumlah: r.jumlah, sumber: 'openalex', diambil: hariIniTeks(), ubah: true }); n++;
       });
       gambar();
-      msg.className = 'msg ok'; msg.textContent = `${n} tahun diisi dari OpenAlex; angka yang Anda isi sendiri tidak diubah. Klik Simpan.`;
+      msg.className = 'msg ok';
+      msg.textContent = (terisi.length ? `Diisi dari OpenAlex: ${terisi.join(', ')}. ` : 'Kolom data sudah terisi semua (tidak diubah). ')
+        + `Sitasi: ${n} tahun. Isian Anda sendiri tidak diubah.`
+        + (tanpaPilihan.length ? ` Tidak ada di pilihan, isi manual: ${tanpaPilihan.join(', ')}.` : '')
+        + ' Periksa lalu klik Simpan.';
     }catch(e){ msg.className = 'msg err'; msg.textContent = e.batas ? teksBatas(e) : 'Gagal: ' + (e.message || e); }
   };
 }

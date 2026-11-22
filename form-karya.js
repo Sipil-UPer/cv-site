@@ -109,7 +109,8 @@ export const FORM = {
         ['scopus_q2','Scopus Q2'],['scopus_q3','Scopus Q3'],['scopus_q4','Scopus Q4'],
         ['wos','Web of Science'],['sinta_1_2','SINTA 1–2'],['sinta_3_4','SINTA 3–4'],
         ['sinta_5_6','SINTA 5–6'],['tidak_terindeks','Tidak terindeks']]},
-      {n:'doi', l:'DOI', t:'text', ph:'10.1016/j.jhydrol.2025.132000'},
+      {n:'doi', l:'DOI', t:'text', ph:'10.1016/j.jhydrol.2025.132000',
+        sub:'Isi DOI, lalu klik <b>Tarik data dan sitasi dari OpenAlex</b> (di bagian Sitasi per tahun): kolom yang masih kosong terisi otomatis.'},
       // Sitasi: kotak per tahun di karya.html (htmlSitasi), bukan F_SITASI (pemilik 2026-11-10).
       {n:'url', l:'Tautan', t:'url', full:1, ph:'https://'},
     ]
