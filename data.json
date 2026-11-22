@@ -8749,6 +8749,8 @@
  "dtps": {
   "jumlah": 10,
   "doktor": 7,
+  "dosen_tetap": 11,
+  "tugas_belajar": 1,
   "jabatan": {
    "lektor": 5,
    "asisten_ahli": 3,

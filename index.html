@@ -390,7 +390,8 @@ function gambar(d){
   const mitra = new Set([...(d.publikasi || []), ...(d.kegiatan || [])]
     .flatMap(x => (x.mitra || []).map(m => String(m?.nama || '').trim().toLowerCase())).filter(Boolean));
   const angka = [
-    [d.dtps?.jumlah ?? (d.dosen || []).length, 'Dosen tetap', 'daftar.html?jenis=dosen'],
+    // Termasuk dosen tetap yang sedang tugas belajar (pemilik 2026-11-22); dtps.jumlah = DTPS untuk akreditasi.
+    [d.dtps?.dosen_tetap ?? d.dtps?.jumlah ?? (d.dosen || []).length, 'Dosen tetap', 'daftar.html?jenis=dosen'],
     [d.dtps?.doktor, 'Bergelar doktor', 'daftar.html?jenis=dosen'],
     [ta?.mahasiswa_aktif || null, `Mahasiswa aktif ${ta?.ta || ''}`, 'kinerja.html'],
     [(d.publikasi || []).length, 'Publikasi', 'daftar.html?jenis=publikasi'],

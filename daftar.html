@@ -155,9 +155,14 @@ function dosen(){
     const topik = (d.topik_keahlian || []).map(k => namaTopik[k]).filter(Boolean);
     const profil = [d.sinta_id && `<a href="${SINTA}${esc(d.sinta_id)}" rel="noopener">SINTA</a>`,
       d.scopus_id && `<a href="${SCOPUS}${esc(d.scopus_id)}" rel="noopener">Scopus</a>`,
-      d.orcid && `<a href="${ORCID}${esc(d.orcid)}" rel="noopener">ORCID</a>`].filter(Boolean).join('');
+      d.orcid && `<a href="${ORCID}${esc(d.orcid)}" rel="noopener">ORCID</a>`,
+      // Tautan lain dosen (patch 146, pemilik 2026-11-22): label dipendekkan sampai sebelum "(", label lengkap di title.
+      ...(d.tautan || []).filter(t => /^https:\/\//i.test(t?.url || '')).map(t => {
+        const pendek = String(t.label || '').replace(/\s*\(.*$/, '').trim() || 'Tautan';
+        return `<a href="${esc(t.url)}" rel="noopener" title="${esc(t.label || t.url)}">${esc(pendek)}</a>`; })].filter(Boolean).join('');
     const nPub = milik(D.publikasi, d.slug), nPen = milik(D.kegiatan.filter(k => k.kategori === 'penelitian'), d.slug),
-          nPkm = milik(D.kegiatan.filter(k => k.kategori === 'pkm'), d.slug);
+          nPkm = milik(D.kegiatan.filter(k => k.kategori === 'pkm'), d.slug),
+          nRek = (D.rekognisi || []).filter(r => r.dosen === d.nama).length;   // rekognisi terverifikasi (pemilik 2026-11-22)
     return `<article class="k">${d.foto ? `<img class="foto" src="${esc(d.foto)}" alt="" loading="lazy">`
         : `<span class="foto inisial" aria-hidden="true">${esc(inisial(d.nama))}</span>`}
       <div><h3><a href="dosen/${encodeURIComponent(d.slug)}.html">${esc(d.nama_gelar || d.nama)}</a></h3>
@@ -165,7 +170,7 @@ function dosen(){
         ${d.nip ? `<div class="nip">NIP ${esc(d.nip)}</div>` : ''}
         ${d.tugas_belajar ? `<div class="tb">Sedang tugas belajar · ${esc(d.tugas_belajar)}</div>` : ''}
         ${topik.length ? `<div class="topik">${topik.slice(0, 3).map(t => `<span>${esc(t)}</span>`).join('')}${topik.length > 3 ? `<span>+${topik.length - 3}</span>` : ''}</div>` : ''}
-        <div class="hitung"><span><b>${nPub}</b>publikasi</span><span><b>${nPen}</b>penelitian</span><span><b>${nPkm}</b>pengabdian</span></div>
+        <div class="hitung"><span><b>${nPub}</b>publikasi</span><span><b>${nPen}</b>penelitian</span><span><b>${nPkm}</b>pengabdian</span><span><b>${nRek}</b>rekognisi</span></div>
         ${profil ? `<div class="profil">${profil}</div>` : ''}</div></article>`;
   };
   const isi = () => {
