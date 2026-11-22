@@ -37,6 +37,9 @@ export const MENU = [
     // Selaras dengan 4 tombol utama Layanan mahasiswa (pemilik 2026-11-19).
     { judul: 'Layanan mahasiswa', href: 'layanan-mahasiswa.html' },
     { judul: 'Ekuivalensi kurikulum', href: 'ekuivalensi-kurikulum.html', ket: 'padanan mata kuliah kurikulum lama ke baru' },
+    // Kalender akademik (patch 148) dan Biaya dan beasiswa (tautan resmi), pemilik 2026-11-22.
+    { judul: 'Kalender akademik', href: 'layanan-mahasiswa.html#kalender' },
+    { judul: 'Biaya dan beasiswa', href: 'biaya-beasiswa.html', kr: 'biaya' },
     { judul: 'Ajukan KP, TA, lomba, luaran, kabar kegiatan, surat, yudisium', href: 'pengajuan.html' },
     { judul: 'Jadwal seminar/sidang TA', href: 'layanan-mahasiswa.html#jadwal-ta' },
     { judul: 'Kerja praktik dan magang', href: 'kerja-praktik.html' },
@@ -315,6 +318,7 @@ export function isiKerangka(D){
   });
   const nFoto = [...(D.kabar || []), ...(D.prestasi || []), ...(D.laboratorium || [])].reduce((n, x) => n + (x.foto || []).length, 0);
   document.querySelectorAll('[data-kr-menu="galeri"]').forEach(el => { el.hidden = !nFoto; });
+  document.querySelectorAll('[data-kr-menu="biaya"]').forEach(el => { el.hidden = !(D.situs?.biaya || []).length; });
   // Status akreditasi di kaki halaman (hanya bila masih berlaku; bangun.py akreditasi_publik).
   const ak = D.akreditasi_prodi || {};
   document.querySelectorAll('[data-kr="akreditasi"]').forEach(el => {

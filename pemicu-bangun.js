@@ -9,9 +9,12 @@
 export const TABEL_PUBLIK = new Set(['dosen', 'kabar_kegiatan', 'karya', 'karya_mahasiswa', 'karya_mitra', 'karya_penulis', 'lkps_bukti',
   'lkps_kerjasama', 'lkps_prasarana', 'lkps_prestasi_mahasiswa', 'lkps_prodi_upps', 'lkps_vmts', 'pengajuan_mahasiswa', 'pengelola_prodi',
   'profil_prodi', 'ref_bidang_keahlian', 'ref_cpl', 'ref_kelompok_dana', 'ref_mata_kuliah', 'ref_mk_cpl', 'ref_profil_lulusan', 'testimoni',
-  'ref_skema_dana', 'ref_topik_keahlian', 'survei', 'survei_jawaban', 'laboratorium', 'laboratorium_baris', 'jadwal_ta', 'jadwal_ta_baris']);
+  'ref_skema_dana', 'ref_topik_keahlian', 'survei', 'survei_jawaban', 'laboratorium', 'laboratorium_baris', 'jadwal_ta', 'jadwal_ta_baris',
+  // 2026-11-22: kalender akademik (patch 148).
+  'kalender_akademik']);
 // RPC yang menyetujui/menerbitkan data publik.
-export const RPC_PUBLIK = new Set(['setujui_ajuan_prestasi', 'setujui_ajuan_ubah']);
+// silabus_putuskan (patch 129): silabus yang disahkan tampil di halaman mata kuliah (pemilik 2026-11-22).
+export const RPC_PUBLIK = new Set(['setujui_ajuan_prestasi', 'setujui_ajuan_ubah', 'silabus_putuskan']);
 const UBAH = ['insert', 'update', 'upsert', 'delete'];
 export const JEDA = 8000;   // cukup untuk menggabungkan beberapa simpan beruntun; pindah halaman sebelum jeda = tunggu build tiap jam
 

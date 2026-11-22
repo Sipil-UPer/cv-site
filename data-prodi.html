@@ -502,6 +502,29 @@ const TABEL = [
     cek: r => String(r.kutipan || '').trim().length < 20 ? 'Kutipan paling sedikit 20 huruf.'
       : String(r.kutipan || '').trim().length > 400 ? 'Kutipan paling banyak 400 huruf.'
       : (r.tampil && !r.persetujuan_tanggal) ? 'Isi tanggal persetujuan sebelum menampilkan, atau hilangkan centang Tampil.' : '' },
+  // Kalender akademik (148-patch-kalender-akademik.sql, pemilik 2026-11-22): tampil di Layanan mahasiswa.
+  { id: 'kalender_akademik', tabel: 'kalender_akademik', judul: 'Kalender akademik', butir: 'Situs publik',
+    patch: '148-patch-kalender-akademik.sql', urut: ['mulai', 'id'], tanpaBukti: true,
+    ket: 'Kegiatan akademik prodi untuk halaman Layanan mahasiswa, diisi sekali per semester (registrasi, perkuliahan, ujian, '
+       + 'batas pengajuan TA/KP, yudisium, libur). Situs menampilkan kegiatan yang belum lewat lebih dari 60 hari, '
+       + 'ditambah tautan ke kalender akademik resmi universitas. Tanggal selesai kosong = satu hari.',
+    label: r => `${r.semester || ''} — ${r.kegiatan || 'Kegiatan'}`, tahun: () => null,
+    kolom: [
+      { k: 'semester', l: 'Semester (mis. Ganjil 2026/2027)', t: 'teks', wajib: true },
+      { k: 'kegiatan', l: 'Kegiatan', t: 'teks', wajib: true, lebar: true },
+      { k: 'kategori', l: 'Kategori', t: 'pilihan', wajib: true, o: [['registrasi', 'Registrasi/KRS'], ['perkuliahan', 'Perkuliahan'],
+        ['ujian', 'Ujian'], ['tugas_akhir', 'Tugas akhir'], ['kerja_praktik', 'Kerja praktik'], ['yudisium', 'Yudisium/wisuda'],
+        ['libur', 'Libur'], ['lainnya', 'Lainnya']] },
+      { k: 'mulai', l: 'Tanggal mulai', t: 'tanggal', wajib: true },
+      { k: 'selesai', l: 'Tanggal selesai (kosong = satu hari)', t: 'tanggal' },
+      { k: 'catatan', l: 'Catatan (maks. 300 huruf)', t: 'teks', lebar: true },
+      { k: 'tampil', l: 'Tampil di situs', t: 'cek', awal: true },
+    ],
+    olah: r => { if (r.tampil == null) r.tampil = true; if (!r.kategori) r.kategori = 'lainnya'; },
+    cek: r => String(r.semester || '').trim().length < 3 ? 'Semester paling sedikit 3 huruf, mis. Ganjil 2026/2027.'
+      : String(r.kegiatan || '').trim().length < 3 ? 'Kegiatan paling sedikit 3 huruf.'
+      : (r.selesai && r.mulai && r.selesai < r.mulai) ? 'Tanggal selesai tidak boleh sebelum tanggal mulai.'
+      : String(r.catatan || '').length > 300 ? 'Catatan paling banyak 300 huruf.' : '' },
   { id: 'tema', tabel: 'ref_tema_peta_jalan', judul: 'Peta jalan', butir: '22–25',
     patch: '25-patch-isian-karya.sql', urut: ['urutan', 'nama'],
     ket: 'Tema peta jalan penelitian dan PkM prodi. Dosen memilih temanya di isian karya penelitian/PkM; '

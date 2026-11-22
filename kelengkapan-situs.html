@@ -64,11 +64,11 @@ addEventListener('error', function (e) {
 // (sama dengan yang dibaca pengunjung). Logika: kelengkapan-situs.js. Hanya admin (menu Pemantauan).
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
 import { gerbang } from './menu.js?v=2026-11-22-866c27';
-import { periksaKelengkapan, ringkasKelengkapan, STATUS_KS } from './kelengkapan-situs.js?v=2026-11-22-866c27';
+import { periksaKelengkapan, ringkasKelengkapan, STATUS_KS, tautanInternal } from './kelengkapan-situs.js?v=2026-11-22-866c27';
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const sb = createClient(window.SB_URL, window.SB_KEY);
-let XS = [], DIPERBARUI = '', F = '';
+let XS = [], DIPERBARUI = '', F = '', TAUTAN = '';
 
 function gambar(){
   const r = ringkasKelengkapan(XS), nama = Object.fromEntries(STATUS_KS);
@@ -88,8 +88,62 @@ function gambar(){
     <div class="kemajuan">${[...STATUS_KS, ['boleh', 'Boleh kosong']].map(([k, l]) =>
       `<button class="angka-st${F === k ? ' aktif' : ''}" data-st="${k}"><b>${k === 'boleh' ? r.bolehKosong : r[k]}</b><span>${l}</span></button>`).join('')}</div>
     <div class="gulir"><table class="ds"><thead><tr><th>Status</th><th>Bagian</th><th>Isi sekarang</th><th>Isi di</th><th>Catatan</th></tr></thead>
-      <tbody>${baris || '<tr><td colspan="5" class="kosong">Tidak ada.</td></tr>'}</tbody></table></div></div>`;
+      <tbody>${baris || '<tr><td colspan="5" class="kosong">Tidak ada.</td></tr>'}</tbody></table></div></div>
+    <div class="kartu"><h2>Tautan internal rusak</h2>
+      <p class="ket">Menjelajahi semua halaman situs publik (sitemap, menu, lalu tautan di tiap halaman) dan membuka setiap tujuan
+        sekali. Tautan ke luar situs (DOI, situs mitra) tidak bisa diperiksa dari peramban. Butuh sekitar satu menit.</p>
+      <button type="button" class="angka-st" id="cekTautan" style="padding:8px 14px">Periksa tautan internal</button>
+      <div id="hasilTautan">${TAUTAN}</div></div>`;
+  $('cekTautan').onclick = periksaTautan;
   document.querySelectorAll('[data-st]').forEach(b => { b.onclick = () => { F = F === b.dataset.st ? '' : b.dataset.st; gambar(); }; });
+}
+
+// Tautan internal rusak (pemilik 2026-11-22; pindah dari Mutu data): jelajahi halaman situs (paling banyak MAKS_HALAMAN),
+// lalu cek setiap tujuan .html sekali. Halaman ruang kerja (noindex) dicek ada atau tidak, tetapi tidak dijelajahi.
+const MAKS_HALAMAN = 400;
+async function periksaTautan(){
+  const tombol = $('cekTautan'), kotak = $('hasilTautan');
+  tombol.disabled = true;
+  const akar = new URL('./', location.href).href;
+  const dikunjungi = new Map(), antre = [], asal = new Map();
+  const awal = (u, dari) => { if (!antre.includes(u)) antre.push(u); if (!asal.has(u)) asal.set(u, dari); };
+  awal(akar + 'index.html', 'beranda');
+  try {
+    // sitemap.xml memakai domain situs; dipetakan ke folder ini lewat alamat pertama yang berakhir '/' (beranda).
+    const peta = await (await fetch(akar + 'sitemap.xml', { cache: 'no-store' })).text();
+    const loc = [...peta.matchAll(/<loc>([^<]+)<\/loc>/g)].map(m => m[1].replace(/&amp;/g, '&'));
+    const dasar = loc.find(u => u.endsWith('/')) || '';
+    loc.forEach(u => { if (dasar && u.startsWith(dasar)) awal(akar + (u.slice(dasar.length) || 'index.html'), 'sitemap.xml'); });
+  } catch { /* tanpa sitemap: mulai dari beranda dan menu */ }
+  try {
+    const { MENU } = await import('./kerangka.js?v=2026-11-22-866c27');
+    MENU.flatMap(m => m.isi).map(x => x.href).filter(h => h && !h.startsWith('#'))
+      .forEach(h => { const u = new URL(h, akar); u.hash = ''; u.search = ''; awal(u.href, 'menu kepala'); });
+  } catch { /* menu tidak terbaca */ }
+  ['privasi.html', 'peta-situs.html', 'ruang-kerja.html'].forEach(h => awal(akar + h, 'kaki halaman'));
+  try {
+    while (antre.length && dikunjungi.size < MAKS_HALAMAN) {
+      const grup = antre.splice(0, 6).filter(u => !dikunjungi.has(u));
+      kotak.innerHTML = `<p class="ket">Memeriksa… ${dikunjungi.size} halaman dibaca.</p>`;
+      await Promise.all(grup.map(async u => {
+        let kode = 0, isi = '';
+        try { const r = await fetch(u, { cache: 'no-store' }); kode = r.status; if (r.ok) isi = await r.text(); } catch { kode = 0; }
+        dikunjungi.set(u, kode);
+        if (kode !== 200 || /<meta name="robots" content="noindex/.test(isi)) return;
+        for (const t of tautanInternal(isi, u, akar)) {
+          if (!asal.has(t)) asal.set(t, u);
+          if (!dikunjungi.has(t) && !antre.includes(t)) antre.push(t);
+        }
+      }));
+    }
+    const pendek = u => String(u || '').startsWith(akar) ? u.slice(akar.length) : (u || '?');
+    const rusak = [...dikunjungi].filter(([, k]) => k !== 200);
+    TAUTAN = `<p class="ket">${dikunjungi.size} halaman diperiksa${antre.length ? ` (berhenti di batas ${MAKS_HALAMAN})` : ''}.</p>`
+      + (rusak.length ? `<ol>${rusak.map(([u, k]) => `<li>${esc(pendek(u))} (${k || 'gagal dibuka'}) — ditautkan dari ${esc(pendek(asal.get(u)))}</li>`).join('')}</ol>`
+        : '<p><b>Tidak ada tautan rusak.</b></p>');
+    kotak.innerHTML = TAUTAN;
+  } catch (e) { kotak.innerHTML = `<p class="kosong">Pemeriksaan gagal: ${esc(e.message)}</p>`; }
+  finally { tombol.disabled = false; }
 }
 
 async function mulai(){

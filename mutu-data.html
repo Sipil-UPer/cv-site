@@ -64,7 +64,7 @@ addEventListener('error', function (e) {
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
 import { gerbang } from './menu.js?v=2026-11-22-866c27';
 import { bolehMutu } from './koordinator.js?v=2026-11-22-866c27';
-import { periksaMutu, periksaSitus, tautanInternal, csvMutu, TINGKAT } from './mutu-data.js?v=2026-11-22-866c27';
+import { periksaMutu, csvMutu, TINGKAT } from './mutu-data.js?v=2026-11-22-866c27';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
@@ -104,9 +104,6 @@ async function mulai(){
     aman('ref_bidang_keahlian', semua(() => sb.from('ref_bidang_keahlian').select('nama,aktif').order('urutan'))),
   ]);
   const hasil = periksaMutu({ karya, karyaBukti, karyaPenulis, dosen, mk, kerjasama, tracer, rps, rpsTtd, bidang });
-  // Situs publik (pemilik 2026-11-22): dari data.json yang tayang (dibangun bangun.py tiap jam).
-  const publik = await aman('data.json', fetch('data.json?v=' + Date.now()).then(r => { if (!r.ok) throw new Error(r.status); return r.json(); }));
-  if (publik && !Array.isArray(publik)) hasil.push(...periksaSitus(publik));
   gambar(hasil);
 }
 
@@ -121,8 +118,7 @@ function gambar(hasil){
       ${['penting', 'periksa', 'info'].map(t => `<span><b style="color:${TINGKAT[t][1]}">${n(t)}</b> ${TINGKAT[t][0].toLowerCase()}</span>`).join('')}
       <span class="ket">${bersih} dari ${hasil.length} pemeriksaan bersih</span>
       <span class="aksi"><label class="ket"><input type="checkbox" id="sembunyi" checked> sembunyikan yang bersih</label>
-        <button type="button" id="csv">Unduh CSV</button><button type="button" id="cekTautan">Periksa tautan internal</button></span></div>
-    <div id="hasilTautan"></div>
+        <button type="button" id="csv">Unduh CSV</button></span></div>
     ${hasil.map(h => `<details class="cek${h.temuan.length ? '' : ' bersih'}"${h.temuan.length && h.tingkat === 'penting' ? ' open' : ''}>
       <summary><span class="tkt" style="color:${TINGKAT[h.tingkat][1]}">${TINGKAT[h.tingkat][0]}</span><h2>${esc(h.judul)}</h2>
         <span class="jml${h.temuan.length ? '' : ' nol'}">${h.temuan.length || '✓'}</span></summary>
@@ -130,7 +126,6 @@ function gambar(hasil){
       ${h.temuan.length ? `<ol>${h.temuan.slice(0, TAMPIL).map(t => `<li>${esc(t.teks)}</li>`).join('')}</ol>
         ${h.temuan.length > TAMPIL ? `<p class="ket">… dan ${h.temuan.length - TAMPIL} lainnya (lihat CSV).</p>` : ''}` : '<p class="ket">Tidak ada temuan.</p>'}
     </details>`).join('')}`;
-  $('cekTautan').onclick = () => periksaTautan(hasil);
   const atur = () => document.body.classList.toggle('sembunyi-bersih', $('sembunyi').checked);
   $('sembunyi').onchange = atur; atur();
   $('csv').onclick = () => {
@@ -139,59 +134,6 @@ function gambar(hasil){
     a.download = `mutu-data-${new Date().toISOString().slice(0, 10)}.csv`;
     a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1500);
   };
-}
-
-// Tautan internal rusak (pemilik 2026-11-22): jelajahi halaman situs dari beranda (paling banyak MAKS_HALAMAN), lalu cek
-// setiap tujuan .html sekali. Hanya berkas di folder situs ini; tautan luar tidak bisa dicek dari peramban (CORS).
-const MAKS_HALAMAN = 400;
-async function periksaTautan(hasil){
-  const tombol = $('cekTautan'), kotak = $('hasilTautan');
-  tombol.disabled = true;
-  const akar = new URL('./', location.href).href;
-  const dikunjungi = new Map(), antre = [akar + 'index.html'], status = new Map(), asal = new Map();
-  // Titik awal: semua alamat di sitemap.xml (alamatnya memakai domain situs; dipetakan ke folder ini lewat alamat pertama =
-  // beranda), menu kepala dan kaki (dibuat skrip, tidak ada di HTML), lalu tautan statis di tiap halaman.
-  const awal = (u, dari) => { if (!antre.includes(u)) antre.push(u); if (!asal.has(u)) asal.set(u, dari); };
-  try {
-    const peta = await (await fetch(akar + 'sitemap.xml', { cache: 'no-store' })).text();
-    const loc = [...peta.matchAll(/<loc>([^<]+)<\/loc>/g)].map(m => m[1].replace(/&amp;/g, '&'));
-    const dasar = loc.find(u => u.endsWith('/')) || '';
-    loc.forEach(u => { if (dasar && u.startsWith(dasar)) awal(akar + (u.slice(dasar.length) || 'index.html'), 'sitemap.xml'); });
-  } catch { /* tanpa sitemap: mulai dari beranda dan menu saja */ }
-  try {
-    const { MENU } = await import('./kerangka.js?v=2026-11-22-866c27');
-    MENU.flatMap(m => m.isi).map(x => x.href).filter(h => h && !h.startsWith('#'))
-      .forEach(h => { const u = new URL(h, akar); u.hash = ''; u.search = ''; awal(u.href, 'menu kepala'); });
-  } catch { /* menu tidak terbaca */ }
-  ['privasi.html', 'peta-situs.html', 'ruang-kerja.html'].forEach(h => awal(akar + h, 'kaki halaman'));
-  const ambil = async u => { if (!status.has(u)) status.set(u, fetch(u, { cache: 'no-store' }).then(r => r.ok ? r.text().then(t => [r.status, t]) : [r.status, ''])
-    .catch(() => [0, ''])); return status.get(u); };
-  try {
-    while (antre.length && dikunjungi.size < MAKS_HALAMAN) {
-      const kelompok = antre.splice(0, 6).filter(u => !dikunjungi.has(u));
-      kotak.innerHTML = `<p class="ket">Memeriksa tautan… ${dikunjungi.size} halaman dibaca.</p>`;
-      await Promise.all(kelompok.map(async u => {
-        const [kode, isi] = await ambil(u);
-        dikunjungi.set(u, kode);
-        // Halaman ruang kerja tidak dijelajahi lebih jauh (isinya dibuat skrip setelah masuk); tetap dicek ada atau tidak.
-        if (kode !== 200 || /<meta name="robots" content="noindex/.test(isi)) return;
-        for (const t of tautanInternal(isi, u, akar)) {
-          if (!asal.has(t)) asal.set(t, u);
-          if (!dikunjungi.has(t) && !antre.includes(t)) antre.push(t);
-        }
-      }));
-    }
-    const rusak = [...dikunjungi].filter(([, k]) => k !== 200).map(([u, k]) =>
-      ({ teks: `${u.slice(akar.length)} (${k || 'gagal dibuka'}) — ditautkan dari ${(asal.get(u) || '').slice(akar.length) || '?'}` }));
-    const h = { id: 'situs_tautan', judul: 'Situs publik: Tautan internal rusak', tingkat: 'penting',
-      ket: `${dikunjungi.size} halaman diperiksa${antre.length ? ` (berhenti di batas ${MAKS_HALAMAN})` : ''}.`, ke: 'peta-situs.html', temuan: rusak };
-    hasil.push(h);
-    kotak.innerHTML = `<details class="cek" open><summary><span class="tkt" style="color:${TINGKAT.penting[1]}">${TINGKAT.penting[0]}</span>
-      <h2>${esc(h.judul)}</h2><span class="jml${rusak.length ? '' : ' nol'}">${rusak.length || '✓'}</span></summary>
-      <p class="ket">${esc(h.ket)} Tautan luar (DOI, situs mitra) tidak ikut diperiksa.</p>
-      ${rusak.length ? `<ol>${rusak.map(t => `<li>${esc(t.teks)}</li>`).join('')}</ol>` : '<p class="ket">Tidak ada tautan rusak.</p>'}</details>`;
-  } catch (e) { kotak.innerHTML = `<p class="kosong">Pemeriksaan tautan gagal: ${esc(e.message)}</p>`; }
-  finally { tombol.disabled = false; }
 }
 
 mulai().catch(e => { $('isi').innerHTML = `<p class="kosong">Gagal memuat: ${esc(e.message)}</p>`; });

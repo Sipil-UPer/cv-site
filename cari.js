@@ -108,6 +108,12 @@ export function indeksPublik(D, aktif = () => true){
   if ([...(D?.kabar || []), ...(D?.prestasi || []), ...(D?.laboratorium || [])].some(x => (x.foto || []).length))
     umum.push(['galeri.html', 'Galeri foto', 'foto kegiatan, prestasi, dan laboratorium', 'foto dokumentasi']);
   if (D?.situs?.prodi_en) umum.push(['english.html', 'English', 'programme overview in English', 'english inggris']);
+  if ((D?.kalender || []).length || D?.situs?.kalender_resmi)
+    umum.push(['layanan-mahasiswa.html#kalender', 'Kalender akademik', 'registrasi, perkuliahan, ujian, yudisium, libur',
+      'jadwal kuliah krs uts uas libur semester wisuda']);
+  if ((D?.situs?.biaya || []).length)
+    umum.push(['biaya-beasiswa.html', 'Biaya dan beasiswa', 'tautan resmi biaya pendidikan, pendaftaran, dan beasiswa universitas',
+      'biaya kuliah ukt spp uang kuliah beasiswa pembayaran']);
   if (aktif('sdgs')) umum.push(['sdgs.html', 'Rekap SDGs', 'karya per tujuan pembangunan berkelanjutan', 'sdg']);
   if (aktif('kepakaran')) umum.push(['keahlian.html', 'Kepakaran dosen', 'cari pakar dan peta topik', 'keahlian pakar']);
   for (const [href, j, k, e] of umum) xs.push(entri('halaman', j, k, href, e));

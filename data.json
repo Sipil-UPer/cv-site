@@ -4213,7 +4213,8 @@
      "cpl": [
       "E"
      ],
-     "berkas": "mk-01207-bahasa-inggris-1.html"
+     "berkas": "mk-01207-bahasa-inggris-1.html",
+     "berkas_en": "course-01207-english-1.html"
     },
     {
      "kode": "01209",
@@ -4233,7 +4234,8 @@
       "E",
       "F"
      ],
-     "berkas": "mk-01209-literasi-digital.html"
+     "berkas": "mk-01209-literasi-digital.html",
+     "berkas_en": "course-01209-digital-literation.html"
     },
     {
      "kode": "01211",
@@ -4252,7 +4254,8 @@
      "cpl": [
       "C"
      ],
-     "berkas": "mk-01211-berpikir-integratif.html"
+     "berkas": "mk-01211-berpikir-integratif.html",
+     "berkas_en": "course-01211-integrative-thingking.html"
     },
     {
      "kode": "01X01",
@@ -4271,7 +4274,8 @@
      "cpl": [
       "G"
      ],
-     "berkas": "mk-01x01-kalkulus-1.html"
+     "berkas": "mk-01x01-kalkulus-1.html",
+     "berkas_en": "course-01x01-calculus-1.html"
     },
     {
      "kode": "01X02",
@@ -4290,7 +4294,8 @@
      "cpl": [
       "G"
      ],
-     "berkas": "mk-01x02-fisika-dasar-1.html"
+     "berkas": "mk-01x02-fisika-dasar-1.html",
+     "berkas_en": "course-01x02-basic-physics-1.html"
     },
     {
      "kode": "01X03",
@@ -4309,7 +4314,8 @@
      "cpl": [
       "G"
      ],
-     "berkas": "mk-01x03-kimia-dasar-1.html"
+     "berkas": "mk-01x03-kimia-dasar-1.html",
+     "berkas_en": "course-01x03-basic-chemistry-1.html"
     },
     {
      "kode": "01X04",
@@ -4328,7 +4334,8 @@
      "cpl": [
       "H"
      ],
-     "berkas": "mk-01x04-praktikum-kimia-dasar.html"
+     "berkas": "mk-01x04-praktikum-kimia-dasar.html",
+     "berkas_en": "course-01x04-general-chemistry-laboratory.html"
     },
     {
      "kode": "01X05",
@@ -4347,7 +4354,8 @@
      "cpl": [
       "H"
      ],
-     "berkas": "mk-01x05-praktikum-fisika-dasar-1.html"
+     "berkas": "mk-01x05-praktikum-fisika-dasar-1.html",
+     "berkas_en": "course-01x05-general-physics-laboratory-1.html"
     },
     {
      "kode": "01104",
@@ -4367,7 +4375,8 @@
       "E",
       "F"
      ],
-     "berkas": "mk-01104-bahasa-indonesia.html"
+     "berkas": "mk-01104-bahasa-indonesia.html",
+     "berkas_en": "course-01104-indonesian-language.html"
     },
     {
      "kode": "01X06",
@@ -4387,7 +4396,8 @@
       "C",
       "G"
      ],
-     "berkas": "mk-01x06-fisika-dasar-2.html"
+     "berkas": "mk-01x06-fisika-dasar-2.html",
+     "berkas_en": "course-01x06-basic-physics-2.html"
     },
     {
      "kode": "01X07",
@@ -4406,7 +4416,8 @@
      "cpl": [
       "G"
      ],
-     "berkas": "mk-01x07-kalkulus-2.html"
+     "berkas": "mk-01x07-kalkulus-2.html",
+     "berkas_en": "course-01x07-calculus-2.html"
     },
     {
      "kode": "01X08",
@@ -4425,7 +4436,8 @@
      "cpl": [
       "H"
      ],
-     "berkas": "mk-01x08-praktikum-fisika-dasar-2.html"
+     "berkas": "mk-01x08-praktikum-fisika-dasar-2.html",
+     "berkas_en": "course-01x08-general-physics-laboratory-2.html"
     },
     {
      "kode": "41301",
@@ -4445,7 +4457,8 @@
       "B",
       "G"
      ],
-     "berkas": "mk-41301-geologi-dasar.html"
+     "berkas": "mk-41301-geologi-dasar.html",
+     "berkas_en": "course-41301-basic-geology.html"
     },
     {
      "kode": "41302",
@@ -4465,7 +4478,8 @@
       "H",
       "J"
      ],
-     "berkas": "mk-41302-pengantar-surveying-dan-pemetaan.html"
+     "berkas": "mk-41302-pengantar-surveying-dan-pemetaan.html",
+     "berkas_en": "course-41302-introduction-to-surveying-and-mapping.html"
     },
     {
      "kode": "41303",
@@ -4485,7 +4499,8 @@
       "E",
       "J"
      ],
-     "berkas": "mk-41303-gambar-teknik.html"
+     "berkas": "mk-41303-gambar-teknik.html",
+     "berkas_en": "course-41303-engineering-drawing.html"
     },
     {
      "kode": "41304",
@@ -4504,7 +4519,8 @@
      "cpl": [
       "J"
      ],
-     "berkas": "mk-41304-praktikum-gambar-teknik.html"
+     "berkas": "mk-41304-praktikum-gambar-teknik.html",
+     "berkas_en": "course-41304-engineering-drawing-laboratory.html"
     },
     {
      "kode": "41501",
@@ -4524,7 +4540,8 @@
       "D",
       "K"
      ],
-     "berkas": "mk-41501-pengantar-infrastruktur.html"
+     "berkas": "mk-41501-pengantar-infrastruktur.html",
+     "berkas_en": "course-41501-introduction-to-infrastructure.html"
     },
     {
      "kode": "01205",
@@ -4544,7 +4561,8 @@
       "C",
       "E"
      ],
-     "berkas": "mk-01205-literasi-energi.html"
+     "berkas": "mk-01205-literasi-energi.html",
+     "berkas_en": "course-01205-energy-literacy.html"
     },
     {
      "kode": "41305",
@@ -4564,7 +4582,8 @@
       "C",
       "J"
      ],
-     "berkas": "mk-41305-pemrograman-dan-aplikasi-komputer.html"
+     "berkas": "mk-41305-pemrograman-dan-aplikasi-komputer.html",
+     "berkas_en": "course-41305-computer-programming-and-applications.html"
     },
     {
      "kode": "41306",
@@ -4584,7 +4603,8 @@
       "C",
       "G"
      ],
-     "berkas": "mk-41306-statistika.html"
+     "berkas": "mk-41306-statistika.html",
+     "berkas_en": "course-41306-statistics.html"
     },
     {
      "kode": "41307",
@@ -4604,7 +4624,8 @@
       "C",
       "G"
      ],
-     "berkas": "mk-41307-analisis-struktur-statis-tertentu.html"
+     "berkas": "mk-41307-analisis-struktur-statis-tertentu.html",
+     "berkas_en": "course-41307-analysis-of-certain-static-structures.html"
     },
     {
      "kode": "41308",
@@ -4624,7 +4645,8 @@
       "C",
       "I"
      ],
-     "berkas": "mk-41308-rekayasa-bahan.html"
+     "berkas": "mk-41308-rekayasa-bahan.html",
+     "berkas_en": "course-41308-materials-engineering.html"
     },
     {
      "kode": "41309",
@@ -4643,7 +4665,8 @@
      "cpl": [
       "H"
      ],
-     "berkas": "mk-41309-praktikum-teknologi-bahan.html"
+     "berkas": "mk-41309-praktikum-teknologi-bahan.html",
+     "berkas_en": "course-41309-materials-technology-laboratory.html"
     },
     {
      "kode": "41310",
@@ -4663,7 +4686,8 @@
       "C",
       "G"
      ],
-     "berkas": "mk-41310-mekanika-fluida-dan-hidraulika.html"
+     "berkas": "mk-41310-mekanika-fluida-dan-hidraulika.html",
+     "berkas_en": "course-41310-fluid-and-hydraulic-mechanics.html"
     },
     {
      "kode": "41311",
@@ -4682,7 +4706,8 @@
      "cpl": [
       "H"
      ],
-     "berkas": "mk-41311-praktikum-mekanika-fluida-dan-hidraulika.html"
+     "berkas": "mk-41311-praktikum-mekanika-fluida-dan-hidraulika.html",
+     "berkas_en": "course-41311-fluid-and-hydraulic-mechanics-laboratory.html"
     },
     {
      "kode": "41312",
@@ -4702,7 +4727,8 @@
       "C",
       "H"
      ],
-     "berkas": "mk-41312-rekayasa-lalulintas-dan-sistem-transportasi.html"
+     "berkas": "mk-41312-rekayasa-lalulintas-dan-sistem-transportasi.html",
+     "berkas_en": "course-41312-traffic-engineering-and-transportation-systems.html"
     },
     {
      "kode": "01103",
@@ -4722,7 +4748,8 @@
       "A",
       "B"
      ],
-     "berkas": "mk-01103-kewarganegaraan.html"
+     "berkas": "mk-01103-kewarganegaraan.html",
+     "berkas_en": "course-01103-civics.html"
     },
     {
      "kode": "41313",
@@ -4742,7 +4769,8 @@
       "C",
       "G"
      ],
-     "berkas": "mk-41313-persamaan-diferensial.html"
+     "berkas": "mk-41313-persamaan-diferensial.html",
+     "berkas_en": "course-41313-differential-equation.html"
     },
     {
      "kode": "41314",
@@ -4762,7 +4790,8 @@
       "C",
       "G"
      ],
-     "berkas": "mk-41314-mekanika-bahan.html"
+     "berkas": "mk-41314-mekanika-bahan.html",
+     "berkas_en": "course-41314-material-mechanics.html"
     },
     {
      "kode": "41315",
@@ -4782,7 +4811,8 @@
       "C",
       "G"
      ],
-     "berkas": "mk-41315-mekanika-tanah-1.html"
+     "berkas": "mk-41315-mekanika-tanah-1.html",
+     "berkas_en": "course-41315-soil-mechanics-1.html"
     },
     {
      "kode": "41316",
@@ -4801,7 +4831,8 @@
      "cpl": [
       "H"
      ],
-     "berkas": "mk-41316-praktikum-mekanika-tanah-1.html"
+     "berkas": "mk-41316-praktikum-mekanika-tanah-1.html",
+     "berkas_en": "course-41316-soil-mechanics-laboratory-1.html"
     },
     {
      "kode": "41317",
@@ -4821,7 +4852,8 @@
       "C",
       "J"
      ],
-     "berkas": "mk-41317-hidrologi.html"
+     "berkas": "mk-41317-hidrologi.html",
+     "berkas_en": "course-41317-hydrology.html"
     },
     {
      "kode": "41318",
@@ -4841,7 +4873,8 @@
       "C",
       "I"
      ],
-     "berkas": "mk-41318-geometri-jalan-raya.html"
+     "berkas": "mk-41318-geometri-jalan-raya.html",
+     "berkas_en": "course-41318-road-geometry.html"
     },
     {
      "kode": "41319",
@@ -4861,7 +4894,8 @@
       "C",
       "G"
      ],
-     "berkas": "mk-41319-mekanika-gelombang-laut.html"
+     "berkas": "mk-41319-mekanika-gelombang-laut.html",
+     "berkas_en": "course-41319-ocean-wave-mechanics.html"
     },
     {
      "kode": "41502",
@@ -4881,7 +4915,8 @@
       "B",
       "K"
      ],
-     "berkas": "mk-41502-manajemen-konstruksi.html"
+     "berkas": "mk-41502-manajemen-konstruksi.html",
+     "berkas_en": "course-41502-construction-management.html"
     },
     {
      "kode": "01208",
@@ -4900,7 +4935,8 @@
      "cpl": [
       "E"
      ],
-     "berkas": "mk-01208-bahasa-inggris-2.html"
+     "berkas": "mk-01208-bahasa-inggris-2.html",
+     "berkas_en": "course-01208-english-2.html"
     },
     {
      "kode": "41320",
@@ -4920,7 +4956,8 @@
       "G",
       "J"
      ],
-     "berkas": "mk-41320-metoda-numerik.html"
+     "berkas": "mk-41320-metoda-numerik.html",
+     "berkas_en": "course-41320-numerical-method.html"
     },
     {
      "kode": "41321",
@@ -4940,7 +4977,8 @@
       "C",
       "I"
      ],
-     "berkas": "mk-41321-struktur-baja.html"
+     "berkas": "mk-41321-struktur-baja.html",
+     "berkas_en": "course-41321-steel-structure.html"
     },
     {
      "kode": "41322",
@@ -4960,7 +4998,8 @@
       "C",
       "I"
      ],
-     "berkas": "mk-41322-mekanika-tanah-2.html"
+     "berkas": "mk-41322-mekanika-tanah-2.html",
+     "berkas_en": "course-41322-soil-mechanics-2.html"
     },
     {
      "kode": "41323",
@@ -4979,7 +5018,8 @@
      "cpl": [
       "H"
      ],
-     "berkas": "mk-41323-praktikum-mekanika-tanah-2.html"
+     "berkas": "mk-41323-praktikum-mekanika-tanah-2.html",
+     "berkas_en": "course-41323-soil-mechanics-2.html"
     },
     {
      "kode": "41324",
@@ -4999,7 +5039,8 @@
       "C",
       "G"
      ],
-     "berkas": "mk-41324-analisis-struktur-dengan-matriks.html"
+     "berkas": "mk-41324-analisis-struktur-dengan-matriks.html",
+     "berkas_en": "course-41324-structural-analysis-with-matrix.html"
     },
     {
      "kode": "41325",
@@ -5019,7 +5060,8 @@
       "C",
       "I"
      ],
-     "berkas": "mk-41325-struktur-beton.html"
+     "berkas": "mk-41325-struktur-beton.html",
+     "berkas_en": "course-41325-concrete-structure.html"
     },
     {
      "kode": "41503",
@@ -5039,7 +5081,8 @@
       "C",
       "K"
      ],
-     "berkas": "mk-41503-ekonomi-rekayasa.html"
+     "berkas": "mk-41503-ekonomi-rekayasa.html",
+     "berkas_en": "course-41503-engineering-economics.html"
     },
     {
      "kode": "41326",
@@ -5059,7 +5102,8 @@
       "C",
       "I"
      ],
-     "berkas": "mk-41326-rekayasa-perkerasan-jalan.html"
+     "berkas": "mk-41326-rekayasa-perkerasan-jalan.html",
+     "berkas_en": "course-41326-road-pavement-engineering.html"
     },
     {
      "kode": "41327",
@@ -5078,7 +5122,8 @@
      "cpl": [
       "H"
      ],
-     "berkas": "mk-41327-praktikum-bahan-perkerasan-jalan.html"
+     "berkas": "mk-41327-praktikum-bahan-perkerasan-jalan.html",
+     "berkas_en": "course-41327-road-pavement-materials-laboratory.html"
     },
     {
      "kode": "41328",
@@ -5098,7 +5143,8 @@
       "C",
       "I"
      ],
-     "berkas": "mk-41328-desain-struktur-baja-lepas-pantai.html"
+     "berkas": "mk-41328-desain-struktur-baja-lepas-pantai.html",
+     "berkas_en": "course-41328-offshore-platform-steel-structure-design.html"
     },
     {
      "kode": "41329",
@@ -5118,7 +5164,8 @@
       "C",
       "I"
      ],
-     "berkas": "mk-41329-rekayasa-fondasi.html"
+     "berkas": "mk-41329-rekayasa-fondasi.html",
+     "berkas_en": "course-41329-foundation-engineering.html"
     },
     {
      "kode": "41330",
@@ -5138,7 +5185,8 @@
       "C",
       "I"
      ],
-     "berkas": "mk-41330-desain-struktur-beton-tahan-gempa.html"
+     "berkas": "mk-41330-desain-struktur-beton-tahan-gempa.html",
+     "berkas_en": "course-41330-earthquake-resistant-concrete-structure.html"
     },
     {
      "kode": "41331",
@@ -5158,7 +5206,8 @@
       "B",
       "K"
      ],
-     "berkas": "mk-41331-metode-pelaksanaan-konstruksi-dan-k3.html"
+     "berkas": "mk-41331-metode-pelaksanaan-konstruksi-dan-k3.html",
+     "berkas_en": "course-41331-construction-implementation-methods-and-hse.html"
     },
     {
      "kode": "41332",
@@ -5178,7 +5227,8 @@
       "C",
       "I"
      ],
-     "berkas": "mk-41332-hidrologi-bendungan-dan-energi-air.html"
+     "berkas": "mk-41332-hidrologi-bendungan-dan-energi-air.html",
+     "berkas_en": "course-41332-dam-hydrology-and-water-energy.html"
     },
     {
      "kode": "01206",
@@ -5198,7 +5248,8 @@
       "C",
       "D"
      ],
-     "berkas": "mk-01206-inovasi-dan-kewirausahaan.html"
+     "berkas": "mk-01206-inovasi-dan-kewirausahaan.html",
+     "berkas_en": "course-01206-innovation-and-entrepreneurship.html"
     },
     {
      "kode": "01210",
@@ -5218,7 +5269,8 @@
       "E",
       "F"
      ],
-     "berkas": "mk-01210-pembangunan-berkelanjutan.html"
+     "berkas": "mk-01210-pembangunan-berkelanjutan.html",
+     "berkas_en": "course-01210-sustainable-development.html"
     },
     {
      "kode": "01212",
@@ -5236,7 +5288,8 @@
      "cpl": [
       "C"
      ],
-     "berkas": "mk-01212-studium-generale.html"
+     "berkas": "mk-01212-studium-generale.html",
+     "berkas_en": "course-01212-studium-generale.html"
     },
     {
      "kode": "41333",
@@ -5259,7 +5312,8 @@
       "E",
       "F"
      ],
-     "berkas": "mk-41333-kerja-praktik.html"
+     "berkas": "mk-41333-kerja-praktik.html",
+     "berkas_en": "course-41333-internship.html"
     },
     {
      "kode": "41334",
@@ -5283,7 +5337,8 @@
       "J",
       "K"
      ],
-     "berkas": "mk-41334-perancangan-bangunan-dan-inovasi-teknik-sipil.html"
+     "berkas": "mk-41334-perancangan-bangunan-dan-inovasi-teknik-sipil.html",
+     "berkas_en": "course-41334-building-design-and-civil-engineering-innovation.html"
     },
     {
      "kode": "41335",
@@ -5303,7 +5358,8 @@
       "F",
       "H"
      ],
-     "berkas": "mk-41335-metodologi-penelitian.html"
+     "berkas": "mk-41335-metodologi-penelitian.html",
+     "berkas_en": "course-41335-research-methodology.html"
     },
     {
      "kode": "01101",
@@ -5322,7 +5378,8 @@
      "cpl": [
       "A"
      ],
-     "berkas": "mk-01101-agama-dan-etika.html"
+     "berkas": "mk-01101-agama-dan-etika.html",
+     "berkas_en": "course-01101-religion-and-ethics.html"
     },
     {
      "kode": "01102",
@@ -5340,7 +5397,8 @@
      "cpl": [
       "A"
      ],
-     "berkas": "mk-01102-pancasila.html"
+     "berkas": "mk-01102-pancasila.html",
+     "berkas_en": "course-01102-pancasila.html"
     },
     {
      "kode": "01214",
@@ -5359,7 +5417,8 @@
      "cpl": [
       "B"
      ],
-     "berkas": "mk-01214-etika-profesi-keinsinyuran.html"
+     "berkas": "mk-01214-etika-profesi-keinsinyuran.html",
+     "berkas_en": "course-01214-engineering-ethics.html"
     },
     {
      "kode": "41336",
@@ -5383,7 +5442,8 @@
       "I",
       "J"
      ],
-     "berkas": "mk-41336-tugas-akhir.html"
+     "berkas": "mk-41336-tugas-akhir.html",
+     "berkas_en": "course-41336-final-project.html"
     },
     {
      "kode": "41401",
@@ -5404,7 +5464,8 @@
       "C",
       "G"
      ],
-     "berkas": "mk-41401-dinamika-struktur.html"
+     "berkas": "mk-41401-dinamika-struktur.html",
+     "berkas_en": "course-41401-structural-dynamics.html"
     },
     {
      "kode": "41402",
@@ -5425,7 +5486,8 @@
       "I",
       "J"
      ],
-     "berkas": "mk-41402-analisis-konstruksi-anjungan-lepas-pantai.html"
+     "berkas": "mk-41402-analisis-konstruksi-anjungan-lepas-pantai.html",
+     "berkas_en": "course-41402-offshore-platform-construction-analysis.html"
     },
     {
      "kode": "41403",
@@ -5446,7 +5508,8 @@
       "I",
       "J"
      ],
-     "berkas": "mk-41403-desain-bangunan-terapung.html"
+     "berkas": "mk-41403-desain-bangunan-terapung.html",
+     "berkas_en": "course-41403-design-of-floating-structure.html"
     },
     {
      "kode": "41404",
@@ -5467,7 +5530,8 @@
       "B",
       "K"
      ],
-     "berkas": "mk-41404-manajemen-konstruksi-dan-aspek-hukum-proyek.html"
+     "berkas": "mk-41404-manajemen-konstruksi-dan-aspek-hukum-proyek.html",
+     "berkas_en": "course-41404-construction-management-and-legal-aspects-of-the-project.html"
     },
     {
      "kode": "41405",
@@ -5488,7 +5552,8 @@
       "B",
       "K"
      ],
-     "berkas": "mk-41405-standar-internasional-dalam-manajemen-konstruksi.html"
+     "berkas": "mk-41405-standar-internasional-dalam-manajemen-konstruksi.html",
+     "berkas_en": "course-41405-international-standards-in-construction-management.html"
     },
     {
      "kode": "41406",
@@ -5509,7 +5574,8 @@
       "C",
       "I"
      ],
-     "berkas": "mk-41406-rekayasa-fondasi-lanjut.html"
+     "berkas": "mk-41406-rekayasa-fondasi-lanjut.html",
+     "berkas_en": "course-41406-advance-foundation-engineering.html"
     },
     {
      "kode": "41407",
@@ -5530,7 +5596,8 @@
       "C",
       "I"
      ],
-     "berkas": "mk-41407-mekanika-tanah-lanjut.html"
+     "berkas": "mk-41407-mekanika-tanah-lanjut.html",
+     "berkas_en": "course-41407-advance-soil-mechanics.html"
     },
     {
      "kode": "41408",
@@ -5551,7 +5618,8 @@
       "C",
       "I"
      ],
-     "berkas": "mk-41408-rekayasa-gempa-dalam-geoteknik.html"
+     "berkas": "mk-41408-rekayasa-gempa-dalam-geoteknik.html",
+     "berkas_en": "course-41408-geotechnical-earthquake-engineering.html"
     },
     {
      "kode": "41409",
@@ -5572,7 +5640,8 @@
       "C",
       "I"
      ],
-     "berkas": "mk-41409-perbaikan-tanah.html"
+     "berkas": "mk-41409-perbaikan-tanah.html",
+     "berkas_en": "course-41409-soil-improvement-and-stabilization.html"
     },
     {
      "kode": "41410",
@@ -5593,7 +5662,8 @@
       "C",
       "I"
      ],
-     "berkas": "mk-41410-analisis-kebutuhan-pergerakan.html"
+     "berkas": "mk-41410-analisis-kebutuhan-pergerakan.html",
+     "berkas_en": "course-41410-transportation-modelling-and-analysis.html"
     },
     {
      "kode": "41411",
@@ -5614,7 +5684,8 @@
       "C",
       "I"
      ],
-     "berkas": "mk-41411-rekayasa-bandara.html"
+     "berkas": "mk-41411-rekayasa-bandara.html",
+     "berkas_en": "course-41411-airport-engineering.html"
     },
     {
      "kode": "41412",
@@ -5635,7 +5706,8 @@
       "C",
       "I"
      ],
-     "berkas": "mk-41412-transportasi-berkelanjutan.html"
+     "berkas": "mk-41412-transportasi-berkelanjutan.html",
+     "berkas_en": "course-41412-sustainable-transportation.html"
     },
     {
      "kode": "41413",
@@ -5656,7 +5728,8 @@
       "C",
       "J"
      ],
-     "berkas": "mk-41413-hidrologi-lanjut.html"
+     "berkas": "mk-41413-hidrologi-lanjut.html",
+     "berkas_en": "course-41413-advanced-hydrology.html"
     },
     {
      "kode": "41414",
@@ -5677,7 +5750,8 @@
       "I",
       "J"
      ],
-     "berkas": "mk-41414-rekayasa-pelabuhan.html"
+     "berkas": "mk-41414-rekayasa-pelabuhan.html",
+     "berkas_en": "course-41414-port-engineering.html"
     },
     {
      "kode": "41415",
@@ -5698,7 +5772,8 @@
       "I",
       "J"
      ],
-     "berkas": "mk-41415-perencanaan-drainase.html"
+     "berkas": "mk-41415-perencanaan-drainase.html",
+     "berkas_en": "course-41415-drainage-planning.html"
     },
     {
      "kode": "41416",
@@ -5719,7 +5794,8 @@
       "C",
       "J"
      ],
-     "berkas": "mk-41416-model-sumberdaya-air.html"
+     "berkas": "mk-41416-model-sumberdaya-air.html",
+     "berkas_en": "course-41416-water-resources-model.html"
     },
     {
      "kode": "41417",
@@ -5740,7 +5816,8 @@
       "C",
       "I"
      ],
-     "berkas": "mk-41417-proses-dan-bangunan-pantai.html"
+     "berkas": "mk-41417-proses-dan-bangunan-pantai.html",
+     "berkas_en": "course-41417-coastal-process-and-structure.html"
     },
     {
      "kode": "41418",
@@ -5761,7 +5838,8 @@
       "C",
       "K"
      ],
-     "berkas": "mk-41418-manajemen-perencanaan-pesisir.html"
+     "berkas": "mk-41418-manajemen-perencanaan-pesisir.html",
+     "berkas_en": "course-41418-coastal-planning-management.html"
     },
     {
      "kode": "41419",
@@ -5781,7 +5859,8 @@
      "cpl": [
       "C"
      ],
-     "berkas": "mk-41419-aspek-kebencanaan-dan-kegagalan-infrastruktur.html"
+     "berkas": "mk-41419-aspek-kebencanaan-dan-kegagalan-infrastruktur.html",
+     "berkas_en": "course-41419-aspects-of-disaster-and-infrastructure-failure.html"
     },
     {
      "kode": "41504",
@@ -5802,7 +5881,8 @@
       "G",
       "J"
      ],
-     "berkas": "mk-41504-metoda-elemen-hingga.html"
+     "berkas": "mk-41504-metoda-elemen-hingga.html",
+     "berkas_en": "course-41504-finite-element-method.html"
     },
     {
      "kode": "41505",
@@ -5823,7 +5903,8 @@
       "I",
       "J"
      ],
-     "berkas": "mk-41505-desain-pipa-bawah-laut.html"
+     "berkas": "mk-41505-desain-pipa-bawah-laut.html",
+     "berkas_en": "course-41505-design-of-offshore-pipeline.html"
     }
    ]
   },
@@ -7374,6 +7455,24 @@
   },
   "pendaftaran": "https://pmb.universitaspertamina.ac.id/admisi?src=203",
   "berita": "https://universitaspertamina.ac.id/prodi/teknik-sipil/berita",
+  "kalender_resmi": "https://universitaspertamina.ac.id/mahasiswa/kalender-akademik",
+  "biaya": [
+   {
+    "judul": "Penerimaan Mahasiswa Baru (PMB)",
+    "url": "https://pmb.universitaspertamina.ac.id/admisi",
+    "ket": "Jalur seleksi, pilihan program studi, pengumuman, FAQ dan panduan pendaftaran, termasuk biaya pendaftaran tiap jalur."
+   },
+   {
+    "judul": "Langkah pendaftaran dan pembayaran",
+    "url": "https://universitaspertamina.ac.id/pendaftaran",
+    "ket": "Tahapan daftar online, pembayaran seleksi lewat virtual account, dan informasi biaya yang dikirim lewat email konfirmasi."
+   },
+   {
+    "judul": "Daftar beasiswa",
+    "url": "https://universitaspertamina.ac.id/beasiswa",
+    "ket": "Beasiswa yang tersedia di Universitas Pertamina beserta persyaratannya."
+   }
+  ],
   "karier": [
    "Industri infrastruktur",
    "Konsultan konstruksi",
@@ -7894,6 +7993,7 @@
   ]
  },
  "testimoni": [],
+ "kalender": [],
  "prestasi_agregat": [
   {
    "tahun": 2026,

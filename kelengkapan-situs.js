@@ -20,6 +20,8 @@ const H = {
   layanan: { judul: 'Layanan mahasiswa', href: 'layanan-mahasiswa.html' },
   alumni: { judul: 'Alumni', href: 'alumni.html' },
   calon: { judul: 'Untuk calon mahasiswa', href: 'calon-mahasiswa.html' },
+  biaya: { judul: 'Biaya dan beasiswa', href: 'biaya-beasiswa.html' },
+  english: { judul: 'English', href: 'english.html' },
 };
 const ISI = {
   profil: { judul: 'Kelola profil prodi', href: 'kelola-profil.html' },
@@ -37,6 +39,8 @@ const ISI = {
   kabar: { judul: 'Kabar kegiatan', href: 'kabar-kegiatan.html' },
   tracer: { judul: 'Data prodi › Tracer', href: 'data-prodi.html?tab=tracer' },
   testimoni: { judul: 'Data prodi › Testimoni', href: 'data-prodi.html?tab=testimoni' },
+  silabus: { judul: 'Silabus (disahkan Kaprodi)', href: 'silabus.html' },
+  kalender: { judul: 'Data prodi › Kalender akademik', href: 'data-prodi.html?tab=kalender_akademik' },
   config: { judul: 'config.yaml › public_site (admin repo)', href: '' },
 };
 
@@ -74,6 +78,10 @@ export function periksaKelengkapan(D = {}){
   out.push(baris('kurikulum', H.kurikulum, `Mata kuliah dan CPL ${kur.kode || ''}`.trim(),
     !mk.length ? 'kosong' : (!n(kur.cpl) || tanpaCpl) ? 'sebagian' : 'terisi',
     `${mk.length} MK, ${n(kur.cpl)} CPL`, ISI.mk, tanpaCpl ? `${tanpaCpl} MK belum punya CPL.` : ''));
+  // Halaman per mata kuliah (pemilik 2026-11-22): isi silabus hanya setelah disahkan Kaprodi.
+  const berhal = mk.filter(m => m.berkas), sah = berhal.filter(m => m.silabus).length;
+  out.push(baris('silabus', H.kurikulum, `Silabus disahkan di halaman mata kuliah ${kur.kode || ''}`.trim(), dariJumlah(sah, berhal.length),
+    `${sah} dari ${berhal.length} MK`, ISI.silabus, sah < berhal.length ? 'Deskripsi, tujuan, dan pustaka tampil setelah silabus disahkan.' : ''));
   out.push(baris('profil-lulusan', H.kurikulum, 'Profil lulusan', n(kur.profil) ? 'terisi' : 'kosong', `${n(kur.profil)} profil`, ISI.pl));
   out.push(baris('ekuivalensi', H.ekuivalensi, 'Tabel ekuivalensi yang ditetapkan', n(D.ekuivalensi) ? 'terisi' : 'kosong',
     `${n(D.ekuivalensi)} baris`, ISI.ekuivalensi, n(D.ekuivalensi) ? '' : 'Tampil setelah disahkan Kaprodi dan ditetapkan Dekan.'));
@@ -84,6 +92,15 @@ export function periksaKelengkapan(D = {}){
     foto < tot ? 'Dosen mengunggah foto di Profil saya.' : ''));
   const pakar = dosen.filter(d => n(d.topik_keahlian) || ada(d.bidang_keahlian)).length;
   out.push(baris('kepakaran', H.dosen, 'Bidang dan topik keahlian dosen', dariJumlah(pakar, tot), `${pakar} dari ${tot}`, ISI.profilSaya));
+  // Kelompok keahlian dan halaman bidang (pemilik 2026-11-22).
+  const kel = s.kelompok_keahlian || [], kodeKel = new Set(kel.map(k => k.kode));
+  const berKel = dosen.filter(d => kodeKel.has(d.kelompok)).length;
+  out.push(baris('kelompok-dosen', H.dosen, 'Kelompok keahlian dosen', kel.length ? dariJumlah(berKel, tot) : 'kosong',
+    `${berKel} dari ${tot}`, ISI.dosen, berKel < tot ? 'Dosen tanpa kelompok tidak muncul di halaman bidang keahlian.' : ''));
+  const kurangBidang = kel.filter(k => !k.cakupan || !dosen.some(d => d.kelompok === k.kode));
+  out.push(baris('bidang', { judul: 'Halaman bidang keahlian', href: kel[0]?.berkas || 'peta-situs.html' }, 'Dosen dan cakupan tiap bidang',
+    kel.length ? dariJumlah(kel.length - kurangBidang.length, kel.length) : 'kosong', `${kel.length - kurangBidang.length} dari ${kel.length} bidang`,
+    ISI.dosen, kurangBidang.length ? `Belum lengkap: ${kurangBidang.map(k => k.nama).join(', ')}.` : ''));
   const idRiset = dosen.filter(d => ada(d.sinta_id) || ada(d.scopus_id) || ada(d.orcid)).length;
   out.push(baris('id-riset', H.dosen, 'ID SINTA, Scopus, atau ORCID', dariJumlah(idRiset, tot), `${idRiset} dari ${tot}`, ISI.profilSaya));
   // Laboratorium
@@ -91,6 +108,9 @@ export function periksaKelengkapan(D = {}){
   out.push(baris('laboratorium', H.lab, 'Profil laboratorium', dariJumlah(profilLab, namaLab.length || profilLab),
     `${profilLab} dari ${namaLab.length || profilLab} laboratorium`, ISI.lab,
     profilLab ? '' : 'Halaman hanya menampilkan nama laboratorium; templat isian untuk kepala lab tersedia.'));
+  const labLengkap = (D.laboratorium || []).filter(l => n(l.foto) && n(l.bidang) && n(l.mk)).length;
+  out.push(baris('lab-lengkap', H.lab, 'Foto, bidang keahlian, dan MK praktikum laboratorium', dariJumlah(labLengkap, profilLab),
+    `${labLengkap} dari ${profilLab} laboratorium`, ISI.lab, profilLab ? 'Bidang tampil di halaman bidang; MK praktikum di halaman mata kuliah.' : ''));
   // Kerja sama dan KP
   out.push(baris('kerja-sama', H.ks, 'Kerja sama resmi (MoU/MoA)', n(D.kerja_sama) ? 'terisi' : 'kosong',
     `${n(D.kerja_sama)} kerja sama`, ISI.ks, n(D.kerja_sama) ? '' : 'Halaman kini hanya memuat mitra dari publikasi dan penelitian.'));
@@ -102,6 +122,8 @@ export function periksaKelengkapan(D = {}){
     n(D.kabar) ? '' : 'Kuliah tamu, kunjungan lapangan, seminar, kompetisi.'));
   out.push(baris('jadwal-ta', H.layanan, 'Jadwal seminar dan sidang TA', n(D.jadwal_ta) ? 'terisi' : 'kosong',
     `${n(D.jadwal_ta)} jadwal`, ISI.layanan, 'Otomatis dari pengajuan seminar/sidang; wajar kosong bila belum ada jadwal.', true));
+  out.push(baris('kalender', H.layanan, 'Kalender akademik', n(D.kalender) ? 'terisi' : 'kosong', `${n(D.kalender)} kegiatan`, ISI.kalender,
+    'Diisi admin sekali per semester; tautan kalender resmi universitas dari config.'));
   const al = D.alumni || {}, resp = +al.responden || 0, min = +al.min || 0;
   out.push(baris('alumni', H.alumni, 'Tracer alumni', resp === 0 ? 'kosong' : resp < min ? 'sebagian' : 'terisi',
     `${resp} responden${min ? ` (tampil mulai ${min})` : ''}`, ISI.tracer));
@@ -112,7 +134,31 @@ export function periksaKelengkapan(D = {}){
   out.push(baris('instagram', H.calon, 'Akun Instagram prodi', ada((s.sosial || {}).instagram) ? 'terisi' : 'kosong', '', ISI.config));
   out.push(baris('testimoni', H.calon, 'Testimoni alumni dan mahasiswa', n(D.testimoni) ? 'terisi' : 'kosong',
     `${n(D.testimoni)} testimoni`, ISI.testimoni, 'Tampil hanya bila tanggal persetujuan orangnya dicatat.'));
+  out.push(baris('biaya', H.biaya, 'Tautan resmi biaya dan beasiswa', n(s.biaya) ? 'terisi' : 'kosong', `${n(s.biaya)} tautan`, ISI.config,
+    'Hanya tautan ke halaman resmi universitas, tanpa angka biaya.'));
+  // Nama Inggris mata kuliah: halaman English dan halaman mata kuliah berbahasa Inggris (pemilik 2026-11-22).
+  const en = mk.filter(m => m.nama_en).length;
+  out.push(baris('nama-en', H.english, `Nama Inggris mata kuliah ${kur.kode || ''}`.trim(), dariJumlah(en, mk.length), `${en} dari ${mk.length} MK`,
+    ISI.mk, en < mk.length ? `Belum: ${mk.filter(m => !m.nama_en).map(m => m.nama).slice(0, 6).join(', ')}.` : ''));
   return out;
+}
+
+/**
+ * Tautan internal satu halaman (pemilik 2026-11-22, pemeriksa tautan rusak): alamat lengkap tanpa #/? yang berada di bawah
+ * akar dan menuju .html (atau folder). html = isi halaman, dari = alamat halaman itu, akar = alamat folder situs (berakhir '/').
+ */
+export function tautanInternal(html, dari, akar){
+  const out = new Set();
+  for (const m of String(html || '').matchAll(/\shref="([^"]+)"/g)) {
+    const h = m[1].replace(/&amp;/g, '&');
+    if (/^(#|mailto:|tel:|javascript:|data:)/i.test(h) || h.includes('${')) continue;
+    let u;
+    try { u = new URL(h, dari); } catch { continue; }
+    u.hash = ''; u.search = '';
+    const s = u.href;
+    if (s.startsWith(akar) && (/\.html$/.test(u.pathname) || s.endsWith('/'))) out.add(s);
+  }
+  return [...out];
 }
 
 /** Hitungan per status; bagian bolehKosong yang kosong tidak dihitung sebagai kekurangan. */
