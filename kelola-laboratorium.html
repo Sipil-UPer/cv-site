@@ -81,6 +81,10 @@ const JENIS_KARYA = { penelitian: 'Penelitian', pkm: 'PkM' };
 
 let SAYA = null, DATA = [], SUNTING = null, FOTO = [], KEPALA = null;   // KEPALA: id lab milik kepala lab (98)
 let DOSEN = [], MK = [], KARYA = [], RUANG = [], ALAT = [];
+// Bidang keahlian lab (147-patch-laboratorium-bidang.sql, pemilik 2026-11-22): kelompok dari config lewat data.json;
+// pilihan hanya tampil bila kolom bidang sudah ada (ADA147).
+let BIDANG = [], ADA147 = false;
+const MAKS_BIDANG = 5;
 
 const keB64 = f => new Promise((ok, gagal) => {
   const r = new FileReader();
@@ -127,6 +131,7 @@ function kerangka(){
         <label class="lebar">Layanan pengujian untuk pihak luar (satu jenis uji per baris)<textarea id="fL" style="min-height:70px"
           placeholder="Uji kuat tekan beton&#10;Uji sondir (CPT)"></textarea></label>
         <label class="lebar">Kontak permintaan pengujian (email atau teks, opsional)<input id="fKt" maxlength="200"></label>
+        <div class="lebar lbl" id="bidangBlok" hidden>Bidang keahlian (tampil di halaman bidang; maks. ${MAKS_BIDANG})<div class="pilih" id="fBd"></div></div>
         <div class="lebar lbl">Mata kuliah praktikum <span id="mkKet"></span><div class="pilih" id="fMk"></div></div>
         <div class="lebar lbl">Penelitian dan pengabdian terkait (yang terverifikasi)<div class="pilih" id="fRs"></div></div>
         <div class="lebar"><span class="lbl">Foto (JPG/PNG, maks. ${MAKS_FOTO})</span>
@@ -177,6 +182,8 @@ function isiForm(r){
   $('mkKet').textContent = prak.length ? '(MK dengan SKS praktikum)' : '(semua MK; SKS praktikum belum diisi di kurikulum)';
   const mkUnik = [...new Map(mk.map(m => [m.kode, m])).values()];
   centang('fMk', mkUnik.map(m => [m.kode, `${esc(m.kode)} — ${esc(m.nama)}${m.kurikulum ? ` <span class="ket">${esc(m.kurikulum)}</span>` : ''}`]), pilihMk);
+  $('bidangBlok').hidden = !(ADA147 && BIDANG.length);
+  if (ADA147) centang('fBd', BIDANG.map(b => [b.kode, esc(b.nama)]), new Set((r?.bidang || []).map(String)));
   centang('fRs', KARYA.map(k => [k.id, `${esc(k.judul)} <span class="ket">${JENIS_KARYA[k.kategori] || ''} ${esc(k.tahun)}</span>`]),
     new Set((r?.penelitian || []).map(String)));
   $('fBatal').hidden = !r; tulis('', ''); gambarFoto();
@@ -203,6 +210,12 @@ async function simpan(){
   if (isi.ringkasan.length < 20) return tulis('buruk', 'Ringkasan minimal 20 huruf.');
   if (isi.layanan.length > 30) return tulis('buruk', 'Paling banyak 30 jenis layanan.');
   if (isi.penelitian.length > 30) return tulis('buruk', 'Paling banyak 30 penelitian terkait.');
+  if (ADA147) {
+    // Kode bidang lama yang tidak lagi ada di config tetap disimpan (tidak hilang diam-diam); situs mengabaikannya.
+    const lama = (SUNTING?.bidang || []).filter(k => !BIDANG.some(b => b.kode === k));
+    isi.bidang = [...dicentang('fBd'), ...lama];
+    if (isi.bidang.length > MAKS_BIDANG) return tulis('buruk', `Paling banyak ${MAKS_BIDANG} bidang.`);
+  }
   $('fSimpan').disabled = true;
   try {
     const q = SUNTING ? sb.from('laboratorium').update(isi).eq('id', SUNTING.id) : sb.from('laboratorium').insert(isi);
@@ -235,6 +248,7 @@ function htmlItem(r){
       <span>${ALAT.filter(a => a.prasarana === ruang && a.alat).length} alat</span><span>${(r.mata_kuliah || []).length} MK</span>
       <span>${(r.layanan || []).length} layanan</span><span>${(r.penelitian || []).length} penelitian</span><span>${(r.foto || []).length} foto</span></div>
     <div class="judul">${esc(r.nama)}</div>${kepala ? `<div class="ket">Koordinator: ${esc(kepala)}</div>` : ''}
+    ${(r.bidang || []).length ? `<div class="ket">Bidang: ${esc(r.bidang.map(k => BIDANG.find(b => b.kode === k)?.nama || k).join(', '))}</div>` : ''}
     <div class="isi">${esc(r.ringkasan)}</div>
     <div class="aksi"><button class="b" data-ubah="${r.id}">Ubah</button>${KEPALA ? '' : `<button class="b bahaya" data-hapus="${r.id}">Hapus</button>`}</div></div>`;
 }
@@ -252,6 +266,11 @@ async function muatPilihan(){
   KARYA = k.data || [];
   ALAT = (p.data || []).map(x => ({ prasarana: (x.prasarana || '').trim(), alat: (x.alat || '').trim() }));
   RUANG = [...new Set(ALAT.map(x => x.prasarana).filter(Boolean))];
+  ADA147 = !(await sb.from('laboratorium').select('bidang').limit(1)).error;
+  try {
+    const D = await (await fetch('data.json?v=' + Date.now())).json();
+    BIDANG = (D.situs?.kelompok_keahlian || []).filter(b => b.kode && b.nama);
+  } catch { BIDANG = []; }
 }
 
 async function muat(){

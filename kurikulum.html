@@ -68,6 +68,8 @@
   table{width:100%;border-collapse:collapse;font-size:13.5px}
   td{padding:7px 10px 7px 0;border-bottom:1px solid var(--line-soft);vertical-align:top}
   td.k{font-family:var(--mono);font-size:12.5px;white-space:nowrap;width:1%}
+  a.mk{color:var(--biru-2);text-decoration:none;font-weight:500}
+  a.mk:hover{text-decoration:underline}
   td.num{font-family:var(--mono);text-align:right;white-space:nowrap;width:1%}
   td .rinci{display:block;font-family:var(--mono);font-size:11px;color:var(--muted)}
   .total{display:flex;justify-content:flex-end;gap:8px;margin-top:14px;font-family:var(--mono);font-size:13px}
@@ -153,13 +155,14 @@ function cocok(m){
   return `${m.kode} ${m.nama}`.toLowerCase().includes(CARI);
 }
 
+// Halaman per mata kuliah (pemilik 2026-11-22): hanya MK kurikulum terbaru yang punya berkas (bangun.py).
 function barisMK(m){
   const b = m.bagian || {};
   const rinci = [['kuliah', 'K'], ['seminar', 'S'], ['praktikum', 'P']].filter(([k]) => b[k]).map(([k, l]) => `${l} ${angka(b[k])}`);
   const tanda = [m.sifat === 'pilihan' ? '<span class="chip pil">Pilihan</span>' : '',
                  m.capstone ? '<span class="chip cap">Capstone</span>' : ''].join('');
   return `<tr><td class="k">${esc(m.kode)}</td>
-    <td>${esc(m.nama)} ${tanda}${m.cpl.length ? `<div>${m.cpl.map(c => `<span class="chip">${esc(c)}</span>`).join('')}</div>` : ''}</td>
+    <td>${m.berkas ? `<a class="mk" href="${esc(m.berkas)}">${esc(m.nama)}</a>` : esc(m.nama)} ${tanda}${m.cpl.length ? `<div>${m.cpl.map(c => `<span class="chip">${esc(c)}</span>`).join('')}</div>` : ''}</td>
     <td class="num">${angka(m.sks)} sks${rinci.length > 1 ? `<span class="rinci">${rinci.join(' · ')}</span>` : ''}</td></tr>`;
 }
 
