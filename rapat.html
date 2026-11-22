@@ -378,7 +378,7 @@ function pasangBukti(){
 
 // ---------- Cari waktu rapat (138-patch-cari-waktu-rapat.sql, pemilik 2026-11-21) ----------
 // Peserta dosen yang dicentang -> jam yang bisa semua (berhalangan, kalender, rapat lain). Nama yang tidak bisa hanya untuk
-// pengatur jadwal; alasan tidak pernah tampil. Jadwal kuliah belum dihitung (kelas belum berjam).
+// pengatur jadwal; alasan tidak pernah tampil. Jadwal kuliah yang sudah disahkan ikut dihitung (152, pemilik 2026-11-22).
 let SLOT_CW = null;
 const HARI_CW = ['', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
 const isoCW = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
@@ -389,7 +389,7 @@ function htmlCariWaktu(){
   const awal = BUKA.r.tanggal && String(BUKA.r.tanggal).slice(0, 10) >= isoCW(new Date()) ? String(BUKA.r.tanggal).slice(0, 10) : isoCW(new Date());
   return `<h3>Cari waktu</h3>
     <p class="ket">Centang peserta dosen di atas, lalu cari jam yang bisa dihadiri semuanya menurut jadwal berhalangan, kalender, dan rapat lain
-      mereka (jadwal kuliah belum ikut dihitung). Alasan tidak pernah ditampilkan.</p>
+      mereka, serta jadwal kuliah yang sudah disahkan Kaprodi (pada masa kuliah, kecuali hari libur). Alasan tidak pernah ditampilkan.</p>
     <div class="saring"><label class="ket">Dari <input type="date" id="cw_dari" value="${awal}"></label>
       <label class="ket">Sampai <input type="date" id="cw_sampai" value="${tambahHariCW(awal, 13)}"></label>
       <label class="ket">Durasi <input type="number" id="cw_durasi" min="30" max="480" step="30" style="width:80px"

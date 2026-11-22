@@ -174,3 +174,37 @@ export function csvJadwal({ kelas = [], kd = [], mk = [], jadwal = [], nama = id
   return [['hari', 'nama_hari', 'mulai', 'selesai', 'kurikulum', 'kode_mk', 'nama_mk', 'kelas', 'sks', 'semester_paket', 'dosen', 'ruang'],
     ...rows].map(r => r.map(sel).join(';')).join('\n');
 }
+
+/** Rentang satu semester, sama dengan semester_tanggal (138): Ganjil 1 Sep - akhir Feb, Genap 1 Mar - 31 Agu. */
+export function rentangSemester(ta, sm){
+  const [a, b] = String(ta).split('/').map(Number);
+  const kabisat = b % 4 === 0 && (b % 100 !== 0 || b % 400 === 0);
+  return sm === 'Ganjil' ? { mulai: `${a}-09-01`, selesai: `${b}-02-${kabisat ? 29 : 28}` } : { mulai: `${b}-03-01`, selesai: `${b}-08-31` };
+}
+
+/**
+ * Pertemuan kuliah bertanggal untuk Kalender (pemilik 2026-11-22), aturan sama dengan masa_kuliah_tanggal (152) yang dipakai
+ * Cari waktu rapat: hanya periode yang disahkan (sah = baris jadwal_kuliah_sah); tiap minggu pada hari kelasnya di dalam masa
+ * kuliah dari Kalender akademik (kalender = baris kalender_akademik), atau seluruh semester bila tidak ada; tanpa hari libur.
+ * dosenId: hanya kelas yang diajar dosen itu. -> [{ uid, kelas_id, tanggal, mulai, selesai, judul, ruang, ket }] urut tanggal.
+ */
+export function pertemuanKuliah({ kelas = [], kd = [], mk = [], jadwal = [], sah = [], kalender = [], libur = [], dosenId = null }){
+  const M = new Map(mk.map(m => [`${m.kurikulum}|${m.kode}`, m])), J = new Map(jadwal.map(j => [j.kelas_id, j]));
+  const L = new Set(libur.map(x => String(x?.tanggal ?? x).slice(0, 10)));
+  const out = [];
+  for (const k of kelas) {
+    const j = J.get(k.id);
+    if (!j || !sah.some(s => s.tahun_akademik === k.tahun_akademik && s.semester === k.semester)) continue;
+    if (dosenId && !kd.some(d => d.kelas_id === k.id && d.dosen_id === dosenId)) continue;
+    const masa = masaDariKalender(kalender, k.tahun_akademik, k.semester);
+    const m = M.get(`${k.kurikulum}|${k.kode_mk}`) || {};
+    for (const r of masa.length ? masa : [rentangSemester(k.tahun_akademik, k.semester)])
+      for (const t of tanggalAntara(r.mulai, r.selesai)) {
+        if (isoHari(t) !== +j.hari || L.has(t)) continue;
+        out.push({ uid: `kuliah-${k.id}-${t}`, kelas_id: k.id, tanggal: t, mulai: jamPendek(j.mulai), selesai: jamPendek(j.selesai),
+          judul: `${k.kode_mk} ${m.nama || ''} (kelas ${k.kelas})`.replace(/\s+/g, ' '), ruang: j.ruang || '',
+          ket: `${k.semester} ${k.tahun_akademik}${masa.length ? '' : ' · masa kuliah belum diisi di Kalender akademik: seluruh semester'}` });
+      }
+  }
+  return [...new Map(out.map(x => [x.uid, x])).values()].sort((a, b) => a.tanggal.localeCompare(b.tanggal) || a.mulai.localeCompare(b.mulai));
+}

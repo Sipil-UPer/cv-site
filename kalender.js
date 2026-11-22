@@ -7,6 +7,7 @@ import { JENIS_LIBUR } from './hari-libur.js?v=2026-11-22-866c27';
 
 export const JENIS_ACARA = {
   libur:     { label: 'Hari libur', warna: '#9E3A26' },   // 139-patch-hari-libur.sql, pemilik 2026-11-21
+  kuliah:    { label: 'Jadwal mengajar saya', warna: '#37474F' },   // 150/152, jadwal kuliah yang disahkan, pemilik 2026-11-22
   rapat:     { label: 'Rapat prodi', warna: '#1F4E79' },
   kegiatan:  { label: 'Kegiatan prodi', warna: '#2E7D32' },
   panggilan: { label: 'Panggilan hibah', warna: '#6A1B9A' },
@@ -41,6 +42,12 @@ export function kumpulkanAcara(d, saya){
   // Hari libur (139): untuk semua pengguna, sepanjang hari.
   for (const l of d.libur || [])
     tambah({ uid: `libur-${iso(l.tanggal)}`, sumber: 'libur', judul: l.nama, mulai: iso(l.tanggal), ket: JENIS_LIBUR[l.jenis] || '' });
+
+  // Jadwal mengajar (150, pemilik 2026-11-22): pertemuan bertanggal dari pertemuanKuliah (jadwal-kuliah.js), hanya kelas
+  // pengguna ini dan hanya jadwal yang sudah disahkan Kaprodi; disusun pemanggil.
+  for (const p of d.kuliah || [])
+    tambah({ uid: p.uid, sumber: 'kuliah', judul: p.judul, mulai: p.tanggal, jamMulai: p.mulai, jamSelesai: p.selesai,
+      tempat: p.ruang || '', ket: p.ket || '', href: 'jadwal-kuliah.html' });
 
   for (const k of d.kegiatan || [])
     tambah({ uid: `kegiatan-${k.id}`, sumber: 'kegiatan', judul: k.judul, mulai: iso(k.mulai), selesai: iso(k.selesai),

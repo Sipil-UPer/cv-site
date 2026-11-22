@@ -91,6 +91,7 @@ import { gerbang } from './menu.js?v=2026-11-22-866c27';
 import { tglID } from './masa-berlaku.js?v=2026-11-22-866c27';
 import { JENIS_ACARA, JENIS_KEGIATAN, kumpulkanAcara, acaraPada, kisiBulan, isoTanggal, keIcs } from './kalender.js?v=2026-11-22-866c27';
 import { JENIS_LIBUR, petaLibur, tanggalAntara, bacaCsvLibur, csvLibur } from './hari-libur.js?v=2026-11-22-866c27';
+import { pertemuanKuliah } from './jadwal-kuliah.js?v=2026-11-22-866c27';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
@@ -314,6 +315,7 @@ function gambar(){
       <span class="titik" style="background:${w.warna}"></span>${esc(w.label)}</label>`).join('')}</div>
     <div id="kal"></div>
     <p class="ket">Tenggat tindak lanjut rapat, hibah tim, dan temuan AMI tampil untuk penanggung jawabnya${ADMIN ? '; admin melihat semuanya' : ''}.
+      Jadwal mengajar saya: kelas Anda dari Jadwal kuliah yang sudah disahkan Kaprodi, tiap minggu pada masa kuliah (Kalender akademik), tanpa hari libur.
       Berkas .ics berisi acara sebulan lalu sampai setahun ke depan sesuai centang di atas; impor di Google Calendar lewat
       Setelan › Impor &amp; ekspor. Berkas ini tidak tersinkron otomatis: unduh dan impor lagi bila ada perubahan.</p></section>
     ${htmlAdmin()}${htmlLibur()}`;
@@ -344,9 +346,25 @@ async function muat(){
   ADA_LIBUR = !(lb.error && /does not exist|schema cache/i.test(lb.error.message || ''));
   KEGIATAN = kg.data;
   LIBUR = lb.data; PETA_LIBUR = petaLibur(LIBUR);
-  DATA = { kegiatan: kg.data, rapat: rp.data, panggilan: pg.data, hibah: hb.data, tindak: td.data, temuan: tm.data, tindakEval: te.data, libur: lb.data };
+  DATA = { kegiatan: kg.data, rapat: rp.data, panggilan: pg.data, hibah: hb.data, tindak: td.data, temuan: tm.data, tindakEval: te.data, libur: lb.data,
+           kuliah: await muatKuliah(baca, lb.data) };
   ACARA = kumpulkanAcara(DATA, SAYA);
   gambar();
+}
+
+// Jadwal mengajar saya (150/152, pemilik 2026-11-22): kelas yang diajar pengguna ini pada periode yang disahkan Kaprodi,
+// diuraikan per tanggal dengan aturan yang sama dengan Cari waktu rapat (pertemuanKuliah). Tanpa patch 150: kosong.
+async function muatKuliah(baca, libur){
+  const kd = (await baca(sb.from('kelas_dosen').select('kelas_id,dosen_id').eq('dosen_id', SAYA.id))).data;
+  const ids = [...new Set(kd.map(x => x.kelas_id))];
+  if (!ids.length) return [];
+  const [kl, jd, sah, mk, ka] = await Promise.all([
+    baca(sb.from('kelas_kuliah').select('id,tahun_akademik,semester,kurikulum,kode_mk,kelas').in('id', ids)),
+    baca(sb.from('jadwal_kuliah').select('kelas_id,hari,mulai,selesai,ruang').in('kelas_id', ids)),
+    baca(sb.from('jadwal_kuliah_sah').select('tahun_akademik,semester')),
+    baca(sb.from('ref_mata_kuliah').select('kurikulum,kode,nama')),
+    baca(sb.from('kalender_akademik').select('semester,kategori,mulai,selesai'))]);
+  return pertemuanKuliah({ kelas: kl.data, kd, mk: mk.data, jadwal: jd.data, sah: sah.data, kalender: ka.data, libur, dosenId: SAYA.id });
 }
 
 async function mulai(){
