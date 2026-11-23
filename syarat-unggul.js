@@ -1,3 +1,3 @@
-/* PINTU INSTRUMEN: jangan disunting. Isi ada di site/instrumen/lam-teknik-s1/syarat-unggul.js.
-   Ditulis tools/pilih_instrumen.py dari config.yaml accreditation.instrument. */
+/* PINTU INSTRUMEN: jangan disunting. Isi ada di site/instrumen/<id>/syarat-unggul.js.
+   Id di path diganti tools/pilih_instrumen.py sesuai config.yaml accreditation.instrument. */
 export * from './instrumen/lam-teknik-s1/syarat-unggul.js';

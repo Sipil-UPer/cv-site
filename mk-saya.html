@@ -64,7 +64,7 @@ addEventListener('error', function (e) {
 // dan evaluasi. Hanya membaca; tugas yang tertunda tetap diingatkan di Tugas saya.
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
 import { gerbang } from './menu.js?v=2026-11-22-866c27';
-import { petaStatus, statusMK, mkSaya, LABEL_STATUS } from './koordinator-mk.js?v=2026-11-22-866c27';
+import { petaStatus, statusMK, mkSaya, luarProdi, LABEL_STATUS } from './koordinator-mk.js?v=2026-11-22-866c27';
 import { semesterKini } from './evaluasi-pembelajaran.js?v=2026-11-22-866c27';
 
 const $ = id => document.getElementById(id);
@@ -80,8 +80,8 @@ async function mulai(){
   $('hSub').textContent = `Masuk sebagai ${saya.nama}`;
   const { data: d } = await sb.from('dosen').select('id,nidn').eq('id', saya.id).maybeSingle();
   const nidn = d?.nidn || saya.nidn;
-  let r = await sb.from('ref_mata_kuliah').select('kurikulum,kode,nama,sks,semester,aktif,pengampu,koordinator_nidn');
-  if (r.error) r = await sb.from('ref_mata_kuliah').select('kurikulum,kode,nama,sks,semester,aktif,pengampu');
+  let r = await sb.from('ref_mata_kuliah').select('kurikulum,kode,nama,sks,semester,aktif,unit_penyelenggara,pengampu,koordinator_nidn');
+  if (r.error) r = await sb.from('ref_mata_kuliah').select('kurikulum,kode,nama,sks,semester,aktif,unit_penyelenggara,pengampu');
   const MK = (r.data || []).map(m => ('koordinator_nidn' in m) ? m : { ...m, koordinator_nidn: (m.pengampu || [])[0] || null });
   const [silabus, struktur, rps, kd] = await Promise.all([
     baca(sb.from('mk_silabus').select('kurikulum,kode_mk,status')), baca(sb.from('mk_struktur').select('kurikulum,kode_mk')),
@@ -101,18 +101,18 @@ async function mulai(){
     <div class="kartu"><b>Urutan kerja mata kuliah</b>
       <div class="alur" style="margin-top:6px"><span>1 Silabus</span><i>→</i><span>2 CPMK dan penilaian</span><i>→</i><span>3 RPS</span><i>→</i>
         <span>4 Kelas: nilai CPL, portofolio, evaluasi</span><i>→</i><span>5 Tinjauan RPS</span></div>
-      <p class="ket" style="margin:8px 0 0">Koordinator MK menyusun silabus, CPMK, dan RPS; tim ikut mengisi. Pengampu kelas mengunggah nilai CPL dan
-        portofolio kelasnya tiap semester. Yang tertunda juga diingatkan di <a href="ruang-kerja.html">Tugas saya</a>.</p></div>
+      <p class="ket" style="margin:8px 0 0">Koordinator MK menyusun silabus, CPMK, dan RPS; tim ikut mengisi. PIC MK universitas/fakultas menyalin
+        silabus dan RPS resminya (CPMK dan tinjauan dari penyelenggaranya). Pengampu kelas mengunggah nilai CPL dan portofolio kelasnya tiap semester. Yang tertunda juga diingatkan di <a href="ruang-kerja.html">Tugas saya</a>.</p></div>
 
-    <h2>Mata kuliah yang saya koordinasikan atau ikut timnya</h2>
+    <h2>Mata kuliah yang saya koordinasikan, ikut timnya, atau saya pegang sebagai PIC</h2>
     ${saya_mk.length ? `<div class="gulir"><table class="t"><thead><tr><th>Mata kuliah</th><th>Peran</th><th>1 Silabus</th><th>2 CPMK</th><th>3 RPS</th><th>5 Tinjauan</th></tr></thead><tbody>
-      ${saya_mk.map(m => { const s = statusMK(STATUS, m), kur = encodeURIComponent(m.kurikulum || ''), kode = encodeURIComponent(m.kode);
+      ${saya_mk.map(m => { const s = statusMK(STATUS, m), kur = encodeURIComponent(m.kurikulum || ''), kode = encodeURIComponent(m.kode), luar = luarProdi(m);
         return `<tr><td>${esc(m.kurikulum)} · ${esc(m.kode)} ${esc(m.nama)}<div class="ket">semester ${esc(m.semester ?? '—')} · ${esc(m.sks ?? '')} sks</div></td>
-          <td><span class="peran">${m.peran === 'koordinator' ? 'koordinator' : 'tim'}</span></td>
-          <td>${lencana(s.silabus, `silabus.html?kur=${kur}&kode=${kode}`)}</td><td>${lencana(s.cpmk, `cpmk.html?kode=${kode}`)}</td>
-          <td>${lencana(s.rps, `rps.html?kur=${kur}&kode=${kode}`)}</td><td><a class="st" href="tinjauan-rps.html?kur=${kur}&kode=${kode}">buka</a></td></tr>`; }).join('')}
+          <td><span class="peran">${{ koordinator: 'koordinator', tim: 'tim', pic: 'PIC prodi' }[m.peran]}</span></td>
+          <td>${lencana(s.silabus, `silabus.html?kur=${kur}&kode=${kode}`)}</td><td>${luar ? '<span class="ket">dari universitas</span>' : lencana(s.cpmk, `cpmk.html?kode=${kode}`)}</td>
+          <td>${lencana(s.rps, `rps.html?kur=${kur}&kode=${kode}`)}</td><td>${luar ? '<span class="ket">—</span>' : `<a class="st" href="tinjauan-rps.html?kur=${kur}&kode=${kode}">buka</a>`}</td></tr>`; }).join('')}
       </tbody></table></div>`
-      : `<p class="kosong">Anda belum ditetapkan sebagai koordinator atau anggota tim MK mana pun. Penetapannya oleh Kaprodi atau admin di
+      : `<p class="kosong">Anda belum ditetapkan sebagai koordinator, anggota tim, atau PIC MK mana pun. Penetapannya oleh Kaprodi atau admin di
         <a href="koordinator-mk.html">Koordinator dan tim MK</a>.</p>`}
 
     <h2>Kelas saya, ${esc(ta)} ${esc(sm)}</h2>

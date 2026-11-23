@@ -146,7 +146,7 @@ function gambarDaftar(){
     return `<tr class="grup"><th colspan="5">${esc(g.judul)} <span class="ket">· ${isi.length} MK</span></th></tr>` + isi.map(m => {
       const k = kunci(KUR, m.kode), s = SIL.get(k), st = statusSilabus(s);
       const aksi = KAPRODI() && st === 'diajukan' ? 'Periksa' : BOLEH.has(k) ? 'Isi' : 'Lihat';
-      return `<tr><td class="kode">${esc(m.kode)}</td><td>${esc(m.nama)}${dariUniversitas(m) ? ' <span class="chip">Universitas</span>' : ''}</td><td>${esc(m.sks ?? '')}</td>
+      return `<tr><td class="kode">${esc(m.kode)}</td><td>${esc(m.nama)}${dariUniversitas(m) ? ' <span class="chip">Universitas</span>' : m.unit_penyelenggara === 'fakultas' ? ' <span class="chip">Fakultas</span>' : ''}</td><td>${esc(m.sks ?? '')}</td>
         <td><span class="chip ${st}">${STATUS_SILABUS[st]}</span>${s?.revisi ? ` <span class="ket">disahkan ${s.revisi}×</span>` : ''}${
           s?.data?.catatan_impor ? ' <span class="ket">isi awal belum diperiksa</span>' : ''}${KAPRODI() && st === 'diajukan' ? ' <b>menunggu Anda</b>' : ''}</td>
         <td><a href="?kur=${encodeURIComponent(KUR)}&kode=${encodeURIComponent(m.kode)}">${aksi}</a></td></tr>`;
@@ -239,7 +239,8 @@ function gambarEditor(){
       <div><span>Versi disahkan</span>${s?.sah_pada ? `${s.revisi}× · terakhir ${waktu(s.sah_pada)}` : 'belum'}</div>
     </div>
     <p class="ket">Identitas di atas dari Data prodi › Mata kuliah. Perbaikannya oleh admin di sana, bukan di silabus.</p>
-    ${dariUniversitas(m) ? '<p class="ket"><b>MK universitas:</b> salin isi dari silabus resmi universitas (tujuan, deskripsi, pustaka, dua bahasa).</p>' : ''}
+    ${dariUniversitas(m) ? '<p class="ket"><b>MK universitas:</b> salin isi dari silabus resmi universitas (tujuan, deskripsi, pustaka, dua bahasa).</p>'
+      : m.unit_penyelenggara === 'fakultas' ? '<p class="ket"><b>MK fakultas:</b> salin isi dari silabus resmi fakultas (tujuan, deskripsi, pustaka, dua bahasa).</p>' : ''}
     ${ISIAN.catatan_impor ? `<div class="peringatan"><b>Isi awal hasil impor, periksa dulu.</b> ${esc(ISIAN.catatan_impor)}
       ${boleh ? '<div class="alat"><button class="b" id="hapusCatatan">Sudah saya periksa, hapus catatan ini</button></div>' : ''}</div>` : ''}
     ${st === 'dikembalikan' ? `<div class="peringatan"><b>Dikembalikan Kaprodi:</b> ${esc([...log].reverse().find(l => l.aksi === 'kembalikan')?.catatan || '')}</div>` : ''}

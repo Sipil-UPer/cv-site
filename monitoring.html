@@ -327,7 +327,8 @@ const labelThn = t => MODE === 'ts' ? `${t - 1}/${t}` : String(t);
 function muatAmbang(){
   return new Promise(res=>{
     const el = document.createElement('script');
-    el.src = 'ambang.js?v=' + Date.now();
+    // Khusus instrumen (2026-11-24); <id> ditulis tools/pilih_instrumen.py.
+    el.src = 'instrumen/lam-teknik-s1/ambang.js?v=' + Date.now();
     el.onload = res;
     el.onerror = res;   // biarkan lanjut; penjaga di bagian syarat perlu
     document.head.appendChild(el);   // yang akan menjelaskan berkasnya hilang

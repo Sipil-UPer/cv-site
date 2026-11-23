@@ -73,7 +73,7 @@ addEventListener('error', function (e) {
 // Status silabus, CPMK, RPS per MK supaya Kaprodi melihat MK yang belum punya koordinator atau dokumen.
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
 import { gerbang } from './menu.js?v=2026-11-22-866c27';
-import { dosenPilihan, petaStatus, statusMK, peranDi, bebanDosen, usulanPadanan, LABEL_STATUS } from './koordinator-mk.js?v=2026-11-22-866c27';
+import { dosenPilihan, petaStatus, statusMK, bebanDosen, usulanPadanan, luarProdi, ringkasKoordinasi, LABEL_STATUS } from './koordinator-mk.js?v=2026-11-22-866c27';
 
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -89,8 +89,8 @@ const warna = s => ({ disahkan: 'hijau', ditetapkan: 'hijau', ada: 'hijau', diaj
 const lencana = (s, href) => `<a class="st ${warna(s)}" href="${href}">${esc(LABEL_STATUS[s] || s)}</a>`;
 
 async function muat(){
-  let r = await sb.from('ref_mata_kuliah').select('kurikulum,kode,nama,sks,semester,sifat,aktif,pengampu,koordinator_nidn');
-  if (r.error) { ADA158 = false; r = await sb.from('ref_mata_kuliah').select('kurikulum,kode,nama,sks,semester,sifat,aktif,pengampu'); }
+  let r = await sb.from('ref_mata_kuliah').select('kurikulum,kode,nama,sks,semester,sifat,aktif,unit_penyelenggara,pengampu,koordinator_nidn');
+  if (r.error) { ADA158 = false; r = await sb.from('ref_mata_kuliah').select('kurikulum,kode,nama,sks,semester,sifat,aktif,unit_penyelenggara,pengampu'); }
   MK = (r.data || []).map(m => ADA158 ? m : { ...m, koordinator_nidn: (m.pengampu || [])[0] || null });
   let d = await sb.from('dosen').select('nidn,nama,kategori,dtps,peran,aktif,tugas_belajar');
   if (d.error) d = await sb.from('dosen').select('nidn,nama,dtps,peran,aktif');
@@ -111,26 +111,32 @@ function gambar(){
   const semua = MK.filter(m => m.kurikulum === F.kur && m.aktif !== false);
   const xs = semua.filter(m => (!F.sm || String(m.semester) === F.sm) && (!F.kosong || !m.koordinator_nidn)
     && (!F.cari || `${m.kode} ${m.nama} ${(m.pengampu || []).map(nama).join(' ')}`.toLowerCase().includes(F.cari.toLowerCase())));
-  const ada = semua.filter(m => m.koordinator_nidn).length;
+  // MK universitas/fakultas (pemilik 2026-11-24): bagian sendiri dengan PIC prodi, tidak ikut hitungan koordinator dan usulan.
+  const R = ringkasKoordinasi(semua), xsLuar = xs.filter(luarProdi), xsProdi = xs.filter(m => !luarProdi(m));
   const st = semua.map(m => statusMK(STATUS, m));
-  const beban = [...bebanDosen(semua)].map(([n, b]) => ({ n, ...b })).sort((a, b) => b.koordinator - a.koordinator || b.tim - a.tim);
+  const beban = [...bebanDosen(semua)].map(([n, b]) => ({ n, ...b })).sort((a, b) => b.koordinator - a.koordinator || b.tim - a.tim || b.pic - a.pic);
   const usul = BOLEH ? usulanPadanan(MK, PADANAN, F.kur) : [];
   const smList = [...new Set(semua.map(m => m.semester).filter(v => v != null))].sort((a, b) => a - b);
-  const grup = [...new Set(xs.map(m => m.semester ?? '—'))].sort((a, b) => (a === '—') - (b === '—') || a - b);
+  const grup = [...new Set(xsProdi.map(m => m.semester ?? '—'))].sort((a, b) => (a === '—') - (b === '—') || a - b);
 
-  const opsiKoor = m => `<option value="">— belum —</option>` + PILIH.map(d => `<option value="${esc(d.nidn)}"${d.nidn === m.koordinator_nidn ? ' selected' : ''}>${esc(d.nama)}</option>`).join('');
+  const opsiKoor = m => `<option value="">${luarProdi(m) ? '— belum (admin) —' : '— belum —'}</option>` + PILIH.map(d => `<option value="${esc(d.nidn)}"${d.nidn === m.koordinator_nidn ? ' selected' : ''}>${esc(d.nama)}</option>`).join('');
   const timDari = m => (m.pengampu || []).filter(n => n !== m.koordinator_nidn);
   const baris = m => {
     const s = statusMK(STATUS, m), id = `${m.kurikulum}|${m.kode}`, kur = encodeURIComponent(m.kurikulum || ''), kode = encodeURIComponent(m.kode);
-    const koor = BOLEH ? `<select class="koor" data-koor="${esc(id)}" aria-label="Koordinator ${esc(m.kode)}">${opsiKoor(m)}</select>`
-      : (m.koordinator_nidn ? esc(nama(m.koordinator_nidn)) : '<span class="ket">belum</span>');
-    const tim = BOLEH ? `<details class="tim"><summary>${timDari(m).length} dosen</summary><div class="daftar">${PILIH.map(d =>
+    const luar = luarProdi(m);
+    const koor = BOLEH ? `<select class="koor" data-koor="${esc(id)}" aria-label="${luar ? 'PIC prodi' : 'Koordinator'} ${esc(m.kode)}">${opsiKoor(m)}</select>`
+      : (m.koordinator_nidn ? esc(nama(m.koordinator_nidn)) : `<span class="ket">${luar ? 'belum (admin)' : 'belum'}</span>`);
+    // MK luar prodi: tanpa tim; pengampu lama selain PIC (data sebelum 2026-11-24) ditampilkan dan terhapus saat Simpan.
+    const lamaLuar = luar ? timDari(m) : [];
+    const tim = luar ? `<span class="ket">Pengajar kelas di <a href="kelas.html">Penyusunan kelas</a>${lamaLuar.length
+        ? `<br>Data lama: ${esc(lamaLuar.map(nama).join(', '))}${BOLEH ? ' (dihapus saat Simpan)' : ''}` : ''}</span>`
+      : BOLEH ? `<details class="tim"><summary>${timDari(m).length} dosen</summary><div class="daftar">${PILIH.map(d =>
         `<label><input type="checkbox" data-tim="${esc(id)}" value="${esc(d.nidn)}"${timDari(m).includes(d.nidn) ? ' checked' : ''}> ${esc(d.nama)}</label>`).join('')}</div></details>`
       : (esc(timDari(m).map(nama).join(', ')) || '<span class="ket">—</span>');
     return `<tr${q.get('kode') === m.kode && q.get('kur') === m.kurikulum ? ' class="sorot"' : ''}>
       <td>${esc(m.kode)}</td><td>${esc(m.nama)}<div class="ket">${esc(m.sks ?? '')} sks${m.sifat ? ' · ' + esc(m.sifat) : ''}</div></td>
       <td>${koor}</td><td>${tim}</td>
-      <td>${lencana(s.silabus, `silabus.html?kur=${kur}&kode=${kode}`)}</td><td>${lencana(s.cpmk, `cpmk.html?kode=${kode}`)}</td>
+      <td>${lencana(s.silabus, `silabus.html?kur=${kur}&kode=${kode}`)}</td><td>${luar ? '<span class="ket">dari universitas</span>' : lencana(s.cpmk, `cpmk.html?kode=${kode}`)}</td>
       <td>${lencana(s.rps, `rps.html?kur=${kur}&kode=${kode}`)}</td>
       ${BOLEH ? `<td><button class="btn" data-simpan="${esc(id)}">Simpan</button> <span class="msg" data-msg="${esc(id)}"></span></td>` : ''}</tr>`;
   };
@@ -138,7 +144,9 @@ function gambar(){
   $('isi').innerHTML = `
     <p class="ket">Langkah pertama alur pengajaran: tetapkan <b>satu koordinator</b> dan <b>tim dosen</b> untuk setiap mata kuliah. Koordinator
       bertanggung jawab atas silabus, CPMK, RPS, dan portofolio MK; tim ikut mengisi. Pengampu tiap kelas per semester diatur di
-      <a href="kelas.html">Penyusunan kelas</a>. ${BOLEH ? 'Anda dapat mengubah (Kaprodi aktif atau admin).' : 'Hanya Kaprodi aktif atau admin yang dapat mengubah; Anda melihat.'}
+      <a href="kelas.html">Penyusunan kelas</a>. MK yang diselenggarakan universitas atau fakultas (MKU, Kalkulus, Fisika Dasar, …) tidak
+      memerlukan koordinator prodi: cukup satu <b>PIC prodi</b> (boleh kosong, lalu admin) yang menyalin silabus dan RPS resminya.
+      ${BOLEH ? 'Anda dapat mengubah (Kaprodi aktif atau admin).' : 'Hanya Kaprodi aktif atau admin yang dapat mengubah; Anda melihat.'}
       ${ADA158 ? '' : '<b>Patch 158 belum dijalankan:</b> koordinator dibaca sebagai dosen pertama di daftar pengampu.'}</p>
     <p class="msg" id="pesanAtas" role="status">${PESAN ? esc(PESAN.teks) : ''}</p>
     <div class="alat"><label>Kurikulum <select id="fKur">${kurs.map(k => `<option${k === F.kur ? ' selected' : ''}>${esc(k)}</option>`).join('')}</select></label>
@@ -146,7 +154,8 @@ function gambar(){
       <input id="fCari" type="search" placeholder="Cari kode, nama MK, atau dosen…" value="${esc(F.cari)}">
       <label class="ket"><input type="checkbox" id="fKosong"${F.kosong ? ' checked' : ''}> hanya yang belum ada koordinator</label></div>
     <div class="kartu ringkas">
-      <div><b>${ada} / ${semua.length}</b><span class="ket">MK aktif sudah punya koordinator</span></div>
+      <div><b>${R.adaKoordinator} / ${R.prodi}</b><span class="ket">MK prodi sudah punya koordinator</span></div>
+      ${R.luar ? `<div><b>${R.adaPic} / ${R.luar}</b><span class="ket">MK universitas/fakultas punya PIC prodi</span></div>` : ''}
       <div><b>${st.filter(x => x.silabus === 'disahkan').length}</b><span class="ket">silabus disahkan</span></div>
       <div><b>${st.filter(x => x.cpmk === 'ada').length}</b><span class="ket">CPMK terisi</span></div>
       <div><b>${st.filter(x => ['disahkan', 'ditetapkan'].includes(x.rps)).length}</b><span class="ket">RPS disahkan/ditetapkan</span></div>
@@ -158,12 +167,18 @@ function gambar(){
         <td>${esc(nama(u.koordinator))}</td><td>${esc(u.tim.map(nama).join(', ')) || '—'}</td></tr>`).join('')}</table></div>
       <p><button class="btn" id="terapkanUsul">Terapkan usulan yang dicentang</button> <span class="msg" id="mUsul"></span></p></div>` : ''}
     <details class="kartu"><summary><b>Beban koordinasi per dosen</b> <span class="ket">(MK aktif ${esc(F.kur)})</span></summary>
-      <table class="t" style="margin-top:8px"><tr><th>Dosen</th><th>Koordinator</th><th>Anggota tim</th></tr>
-      ${beban.map(b => `<tr><td>${esc(nama(b.n))}</td><td>${b.koordinator}</td><td>${b.tim}</td></tr>`).join('') || '<tr><td colspan="3" class="kosong">Belum ada.</td></tr>'}</table></details>
+      <table class="t" style="margin-top:8px"><tr><th>Dosen</th><th>Koordinator</th><th>Anggota tim</th><th>PIC MK universitas</th></tr>
+      ${beban.map(b => `<tr><td>${esc(nama(b.n))}</td><td>${b.koordinator}</td><td>${b.tim}</td><td>${b.pic}</td></tr>`).join('') || '<tr><td colspan="4" class="kosong">Belum ada.</td></tr>'}</table></details>
     ${grup.map(g => `<h2>Semester ${esc(g)}</h2><div class="gulir"><table class="t"><thead><tr><th>Kode</th><th>Mata kuliah</th><th>Koordinator</th><th>Tim</th>
       <th>Silabus</th><th>CPMK</th><th>RPS</th>${BOLEH ? '<th></th>' : ''}</tr></thead>
-      <tbody>${xs.filter(m => (m.semester ?? '—') === g).sort((a, b) => String(a.kode).localeCompare(String(b.kode))).map(baris).join('')}</tbody></table></div>`).join('')
-      || '<p class="kosong">Tidak ada mata kuliah yang cocok.</p>'}`;
+      <tbody>${xsProdi.filter(m => (m.semester ?? '—') === g).sort((a, b) => String(a.kode).localeCompare(String(b.kode))).map(baris).join('')}</tbody></table></div>`).join('')}
+    ${xsLuar.length ? `<h2>Diselenggarakan universitas/fakultas</h2>
+      <p class="ket">PIC prodi menyalin silabus dan RPS resmi universitas/fakultas ke situs (bukti untuk asesor) dan memetakan MK ke CPL prodi.
+        CPMK, nilai, dan portofolio tingkat MK dari penyelenggaranya; dosen prodi yang mengajar kelasnya mengisi bagian kelas.</p>
+      <div class="gulir"><table class="t"><thead><tr><th>Kode</th><th>Mata kuliah</th><th>PIC prodi</th><th>Pengajar</th>
+      <th>Silabus</th><th>CPMK</th><th>RPS</th>${BOLEH ? '<th></th>' : ''}</tr></thead>
+      <tbody>${xsLuar.sort((a, b) => (a.semester ?? 99) - (b.semester ?? 99) || String(a.kode).localeCompare(String(b.kode))).map(baris).join('')}</tbody></table></div>` : ''}
+    ${xs.length ? '' : '<p class="kosong">Tidak ada mata kuliah yang cocok.</p>'}`;
 
   $('fKur').onchange = e => { F.kur = e.target.value; F.sm = ''; gambar(); };
   $('fSm').onchange = e => { F.sm = e.target.value; gambar(); };

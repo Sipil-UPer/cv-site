@@ -264,7 +264,10 @@ async function muatTugas(saya){
   const [perluTL, tanpaBaris] = await Promise.all([baca(sb.rpc('evaluasi_perlu_tl')), baca(sb.rpc('cpl_belum_tanpa_evaluasi'))]);
   // Koordinator MK dan pengampu (OBE O2-O3, pemilik 2026-11-17): CPMK/RPS dan portofolio. Data tambahan hanya dimuat
   // bila pengguna koordinator MK (ref_mata_kuliah.pengampu) atau mengajar kelas (daftar kelas CPL).
-  const mkRef = await baca(sb.from('ref_mata_kuliah').select('kurikulum,kode,nama,semester,aktif,pengampu,rps_url,rps_ada'));
+  // MK universitas/fakultas (pemilik 2026-11-24): penyelenggara dan PIC (koordinator_nidn, 158) ikut dimuat; tanpa patch 158 = tanpa kolom itu.
+  const KOLOM_MK = 'kurikulum,kode,nama,semester,aktif,unit_penyelenggara,pengampu,rps_url,rps_ada';
+  let mkRef = await sb.from('ref_mata_kuliah').select(KOLOM_MK + ',koordinator_nidn').then(r => (r.error ? null : r.data || []), () => null);
+  if (!mkRef) mkRef = await baca(sb.from('ref_mata_kuliah').select(KOLOM_MK));
   let dataMK = null;
   const tim = await kelasMengajarSaya(sb, saya);   // 137: termasuk anggota team teaching (Penyusunan kelas)
   if ((saya.nidn && mkRef.some(m => (m.pengampu || []).includes(saya.nidn))) || kelasCpl.length || tim.length) {
