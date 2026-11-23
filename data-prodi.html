@@ -346,8 +346,8 @@ const TABEL = [
   { id: 'mk', tabel: 'ref_mata_kuliah', judul: 'Mata kuliah', butir: '15, 17, 19, 20',
     patch: '23-patch-kurikulum.sql', urut: ['semester', 'urutan', 'kode'],
     ket: 'Satu baris per mata kuliah kurikulum (Tabel 3.a.1). Centang basic science/matematika untuk Tabel 3.a.4 '
-       + 'dan capstone design untuk Tabel 3.a.5 (pilih MK pendukungnya). Dosen pengampu mengisi kolom "MK yang '
-       + 'diampu" Tabel 4.a. Unggah dokumen RPS sebagai bukti baris. Daftar ini juga menjadi pilihan MK pada '
+       + 'dan capstone design untuk Tabel 3.a.5 (pilih MK pendukungnya). Koordinator dan tim MK, yang ditetapkan di halaman '
+       + 'Koordinator dan tim MK (menu Pengajaran), mengisi kolom "MK yang diampu" Tabel 4.a. Unggah dokumen RPS sebagai bukti baris. Daftar ini juga menjadi pilihan MK pada '
        + 'isian karya integrasi penelitian/PkM.',
     label: r => `${r.kurikulum ? r.kurikulum + ' · ' : ''}${r.kode || ''} ${r.nama || 'Mata kuliah'}`.trim(), tahun: () => null,
     // Butir 20: bukti per unsur hanya untuk MK capstone (pemilik 2026-11-10).
@@ -384,8 +384,8 @@ const TABEL = [
           return BARIS.filter(m => m.id !== SUNTING && (!ini?.kurikulum || m.kurikulum === ini.kurikulum))
             .map(m => [m.kode, `${m.kurikulum ? m.kurikulum + ' · ' : ''}${m.kode} — ${m.nama}`]); } },
       { k: 'capstone_cakupan', l: 'Cakupan bahasan capstone', t: 'teks', lebar: true },
-      { k: 'pengampu', l: 'Dosen pengampu', t: 'jamak', kosong: 'Daftar dosen kosong.',
-        o: () => DOSEN.map(d => [d.nidn, d.nama]) },
+      // Koordinator dan tim MK (pengampu) ditetapkan di koordinator-mk.html (158, pemilik 2026-11-23), bukan di sini:
+      // kolom ini dihapus dari formulir supaya hanya ada satu tempat; nilainya tidak tersentuh saat baris disimpan.
       { k: 'aktif', l: 'Aktif (masih di kurikulum)', t: 'cek', awal: true },
       { k: 'urutan', l: 'Urutan tampil', t: 'int' },
       { k: 'rps_url', l: 'Dokumen RPS', t: 'url' },
@@ -1592,7 +1592,7 @@ async function simpanImporMK(){
   }
   IMPOR_MK = null;
   await muatBaris();
-  msg('ok', `${n} MK tersimpan. Lengkapi RPS, bukti, dan pengampu lewat tombol Ubah pada tiap baris.`);
+  msg('ok', `${n} MK tersimpan. Lengkapi RPS dan bukti lewat tombol Ubah; koordinator dan tim MK di halaman Koordinator dan tim MK.`);
 }
 
 // ---------------------------------------------------------------------

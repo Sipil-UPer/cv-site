@@ -377,11 +377,11 @@ function htmlEditor(){
       <p><button class="b utama" id="unduhTemplat">Unduh templat terisi</button><span class="msg" id="mTemplat"></span></p>
     </section>
 
-    ${KELOLA ? `<section class="kartu"><h2>Koordinator MK / pengampu</h2>
-      <p class="ket">Dosen yang boleh mengisi CPMK dan RPS mata kuliah ini sepanjang tahun (juga kolom pengampu Tabel 4.a LKPS). Pengampu kelas semester ini
-        (daftar kelas CPL) otomatis boleh mengisi.</p>
-      <div class="pilih-dosen">${DOSEN.map(d => `<label><input type="checkbox" data-pengampu="${esc(d.nidn)}"${(m.pengampu || []).includes(d.nidn) ? ' checked' : ''}> ${esc(d.nama)}</label>`).join('')}</div>
-      <p><button class="b" id="simpanPengampu">Simpan koordinator MK</button><span class="msg" id="mPengampu"></span></p></section>` : ''}`;
+    <section class="kartu"><h2>Koordinator dan tim MK</h2>
+      <p class="ket">Koordinator dan tim: ${esc(namaPengampu(m).join(', ')) || 'belum ditetapkan'}. Mereka boleh mengisi CPMK dan RPS
+        mata kuliah ini sepanjang tahun; pengampu kelas semester ini (daftar kelas CPL) otomatis boleh mengisi. Penetapannya oleh
+        Kaprodi atau admin di <a href="koordinator-mk.html?kur=${encodeURIComponent(m.kurikulum || '')}&amp;kode=${encodeURIComponent(m.kode)}">Koordinator dan tim MK</a>
+        (158, pemilik 2026-11-23).</p></section>`;
 }
 
 function gambar(){
@@ -411,7 +411,6 @@ function gambar(){
     $('asesBaru').onkeydown = e => { if (e.key === 'Enter') tambah(); };
   }
   if ($('simpan')) $('simpan').onclick = simpan;
-  if ($('simpanPengampu')) $('simpanPengampu').onclick = simpanPengampu;
   $('unduhTemplat').onclick = unduhTemplat;
   $('tKelas').onchange = isiDariKelas; isiDariKelas();
 }
@@ -501,15 +500,7 @@ async function simpan(){
 }
 
 
-async function simpanPengampu(){
-  const [kur, kode] = PILIH.split('|');
-  const nidn = [...document.querySelectorAll('[data-pengampu]:checked')].map(c => c.dataset.pengampu);
-  const { error } = await sb.rpc('mk_atur_pengampu', { p_kurikulum: kur, p_kode: kode, p_nidn: nidn });
-  if (error) return tulis('mPengampu', 'buruk', 'Gagal: ' + error.message);
-  mkDari(PILIH).pengampu = nidn;
-  const boleh = await baca(sb.rpc('mk_boleh_saya')); BOLEH = new Set(boleh.map(b => kunci(b.kurikulum, b.kode_mk)));
-  gambar(); tulis('mPengampu', 'ok', 'Koordinator MK tersimpan.');
-}
+// Koordinator dan tim MK ditetapkan di koordinator-mk.html (158); editor lama di halaman ini dihapus (2026-11-23).
 
 function isiDariKelas(){
   const k = KELAS.find(x => String(x.id) === $('tKelas').value);

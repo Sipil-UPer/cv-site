@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="robots" content="noindex, nofollow">
+<title>Mata kuliah saya — Ruang kerja</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tema.css?v=2026-11-22-866c27">
+<link rel="stylesheet" href="kepala.css?v=2026-11-22-866c27">
+<style>
+  /* Dasar halaman ruang kerja (sama dengan halaman lain) */
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
+  .wrap{max-width:1100px;margin:0 auto;padding:18px 20px 80px}
+  a{color:var(--biru-2)}
+  /* Mata kuliah saya (pemilik 2026-11-23): satu halaman per dosen, urut alur pengajaran */
+  .kartu{background:#fff;border:1px solid var(--line);padding:14px 16px;margin:12px 0}
+  .alur{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:13px}
+  .alur span{border:1px solid var(--line);padding:3px 9px;background:var(--bg)} .alur i{color:var(--muted);font-style:normal}
+  h2{font-size:17px;margin:20px 0 6px;color:var(--biru)}
+  .ket{font-size:13px;color:var(--muted)}
+  table.t{border-collapse:collapse;width:100%;font-size:13px}
+  table.t th,table.t td{border-bottom:1px solid var(--line-soft,#e5e7eb);padding:6px 7px;text-align:left;vertical-align:top}
+  table.t th{font-family:var(--mono);font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+  .st{display:inline-block;font-size:11.5px;padding:1px 7px;border-radius:9px;border:1px solid var(--line);white-space:nowrap;text-decoration:none;color:var(--muted)}
+  .st.hijau{color:var(--hijau);border-color:currentColor} .st.biru{color:var(--biru-2);border-color:currentColor}
+  .st.kuning{color:#8A5A00;border-color:currentColor}
+  .peran{font-size:11px;font-family:var(--mono);letter-spacing:.05em;text-transform:uppercase;color:var(--biru-2)}
+  .tautan a{margin-right:10px;font-size:12.5px;white-space:nowrap}
+  .gulir{overflow-x:auto}
+  .kosong{color:var(--muted);font-size:13.5px;padding:10px 0}
+</style>
+</head>
+<body>
+<div class="hero" role="region" aria-label="Pembuka halaman"><div class="hero-in">
+  <div class="hero-inst" data-identitas></div>
+  <h1>Mata kuliah saya</h1>
+  <div class="sub" id="hSub">Memuat…</div>
+</div></div>
+<main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
+<script src="config.js?v=2026-11-22-866c27"></script>
+<script>
+// Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
+addEventListener('error', function (e) {
+  if (document.getElementById('galat-muat')) return;
+  var d = document.createElement('div');
+  d.id = 'galat-muat';
+  d.style.cssText = 'margin:16px;padding:12px 14px;border:1px solid var(--merah);' +
+    'background:var(--merah-m3);color:var(--ink);font:14px/1.5 system-ui,sans-serif';
+  d.textContent = 'Halaman gagal dimuat: ' + (e.message || 'galat skrip') +
+    '. Tekan Ctrl+Shift+R untuk memuat ulang tanpa cache; bila tetap muncul, kirim pesan ini ke admin.';
+  document.body.insertBefore(d, document.body.firstChild);
+});
+</script>
+<script type="module">
+// Mata kuliah saya (pemilik 2026-11-23): MK yang dosen ini koordinasikan atau ikut timnya (koordinator-mk.html, 158), status
+// silabus/CPMK/RPS dengan tautan langsung, dan kelas semester berjalan (Penyusunan kelas) dengan tautan nilai CPL, portofolio,
+// dan evaluasi. Hanya membaca; tugas yang tertunda tetap diingatkan di Tugas saya.
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
+import { gerbang } from './menu.js?v=2026-11-22-866c27';
+import { petaStatus, statusMK, mkSaya, LABEL_STATUS } from './koordinator-mk.js?v=2026-11-22-866c27';
+import { semesterKini } from './evaluasi-pembelajaran.js?v=2026-11-22-866c27';
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const sb = createClient(window.SB_URL, window.SB_KEY);
+const baca = p => p.then(r => (r.error ? [] : (r.data || [])), () => []);
+const warna = s => ({ disahkan: 'hijau', ditetapkan: 'hijau', ada: 'hijau', diajukan: 'biru', draf: 'kuning', dikembalikan: 'kuning' }[s] || '');
+const lencana = (s, href) => `<a class="st ${warna(s)}" href="${href}">${esc(LABEL_STATUS[s] || s)}</a>`;
+
+async function mulai(){
+  const saya = await gerbang(sb);
+  if (!saya) return;
+  $('hSub').textContent = `Masuk sebagai ${saya.nama}`;
+  const { data: d } = await sb.from('dosen').select('id,nidn').eq('id', saya.id).maybeSingle();
+  const nidn = d?.nidn || saya.nidn;
+  let r = await sb.from('ref_mata_kuliah').select('kurikulum,kode,nama,sks,semester,aktif,pengampu,koordinator_nidn');
+  if (r.error) r = await sb.from('ref_mata_kuliah').select('kurikulum,kode,nama,sks,semester,aktif,pengampu');
+  const MK = (r.data || []).map(m => ('koordinator_nidn' in m) ? m : { ...m, koordinator_nidn: (m.pengampu || [])[0] || null });
+  const [silabus, struktur, rps, kd] = await Promise.all([
+    baca(sb.from('mk_silabus').select('kurikulum,kode_mk,status')), baca(sb.from('mk_struktur').select('kurikulum,kode_mk')),
+    baca(sb.from('mk_rps').select('kurikulum,kode_mk,status,tetap_pada')),
+    baca(sb.from('kelas_dosen').select('kelas_id,peran').eq('dosen_id', saya.id))]);
+  const STATUS = petaStatus({ silabus, struktur, rps });
+  const saya_mk = mkSaya(MK, nidn);
+  const { ta, sm } = semesterKini();
+  const ids = kd.map(x => x.kelas_id);
+  const kelas = ids.length ? await baca(sb.from('kelas_kuliah').select('id,tahun_akademik,semester,kurikulum,kode_mk,kelas').in('id', ids)) : [];
+  const kelasIni = kelas.filter(k => k.tahun_akademik === ta && k.semester === sm)
+    .map(k => ({ ...k, peran: kd.find(x => x.kelas_id === k.id)?.peran, nama: MK.find(m => m.kode === k.kode_mk && m.kurikulum === k.kurikulum)?.nama || '' }))
+    .sort((a, b) => String(a.kode_mk).localeCompare(String(b.kode_mk)) || String(a.kelas).localeCompare(String(b.kelas)));
+  const tae = encodeURIComponent(ta), sme = encodeURIComponent(sm);
+
+  $('isi').innerHTML = `
+    <div class="kartu"><b>Urutan kerja mata kuliah</b>
+      <div class="alur" style="margin-top:6px"><span>1 Silabus</span><i>→</i><span>2 CPMK dan penilaian</span><i>→</i><span>3 RPS</span><i>→</i>
+        <span>4 Kelas: nilai CPL, portofolio, evaluasi</span><i>→</i><span>5 Tinjauan RPS</span></div>
+      <p class="ket" style="margin:8px 0 0">Koordinator MK menyusun silabus, CPMK, dan RPS; tim ikut mengisi. Pengampu kelas mengunggah nilai CPL dan
+        portofolio kelasnya tiap semester. Yang tertunda juga diingatkan di <a href="ruang-kerja.html">Tugas saya</a>.</p></div>
+
+    <h2>Mata kuliah yang saya koordinasikan atau ikut timnya</h2>
+    ${saya_mk.length ? `<div class="gulir"><table class="t"><thead><tr><th>Mata kuliah</th><th>Peran</th><th>1 Silabus</th><th>2 CPMK</th><th>3 RPS</th><th>5 Tinjauan</th></tr></thead><tbody>
+      ${saya_mk.map(m => { const s = statusMK(STATUS, m), kur = encodeURIComponent(m.kurikulum || ''), kode = encodeURIComponent(m.kode);
+        return `<tr><td>${esc(m.kurikulum)} · ${esc(m.kode)} ${esc(m.nama)}<div class="ket">semester ${esc(m.semester ?? '—')} · ${esc(m.sks ?? '')} sks</div></td>
+          <td><span class="peran">${m.peran === 'koordinator' ? 'koordinator' : 'tim'}</span></td>
+          <td>${lencana(s.silabus, `silabus.html?kur=${kur}&kode=${kode}`)}</td><td>${lencana(s.cpmk, `cpmk.html?kode=${kode}`)}</td>
+          <td>${lencana(s.rps, `rps.html?kur=${kur}&kode=${kode}`)}</td><td><a class="st" href="tinjauan-rps.html?kur=${kur}&kode=${kode}">buka</a></td></tr>`; }).join('')}
+      </tbody></table></div>`
+      : `<p class="kosong">Anda belum ditetapkan sebagai koordinator atau anggota tim MK mana pun. Penetapannya oleh Kaprodi atau admin di
+        <a href="koordinator-mk.html">Koordinator dan tim MK</a>.</p>`}
+
+    <h2>Kelas saya, ${esc(ta)} ${esc(sm)}</h2>
+    ${kelasIni.length ? `<div class="gulir"><table class="t"><thead><tr><th>Kelas</th><th>Peran</th><th>4 Langkah semester ini</th></tr></thead><tbody>
+      ${kelasIni.map(k => `<tr><td>${esc(k.kode_mk)} ${esc(k.nama)} · kelas ${esc(k.kelas)}</td>
+        <td><span class="peran">${k.peran === 'koordinator' ? 'koordinator kelas' : 'anggota'}</span></td>
+        <td class="tautan"><a href="nilai-cpl.html">Berkas nilai CPL</a><a href="portofolio.html?ta=${tae}&sm=${sme}&kode=${encodeURIComponent(k.kode_mk)}">Portofolio</a>
+          <a href="evaluasi-pembelajaran.html?ta=${tae}&sm=${sme}">Evaluasi</a></td></tr>`).join('')}
+      </tbody></table></div>`
+      : `<p class="kosong">Belum ada kelas atas nama Anda untuk ${esc(ta)} ${esc(sm)} di <a href="kelas.html">Penyusunan kelas</a>.</p>`}`;
+}
+mulai().catch(e => { $('isi').innerHTML = `<p class="kosong">Gagal memuat: ${esc(e.message)}</p>`; });
+</script>
+</body>
+</html>
