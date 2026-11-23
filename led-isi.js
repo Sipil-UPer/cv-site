@@ -330,7 +330,7 @@ export function tabelPenjelas(no, C){
       const sp = siklusSPMITS(X, ts), DASAR = { rtm: 'Keputusan RTM', ami: 'Temuan AMI', evaluasi_capaian: 'Evaluasi capaian', kebijakan: 'Kebijakan baru', lainnya: 'Lainnya' };
       const tambahan = [...buat(`Capaian standar SPMI TS ${ts - 1}/${ts}`, ['No', 'Lembar standar', 'Butir dipantau', 'Tercapai', 'Belum tercapai', 'Tidak berlaku', 'Belum dinilai'],
           sp.perLembar.map(x => [x.lembar, String(x.dipantau), String(x.tercapai), String(x.belum), String(x.tidak), String(x.dipantau - x.tercapai - x.belum - x.tidak)]),
-          'di Akreditasi › Siklus PPEPP'),
+          'di Mutu dan akreditasi › Siklus mutu (PPEPP)'),
         ...buat('Perubahan standar SPMI', ['No', 'Tanggal', 'Standar', 'Perubahan', 'Dasar'],
           sp.revisiBaris.map(v => [String(v.tanggal).split('-').reverse().join('/'), sp.kode(v.standar_id), v.perubahan, DASAR[v.dasar] || v.dasar]),
           'di Data prodi › Revisi standar')];

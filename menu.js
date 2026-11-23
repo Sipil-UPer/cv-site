@@ -145,8 +145,10 @@ export const MODUL = [
     { href: 'input-butir.html', judul: 'Isian butir dan dokumen', boleh: mutu,
       ket: 'Butir kualitatif, pustaka dokumen, bukti per butir.' },
     // Siklus PPEPP (67-patch-standar-spmi.sql): semua terdaftar membaca, admin mengisi (pemilik 2026-11-12).
-    { href: 'siklus-ppepp.html', judul: 'Siklus PPEPP',
-      ket: 'Butir standar SPMI per TS: target, capaian, bukti, rencana perbaikan, dan revisi standar.' },
+    // Nama diperjelas (pemilik 2026-11-23): "Siklus PPEPP" kurang dipahami.
+    { href: 'siklus-ppepp.html', judul: 'Siklus mutu (PPEPP)',
+      ket: 'Catatan siklus mutu per standar SPMI dan per TS: target (Penetapan), capaian dan bukti (Pelaksanaan), hasil AMI '
+        + '(Evaluasi), rencana perbaikan (Pengendalian), revisi standar (Peningkatan). Bukti butir 53 dan 55, Tabel 7b LKPS.' },
     { href: 'kelola-survei.html', judul: 'Kelola survei kepuasan', boleh: mutu,
       ket: 'Survei anonim mahasiswa, dosen, tendik, mitra, pengguna lulusan: buat, bagikan tautan, baca hasil.' },
     { href: 'hasil-survei.html', judul: 'Hasil survei kepuasan',

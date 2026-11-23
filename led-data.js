@@ -46,6 +46,10 @@ function grafikKegMhs(rows, ts, kategori, judul){
     { nama: 'Melibatkan mahasiswa', nilai: T.map(t => +r(t)?.dengan_mahasiswa || 0) }] };
 }
 
+// Butir yang grafiknya masuk draf LED (dulu di led.js); grafik.html memakai daftar yang sama (pemilik 2026-11-23).
+export const BUTIR_GRAFIK = ['6', '23', '25', '31', '32', '33', '34', '40', '42', '43',
+                             '46', '47', '49', '50', '51', '52'];
+
 // Grafik per butir, atau null bila butir tidak punya data berderet.
 export function grafikButir(no, D, ts){
   const A = (D && D.akreditasi) || {};
@@ -137,6 +141,24 @@ export function tabelGrafik(g){
   if (g.mode === 'tumpuk' && g.seri.length > 1 && g.satuan !== '%')
     baris.push(['Jumlah', ...g.kategori.map((_, i) => f(g.seri.reduce((a, s) => a + s.nilai[i], 0)))]);
   return baris;
+}
+
+// Kalimat narasi yang merujuk Gambar n (pemilik 2026-11-23: grafik dan narasi harus nyambung). Angka diambil dari
+// spesifikasi grafik yang sama, jadi teks, gambar, dan tabel datanya pasti cocok. Deret waktu (TS, tahun lulus):
+// rentang + angka tiap seri (+ jumlah bila bertumpuk). Selain itu (mis. aspek kepuasan): rujukan ke tabel datanya.
+export function kalimatGrafik(g, n){
+  const f = v => g.desimal ? Number(v).toFixed(g.desimal).replace('.', ',') : String(v);
+  // Huruf awal dikecilkan hanya bila kata pertama huruf kecil semua setelahnya ("Publikasi" -> "publikasi"; "PkM", "IPK" tetap).
+  const kecil = s => /^[A-Z][a-z]+(\s|,|$)/.test(s) ? s[0].toLowerCase() + s.slice(1) : s;
+  const waktu = g.kategori.length > 1 && g.kategori.every(k => /\d{4}/.test(k)) && g.satuan !== '%';
+  if (!waktu) return `Gambar ${n} menyajikan ${kecil(g.judul)}; angka lengkapnya ada pada Data Gambar ${n}.`;
+  const rentang = `${g.kategori[0]} s.d. ${g.kategori[g.kategori.length - 1]}`;
+  // Semua seri disebut, juga yang nol: mis. butir 23/25 justru menilai "melibatkan mahasiswa" (2026-11-23).
+  const seri = g.seri.map(s => `${kecil(s.nama)} ${s.nilai.map(f).join(', ')}`);
+  let t = `Gambar ${n} menunjukkan ${kecil(g.judul)} pada ${rentang} (${g.satuan}): ${seri.join('; ')}`;
+  if (g.mode === 'tumpuk' && seri.length > 1)
+    t += `; jumlahnya ${g.kategori.map((_, i) => f(g.seri.reduce((a, s) => a + s.nilai[i], 0))).join(', ')}`;
+  return t + '.';
 }
 
 // Skor butir pada TS-2, TS-1, TS (dari halaman skor), dengan selisih.

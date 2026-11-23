@@ -7,7 +7,7 @@
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="robots" content="noindex, nofollow">
-<title>Siklus PPEPP — Ruang kerja</title>
+<title>Siklus mutu (PPEPP) — Ruang kerja</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
@@ -18,6 +18,11 @@
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
   .wrap{max-width:1240px;margin:0 auto;padding:18px 20px 80px}
   .kosong, .ket{color:var(--muted)}
+  /* Penjelasan halaman (2026-11-23) */
+  details.apa{background:#fff;border:1px solid var(--line);border-left:3px solid var(--emas);padding:10px 14px;margin-top:16px;font-size:14px}
+  details.apa summary{cursor:pointer}
+  .apa-t{border-collapse:collapse;margin:10px 0 6px;font-size:13.5px;width:100%}
+  .apa-t th,.apa-t td{border:1px solid var(--line);padding:4px 8px;text-align:left;vertical-align:top}
   .ket{font-size:13px}
   .kartu{background:var(--panel);border:1px solid var(--line);padding:14px 18px;margin-bottom:16px}
   .kartu h2{font-size:17px;margin:0 0 6px;color:var(--biru)}
@@ -52,9 +57,23 @@
 <body>
 <div class="hero" role="region" aria-label="Pembuka halaman"><div class="hero-in">
   <div class="hero-inst" data-identitas></div>
-  <h1>Siklus PPEPP</h1>
+  <h1>Siklus mutu (PPEPP)</h1>
   <div class="sub" id="hSub">Memuat…</div>
 </div></div>
+<!-- Penjelasan untuk pengguna (pemilik 2026-11-23: fungsi halaman ini kurang jelas). -->
+<div class="wrap"><details class="apa">
+  <summary><b>Apa ini?</b> Buku catatan siklus mutu prodi: untuk setiap standar SPMI dan setiap TS, apakah lima tahap
+    PPEPP sudah berjalan dan ada buktinya. Asesor menanyakannya di butir 53 dan 55; datanya juga mengisi Tabel 7b LKPS dan
+    narasi LED.</summary>
+  <table class="apa-t"><tr><th>Tahap</th><th>Yang dicatat</th><th>Contoh</th></tr>
+    <tr><td><b>Penetapan</b></td><td>target standar</td><td>RPS semua mata kuliah diperbarui tiap tahun</td></tr>
+    <tr><td><b>Pelaksanaan</b></td><td>capaian pada TS itu, dengan bukti</td><td>92% mata kuliah sudah diperbarui</td></tr>
+    <tr><td><b>Evaluasi</b></td><td>hasil AMI atau analisis capaian</td><td>temuan AMI: monitoring RPS belum terdokumentasi</td></tr>
+    <tr><td><b>Pengendalian</b></td><td>rencana perbaikan dan tindak lanjut</td><td>buat format monev RPS</td></tr>
+    <tr><td><b>Peningkatan</b></td><td>revisi standar bila perlu</td><td>target dinaikkan, atau standar diubah</td></tr></table>
+  <p class="ket">Admin mengisi capaian per TS dengan tombol <b>Isi</b> pada tiap butir. IKU/IKT dan temuan AMI yang terkait
+    tampil otomatis; tombol <b>Bahan RTM</b> merangkum semuanya untuk rapat tinjauan manajemen.</p>
+</details></div>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
 <script src="config.js?v=2026-11-22-866c27"></script>
 <script>

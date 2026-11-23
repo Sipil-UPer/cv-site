@@ -61,6 +61,15 @@
   .aksi button:hover{border-color:var(--biru-3);background:var(--bg)}
   .kosong{color:var(--muted);font-size:13.5px;padding:26px 0;text-align:center}
   svg{width:100%;height:auto;display:block}
+  /* Grafik di draf LED (pemilik 2026-11-23) */
+  h2.bagian{font-size:19px;margin:26px 0 6px}
+  .led-g{background:#fff;border:1px solid var(--line);padding:14px 16px;margin:12px 0}
+  .led-g img{width:100%;height:auto;display:block;border:1px solid var(--line-soft, #eee)}
+  .led-g .kalimat{margin:8px 0;font-size:14px}
+  .led-g table{border-collapse:collapse;font-size:12.5px;margin-top:6px}
+  .led-g th,.led-g td{border:1px solid var(--line);padding:3px 8px;text-align:right}
+  .led-g td:first-child,.led-g th:first-child{text-align:left}
+  .led-g .ts{margin-left:8px}
   svg text{font-family:'IBM Plex Sans',sans-serif}
   footer{margin-top:44px;border-top:1px solid var(--line);padding-top:18px;
          font-size:12.5px;color:var(--muted)}
@@ -645,6 +654,13 @@ function render(){
     ke Word. Skala 2&times; sudah memadai untuk cetak; pilih 3&times; bila gambar akan
     dibesarkan satu halaman penuh. Semua grafik memakai angka agregat —
     tidak memuat nama atau NIM mahasiswa.</div>
+    <section id="ledGrafik" aria-labelledby="jLedGrafik"><h2 class="bagian" id="jLedGrafik">Grafik di draf LED</h2>
+      <p class="ket">Sama persis dengan gambar yang masuk draf LED (tombol Unduh draf LED di halaman Skor): per TS, satu grafik
+      per butir, dengan kalimat narasi dan tabel data yang angkanya sama. Pakai ini supaya gambar, narasi, dan LKPS cocok.</p>
+      <div id="ledGrafikIsi"><p class="kosong">Memuat&hellip;</p></div></section>
+    <h2 class="bagian">Grafik tambahan (tidak masuk draf LED)</h2>
+    <p class="ket">Untuk laporan dan presentasi. Periode mengikuti pilihan Tahun/TS di atas, sehingga angkanya bisa berbeda
+    dengan LKPS; untuk LED gunakan grafik di bagian atas.</p>
     <div class="grid">${kartu}</div>
     <footer>Diperbarui ${esc(D.diperbarui || '')} ·
     Angka mengikuti mode ${MODE === 'ts' ? 'tahun akademik (TS)' : 'tahun kalender'}
@@ -656,6 +672,7 @@ function render(){
   });
   document.querySelectorAll('[data-salin]').forEach(b => b.onclick = () =>
     salinPNG(b.closest('.kartu').querySelector('svg'), b));
+  if (window.gambarGrafikLED) window.gambarGrafikLED(D);
 }
 
 function pasangKendali(){
@@ -704,6 +721,36 @@ addEventListener('error', function (e) {
 // Ruang kerja, khusus email terdaftar (pemilik 2026-11-04).
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
 import { gerbang } from './menu.js?v=2026-11-22-866c27';
+import { BUTIR_GRAFIK, grafikButir, tabelGrafik, kalimatGrafik } from './led-data.js?v=2026-11-22-866c27';
+import { gambarGrafik } from './led-grafik.js?v=2026-11-22-866c27';
+// Grafik di draf LED (pemilik 2026-11-23): spesifikasi, gambar, kalimat, dan tabel yang sama dengan led.js.
+const tsBerjalan = () => { const d = new Date(); return d.getMonth() >= 8 ? d.getFullYear() + 1 : d.getFullYear(); };
+let TS_LED = null;
+const escL = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+window.gambarGrafikLED = async D => {
+  const w = document.getElementById('ledGrafikIsi');
+  if (!w) return;
+  TS_LED ??= tsBerjalan();
+  const pilih = [0, 1, 2].map(k => tsBerjalan() - k).map(t => `<option value="${t}"${t === TS_LED ? ' selected' : ''}>${t - 1}/${t}</option>`).join('');
+  const kartu = [];
+  let n = 0;
+  for (const no of BUTIR_GRAFIK) {
+    const g = grafikButir(no, D, TS_LED);
+    if (!g) continue;
+    n += 1;
+    const { buf } = await gambarGrafik(g);
+    const url = URL.createObjectURL(new Blob([buf], { type: 'image/png' }));
+    const t = tabelGrafik(g);
+    kartu.push(`<div class="led-g"><b>Butir ${escL(no)} · Gambar ${n}. ${escL(g.judul)}</b>
+      <p class="kalimat">${escL(kalimatGrafik(g, n))}</p><img src="${url}" alt="${escL(g.judul)}">
+      <table><tr>${t[0].map(x => `<th>${escL(x)}</th>`).join('')}</tr>${t.slice(1).map(r => `<tr>${r.map(x => `<td>${escL(x)}</td>`).join('')}</tr>`).join('')}</table>
+      <p><a class="btn" href="${url}" download="led-gambar-${n}-butir-${escL(no)}.png">Unduh PNG</a></p></div>`);
+  }
+  w.innerHTML = `<p><label>TS <select id="tsLed" class="ts">${pilih}</select></label>
+    <span class="ket"> · nomor gambar mengikuti urutan di draf LED bila semua butir ini punya data</span></p>`
+    + (kartu.join('') || '<p class="kosong">Belum ada butir dengan data berderet untuk TS ini.</p>');
+  document.getElementById('tsLed').onchange = e => { TS_LED = +e.target.value; window.gambarGrafikLED(D); };
+};
 await gerbang(createClient(window.SB_URL, window.SB_KEY));
 window.mulaiHalaman();
 </script>

@@ -27,7 +27,7 @@
    ===================================================================== */
 
 import { RENCANA_BUKTI, LKPS_TABEL, kelompokDokumen, buktiButir, saranDokumen } from './rencana-bukti.js?v=2026-11-22-866c27';
-import { grafikButir, tabelGrafik, tabelPendukung } from './led-data.js?v=2026-11-22-866c27';
+import { grafikButir, tabelGrafik, tabelPendukung, BUTIR_GRAFIK, kalimatGrafik } from './led-data.js?v=2026-11-22-866c27';
 import { gambarGrafik } from './led-grafik.js?v=2026-11-22-866c27';
 import { faktaNarasi, anggotaTim, kalimatTren, buktiOtomatis, dokumenBelumAda, periksaTersisa, buktiLembar, tabelPenjelas } from './led-isi.js?v=2026-11-22-866c27';
 import { ISIAN_IDENTITAS, KOTA_PT, FOLDER_INDUK, NARAHUBUNG, nilaiIdentitas, KRITERIA, terapkanIsian, kunciTambahan, kalimatButir, kalimatCapaian, kalimatKriteria, kalimatUmum } from './led-narasi.js?v=2026-11-22-866c27';
@@ -185,8 +185,7 @@ function paraGrafik(rid, cx, cy, id, nama){
 
 // Butir yang mendapat grafik data (satu grafik per butir; 7 dan 41 memakai
 // grafik butir 6 dan 40).
-const BUTIR_GRAFIK = ['6', '23', '25', '31', '32', '33', '34', '40', '42', '43',
-                      '46', '47', '49', '50', '51', '52'];
+// BUTIR_GRAFIK: led-data.js (sama dengan halaman Grafik untuk LED).
 
 // Tabel pendukung, dan grafik + tabel datanya.
 function blokData(C, P, no){
@@ -199,6 +198,8 @@ function blokData(C, P, no){
   const g = C.grafik && C.grafik[no];
   if (g){
     const n = ++C.nomorGambar;
+    // Narasi merujuk gambarnya dengan angka yang sama (pemilik 2026-11-23).
+    out.push(para(run(kalimatGrafik(g.spec, n))));
     out.push(paraGrafik(g.rid, g.cx, g.cy, 9100 + n, `Grafik butir ${no}`));
     out.push(para(run(`Gambar ${n}. ${g.spec.judul}`, { i: true, sz: 18 }), { jc: 'center', before: 40 }));
     out.push(para(run(`Data Gambar ${n} (${g.spec.satuan})`, { b: true, sz: 18 }), { keep: true }));

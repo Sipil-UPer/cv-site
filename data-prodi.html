@@ -746,7 +746,7 @@ const TABEL = [
     ket: 'Satu baris per butir standar SPMI. Isi dengan Impor rekap standar SPM (berkas Excel dari SPM) di bawah; impor bisa '
        + 'diulang untuk versi baru: teks dan target diperbarui, capaian yang sudah diisi prodi tidak berubah. Standar turunan '
        + 'prodi sendiri ditambahkan lewat form (asal Prodi, kode mis. P.01.01). Hilangkan centang Dipantau prodi untuk butir '
-       + 'yang bukan urusan prodi. Capaian per TS diisi di halaman Siklus PPEPP (menu Akreditasi).',
+       + 'yang bukan urusan prodi. Capaian per TS diisi di halaman Siklus mutu (PPEPP) (menu Mutu dan akreditasi).',
     label: r => `${r.kode || ''} ${String(r.pernyataan || '').slice(0, 60)}`.trim(), tahun: () => null,
     kolom: [
       { k: 'kode', l: 'Kode butir', t: 'teks', wajib: true },
@@ -1204,7 +1204,7 @@ function gambarPantauLembar(){
   if (!box) return;
   const xs = ringkasLembar(BARIS);
   if (!xs.length) { box.innerHTML = ''; return; }
-  box.innerHTML = `<details class="massal" open><summary><b>Pantauan per lembar</b> (butir yang ikut di Siklus PPEPP)</summary>
+  box.innerHTML = `<details class="massal" open><summary><b>Pantauan per lembar</b> (butir yang ikut di Siklus mutu (PPEPP))</summary>
     <p class="ket">Lembar yang bukan urusan prodi (mis. Perpustakaan, Akreditasi Unggul Institusi): klik <b>Jangan pantau</b>. <b>Hanya PIC prodi</b>
       memantau butir yang penanggung jawabnya Dekan atau Kaprodi dan melepas butir ber-PIC rektorat (WR, Rektor, unit), mis. untuk IKU PT.
       Butirnya tetap tersimpan dan bisa dipantau lagi; per butir tetap bisa diatur lewat Ubah.</p>
@@ -1324,7 +1324,7 @@ async function simpanImporSPM(){
       if (error) throw error;
     }
     await muatBaris();
-    msg('ok', `${r.baru.length} butir baru, ${r.ubah.length} diperbarui, ${tg.length} target tersimpan. Capaian diisi di halaman Siklus PPEPP.`);
+    msg('ok', `${r.baru.length} butir baru, ${r.ubah.length} diperbarui, ${tg.length} target tersimpan. Capaian diisi di halaman Siklus mutu (PPEPP).`);
   } catch (err) {
     $('spm_simpan').disabled = false;
     msg('buruk', 'Gagal: ' + err.message + '. Bagian yang sudah tersimpan tetap ada; simpan lagi untuk melanjutkan.');
