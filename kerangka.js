@@ -16,7 +16,7 @@ export const MENU = [
   { id: 'profil', judul: 'Profil', isi: [
     { judul: 'Profil program studi', href: 'profil-prodi.html' },
     { judul: 'Visi dan misi', href: 'profil-prodi.html#visi' },
-    { judul: 'Kurikulum', href: 'kurikulum.html', ket: 'profil lulusan, CPL, mata kuliah' },
+    { judul: 'Kurikulum', href: 'kurikulum.html' },
     { judul: 'Laboratorium', href: 'laboratorium.html' },
     { judul: 'Kerja sama', href: 'kerja-sama.html' },
     // Kegiatan dan berita dipisah (pemilik 2026-11-23): Kegiatan prodi = kabar.html, diunggah dosen/admin atau mahasiswa
@@ -39,7 +39,7 @@ export const MENU = [
     { judul: 'Untuk calon mahasiswa', href: 'calon-mahasiswa.html' },
     // Selaras dengan 4 tombol utama Layanan mahasiswa (pemilik 2026-11-19).
     { judul: 'Layanan mahasiswa', href: 'layanan-mahasiswa.html' },
-    { judul: 'Ekuivalensi kurikulum', href: 'ekuivalensi-kurikulum.html', ket: 'padanan mata kuliah kurikulum lama ke baru' },
+    { judul: 'Ekuivalensi kurikulum', href: 'ekuivalensi-kurikulum.html' },
     // Kalender akademik (patch 148) dan Biaya dan beasiswa (tautan resmi), pemilik 2026-11-22.
     { judul: 'Kalender akademik', href: 'layanan-mahasiswa.html#kalender' },
     { judul: 'Biaya dan beasiswa', href: 'biaya-beasiswa.html', kr: 'biaya' },
@@ -54,7 +54,7 @@ export const MENU = [
     { judul: 'Alumni dan tracer study', href: 'alumni.html' },
   ] },
   { id: 'kinerja', judul: 'Kinerja', isi: [
-    { judul: 'Kinerja program studi', href: 'kinerja.html', ket: 'angka dan grafik kinerja' },
+    { judul: 'Kinerja program studi', href: 'kinerja.html' },
     { judul: 'Hasil survei kepuasan', href: 'hasil-survei.html' },
   ] },
   // Halaman Kontak (pemilik 2026-11-22); tampil bila kontak diisi di config.
