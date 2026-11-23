@@ -16,7 +16,7 @@ export const normal = s => String(s ?? '').normalize('NFD').replace(AKSEN, '').t
 export const JENIS_CARI = [
   ['halaman', 'Halaman'], ['butir', 'Butir akreditasi'], ['bidang', 'Bidang keahlian'], ['mk', 'Mata kuliah'],
   ['dosen', 'Dosen'], ['lab', 'Laboratorium'], ['karya', 'Karya'], ['prestasi', 'Prestasi mahasiswa'],
-  ['kabar', 'Kabar kegiatan'], ['ta', 'Tugas akhir'], ['mitra', 'Mitra'], ['dokumen', 'Dokumen'], ['rapat', 'Rapat'], ['tindak', 'Tindak lanjut rapat'],
+  ['kabar', 'Kegiatan prodi'], ['ta', 'Tugas akhir'], ['mitra', 'Mitra'], ['dokumen', 'Dokumen'], ['rapat', 'Rapat'], ['tindak', 'Tindak lanjut rapat'],
   ['temuan', 'Temuan AMI'],
 ];
 export const MAKS_PER_JENIS = 6;
@@ -104,7 +104,7 @@ export function indeksPublik(D, aktif = () => true){
      'ajukan surat yudisium tugas akhir skripsi lomba'],
     ['peta-situs.html', 'Peta situs', 'daftar seluruh halaman', 'sitemap'],
   ];
-  if ((D?.kabar || []).length) umum.push(['kabar.html', 'Kabar kegiatan', 'kegiatan program studi', 'berita']);
+  if ((D?.kabar || []).length) umum.push(['kabar.html', 'Kegiatan prodi', 'kegiatan program studi', 'kabar kegiatan']);
   if ([...(D?.kabar || []), ...(D?.prestasi || []), ...(D?.laboratorium || [])].some(x => (x.foto || []).length))
     umum.push(['galeri.html', 'Galeri foto', 'foto kegiatan, prestasi, dan laboratorium', 'foto dokumentasi']);
   if (D?.situs?.prodi_en) umum.push(['english.html', 'English', 'programme overview in English', 'english inggris']);

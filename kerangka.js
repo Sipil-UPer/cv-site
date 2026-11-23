@@ -11,7 +11,7 @@ import { catatKunjunganPublik } from './kunjungan-publik.js?v=2026-11-22-866c27'
 
 // Lima kelompok menu (pemilik 2026-11-19, tahap 2): Profil, Dosen dan riset, Mahasiswa, Kinerja, Kontak;
 // Pendaftaran dan Masuk ruang kerja di baris atas. Kaki halaman disusun dari MENU yang sama.
-// Butir ber-`kr` (Berita) diisi isiKerangka dari data.json dan tersembunyi bila kosong.
+// Butir ber-`kr` (Kegiatan prodi, Berita, ...) diisi isiKerangka dari data.json dan tersembunyi bila kosong.
 export const MENU = [
   { id: 'profil', judul: 'Profil', isi: [
     { judul: 'Profil program studi', href: 'profil-prodi.html' },
@@ -19,7 +19,10 @@ export const MENU = [
     { judul: 'Kurikulum', href: 'kurikulum.html', ket: 'profil lulusan, CPL, mata kuliah' },
     { judul: 'Laboratorium', href: 'laboratorium.html' },
     { judul: 'Kerja sama', href: 'kerja-sama.html' },
-    { judul: 'Berita dan kegiatan', href: '#', kr: 'berita' },
+    // Kegiatan dan berita dipisah (pemilik 2026-11-23): Kegiatan prodi = kabar.html, diunggah dosen/admin atau mahasiswa
+    // lalu diverifikasi (patch 81, 144); Berita = laman berita universitas (config.yaml public_site.news_url).
+    { judul: 'Kegiatan prodi', href: 'kabar.html', kr: 'kegiatan' },
+    { judul: 'Berita', href: '#', kr: 'berita' },
     // Galeri foto (pemilik 2026-11-22): tampil bila ada foto kabar, prestasi, atau laboratorium.
     { judul: 'Galeri foto', href: 'galeri.html', kr: 'galeri' },
   ] },
@@ -361,12 +364,13 @@ export function isiKerangka(D){
   document.querySelectorAll('[data-kr="kontak"]').forEach(el => { el.innerHTML = baris.join('<br>'); el.hidden = !baris.length; });
   // Menu Kontak hanya bila kontak diisi (config.yaml public_site.contact).
   document.querySelectorAll('[data-kr-menu="kontak"]').forEach(el => { el.hidden = !baris.length; });
-  // Berita prodi dan pendaftaran: tautan luar dari config.yaml public_site (news_url, admission_url).
-  // Berita: kabar kegiatan prodi sendiri (kabar.html) bila ada yang terbit; selain itu laman berita universitas.
-  const berita = (J.kabar ?? (D.kabar || []).length) ? 'kabar.html' : D.situs?.berita, daftar = D.situs?.pendaftaran;
+  // Kegiatan prodi (kabar.html) tampil bila ada yang terbit; Berita = tautan luar ke laman berita universitas
+  // (config.yaml public_site.news_url), terpisah sejak 2026-11-23 (pemilik). Pendaftaran: admission_url.
+  document.querySelectorAll('[data-kr-menu="kegiatan"]').forEach(el => { el.hidden = !(J.kabar ?? (D.kabar || []).length); });
+  const berita = D.situs?.berita, daftar = D.situs?.pendaftaran;
   document.querySelectorAll('[data-kr-menu="berita"]').forEach(el => {
     el.hidden = !berita;
-    if (berita) Object.assign(el.querySelector('a'), { href: berita, ...(berita.startsWith('http') ? { rel: 'noopener' } : {}) });
+    if (berita) Object.assign(el.querySelector('a'), { href: berita, rel: 'noopener' });
   });
   const nFoto = J.foto ?? [...(D.kabar || []), ...(D.prestasi || []), ...(D.laboratorium || [])].reduce((n, x) => n + (x.foto || []).length, 0);
   document.querySelectorAll('[data-kr-menu="galeri"]').forEach(el => { el.hidden = !nFoto; });
