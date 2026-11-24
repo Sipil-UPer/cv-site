@@ -8,10 +8,12 @@
      1. semua sel contoh di LKPS.contoh (lkps-contoh.json, dibuat dari templat
         dan ditinjau; sel berumus tidak termasuk) dikosongkan, gaya dipertahankan;
      2. lembar yang datanya ada di situs diisi: Cover (prodi, PT), D.1 prodi di
-        UPPS, E.2.1 mata kuliah, P.1.1 dosen tetap, A.1 kerja sama;
+        UPPS, E.2.1 mata kuliah, E.4.3 prestasi mahasiswa, P.1.1 dosen tetap,
+        L.4.1 waktu tunggu (kolom yang cocok), A.1 kerja sama;
      3. Excel menghitung ulang rumus saat berkas dibuka.
-   Lembar lain (E.1, E.3, E.4, P.1.2-P.1.7, L.1, L.4, A.5, R.3, R.6) tinggal
-   kosong untuk diisi prodi; pengisiannya irisan berikutnya.
+   Lembar lain (E.1, E.3, E.4.1-E.4.2, P.1.2-P.1.7, L.1, A.5, R.3, R.6) tinggal
+   kosong untuk diisi prodi. R.3/R.6 ditunda sampai pemetaan karya -> program
+   diputuskan (pemilik 2026-11-24).
    Kolom yang tidak disimpan situs dibiarkan kosong (tanpa tebakan).
    ===================================================================== */
 import { JSZIP, tulisSel, petaLembar, hitungUlangSaatBuka } from './lkps.js?v=2026-11-22-866c27';
@@ -88,6 +90,33 @@ export function petaLKPSLamdepilar(C){
     if (d.sesuai_keahlian_mk === true) set('P.1', `M${r}`, 'V');
     set('P.1', `N${r}`, d.mk_ps_lain);
   });
+
+  // E.4.3 Penghargaan eksternal karya mahasiswa (Data prodi › Prestasi mahasiswa), TS-4 s.d. TS
+  // (pemilik 2026-11-24; sama dengan rentang E.1). TS prestasi seperti lkps.js: bulan >= 9 masuk TS berikutnya.
+  // X/Y/Z wilayah/nasional/internasional; AA capaian; AB/AC kompetitif tidak disimpan situs.
+  const tsBaris = p => (+p.bulan >= 9 ? +p.tahun + 1 : +p.tahun);
+  const KOL_TINGKAT = { wilayah_lokal: 'X', nasional: 'Y', internasional: 'Z' };
+  (X.prestasi || []).filter(p => tsBaris(p) >= ts - 4 && tsBaris(p) <= ts)
+    .sort((a, b) => (tsBaris(a) - tsBaris(b)) || String(a.nama_kegiatan).localeCompare(String(b.nama_kegiatan)))
+    .forEach((p, i) => {
+      const r = 8 + i;
+      set('E.4', `T${r}`, p.nama_mahasiswa); set('E.4', `U${r}`, p.nim);
+      set('E.4', `V${r}`, p.nama_kegiatan); set('E.4', `W${r}`, p.penyelenggara);
+      if (KOL_TINGKAT[p.tingkat]) set('E.4', `${KOL_TINGKAT[p.tingkat]}${r}`, 'V');
+      set('E.4', `AA${r}`, p.capaian);
+    });
+
+  // L.4.1 Waktu tunggu lulusan (Data prodi › Tracer study), baris TS-2, TS-1, TS = tahun lulus ts-2..ts
+  // (sama dengan lkps.js). Pita situs <3 / 3-18 / >18 bulan: hanya <3 bulan (F) yang sama dengan templat;
+  // 3-6 dan >6 bulan (G, H) dan "dipesan sebelum lulus" (E) diisi prodi (pemilik 2026-11-24).
+  [ts - 2, ts - 1, ts].forEach((t, i) => {
+    const x = (X.tracer || []).find(y => +y.tahun_lulus === t);
+    if (!x) return;
+    const r = 8 + i;
+    set('L.4', `C${r}`, x.jumlah_lulusan); set('L.4', `D${r}`, x.jumlah_terlacak); set('L.4', `F${r}`, x.wt_kurang_3);
+  });
+  // E.1 tidak diisi: tabelnya per ANGKATAN (kolom periksa N = lulus seleksi - aktif - tidak aktif - lulus - gagal),
+  // sedangkan Data prodi › Mahasiswa per TS menyimpan jumlah per tahun akademik (2026-11-24).
 
   // A.1 Kemitraan dan kerja sama (Data prodi › Kerja sama) yang berlaku dalam TS-2 s.d. TS.
   (X.kerjasama || [])

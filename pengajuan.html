@@ -31,6 +31,9 @@
   /* Pratinjau admin (160, pemilik 2026-11-24) */
   .kotak.pratinjau,.kotak.arah{background:#FFFBEF;border:1px solid #C9A227;border-left-width:5px}
   .kotak.arah{margin:4px 0 12px;font-size:14px}
+  /* Mode latihan (pemilik 2026-11-24) */
+  .pita-latihan{position:sticky;top:0;z-index:50;background:#7A4A00;color:#fff;padding:8px 14px;font-size:13.5px;line-height:1.5}
+  .pita-latihan .b{margin-left:8px;padding:3px 10px;font-size:12.5px;background:#fff;color:#7A4A00;border:0;border-radius:6px;text-decoration:none;cursor:pointer}
   .pilih{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px}
   .pilih label{flex:1 1 220px;border:1px solid var(--line);border-radius:8px;padding:10px 12px;cursor:pointer;display:flex;gap:8px;align-items:flex-start}
   .pilih label:has(input:checked){border-color:var(--biru);box-shadow:0 0 0 1px var(--biru)}
@@ -126,7 +129,35 @@ pasangKerangka({ aktif: 'mahasiswa', muat: true });
 // Mahasiswa tidak login (pemilik 2026-11-17). Tanpa token: formulir baru dan minta tautan lagi; Apps Script
 // membuat pengajuan dan mengirim tautan pribadi ke <NIM>@<domain kampus>. Dengan #t=<token> (dari email):
 // jalur proses, berkas, perbaikan isian, dan Kirim untuk diperiksa (fungsi mhs_* di patch 90).
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
+// Mode latihan (pemilik 2026-11-24, sosialisasi): ?latihan=1 memakai Supabase dan Apps Script TIRUAN (latihan/mock-sb.js,
+// data fiktif latihan/seed.json dari tools/buat_latihan.py). Semua isian dan unggahan hanya tersimpan di peramban ini;
+// tidak ada permintaan ke Supabase atau Google. Tanpa ?latihan: Supabase sungguhan seperti biasa.
+const LATIHAN = new URLSearchParams(location.search).has('latihan');
+if (LATIHAN) { window.LATIHAN = true; window.UPLOAD_URL = 'https://script.google.com/macros/s/latihan/exec'; }
+const { createClient } = LATIHAN ? await import('./latihan/mock-sb.js?v=2026-11-22-866c27')
+  : await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm');
+if (LATIHAN) pasangLatihan();
+// Pita MODE LATIHAN, mulai ulang, dan tautan ke pengajuan.html tetap membawa ?latihan=1.
+function pasangLatihan(){
+  const pita = document.createElement('div');
+  pita.className = 'pita-latihan'; pita.setAttribute('role', 'note');
+  pita.innerHTML = `<b>MODE LATIHAN</b> · data fiktif, hanya tersimpan di peramban ini, <b>tidak terkirim ke prodi</b>. Email berisi tautan
+    pribadi muncul di pojok kanan bawah. <button type="button" class="b" id="latihanUlang">Mulai ulang latihan</button>
+    <a class="b" href="pengajuan.html" data-keluar-latihan>Keluar dari latihan</a>`;
+  document.body.prepend(pita);
+  pita.querySelector('#latihanUlang').onclick = () => {
+    ['latihanDB', 'latihanN'].forEach(k => { try { localStorage.removeItem(k); } catch { /* diblokir */ } });
+    location.href = 'pengajuan.html?latihan=1';
+  };
+  document.addEventListener('click', e => {
+    const a = e.target.closest('a[href]');
+    if (!a || a.hasAttribute('data-keluar-latihan')) return;
+    const u = new URL(a.getAttribute('href'), location.href);
+    if (u.origin === location.origin && u.pathname.endsWith('/pengajuan.html') && !u.searchParams.has('latihan')) {
+      u.searchParams.set('latihan', '1'); a.href = u.href;
+    }
+  }, true);
+}
 import { JENIS, LABEL_BERKAS, LABEL_STATUS, TINGKAT, BIDANG, jalur, bolehUbah, bacaAnggota, teksAnggota,
          periksaIsian, judulPengajuan, keB64, bukaIsi, appsScript, labelStatus, jalurTahap, BERKAS_SELESAI, PROGRAM_KP, labelProgram,
          periksaSelesai, JENIS_SURAT, TAHAP_TA, TAHAP_TA_AJU, TAHAP_PEMBIMBING_TA, penetapanTA, pembimbingCocok, JENIS_PUB, TINGKAT_PUB, INDEKSASI, JENIS_LUARAN,

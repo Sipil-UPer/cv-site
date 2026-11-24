@@ -623,6 +623,9 @@ async function mulai(){
       ${ADMIN ? 'Admin melihat semua pengajuan dan boleh memutuskan tahap pembimbing bila pembimbing berhalangan.'
         : jab.length ? `Anda ${jab.map(labelJabatan).join(', ')}: memegang tahap admin pengajuan bidang Anda dan boleh menggantikan pembimbing yang berhalangan.` : 'Anda melihat pengajuan yang memilih Anda sebagai pembimbing.'}
       ${ADMIN ? 'Draf yang belum dikirim mahasiswa tampil di "Semua".' : 'Draf yang belum dikirim mahasiswa tidak tampil.'}</p>
+    <p class="ket">Sosialisasi: <a class="b" href="pengajuan.html?latihan=1" target="_blank" rel="noopener">Buka mode latihan</a>
+      alur mahasiswa lengkap dengan data fiktif (email tiruan berisi tautan pribadi, unggah, kirim, pesan merah); tidak tersimpan di
+      prodi dan tidak mengirim email. Mahasiswa bisa mencobanya di HP lewat alamat <code>pengajuan.html?latihan=1</code> situs ini.</p>
     <details class="kotak-rekap" id="rekap"><summary>Rekap dan unduhan per periode</summary><div id="rekapIsi"></div></details>
     <div class="tab" id="tab" role="group" aria-label="Kelompok"></div>
     <div class="saring">
