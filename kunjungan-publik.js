@@ -36,6 +36,8 @@ export function namaHalaman(pathname, search = ''){
   if (bagian.length >= 2 && bagian[bagian.length - 2] === 'dosen') nama = 'dosen/' + nama;
   const jenis = new URLSearchParams(search || '').get('jenis');
   if (jenis && /^[a-z0-9_-]{1,20}$/i.test(jenis)) nama += ':' + jenis;
+  // Mode latihan pengajuan (pemilik 2026-11-24): dicatat terpisah supaya angka halaman sungguhan tidak bertambah.
+  if (new URLSearchParams(search || '').has('latihan')) nama += ':latihan';
   nama = nama.toLowerCase();
   return /^[a-z0-9._/:-]{1,100}$/.test(nama) ? nama : 'lainnya.html';
 }

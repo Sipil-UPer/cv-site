@@ -564,7 +564,7 @@ let PERIODE = '';
 const dgWaktu = p => ({ ...p, ...waktuPengajuan(p) });
 const tsTeks = p => { const t = tsKarya(waktuPengajuan(p)); return t ? taTeks(t) : ''; };
 function gambarRekap(){
-  const xs = DATA.map(dgWaktu).filter(p => p.status !== 'draf' && cocokPeriode(p, PERIODE));
+  const xs = DATA.map(dgWaktu).filter(p => !['draf', 'dibatalkan'].includes(p.status) && cocokPeriode(p, PERIODE));   // 161
   const r = rekapPengajuan(xs), opsi = opsiPeriode(DATA.map(dgWaktu)).filter(g => g.opsi.length);
   $('rekapIsi').innerHTML = `
     <div class="saring" style="margin-top:8px"><label>Periode <select id="rPeriode"><option value="">Semua</option>${opsi.map(g =>

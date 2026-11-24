@@ -49,7 +49,7 @@ const berlaku = k => `${k.tahun_mulai || '…'}–${k.tahun_selesai || '…'}`;
  *            tinggi = aktif > max(2, 1,5 × rata-rata aktif dosen yang dihitung)
  */
 export function rekapKP({ kp = [], dosen = [], kerjasama = [], keputusan = [] } = {}){
-  const xs = kp.filter(p => p.status !== 'draf');
+  const xs = kp.filter(p => !['draf', 'dibatalkan'].includes(p.status));   // 161: dibatalkan tidak dihitung
   // Per tahun (tahun mulai KP, lihat waktuPengajuan).
   const th = new Map();
   for (const p of xs) {
@@ -68,7 +68,7 @@ export function rekapKP({ kp = [], dosen = [], kerjasama = [], keputusan = [] } 
   const ins = new Map();
   for (const p of xs) {
     const nama = rapiNama(p.data?.instansi), k = kunciInstansi(nama);
-    if (!k || keadaanKP(p) === 'ditolak') continue;
+    if (!k || ['ditolak', 'dibatalkan'].includes(keadaanKP(p))) continue;
     const x = ins.get(k) || { kunci: k, tulis: new Map(), mahasiswa: 0, selesai: 0, berjalan: 0, ids: [] };
     x.tulis.set(nama, (x.tulis.get(nama) || 0) + 1);
     x.mahasiswa++; x.ids.push(p.id);

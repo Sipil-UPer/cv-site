@@ -95,7 +95,13 @@ export const LABEL_BERKAS = {
 export const LABEL_STATUS = {
   draf: 'Draf (belum dikirim)', pembimbing: 'Diperiksa dosen pembimbing', admin: 'Diperiksa admin prodi',
   disetujui: 'Disetujui', dikembalikan: 'Dikembalikan untuk diperbaiki', ditolak: 'Ditolak',
+  dibatalkan: 'Dibatalkan',   // 161 (pemilik 2026-11-24): oleh mahasiswa (draf/dikembalikan) atau prodi atas permintaan
 };
+// Pengajuan yang bisa dibatalkan mahasiswa sendiri (161): masih di tangannya, tahap pengajuan.
+export const bolehBatalMhs = p => (p.tahap || 'pengajuan') === 'pengajuan' && ['draf', 'dikembalikan'].includes(p.status);
+// Pengajuan yang bisa dibatalkan prodi (161, pengajuan_batalkan): belum diputuskan akhir.
+export const bolehBatalProdi = p => !['dibatalkan', 'ditolak'].includes(p.status)
+  && !(p.status === 'disetujui' && ((p.tahap || 'pengajuan') === 'selesai' || p.jenis !== 'kp'));
 
 export const TINGKAT = [['internasional', 'Internasional'], ['nasional', 'Nasional'], ['wilayah_lokal', 'Wilayah/lokal']];
 export const BIDANG = [['akademik', 'Akademik'], ['non_akademik', 'Non-akademik']];
@@ -166,7 +172,9 @@ export function jalur(status, riwayat = [], nama = null){
   const urut = [...riwayat].sort((a, b) => String(a.waktu).localeCompare(String(b.waktu)));
   const pindah = urut.filter((r, i) => i === 0 || r.status !== urut[i - 1].status);
   const terakhir = k => [...pindah].reverse().find(r => r.status === k);
-  const posisi = { draf: 0, dikembalikan: 0, pembimbing: 1, admin: 2, disetujui: 3, ditolak: 3 }[status] ?? 0;
+  // 161: dibatalkan = satu langkah penutup.
+  if (status === 'dibatalkan') return [{ kunci: 'dibatalkan', label: 'Dibatalkan', keadaan: 'tolak', ...info(terakhir('dibatalkan')) }];
+  const posisi ={ draf: 0, dikembalikan: 0, pembimbing: 1, admin: 2, disetujui: 3, ditolak: 3 }[status] ?? 0;
   return TAHAP.map(([kunci, label0], i) => {
     const label = nama ? nama[i] : label0;
     let keadaan = i < posisi ? 'selesai' : i === posisi ? 'kini' : 'nanti';
@@ -280,13 +288,15 @@ export function waktuPengajuan(p){
 export function keadaanKP(p){
   if (p.status === 'draf') return 'draf';
   if (p.status === 'ditolak') return 'ditolak';
+  if (p.status === 'dibatalkan') return 'dibatalkan';   // 161: tidak ikut rekap
   if (p.tahap === 'selesai') return p.status === 'disetujui' ? 'selesai' : 'berjalan';
   return p.status === 'disetujui' ? 'berjalan' : 'proses';
 }
 
 // Ringkasan: angka KP dan lomba, serta KP per instansi (nama instansi disatukan tanpa beda huruf besar/spasi).
 export function rekapPengajuan(xs){
-  const kp = xs.filter(p => p.jenis === 'kp' && p.status !== 'draf'), lomba = xs.filter(p => p.jenis === 'lomba' && p.status !== 'draf');
+  const masuk = p => !['draf', 'dibatalkan'].includes(p.status);   // 161: dibatalkan tidak dihitung
+  const kp = xs.filter(p => p.jenis === 'kp' && masuk(p)), lomba = xs.filter(p => p.jenis === 'lomba' && masuk(p));
   const hit = (ys, f) => ys.filter(f).length;
   const per = new Map();
   for (const p of kp) {
@@ -305,15 +315,16 @@ export function rekapPengajuan(xs){
     instansi: [...per.values()].sort((a, b) => b.mahasiswa - a.mahasiswa || a.instansi.localeCompare(b.instansi)),
     // 122: berkas yudisium per status (draf tidak ikut, sama dengan jenis lain).
     yudisium: (ys => ({ semua: ys.length, diperiksa: hit(ys, p => p.status === 'admin'), disahkan: hit(ys, p => p.status === 'disetujui'),
-                        dikembalikan: hit(ys, p => p.status === 'dikembalikan') }))(xs.filter(p => p.jenis === 'yudisium' && p.status !== 'draf')),
+                        dikembalikan: hit(ys, p => p.status === 'dikembalikan') }))(xs.filter(p => p.jenis === 'yudisium' && masuk(p))),
   };
 }
 
 // Isi lembar Excel (untuk admin; memuat NIM). Sel tautan berbentuk {t, l}.
 const LABEL_KEADAAN = { selesai: 'KP selesai', berjalan: 'KP dilaksanakan', proses: 'Pengajuan diperiksa', ditolak: 'Ditolak', draf: 'Draf' };
 export function lembarPengajuan(xs, tsTeks = () => '', daftarYud = BERKAS_YUDISIUM_BAWAAN){
-  const kp = xs.filter(p => p.jenis === 'kp' && p.status !== 'draf'), lomba = xs.filter(p => p.jenis === 'lomba' && p.status !== 'draf');
-  const yud = xs.filter(p => p.jenis === 'yudisium' && p.status !== 'draf');
+  const masuk = p => !['draf', 'dibatalkan'].includes(p.status);   // 161: dibatalkan tidak dihitung
+  const kp = xs.filter(p => p.jenis === 'kp' && masuk(p)), lomba = xs.filter(p => p.jenis === 'lomba' && masuk(p));
+  const yud = xs.filter(p => p.jenis === 'yudisium' && masuk(p));
   const pemb = p => p.dosen?.nama || p.pembimbing || '';
   const L = {
     KP: [['No', 'NIM', 'Nama', 'Program', 'Instansi', 'Pembimbing', 'Mulai', 'Selesai', 'Pembimbing lapangan', 'TS', 'Keadaan', 'Berkas']],
