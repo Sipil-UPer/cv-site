@@ -16,7 +16,7 @@
    prodi; kolom yang tidak disimpan situs (mis. pita waktu tunggu) kosong.
    ===================================================================== */
 import { versiUntukTS, daftarProdi, STATUS_PS, tglTeks } from './pustaka-dokumen.js?v=2026-11-22-866c27';
-import { teksPendidikan, nidnNuptk } from './profil-dosen.js?v=2026-11-22-866c27';
+import { teksPendidikan, nidnNuptk, masaBerlaku } from './profil-dosen.js?v=2026-11-22-866c27';
 import { barisKerjaSama } from './kerjasama-karya.js?v=2026-11-22-866c27';
 import { kunciIntegrasi } from './rps-integrasi.js?v=2026-11-22-866c27';
 import { karya4i } from './sitasi.js?v=2026-11-22-866c27';
@@ -199,7 +199,8 @@ export function petaDaftar(C){
     const rw = d.riwayat_pendidikan || [];
     const pend = (kelompok, ada, ket) => teksPendidikan(rw, kelompok) ||
       (ada ? `[isi: prodi ${ket} dan bidang ilmu]` : '');
-    const srt = (d.sertifikat || []);
+    // Hanya sertifikat yang masih berlaku pada hari LKPS dibuat (pemilik 2026-11-24); tanpa tanggal = berlaku terus.
+    const srt = (d.sertifikat || []).filter(s => !masaBerlaku(s, C.kini || new Date())?.lewat);
     set('4a', `B${r}`, d.nama); set('4a', `C${r}`, nidnNuptk(d));   // C11 'NIDN/NIDK/ NUPTK' (patch 128)
     set('4a', `D${r}`, KATEGORI_LKPS[d.kategori || 'tetap']);
     set('4a', `E${r}`, pend('sarjana', !rw.length, 'S1'));
