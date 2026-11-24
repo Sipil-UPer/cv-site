@@ -37,7 +37,17 @@
    "sinta_id": "6749907",
    "scopus_id": "",
    "orcid": "",
-   "kelompok": "GEO"
+   "topik_keahlian": [
+    "GEO01",
+    "GEO02",
+    "GEO03",
+    "GEO04",
+    "GEO05"
+   ],
+   "kelompok": "GEO",
+   "nip": "120011",
+   "nama_gelar": "Dr. Eng. Arlyn Aristo",
+   "foto": "foto-profil/1qse-ZjnEcOFIA2_-ljmBXNQzqTvOoJ4S.jpg"
   },
   {
    "nama": "Fera Dwi Setyani",
