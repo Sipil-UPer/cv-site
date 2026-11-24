@@ -8,11 +8,12 @@
    Data prodi (lkps_bukti, tautan_bukti), dan dokumen pustaka sesuai tabelnya.
    Pemilihan baris mengikuti lkps.js petaDaftar (jendela TS, kategori karya).
    ===================================================================== */
-import { versiUntukTS } from './pustaka-dokumen.js?v=2026-11-24-2e9bda';
-import { JSZIP } from './lkps.js?v=2026-11-24-2e9bda';
-import { labelDokumenLED } from './led-isi.js?v=2026-11-24-2e9bda';
-import { barisKerjaSama } from './kerjasama-karya.js?v=2026-11-24-2e9bda';
-import { karya4i, tautanPengutip } from './sitasi.js?v=2026-11-24-2e9bda';
+import { versiUntukTS } from './pustaka-dokumen.js?v=2026-11-24-1bc7f7';
+import { JSZIP } from './lkps.js?v=2026-11-24-1bc7f7';
+import { labelDokumenLED } from './led-isi.js?v=2026-11-24-1bc7f7';
+import { barisKerjaSama } from './kerjasama-karya.js?v=2026-11-24-1bc7f7';
+import { karya4i, tautanPengutip } from './sitasi.js?v=2026-11-24-1bc7f7';
+import { POS_A5, labelPos } from './keuangan-a5.js?v=2026-11-24-1bc7f7';
 
 const OUTLINE = 'lkps-outline.json';
 const DOCX = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
@@ -26,6 +27,11 @@ const JENIS_LEMBAR = {
   '5b': ['kebijakan_k3l', 'dokumen_k3l'], '6f1': ['laporan_tracer'], '6f2': ['laporan_tracer'], '6g1': ['laporan_tracer'],
   '6g2': ['survei_pengguna'],
   '7a': ['kebijakan_spmi', 'manual_spmi', 'standar_spmi', 'tata_cara_dokumentasi_spmi'],
+  // LKPS LAMDEPILAR Magister (TABEL_LAMDEPILAR di bawah).
+  'D.1': ['sk_akreditasi_prodi'], 'E.1.1': ['data_mahasiswa'], 'E.2.1': ['kurikulum', 'sk_kurikulum'],
+  'E.3.1': ['monev_pembelajaran'], 'E.4.1': ['kurikulum', 'evaluasi_kurikulum'], 'E.4.2': ['kurikulum', 'laporan_cpl'],
+  'P.1.3': ['rekap_bkd'], 'L.1.1': ['pedoman_sarpras'], 'L.4.1': ['laporan_tracer'], 'A.1': ['pedoman_kerjasama'],
+  'A.5.1': ['laporan_keuangan', 'laporan_audit_keuangan'], 'A.5.2': ['laporan_keuangan', 'laporan_audit_keuangan'],
 };
 // Tabel Data prodi yang bukti barisnya langsung masuk indeks.
 const TABEL_LEMBAR = {
@@ -33,7 +39,30 @@ const TABEL_LEMBAR = {
   '5b': 'lkps_dokumen_k3l', '5c': 'lkps_fasilitas_k3l', '6a': 'lkps_mahasiswa_ta', '6b': 'lkps_mahasiswa_ta',
   '6d': 'lkps_kohort_lulusan', '6e1': 'lkps_publikasi_mahasiswa', '6f1': 'lkps_tracer_lulusan', '6f2': 'lkps_tracer_lulusan',
   '6g1': 'lkps_tracer_lulusan', '6g2': 'lkps_kepuasan_pengguna',
+  'D.1': 'lkps_prodi_upps', 'E.1.1': 'lkps_mahasiswa_angkatan', 'P.1.2': 'lkps_bimbingan_utama', 'P.1.3': 'lkps_bkd',
+  'P.1.7': 'lkps_tendik', 'L.4.1': 'lkps_tracer_lulusan',
 };
+// LKPS LAMDEPILAR (pemilik 2026-11-24): tabel yang diisi program Magister, urut templat resmi. Tidak dimuat:
+// E.1.3 dan A.5.3 (rumus templat), L.4.2, A.5.4-A.5.6, R.3.2, R.6.2 (Diploma/Terapan). R.3.1/R.6.1 tabelnya
+// ditunda tetapi karya terverifikasi TS-2..TS tetap dicantumkan sebagai bukti (pemilik 2026-11-24).
+export const TABEL_LAMDEPILAR = [
+  ['D.1', 'Tabel D.1 Daftar Program Studi di Unit Pengelola Program Studi (UPPS)'],
+  ['E.1.1', 'Tabel E.1.1 Mahasiswa Penuh Waktu'], ['E.1.2', 'Tabel E.1.2 Mahasiswa Asing'],
+  ['E.2.1', 'Tabel E.2.1 Rekapitulasi Rencana Pembelajaran Semester'], ['E.3.1', 'Tabel E.3.1 Rekapitulasi Kinerja Perkuliahan'],
+  ['E.4.1', 'Tabel E.4.1 Kesesuaian Capaian Pembelajaran Lulusan dengan Kebutuhan Masyarakat'],
+  ['E.4.2', 'Tabel E.4.2 Matrik Capaian Pembelajaran Matakuliah'], ['E.4.3', 'Tabel E.4.3 Penghargaan Eksternal Karya Mahasiswa'],
+  ['P.1.1', 'Tabel P.1.1 Dosen Tetap Perguruan Tinggi'], ['P.1.2', 'Tabel P.1.2 Dosen Pembimbing Utama Tugas Akhir'],
+  ['P.1.3', 'Tabel P.1.3 Ekuivalen Waktu Mengajar Penuh (EWMP) Dosen Tetap Perguruan Tinggi'],
+  ['P.1.4', 'Tabel P.1.4 Dosen Tidak Tetap'], ['P.1.5', 'Tabel P.1.5 Dosen Industri/Praktisi'],
+  ['P.1.6', 'Tabel P.1.6 Pengakuan/Rekognisi DTPS'], ['P.1.7', 'Tabel P.1.7 Tenaga Kependidikan'],
+  ['L.1.1', 'Tabel L.1.1 Sarana dan Prasarana Belajar (Kelas)'], ['L.1.2', 'Tabel L.1.2 Sarana dan Prasarana Kerja/Praktek'],
+  ['L.1.3', 'Tabel L.1.3 Sarana dan Prasarana Deseminasi'], ['L.1.4', 'Tabel L.1.4 Sarana dan Prasarana Pendukung Kesejahteraan'],
+  ['L.4.1', 'Tabel L.4.1 Waktu Tunggu Lulusan Magister'], ['A.1', 'Tabel A.1 Kemitraan dan Kerjasama'],
+  ['A.5.1', 'Tabel A.5.1 Realisasi Pemasukan Dana Program Magister'], ['A.5.2', 'Tabel A.5.2 Realisasi Pembiayaan Program Magister'],
+  ['R.3.1', 'Tabel R.3.1 Luaran/Dampak Penelitian/Pengembangan Karya/Inovasi DTPS dan Mahasiswa'],
+  ['R.6.1', 'Tabel R.6.1 Luaran/Dampak Pengabdian kepada Masyarakat DTPS dan Mahasiswa'],
+].map(([nama, judul]) => ({ nama, judul }));
+const SARANA_L1 = { 'L.1.1': 'belajar', 'L.1.2': 'kerja', 'L.1.3': 'diseminasi', 'L.1.4': 'kesejahteraan' };
 const LUARAN = { '4f-1': ['paten', 'paten_sederhana'], '4f-2': ['hak_cipta', 'desain_industri', 'merek'],
                  '4f-3': ['ttg', 'produk'], '4f-4': ['buku_isbn', 'book_chapter'] };
 const LUARAN_MHS = { '6e3-1': ['paten', 'paten_sederhana'], '6e3-2': ['hak_cipta', 'desain_industri', 'merek'],
@@ -130,6 +159,28 @@ export function indeksBukti(C, wajib){
     .map(b => ({ item: `${namaDosen(b.nidn)}, ${b.tahun_akademik} ${b.semester}`, catatan: catatanLKD,
       tautan: [{ t: 'LKD (berkas privat)', url: `${C.basisUrl ?? ''}lkd.html?f=${idDrive(b.bukti_url)}` }] }));
 
+  // LKPS LAMDEPILAR (pemilik 2026-11-24), sumber sama dengan lkps-lamdepilar.js.
+  const ASING = ['asing_penuh_waktu', 'asing_satu_semester', 'asing_pendek_kredit', 'asing_tanpa_kredit'];
+  khusus['E.1.2'] = () => (X.angkatan || []).filter(a => ASING.some(k => +a[k] > 0))
+    .sort((a, b) => String(a.tahun_akademik).localeCompare(String(b.tahun_akademik)))
+    .map(a => ({ item: `Angkatan ${a.tahun_akademik}`, tautan: unik(barisDari('lkps_mahasiswa_angkatan', a.id)) }));
+  khusus['E.2.1'] = () => itemMK(mk);
+  khusus['E.4.3'] = () => prestasi('');
+  khusus['P.1.3'] = khusus['4c'];
+  khusus['P.1.6'] = () => itemKarya(karya.filter(k => k.kategori === 'rekognisi'));
+  Object.entries(SARANA_L1).forEach(([l, j]) => { khusus[l] = () => (X.saranaStd || []).filter(s => s.jenis === j)
+    .map(s => ({ item: s.nama + (s.lokasi ? ` (${s.lokasi})` : ''), tautan: unik(barisDari('lkps_sarana_standar', s.id)) })); });
+  khusus['A.1'] = () => [...itemKS('pendidikan', null), ...itemKS('penelitian', 'penelitian'), ...itemKS('pkm', 'pkm')];
+  // A.5: hanya pos yang berbukti (45 pos x 3 tahun terlalu panjang bila semua dicantumkan).
+  const taA5 = [ts - 2, ts - 1, ts].map(t => `${t - 1}/${t}`);
+  [['A.5.1', 'A.5.1 '], ['A.5.2', 'A.5.2 ']].forEach(([l, lembar]) => { khusus[l] = () => (X.keuangan || [])
+    .filter(k => taA5.includes(k.tahun_akademik) && (POS_A5.find(p => p.kode === k.pos) || {}).lembar === lembar)
+    .sort((a, b) => String(a.tahun_akademik).localeCompare(String(b.tahun_akademik)) || String(a.pos).localeCompare(String(b.pos)))
+    .map(k => ({ item: `${k.tahun_akademik} ${labelPos(k.pos)}`, tautan: unik(barisDari('lkps_keuangan', k.id)) }))
+    .filter(x => x.tautan.length); });
+  khusus['R.3.1'] = () => itemKarya(karya.filter(k => ['penelitian', 'publikasi', 'luaran'].includes(k.kategori)));
+  khusus['R.6.1'] = () => itemKarya(karya.filter(k => k.kategori === 'pkm'));
+
   return wajib.map(w => {
     const dokumen = (JENIS_LEMBAR[w.nama] || []).map(j => versiUntukTS(dok, j, ts)).filter(d => d && d.url)
       .map(d => ({ item: labelDokumenLED(d), tautan: [{ t: 'Dokumen', url: d.url }] }));
@@ -169,7 +220,7 @@ export function dokumenXml(indeks, C){
   const xml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><w:body>` +
     `<w:p><w:pPr><w:spacing w:after="60"/></w:pPr>${r(judul, { b: true, sz: 28, warna: '1F3864' })}</w:p>` +
-    `<w:p><w:pPr><w:spacing w:after="160"/></w:pPr>${r(`${adaLink} dari ${indeks.length} tabel wajib Sarjana LAM Teknik memiliki tautan bukti. Sel kosong berarti belum ada bukti di sistem.`, { warna: '595959' })}</w:p>` +
+    `<w:p><w:pPr><w:spacing w:after="160"/></w:pPr>${r(`${adaLink} dari ${indeks.length} ${C.namaTabel || 'tabel wajib Sarjana LAM Teknik'} memiliki tautan bukti. Sel kosong berarti belum ada bukti di sistem.`, { warna: '595959' })}</w:p>` +
     `<w:tbl><w:tblPr><w:tblW w:w="9600" w:type="dxa"/><w:tblBorders>${garis}</w:tblBorders><w:tblLayout w:type="fixed"/><w:tblCellMar><w:left w:w="80" w:type="dxa"/><w:right w:w="80" w:type="dxa"/></w:tblCellMar></w:tblPr>` +
     `<w:tblGrid>${LEBAR.map(w => `<w:gridCol w:w="${w}"/>`).join('')}</w:tblGrid>${kepala}${baris}</w:tbl>` +
     `<w:sectPr><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="1134" w:right="1134" w:bottom="1134" w:left="1134" w:header="567" w:footer="567" w:gutter="0"/></w:sectPr></w:body></w:document>`;
@@ -189,13 +240,19 @@ export function bagianDocx(indeks, C){
 
 export async function buatIndeksBukti(C, opsi = {}){
   const { default: JSZip } = await import(JSZIP);
-  const res = await fetch(OUTLINE, { cache: 'no-cache' });
-  if (!res.ok) throw new Error(`${OUTLINE} tidak terbaca (${res.status})`);
-  const K = await res.json();
-  if (!K.wajib) throw new Error('Halaman ini versi lama. Tekan Ctrl+Shift+R lalu unduh lagi.');
+  // Daftar tabel menurut mesin LKPS instrumen (dokumen.js LKPS.mesin): LAMDEPILAR dari TABEL_LAMDEPILAR,
+  // LAM Teknik dari lkps-outline.json (44 tabel wajib Sarjana).
+  let wajib = TABEL_LAMDEPILAR, namaTabel = 'tabel LKPS LAMDEPILAR (Magister)';
+  if (C.mesin !== 'lkps-lamdepilar.js') {
+    const res = await fetch(OUTLINE, { cache: 'no-cache' });
+    if (!res.ok) throw new Error(`${OUTLINE} tidak terbaca (${res.status})`);
+    const K = await res.json();
+    if (!K.wajib) throw new Error('Halaman ini versi lama. Tekan Ctrl+Shift+R lalu unduh lagi.');
+    wajib = K.wajib; namaTabel = '';
+  }
   const basisUrl = new URL('.', location.href).href;
-  const indeks = indeksBukti({ ...C, basisUrl, dokumen: C.daftar.dokumen }, K.wajib);
-  const { bagian, tautan } = bagianDocx(indeks, C);
+  const indeks = indeksBukti({ ...C, basisUrl, dokumen: C.daftar.dokumen }, wajib);
+  const { bagian, tautan } = bagianDocx(indeks, { ...C, namaTabel });
   const zip = new JSZip();
   for (const [f, isi] of Object.entries(bagian)) zip.file(f, isi);
   const blob = await zip.generateAsync({ type: 'blob', compression: 'DEFLATE', mimeType: DOCX });
