@@ -10,6 +10,10 @@ import { bolehPengajuan } from './koordinator.js?v=2026-11-22-866c27';
 import { tenggatReview, hariKe, teksHari as teksHariRv, tugasTenggatRps, tugasTetapDekan, tanggalPanjang as tglRv } from './pengingat-rps.js?v=2026-11-22-866c27';
 import { tugasMK } from './tugas-mk.js?v=2026-11-22-866c27';
 import { halamanAktif } from './fitur.js?v=2026-11-22-866c27';
+import { masaBerlaku, tanggalPanjang as tglSrt } from './profil-dosen.js?v=2026-11-22-866c27';
+
+// Sertifikat dengan masa berlaku (pemilik 2026-11-24): diingatkan sejak 90 hari sebelum habis, dan terus setelah lewat.
+export const HARI_SERTIFIKAT = 90;
 
 const SELESAI_AMI = new Set(['selesai', 'ditutup']);
 const tingkat = h => h == null ? 'biasa' : h < 0 ? 'lewat' : h <= HARI_DEKAT ? 'dekat' : 'biasa';
@@ -30,7 +34,7 @@ const tgl10 = s => String(s || '').slice(0, 10);
  *   dataMK: data koordinator MK/pengampu untuk tugas-mk.js (null bila bukan keduanya),
  *   reviewSaya: baris mk_rps_review milik sendiri [{kurikulum, kode_mk, ditunjuk_pada, kirim_pada}] (118),
  *   rekapReview: rps_review_rekap [{kurikulum, kode_mk, terkirim, ditanggapi}], bolehRps: rps_boleh_saya [{kurikulum, kode_mk}] (119),
- *   mkNama: Map 'kur|kode' -> nama MK,
+ *   mkNama: Map 'kur|kode' -> nama MK, sertifikat: dosen.sertifikat milik sendiri [{bidang, lembaga, berlaku_sampai}],
  *   hariReview: tenggat review (hari sejak ditunjuk), tenggatRps: {Ganjil, Genap} ISO, mkRef: ref_mata_kuliah, rpsStatus: Map 'kur|kode' -> {status, smt} (120) }
  * Hasil [{ jenis, judul, rinci, href, hari, tingkat }], lewat tenggat dulu.
  * Asesor tidak punya tugas.
@@ -46,6 +50,16 @@ export function tugasSaya(d, kini = new Date()){
   if (s.dtps !== false) {
     const k = kurangProfil(s);
     if (k.length) tambah('profil', 'Lengkapi profil', k.join(', '), 'profil.html');
+  }
+  const habis = (d.sertifikat || []).map(x => ({ x, b: masaBerlaku(x, kini) })).filter(({ b }) => b && b.hari <= HARI_SERTIFIKAT)
+    .sort((a, b) => a.b.hari - b.b.hari);
+  if (habis.length) {
+    const nLewat = habis.filter(h => h.b.lewat).length;
+    tambah('profil', nLewat ? `Sertifikat: ${nLewat} sudah kedaluwarsa${habis.length > nLewat ? `, ${habis.length - nLewat} segera habis` : ''}`
+      : `Sertifikat: ${habis.length} segera habis masa berlakunya`,
+      habis.map(({ x, b }) => `${[x.bidang || 'Sertifikat', x.lembaga].filter(Boolean).join(', ')}: ${b.lewat ? 'kedaluwarsa sejak' : 'berlaku sampai'} ${tglSrt(b.sampai)}`
+        + (b.lewat ? '' : ` (${b.hari} hari lagi)`)).join('; ') + '. Perbarui sertifikat dan masa berlakunya di Profil saya.',
+      'profil.html', habis[0].b.hari);
   }
 
   // Karya.

@@ -299,7 +299,9 @@ async function muatTugas(saya){
   const nilaiAtur = k => atur.find(x => x.kunci === k)?.nilai;
   const tenggatRps = { Ganjil: isoDari(nilaiAtur('rps_tenggat_ganjil')), Genap: isoDari(nilaiAtur('rps_tenggat_genap')) };
   const rpsStatus = new Map(rpsSt.map(r => [`${r.kurikulum}|${r.kode_mk}`, r]));
-  return tugasSaya({ saya, karya: [...karya, ...draf], berBukti, bkd, tindak, hibah, temuan, kelasCpl, berkasCpl, target, tahunTarget: th,
+  // Sertifikat milik sendiri untuk pengingat masa berlaku (pemilik 2026-11-24).
+  const sertifikat = await sb.from('dosen').select('sertifikat').eq('id', saya.id).maybeSingle().then(r => r.data?.sertifikat || [], () => []);
+  return tugasSaya({ saya, sertifikat, karya: [...karya, ...draf], berBukti, bkd, tindak, hibah, temuan, kelasCpl, berkasCpl, target, tahunTarget: th,
                      evaluasi, tindakEval, perluTL, tanpaBaris, pengajuanMhs, revisiTa, dataMK, reviewSaya, rekapReview, bolehRps, mkNama,
                      hariReview: +nilaiAtur('rps_review_hari') || undefined, tenggatRps, mkRef, rpsStatus });
 }

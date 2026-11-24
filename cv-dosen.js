@@ -2,12 +2,28 @@
 // Karya: hanya yang terverifikasi (data.json publik). Profil (NIDN, jabatan, pendidikan,
 // keahlian, sertifikat, email): tabel dosen di Supabase, dibaca dosen itu sendiri atau admin.
 // Dipakai profil.html (CV sendiri) dan kelola-dosen.html (admin, semua dosen).
-import { run, para, judul, teks, tabel, buatDocx } from './docx-dasar.js?v=2026-11-22-866c27';
-import { JENJANG, JENIS_SERTIFIKAT, JABATAN, KATEGORI } from './profil-dosen.js?v=2026-11-22-866c27';
+import { run, para, judul, teks, tabel, tautan, buatDocx } from './docx-dasar.js?v=2026-11-22-866c27';
+import { JENJANG, JENIS_SERTIFIKAT, JABATAN, KATEGORI, SKIP, masaBerlaku, tanggalPanjang } from './profil-dosen.js?v=2026-11-22-866c27';
 
 const label = (xs, k) => (xs.find(x => x[0] === k) || [, k || ''])[1];
 const rapi = s => String(s || '').replace(/_/g, ' ').trim();
 const nm = s => String(s || '').trim().toLowerCase();
+
+// Tautan yang bisa diklik di Word (pemilik 2026-11-24). Alamat profil sama dengan halaman profil publik (halaman_publik.py).
+const PROFIL_LUAR = { sinta_id: 'https://sinta.kemdiktisaintek.go.id/authors/profile/', scopus_id: 'https://www.scopus.com/pages/authors/',
+  orcid: 'https://orcid.org/' };
+/** URL profil SINTA/Scopus/ORCID dari isian dosen; isian yang sudah berupa URL dipakai apa adanya. */
+export function urlProfil(kunci, nilai){
+  const v = String(nilai ?? '').trim();
+  if (!v || !PROFIL_LUAR[kunci]) return '';
+  if (/^https?:\/\//i.test(v)) return v;
+  return PROFIL_LUAR[kunci] + encodeURIComponent(v.replace(/^orcid\.org\//i, ''));
+}
+/** URL DOI baku dari '10.x/…', 'doi:10.x/…', atau 'https://(dx.)doi.org/10.x/…'. */
+export const urlDoi = d => `https://doi.org/${String(d ?? '').trim().replace(/^https?:\/\/(dx\.)?doi\.org\//i, '').replace(/^doi:\s*/i, '')}`;
+// Sel tabel berisi tautan (docx-dasar.js tabel: { xml, teks }).
+const selTautan = (url, label) => (url ? { xml: tautan(url, label, { sz: 18 }), teks: label } : label);
+const urlIsian = (k, v) => (k === 'email' ? (String(v ?? '').includes('@') ? `mailto:${String(v).trim()}` : '') : urlProfil(k, v));
 const INDEKS = { scopus_q1: 'Scopus Q1', scopus_q2: 'Scopus Q2', scopus_q3: 'Scopus Q3', scopus_q4: 'Scopus Q4', scopus: 'Scopus', wos: 'Web of Science',
   sinta_1_2: 'SINTA 1–2', sinta_3_4: 'SINTA 3–4', sinta_5_6: 'SINTA 5–6', tidak_terindeks: 'tidak terindeks' };
 const URUT_JENJANG = JENJANG.map(x => x[0]);
@@ -53,10 +69,10 @@ export function isiCV(P, D, o = {}){
 
   out.push(judul('Identitas', 1));
   const id = [['Nama', P.nama], ['NIP', P.nip], ['NIDN', P.nidn], ['NUPTK', P.nuptk], ['Jabatan akademik', label(JABATAN, P.jabatan)], ['Kategori dosen', label(KATEGORI, P.kategori)],
-    ['Bidang keahlian', P.bidang_keahlian], ['Program studi', [D.prodi, D.institusi].filter(Boolean).join(', ')], ['Email', P.email],
-    ['SINTA ID', P.sinta_id], ['Scopus Author ID', P.scopus_id], ['ORCID', P.orcid], ['Nomor sertifikat pendidik', P.nomor_serdos]]
+    ['Bidang keahlian', P.bidang_keahlian], ['Program studi', [D.prodi, D.institusi].filter(Boolean).join(', ')], ['Email', P.email, 'email'],
+    ['SINTA ID', P.sinta_id, 'sinta_id'], ['Scopus Author ID', P.scopus_id, 'scopus_id'], ['ORCID', P.orcid, 'orcid']]
     .filter(([, v]) => String(v ?? '').trim());
-  out.push(tabel([['Isian', 'Keterangan'], ...id.map(([k, v]) => [k, String(v)])]));
+  out.push(tabel([['Isian', 'Keterangan'], ...id.map(([k, v, kunci]) => [k, kunci ? selTautan(urlIsian(kunci, v), String(v).trim()) : String(v)])]));
 
   const rp = [...(P.riwayat_pendidikan || [])].sort((a, b) => URUT_JENJANG.indexOf(a.jenjang) - URUT_JENJANG.indexOf(b.jenjang)
     || String(a.tahun_lulus || '').localeCompare(String(b.tahun_lulus || '')));
@@ -65,11 +81,19 @@ export function isiCV(P, D, o = {}){
     ...rp.map(r => [label(JENJANG, r.jenjang), r.perguruan_tinggi, r.program_studi, r.bidang_ilmu, r.negara, r.tahun_lulus])])
     : teks('Belum diisi di profil.', { after: 120 }));
 
-  const sr = P.sertifikat || [];
+  // Sertifikasi (pemilik 2026-11-24): semua sertifikat di profil, yaitu sertifikat pendidik, SKIP, STRI, dan daftar
+  // kompetensi/profesi/industri, dengan masa berlaku (kedaluwarsa ditandai) dan tautan bukti yang bisa diklik.
+  const berlaku = s => { const b = masaBerlaku(s, o.kini || new Date()); return b ? `${tanggalPanjang(b.sampai)}${b.lewat ? ' (kedaluwarsa)' : ''}` : '—'; };
+  const bukti = u => (String(u || '').trim() ? { xml: tautan(String(u).trim(), 'lihat bukti', { sz: 18 }), teks: 'lihat bukti' } : '—');
+  const sr = [
+    ...(String(P.nomor_serdos || '').trim() ? [['Sertifikat pendidik', 'Dosen profesional', '', String(P.nomor_serdos).trim(), '', '—', '—']] : []),
+    ...(P.skip ? [['Insinyur profesional (SKIP)', label(SKIP, P.skip), '', '', '', '—', '—']] : []),
+    ...(String(P.stri || '').trim() ? [['STRI', 'Surat Tanda Registrasi Insinyur', '', String(P.stri).trim(), '', '—', '—']] : []),
+    ...(P.sertifikat || []).map(s => [label(JENIS_SERTIFIKAT, s.jenis), s.bidang, s.lembaga, s.nomor, s.tahun, berlaku(s), bukti(s.url)]),
+  ];
   if (sr.length) {
     out.push(judul('Sertifikasi', 1));
-    out.push(tabel([['Jenis', 'Bidang', 'Lembaga penerbit', 'Nomor', 'Tahun'],
-      ...sr.map(s => [label(JENIS_SERTIFIKAT, s.jenis), s.bidang, s.lembaga, s.nomor, s.tahun])]));
+    out.push(tabel([['Jenis', 'Bidang', 'Lembaga penerbit', 'Nomor', 'Tahun', 'Berlaku sampai', 'Bukti'], ...sr]));
   }
 
   out.push(judul(`Publikasi (${K.publikasi.length})`, 1));
@@ -79,7 +103,8 @@ export function isiCV(P, D, o = {}){
       .filter(Boolean).join(', ');
     out.push(para(run(`${i + 1}. `) + runPenulis(p.penulis, P) + run(` (${p.tahun}). ${p.judul}. `)
       + run(p.terbitan || '', { i: true }) + run(p.terbitan && p.volume ? `, ${p.volume}` : '', { i: true })
-      + run(p.terbitan && p.nomor ? `(${p.nomor})` : '') + run(p.terbitan && p.halaman ? `, ${p.halaman}` : '') + run(`${p.terbitan ? '. ' : ''}${p.doi ? `https://doi.org/${String(p.doi).replace(/^https?:\/\/(dx\.)?doi\.org\//, '')}. ` : p.url ? `${p.url}. ` : ''}`)
+      + run(p.terbitan && p.nomor ? `(${p.nomor})` : '') + run(p.terbitan && p.halaman ? `, ${p.halaman}` : '') + run(p.terbitan && (p.doi || p.url) ? '. ' : '') + (p.doi ? tautan(urlDoi(p.doi), urlDoi(p.doi)) + run('. ')
+        : p.url ? tautan(p.url, p.url) + run('. ') : run(p.terbitan ? '. ' : ''))
       + run(ket ? `[${ket}]` : '', { sz: 18, warna: '555555' }), { jc: 'left', after: 80 }));
   });
 
@@ -153,7 +178,7 @@ export function isiBiodataHibah(P, D, o = {}){
   out.push(judul('A. Identitas Diri', 1));
   out.push(tabel([['No', 'Isian', 'Keterangan'], ...[
     ['Nama lengkap (dengan gelar)', P.nama || ISI], ['Jenis kelamin', ISI], ['Jabatan fungsional', label(JABATAN, P.jabatan) || ISI],
-    ['NIP/NIK/identitas lainnya', [P.nip && `NIP ${P.nip}`, P.nuptk && `NUPTK ${P.nuptk}`].filter(Boolean).join('; ') || ISI], ['NIDN', P.nidn || ISI], ['Tempat dan tanggal lahir', ISI], ['E-mail', P.email || ISI],
+    ['NIP/NIK/identitas lainnya', [P.nip && `NIP ${P.nip}`, P.nuptk && `NUPTK ${P.nuptk}`].filter(Boolean).join('; ') || ISI], ['NIDN', P.nidn || ISI], ['Tempat dan tanggal lahir', ISI], ['E-mail', P.email ? selTautan(urlIsian('email', P.email), String(P.email).trim()) : ISI],
     ['Nomor telepon/HP', ISI], ['Alamat kantor', kantor ? `${kantor} ${ISI}` : ISI],
     ['Nomor telepon/faks kantor', ISI], ['Lulusan yang telah dihasilkan', `S-1 = ${ISI} orang; S-2 = ${ISI} orang; S-3 = ${ISI} orang`],
     ['Mata kuliah yang diampu', mk.length ? mk.map(m => `${m.nama}${m.sks ? ` (${m.sks} SKS)` : ''}`).join('; ') : ISI],
