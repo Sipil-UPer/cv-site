@@ -12,16 +12,17 @@
         L.4.1 waktu tunggu (kolom yang cocok), A.1 kerja sama;
      3. Excel menghitung ulang rumus saat berkas dibuka.
    E.4.1-E.4.2 (CPL dan matriks MK-CPL, kurikulum terbaru) dan P.1.3-P.1.7 (EWMP, dosen tidak tetap,
-   praktisi, rekognisi, tendik) ditambahkan 2026-11-24; baris yang tidak muat di tabel P.1 dilaporkan.
-   Lembar lain (E.1, E.3, P.1.2, L.1, A.5, R.3, R.6) tinggal
+   praktisi, rekognisi, tendik) ditambahkan 2026-11-24; baris yang tidak muat disisipkan. L.1 (165-patch)
+   dan P.1.2 (167-patch) dari isian Data prodi khusus LAMDEPILAR, 2026-11-24.
+   Lembar lain (E.1, E.3, A.5, R.3, R.6) tinggal
    kosong untuk diisi prodi. R.3/R.6 ditunda sampai pemetaan karya -> program
    diputuskan (pemilik 2026-11-24).
    Kolom yang tidak disimpan situs dibiarkan kosong (tanpa tebakan).
    ===================================================================== */
-import { JSZIP, tulisSel, petaLembar, hitungUlangSaatBuka } from './lkps.js?v=2026-11-24-7448bf';
-import { daftarProdi, STATUS_PS, tglTeks } from './pustaka-dokumen.js?v=2026-11-24-7448bf';
-import { nidnNuptk, masaBerlaku } from './profil-dosen.js?v=2026-11-24-7448bf';
-import { ampuPerTA, dosenTS } from './dosen-hitung.js?v=2026-11-24-7448bf';
+import { JSZIP, tulisSel, petaLembar, hitungUlangSaatBuka } from './lkps.js?v=2026-11-24-5988f3';
+import { daftarProdi, STATUS_PS, tglTeks } from './pustaka-dokumen.js?v=2026-11-24-5988f3';
+import { nidnNuptk, masaBerlaku } from './profil-dosen.js?v=2026-11-24-5988f3';
+import { ampuPerTA, dosenTS } from './dosen-hitung.js?v=2026-11-24-5988f3';
 
 const JABATAN = { tenaga_pengajar: 'Tenaga Pengajar', asisten_ahli: 'Asisten Ahli', lektor: 'Lektor',
   lektor_kepala: 'Lektor Kepala', guru_besar: 'Profesor' };
@@ -232,8 +233,26 @@ export function petaLKPSLamdepilar(C){
     set('P.1', `N${r}`, d.mk_ps_lain);
   });
 
-  // P.1.2 Pembimbing utama tugas akhir: TIDAK diisi. beban_bimbingan() (109-patch) menghitung pembimbing 1
-  // DAN 2, templat meminta pembimbing utama; bimbingan di PS lain tidak disimpan situs (2026-11-24).
+  // P.1.2 Pembimbing utama tugas akhir (Data prodi › Pembimbing utama TA, 167-patch, pemilik 2026-11-24):
+  // dosen dengan bimbingan > 0 pada TS-2 s.d. TS (PS ini atau PS lain), urut nama; tahun tanpa baris = 0.
+  // G/K/L = rumus rata-rata templat, ditulis per baris (templat hanya punya rumus di baris contoh).
+  // Analisis R21/R22/U21/U22 tidak diisi (definisi "jumlah dosen" dan "> 6 mahasiswa" belum diputuskan).
+  const bimb = X.bimbinganUtama || [];
+  const taP12 = [ts - 2, ts - 1, ts].map(t => `${t - 1}/${t}`);
+  const namaNidn = n => ((X.dosen || []).find(d => d.nidn === n) || {}).nama || n;
+  const pembimbing = urutNama([...new Set(bimb.filter(b => taP12.includes(b.tahun_akademik)
+      && (+b.jumlah_ps || 0) + (+b.jumlah_ps_lain || 0) > 0).map(b => b.nidn))].map(n => ({ nidn: n, nama: namaNidn(n) })));
+  muat(pembimbing, 12, 24, 35).forEach(([d, r], i) => {
+    set('P.1', `B${r}`, i + 1); set('P.1', `C${r}`, d.nama);
+    taP12.forEach((ta, j) => {
+      const b = bimb.find(x => x.nidn === d.nidn && x.tahun_akademik === ta);
+      set('P.1', `${'DEF'[j]}${r}`, b ? +b.jumlah_ps || 0 : 0);
+      set('P.1', `${'HIJ'[j]}${r}`, b ? +b.jumlah_ps_lain || 0 : 0);
+    });
+    set('P.1', `G${r}`, { rumus: `AVERAGE(D${r}:F${r})` });
+    set('P.1', `K${r}`, { rumus: `AVERAGE(H${r}:J${r})` });
+    set('P.1', `L${r}`, { rumus: `AVERAGE(D${r}:K${r})` });
+  });
 
   // P.1.3 EWMP (Data prodi › BKD), sama dengan lkps.js 4.c: TS laporan, jumlah kedua semester, V = DTPS;
   // dosen lain tampil bila BKD-nya ada. K = SUM templat. L = rata-rata per semester TS-2 s.d. TS:

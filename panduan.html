@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-24-7448bf">
+<link rel="stylesheet" href="tema.css?v=2026-11-24-5988f3">
 <style>
   /* Panduan pengguna ruang kerja (pemilik 2026-11-04). Bagian admin hanya
      tampil untuk peran admin. Perbarui bila tombol atau halaman berubah. */
@@ -43,7 +43,7 @@
   @media(max-width:640px){nav.isi ol{columns:1}.wrap{padding:18px 16px 60px}}
   @media print{nav.isi{display:none}section{break-inside:avoid}}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-24-7448bf">
+<link rel="stylesheet" href="kepala.css?v=2026-11-24-5988f3">
 </head>
 <body>
 
@@ -272,9 +272,15 @@
         <ul>
           <li>Klik judul butir (mis. <i>B4 Bentuk asesmen dan bobot</i>) untuk membuka bagian RPS yang dinilai; butir bagian yang sedang dibaca
             ditandai garis kuning.</li>
-          <li>Di bawah tiap butir ada <b>pertanyaan pemandu</b> (jawab <i>Ya</i> atau <i>Belum</i>) dan, setelah skor dipilih, <b>arti skor</b>
-            itu (mis. <i>2 = Banyak rumusan kabur atau level tidak tepat</i>). Pertanyaan membantu skor antar-reviewer seragam; skor tetap
-            penilaian Anda. Pertanyaan yang dijawab <i>Belum</i> tampil di hasil review dan minta ditanggapi penyusun.</li>
+          <li>Di bawah tiap butir ada <b>pertanyaan pemandu</b>. Jawab <i>Ya</i>, <i>Belum</i>, atau <i>T/A</i> (tidak berlaku,
+            mis. evaluasi untuk MK yang baru pertama kali diselenggarakan). Dari jawaban itu situs memberi <b>saran skor</b>: semua Ya = 4,
+            satu Belum = 3, lebih dari satu Belum = 2, semua Belum = 1. Setelah skor dipilih tampil <b>arti skor</b> itu
+            (mis. <i>2 = Banyak rumusan kabur atau level tidak tepat</i>). Skor tetap penilaian Anda; saran membantu skor antar-reviewer
+            seragam. Pertanyaan yang dijawab <i>Belum</i> tampil di hasil review dan minta ditanggapi penyusun.</li>
+          <li>Review baru bisa <b>dikirim</b> bila semua pertanyaan pemandu dijawab dan setiap butir diberi skor. Butir berskor 1-2,
+            atau berskor 2 tingkat atau lebih dari saran, wajib diberi catatan: apa yang diubah, di mana, dan contohnya. Situs juga
+            menyarankan kesimpulan dari skor (ada skor 1 atau tiga butir berskor 2 = perlu perbaikan besar; ada skor 2 = perbaikan kecil).
+            Bila Anda memilih kesimpulan yang lebih longgar, jelaskan alasannya di catatan umum.</li>
           <li>Di bawah tiap butir ada <b>ringkasan otomatis</b> (mis. total bobot dan komposisi penilaian, HOTS, jumlah pekan terisi, pustaka
             terbaru). Ringkasan hanya bahan; skor tetap penilaian Anda.</li>
           <li>Beri skor 1-4 dan catatan per butir, catatan umum, dan kesimpulan (Layak disahkan, Layak dengan perbaikan kecil, Perlu perbaikan besar).
@@ -552,7 +558,7 @@
   </div>
 </main>
 
-<script src="config.js?v=2026-11-24-7448bf"></script>
+<script src="config.js?v=2026-11-24-5988f3"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -569,7 +575,7 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-24-7448bf';
+import { gerbang } from './menu.js?v=2026-11-24-5988f3';
 
 // Bagian admin hanya untuk peran admin (isinya bukan rahasia; disembunyikan
 // supaya panduan dosen tetap ringkas).

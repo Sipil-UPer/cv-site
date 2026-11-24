@@ -2,15 +2,15 @@
 // kelengkapan.html mengambil data, modul ini menghitung. Aturan terisi sama
 // dengan halaman sumbernya: kotak narasi seperti narasi-led.html, bukti butir
 // seperti rekap bukti di skor.html.
-import { BUTIR_MANUAL } from './butir-manual.js?v=2026-11-24-7448bf';
-import { UNSUR_BUTIR, pihakUnsur, PIHAK, PJ_UNSUR } from './unsur-butir.js?v=2026-11-24-7448bf';
-import { BUTIR_DATA } from './butir-data.js?v=2026-11-24-7448bf';
-import { faktaNarasi, anggotaTim } from './led-isi.js?v=2026-11-24-7448bf';
-import { pisahKalimat } from './led-narasi.js?v=2026-11-24-7448bf';
-import { masihKerangka } from './led-saran.js?v=2026-11-24-7448bf';
-import { JENIS_DOKUMEN, buktiButir } from './rencana-bukti.js?v=2026-11-24-7448bf';
-import { nilaiCapaian, perluAnalisis } from './capaian-iku.js?v=2026-11-24-7448bf';
-import { LKPS } from './dokumen-instrumen.js?v=2026-11-24-7448bf';
+import { BUTIR_MANUAL } from './butir-manual.js?v=2026-11-24-5988f3';
+import { UNSUR_BUTIR, pihakUnsur, PIHAK, PJ_UNSUR } from './unsur-butir.js?v=2026-11-24-5988f3';
+import { BUTIR_DATA } from './butir-data.js?v=2026-11-24-5988f3';
+import { faktaNarasi, anggotaTim } from './led-isi.js?v=2026-11-24-5988f3';
+import { pisahKalimat } from './led-narasi.js?v=2026-11-24-5988f3';
+import { masihKerangka } from './led-saran.js?v=2026-11-24-5988f3';
+import { JENIS_DOKUMEN, buktiButir } from './rencana-bukti.js?v=2026-11-24-5988f3';
+import { nilaiCapaian, perluAnalisis } from './capaian-iku.js?v=2026-11-24-5988f3';
+import { LKPS } from './dokumen-instrumen.js?v=2026-11-24-5988f3';
 
 // Tab Data prodi: [id tab, tabel, judul, butir, mesin LKPS]; sama dengan TABEL di data-prodi.html.
 // Elemen ke-5 = tab khusus satu mesin LKPS (mesinLkps di data-prodi.html); tanpa = semua instrumen.
@@ -19,6 +19,7 @@ export const TAB_DATA = [
   ['kerjasama', 'lkps_kerjasama', 'Kerja sama', '6–7'], ['dana', 'lkps_penggunaan_dana', 'Penggunaan dana', '8–11'],
   ['mk', 'ref_mata_kuliah', 'Mata kuliah', '15, 17, 19, 20'], ['tema', 'ref_tema_peta_jalan', 'Peta jalan', '22–25'],
   ['peta_dok', 'lkps_peta_jalan', 'Dokumen peta jalan', '22, 24'],
+  ['bimbingan_utama', 'lkps_bimbingan_utama', 'Pembimbing utama TA', '109', 'lkps-lamdepilar.js'],
   ['tendik', 'lkps_tendik', 'Tenaga kependidikan', '29'], ['bkd', 'lkps_bkd', 'Beban kerja dosen', '30'],
   ['prasarana', 'lkps_prasarana', 'Prasarana & alat', '38'], ['dok_k3l', 'lkps_dokumen_k3l', 'Dokumen K3L', '39'],
   ['sarana_std', 'lkps_sarana_standar', 'Sarana menurut standar', '116', 'lkps-lamdepilar.js'],

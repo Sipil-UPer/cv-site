@@ -715,78 +715,126 @@ export const BUTIR_REVIEW = [
   { kode: 'E1', bagian: 'E', ke: '#E', teks: 'Evaluasi penyelenggaraan sebelumnya dan tindak lanjutnya dimuat.' },
 ];
 export const SKALA_REVIEW = [[1, 'Kurang'], [2, 'Cukup'], [3, 'Baik'], [4, 'Sangat baik']];
-// Pertanyaan pemandu dan arti skor per butir (pemilik 2026-11-24: "review RPS dengan pertanyaan yang bagus"; disusun Claude dari
-// teks butir, diperiksa pemilik). Jawaban Ya/Belum disimpan di catatan dengan kunci kunciTanya (mis. '?B2.1' = 'ya' | 'belum'),
-// jadi tidak perlu kolom baru; skor tetap penilaian reviewer. Pertanyaan boleh ditambah di akhir; jangan mengubah urutan yang ada.
+// Pertanyaan pemandu dan arti skor per butir (pemilik 2026-11-24: "review RPS dengan pertanyaan yang bagus"; belum ada panduan
+// review dari prodi/universitas, jadi disusun Claude atas permintaan pemilik). Prinsip: setiap pertanyaan bisa dijawab dari isi RPS
+// ini dan dokumen kurikulum saja, dirumuskan sehingga "Ya" = baik, dan menguji keselarasan CPL - CPMK - Sub-CPMK - pembelajaran -
+// asesmen. Jawaban 'ya' | 'belum' | 'ta' (tidak berlaku) disimpan di catatan dengan kunci kunciTanya (mis. '?B2.1'), jadi tidak
+// perlu kolom baru. Teks boleh dipertajam, tetapi arti pertanyaan ke-n jangan diganti; pertanyaan baru ditambah di akhir.
 export const PEMANDU_REVIEW = {
   A1: { tanya: ['Kode, nama, sks (T/P/PL/S), dan semester sama dengan dokumen kurikulum?',
-                'Jenis MK (wajib/pilihan) dan prasyarat sesuai struktur kurikulum?',
-                'Pengembang RPS, koordinator MK, dan Kaprodi tercantum?'],
+                'Jenis MK (wajib/pilihan) dan MK prasyarat sesuai struktur kurikulum?',
+                'Pengembang RPS, koordinator MK, dosen pengampu, dan Kaprodi tercantum?'],
         arti: ['Banyak identitas salah atau kosong', 'Ada data yang berbeda dari kurikulum', 'Lengkap, ada kekeliruan kecil', 'Lengkap dan sama dengan kurikulum'] },
-  B1: { tanya: ['Semua CPL yang dibebankan memang tercantum untuk MK ini di peta CPL-MK?',
+  B1: { tanya: ['CPL yang dibebankan sama dengan peta CPL-MK kurikulum (tidak ada yang ditambah atau terlewat)?',
                 'Setiap CPL yang dibebankan didukung paling sedikit satu CPMK?',
-                'Jumlah CPL wajar untuk bobot sks MK (tidak dibebani terlalu banyak)?'],
+                'Jumlah CPL sepadan dengan sks, sehingga setiap CPL benar-benar bisa dicapai dan dinilai di MK ini?'],
         arti: ['CPL tidak sesuai peta', 'Sebagian CPL tidak sesuai peta atau tanpa CPMK', 'Sesuai peta, ada CPL yang dukungannya lemah', 'Sesuai peta dan tiap CPL didukung CPMK'] },
-  B2: { tanya: ['Setiap CPMK dan Sub-CPMK memakai kata kerja operasional yang bisa diamati (bukan "memahami" atau "mengetahui")?',
-                'Level taksonomi sesuai semester dan posisi MK (MK lanjut menuntut level lebih tinggi)?',
-                'Setiap Sub-CPMK bisa dinilai dengan asesmen yang direncanakan?',
-                'Rumusan antar-Sub-CPMK tidak tumpang tindih?'],
-        arti: ['Sebagian besar tidak terukur', 'Banyak rumusan kabur atau level tidak tepat', 'Umumnya terukur; satu-dua rumusan perlu dipertajam', 'Semua terukur dan levelnya tepat'] },
+  B2: { tanya: ['Setiap CPMK dan Sub-CPMK memakai kata kerja operasional yang bisa diamati (bukan "memahami", "mengetahui", "mengerti")?',
+                'Setiap rumusan menyebut apa yang dikerjakan mahasiswa beserta objeknya (mis. "menghitung debit banjir rencana dengan metode rasional")?',
+                'Level taksonomi sesuai posisi MK (umumnya MK awal C2-C3; MK lanjut, perancangan, atau tugas besar sampai C4-C6)?',
+                'Sub-CPMK tidak tumpang tindih dan bersama-sama mencakup CPMK induknya?'],
+        arti: ['Sebagian besar tidak terukur', 'Banyak rumusan kabur atau level tidak tepat', 'Umumnya terukur; satu-dua rumusan perlu dipertajam', 'Semua terukur, spesifik, dan levelnya tepat'] },
   B3: { tanya: ['Setiap Sub-CPMK menurun ke satu CPMK, dan setiap CPMK ke CPL yang dibebankan?',
-                'Tidak ada CPL yang dibebankan tanpa jalur CPMK dan Sub-CPMK?',
+                'Tidak ada CPL atau CPMK yang tanpa Sub-CPMK di bawahnya?',
+                'Level Sub-CPMK bertahap menuju level CPMK induknya (CPMK tingkat tinggi tidak hanya didukung Sub-CPMK hafalan)?',
                 'Setiap Sub-CPMK muncul di paling sedikit satu pekan pembelajaran?'],
-        arti: ['Keselarasan tidak tampak', 'Banyak tautan hilang atau tidak logis', 'Logis, ada satu-dua tautan lemah', 'Utuh dan logis dari CPL sampai Sub-CPMK'] },
-  B4: { tanya: ['Setiap Sub-CPMK punya asesmen dan bobot?',
-                'Bobot sebanding dengan pentingnya Sub-CPMK, bukan sekadar pembagian UTS/UAS yang biasa?',
-                'Ada asesmen yang menuntut berpikir tingkat tinggi (analisis, evaluasi, desain, proyek)?',
-                'Komposisi tes dan non-tes sesuai pedoman prodi?'],
-        arti: ['Asesmen tidak terkait Sub-CPMK', 'Sebagian Sub-CPMK tidak dinilai atau bobot tidak wajar', 'Selaras; komposisi perlu sedikit penyesuaian', 'Selaras penuh dan komposisi sesuai pedoman'] },
-  C1: { tanya: ['Deskripsi menggambarkan isi dan capaian MK, bukan sekadar daftar topik?',
+        arti: ['Keselarasan tidak tampak', 'Banyak tautan hilang atau tidak logis', 'Logis, ada satu-dua tautan lemah', 'Utuh dan logis dari CPL sampai pekan'] },
+  B4: { tanya: ['Setiap Sub-CPMK dinilai oleh paling sedikit satu asesmen berbobot?',
+                'Bentuk asesmen cocok dengan kata kerja Sub-CPMK (mis. "merancang" dinilai lewat tugas desain, bukan soal pilihan ganda)?',
+                'Bobot sebanding dengan pentingnya dan beban Sub-CPMK, bukan sekadar UTS dan UAS yang besar?',
+                'Ada asesmen otentik atau berpikir tingkat tinggi (studi kasus, proyek, desain, analisis data nyata)?'],
+        arti: ['Asesmen tidak terkait Sub-CPMK', 'Sebagian Sub-CPMK tidak dinilai atau bentuknya tidak cocok', 'Selaras; bentuk atau bobot perlu sedikit penyesuaian', 'Setiap Sub-CPMK dinilai dengan bentuk dan bobot yang tepat'] },
+  C1: { tanya: ['Deskripsi menyatakan isi, cara belajar, dan capaian MK, bukan sekadar daftar topik?',
                 'Bahan kajian sesuai silabus kurikulum yang disahkan?',
-                'Ada materi yang mengikuti perkembangan keilmuan atau standar teknis terbaru?'],
-        arti: ['Tidak sesuai silabus', 'Sesuai sebagian; deskripsi kurang jelas', 'Sesuai silabus; pemutakhiran terbatas', 'Sesuai silabus dan mutakhir'] },
-  C2: { tanya: ['Pustaka utama bisa diakses mahasiswa (perpustakaan atau daring)?',
-                'Pustaka memakai edisi terbaru atau standar yang masih berlaku?',
-                'Ada artikel jurnal, standar, atau pedoman teknis yang relevan?'],
+                'Ada materi yang mengikuti perkembangan keilmuan atau standar teknis terbaru (mis. SNI atau pedoman kementerian yang berlaku)?',
+                'Tujuan MK sejalan dengan CPMK (tidak menjanjikan kemampuan yang tidak diajarkan atau dinilai)?'],
+        arti: ['Tidak sesuai silabus', 'Sesuai sebagian; deskripsi kurang jelas', 'Sesuai silabus; pemutakhiran terbatas', 'Sesuai silabus, jelas, dan mutakhir'] },
+  C2: { tanya: ['Pustaka utama tersedia bagi mahasiswa (perpustakaan, e-book, atau akses daring)?',
+                'Sebagian besar pustaka terbit dalam 10 tahun terakhir, atau memakai edisi terbaru bila buku klasik?',
+                'Standar dan pedoman yang dirujuk masih berlaku (belum diganti versi baru)?',
+                'Ada artikel jurnal atau prosiding yang relevan?'],
         arti: ['Tidak relevan atau usang', 'Relevan, sebagian besar usang', 'Relevan dan cukup mutakhir', 'Relevan, mutakhir, termasuk jurnal atau standar'] },
   C3: { tanya: ['Bila ada integrasi penelitian/PkM, disebut kegiatannya dan pekan atau asesmen tempat ia dipakai?',
                 'Keterkaitan dengan kompetensi kerja (Direktori Kompetensi) disebut dan cocok dengan isi MK?',
-                'Klaim integrasi didukung judul penelitian/PkM dosen yang nyata?'],
+                'Integrasi menyebut penelitian/PkM dosen yang nyata (judul atau tahun)?'],
         arti: ['Tidak dinyatakan padahal relevan', 'Dinyatakan umum tanpa rincian', 'Terinci, bukti kurang', 'Jelas, terinci, dan berbukti'] },
-  D1: { tanya: ['Urutan materi logis, dari dasar ke lanjut?',
+  D1: { tanya: ['Urutan materi logis, dari dasar ke lanjut, dan materi prasyarat dibahas lebih dulu?',
                 'Setiap pekan menyebut Sub-CPMK yang dituju, dan semua Sub-CPMK tercakup?',
-                'Pekan UTS, UAS, dan tugas besar ditempatkan wajar?'],
+                'Materi tiap pekan cukup untuk mencapai Sub-CPMK pekan itu (tidak terlalu padat atau terlalu tipis)?',
+                'Pekan UTS, UAS, dan tenggat tugas besar ditempatkan wajar?'],
         arti: ['Tidak runtut atau banyak pekan kosong', 'Runtut sebagian; Sub-CPMK tidak tercakup', 'Runtut; satu-dua pekan kurang jelas kaitannya', 'Runtut dan setiap pekan jelas kaitannya'] },
   D2: { tanya: ['Indikator tiap pekan menyatakan kemampuan yang bisa diamati?',
                 'Kriteria dan bentuk penilaian disebut dan cocok dengan indikatornya?',
                 'Bobot per pekan tercatat dan jumlahnya sama dengan bobot asesmen?'],
         arti: ['Indikator tidak ada atau tidak terukur', 'Sebagian pekan tanpa indikator terukur', 'Terukur; kriteria perlu dipertajam', 'Terukur, kriteria dan bobot konsisten'] },
-  D3: { tanya: ['Metode melibatkan mahasiswa aktif (diskusi, studi kasus, PBL/PjBL), tidak hanya ceramah?',
-                'Metode cocok dengan level Sub-CPMK (misalnya kemampuan desain dilatih lewat proyek)?',
-                'Bentuk pembelajaran (luring, daring, lapangan) dan penugasannya dijelaskan?'],
+  D3: { tanya: ['Metode melibatkan mahasiswa aktif (diskusi, studi kasus, PBL/PjBL, praktikum), tidak hanya ceramah?',
+                'Metode cocok dengan level Sub-CPMK (mis. kemampuan desain dilatih lewat proyek, perhitungan lewat latihan terbimbing)?',
+                'Pengalaman belajar mahasiswa di kelas dan di luar kelas dijelaskan, bukan hanya nama metodenya?'],
         arti: ['Hampir seluruhnya ceramah', 'SCL sebagian kecil atau tidak sesuai capaian', 'SCL dominan; beberapa pekan kurang cocok', 'SCL sesuai capaian di seluruh pekan'] },
-  D4: { tanya: ['Waktu tatap muka, penugasan terstruktur, dan belajar mandiri sesuai sks (lihat rekap beban di bagian D)?',
+  D4: { tanya: ['Waktu tatap muka, penugasan terstruktur, dan belajar mandiri sesuai sks (lihat rekap beban di Lampiran)?',
                 'Praktikum atau praktik lapangan dihitung sesuai jenis sks-nya?',
-                'Beban tugas wajar dibanding MK lain di semester yang sama?'],
+                'Tugas yang diberikan bisa diselesaikan dalam waktu penugasan dan belajar mandiri yang direncanakan?'],
         arti: ['Jauh dari ketentuan sks', 'Selisih cukup besar dari ketentuan', 'Mendekati ketentuan; sedikit selisih', 'Sesuai ketentuan sks'] },
-  D5: { tanya: ['Setiap tugas, proyek, atau presentasi punya rubrik dengan kriteria dan tingkatan?',
+  D5: { tanya: ['Setiap tugas, proyek, atau presentasi punya rubrik dengan kriteria dan tingkatan capaian?',
                 'Kriteria rubrik merujuk Sub-CPMK yang dinilai?',
+                'Deskripsi tiap tingkatan cukup jelas sehingga dua penilai akan memberi nilai yang sama?',
                 'Tes tertulis punya kunci jawaban atau pedoman penskoran?'],
         arti: ['Tidak ada rubrik atau kunci', 'Ada untuk sebagian asesmen', 'Ada untuk semua; sebagian kurang rinci', 'Lengkap, rinci, dan merujuk Sub-CPMK'] },
-  E1: { tanya: ['Hasil evaluasi penyelenggaraan sebelumnya (EDOM, ketercapaian CPMK) dicantumkan?',
-                'Ada tindak lanjut konkret yang tampak di RPS ini?',
-                'Untuk MK yang baru pertama kali diselenggarakan, hal itu dinyatakan?'],
+  E1: { tanya: ['Hasil evaluasi penyelenggaraan sebelumnya dicantumkan (EDOM, ketercapaian CPMK, sebaran nilai)?',
+                'Masalah utama dari evaluasi itu disebut dengan jelas?',
+                'Tindak lanjutnya tampak di RPS ini (materi, metode, atau asesmen yang diubah)?'],
         arti: ['Tidak dimuat', 'Dimuat tanpa tindak lanjut', 'Dimuat dengan tindak lanjut umum', 'Dimuat dengan tindak lanjut yang tampak di RPS'] },
 };
+// Pilihan jawaban pemandu; 'ta' (tidak berlaku) mis. E1 untuk MK yang baru pertama kali diselenggarakan, C3 bila tidak ada integrasi.
+export const JAWAB_PEMANDU = [['ya', 'Ya'], ['belum', 'Belum'], ['ta', 'T/A']];
 /** Kunci catatan untuk jawaban pertanyaan pemandu ke-i (0-based) butir kode, mis. '?B2.1'. */
 export const kunciTanya = (kode, i) => `?${kode}.${i + 1}`;
-/** Jawaban pemandu butir: [{tanya, jawab: 'ya'|'belum'|''}]. */
+/** Jawaban pemandu butir: [{tanya, jawab: 'ya'|'belum'|'ta'|''}]. */
 export const jawabanPemandu = (catatan, kode) => (PEMANDU_REVIEW[kode]?.tanya || [])
   .map((tanya, i) => ({ tanya, jawab: String(catatan?.[kunciTanya(kode, i)] || '') }));
-/** Ringkas jawaban pemandu: {ya, belum, n} (n = jumlah pertanyaan). */
+/** Ringkas jawaban pemandu: {ya, belum, ta, n, kosong} (n = pertanyaan yang berlaku, yaitu semua kecuali T/A). */
 export function ringkasPemandu(catatan, kode){
-  const j = jawabanPemandu(catatan, kode);
-  return { ya: j.filter(x => x.jawab === 'ya').length, belum: j.filter(x => x.jawab === 'belum').length, n: j.length };
+  const j = jawabanPemandu(catatan, kode), h = w => j.filter(x => x.jawab === w).length;
+  return { ya: h('ya'), belum: h('belum'), ta: h('ta'), n: j.length - h('ta'), kosong: h('') };
+}
+/**
+ * Saran skor dari jawaban pemandu (Claude 2026-11-24, atas permintaan pemilik): semua Ya = 4, satu Belum = 3, Belum lebih dari satu
+ * tetapi masih ada Ya = 2, semua Belum = 1. null bila belum semua dijawab atau semuanya T/A. Saran saja; skor tetap pilihan reviewer.
+ */
+export function saranSkor(catatan, kode){
+  const r = ringkasPemandu(catatan, kode);
+  if (r.kosong || !r.n) return null;
+  return !r.belum ? 4 : r.belum === 1 && r.ya ? 3 : r.ya ? 2 : 1;
+}
+const URUT_KES = { layak: 0, perbaikan_kecil: 1, perbaikan_besar: 2 };
+/** Saran kesimpulan dari skor: ada skor 1 atau tiga butir lebih bernilai 2 = perbaikan besar; ada skor 2 = perbaikan kecil; lainnya layak. */
+export function saranKesimpulan(skor){
+  const v = Object.values(skor || {}).map(Number).filter(n => n >= 1 && n <= 4);
+  if (!v.length) return null;
+  return v.includes(1) || v.filter(n => n === 2).length >= 3 ? 'perbaikan_besar' : v.includes(2) ? 'perbaikan_kecil' : 'layak';
+}
+/**
+ * Syarat kirim review supaya penyusun mendapat masukan yang bisa dikerjakan. Hasil: daftar pesan (kosong = boleh kirim).
+ * - semua butir diberi skor dan semua pertanyaan pemandu dijawab;
+ * - skor 1-2, atau skor yang berbeda 2 tingkat atau lebih dari saran pemandu, wajib diberi catatan butir;
+ * - kesimpulan dipilih; kesimpulan yang lebih longgar daripada saran wajib dijelaskan di catatan umum.
+ */
+export function periksaKirimReview({ skor = {}, catatan = {}, kesimpulan = '', umum = '' } = {}){
+  const m = [], ada = k => String(catatan?.[k] || '').trim();
+  const kosong = butirKosongReview(skor);
+  if (kosong.length) m.push(`Beri skor semua butir; belum: ${kosong.join(', ')}.`);
+  const tanya = BUTIR_REVIEW.filter(b => ringkasPemandu(catatan, b.kode).kosong).map(b => b.kode);
+  if (tanya.length) m.push(`Jawab semua pertanyaan pemandu (Ya, Belum, atau T/A); belum: ${tanya.join(', ')}.`);
+  const rendah = BUTIR_REVIEW.filter(b => +skor[b.kode] >= 1 && +skor[b.kode] <= 2 && !ada(b.kode)).map(b => b.kode);
+  if (rendah.length) m.push(`Tulis catatan perbaikan untuk butir berskor 1-2: ${rendah.join(', ')}.`);
+  const jauh = BUTIR_REVIEW.filter(b => { const s = saranSkor(catatan, b.kode);
+    return s && +skor[b.kode] >= 1 && Math.abs(+skor[b.kode] - s) >= 2 && !ada(b.kode) && !rendah.includes(b.kode); }).map(b => b.kode);
+  if (jauh.length) m.push(`Skor jauh dari saran pertanyaan pemandu; jelaskan alasannya di catatan butir: ${jauh.join(', ')}.`);
+  if (!kesimpulan) m.push('Pilih kesimpulan.');
+  const s = saranKesimpulan(skor);
+  if (kesimpulan && s && URUT_KES[kesimpulan] < URUT_KES[s] && !String(umum || '').trim())
+    m.push('Kesimpulan lebih longgar daripada saran dari skor; jelaskan alasannya di catatan umum.');
+  return m;
 }
 export const KESIMPULAN_REVIEW = [['layak', 'Layak disahkan'], ['perbaikan_kecil', 'Layak dengan perbaikan kecil'], ['perbaikan_besar', 'Perlu perbaikan besar']];
 /** Rerata skor (1-4) butir yang diisi, dua desimal; null bila belum ada. */

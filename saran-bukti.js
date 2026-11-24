@@ -30,6 +30,8 @@ export const SARAN_BUKTI = {
     U('Statuta, renstra, kurikulum, dan dokumen lain yang dirujuk banyak butir')],
     catatan: 'Isi dulu tab ini: dokumen di sini bisa ditautkan dari tab lain tanpa unggah ulang. Jenis bertanda (privat) tidak '
       + 'punya tautan publik; asesor membukanya dengan kata sandi.' },
+  // LKPS LAMDEPILAR P.1.2 (167-patch): pembimbing utama TA.
+  bimbingan_utama: { tabel: 'P.1.2', isi: [U('SK pembimbing tugas akhir tiap tahun akademik'), U('Rekap bimbingan dari sistem akademik')] },
   bkd: { tabel: '4.c', isi: [R('PDF Laporan Kinerja Dosen (LKD) SISTER tiap semester')],
     catatan: 'Berkas LKD privat, karena memuat data pribadi. Salin angka dari bagian C: SKS BKD dan SKS Lebih.' },
   tendik: { tabel: '4.b', isi: [R('Ijazah'), R('Sertifikat kompetensi'), U('Foto profil (jenis "Foto profil"; tampil di situs bila boleh tampil)')] },
