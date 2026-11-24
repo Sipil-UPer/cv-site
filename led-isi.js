@@ -9,11 +9,11 @@
    Tautan di dalam teks memakai token ⟦url|label⟧; auto() di led.js
    mengubahnya menjadi hyperlink Word.
    ===================================================================== */
-import { versiUntukTS } from './pustaka-dokumen.js?v=2026-11-24-0aaa65';
-import { infoJenis, JENIS_DOKUMEN, kelompokDokumen, buktiButir, saranDokumen } from './rencana-bukti.js?v=2026-11-24-0aaa65';
-import { teksPendidikan, nidnNuptk } from './profil-dosen.js?v=2026-11-24-0aaa65';
-import { karya4i } from './sitasi.js?v=2026-11-24-0aaa65';
-import { ampuPerTA, dosenTS } from './dosen-hitung.js?v=2026-11-24-0aaa65';
+import { versiUntukTS } from './pustaka-dokumen.js?v=2026-11-24-7448bf';
+import { infoJenis, JENIS_DOKUMEN, kelompokDokumen, buktiButir, saranDokumen } from './rencana-bukti.js?v=2026-11-24-7448bf';
+import { teksPendidikan, nidnNuptk } from './profil-dosen.js?v=2026-11-24-7448bf';
+import { karya4i } from './sitasi.js?v=2026-11-24-7448bf';
+import { ampuPerTA, dosenTS } from './dosen-hitung.js?v=2026-11-24-7448bf';
 
 export const tokenTautan = (url, label) => `⟦${url}|${String(label).replace(/[⟦⟧|]/g, ' ')}⟧`;
 const isi = t => `[isi: ${t}]`;
@@ -23,7 +23,10 @@ const JABATAN = { tenaga_pengajar: 'Tenaga Pengajar', asisten_ahli: 'Asisten Ahl
                   lektor_kepala: 'Lektor Kepala', guru_besar: 'Guru Besar' };
 const TINGKAT = { internasional: 'Internasional', nasional: 'Nasional', wilayah: 'Wilayah', lokal: 'Lokal' };
 const JENIS_KS = { pendidikan: 'Pendidikan', penelitian: 'Penelitian', pkm: 'PkM' };
-const TENDIK = { laboran: 'laboran', teknisi: 'teknisi', administrator: 'tenaga administrasi', pustakawan: 'pustakawan' };
+// Kunci = lkps_tendik.jabatan (164). Magang tidak dihitung di LKPS 4.b/LED (pemilik 2026-11-22).
+const TENDIK = { admin_prodi: 'admin prodi', laboran: 'laboran', asisten_lab: 'asisten laboratorium', teknisi: 'teknisi',
+  administrator_sistem: 'administrator sistem', lainnya: 'tenaga kependidikan lain' };
+const tendikLkps = X => (X.tendik || []).filter(t => t.aktif !== false && t.status_kerja !== 'magang');
 const TAHAP = { penetapan: 'Penetapan', pelaksanaan: 'Pelaksanaan', evaluasi: 'Evaluasi',
                 pengendalian: 'Pengendalian', peningkatan: 'Peningkatan' };
 
@@ -103,7 +106,7 @@ export function faktaNarasi(C){
   const namaMK = kode => (mk.find(m => m.kode === kode) || {}).nama || kode;
   const integrasi = (X.karya || []).filter(k => k.kategori === 'integrasi' && dalam(k));
   const mkIntegrasi = [...new Set(integrasi.map(k => k.mata_kuliah).filter(Boolean))];
-  const tendik = (X.tendik || []).filter(t => t.aktif !== false);
+  const tendik = tendikLkps(X);
   const perJabatan = Object.entries(TENDIK).map(([k, n]) => [tendik.filter(t => t.jabatan === k).length, n]).filter(([c]) => c);
   const tracer = (X.tracer || []).filter(t => t.tahun_lulus >= ts - 2 && t.tahun_lulus <= ts - 1);
   const lulusan = tracer.reduce((a, t) => a + (+t.jumlah_lulusan || 0), 0);
@@ -148,7 +151,7 @@ export function faktaNarasi(C){
     capstone: ada(gabungKata(capstone.map(m => `${m.nama} (${m.sks} SKS)`)), 'nama mata kuliah dan SKS'),
     capstonePendukung: ada(gabungKata([...new Set(capstone.flatMap(m => m.capstone_pendukung || []))].map(namaMK)), 'daftar mata kuliah'),
     tema: jenis => ada(gabungKata(tema(jenis)), 'tema utama'),
-    tendik: ada(gabungKata(perJabatan.map(([c, n]) => `${c} ${n}`)), 'jumlah laboran, teknisi, dan administrator'),
+    tendik: ada(gabungKata(perJabatan.map(([c, n]) => `${c} ${n}`)), 'jumlah admin prodi, laboran, asisten laboratorium, dan teknisi'),
     ruang: ada(gabungKata(ruang.slice(0, 8)), 'ruang kelas, laboratorium sesuai panduan asosiasi, perpustakaan, media pembelajaran, perangkat lunak'),
     saranaK3L: ada(gabungKata(sarana.slice(0, 8)), 'APAR, jalur evakuasi, P3K, APD laboratorium'),
     pantauPembelajaran: ev.length
@@ -287,7 +290,7 @@ export function tabelPenjelas(no, C){
         .sort((a, b) => String(a.nama).localeCompare(String(b.nama)))
         .map(d => [d.nama, ...['sarjana', 'magister', 'doktor'].map(k => teksPendidikan(d.riwayat_pendidikan, k) || '—')]), 'pada Tabel 4.a LKPS', 80);
     case '29': return buat('Daftar tenaga kependidikan', ['No', 'Nama', 'Jabatan', 'Pendidikan', 'Sertifikat', 'Unit kerja'],
-      (X.tendik || []).filter(t => t.aktif !== false).map(t => [t.nama, TENDIK[t.jabatan] || t.jabatan || '—',
+      tendikLkps(X).map(t => [t.nama, TENDIK[t.jabatan] || t.jabatan || '—',
         String(t.pendidikan || '—').toUpperCase(), t.sertifikat || '—', String(t.unit_kerja || '—').toUpperCase()]), 'pada Tabel 4.b LKPS');
     case '36': return buat('Karya ilmiah DTPS yang disitasi', ['No', 'Judul', 'Tahun', 'Sitasi 3 tahun terakhir'],
       karya4i(X.karya, ts).map(({ k, n }) => [k.judul, String(k.tahun), String(n)]), 'pada Tabel 4.i LKPS');

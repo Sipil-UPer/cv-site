@@ -1,8 +1,8 @@
 // Berkas review sejawat RPS (Word), bukti tinjauan sejawat untuk akreditasi (119, pemilik 2026-11-19): identitas MK, lalu tiap
 // review terkirim: skor per butir, catatan reviewer, tanggapan penyusun, catatan/tanggapan umum, rerata, kesimpulan, waktu
 // yang dicatat sistem. Tanpa DOM: modelBerkasReview -> dokumenReview (XML) -> buatReviewDocx (JSZip). A4 tegak.
-import { tabelK, sel, tanggalPanjang, rn, pg } from './rps-docx.js?v=2026-11-24-0aaa65';
-import { BUTIR_REVIEW, SKALA_REVIEW, KESIMPULAN_REVIEW, STATUS_TANGGAPAN, rerataReview, sudahDitanggapi } from './rps.js?v=2026-11-24-0aaa65';
+import { tabelK, sel, tanggalPanjang, rn, pg } from './rps-docx.js?v=2026-11-24-7448bf';
+import { BUTIR_REVIEW, SKALA_REVIEW, KESIMPULAN_REVIEW, STATUS_TANGGAPAN, rerataReview, sudahDitanggapi, jawabanPemandu, ringkasPemandu } from './rps.js?v=2026-11-24-7448bf';
 
 const teks = v => String(v ?? '').trim();
 const tgl = v => tanggalPanjang(teks(v).slice(0, 10));
@@ -26,7 +26,9 @@ export function modelBerkasReview({ mk = {}, rps = null, review = [], prodi = ''
       sama: !!v.sama, kesimpulan: LABEL(KESIMPULAN_REVIEW, v.kesimpulan), rerata: koma(rerataReview(v.skor)),
       baris: BUTIR_REVIEW.map(b => { const t = v.tanggapan?.[b.kode];
         return { kode: b.kode, teks: b.teks, skor: v.skor?.[b.kode] ? `${v.skor[b.kode]} (${LABEL(SKALA_REVIEW, v.skor[b.kode])})` : '—',
-          catatan: teks(v.catatan?.[b.kode]), tanggapan: t ? `${LABEL(STATUS_TANGGAPAN, t.status)}${teks(t.teks) ? `: ${teks(t.teks)}` : ''}` : '' }; }),
+          // Pertanyaan pemandu (pemilik 2026-11-24): ringkasan Ya dan pertanyaan yang dijawab Belum.
+          catatan: [teks(v.catatan?.[b.kode]), ...((p => p.ya + p.belum ? [`Pemandu ${p.ya}/${p.n} Ya`] : [])(ringkasPemandu(v.catatan, b.kode))),
+            ...jawabanPemandu(v.catatan, b.kode).filter(x => x.jawab === 'belum').map(x => `Belum: ${x.tanya}`)].filter(Boolean).join('; '), tanggapan: t ? `${LABEL(STATUS_TANGGAPAN, t.status)}${teks(t.teks) ? `: ${teks(t.teks)}` : ''}` : '' }; }),
       umum: teks(v.umum), tanggapanUmum: teks(v.tanggapan_umum),
       tanggapan: v.tanggapan_pada ? `${teks(v.tanggapan_oleh) || 'penyusun'}, ${tgl(v.tanggapan_pada)}${sudahDitanggapi(v) ? '' : ' (sebelum kiriman review terakhir)'}` : 'belum ditanggapi',
     })),

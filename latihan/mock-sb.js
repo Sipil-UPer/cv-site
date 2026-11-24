@@ -1091,6 +1091,12 @@ export function createClient(){
           const x = g.get(k); x.n++; x.dana_usulan += +h.dana_usulan || 0; x.dana_disetujui += +h.dana_disetujui || 0; }
         return Promise.resolve({ data: [...g.values()], error: null }); }
       // Rapat (62-patch-rapat.sql), tiruan sederhana.
+      // 166: isi notulen (pembahasan) hanya bila final atau saya pembuat/admin/pimpinan/peserta/PJ.
+      if (nama === 'rapat_isi') { const r = (DB.rapat || []).find(x => x.id === a.p_id), d = (DB.dosen || []).find(x => x.email === email());
+        const boleh = !!r && !!d && (r.status === 'final' && !r.terbatas || r.dibuat_oleh === d.id || ['admin', 'pimpinan'].includes(d.peran)
+          || (DB.rapat_peserta || []).some(p => p.rapat_id === r.id && p.dosen_id === d.id)
+          || (DB.rapat_tindak || []).some(t => t.rapat_id === r.id && t.pj_dosen_id === d.id));
+        return Promise.resolve({ data: { boleh, pembahasan: boleh ? r.pembahasan ?? null : null }, error: null }); }
       if (nama === 'perbarui_tindak_lanjut') { const t = (DB.rapat_tindak || []).find(x => x.id === a.p_id);
         if (t) { t.status = a.p_status; if (a.p_catatan) t.catatan = a.p_catatan; t.tanggal_selesai = a.p_status === 'selesai' ? new Date().toISOString().slice(0, 10) : null; simpan(); }
         return Promise.resolve({ data: null, error: t ? null : { message: 'Tindak lanjut tidak ditemukan.' } }); }

@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-24-0aaa65">
+<link rel="stylesheet" href="tema.css?v=2026-11-24-7448bf">
 <style>
   /* Panduan pengguna ruang kerja (pemilik 2026-11-04). Bagian admin hanya
      tampil untuk peran admin. Perbarui bila tombol atau halaman berubah. */
@@ -43,7 +43,7 @@
   @media(max-width:640px){nav.isi ol{columns:1}.wrap{padding:18px 16px 60px}}
   @media print{nav.isi{display:none}section{break-inside:avoid}}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-24-0aaa65">
+<link rel="stylesheet" href="kepala.css?v=2026-11-24-7448bf">
 </head>
 <body>
 
@@ -88,6 +88,10 @@
       <li>Buka email, klik tautannya. Tidak ada kata sandi.</li>
       <li>Di atas Ruang kerja tampil <b>Tugas saya</b>: hal yang menunggu tindakan Anda, yang lewat tenggat paling atas. Isinya: isian profil yang kosong, draf karya yang belum diajukan, karya atau BKD yang dikembalikan admin, karya terverifikasi tanpa bukti, tindak lanjut rapat dengan Anda sebagai PJ, tenggat hibah tim Anda, temuan AMI dengan Anda sebagai PJ, dan kelas yang berkas nilai CPL-nya belum diunggah. Klik judulnya untuk langsung ke halaman yang tepat. Tugas hilang sendiri setelah dikerjakan.</li>
       <li><b>Kotak cari</b> di menu atas (tekan <kbd>/</kbd> dari mana saja): ketik nama halaman atau istilah sehari-hari (mis. <i>notulen</i>, <i>BKD</i>, <i>tracer</i>), nomor atau judul butir akreditasi (mis. <i>23</i>), nama dosen, judul karya atau DOI, mitra, dokumen, rapat, dan temuan AMI. Panah atas/bawah memilih, Enter membuka. Beranda umum punya kotak cari serupa untuk data publik.</li>
+      <li data-fitur="rapat"><b>Kegiatan ▾ › Rapat dan notulen</b>: semua dosen membaca notulen rapat yang sudah <b>final</b>; notulen
+        <b>draf</b> hanya terbaca peserta, pencatat, PJ tindak lanjut, admin, dan pimpinan (dosen lain melihat jadwal dan agendanya saja).
+        Centang <b>Rapat saya</b> untuk menampilkan rapat yang Anda ikuti. Bila notulen bertanda tangan sudah diunggah admin, tombol
+        <b>Buka notulen resmi</b> membukanya. Rapat bertanda <i>terbatas</i> hanya untuk peserta, admin, dan pimpinan.</li>
       <li data-fitur="kalender"><b>Kegiatan ▾ › Kalender kegiatan</b> menampilkan rapat, kegiatan prodi (diisi admin), tenggat panggilan hibah, dan tenggat milik Anda (tindak lanjut rapat, hibah tim, temuan AMI) per bulan atau sebagai daftar 90 hari. <b>Unduh .ics</b> lalu impor ke Google Calendar (Setelan › Impor &amp; ekspor); berkas ini tidak tersinkron otomatis, jadi unduh dan impor lagi bila ada perubahan.
         <b>Data saya ▾ › Kalender saya</b> hanya berisi yang menyangkut Anda: jadwal mengajar, rapat yang mencentang Anda sebagai peserta,
         kegiatan prodi untuk semua dosen dan agenda yang ditugaskan kepada Anda (admin mencentang dosen di <b>Ditugaskan ke</b> saat
@@ -184,6 +188,12 @@
       jadi RPS dan capaian CPL selalu memakai bobot yang sama.</p>
     <p><b>Sekali saja:</b> isi <b>Nama dengan gelar</b> di <a href="profil.html">Profil saya</a> (dipakai di lembar pengesahan).
       NIP diisi admin di Kelola dosen; minta bila belum ada.</p>
+    <p><b>Bergerak di halaman RPS:</b> kartu atas tetap terlihat saat menggulir, berisi <b>Simpan</b> (atau tekan <kbd>Ctrl</kbd>+<kbd>S</kbd>)
+      dan tombol bagian <b>A · B · Peta · C · D · Rubrik · E · Lampiran</b>; angka merah = butir daftar periksa yang masih perlu dilengkapi
+      di bagian itu, dan tombol bagian yang sedang dibaca menyala. Di bagian D, klik judul pekan untuk membuka atau menutupnya
+      (judul memuat Sub-CPMK, awal materi, dan tanda <i>belum lengkap</i>); pekan yang sudah lengkap tertutup sendiri, dan tombol
+      <b>Buka semua pekan</b>/<b>Tutup semua</b> ada di atas daftar pekan. Status pengesahan, review sejawat, dan unggah bukti ada di kartu
+      tepat di bawah kartu atas.</p>
     <ol>
       <li><b>Isi CPMK dulu</b> di <b>Pengajaran ▾ › CPMK dan penilaian</b>, pilih mata kuliah:
         <ul>
@@ -262,6 +272,9 @@
         <ul>
           <li>Klik judul butir (mis. <i>B4 Bentuk asesmen dan bobot</i>) untuk membuka bagian RPS yang dinilai; butir bagian yang sedang dibaca
             ditandai garis kuning.</li>
+          <li>Di bawah tiap butir ada <b>pertanyaan pemandu</b> (jawab <i>Ya</i> atau <i>Belum</i>) dan, setelah skor dipilih, <b>arti skor</b>
+            itu (mis. <i>2 = Banyak rumusan kabur atau level tidak tepat</i>). Pertanyaan membantu skor antar-reviewer seragam; skor tetap
+            penilaian Anda. Pertanyaan yang dijawab <i>Belum</i> tampil di hasil review dan minta ditanggapi penyusun.</li>
           <li>Di bawah tiap butir ada <b>ringkasan otomatis</b> (mis. total bobot dan komposisi penilaian, HOTS, jumlah pekan terisi, pustaka
             terbaru). Ringkasan hanya bahan; skor tetap penilaian Anda.</li>
           <li>Beri skor 1-4 dan catatan per butir, catatan umum, dan kesimpulan (Layak disahkan, Layak dengan perbaikan kecil, Perlu perbaikan besar).
@@ -457,7 +470,7 @@
       <tr><td>VMTS</td><td>1–3</td><td>satu baris per jenis: VMTS perguruan tinggi, VMTS UPPS, visi keilmuan prodi (LKPS Tabel 1); SK penetapan diunggah sebagai bukti baris</td></tr>
       <tr><td>Prodi di UPPS</td><td>PS, 6.a</td><td>satu program studi di UPPS (termasuk prodi ini): status akreditasi, SK, kedaluwarsa, jumlah mahasiswa aktif TS-2 s.d. TS</td></tr>
       <tr><td>Penggunaan dana</td><td>8–11</td><td>satu tahun akademik per jenis penggunaan (LKPS 2.b), rupiah untuk UPPS dan untuk prodi</td></tr>
-      <tr><td>Tenaga kependidikan</td><td>29</td><td>satu laboran/teknisi/administrator sistem (LKPS 4.b): pendidikan terakhir, sertifikat kompetensi, unit kerja</td></tr>
+      <tr><td>Tenaga kependidikan</td><td>29</td><td>satu admin prodi, laboran, asisten laboratorium, teknisi, atau administrator sistem: peran, status (tetap, kontrak, magang), laboratorium tempat bertugas, pendidikan terakhir, sertifikat kompetensi, unit kerja (LKPS 4.b; yang magang tidak masuk 4.b). Situs publik (Profil prodi, Laboratorium) hanya menampilkan yang aktif dan dicentang <b>Boleh tampil di situs</b> setelah yang bersangkutan setuju: nama, peran, laboratorium, dan foto (bukti baris berjenis <b>Foto profil</b>).</td></tr>
       <tr><td>Prasarana &amp; alat</td><td>38</td><td>satu alat/sarana utama pada satu ruang atau laboratorium (LKPS 5.a): jumlah standar dan dimiliki, kepemilikan, kondisi</td></tr>
       <tr><td>Dokumen K3L, Fasilitas K3L</td><td>39</td><td>satu dokumen K3L (5.b) atau satu fasilitas K3L (5.c); dokumen diunggah sebagai bukti baris</td></tr>
       <tr><td>SPMI (PPEPP)</td><td>53–57</td><td>satu tahap PPEPP (LKPS 7.b): dokumen, laporan audit, laporan RTM, dokumen peningkatan, semuanya dipilih dari tab Dokumen. Tabel 7.a diambil dari tab Dokumen (kebijakan, manual, standar, tata cara pendokumentasian SPMI) beserta nomor dan tanggalnya</td></tr>
@@ -539,7 +552,7 @@
   </div>
 </main>
 
-<script src="config.js?v=2026-11-24-0aaa65"></script>
+<script src="config.js?v=2026-11-24-7448bf"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -556,7 +569,7 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-24-0aaa65';
+import { gerbang } from './menu.js?v=2026-11-24-7448bf';
 
 // Bagian admin hanya untuk peran admin (isinya bukan rahasia; disembunyikan
 // supaya panduan dosen tetap ringkas).

@@ -2,16 +2,18 @@
 // kelengkapan.html mengambil data, modul ini menghitung. Aturan terisi sama
 // dengan halaman sumbernya: kotak narasi seperti narasi-led.html, bukti butir
 // seperti rekap bukti di skor.html.
-import { BUTIR_MANUAL } from './butir-manual.js?v=2026-11-24-0aaa65';
-import { UNSUR_BUTIR, pihakUnsur, PIHAK, PJ_UNSUR } from './unsur-butir.js?v=2026-11-24-0aaa65';
-import { BUTIR_DATA } from './butir-data.js?v=2026-11-24-0aaa65';
-import { faktaNarasi, anggotaTim } from './led-isi.js?v=2026-11-24-0aaa65';
-import { pisahKalimat } from './led-narasi.js?v=2026-11-24-0aaa65';
-import { masihKerangka } from './led-saran.js?v=2026-11-24-0aaa65';
-import { JENIS_DOKUMEN, buktiButir } from './rencana-bukti.js?v=2026-11-24-0aaa65';
-import { nilaiCapaian, perluAnalisis } from './capaian-iku.js?v=2026-11-24-0aaa65';
+import { BUTIR_MANUAL } from './butir-manual.js?v=2026-11-24-7448bf';
+import { UNSUR_BUTIR, pihakUnsur, PIHAK, PJ_UNSUR } from './unsur-butir.js?v=2026-11-24-7448bf';
+import { BUTIR_DATA } from './butir-data.js?v=2026-11-24-7448bf';
+import { faktaNarasi, anggotaTim } from './led-isi.js?v=2026-11-24-7448bf';
+import { pisahKalimat } from './led-narasi.js?v=2026-11-24-7448bf';
+import { masihKerangka } from './led-saran.js?v=2026-11-24-7448bf';
+import { JENIS_DOKUMEN, buktiButir } from './rencana-bukti.js?v=2026-11-24-7448bf';
+import { nilaiCapaian, perluAnalisis } from './capaian-iku.js?v=2026-11-24-7448bf';
+import { LKPS } from './dokumen-instrumen.js?v=2026-11-24-7448bf';
 
-// Tab Data prodi: [id tab, tabel, judul, butir]; sama dengan TABEL di data-prodi.html.
+// Tab Data prodi: [id tab, tabel, judul, butir, mesin LKPS]; sama dengan TABEL di data-prodi.html.
+// Elemen ke-5 = tab khusus satu mesin LKPS (mesinLkps di data-prodi.html); tanpa = semua instrumen.
 export const TAB_DATA = [
   ['prodi_upps', 'lkps_prodi_upps', 'Prodi di UPPS', 'PS, 6.a'], ['vmts', 'lkps_vmts', 'VMTS', '1–3'],
   ['kerjasama', 'lkps_kerjasama', 'Kerja sama', '6–7'], ['dana', 'lkps_penggunaan_dana', 'Penggunaan dana', '8–11'],
@@ -19,6 +21,7 @@ export const TAB_DATA = [
   ['peta_dok', 'lkps_peta_jalan', 'Dokumen peta jalan', '22, 24'],
   ['tendik', 'lkps_tendik', 'Tenaga kependidikan', '29'], ['bkd', 'lkps_bkd', 'Beban kerja dosen', '30'],
   ['prasarana', 'lkps_prasarana', 'Prasarana & alat', '38'], ['dok_k3l', 'lkps_dokumen_k3l', 'Dokumen K3L', '39'],
+  ['sarana_std', 'lkps_sarana_standar', 'Sarana menurut standar', '116', 'lkps-lamdepilar.js'],
   ['fas_k3l', 'lkps_fasilitas_k3l', 'Fasilitas K3L', '39'], ['mahasiswa', 'lkps_mahasiswa_ta', 'Mahasiswa per TS', '40–45'],
   ['jadwal_ta', 'jadwal_ta', 'Jadwal seminar/sidang TA', '—'],
   ['prestasi', 'lkps_prestasi_mahasiswa', 'Prestasi mahasiswa', '43'], ['kohort', 'lkps_kohort_lulusan', 'Kohort lulusan', '44–45'],
@@ -28,6 +31,8 @@ export const TAB_DATA = [
   ['temuan', 'ami_temuan', 'Temuan AMI', '53, 55'],
   ['standar', 'spmi_standar', 'Standar SPMI', '53, 55'], ['revisi', 'spmi_standar_revisi', 'Revisi standar', '55'],
 ];
+// Tab yang berlaku untuk instrumen terpilih (Kelengkapan): tab khusus mesin LKPS lain disaring.
+export const TAB_AKTIF = TAB_DATA.filter(t => !t[4] || t[4] === LKPS.mesin);
 
 // Konteks kalimat narasi; dipakai narasi-led.html dan halaman ini supaya kotaknya sama.
 export function konteksNarasi(D, daftar){
@@ -90,7 +95,7 @@ export function rekapKelengkapan(S){
     return baris(g.kelompok, ada, n, { href: 'narasi-led.html', ket: tugas[g.id] ? `Penanggung jawab: ${nama(tugas[g.id])}` : 'Belum ada penanggung jawab' });
   });
 
-  const data = TAB_DATA.map(([id, tabel, judul, butir]) => {
+  const data = TAB_AKTIF.map(([id, tabel, judul, butir]) => {
     const j = (S.jumlah || {})[tabel];
     return baris(judul, j > 0 ? 1 : 0, 1, { href: `data-prodi.html?tab=${id}`,
       ket: j == null ? 'Tidak terbaca' : j ? `${j} baris · butir ${butir}` : `Belum diisi · butir ${butir}` });

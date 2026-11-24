@@ -18,10 +18,10 @@
    diputuskan (pemilik 2026-11-24).
    Kolom yang tidak disimpan situs dibiarkan kosong (tanpa tebakan).
    ===================================================================== */
-import { JSZIP, tulisSel, petaLembar, hitungUlangSaatBuka } from './lkps.js?v=2026-11-24-0aaa65';
-import { daftarProdi, STATUS_PS, tglTeks } from './pustaka-dokumen.js?v=2026-11-24-0aaa65';
-import { nidnNuptk, masaBerlaku } from './profil-dosen.js?v=2026-11-24-0aaa65';
-import { ampuPerTA, dosenTS } from './dosen-hitung.js?v=2026-11-24-0aaa65';
+import { JSZIP, tulisSel, petaLembar, hitungUlangSaatBuka } from './lkps.js?v=2026-11-24-7448bf';
+import { daftarProdi, STATUS_PS, tglTeks } from './pustaka-dokumen.js?v=2026-11-24-7448bf';
+import { nidnNuptk, masaBerlaku } from './profil-dosen.js?v=2026-11-24-7448bf';
+import { ampuPerTA, dosenTS } from './dosen-hitung.js?v=2026-11-24-7448bf';
 
 const JABATAN = { tenaga_pengajar: 'Tenaga Pengajar', asisten_ahli: 'Asisten Ahli', lektor: 'Lektor',
   lektor_kepala: 'Lektor Kepala', guru_besar: 'Profesor' };
@@ -297,15 +297,47 @@ export function petaLKPSLamdepilar(C){
   // P.1.7 Tenaga kependidikan (Data prodi › Tendik), aktif; sama dengan lkps.js 4.b. Pendidikan V di kolom
   // SMA (F), DI/DII (G), DIII (H), DIV (I), S1 (J), S2 (K); S3 tidak punya kolom di templat. NIP tidak disimpan.
   const KOL_PEND_TENDIK = { sma_smk: 'F', d1: 'G', d2: 'G', d3: 'H', d4: 'I', s1: 'J', s2: 'K' };
-  const TUGAS_TENDIK = { laboran: 'Laboran', teknisi: 'Teknisi', administrator_sistem: 'Administrator sistem', lainnya: 'Lainnya' };
+  // 164-patch (pemilik 2026-11-22): jabatan admin_prodi dan asisten_lab; status_kerja magang tidak masuk LKPS.
+  const TUGAS_TENDIK = { laboran: 'Laboran', teknisi: 'Teknisi', administrator_sistem: 'Administrator sistem', lainnya: 'Lainnya',
+    admin_prodi: 'Admin prodi', asisten_lab: 'Asisten laboratorium' };
   const UNIT_TENDIK = { upps: 'UPPS', prodi: 'Program Studi', institusi: 'Institusi' };
   // Tabel terakhir di lembar: tanpa batas baris, cukup bergeser sebanyak sisipan di atasnya.
-  urutNama((X.tendik || []).filter(x => x.aktif !== false)).forEach((x, i) => {
+  urutNama((X.tendik || []).filter(x => x.aktif !== false && x.status_kerja !== 'magang')).forEach((x, i) => {
     const r = 88 + geserP1 + i;
     set('P.1', `B${r}`, i + 1); set('P.1', `C${r}`, x.nama);
     if (KOL_PEND_TENDIK[x.pendidikan]) set('P.1', `${KOL_PEND_TENDIK[x.pendidikan]}${r}`, 'V');
     set('P.1', `L${r}`, x.sertifikat); set('P.1', `M${r}`, TUGAS_TENDIK[x.jabatan]); set('P.1', `N${r}`, UNIT_TENDIK[x.unit_kerja]);
   });
+
+  // L.1 Sarana menurut standar (Data prodi › Sarana menurut standar, 165-patch; pemilik 2026-11-24).
+  // L.1.1 belajar: lima blok kategori (butir di C bernomor "1. …" seperti templat); L.1.2-L.1.4: nomor di B.
+  // D lokasi, E ukuran, F nama standar, G occupancy, H standar ditetapkan, I ukuran eksisting.
+  // Blok penuh -> baris disisipkan sebelum baris terakhir blok (lembar L.1 tanpa rumus); L.1.4 tabel terakhir.
+  const sisipL1 = [];
+  let geserL1 = 0;
+  const urutSarana = (a, b) => ((a.urutan ?? 100) - (b.urutan ?? 100)) || String(a.nama).localeCompare(String(b.nama));
+  const sarana = (X.saranaStd || []).slice().sort(urutSarana);
+  const isiSarana = (x, r, noB, noC) => {
+    if (noB != null) set('L.1', `B${r}`, noB);
+    set('L.1', `C${r}`, noC != null ? `${noC}. ${x.nama}` : x.nama);
+    set('L.1', `D${r}`, x.lokasi); set('L.1', `E${r}`, x.ukuran); set('L.1', `F${r}`, x.nama_standar);
+    set('L.1', `G${r}`, x.occupancy); set('L.1', `H${r}`, x.standar_ditetapkan); set('L.1', `I${r}`, x.ukuran_eksisting);
+  };
+  const blokL1 = (xs, kapasitas, baris0, sisipDi, nomorDiC) => {
+    const lebih = Math.max(0, xs.length - kapasitas), awal = baris0 + geserL1;
+    if (lebih) sisipL1.push({ lembar: 'L.1', baris: sisipDi, n: lebih });
+    geserL1 += lebih;
+    xs.forEach((x, i) => isiSarana(x, awal + i, nomorDiC ? null : i + 1, nomorDiC ? i + 1 : null));
+  };
+  const belajar = k => sarana.filter(x => x.jenis === 'belajar' && x.kategori === k);
+  blokL1(belajar('perabot'), 4, 8, 11, true);
+  blokL1(belajar('media'), 4, 13, 16, true);
+  blokL1(belajar('kenyamanan'), 4, 18, 21, true);
+  blokL1(belajar('administrasi'), 4, 23, 26, true);
+  blokL1(belajar('k3'), 3, 28, 30, true);
+  blokL1(sarana.filter(x => x.jenis === 'kerja'), 16, 38, 53, false);
+  blokL1(sarana.filter(x => x.jenis === 'diseminasi'), 16, 59, 74, false);
+  sarana.filter(x => x.jenis === 'kesejahteraan').forEach((x, i) => isiSarana(x, 80 + geserL1 + i, i + 1, null));
 
   // E.4.3 Penghargaan eksternal karya mahasiswa (Data prodi › Prestasi mahasiswa), TS-4 s.d. TS
   // (pemilik 2026-11-24; sama dengan rentang E.1). TS prestasi seperti lkps.js: bulan >= 9 masuk TS berikutnya.
@@ -399,7 +431,7 @@ export function petaLKPSLamdepilar(C){
   Object.defineProperty(peta, 'sisip', { value: geser ? [{ lembar: 'E.4', setelah: nomorKolom('O'), n: geser }] : [] });
   Object.defineProperty(peta, 'kosongTambahan', { value: tambahKosong.length ? { 'E.4': tambahKosong } : {} });
   Object.defineProperty(peta, 'peringatan', { value: peringatan });
-  Object.defineProperty(peta, 'sisipBaris', { value: sisipP1 });
+  Object.defineProperty(peta, 'sisipBaris', { value: [...sisipP1, ...sisipL1] });
   return peta;
 }
 

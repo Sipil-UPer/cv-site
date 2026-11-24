@@ -11,8 +11,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-24-0aaa65">
-<link rel="stylesheet" href="kepala.css?v=2026-11-24-0aaa65">
+<link rel="stylesheet" href="tema.css?v=2026-11-24-7448bf">
+<link rel="stylesheet" href="kepala.css?v=2026-11-24-7448bf">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
@@ -60,7 +60,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></div>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-24-0aaa65"></script>
+<script src="config.js?v=2026-11-24-7448bf"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -80,13 +80,13 @@ addEventListener('error', function (e) {
 // masuk Pengingat dan Monitoring. Notulen Word disusun di peramban; admin mengunggah notulen
 // bertanda tangan ke pustaka dan menautkannya sebagai bukti butir/unsur.
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-24-0aaa65';
+import { gerbang } from './menu.js?v=2026-11-24-7448bf';
 import { JENIS_RAPAT, jenisRapat, STATUS_TINDAK, tanggalPanjang, waktuRapat, tokenBaru, tindakTerbuka, saranBukti, buatNotulen,
-  namaBerkasNotulen, tglID } from './rapat.js?v=2026-11-24-0aaa65';
-import { UNSUR_BUTIR } from './unsur-butir.js?v=2026-11-24-0aaa65';
-import { unggahKePustaka } from './pustaka-dokumen.js?v=2026-11-24-0aaa65';
-import { durasiDari, usulanWaktu } from './cari-waktu.js?v=2026-11-24-0aaa65';
-import { petaLibur } from './hari-libur.js?v=2026-11-24-0aaa65';
+  namaBerkasNotulen, tglID } from './rapat.js?v=2026-11-24-7448bf';
+import { UNSUR_BUTIR } from './unsur-butir.js?v=2026-11-24-7448bf';
+import { unggahKePustaka } from './pustaka-dokumen.js?v=2026-11-24-7448bf';
+import { durasiDari, usulanWaktu } from './cari-waktu.js?v=2026-11-24-7448bf';
+import { petaLibur } from './hari-libur.js?v=2026-11-24-7448bf';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
@@ -99,6 +99,10 @@ const UNGGAH = (() => {
 })();
 const tabelBelumAda = e => e && /does not exist|schema cache/i.test(e.message || '');
 let SAYA = null, ADMIN = false, DOSEN = [], RAPAT = [], TINDAK_SAYA = [], PRODI = {};
+// 166 (pemilik 2026-11-24): id rapat yang saya ikuti (peserta, PJ, pembuat) untuk saringan "Rapat saya".
+let RAPAT_SAYA = new Set();
+// Kolom rapat yang boleh dibaca langsung (166: pembahasan hanya lewat rpc rapat_isi; jangan select('*')).
+const KOLOM_RAPAT = 'id,judul,jenis,tanggal,mulai,selesai,tempat,pimpinan,notulis,agenda,terbatas,status,dokumen_id,token_hadir,hadir_sampai,dibuat_oleh,oleh,dibuat,diperbarui';
 let BUKA = null;          // { r, peserta, tindak } rapat yang sedang dibuka; r = {} untuk rapat baru
 let TAMU = [], KEP = [];  // isian formulir: tamu (dicatat) dan keputusan
 
@@ -107,12 +111,15 @@ const nilai = el => { const v = (el?.value || '').trim(); return v === '' ? null
 const namaDosen = id => DOSEN.find(d => d.id === id)?.nama || '';
 
 async function muat(){
-  const [r, t] = await Promise.all([
+  const [r, t, p] = await Promise.all([
     sb.from('rapat').select('id,judul,jenis,tanggal,tempat,terbatas,status,dibuat_oleh,dokumen_id').order('tanggal', { ascending: false }).order('id', { ascending: false }),
-    sb.from('rapat_tindak').select('id,rapat_id,keputusan,tenggat,status,catatan,rapat(judul,tanggal)').eq('pj_dosen_id', SAYA.id)]);
+    sb.from('rapat_tindak').select('id,rapat_id,keputusan,tenggat,status,catatan,rapat(judul,tanggal)').eq('pj_dosen_id', SAYA.id),
+    sb.from('rapat_peserta').select('rapat_id').eq('dosen_id', SAYA.id)]);
   if (tabelBelumAda(r.error)) throw new Error('Tabel rapat belum ada: admin menjalankan supabase/62-patch-rapat.sql.');
   if (r.error) throw r.error;
   RAPAT = r.data || []; TINDAK_SAYA = t.data || [];
+  RAPAT_SAYA = new Set([...(p.data || []).map(x => x.rapat_id), ...TINDAK_SAYA.map(x => x.rapat_id),
+    ...RAPAT.filter(x => x.dibuat_oleh === SAYA.id).map(x => x.id)]);
 }
 
 // ---------------------------------------------------------------------
@@ -131,16 +138,17 @@ function htmlTindakSaya(){
 }
 
 function htmlDaftar(){
-  const th = $('s_tahun')?.value || '', jn = $('s_jenis')?.value || '';
+  const th = $('s_tahun')?.value || '', jn = $('s_jenis')?.value || '', saya = !!$('s_saya')?.checked;
   const tahun = [...new Set(RAPAT.map(r => String(r.tanggal).slice(0, 4)))].sort().reverse();
-  const xs = RAPAT.filter(r => (!th || String(r.tanggal).startsWith(th)) && (!jn || r.jenis === jn));
+  const xs = RAPAT.filter(r => (!th || String(r.tanggal).startsWith(th)) && (!jn || r.jenis === jn) && (!saya || RAPAT_SAYA.has(r.id)));
   return `<section class="kartu"><h2>Daftar rapat</h2>
     <div class="saring"><label class="ket">Tahun <select id="s_tahun"><option value="">semua</option>${tahun.map(y => `<option${y === th ? ' selected' : ''}>${y}</option>`).join('')}</select></label>
       <label class="ket">Jenis <select id="s_jenis"><option value="">semua</option>${JENIS_RAPAT.map(j => `<option value="${j.id}"${j.id === jn ? ' selected' : ''}>${esc(j.nama)}</option>`).join('')}</select></label>
+      <label class="ket"><input type="checkbox" id="s_saya"${saya ? ' checked' : ''}> Rapat saya (${RAPAT_SAYA.size})</label>
       ${SAYA.peran !== 'asesor' ? '<button type="button" class="b utama" id="baru">+ Catat rapat</button>' : ''}</div>
     ${xs.length ? `<div class="gulir"><table class="ds"><thead><tr><th>Tanggal</th><th>Rapat</th><th>Jenis</th><th>Status</th><th></th></tr></thead><tbody>
       ${xs.map(r => `<tr><td>${tglID(String(r.tanggal).slice(0, 10))}</td><td><b>${esc(r.judul)}</b>${r.tempat ? `<br><small class="ket">${esc(r.tempat)}</small>` : ''}
-        ${r.terbatas ? ' <span class="chip st-batal">terbatas</span>' : ''}</td><td>${esc(jenisRapat(r.jenis).nama)}</td>
+        ${r.terbatas ? ' <span class="chip st-batal">terbatas</span>' : ''}${RAPAT_SAYA.has(r.id) ? ' <span class="chip st-proses">rapat saya</span>' : ''}</td><td>${esc(jenisRapat(r.jenis).nama)}</td>
         <td>${r.status === 'final' ? '<span class="chip st-selesai">final</span>' : '<span class="chip st-terbuka">draf</span>'}${r.dokumen_id ? ' <span class="chip st-proses">notulen di pustaka</span>' : ''}</td>
         <td><button type="button" class="b" data-buka="${r.id}">${bolehUbah(r) ? 'Buka / ubah' : 'Baca'}</button></td></tr>`).join('')}
       </tbody></table></div>` : `<p class="kosong">${RAPAT.length ? 'Tidak ada rapat yang cocok.' : 'Belum ada rapat tercatat.'}</p>`}
@@ -150,12 +158,19 @@ function htmlDaftar(){
 // ---------------------------------------------------------------------
 async function bukaRapat(id){
   if (!id) { BUKA = { r: {}, peserta: [], tindak: [] }; TAMU = []; KEP = []; gambar(); $('form').scrollIntoView({ behavior: 'smooth' }); return; }
-  const [r, p, t] = await Promise.all([
-    sb.from('rapat').select('*').eq('id', id).single(),
+  const [r, p, t, isi] = await Promise.all([
+    sb.from('rapat').select(KOLOM_RAPAT).eq('id', id).single(),
     sb.from('rapat_peserta').select('*').eq('rapat_id', id).order('id'),
-    sb.from('rapat_tindak').select('*').eq('rapat_id', id).order('urutan')]);
+    sb.from('rapat_tindak').select('*').eq('rapat_id', id).order('urutan'),
+    sb.rpc('rapat_isi', { p_id: id })]);
   if (r.error) { alert(r.error.message); return; }
-  BUKA = { r: r.data, peserta: p.data || [], tindak: t.data || [] };
+  // 166: pembahasan lewat rapat_isi; sebelum patch 166 (fungsi belum ada) dibaca langsung seperti 62.
+  let boleh = true, pembahasan = null;
+  if (isi.error) pembahasan = (await sb.from('rapat').select('pembahasan').eq('id', id).single()).data?.pembahasan ?? null;
+  else ({ boleh, pembahasan } = isi.data || {});
+  // Notulen resmi bertanda tangan di pustaka (dokumen_id): tautan untuk dibuka.
+  const dok = r.data.dokumen_id ? (await sb.from('dokumen').select('url,judul').eq('id', r.data.dokumen_id).maybeSingle()).data : null;
+  BUKA = { r: { ...r.data, pembahasan }, boleh: boleh !== false, dok, peserta: p.data || [], tindak: t.data || [] };
   TAMU = BUKA.peserta.filter(x => !x.dosen_id && x.cara === 'dicatat').map(x => ({ nama: x.nama, instansi: x.instansi || '' }));
   KEP = BUKA.tindak.map(x => ({ id: x.id, keputusan: x.keputusan, pj_dosen_id: x.pj_dosen_id || '', pj_nama: x.pj_dosen_id ? '' : (x.pj_nama || ''),
     tenggat: x.tenggat || '', status: x.status }));
@@ -165,9 +180,15 @@ async function bukaRapat(id){
 function htmlBaca(){
   const { r, peserta, tindak } = BUKA;
   const hadir = peserta.filter(p => p.hadir !== false);
-  return `<section class="kartu baca" id="form"><h2>${esc(r.judul)}</h2>
+  const kepala = `<section class="kartu baca" id="form"><h2>${esc(r.judul)}</h2>
     <p class="ket">${esc(tanggalPanjang(r.tanggal))}${waktuRapat(r) ? ` · ${esc(waktuRapat(r))}` : ''}${r.tempat ? ` · ${esc(r.tempat)}` : ''} · ${esc(jenisRapat(r.jenis).nama)}
-      · ${r.status === 'final' ? 'final' : 'draf'}</p>
+      · ${r.status === 'final' ? 'final' : 'draf'}</p>`;
+  // 166: draf yang bukan rapat saya -> hanya jadwal dan agenda.
+  if (!BUKA.boleh) return `${kepala}<h3>Agenda</h3><p>${esc(r.agenda || '—')}</p>
+    <p class="info">Notulen rapat ini masih draf. Isinya (peserta, pembahasan, keputusan) terbuka bagi peserta rapat, lalu bagi semua dosen setelah notulis menandainya final.</p>
+    <p style="margin-top:12px"><button type="button" class="b" id="f_tutup">Tutup</button></p></section>`;
+  const resmi = BUKA.dok?.url ? `<a class="b utama" href="${esc(BUKA.dok.url)}" target="_blank" rel="noopener">Buka notulen resmi (bertanda tangan)</a> ` : '';
+  return `${kepala}
     <p><b>Pimpinan rapat:</b> ${esc(r.pimpinan || '—')} · <b>Notulis:</b> ${esc(r.notulis || '—')}</p>
     <h3>Peserta (${hadir.length})</h3><p>${esc(hadir.map(p => p.nama + (p.instansi ? ` (${p.instansi})` : '')).join(', ') || '—')}</p>
     <h3>Agenda</h3><p>${esc(r.agenda || '—')}</p><h3>Pembahasan</h3><p>${esc(r.pembahasan || '—')}</p>
@@ -175,7 +196,7 @@ function htmlBaca(){
       ${tindak.map(t => `<tr><td>${esc(t.keputusan)}</td><td>${esc(namaDosen(t.pj_dosen_id) || t.pj_nama || '—')}</td>
         <td>${t.tenggat ? tglID(String(t.tenggat).slice(0, 10)) : '—'}</td><td><span class="chip st-${esc(t.status)}">${esc(STATUS_TINDAK[t.status])}</span></td></tr>`).join('')}
       </tbody></table>` : '<p class="ket">Tidak ada keputusan tercatat.</p>'}
-    <p style="margin-top:12px"><button type="button" class="b" id="f_word">Unduh notulen (.docx)</button>
+    <p style="margin-top:12px">${resmi}<button type="button" class="b" id="f_word">${resmi ? 'Unduh ringkasan sistem (.docx)' : 'Unduh notulen (.docx)'}</button>
       <button type="button" class="b" id="f_tutup">Tutup</button></p></section>`;
 }
 
@@ -442,7 +463,7 @@ async function cariWaktu(){
 function gambar(){
   const editor = BUKA && (BUKA.r.id ? bolehUbah(BUKA.r) : true);
   $('isi').innerHTML = `<p class="msg" id="pesan"></p>${htmlTindakSaya()}${BUKA ? (editor ? htmlForm() : htmlBaca()) : ''}${htmlDaftar()}`;
-  $('s_tahun').onchange = $('s_jenis').onchange = gambar;
+  $('s_tahun').onchange = $('s_jenis').onchange = $('s_saya').onchange = gambar;
   if ($('baru')) $('baru').onclick = () => bukaRapat(null);
   document.querySelectorAll('[data-buka]').forEach(b => b.onclick = () => bukaRapat(+b.dataset.buka));
   document.querySelectorAll('[data-tsimpan]').forEach(b => b.onclick = async () => {

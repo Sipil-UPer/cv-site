@@ -2,7 +2,7 @@
 // Dipakai Data prodi › SPMI › Temuan AMI, Monitoring (juga lewat tautan AMI),
 // dan Pengingat. Status: terbuka -> proses -> selesai (menunggu verifikasi)
 // -> ditutup (terverifikasi efektif). Tenggat "dekat" = 14 hari atau kurang.
-import { PIHAK } from './unsur-butir.js?v=2026-11-24-0aaa65';
+import { PIHAK } from './unsur-butir.js?v=2026-11-24-7448bf';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));

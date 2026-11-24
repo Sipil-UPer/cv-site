@@ -15,12 +15,12 @@
    angka yang sama dengan halaman skor. Lembar lain dibiarkan untuk diisi
    prodi; kolom yang tidak disimpan situs (mis. pita waktu tunggu) kosong.
    ===================================================================== */
-import { versiUntukTS, daftarProdi, STATUS_PS, tglTeks } from './pustaka-dokumen.js?v=2026-11-24-0aaa65';
-import { teksPendidikan, nidnNuptk, masaBerlaku } from './profil-dosen.js?v=2026-11-24-0aaa65';
-import { barisKerjaSama } from './kerjasama-karya.js?v=2026-11-24-0aaa65';
-import { kunciIntegrasi } from './rps-integrasi.js?v=2026-11-24-0aaa65';
-import { karya4i } from './sitasi.js?v=2026-11-24-0aaa65';
-import { ampuPerTA, dosenTS } from './dosen-hitung.js?v=2026-11-24-0aaa65';
+import { versiUntukTS, daftarProdi, STATUS_PS, tglTeks } from './pustaka-dokumen.js?v=2026-11-24-7448bf';
+import { teksPendidikan, nidnNuptk, masaBerlaku } from './profil-dosen.js?v=2026-11-24-7448bf';
+import { barisKerjaSama } from './kerjasama-karya.js?v=2026-11-24-7448bf';
+import { kunciIntegrasi } from './rps-integrasi.js?v=2026-11-24-7448bf';
+import { karya4i } from './sitasi.js?v=2026-11-24-7448bf';
+import { ampuPerTA, dosenTS } from './dosen-hitung.js?v=2026-11-24-7448bf';
 
 const TEMPLATE = 'lkps-template.xlsx';
 export const JSZIP = 'https://cdn.jsdelivr.net/npm/jszip@3.10.1/+esm';
@@ -464,7 +464,7 @@ export function petaDaftar(C){
 
   const KOLOM_PEND = { s3: 'C', s2: 'D', s1: 'E', d4: 'F', d3: 'G', d2: 'H', d1: 'I', sma_smk: 'J' };
   const UNIT_TENDIK = { upps: 'UPPS', prodi: 'Program Studi', institusi: 'Institusi' };
-  (X.tendik || []).filter(x => x.aktif !== false)
+  (X.tendik || []).filter(x => x.aktif !== false && x.status_kerja !== 'magang')   // magang: situs saja (164)
     .sort((a, b) => String(a.nama).localeCompare(String(b.nama))).slice(0, 20)   // templat: baris 11-30
     .forEach((x, i) => {
       const r = 11 + i;

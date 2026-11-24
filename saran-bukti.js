@@ -32,7 +32,7 @@ export const SARAN_BUKTI = {
       + 'punya tautan publik; asesor membukanya dengan kata sandi.' },
   bkd: { tabel: '4.c', isi: [R('PDF Laporan Kinerja Dosen (LKD) SISTER tiap semester')],
     catatan: 'Berkas LKD privat, karena memuat data pribadi. Salin angka dari bagian C: SKS BKD dan SKS Lebih.' },
-  tendik: { tabel: '4.b', isi: [R('Ijazah'), R('Sertifikat kompetensi')] },
+  tendik: { tabel: '4.b', isi: [R('Ijazah'), R('Sertifikat kompetensi'), U('Foto profil (jenis "Foto profil"; tampil di situs bila boleh tampil)')] },
   mk: { tabel: '3.a.1, 3.a.4, 3.a.5', isi: [P('Dokumen RPS tiap mata kuliah'), U('Dokumen kurikulum'),
     U('Capstone: panduan capstone dan contoh laporan')] },
   tema: { tabel: '3.b, 3.c, 6.h, 6.i', isi: [U('Peta jalan penelitian dan PkM yang disahkan')] },
@@ -58,6 +58,8 @@ export const SARAN_BUKTI = {
   prasarana: { tabel: '5.a', isi: [P('Daftar alat utama tiap laboratorium'), U('Foto dan inventaris')] },
   dok_k3l: { tabel: '5.b', isi: [U('Dokumen K3L yang bertanggal')] },
   fas_k3l: { tabel: '5.c', isi: [U('Foto dan inventaris fasilitas')] },
+  // LKPS LAMDEPILAR L.1 (165-patch): sarana menurut standar.
+  sarana_std: { tabel: 'L.1', isi: [U('Foto dan inventaris sarana'), U('Dokumen standar sarana yang ditetapkan')] },
   spmi: { tabel: '7.a, 7.b', isi: [P('Nomor dan tanggal dokumen SPMI'), P('Tautan dokumen tiap tahap PPEPP'),
     R('Laporan AMI dan RTM')] },
   target: { tabel: 'butir 54–56', isi: [U('Dokumen IKU/IKT yang disahkan'), U('Laporan kinerja'),

@@ -117,7 +117,7 @@ const LABEL = {
   'contoh kegiatan dan jadwalnya': '[nama kegiatan] setiap [jadwal]',
   'tema utama': '[tema 1] dan [tema 2]', 'periode': '[tahun]–[tahun]', 'contoh dampak': '[hasil kegiatan] yang dimanfaatkan [masyarakat/mitra]',
   // C.4
-  'jumlah laboran, teknisi, dan administrator': '[jumlah] laboran, [jumlah] teknisi, dan [jumlah] tenaga administrasi',
+  'jumlah admin prodi, laboran, asisten laboratorium, dan teknisi': '[jumlah] admin prodi, [jumlah] laboran, [jumlah] asisten laboratorium, dan [jumlah] teknisi',
   'pendidikan dan sertifikat kompetensi': 'pendidikan [jenjang] dan sertifikat [nama sertifikat]',
   'jumlah laboratorium dan beban layanan': '[jumlah] laboratorium dan [jumlah] mahasiswa praktikum per semester',
   'analisis sebaran beban pendidikan, penelitian, PkM, dan tugas tambahan': 'Beban terbesar ada pada [kegiatan]; rerata [angka] SKS berada [di dalam/di luar] rentang ideal, sehingga [tindak lanjut].',

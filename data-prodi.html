@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-24-0aaa65">
+<link rel="stylesheet" href="tema.css?v=2026-11-24-7448bf">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
@@ -104,7 +104,7 @@
   .masuk{max-width:420px;margin:40px auto;background:#fff;border:1px solid var(--line);padding:20px}
   .masuk input{width:100%;padding:8px 10px;margin:8px 0;font:inherit}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-24-0aaa65">
+<link rel="stylesheet" href="kepala.css?v=2026-11-24-7448bf">
 </head>
 <body>
 
@@ -118,7 +118,7 @@
 
 <main class="wrap" id="isi"></main>
 
-<script src="config.js?v=2026-11-24-0aaa65"></script>
+<script src="config.js?v=2026-11-24-7448bf"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -135,29 +135,30 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { buangBerkas, buangSemua, PESAN_SAMPAH, fotoPrestasiPublik, PERINGATAN_FOTO } from './hapus-berkas.js?v=2026-11-24-0aaa65';
-import { pasangMenu } from './menu.js?v=2026-11-24-0aaa65';
-import { dosenLogin } from './dosen-login.js?v=2026-11-24-0aaa65';
-import { aktifPada, tabBoleh, labelJabatan, labelPeran } from './koordinator.js?v=2026-11-24-0aaa65';
-import { unggahKePustaka, opsiPustaka, opsiJenis, labelDokumen, cariDokumen } from './pustaka-dokumen.js?v=2026-11-24-0aaa65';
-import { pasangRapikan } from './rapikan-berkas.js?v=2026-11-24-0aaa65';
-import { UNSUR, skorUnsur, pihakUnsur } from './unsur-butir.js?v=2026-11-24-0aaa65';
-import { OPSI_SUMBER } from './iku-otomatis.js?v=2026-11-24-0aaa65';
-import { denganOtomatis as otomatisDari, tsTersedia, tsAwal, htmlCapaianIKU, KET_CAPAIAN, muatTambahan, denganTambahan } from './capaian-iku.js?v=2026-11-24-0aaa65';
-import { KATEGORI_TEMUAN, STATUS_TEMUAN, PIHAK_TEMUAN, ringkasTemuan, htmlRingkasTemuan } from './temuan-ami.js?v=2026-11-24-0aaa65';
-import { bacaRekapSPM, rencanaImporSPM, tsDariTanggal, labelTS, ringkasLembar, picProdi } from './standar-spmi.js?v=2026-11-24-0aaa65';
-import { SHEETJS } from './nilai-cpl.js?v=2026-11-24-0aaa65';
-import { bacaKerjasama, rencanaImporKS, LEMBAR_KS } from './impor-kerjasama.js?v=2026-11-24-0aaa65';
-import { bacaCSV, normKur, normCpl, KOLOM_IMPOR, CONTOH_IMPOR, rencanaImpor, sebaranCPL, htmlSebaran } from './kurikulum-cpl.js?v=2026-11-24-0aaa65';
-import { htmlContoh, pasangContoh, JENIS_BUKTI_KS } from './manfaat-kerjasama.js?v=2026-11-24-0aaa65';
-import { infoJenis } from './rencana-bukti.js?v=2026-11-24-0aaa65';
-import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-24-0aaa65';
-import { BOBOT } from './bobot.js?v=2026-11-24-0aaa65';
-import { nomorButir, htmlTautanButir } from './tautan-butir.js?v=2026-11-24-0aaa65';
-import { htmlSaran } from './saran-bukti.js?v=2026-11-24-0aaa65';
-import { tautanBerkas, privatkanLama, adalahPrivat } from './tautan-privat.js?v=2026-11-24-0aaa65';
-import { unggahLKD, buangLKD, bukaLKD, pendidikanTotal, pendidikanPS } from './bkd.js?v=2026-11-24-0aaa65';
-import { teksPelaksanaan } from './rekap-kp.js?v=2026-11-24-0aaa65';
+import { buangBerkas, buangSemua, PESAN_SAMPAH, fotoPrestasiPublik, PERINGATAN_FOTO } from './hapus-berkas.js?v=2026-11-24-7448bf';
+import { pasangMenu } from './menu.js?v=2026-11-24-7448bf';
+import { LKPS } from './dokumen-instrumen.js?v=2026-11-24-7448bf';
+import { dosenLogin } from './dosen-login.js?v=2026-11-24-7448bf';
+import { aktifPada, tabBoleh, labelJabatan, labelPeran } from './koordinator.js?v=2026-11-24-7448bf';
+import { unggahKePustaka, opsiPustaka, opsiJenis, labelDokumen, cariDokumen } from './pustaka-dokumen.js?v=2026-11-24-7448bf';
+import { pasangRapikan } from './rapikan-berkas.js?v=2026-11-24-7448bf';
+import { UNSUR, skorUnsur, pihakUnsur } from './unsur-butir.js?v=2026-11-24-7448bf';
+import { OPSI_SUMBER } from './iku-otomatis.js?v=2026-11-24-7448bf';
+import { denganOtomatis as otomatisDari, tsTersedia, tsAwal, htmlCapaianIKU, KET_CAPAIAN, muatTambahan, denganTambahan } from './capaian-iku.js?v=2026-11-24-7448bf';
+import { KATEGORI_TEMUAN, STATUS_TEMUAN, PIHAK_TEMUAN, ringkasTemuan, htmlRingkasTemuan } from './temuan-ami.js?v=2026-11-24-7448bf';
+import { bacaRekapSPM, rencanaImporSPM, tsDariTanggal, labelTS, ringkasLembar, picProdi } from './standar-spmi.js?v=2026-11-24-7448bf';
+import { SHEETJS } from './nilai-cpl.js?v=2026-11-24-7448bf';
+import { bacaKerjasama, rencanaImporKS, LEMBAR_KS } from './impor-kerjasama.js?v=2026-11-24-7448bf';
+import { bacaCSV, normKur, normCpl, KOLOM_IMPOR, CONTOH_IMPOR, rencanaImpor, sebaranCPL, htmlSebaran } from './kurikulum-cpl.js?v=2026-11-24-7448bf';
+import { htmlContoh, pasangContoh, JENIS_BUKTI_KS } from './manfaat-kerjasama.js?v=2026-11-24-7448bf';
+import { infoJenis } from './rencana-bukti.js?v=2026-11-24-7448bf';
+import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-24-7448bf';
+import { BOBOT } from './bobot.js?v=2026-11-24-7448bf';
+import { nomorButir, htmlTautanButir } from './tautan-butir.js?v=2026-11-24-7448bf';
+import { htmlSaran } from './saran-bukti.js?v=2026-11-24-7448bf';
+import { tautanBerkas, privatkanLama, adalahPrivat } from './tautan-privat.js?v=2026-11-24-7448bf';
+import { unggahLKD, buangLKD, bukaLKD, pendidikanTotal, pendidikanPS } from './bkd.js?v=2026-11-24-7448bf';
+import { teksPelaksanaan } from './rekap-kp.js?v=2026-11-24-7448bf';
 // Rentang nomor butir instrumen aktif (LAM Teknik 1-60, LAMDEPILAR 101-130; 159-patch, 2026-11-24).
 const NO_BUTIR = Object.keys(BOBOT).map(Number);
 const BUTIR_MIN = Math.min(...NO_BUTIR), BUTIR_MAKS = Math.max(...NO_BUTIR);
@@ -660,13 +661,19 @@ const TABEL = [
     cek: r => r.dana_upps == null && r.dana_ps == null ? 'Isi dana UPPS atau program studi.' : '' },
   { id: 'tendik', tabel: 'lkps_tendik', judul: 'Tenaga kependidikan', butir: '29',
     patch: '27-patch-institusi-upps.sql', urut: ['nama'],
-    ket: 'Tabel 4.b LKPS: laboran, teknisi, dan administrator sistem yang mendukung prodi (maksimal 20 baris di LKPS). '
-       + 'Unggah sertifikat kompetensi sebagai bukti baris.',
+    ket: 'Tabel 4.b LKPS dan situs publik (164, pemilik 2026-11-22): admin prodi, laboran, asisten laboratorium, teknisi, '
+       + 'administrator sistem. Status magang tampil di situs tetapi tidak masuk LKPS 4.b (maksimal 20 baris). Situs (Profil prodi, '
+       + 'Laboratorium) hanya menampilkan yang aktif dan dicentang "Boleh tampil di situs" (persetujuan yang bersangkutan): nama, peran, '
+       + 'laboratorium, dan foto. Unggah foto sebagai bukti baris berjenis "Foto profil"; sertifikat kompetensi berjenis "Sertifikat".',
     label: r => r.nama || 'Tenaga kependidikan', tahun: () => null,
     kolom: [
       { k: 'nama', l: 'Nama', t: 'teks', wajib: true, lebar: true },
-      { k: 'jabatan', l: 'Jabatan', t: 'pilihan', o: [['laboran', 'Laboran'], ['teknisi', 'Teknisi'],
-        ['administrator_sistem', 'Administrator sistem'], ['lainnya', 'Lainnya']] },
+      { k: 'jabatan', l: 'Peran', t: 'pilihan', o: [['admin_prodi', 'Admin prodi'], ['laboran', 'Laboran'],
+        ['asisten_lab', 'Asisten laboratorium'], ['teknisi', 'Teknisi'], ['administrator_sistem', 'Administrator sistem'], ['lainnya', 'Lainnya']] },
+      { k: 'status_kerja', l: 'Status', t: 'pilihan', o: [['tetap', 'Tetap'], ['kontrak', 'Kontrak'], ['magang', 'Magang (tidak masuk LKPS 4.b)']],
+        wajib: true, patch164: true },
+      { k: 'laboratorium_id', l: 'Laboratorium (bila bertugas di lab)', t: 'pilihan', o: () => LAB_OPSI, patch164: true },
+      { k: 'boleh_tampil', l: 'Boleh tampil di situs (sudah setuju)', t: 'cek', patch164: true },
       { k: 'pendidikan', l: 'Pendidikan terakhir', t: 'pilihan', o: [['s3', 'S3'], ['s2', 'S2'], ['s1', 'S1'],
         ['d4', 'D4'], ['d3', 'D3'], ['d2', 'D2'], ['d1', 'D1'], ['sma_smk', 'SMA/SMK']] },
       { k: 'sertifikat', l: 'Sertifikat kompetensi', t: 'teks', lebar: true },
@@ -715,6 +722,31 @@ const TABEL = [
       { k: 'urutan', l: 'Urutan tampil', t: 'int' },
     ],
     olah: r => { if (r.urutan == null) r.urutan = 100; } },
+  // LKPS LAMDEPILAR Tabel L.1 (165-patch, pemilik 2026-11-24): hanya untuk instrumen yang memakai mesin ini.
+  { id: 'sarana_std', tabel: 'lkps_sarana_standar', judul: 'Sarana menurut standar', butir: '116',
+    patch: '165-patch-sarana-standar.sql', mesinLkps: 'lkps-lamdepilar.js', urut: ['jenis', 'kategori', 'urutan', 'nama'],
+    ket: 'LKPS Tabel L.1: satu baris = satu sarana dengan acuan standarnya. Jenis menentukan tabel (L.1.1 belajar/kelas, '
+       + 'L.1.2 kerja/praktik, L.1.3 diseminasi, L.1.4 kesejahteraan); sarana belajar dikelompokkan menurut kategori. '
+       + 'Sarana yang mengacu beberapa standar boleh diisi beberapa baris.',
+    label: r => r.nama || 'Sarana', tahun: () => null,
+    kolom: [
+      { k: 'jenis', l: 'Jenis (tabel L.1)', t: 'pilihan', wajib: true, o: [['belajar', 'L.1.1 Belajar (kelas)'],
+        ['kerja', 'L.1.2 Kerja/praktik (studio, laboratorium)'], ['diseminasi', 'L.1.3 Diseminasi (pameran, seminar)'],
+        ['kesejahteraan', 'L.1.4 Pendukung kesejahteraan']] },
+      { k: 'kategori', l: 'Kategori (wajib untuk sarana belajar)', t: 'pilihan', o: [['perabot', 'Perabot utama'],
+        ['media', 'Peralatan dan media pembelajaran'], ['kenyamanan', 'Perlengkapan kenyamanan'],
+        ['administrasi', 'Perlengkapan administrasi dan operasional'], ['k3', 'Perlengkapan keamanan dan keselamatan (K3)']] },
+      { k: 'nama', l: 'Nama sarana dan prasarana', t: 'teks', wajib: true, lebar: true },
+      { k: 'lokasi', l: 'Lokasi (mis. Gd. A R.101)', t: 'teks' },
+      { k: 'ukuran', l: 'Ukuran', t: 'teks' },
+      { k: 'nama_standar', l: 'Acuan standar: nama standar (mis. SNI ISO 6385:2016)', t: 'teks', lebar: true },
+      { k: 'occupancy', l: 'Acuan standar: occupancy (mis. 1,5-2 m2 per mahasiswa)', t: 'teks' },
+      { k: 'standar_ditetapkan', l: 'Kondisi eksisting: standar ditetapkan', t: 'teks' },
+      { k: 'ukuran_eksisting', l: 'Kondisi eksisting: ukuran', t: 'teks' },
+      { k: 'urutan', l: 'Urutan tampil', t: 'int' },
+    ],
+    olah: r => { if (r.urutan == null) r.urutan = 100; },
+    cek: r => r.jenis === 'belajar' && !r.kategori ? 'Pilih kategori untuk sarana belajar (L.1.1).' : '' },
   { id: 'target', tabel: 'lkps_target_kinerja', judul: 'Target IKU/IKT', butir: '54–56', patch: '34-patch-target-kinerja.sql',
     urut: ['tahun_ts', 'urutan', 'nama'],
     ket: 'Satu baris per indikator per TS. Isi butir bila indikator itu mengukur satu butir: target dan capaiannya otomatis masuk '
@@ -997,6 +1029,8 @@ const TABEL = [
       { k: 'bukti_url', l: 'Bukti (sertifikat/ISBN)', t: 'url' },
     ] },
 ];
+// Tab khusus instrumen (mesinLkps, 2026-11-24): hanya tampil bila instrumen aktif memakai mesin LKPS itu.
+TABEL.splice(0, TABEL.length, ...TABEL.filter(t => !t.mesinLkps || t.mesinLkps === LKPS.mesin));
 
 // Tab Dokumen (pustaka dokumen prodi, 29-patch-pustaka-dokumen.sql) paling depan:
 // satu berkas tersimpan sekali, dipakai sebagai bukti di banyak tempat.
@@ -1027,6 +1061,8 @@ let ADA46 = true;
 let ADA145 = true, PEMINATAN = [];
 // ADA149 = jadwal_ta.bidang ada (149-patch-bidang-ta.sql); pilihan memakai PEMINATAN yang sama.
 let ADA149 = true;
+// ADA164 = lkps_tendik.status_kerja ada (164-patch-tendik.sql); LAB_OPSI = [id teks, nama] laboratorium untuk tendik.
+let ADA164 = true, LAB_OPSI = [];
 // ADA70 = ref_mata_kuliah.kurikulum ada (70-patch-kurikulum-mk.sql): MK K21 dan K26 berdampingan.
 let ADA70 = true;
 // ADA48 = lkps_target_kinerja.sumber ada (48-patch-sumber-iku.sql).
@@ -1041,7 +1077,7 @@ let LB = new Map(), LB_GAGAL = '', ANTREAN = [];
 // ADA67 = spmi_standar ada (67-patch-standar-spmi.sql); kolom patch67 disembunyikan bila belum.
 let ADA67 = true;
 const kolomForm = T => T.kolom.filter(c => c.t !== 'url' && !(c.patch45 && !ADA45) && !(c.patch46 && !ADA46) && !(c.patch48 && !ADA48)
-  && !(c.patch67 && !ADA67) && !(c.patch70 && !ADA70) && !(c.patch145 && !ADA145) && !(c.patch149 && !ADA149));
+  && !(c.patch67 && !ADA67) && !(c.patch70 && !ADA70) && !(c.patch145 && !ADA145) && !(c.patch149 && !ADA149) && !(c.patch164 && !ADA164));
 const kolomLama = T => (T.kolom.find(c => c.t === 'url') || {}).k;
 
 // Pilihan standar, rapat, dan temuan untuk tab SPMI (67-patch-standar-spmi.sql).
@@ -1089,6 +1125,8 @@ async function mulai(){
   ADA46 = !(await sb.from('ref_mata_kuliah').select('sifat').limit(1)).error;
   ADA70 = !(await sb.from('ref_mata_kuliah').select('kurikulum').limit(1)).error;
   ADA145 = !(await sb.from('ref_mata_kuliah').select('peminatan').limit(1)).error;
+  ADA164 = !(await sb.from('lkps_tendik').select('status_kerja').limit(1)).error;
+  LAB_OPSI = ((await sb.from('laboratorium').select('id,nama').order('nama')).data || []).map(l => [String(l.id), l.nama]);
   ADA149 = !(await sb.from('jadwal_ta').select('bidang').limit(1)).error;
   if (ADA145 || ADA149) PEMINATAN = await fetch('data.json', {cache: 'no-cache'}).then(r => r.ok ? r.json() : {}).catch(() => ({}))
     .then(d => [...(d.situs?.kelompok_keahlian || []), ...(d.situs?.peminatan_lain || [])].map(x => [x.kode, x.nama]));
@@ -1121,6 +1159,9 @@ async function mulai(){
 }
 
 // Jenis bukti prestasi (lkps_bukti_jenis_check, patch 38).
+// Tenaga kependidikan (164, pemilik 2026-11-22): foto profil tampil di Profil prodi/Laboratorium bila "boleh tampil".
+const JENIS_BUKTI_TENDIK = [['foto', 'Foto profil (tampil di situs bila boleh tampil)'], ['sertifikat', 'Sertifikat kompetensi'], ['lainnya', 'Lainnya']];
+const jbTabel = t => ({ lkps_prestasi_mahasiswa: JENIS_BUKTI_PRESTASI, lkps_tendik: JENIS_BUKTI_TENDIK })[t];
 const JENIS_BUKTI_PRESTASI = [['sertifikat', 'Sertifikat/piagam'], ['foto', 'Foto kegiatan (tampil di situs)'],
   ['surat_tugas', 'SK/surat tugas'], ['lainnya', 'Lainnya']];
 // Blok bukti formulir: unggah langsung + pustaka (tautkan / unggah ke pustaka) + tautan luar.
@@ -1138,9 +1179,9 @@ function blokBukti(T){
     : '';
   // Unggah langsung untuk baris ini (pemilik 2026-11-17: tadinya hanya lewat pustaka, terlipat). Prestasi memilih
   // jenis bukti: lkps_bukti.jenis 'foto' tampil di halaman Prestasi (halaman_publik.prestasi_publik).
-  const langsung = UNGGAH ? `<div class="unggah-baris">${T.tabel === 'lkps_prestasi_mahasiswa'
+  const langsung = UNGGAH ? `<div class="unggah-baris">${jbTabel(T.tabel)
       ? `<select id="bk_jb" aria-label="Jenis bukti"><option value="" selected>Pilih jenis bukti…</option>${
-          JENIS_BUKTI_PRESTASI.map(([k, l]) => `<option value="${k}">${l}</option>`).join('')}</select>` : ''}
+          jbTabel(T.tabel).map(([k, l]) => `<option value="${k}">${l}</option>`).join('')}</select>` : ''}
         <input type="file" id="bk_berkas" accept="${esc(UNGGAH.accept)}" multiple>
         <button type="button" class="btn kecil" data-unggah="1">Unggah berkas bukti</button></div>` : '';
   return `<div class="fld lebar"><label>Bukti baris ini (boleh lebih dari satu)</label>
@@ -1905,7 +1946,7 @@ const GRUP_TAB = [
   ['Penelitian & kerja sama', ['tema', 'peta_dok', 'kerjasama']],
   ['Mahasiswa & lulusan', ['mahasiswa', 'jadwal_ta', 'kohort', 'prestasi', 'publikasi', 'luaran', 'tracer', 'kepuasan', 'testimoni']],
   ['Institusi & keuangan', ['vmts', 'prodi_upps', 'dana']],
-  ['Sarana & K3L', ['prasarana', 'dok_k3l', 'fas_k3l']],
+  ['Sarana & K3L', ['sarana_std', 'prasarana', 'dok_k3l', 'fas_k3l']],
   ['SPMI', ['standar', 'revisi', 'spmi', 'target', 'temuan']],
 ];
 const grupTab = T => (GRUP_TAB.find(([, ids]) => ids.includes(T.id)) || ['Lainnya'])[0];
@@ -2189,6 +2230,7 @@ const RINGKAS = {
   vmts: ['jenis', 'nomor_sk', 'visi'],
   prodi_upps: ['jenis_program', 'nama_prodi', 'status_akreditasi', 'tanggal_kedaluwarsa', 'mahasiswa_ts'],
   prasarana: ['prasarana', 'alat', 'jumlah_dimiliki', 'kepemilikan', 'kondisi'],
+  sarana_std: ['jenis', 'kategori', 'nama', 'lokasi', 'nama_standar'],
   target: ['jenis', 'nama', 'tahun_ts', 'target', 'capaian', 'satuan'],
   standar: ['kode', 'pernyataan', 'pic', 'dipantau', 'aktif'],
   revisi: ['standar_id', 'tanggal', 'versi', 'perubahan', 'dasar'],
@@ -2403,11 +2445,11 @@ function gambarBukti(){
   gambarUnsur(xs);
   ul.innerHTML = xs.length ? xs.map(x => `<li>${x.unsur ? `<span class="tag-unsur">unsur ${x.unsur}</span> ` : ''}${
     x.pustaka ? '<span class="tag-pustaka">pustaka</span> ' : ''}${
-    AKTIF.tabel === 'lkps_prestasi_mahasiswa' && x.id && !x.pustaka
-      ? `<select class="jenis-bukti" data-jenis-bukti="${x.id}" aria-label="Jenis bukti">${JENIS_BUKTI_PRESTASI.map(([k, l]) =>
+    jbTabel(AKTIF.tabel) && x.id && !x.pustaka
+      ? `<select class="jenis-bukti" data-jenis-bukti="${x.id}" aria-label="Jenis bukti">${jbTabel(AKTIF.tabel).map(([k, l]) =>
           `<option value="${k}"${k === (x.jenis || '') ? ' selected' : ''}>${esc(l.replace(/ \(.*\)$/, ''))}</option>`).join('')}${
           x.jenis ? '' : '<option value="" selected>(jenis belum dipilih)</option>'}</select> `
-      : x.jenis ? `<span class="tag-pustaka">${esc((JENIS_BUKTI_PRESTASI.find(j => j[0] === x.jenis) || [, x.jenis])[1].replace(/ \(.*\)$/, ''))}</span> ` : ''}<a href="${esc(x.url)}"
+      : x.jenis ? `<span class="tag-pustaka">${esc(((jbTabel(AKTIF.tabel) || JENIS_BUKTI_PRESTASI).find(j => j[0] === x.jenis) || [, x.jenis])[1].replace(/ \(.*\)$/, ''))}</span> ` : ''}<a href="${esc(x.url)}"
     target="_blank" rel="noopener nofollow">${esc(x.judul)}</a>
     ${x.hapus ? `<button type="button" class="btn bahaya kecil" ${x.hapus} title="${x.pustaka ? 'Lepas dari baris' : 'Hapus'}">×</button>` : ''}</li>`).join('')
     : `<li class="kosong">${r ? 'Belum ada bukti.' : 'Belum ada bukti; yang diunggah akan tersimpan bersama baris ini.'}</li>`;
@@ -2461,7 +2503,9 @@ async function unggah(tombol){
   const semua = [...($('bk_berkas').files || [])];
   if (!semua.length) return tulis('buruk', 'Pilih berkas bukti dulu.');
   // Prestasi: jenis wajib dipilih (pemilik 2026-11-18: foto tersimpan sebagai sertifikat bawaan, tidak tampil).
-  if ($('bk_jb') && !$('bk_jb').value) return tulis('buruk', 'Pilih jenis bukti dulu. Pilih "Foto kegiatan" agar foto tampil di halaman Prestasi.');
+  if ($('bk_jb') && !$('bk_jb').value) return tulis('buruk', AKTIF.tabel === 'lkps_tendik'
+    ? 'Pilih jenis bukti dulu. Pilih "Foto profil" agar foto tampil di situs (bila boleh tampil dicentang).'
+    : 'Pilih jenis bukti dulu. Pilih "Foto kegiatan" agar foto tampil di halaman Prestasi.');
   const ditolak = semua.filter(f => {
     const e = ((f.name.match(/\.([^.]+)$/) || [])[1] || '').toLowerCase();
     return !UNGGAH.ext.includes(e) || (UNGGAH.maxMb && f.size > UNGGAH.maxMb * 1024 * 1024);

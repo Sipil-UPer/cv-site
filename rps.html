@@ -11,8 +11,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-24-0aaa65">
-<link rel="stylesheet" href="kepala.css?v=2026-11-24-0aaa65">
+<link rel="stylesheet" href="tema.css?v=2026-11-24-7448bf">
+<link rel="stylesheet" href="kepala.css?v=2026-11-24-7448bf">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
@@ -78,6 +78,15 @@
   .dua{display:grid;grid-template-columns:1fr 1fr;gap:8px 14px}
   .pustaka{display:grid;grid-template-columns:110px 1fr auto;gap:6px;align-items:start;margin:4px 0}
   .lengket{position:sticky;top:0;z-index:5;background:var(--panel)}
+  /* Penyusun RPS (pemilik 2026-11-24 "dibuat mudah, scroll"): tombol lompat bagian di kartu lengket, pekan bisa dilipat. */
+  .lompat-bag{display:flex;flex-wrap:wrap;gap:4px;margin:8px 0 2px}
+  .lompat-bag a{font-size:12.5px;padding:2px 10px;border:1px solid var(--biru-m3);border-radius:12px;text-decoration:none;color:var(--biru-2)}
+  .lompat-bag a:hover{background:var(--biru-m10)} .lompat-bag a.aktif{background:var(--biru);color:#fff;border-color:var(--biru)}
+  .lompat-bag a .n{color:#B3261E;font-weight:600;margin-left:4px} .lompat-bag a.aktif .n{color:#fff}
+  details.pekan>summary{cursor:pointer;list-style:none;display:flex;flex-wrap:wrap;gap:2px 10px;align-items:baseline}
+  details.pekan>summary::-webkit-details-marker{display:none}
+  details.pekan>summary::before{content:'\25B8';color:var(--biru-2)} details.pekan[open]>summary::before{content:'\25BE'}
+  details.pekan[open]>summary{margin-bottom:6px} .pekan-ringkas{color:var(--muted);font-size:12.5px}
   /* Kartu lengket (pemilik 2026-11-19): bila daftar periksa dibuka, kartu tidak melebihi layar dan gulir di dalamnya tidak
      berpindah ke RPS di belakangnya; daftar butir bergulir sendiri. */
   .lengket{max-height:calc(100vh - 8px);overflow-y:auto;overscroll-behavior:contain}
@@ -103,6 +112,9 @@
   .rv-judul{cursor:pointer} .rv-judul:hover{text-decoration:underline} .rv-judul .ke{color:var(--biru-2)}
   .rv-fakta{margin:3px 0 4px;padding-left:16px;color:var(--muted);font-size:12.5px}
   .rv-skor{display:flex;gap:12px;margin:3px 0} .rv-butir textarea{min-height:30px;font-size:13px}
+  .rv-tanya{margin:4px 0;padding-left:18px;font-size:13px} .rv-tanya li{margin:2px 0}
+  .rv-tanya li>span:first-child{display:block} .rv-yb{display:inline-flex;gap:10px;color:var(--muted);font-size:12.5px}
+  .rv-arti{color:var(--muted);font-size:12.5px;min-height:1em} .belum-list{margin:2px 0 0;padding-left:16px;font-size:12.5px}
   @media(max-width:1000px){
     #tata.ada-panel{display:block}
     #tata.ada-panel #panelReview{position:fixed;left:0;right:0;bottom:0;top:auto;max-height:72vh;z-index:30;border-width:2px 0 0;
@@ -121,7 +133,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></div>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-24-0aaa65"></script>
+<script src="config.js?v=2026-11-24-7448bf"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -141,22 +153,22 @@ addEventListener('error', function (e) {
 // Penyusun = koordinator MK atau pengampu kelas MK semester terakhir (boleh_rps, 112); GKM dan admin hanya melihat.
 // Pengesahan (112): dosen mengajukan -> Kaprodi aktif mengesahkan atau mengembalikan; daftar revisi (bagian F) otomatis.
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-24-0aaa65';
-import { bolehMutu, aktifPada, punya } from './koordinator.js?v=2026-11-24-0aaa65';
-import { bawaanHanyaSaya, ingatHanyaSaya, pesanKosongSaya } from './mk-saya.js?v=2026-11-24-0aaa65';
-import { cplMK } from './cpmk.js?v=2026-11-24-0aaa65';
+import { gerbang } from './menu.js?v=2026-11-24-7448bf';
+import { bolehMutu, aktifPada, punya } from './koordinator.js?v=2026-11-24-7448bf';
+import { bawaanHanyaSaya, ingatHanyaSaya, pesanKosongSaya } from './mk-saya.js?v=2026-11-24-7448bf';
+import { cplMK } from './cpmk.js?v=2026-11-24-7448bf';
 import { JENIS_ASESMEN, JENIS_MK, DIREKTORI, jenisAsesmen, bloom, hots, rapikanRps, kerangkaPekan, barisPekan, periksaRps, modelRps,
   namaBerkasRps, penyusunMK, revisiDariLog, tanggalLokal, waktuLokal, evaluasiDariData, BENTUK, SCL, rekapRps, BENTUK_INTEGRASI,
-  bedaRps, salinRps, rpsDariSilabus, ASESMEN_TES, BUTIR_REVIEW, SKALA_REVIEW, KESIMPULAN_REVIEW, rerataReview, butirKosongReview, faktaReview, STATUS_TANGGAPAN, butirTanggapan, sudahDitanggapi, rubrikKosong, kriteriaKosong, rentangPekan, susunanMK, jenisMK, bagiParitas, saringMK, ringkasSemester, htmlRingkasSemester, htmlSaringan, ubahSaringan, esignRps, paritas } from './rps.js?v=2026-11-24-0aaa65';
-import { JENIS_PETA, relasiPeta, petaSvg, usulPeta } from './rps-peta.js?v=2026-11-24-0aaa65';
-import { keB64 } from './pengajuan-mhs.js?v=2026-11-24-0aaa65';
-import { bacaTinjauan, bahanTinjauan } from './tinjauan-rps.js?v=2026-11-24-0aaa65';
-import { SHEETJS } from './nilai-cpl.js?v=2026-11-24-0aaa65';
-import { lembarRps, bacaRpsExcel, bagianBerubah, LEBAR_KOLOM } from './rps-excel.js?v=2026-11-24-0aaa65';
-import { modelBerkasReview, buatReviewDocx, namaBerkasReview } from './review-docx.js?v=2026-11-24-0aaa65';
-import { tenggatReview, hariKe, teksHari, mkTenggatRps, HARI_REVIEW_BAWAAN } from './pengingat-rps.js?v=2026-11-24-0aaa65';
-import { pngPeta, pngQr, entryPeta } from './rps-word.js?v=2026-11-24-0aaa65';
-import { buatRpsDocx } from './rps-docx.js?v=2026-11-24-0aaa65';
+  bedaRps, salinRps, rpsDariSilabus, ASESMEN_TES, BUTIR_REVIEW, SKALA_REVIEW, KESIMPULAN_REVIEW, rerataReview, butirKosongReview, faktaReview, STATUS_TANGGAPAN, butirTanggapan, sudahDitanggapi, PEMANDU_REVIEW, kunciTanya, jawabanPemandu, ringkasPemandu, rubrikKosong, kriteriaKosong, rentangPekan, susunanMK, jenisMK, bagiParitas, saringMK, ringkasSemester, htmlRingkasSemester, htmlSaringan, ubahSaringan, esignRps, paritas } from './rps.js?v=2026-11-24-7448bf';
+import { JENIS_PETA, relasiPeta, petaSvg, usulPeta } from './rps-peta.js?v=2026-11-24-7448bf';
+import { keB64 } from './pengajuan-mhs.js?v=2026-11-24-7448bf';
+import { bacaTinjauan, bahanTinjauan } from './tinjauan-rps.js?v=2026-11-24-7448bf';
+import { SHEETJS } from './nilai-cpl.js?v=2026-11-24-7448bf';
+import { lembarRps, bacaRpsExcel, bagianBerubah, LEBAR_KOLOM } from './rps-excel.js?v=2026-11-24-7448bf';
+import { modelBerkasReview, buatReviewDocx, namaBerkasReview } from './review-docx.js?v=2026-11-24-7448bf';
+import { tenggatReview, hariKe, teksHari, mkTenggatRps, HARI_REVIEW_BAWAAN } from './pengingat-rps.js?v=2026-11-24-7448bf';
+import { pngPeta, pngQr, entryPeta } from './rps-word.js?v=2026-11-24-7448bf';
+import { buatRpsDocx } from './rps-docx.js?v=2026-11-24-7448bf';
 
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -694,11 +706,13 @@ function htmlD(){
   return `<section class="kartu" id="bag-D"><h2>D. Rencana pembelajaran (16 pekan)</h2>
     <p class="ket">Pekan boleh digabung (mis. 5-7). UTS pekan 8 dan UAS pekan 16. Sub-CPMK dan asesmen sumatif dipilih dari bagian B supaya selaras.
       Kolom luring/daring: kegiatan dan estimasi waktu PB/PT/KM (mis. "Kuliah + Case Method; PB 2×50′, PT 2×60′, KM 2×60′").</p>
+    <div class="alat"><span class="ket">Klik judul pekan untuk membuka atau menutup.</span><button class="b" id="pekanBuka">Buka semua pekan</button><button class="b" id="pekanTutup">Tutup semua</button></div>
     ${R.pekan.map((p, i) => (p.jenis !== 'kuliah'
       ? `<div class="pekan ujian"><div class="pekan-kepala"><b>Pekan</b><input data-p="pekan.${i}.pekan" value="${esc(p.pekan)}"${dis()}>
           <select data-p="pekan.${i}.jenis" data-gambar="1"${dis()}>${opsi([['kuliah', 'Perkuliahan'], ['uts', 'UTS'], ['uas', 'UAS']], p.jenis)}</select>
           <b>${p.jenis === 'uts' ? 'Ujian Tengah Semester' : 'Ujian Akhir Semester'}</b>${ro() ? '' : ` <button class="b awas" data-hapus-pekan="${i}">Hapus</button>`}</div></div>`
-      : `<div class="pekan"><div class="pekan-kepala"><b>Pekan</b><input data-p="pekan.${i}.pekan" value="${esc(p.pekan)}"${dis()}>
+      : `<details class="pekan" data-pekan="${i}"${bukaPekan(p, i) ? ' open' : ''}><summary>${ringkasPekan(p)}</summary>
+        <div class="pekan-kepala"><b>Pekan</b><input data-p="pekan.${i}.pekan" value="${esc(p.pekan)}"${dis()}>
           <select data-p="pekan.${i}.jenis" data-gambar="1"${dis()}>${opsi([['kuliah', 'Perkuliahan'], ['uts', 'UTS'], ['uas', 'UAS']], p.jenis)}</select>
           ${ro() ? '' : `<button class="b" data-sisip-pekan="${i}">+ baris di bawah</button><button class="b awas" data-hapus-pekan="${i}">Hapus</button>`}</div>
         <div class="centang"><b>Sub-CPMK:</b>${S.sub.map(x => `<label title="${esc(x.rumusan)}"><input type="checkbox" data-pl="pekan.${i}.sub" value="${esc(x.kode)}"${(p.sub || []).includes(x.kode) ? ' checked' : ''}${dis()}> ${esc(x.kode)}</label>`).join('') || '<span class="kosong">isi di halaman CPMK</span>'}</div>
@@ -716,7 +730,7 @@ function htmlD(){
           (p.scl || []).includes(k) ? ' checked' : ''}${dis()}> ${l}</label>`).join('')}</div>
         <label class="fld"><span>Penugasan mahasiswa (tugas, proyek, laporan, presentasi; untuk lampiran rekap)</span>
           <input data-p="pekan.${i}.penugasan" value="${esc(p.penugasan || '')}"${dis()}></label>
-        <div class="centang"><b>Asesmen sumatif:</b>${sumatif.map(a => `<label><input type="checkbox" data-pl="pekan.${i}.asesmen" value="${esc(a.nama)}"${(p.asesmen || []).includes(a.nama) ? ' checked' : ''}${dis()}> ${esc(a.nama)}</label>`).join('') || '<span class="kosong">—</span>'}</div></div>`)).join('')}
+        <div class="centang"><b>Asesmen sumatif:</b>${sumatif.map(a => `<label><input type="checkbox" data-pl="pekan.${i}.asesmen" value="${esc(a.nama)}"${(p.asesmen || []).includes(a.nama) ? ' checked' : ''}${dis()}> ${esc(a.nama)}</label>`).join('') || '<span class="kosong">—</span>'}</div></details>`)).join('')}
     ${ro() ? '' : `<div class="alat"><button class="b" id="tambahPekan">+ Pekan</button><button class="b" id="kerangka">Ganti dengan kerangka 16 pekan</button></div>`}
   </section>`;
 }
@@ -787,7 +801,7 @@ function gambar(){
     <section class="kartu lengket"><h2><span class="kode">${esc(m.kode)}</span> ${esc(m.nama)} <span class="ket">(${esc(m.kurikulum)}, ${esc(m.sks ?? '—')} sks)</span></h2>
       <div class="alat">${ro() ? `<span class="ket">${BOLEH.has(PILIH) ? 'RPS sedang diajukan; terkunci sampai Kaprodi memutuskan.'
         : 'Anda hanya bisa melihat; RPS disusun koordinator MK atau dosen pengampu MK ini.'}</span>`
-        : '<button class="b utama" id="simpan">Simpan</button>'}<button class="b" id="unduh">Unduh Word (versi ini)</button>
+        : '<button class="b utama" id="simpan" title="Simpan (Ctrl+S)">Simpan</button>'}<button class="b" id="unduh">Unduh Word (versi ini)</button>
         <button class="b" id="unduhXlsx" title="Templat Excel berisi isian RPS ini; isi di Excel lalu impor kembali">Unduh templat Excel</button>
         ${ro() ? '' : '<button class="b" id="imporXlsx">Impor dari Excel</button><input type="file" id="fileXlsx" accept=".xlsx" hidden>'}
         ${simpanan?.sah ? '<button class="b" id="unduhSah">Unduh versi disahkan</button>' : ''}
@@ -796,11 +810,10 @@ function gambar(){
         ${PULIH.dasar !== DASAR ? `<span style="color:#8A5A00">RPS di server sudah berubah sejak itu${simpanan?.oleh ? ` (terakhir oleh ${esc(simpanan.oleh)})` : ''}; periksa ulang setelah memulihkan.</span>` : ''}
         <div class="alat"><button class="b" id="pulihkan">Pulihkan isian itu</button><button class="b awas" id="buangDraf">Buang</button></div></div>` : ''}
       <div id="imporPratinjau">${htmlImpor()}</div>
-      <div id="sah">${htmlSah()}</div>
-      <div id="ringkasReview">${htmlRingkasReview()}</div>
-      ${htmlBukti()}
       <details id="dPeriksa"><summary class="ket">Daftar periksa (Panduan Pengisian RPS bagian 6)</summary><div id="periksa" class="periksa-isi">${htmlPeriksa()}</div></details>
+      ${htmlLompat()}
     </section>
+    <section class="kartu" id="bag-status"><div id="sah">${htmlSah()}</div><div id="ringkasReview">${htmlRingkasReview()}</div>${htmlBukti()}</section>
     ${htmlA(m)}${htmlB(m)}${htmlPeta()}${htmlC()}${htmlD()}${htmlRubrik()}${htmlE()}
     <section class="kartu" id="bag-rekap"><h2>Lampiran: rekapitulasi beban belajar, bentuk pembelajaran, dan penilaian</h2>
       <p class="ket">Untuk akreditasi (tabel kurikulum LKPS); dihitung otomatis dari isian di atas dan ikut masuk Word di bawah bagian F.</p>
@@ -946,12 +959,12 @@ const teksTanggap = t => (t ? `<span class="chip ${t.status === 'diperbaiki' ? '
 // Penyusun RPS (119): menanggapi review terkirim; admin tidak menanggapi atas nama penyusun (a.n. admin hanya tanda tangan RPS).
 const bolehTanggap = () => BOLEH.has(PILIH);
 function htmlIsiReview(v){
-  const ada = BUTIR_REVIEW.filter(b => v.skor?.[b.kode] || v.catatan?.[b.kode]);
+  const ada = BUTIR_REVIEW.filter(b => v.skor?.[b.kode] || v.catatan?.[b.kode] || ringkasPemandu(v.catatan, b.kode).ya + ringkasPemandu(v.catatan, b.kode).belum);
   const lain = Object.keys(v.skor || {}).filter(k => !BUTIR_REVIEW.some(b => b.kode === k));   // butir lama yang sudah dihapus dari form
   return `<div class="gulir"><table class="ds"><thead><tr><th>Butir</th><th>Skor</th><th>Catatan reviewer</th><th>Tanggapan penyusun</th></tr></thead><tbody>
     ${[...ada.map(b => [b.kode, b.teks]), ...lain.map(k => [k, ''])].map(([k, t]) => `<tr><td><b>${esc(k)}</b> ${esc(t)}</td>
-      <td>${v.skor?.[k] ? `${esc(v.skor[k])} <span class="ket">${esc(Object.fromEntries(SKALA_REVIEW)[v.skor[k]] || '')}</span>` : '—'}</td>
-      <td>${esc(v.catatan?.[k] || '')}</td><td>${teksTanggap(v.tanggapan?.[k])}</td></tr>`).join('')}</tbody></table></div>
+      <td>${v.skor?.[k] ? `${esc(v.skor[k])} <span class="ket">${esc(Object.fromEntries(SKALA_REVIEW)[v.skor[k]] || '')}</span>` : '—'}${htmlPemanduHasil(v, k)}</td>
+      <td>${esc(v.catatan?.[k] || '')}${htmlBelum(v, k)}</td><td>${teksTanggap(v.tanggapan?.[k])}</td></tr>`).join('')}</tbody></table></div>
     ${v.umum ? `<p><b>Catatan umum reviewer:</b> ${esc(v.umum)}</p>` : ''}
     ${v.tanggapan_umum ? `<p><b>Tanggapan umum penyusun:</b> ${esc(v.tanggapan_umum)}</p>` : ''}
     ${v.tanggapan_pada ? `<p class="ket">Ditanggapi ${esc(v.tanggapan_oleh || 'penyusun')}, ${esc(waktuLokal(v.tanggapan_pada))}${sudahDitanggapi(v) ? '' : '; review dikirim ulang sesudahnya, perlu ditanggapi lagi'}.</p>` : ''}
@@ -963,7 +976,7 @@ function htmlFormTanggap(v){
       <span class="ket">(penyusun RPS; Kaprodi melihat catatan dan tanggapan berdampingan)</span></summary>
     ${bs.length ? `<div class="gulir"><table class="ds"><thead><tr><th>Butir dan catatan reviewer</th><th>Status</th><th>Tanggapan / perbaikan</th></tr></thead><tbody>
       ${bs.map(b => { const t = v.tanggapan?.[b.kode] || {};
-        return `<tr><td><b>${b.kode}</b> <span class="ket">skor ${esc(v.skor?.[b.kode] ?? '—')}</span><div>${esc(v.catatan?.[b.kode] || '(tanpa catatan; skor rendah)')}</div></td>
+        return `<tr><td><b>${b.kode}</b> <span class="ket">skor ${esc(v.skor?.[b.kode] ?? '—')}</span><div>${esc(v.catatan?.[b.kode] || (ringkasPemandu(v.catatan, b.kode).belum ? '' : '(tanpa catatan; skor rendah)'))}</div>${htmlBelum(v, b.kode)}</td>
         <td><select data-tgst="${id}|${b.kode}"><option value="">— pilih —</option>${STATUS_TANGGAPAN.map(([k, l]) => `<option value="${k}"${t.status === k ? ' selected' : ''}>${esc(l)}</option>`).join('')}</select></td>
         <td><textarea data-tgteks="${id}|${b.kode}" rows="2" placeholder="mis. Bobot tugas dinaikkan menjadi 25% (bagian B)">${esc(t.teks || '')}</textarea></td></tr>`; }).join('')}
       </tbody></table></div>` : '<p class="ket">Tidak ada butir bercatatan atau berskor rendah; cukup tanggapan umum.</p>'}
@@ -973,6 +986,20 @@ function htmlFormTanggap(v){
 // Mode review (pemilik 2026-11-19): form review di panel kanan (layar lebar) atau laci bawah (ponsel), berdampingan dengan RPS;
 // butir menuju bagian yang dinilai, butir bagian yang sedang dibaca ditandai, ringkasan otomatis (faktaReview) di bawah tiap butir.
 const sempit = () => matchMedia('(max-width:1000px)').matches;
+// Pertanyaan pemandu dan arti skor (PEMANDU_REVIEW, pemilik 2026-11-24).
+const artiSkor = (kode, n) => PEMANDU_REVIEW[kode]?.arti?.[n - 1] || '';
+const teksArti = (kode, n) => (n >= 1 && artiSkor(kode, n) ? `${n} = ${artiSkor(kode, n)}` : 'Arti skor tampil setelah memilih.');
+function htmlPemandu(v, b){
+  const j = jawabanPemandu(v.catatan, b.kode);
+  if (!j.length) return '';
+  return `<ol class="rv-tanya">${j.map((x, i) => { const k = kunciTanya(b.kode, i);
+    return `<li><span>${esc(x.tanya)}</span><span class="rv-yb">${[['ya', 'Ya'], ['belum', 'Belum']].map(([n, l]) =>
+      `<label><input type="radio" name="rvq_${esc(k)}" data-rvq="${esc(k)}" value="${n}"${x.jawab === n ? ' checked' : ''}> ${l}</label>`).join('')}</span></li>`; }).join('')}</ol>`;
+}
+const htmlPemanduHasil = (v, k) => { const r = ringkasPemandu(v.catatan, k);
+  return r.ya + r.belum ? `<br><span class="ket">pemandu ${r.ya}/${r.n} Ya</span>` : ''; };
+const htmlBelum = (v, k) => { const xs = jawabanPemandu(v.catatan, k).filter(x => x.jawab === 'belum');
+  return xs.length ? `<ul class="belum-list">${xs.map(x => `<li>Belum: ${esc(x.tanya)}</li>`).join('')}</ul>` : ''; };
 const bagSasaran = b => (b.ke && b.ke[0] === '#' ? 'bag-' + b.ke.slice(1) : 'bag-' + b.bagian);
 function htmlPanelReview(){
   const v = REVIEW?.find(x => x.saya);
@@ -992,8 +1019,10 @@ function htmlPanelReview(){
       ${bs.map(b => `<div class="rv-butir" data-bagsek="${bagSasaran(b)}">
         <div class="rv-judul" data-rvke="${esc(b.ke || '')}" data-rvbag="${b.bagian}" title="Buka bagian RPS yang dinilai"><b>${b.kode}</b> ${esc(b.teks)} <span class="ke">→</span></div>
         <ul class="rv-fakta">${(F[b.kode] || []).map(x => `<li>${esc(x)}</li>`).join('')}</ul>
+        ${htmlPemandu(v, b)}
         ${v.tanggapan?.[b.kode] ? `<div class="rv-tanggap"><b>Tanggapan penyusun:</b> ${teksTanggap(v.tanggapan[b.kode])}</div>` : ''}
-        <div class="rv-skor">${SKALA_REVIEW.map(([n, l]) => `<label title="${esc(l)}"><input type="radio" name="rv_${b.kode}" value="${n}"${+v.skor?.[b.kode] === n ? ' checked' : ''}> ${n}</label>`).join('')}</div>
+        <div class="rv-skor">${SKALA_REVIEW.map(([n, l]) => `<label title="${esc(artiSkor(b.kode, n) || l)}"><input type="radio" name="rv_${b.kode}" value="${n}"${+v.skor?.[b.kode] === n ? ' checked' : ''}> ${n}</label>`).join('')}</div>
+        <div class="rv-arti" id="rvArti_${b.kode}">${esc(teksArti(b.kode, +v.skor?.[b.kode]))}</div>
         <textarea data-rvcat="${b.kode}" rows="1" placeholder="Catatan (boleh kosong)">${esc(v.catatan?.[b.kode] || '')}</textarea></div>`).join('')}`; }).join('')}
     <label class="fld"><span>Catatan umum dan saran perbaikan</span><textarea id="rvUmum">${esc(v.umum || '')}</textarea></label>
     <div class="alat"><label>Kesimpulan <select id="rvKes"><option value="">— pilih —</option>${KESIMPULAN_REVIEW.map(([k, l]) =>
@@ -1009,10 +1038,37 @@ function pasangPanelReview(){
   if ($('rvUnduh')) $('rvUnduh').onclick = () => unduh(false);
   p.querySelectorAll('input[type=radio]').forEach(x => x.onchange = () => {
     const n = BUTIR_REVIEW.filter(b => p.querySelector(`input[name="rv_${b.kode}"]:checked`)).length;
-    $('rvHitung').textContent = `${n}/${BUTIR_REVIEW.length} butir diberi skor`; });
+    $('rvHitung').textContent = `${n}/${BUTIR_REVIEW.length} butir diberi skor`;
+    const kode = x.name.slice(3);
+    if ($('rvArti_' + kode)) $('rvArti_' + kode).textContent = teksArti(kode, +x.value); });
   tandaiButirAktif();
 }
 // Butir yang bagiannya sedang dibaca di kolom kiri ditandai (bagian yang memotong garis tepat di bawah kartu atas).
+// Tombol lompat bagian (pemilik 2026-11-24): angka merah = butir daftar periksa yang perlu dilengkapi di bagian itu.
+const BAG_NAV = [['A', 'A'], ['B', 'B'], ['peta', 'Peta'], ['C', 'C'], ['D', 'D'], ['rubrik', 'Rubrik'], ['E', 'E'], ['rekap', 'Lampiran']];
+function htmlLompat(){
+  const xs = periksaRps(ctx()).filter(t => t.tingkat === 'galat');
+  return `<nav class="lompat-bag" id="lompatBag" aria-label="Lompat ke bagian">${BAG_NAV.map(([id, l]) => {
+    const n = xs.filter(t => t.bagian === id).length;
+    return `<a href="#bag-${id}" data-lompat="${id}" data-navbag="bag-${id}"${n ? ` title="${n} butir perlu dilengkapi"` : ''}>${l}${n ? `<span class="n">${n}</span>` : ''}</a>`; }).join('')}</nav>`;
+}
+function tandaiNav(){
+  const nav = $('lompatBag');
+  if (!nav) return;
+  const garis = (document.querySelector('.lengket')?.getBoundingClientRect().bottom || 0) + 30;
+  const sek = [...document.querySelectorAll('#tata .kiri section[id^="bag-"]')].find(s => { const r = s.getBoundingClientRect(); return r.top <= garis && r.bottom > garis; });
+  nav.querySelectorAll('a').forEach(a => a.classList.toggle('aktif', !!sek && a.dataset.navbag === sek.id));
+}
+// Pekan terlipat: penyusun melihat pekan yang belum lengkap terbuka; pembaca (Kaprodi, reviewer) melihat semua terbuka.
+// Pilihan buka/tutup diingat per MK dan indeks pekan selama halaman terbuka (gambar() menggambar ulang).
+const PEKAN_BUKA = new Map();
+const pekanLengkap = p => !!(String(p.materi || '').trim() && String(p.indikator || '').trim() && String(p.bentuk || '').trim() && (p.sub || []).length);
+const bukaPekan = (p, i) => PEKAN_BUKA.has(PILIH + '|' + i) ? PEKAN_BUKA.get(PILIH + '|' + i) : (ro() || !pekanLengkap(p));
+function ringkasPekan(p){
+  const m = String(p.materi || '').trim().split('\n')[0];
+  return `<b>Pekan ${esc(p.pekan || '?')}</b><span class="pekan-ringkas">${esc((p.sub || []).join(', ') || 'Sub-CPMK belum dipilih')}${
+    m ? ' · ' + esc(m.length > 70 ? m.slice(0, 68) + '…' : m) : ''}</span>${pekanLengkap(p) ? '' : '<span class="chip saran">belum lengkap</span>'}`;
+}
 function tandaiButirAktif(){
   const p = $('panelReview');
   if (!p || !p.innerHTML.trim()) return;
@@ -1023,7 +1079,16 @@ function tandaiButirAktif(){
 // Layar berubah lebar/sempit (jendela diubah, ponsel diputar): laci terbuka di layar lebar, tertutup di layar sempit.
 matchMedia('(max-width:1000px)').addEventListener('change', e => { if ($('laciRv')) $('laciRv').open = !e.matches; });
 let rafTanda = 0;
-addEventListener('scroll', () => { if (!rafTanda) rafTanda = requestAnimationFrame(() => { rafTanda = 0; tandaiButirAktif(); }); }, { passive: true });
+addEventListener('scroll', () => { if (!rafTanda) rafTanda = requestAnimationFrame(() => { rafTanda = 0; tandaiButirAktif(); tandaiNav(); }); }, { passive: true });
+// Ctrl+S (Cmd+S) = Simpan.
+addEventListener('keydown', e => {
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's' && $('simpan') && !$('simpan').disabled) { e.preventDefault(); $('simpan').click(); }
+});
+// Pekan: buka/tutup diingat (toggle tidak menggelembung, jadi ditangkap di fase capture).
+$('isi').addEventListener('toggle', e => { const d = e.target; if (d.matches?.('details.pekan')) PEKAN_BUKA.set(PILIH + '|' + d.dataset.pekan, d.open); }, true);
+// Judul ringkas pekan ikut berubah saat diisi; ditunda satu putaran supaya penangan input utama sudah menulis nilai baru ke R.
+$('isi').addEventListener('input', e => { const d = e.target.closest?.('details.pekan');
+  if (d && R?.pekan) setTimeout(() => { const p = R.pekan[+d.dataset.pekan], s = d.querySelector(':scope>summary'); if (p && s) s.innerHTML = ringkasPekan(p); }); });
 
 function htmlReview(){
   if (!REVIEW) return '';
@@ -1110,6 +1175,8 @@ function pasangReview(){
       const c = document.querySelector(`[data-rvcat="${b.kode}"]`)?.value.trim();
       if (c) catatan[b.kode] = c;
     }
+    // Jawaban pertanyaan pemandu (pemilik 2026-11-24) disimpan di catatan dengan kunci '?<kode>.<n>'.
+    document.querySelectorAll('[data-rvq]:checked').forEach(x => { catatan[x.dataset.rvq] = x.value; });
     const kes = $('rvKes').value || null;
     if (kirim) {
       const kosong = butirKosongReview(skor);
@@ -1156,6 +1223,7 @@ function cariSasaran(ke, bag){
 function lompatKe(ke, bag){
   const el = cariSasaran(ke, bag);
   if (!el) return;
+  for (let d = el.closest('details'); d; d = d.parentElement?.closest('details')) d.open = true;   // pekan terlipat
   const kotak = el.matches('section') ? el : (el.closest('.pekan, .fld, .centang, label') || el);
   // Kartu lengket menutupi bagian atas layar; bila daftar periksa membuatnya tinggi (> 45% layar), tutup dulu.
   const lk = document.querySelector('.lengket'), dp = $('dPeriksa');
@@ -1177,7 +1245,8 @@ document.addEventListener('click', e => {
     if (a.dataset.lompat === 'review' && laci) { laci.open = true; laci.scrollIntoView({ block: 'nearest' }); return; }
     lompatKe('#' + a.dataset.lompat, a.dataset.lompat); }
 });
-const segarkanPeriksa = () => { const e = $('periksa'); if (e) e.innerHTML = htmlPeriksa(); };   // panel pengesahan diperbarui saat simpan
+const segarkanPeriksa = () => { const e = $('periksa'); if (e) e.innerHTML = htmlPeriksa();
+  const n = $('lompatBag'); if (n) { n.outerHTML = htmlLompat(); tandaiNav(); } };   // panel pengesahan diperbarui saat simpan
 function ubahBesar(f){ f(); KOTOR = true; gambar(); }
 
 function pasang(){
@@ -1236,6 +1305,9 @@ function pasang(){
   if ($('tambahPustaka')) $('tambahPustaka').onclick = () => ubahBesar(() => R.pustaka.push({ kode: '', teks: '' }));
   document.querySelectorAll('[data-hapus-pustaka]').forEach(b => { b.onclick = () => ubahBesar(() => R.pustaka.splice(+b.dataset.hapusPustaka, 1)); });
   if ($('tambahPekan')) $('tambahPekan').onclick = () => ubahBesar(() => R.pekan.push(barisPekan('')));
+  const semuaPekan = buka => document.querySelectorAll('details.pekan').forEach(d => { d.open = buka; PEKAN_BUKA.set(PILIH + '|' + d.dataset.pekan, buka); });
+  if ($('pekanBuka')) $('pekanBuka').onclick = () => semuaPekan(true);
+  if ($('pekanTutup')) $('pekanTutup').onclick = () => semuaPekan(false);
   if ($('kerangka')) $('kerangka').onclick = () => { if (confirm('Ganti seluruh rencana pekanan dengan kerangka kosong 16 pekan?')) ubahBesar(() => { R.pekan = kerangkaPekan(); }); };
   document.querySelectorAll('[data-sisip-pekan]').forEach(b => { b.onclick = () => ubahBesar(() => R.pekan.splice(+b.dataset.sisipPekan + 1, 0, barisPekan(''))); });
   document.querySelectorAll('[data-hapus-pekan]').forEach(b => { b.onclick = () => { if (confirm('Hapus baris pekan ini?')) ubahBesar(() => R.pekan.splice(+b.dataset.hapusPekan, 1)); }; });
