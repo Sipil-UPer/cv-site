@@ -147,15 +147,21 @@ import { denganOtomatis as otomatisDari, tsTersedia, tsAwal, htmlCapaianIKU, KET
 import { KATEGORI_TEMUAN, STATUS_TEMUAN, PIHAK_TEMUAN, ringkasTemuan, htmlRingkasTemuan } from './temuan-ami.js?v=2026-11-22-866c27';
 import { bacaRekapSPM, rencanaImporSPM, tsDariTanggal, labelTS, ringkasLembar, picProdi } from './standar-spmi.js?v=2026-11-22-866c27';
 import { SHEETJS } from './nilai-cpl.js?v=2026-11-22-866c27';
+import { bacaKerjasama, rencanaImporKS, LEMBAR_KS } from './impor-kerjasama.js?v=2026-11-22-866c27';
 import { bacaCSV, normKur, normCpl, KOLOM_IMPOR, CONTOH_IMPOR, rencanaImpor, sebaranCPL, htmlSebaran } from './kurikulum-cpl.js?v=2026-11-22-866c27';
 import { htmlContoh, pasangContoh, JENIS_BUKTI_KS } from './manfaat-kerjasama.js?v=2026-11-22-866c27';
 import { infoJenis } from './rencana-bukti.js?v=2026-11-22-866c27';
 import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-22-866c27';
+import { BOBOT } from './bobot.js?v=2026-11-22-866c27';
 import { nomorButir, htmlTautanButir } from './tautan-butir.js?v=2026-11-22-866c27';
 import { htmlSaran } from './saran-bukti.js?v=2026-11-22-866c27';
 import { tautanBerkas, privatkanLama, adalahPrivat } from './tautan-privat.js?v=2026-11-22-866c27';
 import { unggahLKD, buangLKD, bukaLKD, pendidikanTotal, pendidikanPS } from './bkd.js?v=2026-11-22-866c27';
 import { teksPelaksanaan } from './rekap-kp.js?v=2026-11-22-866c27';
+// Rentang nomor butir instrumen aktif (LAM Teknik 1-60, LAMDEPILAR 101-130; 159-patch, 2026-11-24).
+const NO_BUTIR = Object.keys(BOBOT).map(Number);
+const BUTIR_MIN = Math.min(...NO_BUTIR), BUTIR_MAKS = Math.max(...NO_BUTIR);
+const butirDiLuar = b => b != null && (b < BUTIR_MIN || b > BUTIR_MAKS);
 // Pelaksanaan KP per kerja sama (105, pemilik 2026-11-18): KP selesai di instansi bernama sama = bukti kegiatan.
 let KP_MITRA = new Map();
 
@@ -721,7 +727,7 @@ const TABEL = [
       { k: 'jenis', l: 'Jenis', t: 'pilihan', wajib: true, o: [['iku', 'IKU'], ['ikt', 'IKT']] },
       { k: 'bidang', l: 'Bidang', t: 'pilihan', o: [['pendidikan', 'Pendidikan'], ['penelitian', 'Penelitian'], ['pkm', 'PkM'], ['tata_kelola', 'Tata kelola'], ['lainnya', 'Lainnya']] },
       { k: 'nama', l: 'Nama indikator', t: 'teks', wajib: true, lebar: true },
-      { k: 'butir', l: 'Butir terkait (1–60)', t: 'int' },
+      { k: 'butir', l: `Butir terkait (${BUTIR_MIN}–${BUTIR_MAKS})`, t: 'int' },
       { k: 'tahun_ts', l: 'Tahun TS (tahun akhir, mis. 2026)', t: 'tahun', wajib: true },
       { k: 'satuan', l: 'Satuan', t: 'teks' },
       { k: 'arah', l: 'Arah target', t: 'pilihan', wajib: true, o: [['minimal', 'Minimal (capaian ≥ target)'], ['maksimal', 'Maksimal (capaian ≤ target)']] },
@@ -739,7 +745,7 @@ const TABEL = [
       { k: 'urutan', l: 'Urutan tampil', t: 'int' },
     ],
     olah: r => { if (r.urutan == null) r.urutan = 100; },
-    cek: r => r.butir != null && (r.butir < 1 || r.butir > 60) ? 'Butir harus 1 sampai 60.' : '' },
+    cek: r => butirDiLuar(r.butir) ? `Butir harus ${BUTIR_MIN} sampai ${BUTIR_MAKS}.` : '' },
   // 67-patch-standar-spmi.sql (pemilik 2026-11-12): Penetapan dan Peningkatan dalam PPEPP.
   { id: 'standar', tabel: 'spmi_standar', judul: 'Standar SPMI', butir: '53, 55', patch: '67-patch-standar-spmi.sql',
     urut: ['urutan', 'kode'],
@@ -814,7 +820,7 @@ const TABEL = [
       { k: 'kode', l: 'Kode temuan (mis. T-03)', t: 'teks' },
       { k: 'standar_id', l: 'Standar SPMI (dari tab Standar SPMI)', t: 'pilihan', o: () => OPSI_STANDAR(), patch67: true },
       { k: 'standar', l: 'Standar SPMI (teks, bila tidak ada di daftar)', t: 'teks' },
-      { k: 'butir', l: 'Butir terkait (1–60)', t: 'int' },
+      { k: 'butir', l: `Butir terkait (${BUTIR_MIN}–${BUTIR_MAKS})`, t: 'int' },
       { k: 'kategori', l: 'Kategori', t: 'pilihan', wajib: true, o: KATEGORI_TEMUAN },
       { k: 'uraian', l: 'Uraian temuan', t: 'paragraf', wajib: true },
       { k: 'akar_masalah', l: 'Akar masalah', t: 'paragraf' },
@@ -828,7 +834,7 @@ const TABEL = [
       { k: 'verifikasi', l: 'Hasil verifikasi efektivitas', t: 'paragraf' },
     ],
     olah: r => { if (!r.status) r.status = 'terbuka'; if (r.pj_email) r.pj_email = r.pj_email.trim(); },
-    cek: r => r.butir != null && (r.butir < 1 || r.butir > 60) ? 'Butir harus 1 sampai 60.'
+    cek: r => butirDiLuar(r.butir) ? `Butir harus ${BUTIR_MIN} sampai ${BUTIR_MAKS}.`
       : r.pj_email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(r.pj_email) ? 'Email penanggung jawab tidak sah.'
       : ['selesai', 'ditutup'].includes(r.status) && !r.tanggal_selesai ? 'Isi tanggal tindakan selesai untuk status Selesai atau Ditutup.'
       : r.status === 'ditutup' && !String(r.verifikasi || '').trim() ? 'Isi hasil verifikasi efektivitas sebelum menutup temuan.' : '' },
@@ -1239,6 +1245,90 @@ async function aturPantau(lembar, nilai){
     : `${lembar}: ${ubah.length} butir ${nilai ? 'dipantau' : 'tidak dipantau lagi'}.`);
 }
 
+// ---------------------------------------------------------------------
+//  Impor kerja sama dari Excel (pemilik 2026-11-24; site/impor-kerjasama.js). Templat Templat_Kerja_Sama.xlsx
+//  (tools/buat_templat_kerjasama.py). Baris yang sudah ada (mitra, jenis, tanggal awal sama) dan baris bergalat tidak
+//  disimpan. Bukti boleh kosong: dilengkapi lewat Ubah; daftar kerja sama tanpa bukti tampil di bawah kotak impor.
+// ---------------------------------------------------------------------
+let RENCANA_KS = null;
+function gambarImporKS(){
+  const box = $('impor-ks');
+  if (!box) return;
+  box.innerHTML = `<details class="massal"><summary><b>Impor dari Excel</b> (banyak kerja sama sekaligus)</summary>
+    <p class="ket">1. Unduh <a href="Templat_Kerja_Sama.xlsx" download>templat Excel kerja sama</a>; isi lembar "Kerja sama", satu baris per
+      MoU/PKS/IA (kolom kuning wajib; arti kolom dan contoh di lembar Petunjuk). 2. Unggah di sini, periksa pratinjau, lalu simpan.
+      Kerja sama yang sudah ada (mitra, jenis, dan tanggal awal sama) dilewati. Bukti boleh kosong; lengkapi nanti lewat <b>Ubah</b>.</p>
+    <div class="unggah-baris"><input type="file" id="ks_xlsx" accept=".xlsx,.xls,.csv"></div>
+    <div id="ks_pratinjau"></div></details>`;
+  $('ks_xlsx').onchange = async e => {
+    const f = e.target.files[0];
+    if (!f) return;
+    const pv = $('ks_pratinjau');
+    pv.innerHTML = '<p class="ket">Membaca berkas…</p>';
+    try {
+      XLSX_SPM = XLSX_SPM || await import(SHEETJS);
+      const wb = XLSX_SPM.read(await f.arrayBuffer(), { type: 'array', cellDates: true });
+      const nama = wb.SheetNames.includes(LEMBAR_KS) ? LEMBAR_KS : wb.SheetNames[0];
+      const hasil = bacaKerjasama(XLSX_SPM.utils.sheet_to_json(wb.Sheets[nama], { header: 1, raw: true, defval: null }));
+      gambarRencanaKS(hasil, nama);
+    } catch (err) { RENCANA_KS = null; pv.innerHTML = `<p class="msg buruk">Berkas tidak terbaca: ${esc(err.message)}</p>`; }
+  };
+}
+const TEKS_JENIS_KS = { pendidikan: 'Pendidikan', penelitian: 'Penelitian', pkm: 'PkM' };
+const TEKS_TINGKAT_KS = { internasional: 'Internasional', nasional: 'Nasional', wilayah: 'Wilayah/lokal' };
+function gambarRencanaKS(hasil, lembar){
+  const pv = $('ks_pratinjau');
+  if (hasil.tanpaJudul || hasil.hilang.length) {
+    RENCANA_KS = null;
+    pv.innerHTML = `<p class="msg buruk">Lembar "${esc(lembar)}" ${hasil.tanpaJudul ? 'tidak punya baris judul dengan kolom "Lembaga mitra"'
+      : `tidak punya kolom wajib: ${esc(hasil.hilang.join(', '))}`}. Pakai templat Excel di atas.</p>`;
+    return;
+  }
+  const r = RENCANA_KS = rencanaImporKS(hasil, BARIS);
+  const tanpaBukti = r.baru.filter(x => !x.tautan_bukti).length;
+  pv.innerHTML = `<p class="ket">Lembar "${esc(lembar)}": <b>${r.baru.length}</b> kerja sama baru · <b>${r.lewat.length}</b> dilewati ·
+      <b>${r.galat.length}</b> baris bergalat (tidak disimpan)${tanpaBukti ? ` · ${tanpaBukti} baru belum punya bukti (lengkapi nanti lewat Ubah)` : ''}
+      ${hasil.takDikenal.length ? `<br>Kolom tidak dikenali, diabaikan: ${esc(hasil.takDikenal.join(', '))}` : ''}</p>
+    ${r.galat.length ? `<div class="gulir"><table class="t"><thead><tr><th>Baris</th><th>Mitra</th><th>Galat (perbaiki di Excel, unggah ulang)</th></tr></thead><tbody>
+      ${r.galat.map(g => `<tr><td>${g.no}</td><td>${esc(g.mitra || '—')}</td><td>${esc(g.galat.join('; '))}</td></tr>`).join('')}</tbody></table></div>` : ''}
+    ${r.lewat.length ? `<p class="ket">Dilewati: ${esc(r.lewat.map(x => `baris ${x.no} ${x.mitra} (${x.alasan})`).join('; '))}.</p>` : ''}
+    ${r.baru.length ? `<div class="gulir"><table class="t"><thead><tr><th>Mitra</th><th>Jenis</th><th>Tingkat</th><th>Kegiatan</th><th>Mulai</th><th>Akhir</th><th>Bukti</th></tr></thead><tbody>
+      ${r.baru.map(x => `<tr><td>${esc(x.mitra)}</td><td>${esc(TEKS_JENIS_KS[x.jenis])}</td><td>${esc(TEKS_TINGKAT_KS[x.tingkat])}</td>
+        <td>${esc(x.kegiatan || '—')}</td><td>${esc(x.tanggal_mulai || x.tahun_mulai)}</td><td>${esc(x.tanggal_selesai || x.tahun_selesai || 'masih berlaku')}</td>
+        <td>${x.tautan_bukti ? 'ada' : '<span class="ket">belum</span>'}</td></tr>`).join('')}</tbody></table></div>` : ''}
+    <div class="aksi"><button type="button" class="btn" id="ks_simpan"${r.baru.length ? '' : ' disabled'}>Simpan ${r.baru.length} kerja sama</button>
+      <span class="msg" id="ks_msg"></span></div>`;
+  $('ks_simpan').onclick = simpanImporKS;
+}
+async function simpanImporKS(){
+  const msg = (cls, s) => { const m = $('ks_msg'); m.className = 'msg' + (cls ? ' ' + cls : ''); m.textContent = s; };
+  const r = RENCANA_KS;
+  if (!r || !r.baru.length) return;
+  $('ks_simpan').disabled = true;
+  const jejak = { oleh: SAYA.email, diperbarui: new Date().toISOString() };
+  let n = 0;
+  for (let i = 0; i < r.baru.length; i += 100) {
+    const { error } = await sb.from('lkps_kerjasama').insert(r.baru.slice(i, i + 100).map(x => ({ ...x, ...jejak })));
+    if (error) { msg('buruk', `Gagal setelah ${n} tersimpan: ${error.message}`); await muatBaris(); return; }
+    n += Math.min(100, r.baru.length - i);
+  }
+  RENCANA_KS = null;
+  await muatBaris();
+  $('ks_pratinjau').innerHTML = `<p class="msg ok">${n} kerja sama tersimpan.${r.galat.length ? ` ${r.galat.length} baris bergalat belum disimpan: perbaiki di Excel lalu unggah ulang (yang sudah tersimpan akan dilewati).` : ''}</p>`;
+}
+// Kerja sama tanpa bukti (tautan_bukti kosong dan tanpa berkas lkps_bukti): pengingat untuk dilengkapi lewat Ubah.
+function gambarTanpaBuktiKS(){
+  const box = $('ks-tanpa-bukti');
+  if (!box) return;
+  const xs = BARIS.filter(r => !String(r.tautan_bukti || '').trim() && !(LB.get(r.id) || []).length)
+    .sort((a, b) => String(a.mitra).localeCompare(String(b.mitra), 'id'));
+  box.innerHTML = xs.length ? `<details class="massal"${xs.length <= 10 ? ' open' : ''}><summary><b>${xs.length} kerja sama belum punya bukti</b>
+      (IA/MoA dan bukti pelaksanaan dinilai asesor)</summary>
+    <div class="gulir"><table class="t"><tbody>${xs.map(r => `<tr><td>${esc(r.mitra)}</td><td>${esc(TEKS_JENIS_KS[r.jenis] || r.jenis || '')}</td>
+      <td>${esc(r.tahun_mulai ?? '')}</td><td><button type="button" class="btn ghost kecil" data-ubah="${r.id}">Lengkapi bukti</button></td></tr>`).join('')}
+    </tbody></table></div></details>` : '';
+}
+
 let REKAP_SPM = null, XLSX_SPM = null;
 function gambarImporStandar(){
   const box = $('impor-standar');
@@ -1340,7 +1430,7 @@ const KOLOM_CSV_IKU = [
   ['jenis', 'iku atau ikt'],
   ['bidang', 'pendidikan, penelitian, pkm, tata_kelola, atau lainnya'],
   ['nama', 'nama indikator; tulis persis sama setiap tahun supaya tren antar-TS terbaca'],
-  ['butir', 'nomor butir matriks (1–60) yang diukur indikator ini; boleh kosong'],
+  ['butir', `nomor butir matriks (${BUTIR_MIN}–${BUTIR_MAKS}) yang diukur indikator ini; boleh kosong`],
   ['tahun_ts', 'tahun akhir TS, mis. 2026 untuk 2025/2026'],
   ['satuan', 'mis. %, judul, orang, tahun, kegiatan'],
   ['arah', 'minimal (capaian harus ≥ target) atau maksimal (capaian harus ≤ target, mis. masa studi)'],
@@ -1381,7 +1471,7 @@ function barisIKU(kepala, sel){
     if (!Number.isFinite(+v)) { galat.push(`${k} bukan angka`); continue; }
     isi[k] = ['butir', 'urutan'].includes(k) ? Math.round(+v) : +v;
   }
-  if (isi.butir != null && (isi.butir < 1 || isi.butir > 60)) galat.push('butir 1–60');
+  if (butirDiLuar(isi.butir)) galat.push(`butir ${BUTIR_MIN}–${BUTIR_MAKS}`);
   for (const k of ['satuan', 'tujuan_strategis', 'dampak', 'daya_saing', 'analisis']) { const v = ambil(k); if (v) isi[k] = v; }
   const sumber = ambil('sumber');
   if (sumber) { if (OPSI_SUMBER.some(([id]) => id === sumber)) isi.sumber = sumber; else galat.push(`sumber "${sumber}" tidak dikenal`); }
@@ -1841,7 +1931,7 @@ async function bukaTab(){
   if (T.khusus) return bukaPustaka();
   $('panel').innerHTML = `<p class="ket">${nomorButir(T.butir).length
     ? `<b>${htmlTautanButir(nomorButir(T.butir), null, 'Dipakai di')}.</b>` : `<b>${esc(T.butir)}.</b>`} ${esc(T.ket)}</p>${saranTab(T)}
-    ${T.id === 'kepuasan' ? '<div id="massal"></div>' : ''}${T.id === 'mk' ? '<div id="impor-mk"></div>' : ''}${JENIS_CPL[T.id] ? `${T.id === 'mk_cpl' ? '<div id="sebaran-cpl"></div>' : ''}<div id="impor-cpl"></div>` : ''}${T.id === 'target' ? '<div id="capaian-iku"></div><div id="impor-iku"></div>' : ''}${T.id === 'temuan' ? '<div id="ringkas-temuan"></div>' : ''}${T.id === 'standar' ? '<div id="pantau-lembar"></div><div id="impor-standar"></div>' : ''}
+    ${T.id === 'kepuasan' ? '<div id="massal"></div>' : ''}${T.id === 'mk' ? '<div id="impor-mk"></div>' : ''}${T.id === 'kerjasama' ? '<div id="impor-ks"></div><div id="ks-tanpa-bukti"></div>' : ''}${JENIS_CPL[T.id] ? `${T.id === 'mk_cpl' ? '<div id="sebaran-cpl"></div>' : ''}<div id="impor-cpl"></div>` : ''}${T.id === 'target' ? '<div id="capaian-iku"></div><div id="impor-iku"></div>' : ''}${T.id === 'temuan' ? '<div id="ringkas-temuan"></div>' : ''}${T.id === 'standar' ? '<div id="pantau-lembar"></div><div id="impor-standar"></div>' : ''}
     <details class="formulir" id="formLipat"><summary id="formJudul">＋ Tambah baris</summary>
     <form id="form" novalidate><div class="grid">${kolomForm(T).map(isian).join('')}
       ${T.tanpaBukti ? '' : T.privat ? blokLKD() : blokBukti(T)}</div>
@@ -2011,6 +2101,7 @@ async function muatBaris(){
     KP_MITRA = teksPelaksanaan(kp || []);
     if (T !== AKTIF) return;
   }
+  if (T.id === 'kerjasama' && $('impor-ks') && !$('impor-ks').innerHTML) gambarImporKS();
   if (T.id === 'kepuasan') gambarMassalKepuasan($('m_ta')?.value.trim());
   if (T.id === 'mk' && $('impor-mk') && !$('impor-mk').innerHTML) gambarImporMK();
   if (JENIS_CPL[T.id]) { await muatRefCPL(); if (T !== AKTIF) return; gambarKurikulumCPL(T); }
@@ -2037,6 +2128,7 @@ async function muatBaris(){
   LB_GAGAL = lb.error ? lb.error.message : '';
   LB = new Map();
   (lb.data || []).forEach(x => { if (!LB.has(x.baris_id)) LB.set(x.baris_id, []); LB.get(x.baris_id).push(x); });
+  if (T.id === 'kerjasama') gambarTanpaBuktiKS();
   if (!BARIS.length) {
     box.innerHTML = '<p class="kosong">Belum ada baris. Isi formulir di atas untuk menambah.</p>';
     if ($('formLipat')) $('formLipat').open = true;

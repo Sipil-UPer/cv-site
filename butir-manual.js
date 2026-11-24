@@ -7,7 +7,7 @@
    config.yaml accreditation.instrument (pemilik 2026-11-24).
    ===================================================================== */
 
-export { BUTIR_MANUAL, SEKSI_MANUAL, ASPEK_KEPUASAN, cekKepuasan, tkKepuasan }
+export { BUTIR_MANUAL, SEKSI_MANUAL, SEKSI_KARTU, ASPEK_KEPUASAN, cekKepuasan, tkKepuasan }
   from './instrumen/lam-teknik-s1/butir-manual.js';
 
 // Kunci pengaturan untuk satu butir.

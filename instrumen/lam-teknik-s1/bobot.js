@@ -74,3 +74,8 @@ export const bobotButir = no => BOBOT[String(no)] ?? 0;
 // skor.html untuk NA maksimum, batas atas NA, dan panjang batang skor (irisan 4,
 // pemilik 2026-11-24). Instrumen lain bisa berbeda, mis. perolehan status LAMDEPILAR: 3.
 export const SKOR_MAKS = 4;
+
+// Teks rujukan di halaman Skor (2026-11-24): label kartu dan kaki halaman.
+export const NAMA_INSTRUMEN = 'APS-AV 2025';
+export const SUMBER_RUMUS = 'Matriks Penilaian APS-AV 2025 1.0 Program Sarjana, bobot mengikuti lampiran ' +
+  'Bobot Penilaian Akreditasi Program Studi';

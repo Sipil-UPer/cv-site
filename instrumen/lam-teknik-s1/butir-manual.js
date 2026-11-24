@@ -208,6 +208,21 @@ export const SEKSI_MANUAL = {
   kembang:   'Program pengembangan berkelanjutan',
 };
 
+// Bagian kartu di halaman Skor, sesuai urutan tampil (2026-11-24; dulu tertulis di
+// render() skor.html). Butir manual masuk menurut `seksi`-nya; `rumus` = nomor butir
+// berumus (rumus-butir.js) di bagian itu.
+export const SEKSI_KARTU = [
+  { id: 'vmts',       judul: 'Visi, misi, tujuan, dan sasaran',      rumus: [] },
+  { id: 'kerjasama',  judul: 'Tata pamong, kerja sama, dan keuangan', rumus: ['6', '9', '10', '11'] },
+  { id: 'pendidikan', judul: 'Pendidikan, penelitian, dan PkM',      rumus: ['19', '23', '25', '31', '32'] },
+  { id: 'dosen',      judul: 'Sumber daya manusia (DTPS)',           rumus: ['26', '27', '28', '33', '34', '35', '36', '37'] },
+  { id: 'sarana',     judul: 'Sarana, prasarana, dan K3L',           rumus: [] },
+  { id: 'mahasiswa',  judul: 'Mahasiswa dan luaran',
+    rumus: ['40', '41', '42', '43', '44', '45', '46', '47', '49', '50', '51'] },
+  { id: 'mutu',       judul: 'Sistem penjaminan mutu',               rumus: [] },
+  { id: 'kembang',    judul: 'Program pengembangan berkelanjutan',   rumus: [] },
+];
+
 // Kepuasan pengguna lulusan: rumus ΣTKi butir 52 (dipindah dari site/butir-manual.js 2026-11-24).
 // Tujuh aspek kepuasan pengguna lulusan (Tabel 6.g.2 LKPS). Nilai = kunci di
 // tabel lkps_kepuasan_pengguna (supabase/21-patch-kepuasan-pengguna.sql);

@@ -113,6 +113,13 @@ const ORCID  = window.PROFIL_ORCID  || 'https://orcid.org/';
 const esc = s => String(s ?? '').replace(/[&<>"']/g,c=>
   ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const rapi = s => s ? String(s).replace(/_/g,' ') : '';
+// Judul dan DOI publikasi bisa diklik (pemilik 2026-11-24). Skrip ini bukan modul, jadi logika
+// site/tautan-publikasi.js ditulis ulang di sini (diuji sama di tests/js/tautan_publikasi.test.mjs).
+const doiBaku = d => String(d ?? '').trim().replace(/^https?:\/\/(dx\.)?doi\.org\//i, '').replace(/^doi:\s*/i, '');
+const urlPublikasi = p => { const d = doiBaku(p && p.doi); if (d) return 'https://doi.org/' + d;
+  const u = String((p && p.url) ?? '').trim(); return /^https?:\/\/\S+$/i.test(u) && !/(drive|docs|script)\.google\./i.test(u) ? u : ''; };
+const aTautan = (url, teks) => url ? `<a href="${esc(url)}" target="_blank" rel="noopener">${esc(teks)}</a>` : esc(teks);
+const htmlDoi = p => { const d = doiBaku(p && p.doi); return d ? 'DOI ' + aTautan('https://doi.org/' + d, d) : ''; };
 const pilih = new URLSearchParams(location.search).get('d') || '';
 // SDGs per karya (47-patch-sdgs.sql, pemilik 2026-11-11): warna resmi PBB, tautan ke Rekap SDGs.
 const WARNA_SDG = ['#E5243B','#DDA63A','#4C9F38','#C5192D','#FF3A21','#26BDE2','#FCC30B','#A21942','#FD6925',
@@ -204,10 +211,10 @@ function render(D){
     return `<div class="e">
       <div class="thn">${p.tahun}</div>
       <div class="e-b">
-        <div class="e-j">${esc(p.judul)}
+        <div class="e-j">${aTautan(urlPublikasi(p), p.judul)}
           ${tandaPeran(saya)}</div>
-        <div class="e-m">${[rapi(p.jenis), p.terbitan, [p.volume && 'Vol. ' + p.volume, p.nomor && 'No. ' + p.nomor, p.halaman && 'hlm. ' + p.halaman].filter(Boolean).join(' '), p.doi && ('DOI '+p.doi)]
-          .filter(Boolean).map(esc).join(' · ')}</div>
+        <div class="e-m">${[...[rapi(p.jenis), p.terbitan, [p.volume && 'Vol. ' + p.volume, p.nomor && 'No. ' + p.nomor, p.halaman && 'hlm. ' + p.halaman].filter(Boolean).join(' ')]
+          .filter(Boolean).map(esc), htmlDoi(p)].filter(Boolean).join(' · ')}</div>
         <div class="e-p">${barisPenulis(p.penulis, pilih)}</div>
         ${tandaSDG(p.sdgs)}
       </div>

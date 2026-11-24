@@ -10,6 +10,14 @@
 import { namaJenisBukti } from './rencana-bukti.js?v=2026-11-22-866c27';
 import { buangBerkas, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-22-866c27';
 import { htmlTautanButir, butirKarya, tsBaris } from './tautan-butir.js?v=2026-11-22-866c27';
+import { urlPublikasi, aTautan, doiBaku } from './tautan-publikasi.js?v=2026-11-22-866c27';
+
+/** Baris tautan publikasi (DOI atau URL) yang bisa diklik; '' bila bukan publikasi atau tanpa tautan (pemilik 2026-11-24). */
+export function tautanPublikasiKarya(k){
+  if (k.kategori !== 'publikasi') return '';
+  const u = urlPublikasi(k), d = doiBaku(k.doi);
+  return u ? `<div class="rec-m"><span>${aTautan(u, d ? 'DOI ' + d : 'Tautan publikasi')}</span></div>` : '';
+}
 
 export const esc = s => String(s ?? '').replace(/[&<>"']/g, c =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -54,6 +62,7 @@ export function barisKarya(k, aksi = '', ekstra = '', namaSkema = () => ''){
       <div class="rec-m">${meta.map(x => `<span>${esc(x)}</span>`).join('')}</div>
       ${nama.length ? `<div class="rec-m"><span>${esc(nama.join(' · '))}</span></div>` : ''}
       ${k.catatan ? `<div class="rec-m"><span>Catatan: ${esc(k.catatan)}</span></div>` : ''}
+      ${tautanPublikasiKarya(k)}
       ${tautanKarya(k)}
       ${ekstra}
     </div>

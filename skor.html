@@ -405,10 +405,11 @@ addEventListener('error', function (e) {
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
 import { BUTIR, isiPetaBukti, cariBukti, daftarBukti, kolomBukti } from './rincian.js?v=2026-11-22-866c27';
-import { BUTIR_MANUAL, SEKSI_MANUAL, kunciButir, kunciBuktiButir, skorManual, tkKepuasan }
+import { BUTIR_MANUAL, SEKSI_MANUAL, SEKSI_KARTU, kunciButir, kunciBuktiButir, skorManual, tkKepuasan }
   from './butir-manual.js?v=2026-11-22-866c27';
-import { BOBOT_TOTAL, bobotButir, SKOR_MAKS } from './bobot.js?v=2026-11-22-866c27';
+import { BOBOT_TOTAL, bobotButir, SKOR_MAKS, NAMA_INSTRUMEN, SUMBER_RUMUS } from './bobot.js?v=2026-11-22-866c27';
 import { buatRumus } from './rumus-butir.js';
+import { LED, LKPS } from './dokumen-instrumen.js';
 import { hitungTS, ampuPerTA } from './dosen-hitung.js?v=2026-11-22-866c27';
 import { isiPotret, bulanDari, svgTrenPotret, htmlRiwayatPotret } from './potret-skor.js?v=2026-11-22-866c27';
 import { bacaTinjauan, unsurDariTinjauan } from './tinjauan-rps.js?v=2026-11-22-866c27';
@@ -428,7 +429,7 @@ import { karya4i, tautanPengutip } from './sitasi.js?v=2026-11-22-866c27';
 import { dataButir, pendukungButir, ambilDataButir, htmlTabelData } from './data-butir.js?v=2026-11-22-866c27';
 import { TAB_DATA } from './kelengkapan.js?v=2026-11-22-866c27';
 import { statusSyarat, syaratButir, SYARAT_UNGGUL, SYARAT_RERATA, SASARAN,
-         statusRerata, gabungSyarat, statusRentang, TEKS_BATAS } from './syarat-unggul.js?v=2026-11-22-866c27';
+         statusRerata, gabungSyarat, statusRentang, TEKS_BATAS, SUMBER_STATUS } from './syarat-unggul.js?v=2026-11-22-866c27';
 import { JABATAN, NAIK, PUBLIKASI, LUARAN, SUMBER, skenarioKosong, uraiSkenario, terapkanSkenario, bandingkan } from './simulasi-skor.js?v=2026-11-22-866c27';
 
 // config.js mendefinisikan window.SB_URL dan window.SB_KEY — pemetaan di
@@ -680,10 +681,15 @@ async function unduhLKPS(idTombol){
     // Hanya tertulis di berkas unduhan, tidak disimpan di situs (pemilik 2026-11-06).
     const sandiLkd = idTombol === 'unduhIndeksBukti' ? (prompt('Kata sandi berkas privat yang ditulis di indeks untuk asesor '
       + '(sama dengan LKD_SANDI di Apps Script). Kosongkan bila diberikan terpisah:') || '').trim() : '';
+    // Mesin LKPS menurut instrumen (dokumen.js, 2026-11-24): LAM Teknik lkps-tabel.js (salin-tempel),
+    // LAMDEPILAR lkps-lamdepilar.js (templat resmi diisi langsung).
+    const MESIN_LKPS = { 'lkps-tabel.js': async () => (await import('./lkps-tabel.js?v=2026-11-22-866c27')).buatTabelLKPS,
+                         'lkps-lamdepilar.js': async () => (await import('./lkps-lamdepilar.js')).buatLKPS };
+    if (idTombol !== 'unduhIndeksBukti' && !MESIN_LKPS[LKPS.mesin]) throw new Error(`mesin LKPS tidak dikenal: ${LKPS.mesin}`);
     const buat = idTombol === 'unduhIndeksBukti' ? (await import('./lkps-bukti.js?v=2026-11-22-866c27')).buatIndeksBukti
-      : (await import('./lkps-tabel.js?v=2026-11-22-866c27')).buatTabelLKPS;
+      : await MESIN_LKPS[LKPS.mesin]();
     const hasil = await buat({ D, ts, prodi: D.prodi, institusi: D.institusi, rencanaKepuasan,
-      daftar, sandiLkd });
+      daftar, sandiLkd, templat: LKPS.templat, contoh: LKPS.contoh, jenjang: LKPS.jenjang });
     a.textContent = idTombol === 'unduhIndeksBukti' ? `Indeks terunduh (${hasil.sel} tautan, ${hasil.lembar.length} tabel)`
       : `LKPS terunduh (${hasil.sel} sel pada ${hasil.lembar.length} lembar)`;
   } catch (e) {
@@ -732,9 +738,16 @@ async function unduhLED(){
   const asli = a.textContent;
   a.textContent = 'Menyusun draf LED…';
   try {
-    const { buatLED } = await import('./led.js?v=2026-11-22-866c27');
+    // Mesin LED menurut instrumen (dokumen.js, 2026-11-24): LAM Teknik led.js, LAMDEPILAR led-kerangka.js.
+    const MESIN_LED = { 'led.js': () => import('./led.js?v=2026-11-22-866c27'),
+                        'led-kerangka.js': () => import('./led-kerangka.js') };
+    if (!MESIN_LED[LED.mesin]) throw new Error(`mesin LED tidak dikenal: ${LED.mesin}`);
+    const { buatLED } = await MESIN_LED[LED.mesin]();
     const ts = CTX_LED.tsData;
     const hasil = await buatLED({
+      // led-kerangka.js: templat instrumen, unsur per butir, bukti per unsur (led.js mengabaikannya).
+      templat: LED.templat, butirManual: BUTIR_MANUAL, unsurButir: UNSUR_BUTIR,
+      bukti: no => buktiButir(no, { dokumen: DOK, butirBukti: BB, ts }),
       D, ts, taDari, f2, versi: VERSI,
       skorButir: CTX_LED.skorButir, judulButir: CTX_LED.judulButir,
       st: CTX_LED.st, NA: CTX_LED.NA, NAmax: CTX_LED.NAmax, semuaSy: CTX_LED.semuaSy,
@@ -764,7 +777,8 @@ async function unduhLED(){
       kartu: no => document.getElementById(`butir-${no}`),
     });
     a.textContent = hasil.gagal.length
-      ? `Terunduh; ${hasil.gagal.length} subbagian belum terisi (lihat catatan di halaman 1)`
+      ? `Terunduh; ${hasil.gagal.length} subbagian belum terisi ${LED.mesin === 'led.js'
+          ? '(lihat catatan di halaman 1)' : `(${hasil.gagal.join(', ')})`}`
       : 'Draf LED terunduh';
   } catch (e) {
     console.error(e);
@@ -1012,7 +1026,7 @@ function kartuButir(no, judul, isi, skor, catatan, lencana){
     sy && sy.tahu && !sy.u5ok ? ' syarat-gagal' : ''}" id="butir-${no}">
     <div class="butir">
     <div>
-      <div class="no">Butir ${no} · APS-AV 2025${pihakButir(no) ? ` · <span class="pj">Penanggung jawab: ${esc(pihakButir(no))}${
+      <div class="no">Butir ${no} · ${esc(NAMA_INSTRUMEN)}${pihakButir(no) ? ` · <span class="pj">Penanggung jawab: ${esc(pihakButir(no))}${
         UNSUR_BUTIR[no] || ['20', '22', '24'].includes(String(no)) ? ' (rinci per unsur di tabel)' : ''}</span>` : ''}</div>
       <h3>${esc(judul)}${lencana || ''}${
         syaratButir(no) ? '<span class="syarat">syarat perlu</span>' : ''}</h3>
@@ -1477,7 +1491,7 @@ function bagianTren(daftar, tren, tsTren){
 function nilaiIndikator(ind){
   if (ind.komponen) {
     const v = IS(`b${ind.butir}_${ind.komponen}`);
-    return v == null || !Number.isFinite(v) ? null : Math.max(0, Math.min(4, v));
+    return v == null || !Number.isFinite(v) ? null : Math.max(0, Math.min(SKOR_MAKS, v));
   }
   const b = BUTIR_MANUAL.find(x => x.no === ind.butir);
   return b ? skorManual(b, IS).skor : null;
@@ -1497,7 +1511,9 @@ function kebutuhanSyarat(x, sa, tsData){
   if (x.indikator) {
     const rendah = x.indikator
       .map((ind, i) => ({ ind, v: x.nilai[i] }))
-      .filter(o => o.v == null || o.v < x[sa] - 0.005)
+      // ambangIndikator: skor per indikator yang dianggap cukup bila ambang syarat bukan skor
+      // (mis. LAMDEPILAR "80% elemen memenuhi"); tanpa itu, ambang syarat itu sendiri.
+      .filter(o => o.v == null || o.v < (x.ambangIndikator ?? x[sa]) - 0.005)
       .map(o => `butir ${o.ind.butir}${o.ind.komponen ? '-' + o.ind.komponen.toUpperCase() : ''} ` +
                 (o.v == null ? '(kosong)' : `(${f2(o.v)})`));
     return x.rerata == null
@@ -1547,11 +1563,11 @@ function bagianJalanUnggul(ctx){
     }).join('')}</tbody></table></div>`
     : '<p class="ket">Semua syarat perlu terpenuhi.</p>';
 
-  // B. Peluang poin: (4 - skor) x bobot, butir kosong dihitung dari 0.
+  // B. Peluang poin: (SKOR_MAKS - skor) x bobot, butir kosong dihitung dari 0.
   const peluang = Object.keys(skorButir).map(no => {
     const { n, ada } = skorButir[no];
     const b = bobotButir(no);
-    return { no, n, ada, b, sisa: (4 - (ada ? n : 0)) * b,
+    return { no, n, ada, b, sisa: (SKOR_MAKS - (ada ? n : 0)) * b,
              manual: kualitatif(no) };
   }).sort((p, q) => q.sisa - p.sisa);
   const tabelB = `
@@ -1563,12 +1579,12 @@ function bagianJalanUnggul(ctx){
         <td>${p.manual ? 'dari bukti' : 'berumus'}</td>
         <td>${p.ada ? f2(p.n) : '<span class="tchip">kosong</span>'}</td>
         <td>${f2(p.b)}</td><td><b>${f2(p.sisa)}</b></td>
-        <td><input type="number" min="0" max="4" step="0.25" data-butir="${esc(p.no)}"
+        <td><input type="number" min="0" max="${SKOR_MAKS}" step="0.25" data-butir="${esc(p.no)}"
              placeholder="${p.ada ? f2(p.n) : 'kosong'}" style="width:76px"></td></tr>`).join('')}
     </tbody></table></div>
     <div class="aksi-sim" style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
       <button type="button" id="sim-hitung">Hitung simulasi</button>
-      <button type="button" id="sim-empat">Isi semua butir kosong = 4</button>
+      <button type="button" id="sim-empat">Isi semua butir kosong = ${SKOR_MAKS}</button>
       <button type="button" id="sim-reset">Kosongkan simulasi</button></div>
     <div id="sim-hasil" class="ket" style="margin-top:8px"></div>`;
 
@@ -1617,7 +1633,7 @@ function bagianJalanUnggul(ctx){
       · NA ${f2(ctx.NA)} (maksimum yang masih mungkin ${f2(NAmax)}).</p>
     <h3 class="sub-jalan">A. Penghalang status</h3>${tabelA}
     <h3 class="sub-jalan">B. Peluang poin terbesar dan simulasi</h3>
-    <p class="ket">Peluang poin = (4 − skor) × bobot: tambahan NA bila butir itu mencapai 4.
+    <p class="ket">Peluang poin = (${SKOR_MAKS} − skor) × bobot: tambahan NA bila butir itu mencapai ${SKOR_MAKS}.
       Isi kolom simulasi untuk melihat dampaknya pada NA dan status; tidak ada yang disimpan.</p>
     ${tabelB}
     <h3 class="sub-jalan">B2. Langkah tercepat: satu bukti berikutnya</h3>
@@ -1902,7 +1918,7 @@ function pasangSimulasi(ctx){
       const v = no in sim ? sim[no] : ada ? n : null;
       nilai[no] = v;
       NAmin += bobotButir(no) * (v ?? 0);
-      NAmx  += bobotButir(no) * (v ?? 4);
+      NAmx  += bobotButir(no) * (v ?? SKOR_MAKS);
     });
     // Syarat: butir syarat memakai skor simulasi; syarat rerata memakai skor
     // simulasi butir utuh bila butir itu diisi, selain itu nilai sebenarnya.
@@ -1918,7 +1934,7 @@ function pasangSimulasi(ctx){
   document.getElementById('sim-hitung').onclick = hitung;
   document.getElementById('sim-reset').onclick = () => { masukan.forEach(i => i.value = ''); hitung(); };
   document.getElementById('sim-empat').onclick = () => {
-    masukan.forEach(i => { if (!ctx.skorButir[i.dataset.butir].ada) i.value = '4'; }); hitung(); };
+    masukan.forEach(i => { if (!ctx.skorButir[i.dataset.butir].ada) i.value = String(SKOR_MAKS); }); hitung(); };
   masukan.forEach(i => i.addEventListener('keydown', e => { if (e.key === 'Enter') hitung(); }));
 }
 
@@ -2114,7 +2130,7 @@ function render(){
         ${esc(st.catatan)}
         ${daftarGagal.join(' ')}
         ${syBelum.length ? `Belum terhitung: ${esc(syBelum.join(', '))}.` : ''}
-        Syarat perlu: pedoman penilaian Tabel 4.3.1; status: Tabel 3.</i></div>
+        Syarat perlu: ${esc(SUMBER_STATUS)}.</i></div>
 
       <div><b class="${lemah.length ? 'mer' : ''}">${lemah.length}</b>
         <span>Butir di bawah 2,50</span>
@@ -2139,18 +2155,9 @@ function render(){
         'bukti tiap butir · bukti karya · yang belum ada',
         bagianRekapBukti(ctxJalan))}
 
-    ${seksi('vmts', 'Visi, misi, tujuan, dan sasaran', rentang(man('vmts')), man('vmts'))}
-    ${(() => { const n = gab(['6','9','10','11'], man('kerjasama'));
-       return seksi('kerjasama', 'Tata pamong, kerja sama, dan keuangan', rentang(n), n); })()}
-    ${(() => { const n = gab(['19','23','25','31','32'], man('pendidikan'));
-       return seksi('pendidikan', 'Pendidikan, penelitian, dan PkM', rentang(n), n); })()}
-    ${(() => { const n = gab(['26','27','28','33','34','35','36','37'], man('dosen'));
-       return seksi('dosen', 'Sumber daya manusia (DTPS)', rentang(n), n); })()}
-    ${seksi('sarana', 'Sarana, prasarana, dan K3L', rentang(man('sarana')), man('sarana'))}
-    ${(() => { const n = gab(['40','41','42','43','44','45','46','47','49','50','51'], man('mahasiswa'));
-       return seksi('mahasiswa', 'Mahasiswa dan luaran', rentang(n), n); })()}
-    ${seksi('mutu', 'Sistem penjaminan mutu', rentang(man('mutu')), man('mutu'))}
-    ${seksi('kembang', 'Program pengembangan berkelanjutan', rentang(man('kembang')), man('kembang'))}
+    ${/* Bagian kartu dari instrumen (SEKSI_KARTU, 2026-11-24): butir berumus + butir manual per seksi. */
+      SEKSI_KARTU.map(s => { const n = gab(s.rumus || [], man(s.id));
+        return seksi(s.id, s.judul, rentang(n), n); }).join('\n    ')}
     ${seksiLipat('integrasi', 'Integrasi penelitian/PkM dalam pembelajaran',
             'Tabel 3.a.3 LKPS', htmlIntegrasi)}
     ${seksiLipat('keterlibatan', 'Keterlibatan mahasiswa pada karya dosen', '',
@@ -2161,10 +2168,8 @@ function render(){
             'NA per bulan · perubahan butir · bukti audit',
             '<div id="potret-isi"><p class="ket">Memuat…</p></div>', true)}
 
-    <footer>Diperbarui ${esc(D.diperbarui || '')} · Rumus mengikuti Matriks
-    Penilaian APS-AV 2025 1.0 Program Sarjana, bobot mengikuti lampiran
-    Bobot Penilaian Akreditasi Program Studi (jumlah bobot
-    ${f2(BOBOT_TOTAL)}) · Seluruh 60 butir ditampilkan; butir kualitatif
+    <footer>Diperbarui ${esc(D.diperbarui || '')} · Rumus mengikuti ${esc(SUMBER_RUMUS)} (jumlah bobot
+    ${f2(BOBOT_TOTAL)}) · Seluruh ${daftarButir().length} butir ditampilkan; butir kualitatif
     dinilai dari kelengkapan bukti per unsur (tanpa bukti = 0) ·
     Versi halaman <code>${esc(VERSI)}</code></footer>`;
   pasangSimulasi(ctxJalan);
