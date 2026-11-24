@@ -2,7 +2,7 @@
 // PJP = JP / JB dengan JP = sks praktikum/praktik lapangan/penugasan x 50 dan JB = sks x 50 dari Tabel 3.a.1 LKPS
 // (docs/analisis-instrumen-lam-teknik-2025.md:103); skor memakai rumus butir 18 di butir-manual.js (satu sumber).
 // Data = ref_mata_kuliah (sks, sks_kuliah, sks_seminar, sks_praktikum). Simulasi tidak mengubah data.
-import { BUTIR_MANUAL } from './butir-manual.js?v=2026-11-24-f7e168';
+import { BUTIR_MANUAL } from './butir-manual.js?v=2026-11-24-2e9bda';
 
 const angka = v => { const x = +String(v ?? '').replace(',', '.'); return Number.isFinite(x) ? x : 0; };
 const bulat = (v, d = 2) => Math.round(v * 10 ** d) / 10 ** d;

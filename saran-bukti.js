@@ -58,6 +58,9 @@ export const SARAN_BUKTI = {
   prodi_upps: { tabel: 'PS', isi: [P('SK pembukaan PS dan SK akreditasi tiap prodi')] },
   // LKPS LAMDEPILAR A.5.1/A.5.2 (169-patch): keuangan per pos.
   keuangan_a5: { tabel: 'A.5', isi: [R('Laporan realisasi anggaran (RKAT) per tahun anggaran'), U('Laporan keuangan yang diaudit')] },
+  // LKPS LAMDEPILAR E.1.1/E.1.2 (171-patch): admisi dan status per angkatan.
+  angkatan: { tabel: 'E.1', isi: [R('Rekap PMB per angkatan: daya tampung, pendaftar, diterima (seleksi, afirmasi, transfer, asing)'),
+    R('Rekap status mahasiswa per angkatan dari PDDikti/SIAKAD (aktif, tidak aktif, lulus, gagal)')] },
   dana: { tabel: '2.b', isi: [R('Laporan realisasi anggaran per tahun anggaran')] },
   prasarana: { tabel: '5.a', isi: [P('Daftar alat utama tiap laboratorium'), U('Foto dan inventaris')] },
   dok_k3l: { tabel: '5.b', isi: [U('Dokumen K3L yang bertanggal')] },

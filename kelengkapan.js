@@ -2,15 +2,15 @@
 // kelengkapan.html mengambil data, modul ini menghitung. Aturan terisi sama
 // dengan halaman sumbernya: kotak narasi seperti narasi-led.html, bukti butir
 // seperti rekap bukti di skor.html.
-import { BUTIR_MANUAL } from './butir-manual.js?v=2026-11-24-f7e168';
-import { UNSUR_BUTIR, pihakUnsur, PIHAK, PJ_UNSUR } from './unsur-butir.js?v=2026-11-24-f7e168';
-import { BUTIR_DATA } from './butir-data.js?v=2026-11-24-f7e168';
-import { faktaNarasi, anggotaTim } from './led-isi.js?v=2026-11-24-f7e168';
-import { pisahKalimat } from './led-narasi.js?v=2026-11-24-f7e168';
-import { masihKerangka } from './led-saran.js?v=2026-11-24-f7e168';
-import { JENIS_DOKUMEN, buktiButir } from './rencana-bukti.js?v=2026-11-24-f7e168';
-import { nilaiCapaian, perluAnalisis } from './capaian-iku.js?v=2026-11-24-f7e168';
-import { LKPS } from './dokumen-instrumen.js?v=2026-11-24-f7e168';
+import { BUTIR_MANUAL } from './butir-manual.js?v=2026-11-24-2e9bda';
+import { UNSUR_BUTIR, pihakUnsur, PIHAK, PJ_UNSUR } from './unsur-butir.js?v=2026-11-24-2e9bda';
+import { BUTIR_DATA } from './butir-data.js?v=2026-11-24-2e9bda';
+import { faktaNarasi, anggotaTim } from './led-isi.js?v=2026-11-24-2e9bda';
+import { pisahKalimat } from './led-narasi.js?v=2026-11-24-2e9bda';
+import { masihKerangka } from './led-saran.js?v=2026-11-24-2e9bda';
+import { JENIS_DOKUMEN, buktiButir } from './rencana-bukti.js?v=2026-11-24-2e9bda';
+import { nilaiCapaian, perluAnalisis } from './capaian-iku.js?v=2026-11-24-2e9bda';
+import { LKPS } from './dokumen-instrumen.js?v=2026-11-24-2e9bda';
 
 // Tab Data prodi: [id tab, tabel, judul, butir, mesin LKPS]; sama dengan TABEL di data-prodi.html.
 // Elemen ke-5 = tab khusus satu mesin LKPS (mesinLkps di data-prodi.html); tanpa = semua instrumen.
@@ -25,6 +25,7 @@ export const TAB_DATA = [
   ['prasarana', 'lkps_prasarana', 'Prasarana & alat', '38'], ['dok_k3l', 'lkps_dokumen_k3l', 'Dokumen K3L', '39'],
   ['sarana_std', 'lkps_sarana_standar', 'Sarana menurut standar', '116', 'lkps-lamdepilar.js'],
   ['fas_k3l', 'lkps_fasilitas_k3l', 'Fasilitas K3L', '39'], ['mahasiswa', 'lkps_mahasiswa_ta', 'Mahasiswa per TS', '40–45'],
+  ['angkatan', 'lkps_mahasiswa_angkatan', 'Mahasiswa per angkatan', '105', 'lkps-lamdepilar.js'],
   ['jadwal_ta', 'jadwal_ta', 'Jadwal seminar/sidang TA', '—'],
   ['prestasi', 'lkps_prestasi_mahasiswa', 'Prestasi mahasiswa', '43'], ['kohort', 'lkps_kohort_lulusan', 'Kohort lulusan', '44–45'],
   ['publikasi', 'lkps_publikasi_mahasiswa', 'Publikasi mahasiswa', '46'], ['luaran', 'lkps_luaran_mahasiswa', 'Luaran mahasiswa', '47'],

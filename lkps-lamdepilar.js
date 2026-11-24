@@ -14,17 +14,17 @@
    E.4.1-E.4.2 (CPL dan matriks MK-CPL, kurikulum terbaru) dan P.1.3-P.1.7 (EWMP, dosen tidak tetap,
    praktisi, rekognisi, tendik) ditambahkan 2026-11-24; baris yang tidak muat disisipkan. L.1 (165-patch)
    dan P.1.2 (167-patch) dari isian Data prodi khusus LAMDEPILAR, 2026-11-24; A.5.1/A.5.2 blok Magister
-   (169-patch, A.5.3 rumus templat), 2026-11-24.
-   Lembar lain (E.1, E.3, R.3, R.6) tinggal
+   (169-patch, A.5.3 rumus templat), 2026-11-24; E.1.1/E.1.2 per angkatan (171-patch), 2026-11-24.
+   Lembar lain (E.3, R.3, R.6) tinggal
    kosong untuk diisi prodi. R.3/R.6 ditunda sampai pemetaan karya -> program
    diputuskan (pemilik 2026-11-24).
    Kolom yang tidak disimpan situs dibiarkan kosong (tanpa tebakan).
    ===================================================================== */
-import { JSZIP, tulisSel, petaLembar, hitungUlangSaatBuka } from './lkps.js?v=2026-11-24-f7e168';
-import { daftarProdi, STATUS_PS, tglTeks } from './pustaka-dokumen.js?v=2026-11-24-f7e168';
-import { nidnNuptk, masaBerlaku } from './profil-dosen.js?v=2026-11-24-f7e168';
-import { ampuPerTA, dosenTS } from './dosen-hitung.js?v=2026-11-24-f7e168';
-import { POS_A5 } from './keuangan-a5.js?v=2026-11-24-f7e168';
+import { JSZIP, tulisSel, petaLembar, hitungUlangSaatBuka } from './lkps.js?v=2026-11-24-2e9bda';
+import { daftarProdi, STATUS_PS, tglTeks } from './pustaka-dokumen.js?v=2026-11-24-2e9bda';
+import { nidnNuptk, masaBerlaku } from './profil-dosen.js?v=2026-11-24-2e9bda';
+import { ampuPerTA, dosenTS } from './dosen-hitung.js?v=2026-11-24-2e9bda';
+import { POS_A5 } from './keuangan-a5.js?v=2026-11-24-2e9bda';
 
 const JABATAN = { tenaga_pengajar: 'Tenaga Pengajar', asisten_ahli: 'Asisten Ahli', lektor: 'Lektor',
   lektor_kepala: 'Lektor Kepala', guru_besar: 'Profesor' };
@@ -431,8 +431,15 @@ export function petaLKPSLamdepilar(C){
     const r = 8 + i;
     set('L.4', `C${r}`, x.jumlah_lulusan); set('L.4', `D${r}`, x.jumlah_terlacak); set('L.4', `F${r}`, x.wt_kurang_3);
   });
-  // E.1 tidak diisi: tabelnya per ANGKATAN (kolom periksa N = lulus seleksi - aktif - tidak aktif - lulus - gagal),
-  // sedangkan Data prodi › Mahasiswa per TS menyimpan jumlah per tahun akademik (2026-11-24).
+  // E.1.1 dan E.1.2 per ANGKATAN (Data prodi › Mahasiswa per angkatan, 171-patch, pemilik 2026-11-24), baris 8-12 =
+  // angkatan TS-4..TS. Kolom periksa N, S (teregistrasi), baris Jumlah, dan E.1.3 tetap rumus templat.
+  const kolomE1 = { C: 'daya_tampung', D: 'pendaftar', E: 'lulus_seleksi', F: 'afirmasi', G: 'transfer', H: 'asing',
+    I: 'aktif', J: 'tidak_aktif', K: 'lulus', L: 'gagal',
+    T: 'asing_penuh_waktu', U: 'asing_satu_semester', V: 'asing_pendek_kredit', W: 'asing_tanpa_kredit' };
+  [ts - 4, ts - 3, ts - 2, ts - 1, ts].forEach((t, i) => {
+    const a = (X.angkatan || []).find(y => y.tahun_akademik === `${t - 1}/${t}`);
+    if (a) for (const [c, k] of Object.entries(kolomE1)) set('E.1', `${c}${8 + i}`, a[k]);
+  });
 
   // A.1 Kemitraan dan kerja sama (Data prodi › Kerja sama) yang berlaku dalam TS-2 s.d. TS.
   (X.kerjasama || [])
