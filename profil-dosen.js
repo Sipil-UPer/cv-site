@@ -293,7 +293,8 @@ export function formLKPS(r, { mkProdi = null } = {}){
         <small>Untuk dosen industri/praktisi; kosongkan bila tidak ada.</small></div>
       <div class="fld"><label>Nomor sertifikat pendidik (serdos)</label><input id="f_nomor_serdos" value="${esc(r.nomor_serdos)}"></div>
       <div class="fld"><label>SKIP (sertifikat insinyur profesional)</label><select id="f_skip">${opsi(SKIP, r.skip)}</select></div>
-      <div class="fld"><label>Nomor STRI</label><input id="f_stri" value="${esc(r.stri)}"></div>
+      <div class="fld"><label>Nomor STRI</label><input id="f_stri" value="${esc(r.stri)}">
+        <small>Untuk LKPS Tabel 4.a. Catat juga di tabel sertifikat di bawah sebagai jenis Profesi, dengan masa berlakunya.</small></div>
       ${htmlMkProdi(mkProdi)}
       <div class="fld penuh"><label>Mata kuliah yang diampu di program studi lain</label><input id="f_mk_ps_lain" value="${esc(r.mk_ps_lain)}">
         <small>Pisahkan dengan titik koma. MK di prodi ini diambil dari data kurikulum.</small></div>

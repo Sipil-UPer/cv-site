@@ -88,7 +88,9 @@ export function isiCV(P, D, o = {}){
   const sr = [
     ...(String(P.nomor_serdos || '').trim() ? [['Sertifikat pendidik', 'Dosen profesional', '', String(P.nomor_serdos).trim(), '', '—', '—']] : []),
     ...(P.skip ? [['Insinyur profesional (SKIP)', label(SKIP, P.skip), '', '', '', '—', '—']] : []),
-    ...(String(P.stri || '').trim() ? [['STRI', 'Surat Tanda Registrasi Insinyur', '', String(P.stri).trim(), '', '—', '—']] : []),
+    // STRI dicatat sebagai sertifikat profesi (pemilik 2026-11-24); baris dari kolom Nomor STRI hanya bila belum ada di daftar itu.
+    ...(String(P.stri || '').trim() && !(P.sertifikat || []).some(s => String(s.nomor || '').trim() === String(P.stri).trim()
+      || /\bSTRI\b|registrasi insinyur/i.test(String(s.bidang || ''))) ? [['STRI', 'Surat Tanda Registrasi Insinyur', '', String(P.stri).trim(), '', '—', '—']] : []),
     ...(P.sertifikat || []).map(s => [label(JENIS_SERTIFIKAT, s.jenis), s.bidang, s.lembaga, s.nomor, s.tahun, berlaku(s), bukti(s.url)]),
   ];
   if (sr.length) {
