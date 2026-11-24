@@ -69,3 +69,8 @@ export const BOBOT_TOTAL =
   Object.values(BOBOT).reduce((a, b) => a + b, 0);
 
 export const bobotButir = no => BOBOT[String(no)] ?? 0;
+
+// Skor tertinggi satu butir menurut matriks instrumen (LAM Teknik: 0–4), dipakai
+// skor.html untuk NA maksimum, batas atas NA, dan panjang batang skor (irisan 4,
+// pemilik 2026-11-24). Instrumen lain bisa berbeda, mis. perolehan status LAMDEPILAR: 3.
+export const SKOR_MAKS = 4;

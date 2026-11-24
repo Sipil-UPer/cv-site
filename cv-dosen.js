@@ -82,20 +82,20 @@ export function isiCV(P, D, o = {}){
     : teks('Belum diisi di profil.', { after: 120 }));
 
   // Sertifikasi (pemilik 2026-11-24): semua sertifikat di profil, yaitu sertifikat pendidik, SKIP, STRI, dan daftar
-  // kompetensi/profesi/industri, dengan masa berlaku (kedaluwarsa ditandai) dan tautan bukti yang bisa diklik.
+  // kompetensi/profesi/industri, dengan masa berlaku (kedaluwarsa ditandai). Tautan bukti di Drive TIDAK dicetak
+  // (pemilik 2026-11-24): CV dibagikan ke luar, bukti hanya untuk verifikasi internal; tautan publikasi (DOI) tetap.
   const berlaku = s => { const b = masaBerlaku(s, o.kini || new Date()); return b ? `${tanggalPanjang(b.sampai)}${b.lewat ? ' (kedaluwarsa)' : ''}` : '—'; };
-  const bukti = u => (String(u || '').trim() ? { xml: tautan(String(u).trim(), 'lihat bukti', { sz: 18 }), teks: 'lihat bukti' } : '—');
   const sr = [
-    ...(String(P.nomor_serdos || '').trim() ? [['Sertifikat pendidik', 'Dosen profesional', '', String(P.nomor_serdos).trim(), '', '—', '—']] : []),
-    ...(P.skip ? [['Insinyur profesional (SKIP)', label(SKIP, P.skip), '', '', '', '—', '—']] : []),
+    ...(String(P.nomor_serdos || '').trim() ? [['Sertifikat pendidik', 'Dosen profesional', '', String(P.nomor_serdos).trim(), '', '—']] : []),
+    ...(P.skip ? [['Insinyur profesional (SKIP)', label(SKIP, P.skip), '', '', '', '—']] : []),
     // STRI dicatat sebagai sertifikat profesi (pemilik 2026-11-24); baris dari kolom Nomor STRI hanya bila belum ada di daftar itu.
     ...(String(P.stri || '').trim() && !(P.sertifikat || []).some(s => String(s.nomor || '').trim() === String(P.stri).trim()
-      || /\bSTRI\b|registrasi insinyur/i.test(String(s.bidang || ''))) ? [['STRI', 'Surat Tanda Registrasi Insinyur', '', String(P.stri).trim(), '', '—', '—']] : []),
-    ...(P.sertifikat || []).map(s => [label(JENIS_SERTIFIKAT, s.jenis), s.bidang, s.lembaga, s.nomor, s.tahun, berlaku(s), bukti(s.url)]),
+      || /\bSTRI\b|registrasi insinyur/i.test(String(s.bidang || ''))) ? [['STRI', 'Surat Tanda Registrasi Insinyur', '', String(P.stri).trim(), '', '—']] : []),
+    ...(P.sertifikat || []).map(s => [label(JENIS_SERTIFIKAT, s.jenis), s.bidang, s.lembaga, s.nomor, s.tahun, berlaku(s)]),
   ];
   if (sr.length) {
     out.push(judul('Sertifikasi', 1));
-    out.push(tabel([['Jenis', 'Bidang', 'Lembaga penerbit', 'Nomor', 'Tahun', 'Berlaku sampai', 'Bukti'], ...sr]));
+    out.push(tabel([['Jenis', 'Bidang', 'Lembaga penerbit', 'Nomor', 'Tahun', 'Berlaku sampai'], ...sr]));
   }
 
   out.push(judul(`Publikasi (${K.publikasi.length})`, 1));

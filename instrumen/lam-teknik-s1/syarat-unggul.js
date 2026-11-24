@@ -129,6 +129,10 @@ export function gabungSyarat(daftar){
   return true;
 }
 
+/** Ringkasan batas NA di bawah status pada halaman Skor (irisan 4, pemilik
+ *  2026-11-24); harus sesuai angka di statusAkreditasi di bawah. */
+export const TEKS_BATAS = 'Unggul ≥ 361 atau ≥ 331, Terakreditasi ≥ 200';
+
 /** Status akreditasi menurut Tabel 3 (hlm. 12).
  *  NA = Σ(bobot × skor), skala 0–400. t/u3/u5 = true/false/null.
  *  Mengembalikan {status, durasi, pasti, catatan}. `pasti` false bila

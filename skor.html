@@ -407,7 +407,7 @@ import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 import { BUTIR, isiPetaBukti, cariBukti, daftarBukti, kolomBukti } from './rincian.js?v=2026-11-22-866c27';
 import { BUTIR_MANUAL, SEKSI_MANUAL, kunciButir, kunciBuktiButir, skorManual, tkKepuasan }
   from './butir-manual.js?v=2026-11-22-866c27';
-import { BOBOT_TOTAL, bobotButir } from './bobot.js?v=2026-11-22-866c27';
+import { BOBOT_TOTAL, bobotButir, SKOR_MAKS } from './bobot.js?v=2026-11-22-866c27';
 import { buatRumus } from './rumus-butir.js';
 import { hitungTS, ampuPerTA } from './dosen-hitung.js?v=2026-11-22-866c27';
 import { isiPotret, bulanDari, svgTrenPotret, htmlRiwayatPotret } from './potret-skor.js?v=2026-11-22-866c27';
@@ -428,7 +428,7 @@ import { karya4i, tautanPengutip } from './sitasi.js?v=2026-11-22-866c27';
 import { dataButir, pendukungButir, ambilDataButir, htmlTabelData } from './data-butir.js?v=2026-11-22-866c27';
 import { TAB_DATA } from './kelengkapan.js?v=2026-11-22-866c27';
 import { statusSyarat, syaratButir, SYARAT_UNGGUL, SYARAT_RERATA, SASARAN,
-         statusRerata, gabungSyarat, statusRentang } from './syarat-unggul.js?v=2026-11-22-866c27';
+         statusRerata, gabungSyarat, statusRentang, TEKS_BATAS } from './syarat-unggul.js?v=2026-11-22-866c27';
 import { JABATAN, NAIK, PUBLIKASI, LUARAN, SUMBER, skenarioKosong, uraiSkenario, terapkanSkenario, bandingkan } from './simulasi-skor.js?v=2026-11-22-866c27';
 
 // config.js mendefinisikan window.SB_URL dan window.SB_KEY — pemetaan di
@@ -812,7 +812,7 @@ const esc = s => String(s ?? '').replace(/[&<>"']/g,
 const f2 = v => v == null ? '—' : (Math.round(v * 100) / 100).toFixed(2);
 const taDari = ts => `${ts - 1}/${ts}`;
 
-function kelasSkor(s){ return s == null ? 'tak' : (s >= 4 ? 'n4' : ''); }
+function kelasSkor(s){ return s == null ? 'tak' : (s >= SKOR_MAKS ? 'n4' : ''); }
 
 // Rincian per butir. Seluruh penyaring ada di rincian.js dan dipakai
 // bersama dengan halaman rincian.html — di sini hanya perenderannya.
@@ -869,12 +869,12 @@ function butirManual(b){
   const dariBukti = !b.hitung;
   const label = b.hitung ? b.hitung.label
               : b.komponen ? ['I. ' + b.komponen[0], 'II. ' + b.komponen[1]]
-              : ['Skor dari bukti (0–4)'];
+              : [`Skor dari bukti (0–${SKOR_MAKS})`];
   const baris = kunci.map((k, i) => `<tr>
       <td>${esc(label[i])}${b.hitung ? `<br><span class="isian">kunci: ${esc(k)}</span>` : ''}</td>
       <td>${nilai[i] == null ? `<span class="isian">${dariBukti ? 'bukti belum terbaca' : 'belum diisi'}</span>`
                              : esc(f2(nilai[i]))}</td></tr>`).join('');
-  const rumus = (b.hitung ? b.hitung.rumus : b.komponen ? b.rumus : 'Skor 0–4 menurut matriks.')
+  const rumus = (b.hitung ? b.hitung.rumus : b.komponen ? b.rumus : `Skor 0–${SKOR_MAKS} menurut matriks.`)
               + (b.no === '30' ? catatanRbk() : '')
               + (b.no === '18' ? catatanMK('18') : '')
               + (['20', '22', '24'].includes(b.no) ? catatanUnsur(b.no) : '');
@@ -1004,7 +1004,7 @@ function htmlDataButir(x){
 }
 
 function kartuButir(no, judul, isi, skor, catatan, lencana){
-  const pct = skor == null ? 0 : (skor / 4) * 100;
+  const pct = skor == null ? 0 : (skor / SKOR_MAKS) * 100;
   const sy = statusSyarat(no, skor);
   isi = isi + blokDataButir(no) + blokBuktiData(no) + htmlRencana(no, opsiBukti(TS))
     + (ADMIN ? htmlPanel(no, keadaanPanel()) : '');
@@ -1943,13 +1943,13 @@ function skorDari(h){
 }
 
 // Nilai berbobot, syarat perlu, dan status dari kartu yang sudah dihitung.
-// Nilai berbobot menurut lampiran bobot LAM Teknik. Bobot seluruh butir
-// berjumlah 100, jadi Σ(skor × bobot) langsung berskala 0–400.
-// Syarat perlu (Tabel 4.3.1) dan status akreditasi (Tabel 3), pedoman
-// penilaian LAM Teknik 2025; aturannya di syarat-unggul.js. Syarat tidak
+// Nilai berbobot menurut bobot instrumen (bobot.js). Bobot seluruh butir
+// berjumlah 100, jadi Σ(skor × bobot) langsung berskala 0–(100 × SKOR_MAKS),
+// mis. 0–400 untuk LAM Teknik. Syarat perlu dan status akreditasi menurut
+// instrumen; aturannya di syarat-unggul.js. Syarat tidak
 // ikut dirata-ratakan ke NA: satu syarat gagal menggugurkan sasarannya.
-// NA = poinBobot (Σ bobot × skor, skala 0–400) adalah BATAS BAWAH: butir
-// kosong bernilai 0. Batas atas = bila semua butir kosong bernilai 4.
+// NA = poinBobot (Σ bobot × skor) adalah BATAS BAWAH: butir kosong bernilai 0.
+// Batas atas = bila semua butir kosong bernilai SKOR_MAKS (irisan 4, 2026-11-24).
 // Status hanya dinyatakan bila kedua batas memberi status yang sama.
 function ringkasNA(daftar, kartu){
   let poinBobot = 0, bobotTerisi = 0;
@@ -1965,7 +1965,7 @@ function ringkasNA(daftar, kartu){
   const syRerata = SYARAT_RERATA.map(d => statusRerata(d, nilaiIndikator));
   const semuaSy = [...syButir, ...syRerata];
   const okSasaran = sa => gabungSyarat(semuaSy.map(x => x[sa + 'ok']));
-  const NAmax = poinBobot + 4 * (BOBOT_TOTAL - bobotTerisi);
+  const NAmax = poinBobot + SKOR_MAKS * (BOBOT_TOTAL - bobotTerisi);
   const st = statusRentang(poinBobot, NAmax, okSasaran('t'), okSasaran('u3'), okSasaran('u5'));
   const skorButir = Object.fromEntries(daftar.map(x => [x.no, skorDari(kartu[x.no])]));
   return { poinBobot, bobotTerisi, NAmax, semuaSy, st, skorButir };
@@ -2023,7 +2023,7 @@ function render(){
   const bw = no => bobotButir(no);
   const { poinBobot, bobotTerisi, NAmax, semuaSy, st } = ringkasNA(daftar, kartu);
   const cakupan        = (bobotTerisi / BOBOT_TOTAL) * 100;
-  const persen2        = (poinBobot / (BOBOT_TOTAL * 4)) * 100;
+  const persen2        = (poinBobot / (BOBOT_TOTAL * SKOR_MAKS)) * 100;
 
   // Butir TERISI yang nilainya di bawah 2,50. Nilai yang ditampilkan adalah
   // skor butir apa adanya (tanpa dikalikan bobot), karena itu yang sebanding
@@ -2034,7 +2034,7 @@ function render(){
   const lemah = daftar
     .map(x => ({ no: x.no, ...skorDari(kartu[x.no]), b: bw(x.no) }))
     .filter(x => x.ada && x.n < AMBANG_LEMAH)
-    .map(x => ({ ...x, sisa: (4 - x.n) * x.b }))
+    .map(x => ({ ...x, sisa: (SKOR_MAKS - x.n) * x.b }))
     .sort((p, q) => q.sisa - p.sisa);
 
   const stKls = st.status.startsWith('Terakreditasi Unggul') ? 'hij'
@@ -2087,7 +2087,7 @@ function render(){
 
     <div class="total">
       <div class="utama"><b>${f2(poinBobot)}
-        <span class="dari">/ ${f2(BOBOT_TOTAL * 4)}</span></b>
+        <span class="dari">/ ${f2(BOBOT_TOTAL * SKOR_MAKS)}</span></b>
         <span>Poin berbobot</span>
         <i>&Sigma;(skor &times; bobot) &mdash; ${f2(persen2)}% dari nilai penuh.
         Butir kosong dihitung 0, jadi angka ini hanya naik saat butir kosong
@@ -2109,8 +2109,8 @@ function render(){
           st.durasi ? ` <span class="dari">${st.durasi} tahun</span>` : ''}</b>
         <span>Perkiraan status akreditasi</span>
         <i>NA ${f2(poinBobot)}${cakupan < 99.99
-          ? ` (bisa naik sampai ${f2(NAmax)} bila semua butir kosong bernilai 4)` : ''}.
-        Batas: Unggul ≥ 361 atau ≥ 331, Terakreditasi ≥ 200.
+          ? ` (bisa naik sampai ${f2(NAmax)} bila semua butir kosong bernilai ${SKOR_MAKS})` : ''}.
+        Batas: ${TEKS_BATAS}.
         ${esc(st.catatan)}
         ${daftarGagal.join(' ')}
         ${syBelum.length ? `Belum terhitung: ${esc(syBelum.join(', '))}.` : ''}
