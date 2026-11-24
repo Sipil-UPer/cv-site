@@ -173,7 +173,7 @@ export function jalur(status, riwayat = [], nama = null){
   const pindah = urut.filter((r, i) => i === 0 || r.status !== urut[i - 1].status);
   const terakhir = k => [...pindah].reverse().find(r => r.status === k);
   // 161: dibatalkan = satu langkah penutup.
-  if (status === 'dibatalkan') return [{ kunci: 'dibatalkan', label: 'Dibatalkan', keadaan: 'tolak', ...info(terakhir('dibatalkan')) }];
+  if (status === 'dibatalkan') return [{ kunci: 'dibatalkan', label: 'Dibatalkan', keadaan: 'batal', ...info(terakhir('dibatalkan')) }];
   const posisi ={ draf: 0, dikembalikan: 0, pembimbing: 1, admin: 2, disetujui: 3, ditolak: 3 }[status] ?? 0;
   return TAHAP.map(([kunci, label0], i) => {
     const label = nama ? nama[i] : label0;

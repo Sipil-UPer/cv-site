@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-22-866c27">
+<link rel="stylesheet" href="tema.css?v=2026-11-24-264694">
 <style>
   /* Pengajuan mahasiswa, publik tanpa masuk akun (pemilik 2026-11-17; patch 90). Warna dari tema.css. */
   *{box-sizing:border-box}
@@ -53,6 +53,9 @@
   button.b:disabled{opacity:.6;cursor:default}
   button.b:focus-visible{outline:2px solid var(--biru);outline-offset:2px}
   .msg{font-size:14px;margin-left:8px} .msg.buruk{color:var(--merah)} .msg.ok{color:var(--hijau)}
+  /* Batalkan pengajuan (161) */
+  details.kotak.batal>summary{cursor:pointer;font-weight:600;color:var(--merah)}
+  button.b.awas{border-color:var(--merah);color:var(--merah)}
   /* Susunan halaman pengajuan (pemilik 2026-11-19) */
   ol.langkah{margin:14px 0 6px;padding-left:22px;font-size:14.5px} ol.langkah li{margin:3px 0}
   .info-jenis{margin:4px 0 2px;padding:8px 12px;border-left:3px solid var(--biru);background:var(--panel);font-size:13.5px;color:var(--ink)}
@@ -72,7 +75,7 @@
   .jalur li{border:1px solid var(--line);border-top:4px solid var(--line);border-radius:8px;padding:8px 10px;background:var(--panel);font-size:13.5px}
   .jalur li b{display:block;font-size:14px}
   .jalur li.selesai{border-top-color:var(--hijau)} .jalur li.kini{border-top-color:var(--biru);box-shadow:0 0 0 1px var(--biru)}
-  .jalur li.kembali{border-top-color:var(--emas)} .jalur li.tolak{border-top-color:var(--merah)}
+  .jalur li.kembali{border-top-color:var(--emas)} .jalur li.tolak{border-top-color:var(--merah)} .jalur li.batal{border-top-color:var(--muted)}
   .jalur .tanda{font-family:var(--mono);font-size:11px;text-transform:uppercase;color:var(--muted)}
   .jalur .cat{margin-top:4px;white-space:pre-line;color:var(--ink)}
   .status{font-weight:600}
@@ -108,7 +111,7 @@
   <h1>Pengajuan KP, seminar/sidang TA, lomba, publikasi/luaran, kabar kegiatan, surat, dan yudisium</h1><div class="prodi" id="hProdi"></div>
 </div></div>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-22-866c27"></script>
+<script src="config.js?v=2026-11-24-264694"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -124,7 +127,7 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 // Kepala dan kaki bersama situs umum (pemilik 2026-11-19, tahap 2).
-import { pasangKerangka } from './kerangka.js?v=2026-11-22-866c27';
+import { pasangKerangka } from './kerangka.js?v=2026-11-24-264694';
 pasangKerangka({ aktif: 'mahasiswa', muat: true });
 // Mahasiswa tidak login (pemilik 2026-11-17). Tanpa token: formulir baru dan minta tautan lagi; Apps Script
 // membuat pengajuan dan mengirim tautan pribadi ke <NIM>@<domain kampus>. Dengan #t=<token> (dari email):
@@ -134,7 +137,7 @@ pasangKerangka({ aktif: 'mahasiswa', muat: true });
 // tidak ada permintaan ke Supabase atau Google. Tanpa ?latihan: Supabase sungguhan seperti biasa.
 const LATIHAN = new URLSearchParams(location.search).has('latihan');
 if (LATIHAN) { window.LATIHAN = true; window.UPLOAD_URL = 'https://script.google.com/macros/s/latihan/exec'; }
-const { createClient } = LATIHAN ? await import('./latihan/mock-sb.js?v=2026-11-22-866c27')
+const { createClient } = LATIHAN ? await import('./latihan/mock-sb.js?v=2026-11-24-264694')
   : await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm');
 if (LATIHAN) pasangLatihan();
 // Pita MODE LATIHAN, mulai ulang, dan tautan ke pengajuan.html tetap membawa ?latihan=1.
@@ -160,10 +163,10 @@ function pasangLatihan(){
 }
 import { JENIS, LABEL_BERKAS, LABEL_STATUS, TINGKAT, BIDANG, jalur, bolehUbah, bacaAnggota, teksAnggota,
          periksaIsian, judulPengajuan, keB64, bukaIsi, appsScript, labelStatus, jalurTahap, BERKAS_SELESAI, PROGRAM_KP, labelProgram,
-         periksaSelesai, JENIS_SURAT, TAHAP_TA, TAHAP_TA_AJU, TAHAP_PEMBIMBING_TA, penetapanTA, pembimbingCocok, JENIS_PUB, TINGKAT_PUB, INDEKSASI, JENIS_LUARAN,
-         BERKAS_YUDISIUM_BAWAAN, kelengkapanYudisium, labelBerkas, JENIS_KEGIATAN } from './pengajuan-mhs.js?v=2026-11-22-866c27';
-import { saranInstansi } from './rekap-kp.js?v=2026-11-22-866c27';
-import { CONTOH_PENGAJUAN, contohPengajuan } from './pengajuan-contoh.js?v=2026-11-22-866c27';
+         periksaSelesai, bolehBatalMhs, JENIS_SURAT, TAHAP_TA, TAHAP_TA_AJU, TAHAP_PEMBIMBING_TA, penetapanTA, pembimbingCocok, JENIS_PUB, TINGKAT_PUB, INDEKSASI, JENIS_LUARAN,
+         BERKAS_YUDISIUM_BAWAAN, kelengkapanYudisium, labelBerkas, JENIS_KEGIATAN } from './pengajuan-mhs.js?v=2026-11-24-264694';
+import { saranInstansi } from './rekap-kp.js?v=2026-11-24-264694';
+import { CONTOH_PENGAJUAN, contohPengajuan } from './pengajuan-contoh.js?v=2026-11-24-264694';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
@@ -558,7 +561,7 @@ function kunciPratinjau(){
 
 function htmlJalur(xs){
   return `<ol class="jalur" aria-label="Jalur proses">${xs.map(t => `<li class="${t.keadaan}">
-      <span class="tanda">${{ selesai: 'selesai', kini: 'sekarang', nanti: 'berikutnya', kembali: 'perlu diperbaiki', tolak: 'ditolak' }[t.keadaan]}</span>
+      <span class="tanda">${{ selesai: 'selesai', kini: 'sekarang', nanti: 'berikutnya', kembali: 'perlu diperbaiki', tolak: 'ditolak', batal: 'dibatalkan' }[t.keadaan]}</span>
       <b>${esc(t.label)}</b>${t.waktu ? `<div class="meta ket">${esc(tglWaktu(t.waktu))}${t.oleh && t.oleh !== 'mahasiswa' ? ' · ' + esc(t.oleh) : ''}</div>` : ''}
       ${t.catatan ? `<div class="cat">${esc(t.catatan)}</div>` : ''}</li>`).join('')}</ol>`;
 }
@@ -705,6 +708,11 @@ function halamanSaya(){
       ${sus === 'selesai' ? '<p class="ket">Isian ini ikut tersimpan saat Anda menekan <b>Kirim laporan selesai</b> di atas.</p>' : `<div class="kotak"><b>Sudah lengkap?</b> Setelah dikirim, isian dan berkas terkunci sampai pemeriksaan selesai atau dikembalikan.
         <p><button class="b utama" id="b_kirim">Kirim untuk diperiksa</button><span class="msg" id="m_kirim" role="status"></span></p></div>`}`
       : `<dl class="kotak ringkas">${ringkas.filter(([, v]) => v).map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join('')}</dl>`}
+    ${bolehBatalMhs(p) ? `<details class="kotak batal"><summary>Salah jalur atau tidak jadi? Batalkan pengajuan ini</summary>
+      <p class="ket">Pengajuan ditutup dan tidak bisa dibuka lagi; berkas yang Anda unggah dipindah ke Sampah. Sesudah itu Anda bisa
+        membuat pengajuan baru (mis. lewat <a href="pengajuan.html?lapor=kp">pelaporan KP yang sudah selesai</a>).</p>
+      <div class="fld"><label for="b_alasan">Alasan (opsional)</label><input id="b_alasan" maxlength="300" placeholder="mis. salah memilih jalur KP"></div>
+      <p><button type="button" class="b awas" id="b_batal">Ya, batalkan pengajuan</button><span class="msg" id="m_batal" role="status"></span></p></details>` : ''}
     <h2>Semua pengajuan Anda</h2>
     <p class="ket">Semua pengajuan dengan NIM ${esc(p.nim)}. Tiap pengajuan dibuka dengan tautannya sendiri dari email;
       tautan hilang? <a href="pengajuan.html">Minta tautan baru</a> untuk semuanya sekaligus.</p>
@@ -719,6 +727,7 @@ function halamanSaya(){
     pasangSurat(); pasangLuaran(); pasangTA(); isiSaran();
     $('frmUbah').onsubmit = async e => { e.preventDefault(); await simpan(); };
     if ($('b_kirim')) $('b_kirim').onclick = kirim;
+    if ($('b_batal')) $('b_batal').onclick = batalkan;
   }
   if (bisaJawab) { $('b_tolak').onclick = tolakInstansi; $('b_terima').onclick = terimaInstansi; }
   if (bukaSelesai) {
@@ -867,6 +876,26 @@ async function kirim(){
     if (error) throw new Error(error.message);
     await muat(); halamanSaya();
   } catch (e) { tulis('m_kirim', 'buruk', e.message); $('b_kirim').disabled = false; }
+}
+
+// Batalkan pengajuan (161, pemilik 2026-11-24): berkas mahasiswa dibuang dulu (Apps Script mhs_buang, ke Sampah Drive),
+// lalu mhs_batal. Bila satu berkas gagal dibuang, pembatalan berhenti supaya tidak ada berkas yatim.
+async function batalkan(){
+  $('b_batal').disabled = true;
+  try {
+    // Pastikan patch 161 sudah dijalankan SEBELUM berkas dibuang (tautan kosong: fungsi ada = "Tautan tidak berlaku").
+    const uji = await sb.rpc('mhs_batal', { p_token: '', p_alasan: null });
+    if (uji.error && /PGRST202|mhs_batal|Could not find/i.test(`${uji.error.code} ${uji.error.message}`))
+      throw new Error('Pembatalan belum dibuka admin prodi. Tidak ada yang diubah.');
+    const xs = (P.berkas || []).filter(b => b.oleh === 'mahasiswa');
+    for (const [i, b] of xs.entries()) {
+      tulis('m_batal', '', `Memindahkan berkas ke Sampah (${i + 1} dari ${xs.length})…`);
+      await appsScript({ kind: 'mhs_buang', t: TOKEN, berkas: b.id });
+    }
+    const { error } = await sb.rpc('mhs_batal', { p_token: TOKEN, p_alasan: $('b_alasan').value.trim() || null });
+    if (error) throw new Error(/mhs_batal/.test(error.message) ? 'Pembatalan belum dibuka admin prodi.' : error.message);
+    await muat(); halamanSaya();
+  } catch (e) { tulis('m_batal', 'buruk', e.message); $('b_batal').disabled = false; }
 }
 
 // Konfirmasi email alternatif dari tautan di email kampus (104).

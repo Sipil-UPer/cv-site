@@ -170,6 +170,19 @@ function pmRpc(nama, a){
     p.status = 'disetujui'; p.diperbarui = new Date().toISOString(); pmRiwayat(p, 'disetujui', saya.nama, 'Dijadwalkan ' + a.p_tanggal); simpan();
     return { data: 1, error: null };
   }
+  // 161: batalkan oleh admin atas permintaan mahasiswa, tiruan (sama dengan pengajuan_batalkan).
+  if (nama === 'pengajuan_batalkan') {
+    const p = PM().find(x => x.id === a.p_id), saya = (DB.dosen || []).find(d => d.email === email());
+    if (!p) return pmGagal('Pengajuan tidak ditemukan.');
+    if (!saya || saya.peran !== 'admin') return pmGagal('Pembatalan oleh prodi khusus admin prodi atau koordinator bidangnya.');
+    const al = String(a.p_alasan || '').trim().slice(0, 300);
+    if (!al) return pmGagal('Tulis alasan pembatalan (mis. permintaan mahasiswa: salah jalur).');
+    if (p.status === 'ditolak' || (p.status === 'disetujui' && ((p.tahap || 'pengajuan') === 'selesai' || p.jenis !== 'kp')))
+      return pmGagal('Pengajuan yang sudah diputuskan tidak dibatalkan.');
+    p.status = 'dibatalkan'; p.diperbarui = new Date().toISOString();
+    pmRiwayat(p, 'dibatalkan', saya.nama, 'Dibatalkan prodi atas permintaan: ' + al + '.'); simpan();
+    return { data: 'dibatalkan', error: null };
+  }
   if (nama === 'pengajuan_putuskan') {
     const p = PM().find(x => x.id === a.p_id), saya = (DB.dosen || []).find(d => d.email === email());
     if (!p || !saya) return pmGagal('Pengajuan tidak ditemukan.');
@@ -253,6 +266,16 @@ function pmRpc(nama, a){
       judul: o.data?.instansi || o.data?.nama_kegiatan || '' })), pembimbing: (DB.dosen || []).find(d => d.id === p.pembimbing_id)?.nama,
     berkas: (DB.pengajuan_berkas || []).filter(b => b.pengajuan_id === p.id).map(b => ({ ...b, oleh: b.oleh === 'mahasiswa' ? 'mahasiswa' : 'prodi' })),
     riwayat: (DB.pengajuan_riwayat || []).filter(r => r.pengajuan_id === p.id) }, error: null };
+  // 161: batalkan pengajuan oleh mahasiswa, tiruan (sama dengan mhs_batal).
+  if (nama === 'mhs_batal') {
+    if (p.status === 'dibatalkan') return { data: 'dibatalkan', error: null };
+    if (tahap !== 'pengajuan' || !['draf', 'dikembalikan'].includes(p.status))
+      return pmGagal('Pengajuan yang sedang diperiksa atau sudah diputuskan tidak bisa dibatalkan sendiri. Minta pemeriksa mengembalikannya dulu, atau hubungi admin prodi.');
+    const al = String(a.p_alasan || '').trim().slice(0, 300);
+    p.status = 'dibatalkan'; p.diperbarui = new Date().toISOString();
+    pmRiwayat(p, 'dibatalkan', 'mahasiswa', 'Dibatalkan mahasiswa' + (al ? ': ' + al : '') + '.'); simpan();
+    return { data: 'dibatalkan', error: null };
+  }
   if (!['draf', 'dikembalikan'].includes(p.status)) return pmGagal('Pengajuan sedang diperiksa; isian tidak bisa diubah.');
   if (nama === 'mhs_ubah') { Object.assign(p, { nama: a.p_nama, pembimbing_id: a.p_pembimbing, data: a.p_data, diperbarui: new Date().toISOString() }); simpan(); return { data: 'ok', error: null }; }
   // 122: tautan Google Drive untuk berkas yudisium yang terlalu besar.
@@ -310,7 +333,7 @@ function pmAppsScript(q){
   const isi = { ok: true, name: 'contoh.txt', mime: 'text/plain', data: btoa('Berkas contoh (situs coba)') };
   if (q.kind === 'mhs_ajukan') {
     // 106/107: satu KP aktif per NIM.
-    if (q.jenis === 'kp' && PM().some(o => o.nim === q.nim && o.jenis === 'kp' && o.status !== 'ditolak' && !(o.tahap === 'selesai' && o.status === 'disetujui')))
+    if (q.jenis === 'kp' && PM().some(o => o.nim === q.nim && o.jenis === 'kp' && !['ditolak', 'dibatalkan'].includes(o.status) && !(o.tahap === 'selesai' && o.status === 'disetujui')))
       return { ok: false, error: 'NIM ini masih punya KP yang dalam proses; satu mahasiswa hanya satu KP aktif. Bila surat pengantar ditolak instansi, buka tautan pengajuan itu dan laporkan di "Jawaban instansi" (ditolak); sesudah itu pengajuan baru bisa dibuat. Tautan hilang? Minta tautan baru.' };
     const t = 'tokencoba' + baru() + 'x'.repeat(30), p = { id: baru(), jenis: q.jenis, nim: q.nim, nama: q.nama, email: q.nim + '@student.contoh.ac.id',
       pembimbing_id: q.pembimbing_id, data: q.data, status: 'draf', token: t, dibuat: new Date().toISOString(), diperbarui: new Date().toISOString() };
