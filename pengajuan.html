@@ -28,6 +28,9 @@
   h2{font-family:var(--serif);font-size:19px;font-weight:600;margin:26px 0 8px}
   .ket, .kosong{color:var(--muted)} .ket{font-size:13.5px}
   .kotak{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px;margin-top:10px}
+  /* Pratinjau admin (160, pemilik 2026-11-24) */
+  .kotak.pratinjau,.kotak.arah{background:#FFFBEF;border:1px solid #C9A227;border-left-width:5px}
+  .kotak.arah{margin:4px 0 12px;font-size:14px}
   .pilih{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px}
   .pilih label{flex:1 1 220px;border:1px solid var(--line);border-radius:8px;padding:10px 12px;cursor:pointer;display:flex;gap:8px;align-items:flex-start}
   .pilih label:has(input:checked){border-color:var(--biru);box-shadow:0 0 0 1px var(--biru)}
@@ -143,6 +146,11 @@ const ALT = (new URLSearchParams(location.hash.slice(1)).get('alt') || '').trim(
 const JENIS_AWAL = (new URLSearchParams(location.search).get('jenis') || '').trim();
 // Lapor selesai KP (106/107): ?lapor=kp membuka formulir terpisah untuk KP yang sudah selesai.
 const LAPOR = (new URLSearchParams(location.search).get('lapor') || '').trim() === 'kp';
+// "Lihat seperti mahasiswa" (160, pemilik 2026-11-24): ?pratinjau=<id pengajuan>, dibuka admin/koordinator dari Pengajuan
+// mahasiswa. Data dari mhs_pratinjau_admin lewat sesi ruang kerja (klien kedua; `sb` di atas sengaja tanpa sesi).
+// Hanya-baca: semua tombol dan isian dikunci; hasil pemeriksaan tombol Kirim ditampilkan di atas.
+const PRATINJAU = +(new URLSearchParams(location.search).get('pratinjau') || 0) || 0;
+let PERIKSA = null;
 // Pengajuan baru setelah ditolak instansi (107): ?nim=&pembimbing= mengisi NIM dan usulan pembimbing lama.
 const NIM_AWAL = (new URLSearchParams(location.search).get('nim') || '').replace(/\D/g, '').slice(0, 15);
 const PB_AWAL = (new URLSearchParams(location.search).get('pembimbing') || '').trim();
@@ -353,6 +361,7 @@ function halamanBaru(){
         <label><input type="radio" name="jenis" value="yudisium"><span>Berkas yudisium<small>unggah berkas syarat yudisium</small></span></label>
       </div>
       <p class="info-jenis" id="infoJenis"></p>
+      <div id="arahLapor"></div>
       <div class="fld"><label for="f_nim">NIM</label><input id="f_nim" inputmode="numeric" maxlength="15" autocomplete="off"></div>
       <div id="isian"></div>
       <div class="jebakan" aria-hidden="true"><label for="f_situs">Situs web</label><input id="f_situs" type="text" tabindex="-1" autocomplete="off"></div>
@@ -392,7 +401,13 @@ function halamanBaru(){
     kabar: 'Diverifikasi dosen pendamping, pembina kemahasiswaan, atau admin prodi (siapa pun lebih dulu), lalu tampil di halaman Kabar kegiatan dan beranda situs prodi. Lewat tautan pribadi Anda mengunggah 1–6 foto kegiatan.',
     surat: 'Surat ditandatangani Kaprodi dan diunduh lewat tautan pribadi Anda.',
     yudisium: `Diperiksa admin prodi. Lewat tautan pribadi Anda mengunggah ${YUD.filter(x => x.wajib).length} berkas wajib (formulir pendaftaran, laporan TA, transkrip, surat bebas pinjam, foto, dan lainnya); berkas yang terlalu besar boleh berupa tautan Google Drive.` };
+  // Dua jalur KP (pemilik 2026-11-24): formulir ini untuk KP yang diajukan sejak layanan dipakai (alur lengkap); KP yang
+  // sudah selesai sebelumnya cukup dilaporkan lewat ?lapor=kp (106). Penunjuk tampil selama jenis KP dipilih.
   const gambar = () => { $('infoJenis').textContent = INFO_JENIS[jenis()] || '';
+    $('arahLapor').innerHTML = jenis() === 'kp' ? `<div class="kotak arah"><b>KP Anda sudah selesai sebelum layanan ini dipakai?</b>
+      Jangan isi formulir pengajuan ini (formulir ini untuk KP baru: surat permohonan dan surat pengantar). Cukup laporkan KP Anda:
+      isi data KP, unggah laporan KP dan surat keterangan selesai.
+      <p style="margin:8px 0 0"><a class="b utama" href="pengajuan.html?lapor=kp">Laporkan KP yang sudah selesai</a></p></div>` : '';
     $('isian').innerHTML = htmlIsian(jenis(), {}, '', jenis() === 'kp' ? PB_AWAL : ''); pasangSurat(); pasangLuaran(); pasangTA(); isiSaran(); };
   // #tautan / #email / #bantuan (mis. dari "Cek pengajuan saya"): bantuan dibuka dan digulir ke bagiannya.
   const sasaran = { '#tautan': 'tautan', '#email': 'email', '#bantuan': 'bantuan' }[location.hash];
@@ -478,9 +493,36 @@ function halamanLapor(){
 
 // ---------- dengan token: pengajuan saya ----------
 async function muat(){
+  if (PRATINJAU) {
+    const sbAdmin = createClient(window.SB_URL, window.SB_KEY);   // sesi login ruang kerja
+    const { data: { session } } = await sbAdmin.auth.getSession();
+    if (!session) throw new Error('Pratinjau khusus admin: masuk ruang kerja dulu, lalu buka lagi dari halaman Pengajuan mahasiswa.');
+    const { data, error } = await sbAdmin.rpc('mhs_pratinjau_admin', { p_id: PRATINJAU });
+    if (error) throw new Error(/mhs_pratinjau_admin/.test(error.message) ? 'Patch 160 belum dijalankan.' : error.message);
+    P = data.lihat; PERIKSA = data.periksa || [];
+    return;
+  }
   const { data, error } = await sb.rpc('mhs_lihat', { p_token: TOKEN });
   if (error) throw new Error(error.message);
   P = data;
+}
+
+// Pratinjau admin: pita di atas, hasil pemeriksaan tombol Kirim (bunyi pesan sama dengan yang dilihat mahasiswa), lalu
+// semua tombol, isian, dan unggahan dikunci supaya admin tidak mengubah apa pun atas nama mahasiswa.
+function kunciPratinjau(){
+  const isi = $('isi');
+  const periksa = PERIKSA.length ? PERIKSA.map(x => x.lolos
+      ? `<li><b>${esc(x.label)}</b>: <span class="msg ok">akan berhasil</span> (semua isian dan berkas wajib sudah lengkap).</li>`
+      : `<li><b>${esc(x.label)}</b>: akan ditolak. Mahasiswa melihat tulisan merah ini:<br><span class="msg buruk">${esc(x.pesan)}</span></li>`).join('')
+    : `<li>Tidak ada tombol kirim pada keadaan ini (status: ${esc(labelStatus(P))}).</li>`;
+  isi.insertAdjacentHTML('afterbegin', `<div class="kotak pratinjau" role="note">
+    <b>Pratinjau admin: tampilan ${esc(P.nama)} (${esc(P.nim)})</b>
+    <p class="ket" style="margin:4px 0">Hanya-baca: tombol dan isian dikunci, tautan pribadi mahasiswa tidak berubah. Berkas dibuka dari
+      halaman <a href="pengajuan-mahasiswa.html">Pengajuan mahasiswa</a>.</p>
+    <p style="margin:6px 0 2px"><b>Pemeriksaan tombol kirim</b></p><ul style="margin:0 0 4px 18px">${periksa}</ul></div>`);
+  isi.querySelectorAll('button, input, select, textarea').forEach(x => { if (!x.closest('.pratinjau')) x.disabled = true; });
+  isi.addEventListener('submit', e => e.preventDefault(), true);
+  isi.addEventListener('click', e => { if (e.target.closest('button')) { e.preventDefault(); e.stopPropagation(); } }, true);
 }
 
 function htmlJalur(xs){
@@ -842,9 +884,10 @@ async function mulai(){
   if (error) throw new Error(/pembimbing_pilihan/.test(error.message) ? 'Layanan pengajuan belum dibuka admin prodi.' : error.message);
   DOSEN = data || [];
   if (ALT) return konfirmasiAlt();
-  if (!TOKEN) return LAPOR ? halamanLapor() : halamanBaru();
+  if (!TOKEN && !PRATINJAU) return LAPOR ? halamanLapor() : halamanBaru();
   await muat();
   halamanSaya();
+  if (PRATINJAU) kunciPratinjau();
 }
 mulai().catch(e => { $('isi').innerHTML = `<p class="kosong">${esc(e.message)}</p>
   ${TOKEN ? '<p><a href="pengajuan.html">Minta tautan baru</a></p>' : ''}`; });

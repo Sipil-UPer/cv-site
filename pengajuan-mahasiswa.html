@@ -244,6 +244,8 @@ function kartu(p){
       <span class="meta">${esc(tgl(p.diperbarui))}</span></summary>
     <div class="badan">
       <div><h3>Isian</h3><dl>${ringkas(p).map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join('')}</dl>
+        ${boleh(p) ? `<p style="margin:8px 0 0"><a class="b" href="pengajuan.html?pratinjau=${p.id}" target="_blank" rel="noopener"
+          title="Halaman pengajuan ini persis seperti dilihat mahasiswa (hanya-baca), dan apakah tombol Kirim akan berhasil">Lihat seperti mahasiswa</a></p>` : ''}
         ${p.prestasi_id ? '<p class="ket">Sudah tercatat di Prestasi mahasiswa (Data prodi).</p>' : ''}
         ${p.jenis === 'kabar' && p.status === 'disetujui' ? '<p class="ket">Sudah terbit di <a href="kabar-kegiatan.html">Kabar kegiatan</a> (tampil di situs publik setelah situs dibangun ulang).</p>' : ''}</div>
       <div><h3>Berkas</h3>${p.jenis === 'kabar' ? htmlFotoKabar(berkas) : ''}<ul class="polos">${berkas.map(b => `<li><div class="isi">${esc(labelBerkas(b.jenis, YUD))}
