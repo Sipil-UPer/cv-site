@@ -170,6 +170,55 @@ function pmRpc(nama, a){
     p.status = 'disetujui'; p.diperbarui = new Date().toISOString(); pmRiwayat(p, 'disetujui', saya.nama, 'Dijadwalkan ' + a.p_tanggal); simpan();
     return { data: 1, error: null };
   }
+  // 163: insentif publikasi, tiruan ringkas (aturan sama dengan 163-patch-insentif-publikasi.sql).
+  if (nama.startsWith('insentif_')) {
+    const saya = (DB.dosen || []).find(d => d.email === email()), KL = (DB.insentif_publikasi ||= []), PJ = (DB.insentif_pengajuan ||= []);
+    const pengelola = saya?.peran === 'admin';
+    const penulis = kid => (DB.karya_penulis || []).some(p => p.karya_id === kid && p.dosen_id === saya?.id);
+    const kurang = kid => ['naskah', 'indeksasi', 'loa', 'pernyataan'].filter(j => !(DB.karya_bukti || []).some(b => b.karya_id === kid && b.jenis === j));
+    const tahun = new Date(Date.now() + 7 * 3600e3).getUTCFullYear(), kini = new Date().toISOString();
+    if (nama === 'insentif_klaim') {
+      const k = (DB.karya || []).find(x => x.id === a.p_karya);
+      if (!k) return pmGagal('Publikasi tidak ditemukan.');
+      if (!penulis(k.id)) return pmGagal('Hanya penulis publikasi ini yang bisa mengklaim insentif.');
+      if (k.kategori !== 'publikasi') return pmGagal('Insentif hanya untuk publikasi.');
+      if (+k.tahun !== tahun) return pmGagal(`Insentif hanya untuk publikasi terbit tahun ${tahun} (publikasi ini ${k.tahun}).`);
+      const i = KL.find(x => x.karya_id === k.id);
+      if (i && i.pengklaim_id !== saya.id) return pmGagal('Publikasi ini sudah diklaim penulis lain (satu klaim per publikasi).');
+      if (i) { if (i.status === 'dikembalikan') Object.assign(i, { status: 'diklaim', diperbarui: kini }); simpan(); return { data: i.id, error: null }; }
+      const n = { id: baru(), karya_id: k.id, pengklaim_id: saya.id, status: 'diklaim', catatan: null, pengajuan_id: null, diklaim_pada: kini, diperbarui: kini };
+      KL.push(n); simpan(); return { data: n.id, error: null };
+    }
+    if (nama === 'insentif_batal') {
+      const i = KL.find(x => x.karya_id === a.p_karya); if (!i) return { data: null, error: null };
+      if (!['diklaim', 'dikembalikan'].includes(i.status)) return pmGagal(`Klaim berstatus ${i.status} tidak bisa dibatalkan; hubungi admin prodi.`);
+      DB.insentif_publikasi = KL.filter(x => x !== i); simpan(); return { data: null, error: null };
+    }
+    if (!pengelola) return pmGagal('Klaim insentif diperiksa admin prodi atau Kaprodi aktif.');
+    if (nama === 'insentif_periksa') {
+      const i = KL.find(x => x.id === a.p_id); if (!i) return pmGagal('Klaim tidak ditemukan.');
+      if (a.p_status === 'dikembalikan' && !String(a.p_catatan || '').trim()) return pmGagal('Tulis catatan: apa yang perlu diperbaiki dosen.');
+      if (a.p_status === 'siap') {
+        const k = (DB.karya || []).find(x => x.id === i.karya_id);
+        if (k?.status !== 'terverifikasi') return pmGagal(`Verifikasi publikasinya dulu (status sekarang: ${k?.status}).`);
+        if (kurang(i.karya_id).length) return pmGagal(`Berkas belum lengkap: ${kurang(i.karya_id).join(', ')}.`);
+      }
+      Object.assign(i, { status: a.p_status, catatan: String(a.p_catatan || '').trim() || null, diperbarui: kini }); simpan(); return { data: null, error: null };
+    }
+    if (nama === 'insentif_ajukan') {
+      if (!a.p_ids?.length || a.p_ids.some(id => KL.find(x => x.id === id)?.status !== 'siap')) return pmGagal('Hanya klaim berstatus siap yang bisa diajukan.');
+      const p = { id: baru(), judul: a.p_judul, tanggal: kini.slice(0, 10), catatan: a.p_catatan || null, dibuat_oleh: saya.id, dibuat: kini };
+      PJ.push(p); KL.filter(x => a.p_ids.includes(x.id)).forEach(x => Object.assign(x, { status: 'diajukan', pengajuan_id: p.id })); simpan();
+      return { data: p.id, error: null };
+    }
+    if (nama === 'insentif_hasil') {
+      const xs = KL.filter(x => a.p_ids.includes(x.id));
+      if (xs.some(x => !((x.status === 'diajukan' && ['disetujui', 'ditolak', 'siap'].includes(a.p_status)) || (x.status === 'disetujui' && a.p_status === 'cair'))))
+        return pmGagal(`Ada klaim yang statusnya tidak bisa diubah menjadi ${a.p_status}.`);
+      xs.forEach(x => Object.assign(x, { status: a.p_status, pengajuan_id: a.p_status === 'siap' ? null : x.pengajuan_id })); simpan();
+      return { data: xs.length, error: null };
+    }
+  }
   // 161: batalkan oleh admin atas permintaan mahasiswa, tiruan (sama dengan pengajuan_batalkan).
   if (nama === 'pengajuan_batalkan') {
     const p = PM().find(x => x.id === a.p_id), saya = (DB.dosen || []).find(d => d.email === email());

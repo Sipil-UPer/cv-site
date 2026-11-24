@@ -10,7 +10,7 @@
    2026-11-03).
    ===================================================================== */
 
-import { pihakBukti, UNSUR_BUTIR } from './unsur-butir.js?v=2026-11-24-d07d2c';
+import { pihakBukti, UNSUR_BUTIR } from './unsur-butir.js?v=2026-11-24-0aaa65';
 
 export const RENCANA_BUKTI = {
  "1": {
@@ -854,6 +854,10 @@ export const JENIS_BUKTI_KARYA = [
   ['sertifikat', 'Sertifikat/piagam'],
   ['foto', 'Foto kegiatan'],
   ['daftar_hadir', 'Daftar hadir (privat)'],
+  // 163 (pemilik 2026-11-24): berkas klaim insentif publikasi; artikel PDF = 'naskah' di atas.
+  ['indeksasi', 'Bukti indeksasi (Scopus/SINTA/WoS)'],
+  ['loa', 'LoA / bukti terbit'],
+  ['pernyataan', 'Surat pernyataan'],
   ['lainnya', 'Lainnya'],
 ];
 export const JENIS_KARYA_PRIVAT = ['sk', 'daftar_hadir'];

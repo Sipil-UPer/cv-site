@@ -1,5 +1,5 @@
-import { dosenLogin } from './dosen-login.js?v=2026-11-24-d07d2c';
-import { aktifPada } from './koordinator.js?v=2026-11-24-d07d2c';
+import { dosenLogin } from './dosen-login.js?v=2026-11-24-0aaa65';
+import { aktifPada } from './koordinator.js?v=2026-11-24-0aaa65';
 // Menu bersama ruang kerja (pemilik 2026-11-04).
 //
 // Situs dibagi dua:
@@ -32,8 +32,8 @@ const pantauanBoleh = (s, href) => PANTAUAN.includes(berkas(href)) || ((s.koordi
 // Asesor dan pimpinan hanya-baca tidak mengisi karya.
 const isiKarya = s => s.peran !== 'asesor' && !hanyaBaca(s);
 
-import { halamanAktif } from './fitur.js?v=2026-11-24-d07d2c';
-import { pasangPemicuBangun } from './pemicu-bangun.js?v=2026-11-24-d07d2c';
+import { halamanAktif } from './fitur.js?v=2026-11-24-0aaa65';
+import { pasangPemicuBangun } from './pemicu-bangun.js?v=2026-11-24-0aaa65';
 
 export const MODUL = [
   // Susunan menu mengikuti alur kerja (pemilik 2026-11-23): Data saya (milik dosen), Pengajaran (urut alur MK:
@@ -130,6 +130,9 @@ export const MODUL = [
     // Sama dengan boleh_hibah() di supabase/58-patch-hibah.sql.
     { href: 'hibah.html', judul: 'Pengajuan hibah', boleh: s => s.peran !== 'asesor',
       ket: 'Panggilan hibah dan proposal tim: tenggat, status, dana; didanai menjadi draf karya.' },
+    // Insentif publikasi (163, pemilik 2026-11-24): klaim dibuat di Karya saya; admin/Kaprodi memeriksa dan mengajukan ke fakultas.
+    { href: 'insentif.html', judul: 'Insentif publikasi', boleh: s => s.peran !== 'asesor',
+      ket: 'Klaim insentif publikasi tahun berjalan: status dan berkas; admin/Kaprodi memeriksa, mengajukan ke fakultas (rekap Excel), mencatat hasil.' },
     { href: 'keahlian.html', judul: 'Kepakaran dosen',
       ket: 'Cari pakar, peta topik, dan usulan pembimbing/penguji TA dari keahlian dosen; halaman publik.' },
     { href: 'sdgs-bukti.html', judul: 'Rekap SDGs dan bukti',
@@ -445,7 +448,7 @@ export async function pasangMenu(sb){
   // Pencarian menyeluruh (pemilik 2026-11-12; cari-ui.js, cari.js): dimuat saat pertama dipakai.
   const kotak = nav.querySelector('.rk-cari input');
   let siapCari = null;
-  const muatCari = () => siapCari || (siapCari = import('./cari-ui.js?v=2026-11-24-d07d2c').then(m =>
+  const muatCari = () => siapCari || (siapCari = import('./cari-ui.js?v=2026-11-24-0aaa65').then(m =>
     m.pasangCari(kotak, { sb, saya: u.saya, modul: halamanBoleh(u.saya), boleh: h => bolehBuka(u.saya, h) !== false })));
   kotak.addEventListener('focus', muatCari);
   document.addEventListener('keydown', e => {

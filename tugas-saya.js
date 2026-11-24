@@ -1,16 +1,17 @@
 // "Tugas saya" di Ruang kerja (pemilik 2026-11-12): hal yang menunggu tindakan dosen yang
 // sedang masuk, dari data yang sudah boleh ia baca (RLS). Aturan tenggat sama dengan halaman
 // Pengingat: rapat.js, hibah.js, temuan-ami.js, pengingat-dosen.js.
-import { kurangProfil } from './pengingat-dosen.js?v=2026-11-24-d07d2c';
-import { tindakTerbuka, tglID } from './rapat.js?v=2026-11-24-d07d2c';
-import { tenggatBerikut, teksHari, HARI_LEWAT } from './hibah.js?v=2026-11-24-d07d2c';
-import { hariKeTenggat, labelStatus, HARI_DEKAT } from './temuan-ami.js?v=2026-11-24-d07d2c';
-import { tugasEvaluasi } from './evaluasi-pembelajaran.js?v=2026-11-24-d07d2c';
-import { bolehPengajuan } from './koordinator.js?v=2026-11-24-d07d2c';
-import { tenggatReview, hariKe, teksHari as teksHariRv, tugasTenggatRps, tugasTetapDekan, tanggalPanjang as tglRv } from './pengingat-rps.js?v=2026-11-24-d07d2c';
-import { tugasMK } from './tugas-mk.js?v=2026-11-24-d07d2c';
-import { halamanAktif } from './fitur.js?v=2026-11-24-d07d2c';
-import { masaBerlaku, tanggalPanjang as tglSrt } from './profil-dosen.js?v=2026-11-24-d07d2c';
+import { kurangProfil } from './pengingat-dosen.js?v=2026-11-24-0aaa65';
+import { tindakTerbuka, tglID } from './rapat.js?v=2026-11-24-0aaa65';
+import { tenggatBerikut, teksHari, HARI_LEWAT } from './hibah.js?v=2026-11-24-0aaa65';
+import { hariKeTenggat, labelStatus, HARI_DEKAT } from './temuan-ami.js?v=2026-11-24-0aaa65';
+import { tugasEvaluasi } from './evaluasi-pembelajaran.js?v=2026-11-24-0aaa65';
+import { bolehPengajuan } from './koordinator.js?v=2026-11-24-0aaa65';
+import { tenggatReview, hariKe, teksHari as teksHariRv, tugasTenggatRps, tugasTetapDekan, tanggalPanjang as tglRv } from './pengingat-rps.js?v=2026-11-24-0aaa65';
+import { tugasInsentif } from './insentif.js?v=2026-11-24-0aaa65';
+import { tugasMK } from './tugas-mk.js?v=2026-11-24-0aaa65';
+import { halamanAktif } from './fitur.js?v=2026-11-24-0aaa65';
+import { masaBerlaku, tanggalPanjang as tglSrt } from './profil-dosen.js?v=2026-11-24-0aaa65';
 
 // Sertifikat dengan masa berlaku (pemilik 2026-11-24): diingatkan sejak 90 hari sebelum habis, dan terus setelah lewat.
 export const HARI_SERTIFIKAT = 90;
@@ -111,6 +112,8 @@ export function tugasSaya(d, kini = new Date()){
 
   // Koordinator MK dan pengampu (pemilik 2026-11-17; tugas-mk.js): CPMK/RPS dan portofolio semester terbaru.
   if (d.dataMK) for (const x of tugasMK({ saya: s, ...d.dataMK })) tambah(x.jenis, x.judul, x.rinci, x.href);
+  // Insentif publikasi (163, pemilik 2026-11-24): klaim dikembalikan / berkas kurang (pengklaim); menunggu pemeriksaan (admin/Kaprodi).
+  if (d.insentif) for (const x of tugasInsentif({ saya: s, ...d.insentif })) tambah(x.jenis, x.judul, x.rinci, x.href);
 
   // Review sejawat RPS (118/119, pemilik 2026-11-19): reviewer yang ditunjuk dan belum mengirim; penyusun RPS yang reviewnya
   // belum ditanggapi (admin tidak menanggapi atas nama penyusun). Tanpa tenggat resmi: tidak ditandai lewat.

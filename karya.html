@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-24-d07d2c">
+<link rel="stylesheet" href="tema.css?v=2026-11-24-0aaa65">
 <style>
   :root{--bg:#EEF0ED; --ink:#161E26; --muted:#616C76; --line:#D8DDD8; --line-soft:#E8EBE7; --accent:var(--biru); --accent-soft:var(--biru-m7); --pending:#8A5A00; --pending-soft:#FAF0DC; --reject:#8C2F2F; --reject-soft:#F7E7E7;}
   *{box-sizing:border-box}
@@ -170,8 +170,14 @@
   .sitasi-sel input{width:100%;text-align:center;margin:2px 0}
   .sitasi-sel small{color:var(--muted);font-size:10.5px;font-family:var(--sans)}
   @media(max-width:640px){.grid{grid-template-columns:1fr}}
+  /* Insentif publikasi (163, pemilik 2026-11-24) */
+  .insentif{margin-top:8px;padding:8px 10px;border:1px solid var(--line);background:#FFFBEF;font-size:13px}
+  .insentif .ket{color:var(--muted);font-size:12.5px;margin:3px 0}
+  .cek-berkas{list-style:none;padding:0;margin:4px 0;display:flex;flex-wrap:wrap;gap:4px 14px}
+  .cek-berkas li.ada{color:var(--hijau)} .cek-berkas li.kurang{color:var(--merah)}
+  .cek-insentif{font-size:13px;margin-left:8px}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-24-d07d2c">
+<link rel="stylesheet" href="kepala.css?v=2026-11-24-0aaa65">
 </head>
 <body>
 
@@ -185,7 +191,7 @@
 
 <div class="wrap" id="app"></div>
 
-<script src="config.js?v=2026-11-24-d07d2c"></script>
+<script src="config.js?v=2026-11-24-0aaa65"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -209,26 +215,29 @@ const SUPABASE_URL = window.SB_URL;
 const SUPABASE_ANON_KEY = window.SB_KEY;
 
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { JENIS_BUKTI_KARYA, namaJenisBukti, JENIS_KARYA_PRIVAT, teksAksesBukti } from './rencana-bukti.js?v=2026-11-24-d07d2c';
-import { tautanBerkas, temuanPakai } from './tautan-privat.js?v=2026-11-24-d07d2c';
-import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-24-d07d2c';
-import { periksaBerkas, kolomSidik, teksTemuan } from './sidik-berkas.js?v=2026-11-24-d07d2c';
-import { pasangContoh, durasiKS } from './manfaat-kerjasama.js?v=2026-11-24-d07d2c';
-import { pasangMenu } from './menu.js?v=2026-11-24-d07d2c';
-import { dosenLogin } from './dosen-login.js?v=2026-11-24-d07d2c';
-import { pasangPrestasi } from './prestasi.js?v=2026-11-24-d07d2c';
-import { htmlSaran } from './saran-bukti.js?v=2026-11-24-d07d2c';
-import { pasangBkd } from './bkd.js?v=2026-11-24-d07d2c';
-import { htmlTautanButir } from './tautan-butir.js?v=2026-11-24-d07d2c';
-import { ISIAN_32, ISIAN_25, ISIAN_74, TINGKAT, FORM, SDGS } from './form-karya.js?v=2026-11-24-d07d2c';
+import { JENIS_BUKTI_KARYA, namaJenisBukti, JENIS_KARYA_PRIVAT, teksAksesBukti } from './rencana-bukti.js?v=2026-11-24-0aaa65';
+import { tautanBerkas, temuanPakai } from './tautan-privat.js?v=2026-11-24-0aaa65';
+import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-24-0aaa65';
+import { periksaBerkas, kolomSidik, teksTemuan } from './sidik-berkas.js?v=2026-11-24-0aaa65';
+import { pasangContoh, durasiKS } from './manfaat-kerjasama.js?v=2026-11-24-0aaa65';
+import { pasangMenu } from './menu.js?v=2026-11-24-0aaa65';
+import { dosenLogin } from './dosen-login.js?v=2026-11-24-0aaa65';
+import { pasangPrestasi } from './prestasi.js?v=2026-11-24-0aaa65';
+import { htmlSaran } from './saran-bukti.js?v=2026-11-24-0aaa65';
+import { pasangBkd } from './bkd.js?v=2026-11-24-0aaa65';
+import { htmlTautanButir } from './tautan-butir.js?v=2026-11-24-0aaa65';
+import { ISIAN_32, ISIAN_25, ISIAN_74, TINGKAT, FORM, SDGS } from './form-karya.js?v=2026-11-24-0aaa65';
 import { barisKarya as htmlBarisKarya, muatBuktiKarya, daftarBuktiKarya as daftarBuktiDari,
   htmlDaftarBukti as htmlDaftarBuktiDari, berkasMilikKarya as berkasMilikDari,
-  pasangHapusBuktiAdmin } from './karya-tampil.js?v=2026-11-24-d07d2c';
-import { saringKarya, daftarNegara, ADA, TANPA } from './saring-karya.js?v=2026-11-24-d07d2c';
-import { hitungVerifikasi } from './verifikasi-hitung.js?v=2026-11-24-d07d2c';
+  pasangHapusBuktiAdmin } from './karya-tampil.js?v=2026-11-24-0aaa65';
+import { saringKarya, daftarNegara, ADA, TANPA } from './saring-karya.js?v=2026-11-24-0aaa65';
+// Klaim insentif publikasi (163, pemilik 2026-11-24): panel di Karya saya + centang saat menyimpan publikasi baru.
+import { BERKAS_INSENTIF, STATUS_INSENTIF, berkasKurang, bolehKlaim, langkahPengklaim, tahunWIB } from './insentif.js?v=2026-11-24-0aaa65';
+let KLAIM = new Map(), ADA163 = true;   // karya_id -> baris insentif_publikasi
+import { hitungVerifikasi } from './verifikasi-hitung.js?v=2026-11-24-0aaa65';
 import { daftarDoi, ambilDoi, drafDari, rapiDoi, sitasiTahunan, cariJudul, bacaBibtex, judulRapi, pilihCocok,
-  drafDariBib, teksBatas, karyaOrcid, isianFormDari, KOLOM_FORM_DOI } from './impor-karya.js?v=2026-11-24-d07d2c';
-import { SUMBER_SITASI } from './sitasi.js?v=2026-11-24-d07d2c';
+  drafDariBib, teksBatas, karyaOrcid, isianFormDari, KOLOM_FORM_DOI } from './impor-karya.js?v=2026-11-24-0aaa65';
+import { SUMBER_SITASI } from './sitasi.js?v=2026-11-24-0aaa65';
 
 const app = document.getElementById('app');
 if (!SUPABASE_URL || !SUPABASE_ANON_KEY
@@ -578,6 +587,8 @@ function tampilForm(key, ubah = null){
           : ubah.k.status === 'draf' ? 'Simpan dan ajukan' : 'Simpan perubahan') : 'Simpan'}</button>
         ${ubah?.k.status === 'draf' ? '<button class="btn ghost" type="button" id="subDraf">Simpan draf</button>' : ''}
         ${ubah ? '<button class="btn ghost" type="button" id="batalUbah">Batal</button>' : ''}
+        ${!ubah && key === 'publikasi' ? `<label class="cek-insentif" title="Hanya publikasi terbit ${tahunWIB()}; berkas wajib: ${BERKAS_INSENTIF.map(b => b[1]).join(', ')}">
+          <input type="checkbox" id="f_klaim_insentif"> Klaim insentif publikasi (terbit ${tahunWIB()})</label>` : ''}
         <span class="msg" id="fm"></span>
       </div>
     </form>
@@ -1402,6 +1413,14 @@ async function simpan(key){
 
     if(key === 'publikasi') await simpanSitasi(k.id);   // sitasi per tahun (patch 42)
 
+    // 163: klaim insentif sekaligus (pemilik 2026-11-24), hanya publikasi tahun berjalan; galat tidak membatalkan simpan.
+    let catatanKlaim = '';
+    if(key === 'publikasi' && document.getElementById('f_klaim_insentif')?.checked){
+      // Aturan tahun dan penulis diperiksa basis data (insentif_klaim); pesannya ditampilkan apa adanya.
+      const { error:eK } = await sb.rpc('insentif_klaim', { p_karya: k.id });
+      catatanKlaim = eK ? ` Klaim insentif tidak dibuat: ${eK.message}` : ' Klaim insentif tercatat; lengkapi 4 berkas di bukti karya.';
+    }
+
     // Berkas bukti dari antrean: satu baris karya_bukti per berkas.
     let catatanBukti = '';
     if(antreanBukti.length){
@@ -1421,7 +1440,7 @@ async function simpan(key){
     if(key === 'kegiatan') pasangSkema();
     document.getElementById('dupBox').innerHTML = '';
     fm.className='msg ok'; fm.textContent='Tersimpan' + (aku !== saya.id ? ' atas nama ' + namaDosen(aku) : '')
-      + '. Menunggu verifikasi admin prodi.' + catatanBukti;
+      + '. Menunggu verifikasi admin prodi.' + catatanBukti + catatanKlaim;
     muatKaryaSaya('daftar', 6);
   }catch(err){
     fm.className='msg err';
@@ -1702,6 +1721,24 @@ const keB64 = f => new Promise((ok, gagal) => {
 
 // Muat karya induk, bukti jamak, ajuan hapus dan ajuan ubah untuk daftar
 // karya ini (karya-tampil.js); dipakai tab Karya saya dan Karya prodi.
+// Panel insentif publikasi di Karya saya (163, pemilik 2026-11-24): publikasi tahun berjalan atau yang sudah diklaim.
+// Daftar periksa empat berkas dari bukti karya (KB), status klaim, langkah berikut, dan tombol klaim/batalkan.
+function panelInsentif(k){
+  const klaim = KLAIM.get(k.id) || null;
+  if(!ADA163 || k.kategori !== 'publikasi' || (+k.tahun !== tahunWIB() && !klaim)) return '';
+  const bukti = KB.get(k.id) || [], kurang = berkasKurang(bukti);
+  const b = bolehKlaim(k, { sayaPenulis: true, klaim, sayaId: saya.id });
+  const milik = klaim && klaim.pengklaim_id === saya.id;
+  return `<div class="insentif"><b>Insentif publikasi</b> · ${klaim ? `<span class="tag">${esc(STATUS_INSENTIF[klaim.status] || klaim.status)}</span>` : '<span class="ket">belum diklaim</span>'}
+    <ul class="cek-berkas">${BERKAS_INSENTIF.map(([j, l]) => `<li class="${kurang.includes(j) ? 'kurang' : 'ada'}">${kurang.includes(j) ? '✗' : '✓'} ${esc(l)}</li>`).join('')}</ul>
+    ${klaim && milik ? `<div class="ket">${esc(langkahPengklaim(klaim, k, bukti))}</div>` : ''}
+    ${klaim && !milik ? '<div class="ket">Diklaim penulis lain (satu klaim per publikasi).</div>' : ''}
+    ${!klaim && !b.boleh && b.alasan ? `<div class="ket">${esc(b.alasan)}</div>` : ''}
+    <div>${b.boleh ? `<button class="btn ghost" type="button" data-klaim="${esc(k.id)}">${klaim ? 'Klaim ulang' : 'Klaim insentif'}</button>` : ''}
+      ${milik && ['diklaim', 'dikembalikan'].includes(klaim.status) ? `<button class="btn ghost" type="button" data-batal-klaim="${esc(k.id)}">Batalkan klaim</button>` : ''}
+      <a class="ket" href="insentif.html">Insentif publikasi</a></div></div>`;
+}
+
 async function muatBuktiUntuk(data){
   ({ KB, INDUK, AJUAN, AJUAN_UBAH, KB_GAGAL, AJUAN_GAGAL, AJUAN_UBAH_GAGAL } = await muatBuktiKarya(sb, data));
 }
@@ -1841,6 +1878,10 @@ async function muatKaryaSaya(wadahId, batas){
   if(error){ box.className='kosong'; box.textContent=error.message; return; }
 
   await muatBuktiUntuk(data);
+  // 163: klaim insentif publikasi untuk karya-karya ini (tanpa patch: panel tidak tampil).
+  const kl = await sb.from('insentif_publikasi').select('*').in('karya_id', data.map(k => k.id));
+  ADA163 = !(kl.error && /does not exist|schema cache/i.test(kl.error.message || ''));
+  KLAIM = new Map((kl.data || []).map(x => [x.karya_id, x]));
 
   const semua = document.getElementById('salin-semua');
   if(semua){
@@ -1853,9 +1894,20 @@ async function muatKaryaSaya(wadahId, batas){
   }
 
   box.className='';
-  box.innerHTML = data.map(k => barisKarya(k, aksiUbah(k) + aksiHapus(k), panelBuktiKarya(k))).join('');
+  box.innerHTML = data.map(k => barisKarya(k, aksiUbah(k) + aksiHapus(k), panelBuktiKarya(k) + panelInsentif(k))).join('');
   pasangSalin(box);
   pasangAksiBukti(box, data, () => muatKaryaSaya(wadahId, batas));
+  // 163: Klaim insentif / klaim ulang / batalkan klaim.
+  box.querySelectorAll('[data-klaim],[data-batal-klaim]').forEach(b => {
+    b.onclick = async () => {
+      const id = b.dataset.klaim || b.dataset.batalKlaim, batal = !!b.dataset.batalKlaim;
+      if(batal && !confirm('Batalkan klaim insentif publikasi ini?')) return;
+      b.disabled = true;
+      const { error } = await sb.rpc(batal ? 'insentif_batal' : 'insentif_klaim', { p_karya: id });
+      if(error){ b.disabled = false; alert(error.message); return; }
+      muatKaryaSaya(wadahId, batas);
+    };
+  });
   box.querySelectorAll('[data-h]').forEach(b=>{
     b.onclick = async()=>{
       const k = (data || []).find(x => String(x.id) === String(b.dataset.h));

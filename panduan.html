@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-24-d07d2c">
+<link rel="stylesheet" href="tema.css?v=2026-11-24-0aaa65">
 <style>
   /* Panduan pengguna ruang kerja (pemilik 2026-11-04). Bagian admin hanya
      tampil untuk peran admin. Perbarui bila tombol atau halaman berubah. */
@@ -43,7 +43,7 @@
   @media(max-width:640px){nav.isi ol{columns:1}.wrap{padding:18px 16px 60px}}
   @media print{nav.isi{display:none}section{break-inside:avoid}}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-24-d07d2c">
+<link rel="stylesheet" href="kepala.css?v=2026-11-24-0aaa65">
 </head>
 <body>
 
@@ -368,6 +368,7 @@
     <ul>
       <li><b>Pemantauan ▾ › Pemantauan kinerja</b>: rekap per tahun atau TS, per dosen, dan syarat unggul.</li>
       <li><b>Data saya ▾ › Target kinerja dosen</b>: target tahun ini (publikasi, penelitian, PkM, luaran, rekognisi, proposal hibah eksternal) dan capaian Anda. Capaian dihitung dari karya tahun itu yang mencantumkan Anda sebagai penulis atau anggota: yang terverifikasi masuk "Tercapai", yang masih diajukan tampil sebagai "menunggu". Target ditetapkan admin per jabatan akademik (bisa khusus per dosen). Yang belum tercapai juga tampil di <b>Tugas saya</b>. Admin dan pimpinan melihat semua dosen; admin mengisi target baku dan target khusus di halaman yang sama.</li>
+      <li><b>Penelitian dan PkM ▾ › Insentif publikasi</b>: publikasi terbit tahun ini bisa diklaim insentifnya, satu klaim per publikasi. Centang <b>Klaim insentif</b> saat menyimpan publikasi di Karya saya, atau klik tombolnya di bawah publikasi. Unggah empat berkas sebagai bukti karya: artikel (PDF, jenis Naskah), bukti indeksasi, LoA/bukti terbit, dan surat pernyataan; daftar periksanya tampil di bawah publikasi. Admin prodi atau Kaprodi menandai <b>siap</b> (publikasi terverifikasi dan berkas lengkap) atau <b>mengembalikan</b> dengan catatan, lalu membuat pengajuan ke fakultas (rekap Excel terunduh) dan mencatat hasilnya (disetujui, ditolak, cair).</li>
       <li><b>Mutu dan akreditasi ▾ › Grafik untuk LED</b>: grafik siap tempel untuk laporan dan LED.</li>
       <li><b>Mutu dan akreditasi ▾ › Skor akreditasi dan LED</b>: perkiraan skor tiap butir LAM. Pilih TS di bagian atas; klik nomor butir untuk membuka kartunya.</li>
       <li><b>Mutu dan akreditasi ▾ › Rincian butir</b>: data di balik angka tiap butir.</li>
@@ -538,7 +539,7 @@
   </div>
 </main>
 
-<script src="config.js?v=2026-11-24-d07d2c"></script>
+<script src="config.js?v=2026-11-24-0aaa65"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -555,7 +556,7 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-24-d07d2c';
+import { gerbang } from './menu.js?v=2026-11-24-0aaa65';
 
 // Bagian admin hanya untuk peran admin (isinya bukan rahasia; disembunyikan
 // supaya panduan dosen tetap ringkas).
