@@ -4,8 +4,8 @@
    ===================================================================== */
 // Data Data prodi yang dipakai LKPS dan draf LED (hanya di browser pemakai yang login;
 // tabel yang belum boleh dibaca atau belum ada cukup kosong).
-import { integrasiDisahkan, kunciIntegrasi } from './rps-integrasi.js?v=2026-11-24-5988f3';
-import { bacaAmpu } from './dosen-hitung.js?v=2026-11-24-5988f3';
+import { integrasiDisahkan, kunciIntegrasi } from './rps-integrasi.js?v=2026-11-24-f7e168';
+import { bacaAmpu } from './dosen-hitung.js?v=2026-11-24-f7e168';
 export async function ambilDaftarLKPS(sb){
   // Tahap 2: lembar daftar (lkps.js petaDaftar). Tabel yang belum ada
   // (patch belum dijalankan) cukup kosong.
@@ -110,14 +110,15 @@ export async function ambilDaftarLKPS(sb){
   const ampu = await bacaAmpu(sb);
   // CPL dan peta MK-CPL per kurikulum (71-patch-cpl-kurikulum.sql) untuk LKPS LAMDEPILAR E.4.1-E.4.2 (2026-11-24).
   // Sarana menurut standar (165-patch) untuk LKPS LAMDEPILAR L.1, pembimbing utama TA (167-patch) untuk P.1.2;
-  // tabel belum ada = kosong.
-  const [cpl, mkCpl, saranaStd, bimbinganUtama] = await Promise.all([
+  // keuangan A.5 (169-patch); tabel belum ada = kosong.
+  const [cpl, mkCpl, saranaStd, bimbinganUtama, keuangan] = await Promise.all([
     ambil(sb.from('ref_cpl').select('kurikulum,kode,rumusan,indikator,urutan')),
     ambil(sb.from('ref_mk_cpl').select('kurikulum,kode_mk,cpl,bobot')),
     ambil(sb.from('lkps_sarana_standar').select('*')),
     ambil(sb.from('lkps_bimbingan_utama').select('*')),
+    ambil(sb.from('lkps_keuangan').select('*')),
   ]);
   return { dosen, karya, kerjasama, bkd, prestasi, luaranMhs, mk, tema, mhs, tracer,
            vmts, prodiUpps, dana, tendik, buktiVmts, prasarana, dokK3l, fasK3l, dokumen, ppepp, buktiBaris, buktiKarya, target, tim,
-           standar, capaianStandar, revisiStandar, temuan, rekapEval, integrasiRps, ampu, cpl, mkCpl, saranaStd, bimbinganUtama };
+           standar, capaianStandar, revisiStandar, temuan, rekapEval, integrasiRps, ampu, cpl, mkCpl, saranaStd, bimbinganUtama, keuangan };
 }

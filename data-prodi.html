@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-24-5988f3">
+<link rel="stylesheet" href="tema.css?v=2026-11-24-f7e168">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
@@ -104,7 +104,7 @@
   .masuk{max-width:420px;margin:40px auto;background:#fff;border:1px solid var(--line);padding:20px}
   .masuk input{width:100%;padding:8px 10px;margin:8px 0;font:inherit}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-24-5988f3">
+<link rel="stylesheet" href="kepala.css?v=2026-11-24-f7e168">
 </head>
 <body>
 
@@ -118,7 +118,7 @@
 
 <main class="wrap" id="isi"></main>
 
-<script src="config.js?v=2026-11-24-5988f3"></script>
+<script src="config.js?v=2026-11-24-f7e168"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -135,30 +135,31 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { buangBerkas, buangSemua, PESAN_SAMPAH, fotoPrestasiPublik, PERINGATAN_FOTO } from './hapus-berkas.js?v=2026-11-24-5988f3';
-import { pasangMenu } from './menu.js?v=2026-11-24-5988f3';
-import { LKPS } from './dokumen-instrumen.js?v=2026-11-24-5988f3';
-import { dosenLogin } from './dosen-login.js?v=2026-11-24-5988f3';
-import { aktifPada, tabBoleh, labelJabatan, labelPeran } from './koordinator.js?v=2026-11-24-5988f3';
-import { unggahKePustaka, opsiPustaka, opsiJenis, labelDokumen, cariDokumen } from './pustaka-dokumen.js?v=2026-11-24-5988f3';
-import { pasangRapikan } from './rapikan-berkas.js?v=2026-11-24-5988f3';
-import { UNSUR, skorUnsur, pihakUnsur } from './unsur-butir.js?v=2026-11-24-5988f3';
-import { OPSI_SUMBER } from './iku-otomatis.js?v=2026-11-24-5988f3';
-import { denganOtomatis as otomatisDari, tsTersedia, tsAwal, htmlCapaianIKU, KET_CAPAIAN, muatTambahan, denganTambahan } from './capaian-iku.js?v=2026-11-24-5988f3';
-import { KATEGORI_TEMUAN, STATUS_TEMUAN, PIHAK_TEMUAN, ringkasTemuan, htmlRingkasTemuan } from './temuan-ami.js?v=2026-11-24-5988f3';
-import { bacaRekapSPM, rencanaImporSPM, tsDariTanggal, labelTS, ringkasLembar, picProdi } from './standar-spmi.js?v=2026-11-24-5988f3';
-import { SHEETJS } from './nilai-cpl.js?v=2026-11-24-5988f3';
-import { bacaKerjasama, rencanaImporKS, LEMBAR_KS } from './impor-kerjasama.js?v=2026-11-24-5988f3';
-import { bacaCSV, normKur, normCpl, KOLOM_IMPOR, CONTOH_IMPOR, rencanaImpor, sebaranCPL, htmlSebaran } from './kurikulum-cpl.js?v=2026-11-24-5988f3';
-import { htmlContoh, pasangContoh, JENIS_BUKTI_KS } from './manfaat-kerjasama.js?v=2026-11-24-5988f3';
-import { infoJenis } from './rencana-bukti.js?v=2026-11-24-5988f3';
-import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-24-5988f3';
-import { BOBOT } from './bobot.js?v=2026-11-24-5988f3';
-import { nomorButir, htmlTautanButir } from './tautan-butir.js?v=2026-11-24-5988f3';
-import { htmlSaran } from './saran-bukti.js?v=2026-11-24-5988f3';
-import { tautanBerkas, privatkanLama, adalahPrivat } from './tautan-privat.js?v=2026-11-24-5988f3';
-import { unggahLKD, buangLKD, bukaLKD, pendidikanTotal, pendidikanPS } from './bkd.js?v=2026-11-24-5988f3';
-import { teksPelaksanaan } from './rekap-kp.js?v=2026-11-24-5988f3';
+import { buangBerkas, buangSemua, PESAN_SAMPAH, fotoPrestasiPublik, PERINGATAN_FOTO } from './hapus-berkas.js?v=2026-11-24-f7e168';
+import { pasangMenu } from './menu.js?v=2026-11-24-f7e168';
+import { LKPS } from './dokumen-instrumen.js?v=2026-11-24-f7e168';
+import { POS_A5, labelPos } from './keuangan-a5.js?v=2026-11-24-f7e168';
+import { dosenLogin } from './dosen-login.js?v=2026-11-24-f7e168';
+import { aktifPada, tabBoleh, labelJabatan, labelPeran } from './koordinator.js?v=2026-11-24-f7e168';
+import { unggahKePustaka, opsiPustaka, opsiJenis, labelDokumen, cariDokumen } from './pustaka-dokumen.js?v=2026-11-24-f7e168';
+import { pasangRapikan } from './rapikan-berkas.js?v=2026-11-24-f7e168';
+import { UNSUR, skorUnsur, pihakUnsur } from './unsur-butir.js?v=2026-11-24-f7e168';
+import { OPSI_SUMBER } from './iku-otomatis.js?v=2026-11-24-f7e168';
+import { denganOtomatis as otomatisDari, tsTersedia, tsAwal, htmlCapaianIKU, KET_CAPAIAN, muatTambahan, denganTambahan } from './capaian-iku.js?v=2026-11-24-f7e168';
+import { KATEGORI_TEMUAN, STATUS_TEMUAN, PIHAK_TEMUAN, ringkasTemuan, htmlRingkasTemuan } from './temuan-ami.js?v=2026-11-24-f7e168';
+import { bacaRekapSPM, rencanaImporSPM, tsDariTanggal, labelTS, ringkasLembar, picProdi } from './standar-spmi.js?v=2026-11-24-f7e168';
+import { SHEETJS } from './nilai-cpl.js?v=2026-11-24-f7e168';
+import { bacaKerjasama, rencanaImporKS, LEMBAR_KS } from './impor-kerjasama.js?v=2026-11-24-f7e168';
+import { bacaCSV, normKur, normCpl, KOLOM_IMPOR, CONTOH_IMPOR, rencanaImpor, sebaranCPL, htmlSebaran } from './kurikulum-cpl.js?v=2026-11-24-f7e168';
+import { htmlContoh, pasangContoh, JENIS_BUKTI_KS } from './manfaat-kerjasama.js?v=2026-11-24-f7e168';
+import { infoJenis } from './rencana-bukti.js?v=2026-11-24-f7e168';
+import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-24-f7e168';
+import { BOBOT } from './bobot.js?v=2026-11-24-f7e168';
+import { nomorButir, htmlTautanButir } from './tautan-butir.js?v=2026-11-24-f7e168';
+import { htmlSaran } from './saran-bukti.js?v=2026-11-24-f7e168';
+import { tautanBerkas, privatkanLama, adalahPrivat } from './tautan-privat.js?v=2026-11-24-f7e168';
+import { unggahLKD, buangLKD, bukaLKD, pendidikanTotal, pendidikanPS } from './bkd.js?v=2026-11-24-f7e168';
+import { teksPelaksanaan } from './rekap-kp.js?v=2026-11-24-f7e168';
 // Rentang nomor butir instrumen aktif (LAM Teknik 1-60, LAMDEPILAR 101-130; 159-patch, 2026-11-24).
 const NO_BUTIR = Object.keys(BOBOT).map(Number);
 const BUTIR_MIN = Math.min(...NO_BUTIR), BUTIR_MAKS = Math.max(...NO_BUTIR);
@@ -657,6 +658,22 @@ const TABEL = [
       { k: 'jenis', l: 'Jenis penggunaan', t: 'pilihan', wajib: true, o: JENIS_DANA },
       { k: 'dana_upps', l: 'UPPS (Rp)', t: 'num' },
       { k: 'dana_ps', l: 'Program studi (Rp)', t: 'num' },
+    ],
+    cek: r => r.dana_upps == null && r.dana_ps == null ? 'Isi dana UPPS atau program studi.' : '' },
+  { id: 'keuangan_a5', tabel: 'lkps_keuangan', judul: 'Keuangan A.5', butir: '124',
+    patch: '169-patch-keuangan-a5.sql', mesinLkps: 'lkps-lamdepilar.js', urut: ['tahun_akademik', 'pos'],
+    ket: 'LKPS Tabel A.5.1 (pemasukan) dan A.5.2 (pembiayaan), blok Program Magister: satu baris = satu pos pada satu '
+       + 'tahun akademik, dalam rupiah, untuk UPPS dan untuk program studi. LKPS menuliskannya dalam juta rupiah; '
+       + 'jumlah, rata-rata, rasio, dan neraca A.5.3 dihitung rumus templat.',
+    label: r => `Keuangan ${r.tahun_akademik || ''} ${labelPos(r.pos)}`,
+    tahun: r => r.tahun_akademik ? +String(r.tahun_akademik).slice(5) : null,
+    kolom: [
+      { k: 'tahun_akademik', l: 'Tahun akademik (mis. 2025/2026)', t: 'ta', wajib: true },
+      { k: 'pos', l: 'Pos (tabel A.5.1/A.5.2)', t: 'pilihan', wajib: true, lebar: true,
+        o: POS_A5.map(p => [p.kode, `${p.kelompok} — ${p.label}`]) },
+      { k: 'dana_upps', l: 'UPPS (Rp)', t: 'num' },
+      { k: 'dana_ps', l: 'Program studi (Rp)', t: 'num' },
+      { k: 'keterangan', l: 'Keterangan', t: 'teks', lebar: true },
     ],
     cek: r => r.dana_upps == null && r.dana_ps == null ? 'Isi dana UPPS atau program studi.' : '' },
   { id: 'tendik', tabel: 'lkps_tendik', judul: 'Tenaga kependidikan', butir: '29',
@@ -1962,7 +1979,7 @@ const GRUP_TAB = [
   ['Kurikulum & CPL', ['mk', 'cpl', 'mk_cpl', 'korelasi_cpl', 'profil_lulusan']],
   ['Penelitian & kerja sama', ['tema', 'peta_dok', 'kerjasama']],
   ['Mahasiswa & lulusan', ['mahasiswa', 'jadwal_ta', 'kohort', 'prestasi', 'publikasi', 'luaran', 'tracer', 'kepuasan', 'testimoni']],
-  ['Institusi & keuangan', ['vmts', 'prodi_upps', 'dana']],
+  ['Institusi & keuangan', ['vmts', 'prodi_upps', 'dana', 'keuangan_a5']],
   ['Sarana & K3L', ['sarana_std', 'prasarana', 'dok_k3l', 'fas_k3l']],
   ['SPMI', ['standar', 'revisi', 'spmi', 'target', 'temuan']],
 ];
@@ -2254,6 +2271,7 @@ const RINGKAS = {
   temuan: ['tahun_ts', 'kode', 'kategori', 'uraian', 'pj_nama', 'tenggat', 'status'],
   mahasiswa: ['tahun_akademik', 'jumlah_mahasiswa_aktif', 'jumlah_lulusan', 'rerata_ipk_lulusan', 'rerata_masa_studi_tahun', 'persen_lulus_tepat_waktu'],
   bimbingan_utama: ['nidn', 'tahun_akademik', 'jumlah_ps', 'jumlah_ps_lain'],
+  keuangan_a5: ['tahun_akademik', 'pos', 'dana_upps', 'dana_ps'],
   bkd: ['nidn', 'tahun_akademik', 'semester', 'jabatan_akademik', 'pendidikan_total', 'sks_penelitian', 'sks_pkm'],
   prestasi: ['nama_kegiatan', 'nama_mahasiswa', 'bidang', 'tingkat', 'capaian', 'tahun'],
   publikasi: ['judul', 'nama_mahasiswa', 'jenis', 'tingkat', 'tahun'],

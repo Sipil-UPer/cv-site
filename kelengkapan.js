@@ -2,21 +2,22 @@
 // kelengkapan.html mengambil data, modul ini menghitung. Aturan terisi sama
 // dengan halaman sumbernya: kotak narasi seperti narasi-led.html, bukti butir
 // seperti rekap bukti di skor.html.
-import { BUTIR_MANUAL } from './butir-manual.js?v=2026-11-24-5988f3';
-import { UNSUR_BUTIR, pihakUnsur, PIHAK, PJ_UNSUR } from './unsur-butir.js?v=2026-11-24-5988f3';
-import { BUTIR_DATA } from './butir-data.js?v=2026-11-24-5988f3';
-import { faktaNarasi, anggotaTim } from './led-isi.js?v=2026-11-24-5988f3';
-import { pisahKalimat } from './led-narasi.js?v=2026-11-24-5988f3';
-import { masihKerangka } from './led-saran.js?v=2026-11-24-5988f3';
-import { JENIS_DOKUMEN, buktiButir } from './rencana-bukti.js?v=2026-11-24-5988f3';
-import { nilaiCapaian, perluAnalisis } from './capaian-iku.js?v=2026-11-24-5988f3';
-import { LKPS } from './dokumen-instrumen.js?v=2026-11-24-5988f3';
+import { BUTIR_MANUAL } from './butir-manual.js?v=2026-11-24-f7e168';
+import { UNSUR_BUTIR, pihakUnsur, PIHAK, PJ_UNSUR } from './unsur-butir.js?v=2026-11-24-f7e168';
+import { BUTIR_DATA } from './butir-data.js?v=2026-11-24-f7e168';
+import { faktaNarasi, anggotaTim } from './led-isi.js?v=2026-11-24-f7e168';
+import { pisahKalimat } from './led-narasi.js?v=2026-11-24-f7e168';
+import { masihKerangka } from './led-saran.js?v=2026-11-24-f7e168';
+import { JENIS_DOKUMEN, buktiButir } from './rencana-bukti.js?v=2026-11-24-f7e168';
+import { nilaiCapaian, perluAnalisis } from './capaian-iku.js?v=2026-11-24-f7e168';
+import { LKPS } from './dokumen-instrumen.js?v=2026-11-24-f7e168';
 
 // Tab Data prodi: [id tab, tabel, judul, butir, mesin LKPS]; sama dengan TABEL di data-prodi.html.
 // Elemen ke-5 = tab khusus satu mesin LKPS (mesinLkps di data-prodi.html); tanpa = semua instrumen.
 export const TAB_DATA = [
   ['prodi_upps', 'lkps_prodi_upps', 'Prodi di UPPS', 'PS, 6.a'], ['vmts', 'lkps_vmts', 'VMTS', '1–3'],
   ['kerjasama', 'lkps_kerjasama', 'Kerja sama', '6–7'], ['dana', 'lkps_penggunaan_dana', 'Penggunaan dana', '8–11'],
+  ['keuangan_a5', 'lkps_keuangan', 'Keuangan A.5', '124', 'lkps-lamdepilar.js'],
   ['mk', 'ref_mata_kuliah', 'Mata kuliah', '15, 17, 19, 20'], ['tema', 'ref_tema_peta_jalan', 'Peta jalan', '22–25'],
   ['peta_dok', 'lkps_peta_jalan', 'Dokumen peta jalan', '22, 24'],
   ['bimbingan_utama', 'lkps_bimbingan_utama', 'Pembimbing utama TA', '109', 'lkps-lamdepilar.js'],
