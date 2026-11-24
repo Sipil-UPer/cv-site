@@ -248,7 +248,13 @@ function pmRpc(nama, a){
   if (nama === 'mhs_ubah_selesai') { if (!jendela) return pmGagal('Laporan selesai KP belum bisa diubah.'); p.data_selesai = a.p_data; simpan(); return { data: 'ok', error: null }; }
   if (nama === 'mhs_kirim_selesai') {
     if (!jendela) return pmGagal('Laporan selesai KP sudah dikirim atau belum bisa dikirim.');
-    for (const j of ['laporan_kp', 'surat_selesai']) if (!(DB.pengajuan_berkas || []).some(b => b.pengajuan_id === p.id && b.jenis === j)) return pmGagal(`Unggah berkas wajib dulu: ${j}.`);
+    // Urutan dan bunyi pesan sama dengan mhs_kirim_selesai (106), 2026-11-24.
+    if (tahap === 'pengajuan' && (!p.data?.instansi || !p.pembimbing_id)) return pmGagal('Isi nama instansi dan pilih dosen pembimbing KP.');
+    const ds = p.data_selesai || {};
+    if (!ds.tanggal_mulai || !ds.tanggal_selesai || !ds.pembimbing_lapangan || String(ds.ringkasan || '').length < 30)
+      return pmGagal('Lengkapi tanggal mulai dan selesai, pembimbing lapangan, dan ringkasan kegiatan (minimal 30 huruf).');
+    for (const j of ['laporan_kp', 'surat_selesai']) if (!(DB.pengajuan_berkas || []).some(b => b.pengajuan_id === p.id && b.jenis === j))
+      return pmGagal(`Unggah berkas wajib dulu: ${j === 'laporan_kp' ? 'laporan KP' : 'surat keterangan selesai'}.`);
     Object.assign(p, { tahap: 'selesai', status: 'pembimbing', diperbarui: new Date().toISOString() });
     (DB.pengajuan_riwayat ||= []).push({ id: baru(), pengajuan_id: p.id, status: 'pembimbing', oleh: 'mahasiswa', tahap: 'selesai', waktu: new Date().toISOString() });
     simpan(); return { data: 'pembimbing', error: null };
@@ -299,8 +305,12 @@ function pmRpc(nama, a){
         return pmGagal('Pembimbing 1 harus dari kelompok keahlian TA Anda atau yang berdekatan; pilih dari daftar.');
     }
     if (p.jenis === 'ta' && !aju && tetapTA) { p.pembimbing_id = tetapTA.pembimbing_id; p.data = { ...p.data, pembimbing_2: tetapTA.data.pembimbing_2 }; }
-    const wajib = p.jenis === 'lomba' ? 'laporan_lomba' : p.jenis === 'ta' && !aju ? 'naskah_ta' : p.jenis === 'luaran' ? 'bukti_luaran' : null;   // surat (93): tanpa berkas wajib
-    if (wajib && !(DB.pengajuan_berkas || []).some(b => b.pengajuan_id === p.id && b.jenis === wajib)) return pmGagal(`Unggah berkas wajib dulu: ${wajib.replace('_', ' ')}.`);
+    // Berkas wajib dan bunyi pesannya sama dengan mhs_kirim (144); kabar = foto kegiatan (2026-11-24: sebelumnya tidak ditiru).
+    const wajib = p.jenis === 'lomba' ? 'laporan_lomba' : p.jenis === 'ta' && !aju ? 'naskah_ta' : p.jenis === 'luaran' ? 'bukti_luaran'
+      : p.jenis === 'kabar' ? 'foto' : null;   // surat (93): tanpa berkas wajib
+    const namaWajib = { naskah_ta: 'naskah TA', bukti_luaran: 'bukti publikasi/luaran', foto: 'foto kegiatan' };
+    if (wajib && !(DB.pengajuan_berkas || []).some(b => b.pengajuan_id === p.id && b.jenis === wajib))
+      return pmGagal(`Unggah berkas wajib dulu: ${namaWajib[wajib] || wajib.replace(/_/g, ' ')}.`);
     // 122: yudisium = 14 berkas wajib (daftar bawaan patch 122), langsung ke admin prodi.
     if (p.jenis === 'yudisium') {
       const ada = new Set((DB.pengajuan_berkas || []).filter(b => b.pengajuan_id === p.id).map(b => b.jenis));

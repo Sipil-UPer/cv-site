@@ -1,5 +1,5 @@
-import { dosenLogin } from './dosen-login.js?v=2026-11-24-264694';
-import { aktifPada } from './koordinator.js?v=2026-11-24-264694';
+import { dosenLogin } from './dosen-login.js?v=2026-11-24-d07d2c';
+import { aktifPada } from './koordinator.js?v=2026-11-24-d07d2c';
 // Menu bersama ruang kerja (pemilik 2026-11-04).
 //
 // Situs dibagi dua:
@@ -32,8 +32,8 @@ const pantauanBoleh = (s, href) => PANTAUAN.includes(berkas(href)) || ((s.koordi
 // Asesor dan pimpinan hanya-baca tidak mengisi karya.
 const isiKarya = s => s.peran !== 'asesor' && !hanyaBaca(s);
 
-import { halamanAktif } from './fitur.js?v=2026-11-24-264694';
-import { pasangPemicuBangun } from './pemicu-bangun.js?v=2026-11-24-264694';
+import { halamanAktif } from './fitur.js?v=2026-11-24-d07d2c';
+import { pasangPemicuBangun } from './pemicu-bangun.js?v=2026-11-24-d07d2c';
 
 export const MODUL = [
   // Susunan menu mengikuti alur kerja (pemilik 2026-11-23): Data saya (milik dosen), Pengajaran (urut alur MK:
@@ -55,6 +55,9 @@ export const MODUL = [
     // Jadwal berhalangan (132-patch-jadwal-berhalangan.sql, pemilik 2026-11-20): dosen mengisi slot yang tidak bisa; pengatur jadwal mencari slot kosong.
     { href: 'jadwal-berhalangan.html', judul: 'Jadwal berhalangan', boleh: isiKarya,
       ket: 'Slot jam kuliah yang tidak bisa Anda pakai (termasuk jadwal di luar prodi); admin, Kaprodi, dan koordinator TA/KP mencari slot kosong untuk sidang dan rapat.' },
+    // Kalender saya (162, pemilik 2026-11-24): kalender.html dalam mode pribadi.
+    { href: 'kalender.html?saya=1', judul: 'Kalender saya', boleh: s => s.peran !== 'asesor',
+      ket: 'Hanya yang menyangkut Anda: jadwal mengajar, rapat yang mengundang Anda, agenda dari admin, tenggat Anda, berhalangan, hari libur; unduh .ics.' },
   ]},
   { judul: 'Pengajaran', ket: 'Alur mata kuliah: koordinator dan tim, silabus, CPMK, RPS, kelas dan jadwal, nilai CPL, portofolio, evaluasi, tinjauan RPS.', halaman: [
     // Mata kuliah saya (pemilik 2026-11-23): MK yang saya koordinasikan/ikut timnya dan kelas semester ini, urut alur kerja.
@@ -385,11 +388,17 @@ export async function pasangMenu(sb){
   if (document.querySelector('.rk-menu')) return u.saya;
   pasangJudul();
   // Satu menu tarik-turun per modul, supaya menu tetap satu baris.
-  const grup = halamanBoleh(u.saya).map(m => {
-    const diSini = m.halaman.some(h => berkas(h.href) === ini);
+  // Satu berkas, dua entri (mis. kalender.html dan kalender.html?saya=1, 162): yang cocok persis dengan alamat ini yang aktif.
+  const semua = halamanBoleh(u.saya);
+  const sama = semua.flatMap(m => m.halaman).filter(h => berkas(h.href) === ini);
+  const persis = sama.some(h => h.href.includes('?') && h.href === ini + location.search);
+  const tanpaQ = sama.filter(h => !h.href.includes('?'));
+  const aktif = h => persis ? h.href === ini + location.search : tanpaQ.length ? tanpaQ.includes(h) : berkas(h.href) === ini;
+  const grup = semua.map(m => {
+    const diSini = m.halaman.some(aktif);
     return `<details class="rk-grup${diSini ? ' rk-ini' : ''}"><summary>${esc(m.judul)}</summary>
       <div class="rk-isi">${m.halaman.map(h => `<a href="${esc(h.href)}"${
-        berkas(h.href) === ini ? ' aria-current="page"' : ''}>${esc(h.judul)}</a>`).join('')}</div></details>`;
+        aktif(h) ? ' aria-current="page"' : ''}>${esc(h.judul)}</a>`).join('')}</div></details>`;
   }).join('');
   const gaya = document.createElement('style');
   gaya.textContent = CSS;
@@ -436,7 +445,7 @@ export async function pasangMenu(sb){
   // Pencarian menyeluruh (pemilik 2026-11-12; cari-ui.js, cari.js): dimuat saat pertama dipakai.
   const kotak = nav.querySelector('.rk-cari input');
   let siapCari = null;
-  const muatCari = () => siapCari || (siapCari = import('./cari-ui.js?v=2026-11-24-264694').then(m =>
+  const muatCari = () => siapCari || (siapCari = import('./cari-ui.js?v=2026-11-24-d07d2c').then(m =>
     m.pasangCari(kotak, { sb, saya: u.saya, modul: halamanBoleh(u.saya), boleh: h => bolehBuka(u.saya, h) !== false })));
   kotak.addEventListener('focus', muatCari);
   document.addEventListener('keydown', e => {

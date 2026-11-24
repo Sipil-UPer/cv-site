@@ -11,15 +11,16 @@
         UPPS, E.2.1 mata kuliah, E.4.3 prestasi mahasiswa, P.1.1 dosen tetap,
         L.4.1 waktu tunggu (kolom yang cocok), A.1 kerja sama;
      3. Excel menghitung ulang rumus saat berkas dibuka.
-   Lembar lain (E.1, E.3, E.4.1-E.4.2, P.1.2-P.1.7, L.1, A.5, R.3, R.6) tinggal
+   E.4.1-E.4.2 (CPL dan matriks MK-CPL, kurikulum terbaru) ditambahkan 2026-11-24.
+   Lembar lain (E.1, E.3, P.1.2-P.1.7, L.1, A.5, R.3, R.6) tinggal
    kosong untuk diisi prodi. R.3/R.6 ditunda sampai pemetaan karya -> program
    diputuskan (pemilik 2026-11-24).
    Kolom yang tidak disimpan situs dibiarkan kosong (tanpa tebakan).
    ===================================================================== */
-import { JSZIP, tulisSel, petaLembar, hitungUlangSaatBuka } from './lkps.js?v=2026-11-24-264694';
-import { daftarProdi, STATUS_PS, tglTeks } from './pustaka-dokumen.js?v=2026-11-24-264694';
-import { nidnNuptk, masaBerlaku } from './profil-dosen.js?v=2026-11-24-264694';
-import { ampuPerTA, dosenTS } from './dosen-hitung.js?v=2026-11-24-264694';
+import { JSZIP, tulisSel, petaLembar, hitungUlangSaatBuka } from './lkps.js?v=2026-11-24-d07d2c';
+import { daftarProdi, STATUS_PS, tglTeks } from './pustaka-dokumen.js?v=2026-11-24-d07d2c';
+import { nidnNuptk, masaBerlaku } from './profil-dosen.js?v=2026-11-24-d07d2c';
+import { ampuPerTA, dosenTS } from './dosen-hitung.js?v=2026-11-24-d07d2c';
 
 const JABATAN = { tenaga_pengajar: 'Tenaga Pengajar', asisten_ahli: 'Asisten Ahli', lektor: 'Lektor',
   lektor_kepala: 'Lektor Kepala', guru_besar: 'Profesor' };
@@ -35,6 +36,50 @@ export function kosongkanSel(xml, ref){
 
 const tingkatKe = t => /internasional/i.test(t || '') ? 'D' : /nasional/i.test(t || '') ? 'E'
   : /lokal|wilayah|regional/i.test(t || '') ? 'F' : null;
+
+// Kolom: huruf <-> nomor (A = 1).
+export const nomorKolom = h => [...h].reduce((n, c) => n * 26 + c.charCodeAt(0) - 64, 0);
+export function hurufKolom(n){ let s = ''; for (; n > 0; n = Math.floor((n - 1) / 26)) s = String.fromCharCode(65 + (n - 1) % 26) + s; return s; }
+const geserRef = (ref, setelah, n) => ref.replace(/^(\$?)([A-Z]+)(\$?\d+)$/, (m, a, h, r) =>
+  a + (nomorKolom(h) > setelah ? hurufKolom(nomorKolom(h) + n) : h) + r);
+
+/* Sisipkan n kolom kosong setelah kolom nomor `setelah` pada XML lembar (tanpa rumus; LKPS LAMDEPILAR E.4,
+   pemilik 2026-11-24: CPL > 5). Sel, lebar kolom, dimensi, dan seleksi di kanannya bergeser; sel gabungan
+   yang berakhir tepat di `setelah` diperlebar (kepala "Capaian Pembelajaran" K5:O5), yang di kanannya digeser.
+   Kolom baru memakai gaya sel kolom `setelah` pada baris yang sama. */
+export function sisipKolom(xml, setelah, n){
+  if (!n) return xml;
+  if (/<f[\s>]/.test(xml)) throw new Error('sisipKolom: lembar berumus tidak didukung');
+  const huruf = hurufKolom(setelah);
+  let out = xml.replace(/<c r="([A-Z]+)(\d+)"/g, (m, h, r) => `<c r="${geserRef(h + r, setelah, n)}"`);
+  // sel baru bergaya kolom `setelah`, disisipkan tepat sesudahnya
+  out = out.replace(new RegExp(`<c r="${huruf}(\\d+)"([^>]*?)(\\/>|>[\\s\\S]*?<\\/c>)`, 'g'), (m, r, attr) => {
+    const s = /\ss="(\d+)"/.exec(attr)?.[1];
+    return m + Array.from({ length: n }, (_, i) => `<c r="${hurufKolom(setelah + 1 + i)}${r}"${s ? ` s="${s}"` : ''}/>`).join('');
+  });
+  out = out.replace(/<mergeCell ref="([A-Z]+\d+):([A-Z]+\d+)"\/>/g, (m, a, b) => {
+    const ka = nomorKolom(/[A-Z]+/.exec(a)[0]), kb = nomorKolom(/[A-Z]+/.exec(b)[0]);
+    if (kb === setelah && ka < setelah) return `<mergeCell ref="${a}:${geserRef(b, setelah - 1, n)}"/>`;
+    return `<mergeCell ref="${geserRef(a, setelah, n)}:${geserRef(b, setelah, n)}"/>`;
+  });
+  out = out.replace(/<col ([^>]*?)min="(\d+)" max="(\d+)"([^>]*?)\/>/g, (m, a, mi, ma, z) => {
+    mi = +mi; ma = +ma;
+    if (mi > setelah) return `<col ${a}min="${mi + n}" max="${ma + n}"${z}/>`;
+    if (ma >= setelah) return `<col ${a}min="${mi}" max="${ma + n}"${z}/>`;   // kolom baru selebar kolom `setelah`
+    return m;
+  });
+  out = out.replace(/<dimension ref="([A-Z]+\d+):([A-Z]+\d+)"/, (m, a, b) => `<dimension ref="${a}:${geserRef(b, setelah, n)}"`);
+  out = out.replace(/(activeCell|sqref)="([A-Z]+\d+)"/g, (m, k, r) => `${k}="${geserRef(r, setelah, n)}"`);
+  return out;
+}
+
+/* Rumus lembar lain yang merujuk lembar `nama` di kanan kolom `setelah` ikut bergeser (Daftar Isi: E.4!T4). */
+export function geserRujukan(xml, nama, setelah, n){
+  if (!n) return xml;
+  const lembar = nama.replace(/[.]/g, '\\.');
+  const re = new RegExp(`((?:'${lembar}'|${lembar})!)(\\$?[A-Z]+\\$?\\d+)`, 'g');
+  return xml.replace(/<f([^>]*)>([^<]*)<\/f>/g, (m, a, f) => `<f${a}>${f.replace(re, (x, p, r) => p + geserRef(r, setelah, n))}</f>`);
+}
 
 /* Peta isian { lembar: { ref: nilai } }. Murni, tanpa DOM (diuji di Node).
    C = { daftar (ambilDaftarLKPS), ts, prodi, institusi, jenjang, kini } */
@@ -94,16 +139,63 @@ export function petaLKPSLamdepilar(C){
   // E.4.3 Penghargaan eksternal karya mahasiswa (Data prodi › Prestasi mahasiswa), TS-4 s.d. TS
   // (pemilik 2026-11-24; sama dengan rentang E.1). TS prestasi seperti lkps.js: bulan >= 9 masuk TS berikutnya.
   // X/Y/Z wilayah/nasional/internasional; AA capaian; AB/AC kompetitif tidak disimpan situs.
+  // E.4.1 CPL dan E.4.2 matriks MK-CPL (Data prodi › CPL; 71-patch). Pemilik 2026-11-24:
+  //   - kurikulum terbaru di antara MK aktif (mis. K26); MK kurikulum lain tidak masuk matriks;
+  //   - bobot per KOLOM CPL: bobot MK itu / jumlah bobot semua MK pendukung CPL itu (kosong = 1), kolom berjumlah 1;
+  //   - CPL > 5: kolom ditambah setelah O (sisipKolom), Keterangan dan tabel E.4.3 bergeser ke kanan.
+  // E.4.1: satu CPL per dua baris tergabung (B8:B9, ...); kolom E (rujukan kesetaraan) tidak disimpan situs.
+  const kurs = [...new Set(mk.map(m => m.kurikulum).filter(Boolean))].sort();
+  const kur = kurs[kurs.length - 1];
+  const cpl = (X.cpl || []).filter(c => c.kurikulum === kur)
+    .sort((a, b) => ((a.urutan ?? 100) - (b.urutan ?? 100)) || String(a.kode).localeCompare(String(b.kode), undefined, { numeric: true }));
+  const nKol = Math.max(5, cpl.length), geser = nKol - 5;
+  const K = 11;                                              // kolom K = CPL pertama
+  const kol = j => hurufKolom(K + j);
+  const tambahKosong = [];                                   // label templat yang tidak terpakai
+  cpl.forEach((c, i) => {
+    const r = 8 + 2 * i;
+    set('E.4', `B${r}`, c.rumusan); set('E.4', `C${r}`, c.kode); set('E.4', `D${r}`, c.indikator);
+  });
+  if (cpl.length) {
+    const mkKur = mk.filter(m => m.kurikulum === kur);
+    const pemetaan = new Map();                              // cpl -> Map(kode_mk -> bobot mentah)
+    for (const p of X.mkCpl || []) {
+      if (p.kurikulum !== kur || !mkKur.some(m => m.kode === p.kode_mk)) continue;
+      if (!pemetaan.has(p.cpl)) pemetaan.set(p.cpl, new Map());
+      pemetaan.get(p.cpl).set(p.kode_mk, +p.bobot > 0 ? +p.bobot : 1);
+    }
+    const porsi = (c, kode) => { const xs = pemetaan.get(c.kode); if (!xs || !xs.has(kode)) return null;
+      return xs.get(kode) / [...xs.values()].reduce((a, b) => a + b, 0); };
+    for (let j = 0; j < nKol; j++) {
+      set('E.4', `${kol(j)}7`, 3 + j);                       // nomor kolom
+      if (j < cpl.length) set('E.4', `${kol(j)}6`, cpl[j].kode); else tambahKosong.push(`${kol(j)}6`);
+    }
+    set('E.4', `${kol(nKol)}7`, 3 + nKol);                   // Keterangan
+    mkKur.forEach((m, i) => {
+      const r = 8 + i;
+      set('E.4', `I${r}`, m.nama); set('E.4', `J${r}`, m.kode);
+      cpl.forEach((c, j) => { const v = porsi(c, m.kode); if (v != null) set('E.4', `${kol(j)}${r}`, Math.round(v * 1e4) / 1e4); });
+    });
+    // Rekapitulasi bobot (templat baris 19) dan catatannya (baris 21) di bawah MK terakhir bila MK > 11.
+    const R = Math.max(19, 8 + mkKur.length);
+    if (R !== 19) { set('E.4', `I${R}`, 'Rekapitulasi Bobot CPL'); set('E.4', `I${R + 2}`,
+      'Jumlah dari gabungan matakuliah yang mendukung satu CPL = 1'); if (8 + mkKur.length <= 21) tambahKosong.push('I21'); }
+    cpl.forEach((c, j) => { const xs = pemetaan.get(c.kode);
+      if (xs) set('E.4', `${kol(j)}${R}`, Math.round(mkKur.reduce((a, m) => a + (porsi(c, m.kode) || 0), 0) * 100) / 100); });
+  }
+
   const tsBaris = p => (+p.bulan >= 9 ? +p.tahun + 1 : +p.tahun);
+  // E.4.3 bergeser sebanyak kolom CPL tambahan (T = 20).
+  const kolP = h => hurufKolom(nomorKolom(h) + geser);
   const KOL_TINGKAT = { wilayah_lokal: 'X', nasional: 'Y', internasional: 'Z' };
   (X.prestasi || []).filter(p => tsBaris(p) >= ts - 4 && tsBaris(p) <= ts)
     .sort((a, b) => (tsBaris(a) - tsBaris(b)) || String(a.nama_kegiatan).localeCompare(String(b.nama_kegiatan)))
     .forEach((p, i) => {
       const r = 8 + i;
-      set('E.4', `T${r}`, p.nama_mahasiswa); set('E.4', `U${r}`, p.nim);
-      set('E.4', `V${r}`, p.nama_kegiatan); set('E.4', `W${r}`, p.penyelenggara);
-      if (KOL_TINGKAT[p.tingkat]) set('E.4', `${KOL_TINGKAT[p.tingkat]}${r}`, 'V');
-      set('E.4', `AA${r}`, p.capaian);
+      set('E.4', `${kolP('T')}${r}`, p.nama_mahasiswa); set('E.4', `${kolP('U')}${r}`, p.nim);
+      set('E.4', `${kolP('V')}${r}`, p.nama_kegiatan); set('E.4', `${kolP('W')}${r}`, p.penyelenggara);
+      if (KOL_TINGKAT[p.tingkat]) set('E.4', `${kolP(KOL_TINGKAT[p.tingkat])}${r}`, 'V');
+      set('E.4', `${kolP('AA')}${r}`, p.capaian);
     });
 
   // L.4.1 Waktu tunggu lulusan (Data prodi › Tracer study), baris TS-2, TS-1, TS = tahun lulus ts-2..ts
@@ -132,6 +224,9 @@ export function petaLKPSLamdepilar(C){
       set('A.1', `J${r}`, tglTeks(k.tanggal_selesai) || (k.tahun_selesai ? String(k.tahun_selesai) : null));
       set('A.1', `M${r}`, k.tautan_bukti);
     });
+  // Bukan isian sel (tidak ikut Object.entries): kolom yang disisipkan dan sel templat tambahan yang dikosongkan.
+  Object.defineProperty(peta, 'sisip', { value: geser ? [{ lembar: 'E.4', setelah: nomorKolom('O'), n: geser }] : [] });
+  Object.defineProperty(peta, 'kosongTambahan', { value: tambahKosong.length ? { 'E.4': tambahKosong } : {} });
   return peta;
 }
 
@@ -141,10 +236,18 @@ export function isiLembar(xmlPerLembar, lembar, contoh, peta){
   let kosong = 0, isi = 0;
   const kurang = [...Object.keys(contoh), ...Object.keys(peta)].filter(n => !lembar[n]);
   if (kurang.length) throw new Error(`lembar tidak ada di templat: ${[...new Set(kurang)].join(', ')}`);
-  for (const [nama, refs] of Object.entries(contoh)) {
-    let x = out[lembar[nama]];
-    for (const ref of refs) { x = kosongkanSel(x, ref); kosong++; }
-    out[lembar[nama]] = x;
+  // 1. contoh dan label tak terpakai dikosongkan (alamat templat); 2. kolom disisipkan dan rujukan lembar
+  //    lain digeser; 3. isian ditulis (alamat sesudah sisipan).
+  for (const daftar of [contoh, peta.kosongTambahan || {}])
+    for (const [nama, refs] of Object.entries(daftar)) {
+      let x = out[lembar[nama]];
+      for (const ref of refs) { x = kosongkanSel(x, ref); kosong++; }
+      out[lembar[nama]] = x;
+    }
+  for (const s of peta.sisip || []) {
+    out[lembar[s.lembar]] = sisipKolom(out[lembar[s.lembar]], s.setelah, s.n);
+    for (const [nama, path] of Object.entries(lembar))
+      if (nama !== s.lembar && out[path] != null) out[path] = geserRujukan(out[path], s.lembar, s.setelah, s.n);
   }
   for (const [nama, sel] of Object.entries(peta)) {
     let x = out[lembar[nama]];
@@ -167,9 +270,9 @@ export async function buatLKPS(C, opsi = {}){
   const wb = await zip.file('xl/workbook.xml').async('string');
   const lembar = petaLembar(wb, await zip.file('xl/_rels/workbook.xml.rels').async('string'));
   const peta = petaLKPSLamdepilar(C);
-  const pakai = [...new Set([...Object.keys(contoh), ...Object.keys(peta)])].filter(n => lembar[n]);
+  // Semua lembar dimuat: sisipan kolom E.4 ikut menggeser rumus Daftar Isi yang merujuknya.
   const xml = {};
-  for (const n of pakai) xml[lembar[n]] = await zip.file(lembar[n]).async('string');
+  for (const path of Object.values(lembar)) xml[path] = await zip.file(path).async('string');
   const h = isiLembar(xml, lembar, contoh, peta);
   for (const [path, x] of Object.entries(h.xml)) zip.file(path, x);
   zip.file('xl/workbook.xml', hitungUlangSaatBuka(wb));

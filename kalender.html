@@ -11,8 +11,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-24-264694">
-<link rel="stylesheet" href="kepala.css?v=2026-11-24-264694">
+<link rel="stylesheet" href="tema.css?v=2026-11-24-d07d2c">
+<link rel="stylesheet" href="kepala.css?v=2026-11-24-d07d2c">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
@@ -21,6 +21,9 @@
   .ket{font-size:13px}
   .kartu{background:var(--panel);border:1px solid var(--line);padding:14px 18px;margin-bottom:16px}
   .kartu h2{font-size:17px;margin:0 0 8px;color:var(--biru)}
+  /* Ditugaskan ke (162, pemilik 2026-11-24) */
+  details.tugas{margin:10px 0} details.tugas summary{cursor:pointer}
+  .dosen-pilih{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:2px 12px;margin-top:6px;font-size:13.5px}
   .b{font:12.5px/1.4 var(--sans);padding:4px 10px;border:1px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer;margin:0 4px 4px 0}
   .b:hover{border-color:var(--biru);color:var(--biru)}
   .b.utama{background:var(--biru);color:#fff;border-color:var(--biru)}
@@ -68,7 +71,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></div>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-24-264694"></script>
+<script src="config.js?v=2026-11-24-d07d2c"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -87,11 +90,11 @@ addEventListener('error', function (e) {
 // Rapat, panggilan hibah, dan kegiatan manual untuk semua pengguna terdaftar; tenggat
 // tindak lanjut, hibah tim, dan temuan AMI untuk yang bersangkutan (admin: semua).
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-24-264694';
-import { tglID } from './masa-berlaku.js?v=2026-11-24-264694';
-import { JENIS_ACARA, JENIS_KEGIATAN, kumpulkanAcara, acaraPada, kisiBulan, isoTanggal, keIcs } from './kalender.js?v=2026-11-24-264694';
-import { JENIS_LIBUR, petaLibur, tanggalAntara, bacaCsvLibur, csvLibur } from './hari-libur.js?v=2026-11-24-264694';
-import { pertemuanKuliah } from './jadwal-kuliah.js?v=2026-11-24-264694';
+import { gerbang } from './menu.js?v=2026-11-24-d07d2c';
+import { tglID } from './masa-berlaku.js?v=2026-11-24-d07d2c';
+import { JENIS_ACARA, JENIS_KEGIATAN, kumpulkanAcara, acaraPada, kisiBulan, isoTanggal, keIcs, saringSaya, acaraBerhalangan } from './kalender.js?v=2026-11-24-d07d2c';
+import { JENIS_LIBUR, petaLibur, tanggalAntara, bacaCsvLibur, csvLibur } from './hari-libur.js?v=2026-11-24-d07d2c';
+import { pertemuanKuliah } from './jadwal-kuliah.js?v=2026-11-24-d07d2c';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
@@ -104,6 +107,9 @@ const HARI_INI = isoTanggal(kini.getFullYear(), kini.getMonth() + 1, kini.getDat
 const geserHari = (t, n) => new Date(Date.UTC(+t.slice(0, 4), +t.slice(5, 7) - 1, +t.slice(8, 10) + n)).toISOString().slice(0, 10);
 
 let SAYA = null, ADMIN = false, DATA = {}, ACARA = [], KEGIATAN = [], ADA_TABEL = true, PRODI = '';
+// Kalender saya (162, pemilik 2026-11-24): ?saya=1 = hanya yang menyangkut pengguna ini; panel admin disembunyikan.
+const PRIBADI = new URLSearchParams(location.search).has('saya');
+let DOSEN = [], TUGAS = new Map(), ADA162 = true;   // TUGAS: kegiatan_id -> Set dosen_id (kegiatan_dosen)
 let LIBUR = [], PETA_LIBUR = new Map(), ADA_LIBUR = true, TAHUN_LIBUR = kini.getFullYear();   // 139-patch-hari-libur.sql
 let Y = kini.getFullYear(), M = kini.getMonth() + 1, PILIH = HARI_INI, MODE = 'bulan', UBAH = null;
 const TAMPIL = new Set(Object.keys(JENIS_ACARA));
@@ -169,12 +175,17 @@ function htmlAdmin(){
       <label class="lebar">Tautan (opsional) <input type="url" id="f_tautan" placeholder="https://" value="${esc(k.tautan || '')}"></label>
       <label class="lebar">Keterangan <textarea id="f_ket" maxlength="2000">${esc(k.keterangan || '')}</textarea></label>
     </div>
+    ${ADA162 ? `<details class="tugas"${(TUGAS.get(k.id) || new Set()).size ? ' open' : ''}><summary><b>Ditugaskan ke</b>
+      <span class="ket">(kosong = kegiatan untuk semua dosen; dicentang = agenda dosen terpilih, muncul di Kalender saya mereka)</span></summary>
+      <div class="dosen-pilih">${DOSEN.map(d => `<label><input type="checkbox" data-kd="${esc(d.id)}"${(TUGAS.get(k.id) || new Set()).has(d.id) ? ' checked' : ''}> ${esc(d.nama)}</label>`).join('')}</div>
+    </details>` : ''}
     <p><button class="b utama" id="f_simpan">${UBAH ? 'Simpan perubahan' : 'Tambah'}</button>
       ${UBAH ? '<button class="b" id="f_batal">Batal</button>' : ''}<span class="msg" id="f_msg"></span></p>
     <h2 style="margin-top:16px">Daftar kegiatan (${daftar.length})</h2>
     ${daftar.length ? `<div style="overflow-x:auto"><table class="ds"><thead><tr><th>Tanggal</th><th>Kegiatan</th><th>Jenis</th><th></th></tr></thead><tbody>
       ${daftar.map(x => `<tr><td>${esc(tglID(String(x.mulai).slice(0, 10)))}${x.selesai ? '–' + esc(tglID(String(x.selesai).slice(0, 10))) : ''}</td>
-        <td>${esc(x.judul)}${x.tempat ? `<div class="ket">${esc(x.tempat)}</div>` : ''}</td><td>${esc(JENIS_KEGIATAN[x.jenis] || x.jenis)}</td>
+        <td>${esc(x.judul)}${x.tempat ? `<div class="ket">${esc(x.tempat)}</div>` : ''}${x.ditugaskan?.length
+          ? `<div class="ket">Ditugaskan: ${esc(x.ditugaskan.join(', '))}</div>` : ''}</td><td>${esc(JENIS_KEGIATAN[x.jenis] || x.jenis)}</td>
         <td style="white-space:nowrap"><button class="b" data-ubah="${x.id}">Ubah</button><button class="b bahaya" data-hapus="${x.id}">Hapus</button></td></tr>`).join('')}
       </tbody></table></div>` : '<p class="kosong">Belum ada kegiatan manual.</p>'}</section>`;
 }
@@ -271,7 +282,15 @@ function pasangAdmin(){
       : isi.tautan && !/^https?:\/\/\S+$/i.test(isi.tautan) ? 'Tautan harus diawali http:// atau https://.' : '';
     if (galat) { m.className = 'msg buruk'; m.textContent = galat; return; }
     $('f_simpan').disabled = true; m.className = 'msg'; m.textContent = 'Menyimpan…';
-    const { error } = UBAH ? await sb.from('kegiatan').update(isi).eq('id', UBAH.id) : await sb.from('kegiatan').insert(isi);
+    const dipilih = [...document.querySelectorAll('[data-kd]:checked')].map(c => c.dataset.kd);
+    const { data: simpanan, error } = UBAH ? await sb.from('kegiatan').update(isi).eq('id', UBAH.id).select('id').single()
+      : await sb.from('kegiatan').insert(isi).select('id').single();
+    if (!error && ADA162) {   // 162: daftar dosen yang ditugasi diganti sesuai centang
+      const id = simpanan.id;
+      const h = await sb.from('kegiatan_dosen').delete().eq('kegiatan_id', id);
+      const t = !h.error && dipilih.length ? await sb.from('kegiatan_dosen').insert(dipilih.map(d => ({ kegiatan_id: id, dosen_id: d }))) : h;
+      if (t.error) { $('f_simpan').disabled = false; m.className = 'msg buruk'; m.textContent = 'Kegiatan tersimpan, penugasan dosen gagal: ' + t.error.message; await muat(); return; }
+    }
     $('f_simpan').disabled = false;
     if (error) { m.className = 'msg buruk'; m.textContent = error.message; return; }
     UBAH = null; await muat(); $('f_msg').className = 'msg ok'; $('f_msg').textContent = 'Tersimpan.';
@@ -295,10 +314,10 @@ function unduhIcs(){
   const xs = tersaring().filter(a => a.selesai >= dari && a.mulai <= sampai);
   if (!xs.length) { $('m_ics').className = 'msg buruk'; $('m_ics').textContent = 'Tidak ada acara untuk diunduh.'; return; }
   const situs = new URL('.', location.href).href;
-  const teks = keIcs(xs, { nama: `Kegiatan ${PRODI || 'prodi'}`, domain: location.hostname || 'cv-prodi', situs });
+  const teks = keIcs(xs, { nama: PRIBADI ? `Kalender saya ${PRODI || ''}`.trim() : `Kegiatan ${PRODI || 'prodi'}`, domain: location.hostname || 'cv-prodi', situs });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(new Blob([teks], { type: 'text/calendar;charset=utf-8' }));
-  a.download = `kalender-${HARI_INI}.ics`;
+  a.download = `${PRIBADI ? 'kalender-saya' : 'kalender'}-${HARI_INI}.ics`;
   document.body.appendChild(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(a.href), 2000);
   $('m_ics').className = 'msg ok'; $('m_ics').textContent = `${xs.length} acara diunduh.`;
@@ -311,14 +330,18 @@ function gambar(){
       <button class="b" id="kini">Hari ini</button>
       <button class="b" id="mBulan" aria-pressed="${MODE === 'bulan'}">Bulan</button><button class="b" id="mDaftar" aria-pressed="${MODE === 'daftar'}">Daftar</button>
       <span style="flex:1"></span><button class="b utama" id="ics">Unduh .ics</button><span class="msg" id="m_ics"></span></div>
-    <div class="saring">${Object.entries(JENIS_ACARA).map(([k, w]) => `<label><input type="checkbox" data-s="${k}"${TAMPIL.has(k) ? ' checked' : ''}>
+    <div class="saring">${Object.entries(JENIS_ACARA).filter(([k]) => PRIBADI || k !== 'berhalangan').map(([k, w]) => `<label><input type="checkbox" data-s="${k}"${TAMPIL.has(k) ? ' checked' : ''}>
       <span class="titik" style="background:${w.warna}"></span>${esc(w.label)}</label>`).join('')}</div>
     <div id="kal"></div>
-    <p class="ket">Tenggat tindak lanjut rapat, hibah tim, dan temuan AMI tampil untuk penanggung jawabnya${ADMIN ? '; admin melihat semuanya' : ''}.
+    <p class="ket">${PRIBADI ? `Kalender saya: rapat yang mencentang Anda sebagai peserta, kegiatan prodi untuk semua dosen dan agenda yang ditugaskan
+      kepada Anda, tenggat milik Anda, dan berhalangan bertanggal Anda (<a href="jadwal-berhalangan.html">Jadwal berhalangan</a>). Kalender seluruh prodi:
+      <a href="kalender.html">Kalender kegiatan</a>.`
+      : `Tenggat tindak lanjut rapat, hibah tim, dan temuan AMI tampil untuk penanggung jawabnya${ADMIN ? '; admin melihat semuanya' : ''}.
+      Kegiatan yang ditugaskan ke dosen tertentu juga muncul di <a href="kalender.html?saya=1">Kalender saya</a> mereka.`}
       Jadwal mengajar saya: kelas Anda dari Jadwal kuliah yang sudah disahkan Kaprodi, tiap minggu pada masa kuliah (Kalender akademik), tanpa hari libur.
       Berkas .ics berisi acara sebulan lalu sampai setahun ke depan sesuai centang di atas; impor di Google Calendar lewat
       Setelan › Impor &amp; ekspor. Berkas ini tidak tersinkron otomatis: unduh dan impor lagi bila ada perubahan.</p></section>
-    ${htmlAdmin()}${htmlLibur()}`;
+    ${PRIBADI ? '' : htmlAdmin() + htmlLibur()}`;
   $('mundur').onclick = () => { if (MODE !== 'bulan') return; M -= 1; if (M < 1) { M = 12; Y -= 1; } gambarKalender(); };
   $('maju').onclick = () => { if (MODE !== 'bulan') return; M += 1; if (M > 12) { M = 1; Y += 1; } gambarKalender(); };
   $('kini').onclick = () => { Y = kini.getFullYear(); M = kini.getMonth() + 1; PILIH = HARI_INI; gambarKalender(); };
@@ -327,7 +350,7 @@ function gambar(){
   $('ics').onclick = unduhIcs;
   document.querySelectorAll('[data-s]').forEach(c => c.onchange = () => { c.checked ? TAMPIL.add(c.dataset.s) : TAMPIL.delete(c.dataset.s); gambarKalender(); });
   gambarKalender();
-  pasangAdmin();
+  if (!PRIBADI) pasangAdmin();
 }
 
 async function muat(){
@@ -344,11 +367,26 @@ async function muat(){
     baca(sb.from('hari_libur').select('tanggal,nama,jenis').order('tanggal'))]);
   ADA_TABEL = !(kg.error && /does not exist|schema cache/i.test(kg.error.message || ''));
   ADA_LIBUR = !(lb.error && /does not exist|schema cache/i.test(lb.error.message || ''));
-  KEGIATAN = kg.data;
   LIBUR = lb.data; PETA_LIBUR = petaLibur(LIBUR);
-  DATA = { kegiatan: kg.data, rapat: rp.data, panggilan: pg.data, hibah: hb.data, tindak: td.data, temuan: tm.data, tindakEval: te.data, libur: lb.data,
+  // 162: dosen yang ditugasi per kegiatan (tanpa patch: semua kegiatan untuk semua) dan nama dosen untuk keterangan.
+  const [kd, ds] = await Promise.all([baca(sb.from('kegiatan_dosen').select('kegiatan_id,dosen_id')),
+    baca(sb.from('dosen').select('id,nama,aktif,peran').order('nama'))]);
+  ADA162 = !(kd.error && /does not exist|schema cache/i.test(kd.error.message || ''));
+  DOSEN = ds.data.filter(d => d.aktif !== false && d.peran !== 'asesor');
+  TUGAS = new Map();
+  for (const x of kd.data) { if (!TUGAS.has(x.kegiatan_id)) TUGAS.set(x.kegiatan_id, new Set()); TUGAS.get(x.kegiatan_id).add(x.dosen_id); }
+  const nama = new Map(ds.data.map(d => [d.id, d.nama]));
+  KEGIATAN = kg.data.map(k => ({ ...k, ditugaskan: [...(TUGAS.get(k.id) || [])].map(id => nama.get(id)).filter(Boolean).sort() }));
+  DATA = { kegiatan: KEGIATAN, rapat: rp.data, panggilan: pg.data, hibah: hb.data, tindak: td.data, temuan: tm.data, tindakEval: te.data, libur: lb.data,
            kuliah: await muatKuliah(baca, lb.data) };
-  ACARA = kumpulkanAcara(DATA, SAYA);
+  if (PRIBADI) {
+    const [ps, bt, br] = await Promise.all([baca(sb.from('rapat_peserta').select('rapat_id').eq('dosen_id', SAYA.id)),
+      baca(sb.from('dosen_berhalangan_tgl').select('id,tanggal,slot_id,alasan').eq('dosen_id', SAYA.id)),
+      baca(sb.from('dosen_berhalangan_rentang').select('id,mulai,selesai,hari,slot_ids,alasan').eq('dosen_id', SAYA.id))]);
+    DATA = { ...saringSaya({ ...DATA, pesertaRapat: ps.data, kegiatanDosen: kd.data }, SAYA), berhalangan: acaraBerhalangan(bt.data, br.data) };
+  }
+  // Kalender saya: tenggat milik sendiri saja, juga untuk admin (di kalender prodi admin melihat semuanya).
+  ACARA = kumpulkanAcara(DATA, PRIBADI ? { ...SAYA, peran: 'dosen' } : SAYA);
   gambar();
 }
 
@@ -372,6 +410,7 @@ async function mulai(){
   if (!SAYA) return;
   ADMIN = SAYA.peran === 'admin';
   $('hSub').textContent = `Masuk sebagai ${SAYA.nama}`;
+  if (PRIBADI) { document.querySelector('h1').textContent = 'Kalender saya'; document.title = document.title.replace('Kalender kegiatan', 'Kalender saya'); }
   fetch('data.json', {cache: 'no-cache'}).then(r => r.ok ? r.json() : {}).then(d => { PRODI = [d.prodi, d.institusi].filter(Boolean).join(' '); }).catch(() => {});
   await muat();
 }

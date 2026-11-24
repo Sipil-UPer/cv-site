@@ -4,8 +4,8 @@
    ===================================================================== */
 // Data Data prodi yang dipakai LKPS dan draf LED (hanya di browser pemakai yang login;
 // tabel yang belum boleh dibaca atau belum ada cukup kosong).
-import { integrasiDisahkan, kunciIntegrasi } from './rps-integrasi.js?v=2026-11-24-264694';
-import { bacaAmpu } from './dosen-hitung.js?v=2026-11-24-264694';
+import { integrasiDisahkan, kunciIntegrasi } from './rps-integrasi.js?v=2026-11-24-d07d2c';
+import { bacaAmpu } from './dosen-hitung.js?v=2026-11-24-d07d2c';
 export async function ambilDaftarLKPS(sb){
   // Tahap 2: lembar daftar (lkps.js petaDaftar). Tabel yang belum ada
   // (patch belum dijalankan) cukup kosong.
@@ -18,7 +18,7 @@ export async function ambilDaftarLKPS(sb){
   const ambilMK = async () => {
     const { data, error } = await sb.from('ref_mata_kuliah').select(MK_DASAR +
       ',sks_kuliah,sks_seminar,sks_praktikum,rps_ada,rps_url,unit_penyelenggara,basic_science,capstone,' +
-      'capstone_cakupan,capstone_pendukung,pengampu');
+      'capstone_cakupan,capstone_pendukung,pengampu,kurikulum');
     return error ? ambil(sb.from('ref_mata_kuliah').select(MK_DASAR)) : (data || []);
   };
   // Kerja sama induk (24-patch-kerjasama-induk.sql): kolom baru + karya.kerjasama_id;
@@ -108,7 +108,12 @@ export async function ambilDaftarLKPS(sb){
   const integrasiRps = integrasiDisahkan(rpsInt, mk).map(x => kunciIntegrasi(x.induk, x.nama_mk));
   // Mengampu MK per TS (154, pemilik 2026-11-22): siapa yang masuk 4.a/4.c pada TS laporan.
   const ampu = await bacaAmpu(sb);
+  // CPL dan peta MK-CPL per kurikulum (71-patch-cpl-kurikulum.sql) untuk LKPS LAMDEPILAR E.4.1-E.4.2 (2026-11-24).
+  const [cpl, mkCpl] = await Promise.all([
+    ambil(sb.from('ref_cpl').select('kurikulum,kode,rumusan,indikator,urutan')),
+    ambil(sb.from('ref_mk_cpl').select('kurikulum,kode_mk,cpl,bobot')),
+  ]);
   return { dosen, karya, kerjasama, bkd, prestasi, luaranMhs, mk, tema, mhs, tracer,
            vmts, prodiUpps, dana, tendik, buktiVmts, prasarana, dokK3l, fasK3l, dokumen, ppepp, buktiBaris, buktiKarya, target, tim,
-           standar, capaianStandar, revisiStandar, temuan, rekapEval, integrasiRps, ampu };
+           standar, capaianStandar, revisiStandar, temuan, rekapEval, integrasiRps, ampu, cpl, mkCpl };
 }

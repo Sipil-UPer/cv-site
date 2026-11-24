@@ -3,7 +3,7 @@
 // melihat; ekspor berupa unduhan .ics. Tenggat pribadi (tindak lanjut rapat, proposal/laporan
 // hibah, temuan AMI) tampil untuk yang bersangkutan; admin melihat semuanya.
 // Jam di situs ini WIB (UTC+7, tanpa musim panas); di .ics ditulis sebagai UTC.
-import { JENIS_LIBUR } from './hari-libur.js?v=2026-11-24-264694';
+import { JENIS_LIBUR } from './hari-libur.js?v=2026-11-24-d07d2c';
 
 export const JENIS_ACARA = {
   libur:     { label: 'Hari libur', warna: '#9E3A26' },   // 139-patch-hari-libur.sql, pemilik 2026-11-21
@@ -15,11 +15,36 @@ export const JENIS_ACARA = {
   tindak:    { label: 'Tindak lanjut rapat', warna: '#B23B3B' },
   ami:       { label: 'Temuan AMI', warna: '#C2185B' },
   evaluasi:  { label: 'Tindak lanjut evaluasi pembelajaran', warna: '#00695C' },
+  berhalangan: { label: 'Berhalangan saya', warna: '#757575' },   // 132/135, hanya di Kalender saya (162, pemilik 2026-11-24)
 };
 export const JENIS_KEGIATAN = {
   ami: 'AMI', akademik: 'Akademik (UTS/UAS, perkuliahan)', yudisium: 'Yudisium', wisuda: 'Wisuda',
-  seminar: 'Seminar / kuliah tamu', rapat_luar: 'Rapat di luar prodi', lain: 'Lainnya',
+  seminar: 'Seminar / kuliah tamu', rapat_luar: 'Rapat di luar prodi',
+  // 162 (pemilik 2026-11-24): penugasan dosen dari admin; dengan dosen terpilih tampil di Kalender saya mereka.
+  mengawas: 'Mengawas ujian', sidang: 'Sidang (penguji/pembimbing)', piket: 'Piket', penugasan: 'Penugasan / kunjungan',
+  lain: 'Lainnya',
 };
+
+/**
+ * Saringan Kalender saya (162, pemilik 2026-11-24). d seperti kumpulkanAcara, ditambah pesertaRapat (rapat_peserta milik
+ * saya: [{rapat_id}]) dan kegiatanDosen (semua kegiatan_dosen: [{kegiatan_id, dosen_id}]).
+ * Rapat: hanya yang mencentang saya sebagai peserta. Kegiatan: tanpa dosen terpilih (untuk semua) atau yang menugasi saya.
+ */
+export function saringSaya(d, saya){
+  const rapatSaya = new Set((d.pesertaRapat || []).map(p => p.rapat_id));
+  const tugas = new Map();
+  for (const x of d.kegiatanDosen || []) { if (!tugas.has(x.kegiatan_id)) tugas.set(x.kegiatan_id, new Set()); tugas.get(x.kegiatan_id).add(x.dosen_id); }
+  return { ...d, rapat: (d.rapat || []).filter(r => rapatSaya.has(r.id)),
+    kegiatan: (d.kegiatan || []).filter(k => !tugas.has(k.id) || tugas.get(k.id).has(saya?.id)) };
+}
+
+/** Berhalangan bertanggal (132 dosen_berhalangan_tgl, 135 dosen_berhalangan_rentang) menjadi acara sepanjang hari. */
+export function acaraBerhalangan(tgl = [], rentang = []){
+  const al = x => [x.alasan, x.slot_id ? 'sesi tertentu' : ''].filter(Boolean).join(' · ');
+  return [...tgl.map(x => ({ uid: `berhalangan-t${x.id}`, judul: 'Berhalangan', mulai: iso(x.tanggal), ket: al(x) })),
+    ...rentang.map(x => ({ uid: `berhalangan-r${x.id}`, judul: 'Berhalangan', mulai: iso(x.mulai), selesai: iso(x.selesai),
+      ket: [x.alasan, x.hari?.length ? 'hari tertentu saja' : '', x.slot_ids?.length ? 'sesi tertentu' : ''].filter(Boolean).join(' · ') }))];
+}
 const TINDAK_BUKA = new Set(['terbuka', 'proses']);
 const AMI_BUKA = new Set(['terbuka', 'proses']);
 
@@ -52,7 +77,11 @@ export function kumpulkanAcara(d, saya){
   for (const k of d.kegiatan || [])
     tambah({ uid: `kegiatan-${k.id}`, sumber: 'kegiatan', judul: k.judul, mulai: iso(k.mulai), selesai: iso(k.selesai),
       jamMulai: jam(k.jam_mulai), jamSelesai: jam(k.jam_selesai), tempat: k.tempat || '',
-      ket: [JENIS_KEGIATAN[k.jenis], k.keterangan, k.tautan].filter(Boolean).join('\n'), href: k.tautan || '', jenis: k.jenis });
+      ket: [JENIS_KEGIATAN[k.jenis], k.ditugaskan?.length ? 'Ditugaskan: ' + k.ditugaskan.join(', ') : '', k.keterangan, k.tautan]
+        .filter(Boolean).join('\n'), href: k.tautan || '', jenis: k.jenis });
+
+  // Berhalangan saya (Kalender saya, 162): sudah berbentuk acara (acaraBerhalangan).
+  for (const b of d.berhalangan || []) tambah({ ...b, sumber: 'berhalangan', href: 'jadwal-berhalangan.html' });
 
   for (const r of d.rapat || [])
     tambah({ uid: `rapat-${r.id}`, sumber: 'rapat', judul: r.judul, mulai: iso(r.tanggal),
