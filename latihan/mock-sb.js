@@ -624,7 +624,7 @@ function q(t){
 }
 // 173: penilaian seminar/sidang TA, tiruan ringkas (aturan sama dengan 173-patch-penilaian-ta.sql, kecuali trigger penjaga
 // jadwal_ta). Hitungan dari penilaian-ta.js, dimuat dari folder HALAMAN karena berkas ini juga disalin ke site/latihan/.
-const TA_NILAI = new Set(['ta_nilai_simpan', 'ta_nilai_hapus', 'ta_nilai_rekap', 'ta_ba_tetapkan', 'ta_ba_buka', 'ta_rubrik_simpan', 'ta_nilai_tugas']);
+const TA_NILAI = new Set(['ta_nilai_simpan', 'ta_nilai_hapus', 'ta_nilai_rekap', 'ta_ba_tetapkan', 'ta_ba_buka', 'ta_rubrik_simpan', 'ta_nilai_tugas', 'ta_siup_tandai']);
 async function taNilaiRpc(nama, a){
   const P = await import(new URL('penilaian-ta.js', location.href).href);
   const gagal = message => ({ data: null, error: { message } }), ok = data => ({ data, error: null });
@@ -651,7 +651,10 @@ async function taNilaiRpc(nama, a){
       ...(saya.nidn && peranDi(j, saya.nidn) && (!punyaNilai(j, saya.nidn, 'seminar') || (peranDi(j, saya.nidn) === 'pembimbing'
         && P.bobotBagian(rubrikJadwal(j)).bimbingan > 0 && !punyaNilai(j, saya.nidn, 'bimbingan'))) ? [{ tugas: 'nilai' }] : []),
       ...(koor && N.some(n => n.jadwal_id === j.id) ? [{ tugas: 'tetapkan' }] : [])]
-      .map(t => ({ jadwal_id: j.id, tahap: j.tahap, nama_mahasiswa: j.nama_mahasiswa, tanggal: j.tanggal, ...t }))));
+      .map(t => ({ jadwal_id: j.id, tahap: j.tahap, nama_mahasiswa: j.nama_mahasiswa, tanggal: j.tanggal, ...t })))
+      // 177: nilai belum diunggah ke SIUP (koordinator TA/admin).
+      .concat(koor ? J.filter(j => j.ba_ditetapkan && !j.siup_diunggah).map(j => ({ jadwal_id: j.id, tahap: j.tahap, nama_mahasiswa: j.nama_mahasiswa,
+        tanggal: j.tanggal, tugas: 'siup' })) : []));
   }
   if (nama === 'ta_rubrik_simpan') {
     if (!koor) return gagal('Form penilaian TA diubah koordinator TA atau admin.');
@@ -663,6 +666,16 @@ async function taNilaiRpc(nama, a){
       bobot_penguji: a.p_bobot_penguji, bobot_bimbingan: a.p_bobot_bimbingan ?? 0, batas_lulus: a.p_batas_lulus,
       tingkat: a.p_tingkat, catatan: a.p_catatan || null, oleh: saya.nama, dibuat: new Date().toISOString() });
     simpan(); return ok(versi);
+  }
+  // 177: tanda sudah diunggah ke SIUP (koordinator TA/admin; hanya berita acara yang sudah ditetapkan).
+  if (nama === 'ta_siup_tandai') {
+    if (!koor) return gagal('Tanda unggah SIUP diisi koordinator TA atau admin.');
+    const xs = J.filter(j => (a.p_ids || []).includes(j.id));
+    if (!xs.length) return gagal('Pilih seminar/sidang dulu.');
+    const belum = xs.filter(j => !j.ba_ditetapkan);
+    if (belum.length) return gagal(`Berita acara belum ditetapkan: ${belum.map(j => j.nama_mahasiswa).join(', ')}.`);
+    for (const j of xs) Object.assign(j, { siup_diunggah: a.p_sudah ? new Date().toISOString() : null, siup_oleh: a.p_sudah ? saya.nama : null });
+    simpan(); return ok(xs.length);
   }
   const j = J.find(x => x.id === (a.p_jadwal ?? N.find(n => n.id === a.p_id)?.jadwal_id));
   if (!j) return gagal('Jadwal seminar/sidang tidak ditemukan.');
@@ -715,7 +728,7 @@ async function taNilaiRpc(nama, a){
   if (nama === 'ta_ba_buka') {
     if (String(a.p_alasan || '').trim().length < 5) return gagal('Tulis alasan membuka kembali (5–500 huruf).');
     if (!j.ba_ditetapkan) return gagal('Berita acara seminar ini belum ditetapkan.');
-    Object.assign(j, { ba_ditetapkan: null, ba_oleh: null, nilai_akhir: null, hasil: null, revisi_selesai: null,
+    Object.assign(j, { ba_ditetapkan: null, ba_oleh: null, nilai_akhir: null, hasil: null, revisi_selesai: null, siup_diunggah: null, siup_oleh: null,
       ba_dibuka: `${new Date().toISOString().slice(0, 16).replace('T', ' ')}, ${saya.nama}: ${String(a.p_alasan).trim()}` });
     simpan(); return ok('dibuka');
   }

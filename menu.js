@@ -1,5 +1,5 @@
-import { dosenLogin } from './dosen-login.js?v=2026-11-25-48a677';
-import { aktifPada } from './koordinator.js?v=2026-11-25-48a677';
+import { dosenLogin } from './dosen-login.js?v=2026-11-25-2a26c3';
+import { aktifPada } from './koordinator.js?v=2026-11-25-2a26c3';
 // Menu bersama ruang kerja (pemilik 2026-11-04).
 //
 // Situs dibagi dua:
@@ -32,10 +32,10 @@ const pantauanBoleh = (s, href) => PANTAUAN.includes(berkas(href)) || ((s.koordi
 // Asesor dan pimpinan hanya-baca tidak mengisi karya.
 const isiKarya = s => s.peran !== 'asesor' && !hanyaBaca(s);
 
-import { halamanAktif } from './fitur.js?v=2026-11-25-48a677';
-import { pasangPemicuBangun } from './pemicu-bangun.js?v=2026-11-25-48a677';
+import { halamanAktif } from './fitur.js?v=2026-11-25-2a26c3';
+import { pasangPemicuBangun } from './pemicu-bangun.js?v=2026-11-25-2a26c3';
 // Tinggi kotak teks mengikuti isi (pemilik 2026-11-25); bentuk "from" agar dicap stamp_versions.py.
-import { pasSemua as pasKotakTeks } from './kotak-teks.js?v=2026-11-25-48a677';
+import { pasSemua as pasKotakTeks } from './kotak-teks.js?v=2026-11-25-2a26c3';
 
 export const MODUL = [
   // Susunan menu mengikuti alur kerja (pemilik 2026-11-23): Data saya (milik dosen), Pengajaran (urut alur MK:
@@ -456,7 +456,7 @@ export async function pasangMenu(sb){
   // Pencarian menyeluruh (pemilik 2026-11-12; cari-ui.js, cari.js): dimuat saat pertama dipakai.
   const kotak = nav.querySelector('.rk-cari input');
   let siapCari = null;
-  const muatCari = () => siapCari || (siapCari = import('./cari-ui.js?v=2026-11-25-48a677').then(m =>
+  const muatCari = () => siapCari || (siapCari = import('./cari-ui.js?v=2026-11-25-2a26c3').then(m =>
     m.pasangCari(kotak, { sb, saya: u.saya, modul: halamanBoleh(u.saya), boleh: h => bolehBuka(u.saya, h) !== false })));
   kotak.addEventListener('focus', muatCari);
   document.addEventListener('keydown', e => {

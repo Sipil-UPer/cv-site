@@ -11,8 +11,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-25-48a677">
-<link rel="stylesheet" href="kepala.css?v=2026-11-25-48a677">
+<link rel="stylesheet" href="tema.css?v=2026-11-25-2a26c3">
+<link rel="stylesheet" href="kepala.css?v=2026-11-25-2a26c3">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
@@ -65,7 +65,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></div>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-25-48a677"></script>
+<script src="config.js?v=2026-11-25-2a26c3"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -89,10 +89,11 @@ addEventListener('error', function (e) {
 //   * form penilaian diubah koordinator TA/admin; tiap simpan = versi baru, jadwal yang sudah dinilai tetap memakai versinya.
 // Hitungan di layar dari penilaian-ta.js; yang berlaku saat menetapkan dihitung ulang di Supabase (ta_nilai_hitung).
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-25-48a677';
-import { punya } from './koordinator.js?v=2026-11-25-48a677';
+import { gerbang } from './menu.js?v=2026-11-25-2a26c3';
+import { punya } from './koordinator.js?v=2026-11-25-2a26c3';
 import { TAHAP_NILAI, labelTahap, PERAN_NILAI, HASIL_LABEL, TINGKAT_AWAL, angka, bulat, bobotBagian, cekNilai, totalNilai, rekapNilai,
-         cekRubrik, tingkatDari, labelTingkat, htmlBA } from './penilaian-ta.js?v=2026-11-25-48a677';
+         cekRubrik, tingkatDari, labelTingkat, htmlBA, lembarSiup } from './penilaian-ta.js?v=2026-11-25-2a26c3';
+import { SHEETJS } from './nilai-cpl.js?v=2026-11-25-2a26c3';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
@@ -146,7 +147,7 @@ function gambarDaftar(){
 
 async function muatDaftar(){
   const [jq, nq] = await Promise.all([
-    sb.from('jadwal_ta').select('id,tahap,nama_mahasiswa,nim,judul,pembimbing,penguji,penguji_luar,tanggal,status,hasil,rubrik_id,ba_ditetapkan').order('tanggal'),
+    sb.from('jadwal_ta').select('*').order('tanggal'),   // 177: termasuk nilai_akhir dan tanda SIUP
     sb.from('ta_nilai').select('jadwal_id,penilai_nidn,bagian,total')]);
   if (jq.error) throw new Error(jq.error.message);
   if (nq.error) throw new Error(/ta_nilai/.test(nq.error.message) ? 'Penilaian belum dipasang: jalankan supabase/173-patch-penilaian-ta.sql.' : nq.error.message);
@@ -162,6 +163,7 @@ async function buka(id, gulir = true){
   BUKA = id; PENILAI = '';
   history.replaceState(null, '', '#j=' + id);
   gambarDaftar();
+  gambarSiup();   // 177: tetapkan/buka kembali mengubah daftar nilai untuk SIUP
   $('detail').innerHTML = '<p class="kosong">Memuat…</p>';
   const { data, error } = await sb.rpc('ta_nilai_rekap', { p_jadwal: id });
   if (error || !data) { $('detail').innerHTML = `<p class="kosong">${esc(error?.message || 'Rekap nilai tidak bisa dibuka.')}</p>`; return; }
@@ -482,6 +484,63 @@ async function muatRubrik(){
   RUBRIK = data || [];
 }
 
+// ---------- Nilai untuk SIUP (177, koordinator TA/admin) ----------
+// Berita acara yang sudah ditetapkan: unduh Excel untuk disalin ke SIUP, lalu tandai "sudah diunggah". Membuka kembali berita
+// acara menghapus tandanya (nilai bisa berubah).
+let SIUP_TAHAP = '', SIUP_BELUM = true, DOSEN_NIDN = {};
+function gambarSiup(){
+  const el = $('siup'); if (!el) return;
+  const xs = JADWAL.filter(j => j.ba_ditetapkan && (!SIUP_TAHAP || j.tahap === SIUP_TAHAP) && (!SIUP_BELUM || !j.siup_diunggah))
+    .sort((a, b) => a.tanggal.localeCompare(b.tanggal));
+  el.innerHTML = `<p class="ket">Nilai dari berita acara yang sudah ditetapkan. Unduh Excel, salin nilainya ke SIUP, lalu centang dan tandai
+      <b>sudah diunggah</b>. Bila berita acara dibuka kembali, tandanya hilang dan nilainya perlu diunggah ulang.</p>
+    <div class="saring"><label>Tahap <select id="siupTahap"><option value="">Semua</option>${TAHAP_NILAI.map(([k, l]) =>
+      `<option value="${k}"${k === SIUP_TAHAP ? ' selected' : ''}>${esc(l)}</option>`).join('')}</select></label>
+      <label><input type="checkbox" id="siupBelum"${SIUP_BELUM ? ' checked' : ''}> hanya yang belum diunggah</label>
+      <button type="button" class="b dua" id="siupUnduh"${xs.length ? '' : ' disabled'}>Unduh Excel (${xs.length})</button></div>
+    ${!xs.length ? `<p class="kosong">${SIUP_BELUM ? 'Semua nilai sudah ditandai diunggah ke SIUP.' : 'Belum ada berita acara yang ditetapkan.'}</p>`
+      : `<div class="lebar-tabel"><table><thead><tr><th><input type="checkbox" id="siupSemua" aria-label="Pilih semua"></th><th>Tanggal</th><th>Tahap</th>
+        <th>Mahasiswa</th><th class="n">Nilai akhir</th><th>Hasil</th><th>SIUP</th></tr></thead><tbody>${xs.map(j => `<tr>
+        <td><input type="checkbox" data-siup="${j.id}" aria-label="Pilih"></td><td>${esc(tgl(j.tanggal))}</td><td>${esc(labelTahap(j.tahap))}</td>
+        <td>${esc(j.nama_mahasiswa)}<div class="ket">${esc(j.nim || '')}</div></td><td class="n">${angka(j.nilai_akhir)}</td>
+        <td>${esc(HASIL_LABEL[j.hasil] || '')}</td>
+        <td>${j.siup_diunggah ? `<span class="tag ok">diunggah ${esc(tgl(j.siup_diunggah))}</span><div class="ket">${esc(j.siup_oleh || '')}</div>`
+          : '<span class="tag perlu">belum</span>'}</td></tr>`).join('')}</tbody></table></div>
+      <div class="baris-tombol"><button type="button" class="b" id="siupTandai">Tandai sudah diunggah</button>
+        <button type="button" class="b dua kecil" id="siupBatal">Batalkan tanda</button><span class="msg" id="mSiup"></span></div>`}`;
+  $('siupTahap').onchange = e => { SIUP_TAHAP = e.target.value; gambarSiup(); };
+  $('siupBelum').onchange = e => { SIUP_BELUM = e.target.checked; gambarSiup(); };
+  $('siupUnduh').onclick = () => unduhSiup(xs);
+  if (!xs.length) return;
+  $('siupSemua').onchange = e => document.querySelectorAll('[data-siup]').forEach(x => { x.checked = e.target.checked; });
+  const tandai = async sudah => {
+    const ids = [...document.querySelectorAll('[data-siup]:checked')].map(x => +x.dataset.siup);
+    if (!ids.length) return tulis('mSiup', 'err', 'Centang seminar/sidang dulu.');
+    const { data, error } = await sb.rpc('ta_siup_tandai', { p_ids: ids, p_sudah: sudah });
+    if (error) return tulis('mSiup', 'err', error.message);
+    await muatDaftar(); gambarSiup(); gambarDaftar();
+    tulis('mSiup', 'ok', `${data} nilai ${sudah ? 'ditandai sudah diunggah' : 'dibatalkan tandanya'}.`);
+  };
+  $('siupTandai').onclick = () => tandai(true);
+  $('siupBatal').onclick = () => tandai(false);
+}
+async function unduhSiup(xs){
+  const b = $('siupUnduh'); b.disabled = true;
+  try {
+    const X = await import(SHEETJS), wb = X.utils.book_new(), baris = lembarSiup(xs, DOSEN_NIDN);
+    const ws = X.utils.aoa_to_sheet(baris);
+    ws['!cols'] = baris[0].map((_, j) => ({ wch: Math.min(50, Math.max(8, ...baris.slice(0, 200).map(r => String(r[j] ?? '').length))) }));
+    X.utils.book_append_sheet(wb, ws, 'Nilai TA');
+    const ket = X.utils.aoa_to_sheet([['Nilai TA untuk SIUP'], ['Tahap', SIUP_TAHAP ? labelTahap(SIUP_TAHAP) : 'Semua'],
+      ['Isi', SIUP_BELUM ? 'Hanya yang belum ditandai diunggah ke SIUP' : 'Semua berita acara yang sudah ditetapkan'],
+      ['Diunduh', new Date().toLocaleString('id-ID')], ['Catatan', 'Nilai akhir 0–100 dari berita acara. Memuat NIM: untuk keperluan internal.']]);
+    ket['!cols'] = [{ wch: 10 }, { wch: 80 }];
+    X.utils.book_append_sheet(wb, ket, 'Keterangan');
+    X.writeFile(wb, `nilai-ta-siup-${new Date(Date.now() + 7 * 3600e3).toISOString().slice(0, 10)}.xlsx`);
+  } catch (e) { alert('Unduh gagal: ' + (e.message || e)); }
+  finally { b.disabled = false; }
+}
+
 async function mulai(){
   SAYA = await gerbang(sb);
   if (!SAYA) return;
@@ -493,8 +552,8 @@ async function mulai(){
   await muatDaftar();
   $('isi').innerHTML = `
     <p class="ket">Pembimbing dan penguji mengisi nilai seminar proposal, seminar kemajuan, dan sidang akhir menurut form penilaian tahapnya.
-      Nilai akhir = rata-rata penguji × bobot penguji + rata-rata pembimbing × bobot pembimbing; di bawah batas lulus hasilnya mengulang.
-      Koordinator TA menetapkan berita acara, lalu berita acara dicetak dan ditandatangani. Nilai resmi tetap diisikan ke SIUP.</p>
+      Nilai akhir = rata-rata berbobot nilai penguji, nilai pembimbing, dan (sidang akhir) nilai proses bimbingan; di bawah batas lulus
+      hasilnya mengulang. Koordinator TA menetapkan berita acara, lalu berita acara dicetak dan ditandatangani. Nilai resmi diunggah ke SIUP.</p>
     <h2 id="seminar">${KOOR ? 'Seminar dan sidang' : 'Seminar dan sidang yang saya nilai'}</h2>
     <div class="saring"><label>Tampilkan <select id="sSaring"><option value="perlu">Perlu dinilai atau ditetapkan</option>
       <option value="semua">Semua</option></select></label></div>
@@ -503,10 +562,17 @@ async function mulai(){
     <h2 id="form-penilaian">Form penilaian</h2>
     <p class="ket">${KOOR ? 'Komponen, bobot, dan uraian rubrik per tahap. Tiap simpan menjadi versi baru; berita acara yang sudah ada tidak berubah.'
       : 'Komponen, bobot, dan uraian rubrik per tahap; diubah koordinator TA.'}</p>
-    <div id="form"></div>`;
+    <div id="form"></div>
+    ${KOOR ? '<h2 id="nilai-siup">Nilai untuk SIUP</h2><div id="siup"></div>' : ''}`;
   $('sSaring').onchange = e => { SARING = e.target.value; gambarDaftar(); };
   gambarDaftar();
   gambarForm();
+  if (KOOR) {   // 177
+    const dq = await sb.from('dosen').select('nidn,nama');
+    DOSEN_NIDN = Object.fromEntries((dq.data || []).filter(d => d.nidn).map(d => [d.nidn, d.nama]));
+    gambarSiup();
+    if (location.hash === '#nilai-siup') $('nilai-siup').scrollIntoView();
+  }
   const awal = +(new URLSearchParams(location.hash.slice(1)).get('j') || 0);
   if (awal && JADWAL.some(j => j.id === awal)) await buka(awal);
 }

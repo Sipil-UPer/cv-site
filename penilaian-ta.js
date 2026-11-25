@@ -439,3 +439,18 @@ ${j.ba_ditetapkan ? ` Ditetapkan ${esc(tglWaktu(j.ba_ditetapkan))}${j.ba_oleh ? 
 <div><span>Mengetahui, Koordinator TA,</span><span>(..............................................)</span></div></div>
 </body></html>`;
 }
+
+/**
+ * Lembar Excel nilai akhir untuk disalin ke SIUP (177, pemilik 2026-11-25): satu baris per seminar/sidang yang berita acaranya
+ * sudah ditetapkan. rows = jadwal_ta [{tanggal, tahap, nim, nama_mahasiswa, judul, nilai_akhir, hasil, pembimbing, penguji,
+ * penguji_luar, ba_ditetapkan, siup_diunggah}]; dosen = {nidn: nama}. Nilai akhir tetap angka (bukan teks) supaya bisa dihitung.
+ */
+export function lembarSiup(rows, dosen = {}){
+  const nm = xs => (xs || []).map(n => dosen[n] || n).join('; ');
+  const tgl = s => s ? String(s).slice(0, 10) : '';
+  return [['No', 'NIM', 'Nama', 'Tahap', 'Tanggal', 'Nilai akhir', 'Hasil', 'Judul', 'Pembimbing', 'Penguji', 'Berita acara ditetapkan', 'Diunggah ke SIUP'],
+    ...[...rows].filter(r => r.ba_ditetapkan).sort((a, b) => String(a.tanggal).localeCompare(String(b.tanggal)) || String(a.nim).localeCompare(String(b.nim)))
+      .map((r, i) => [i + 1, r.nim || '', r.nama_mahasiswa || '', labelTahap(r.tahap), tgl(r.tanggal), r.nilai_akhir == null ? '' : +r.nilai_akhir,
+        HASIL_LABEL[r.hasil] || '', r.judul || '', nm(r.pembimbing), [nm(r.penguji), r.penguji_luar].filter(Boolean).join('; '),
+        tgl(r.ba_ditetapkan), r.siup_diunggah ? tgl(r.siup_diunggah) : 'belum'])];
+}
