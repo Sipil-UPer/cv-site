@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="robots" content="noindex, nofollow">
+<title>Tugas Akhir — Ruang kerja</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tema.css?v=2026-11-25-e9f81e">
+<link rel="stylesheet" href="kepala.css?v=2026-11-25-e9f81e">
+<style>
+  /* Dasar halaman ruang kerja (sama dengan halaman lain) */
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
+  .wrap{max-width:1100px;margin:0 auto;padding:18px 20px 80px}
+  a{color:var(--biru-2)}
+  /* Tugas Akhir (pemilik 2026-11-25): satu pintu ke semua halaman TA, urut alur */
+  h2{font-size:17px;margin:24px 0 8px;color:var(--biru)}
+  .ket{font-size:13px;color:var(--muted)}
+  .alur{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin:10px 0 4px;padding:0;list-style:none;counter-reset:l}
+  .alur li{background:#fff;border:1px solid var(--line);border-top:3px solid var(--biru-2);padding:9px 11px;font-size:13px;counter-increment:l}
+  .alur li b{display:block;font-size:13.5px;color:var(--ink)} .alur li b::before{content:counter(l) ". ";color:var(--biru-2)}
+  .alur li span{color:var(--muted)}
+  .kerja{display:flex;flex-wrap:wrap;gap:8px}
+  .kerja a{display:flex;gap:10px;align-items:center;background:#fff;border:1px solid var(--line);padding:9px 13px;text-decoration:none;color:var(--ink);font-size:14px}
+  .kerja a b{font-family:var(--mono);font-size:18px;color:var(--merah)} .kerja a.nol b{color:var(--hijau)}
+  .kartu{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}
+  .kartu a{display:block;background:#fff;border:1px solid var(--line);padding:12px 14px;text-decoration:none;color:var(--ink)}
+  .kartu a:hover{border-color:var(--biru-2)}
+  .kartu a b{display:block;color:var(--biru);font-size:15px;margin-bottom:3px}
+  .kartu a span{font-size:13px;color:var(--muted)}
+  .kosong{color:var(--muted);font-size:13.5px;padding:10px 0}
+</style>
+</head>
+<body>
+<div class="hero" role="region" aria-label="Pembuka halaman"><div class="hero-in">
+  <div class="hero-inst" data-identitas></div>
+  <h1>Tugas Akhir</h1>
+  <div class="sub" id="hSub">Memuat…</div>
+</div></div>
+<main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
+<script src="config.js?v=2026-11-25-e9f81e"></script>
+<script>
+// Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
+addEventListener('error', function (e) {
+  if (document.getElementById('galat-muat')) return;
+  var d = document.createElement('div');
+  d.id = 'galat-muat';
+  d.style.cssText = 'margin:16px;padding:12px 14px;border:1px solid var(--merah);' +
+    'background:var(--merah-m3);color:var(--ink);font:14px/1.5 system-ui,sans-serif';
+  d.textContent = 'Halaman gagal dimuat: ' + (e.message || 'galat skrip') +
+    '. Tekan Ctrl+Shift+R untuk memuat ulang tanpa cache; bila tetap muncul, kirim pesan ini ke admin.';
+  document.body.insertBefore(d, document.body.firstChild);
+});
+</script>
+<script type="module">
+// Tugas Akhir (pemilik 2026-11-25: susunan situs dirapikan): satu pintu ke halaman TA menurut alur, pekerjaan yang menunggu
+// (ta_nilai_tugas 173/177/178, ta_bimbingan_menunggu 175), dan tautan untuk mahasiswa. Hanya membaca.
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
+import { gerbang } from './menu.js?v=2026-11-25-e9f81e';
+import { punya } from './koordinator.js?v=2026-11-25-e9f81e';
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const sb = createClient(window.SB_URL, window.SB_KEY);
+const baca = p => p.then(r => (r.error ? [] : (r.data || [])), () => []);
+
+const ALUR = [['Pengajuan pembimbing', 'mahasiswa mengajukan; koordinator menetapkan'], ['Bimbingan', 'dicatat mahasiswa, dikonfirmasi pembimbing'],
+  ['Seminar proposal', 'daftar, jadwal, nilai, berita acara'], ['Seminar kemajuan', 'setelah proposal lulus dan revisi selesai'],
+  ['Sidang akhir', 'nilai sidang, proses bimbingan, capaian CPL'], ['Nilai SIUP dan arsip', 'pembimbing mengunggah; arsip ke Drive']];
+
+const kartu = xs => `<div class="kartu">${xs.map(([href, judul, ket]) => `<a href="${href}"><b>${esc(judul)}</b><span>${esc(ket)}</span></a>`).join('')}</div>`;
+
+async function mulai(){
+  const saya = await gerbang(sb);
+  if (!saya) return;
+  const koor = saya.peran === 'admin' || punya(saya, 'koordinator_ta');
+  $('hSub').textContent = `Masuk sebagai ${saya.nama}${koor ? ' · koordinator TA/admin' : ''}`;
+  const [tugas, bimb] = await Promise.all([baca(sb.rpc('ta_nilai_tugas')), baca(sb.rpc('ta_bimbingan_menunggu'))]);
+  const n = t => tugas.filter(x => x.tugas === t).length;
+  const kerja = [['penilaian-ta.html', n('nilai'), 'nilai seminar/sidang belum saya isi'],
+    ...(koor ? [['penilaian-ta.html', n('tetapkan'), 'berita acara siap ditetapkan']] : []),
+    ['penilaian-ta.html#nilai-siup', n('siup'), 'nilai belum diunggah ke SIUP'],
+    ['bimbingan-ta.html', bimb.reduce((a, x) => a + (+x.n || 0), 0), 'catatan bimbingan menunggu konfirmasi'],
+    ...(koor ? [['bimbingan-ta.html#arsip-ta', n('arsip'), 'arsip TA mahasiswa lulus belum disimpan']] : [])];
+  const pub = new URL('pengajuan.html', location.href).href;
+  $('isi').innerHTML = `
+    <ol class="alur">${ALUR.map(([a, b]) => `<li><b>${esc(a)}</b><span>${esc(b)}</span></li>`).join('')}</ol>
+    <p class="ket">Aturan tiap langkah ada di POS Tugas Akhir (TA-01 pembimbing dan bimbingan, TA-02 seminar dan sidang, TA-03 nilai SIUP dan arsip).</p>
+
+    <h2>Pekerjaan saya</h2>
+    <div class="kerja">${kerja.map(([h, x, l]) => `<a href="${h}" class="${x ? '' : 'nol'}"><b>${x}</b>${esc(l)}</a>`).join('')}</div>
+
+    <h2>Sebagai dosen pembimbing atau penguji</h2>
+    ${kartu([['bimbingan-ta.html', 'Bimbingan TA', 'Konfirmasi catatan bimbingan mahasiswa; rekap dan riwayat bimbingan.'],
+      ['pengajuan-mahasiswa.html', 'Pengajuan mahasiswa', 'Periksa pendaftaran seminar/sidang mahasiswa bimbingan (pembimbing 1).'],
+      ['penilaian-ta.html', 'Penilaian TA', 'Isi nilai seminar/sidang dan proses bimbingan; unduh nilai untuk SIUP.']])}
+
+    ${koor ? `<h2>Sebagai koordinator TA</h2>
+    ${kartu([['pengajuan-mahasiswa.html', 'Pengajuan mahasiswa', 'Tetapkan atau ganti pembimbing; jadwalkan seminar/sidang dan penguji.'],
+      ['rekap-ta.html', 'Rekap TA', 'Jadwal mendatang, revisi berjalan, beban dosen, kuota per semester, berkas per tahap.'],
+      ['penilaian-ta.html#form-penilaian', 'Form penilaian dan CPL', 'Komponen, bobot, rubrik, dan tanda CPL tiap tahap.'],
+      ['bimbingan-ta.html#arsip-ta', 'Arsip TA dan minimal bimbingan', 'Simpan arsip mahasiswa lulus; atur minimal bimbingan per tahap.'],
+      ['jadwal-berhalangan.html', 'Jadwal berhalangan dosen', 'Cari waktu seminar/sidang yang kosong bagi pembimbing dan penguji.']])}` : ''}
+
+    <h2>Untuk mahasiswa</h2>
+    ${kartu([['pengajuan.html', 'Halaman Pengajuan', 'Mahasiswa mengajukan pembimbing, mendaftar seminar/sidang, dan mencatat bimbingan (tanpa akun).'],
+      ['pengajuan.html?latihan=1', 'Mode latihan', 'Alur mahasiswa dengan data fiktif untuk sosialisasi; tidak tersimpan.'],
+      ['layanan-mahasiswa.html#jadwal-ta', 'Jadwal seminar/sidang', 'Jadwal TA yang tampil di situs publik.'],
+      ['tugas-akhir.html', 'Arsip tugas akhir', 'Judul TA mahasiswa lulus per bidang keahlian (situs publik, tanpa nama).']])}
+    <p class="ket">Alamat untuk dibagikan ke mahasiswa: <a href="${esc(pub)}">${esc(pub)}</a></p>`;
+}
+mulai().catch(e => { $('isi').innerHTML = `<p class="kosong">Gagal memuat: ${esc(e.message)}</p>`; });
+</script>
+</body>
+</html>

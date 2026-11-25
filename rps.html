@@ -11,8 +11,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-25-8cae0a">
-<link rel="stylesheet" href="kepala.css?v=2026-11-25-8cae0a">
+<link rel="stylesheet" href="tema.css?v=2026-11-25-e9f81e">
+<link rel="stylesheet" href="kepala.css?v=2026-11-25-e9f81e">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
@@ -134,7 +134,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></div>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-25-8cae0a"></script>
+<script src="config.js?v=2026-11-25-e9f81e"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -154,22 +154,22 @@ addEventListener('error', function (e) {
 // Penyusun = koordinator MK atau pengampu kelas MK semester terakhir (boleh_rps, 112); GKM dan admin hanya melihat.
 // Pengesahan (112): dosen mengajukan -> Kaprodi aktif mengesahkan atau mengembalikan; daftar revisi (bagian F) otomatis.
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-25-8cae0a';
-import { bolehMutu, aktifPada, punya } from './koordinator.js?v=2026-11-25-8cae0a';
-import { bawaanHanyaSaya, ingatHanyaSaya, pesanKosongSaya } from './mk-saya.js?v=2026-11-25-8cae0a';
-import { cplMK } from './cpmk.js?v=2026-11-25-8cae0a';
+import { gerbang } from './menu.js?v=2026-11-25-e9f81e';
+import { bolehMutu, aktifPada, punya } from './koordinator.js?v=2026-11-25-e9f81e';
+import { bawaanHanyaSaya, ingatHanyaSaya, pesanKosongSaya } from './mk-saya.js?v=2026-11-25-e9f81e';
+import { cplMK } from './cpmk.js?v=2026-11-25-e9f81e';
 import { JENIS_ASESMEN, JENIS_MK, DIREKTORI, jenisAsesmen, bloom, hots, rapikanRps, kerangkaPekan, barisPekan, periksaRps, modelRps,
   namaBerkasRps, penyusunMK, revisiDariLog, tanggalLokal, waktuLokal, evaluasiDariData, BENTUK, SCL, rekapRps, BENTUK_INTEGRASI,
-  bedaRps, salinRps, rpsDariSilabus, ASESMEN_TES, BUTIR_REVIEW, SKALA_REVIEW, KESIMPULAN_REVIEW, rerataReview, butirKosongReview, faktaReview, STATUS_TANGGAPAN, butirTanggapan, sudahDitanggapi, PEMANDU_REVIEW, JAWAB_PEMANDU, kunciTanya, jawabanPemandu, ringkasPemandu, saranSkor, saranKesimpulan, periksaKirimReview, rubrikKosong, kriteriaKosong, rentangPekan, susunanMK, jenisMK, bagiParitas, saringMK, ringkasSemester, htmlRingkasSemester, htmlSaringan, ubahSaringan, esignRps, paritas } from './rps.js?v=2026-11-25-8cae0a';
-import { JENIS_PETA, relasiPeta, petaSvg, usulPeta } from './rps-peta.js?v=2026-11-25-8cae0a';
-import { keB64 } from './pengajuan-mhs.js?v=2026-11-25-8cae0a';
-import { bacaTinjauan, bahanTinjauan } from './tinjauan-rps.js?v=2026-11-25-8cae0a';
-import { SHEETJS } from './nilai-cpl.js?v=2026-11-25-8cae0a';
-import { lembarRps, bacaRpsExcel, bagianBerubah, LEBAR_KOLOM } from './rps-excel.js?v=2026-11-25-8cae0a';
-import { modelBerkasReview, buatReviewDocx, namaBerkasReview } from './review-docx.js?v=2026-11-25-8cae0a';
-import { tenggatReview, hariKe, teksHari, mkTenggatRps, HARI_REVIEW_BAWAAN } from './pengingat-rps.js?v=2026-11-25-8cae0a';
-import { pngPeta, pngQr, entryPeta } from './rps-word.js?v=2026-11-25-8cae0a';
-import { buatRpsDocx } from './rps-docx.js?v=2026-11-25-8cae0a';
+  bedaRps, salinRps, rpsDariSilabus, ASESMEN_TES, BUTIR_REVIEW, SKALA_REVIEW, KESIMPULAN_REVIEW, rerataReview, butirKosongReview, faktaReview, STATUS_TANGGAPAN, butirTanggapan, sudahDitanggapi, PEMANDU_REVIEW, JAWAB_PEMANDU, kunciTanya, jawabanPemandu, ringkasPemandu, saranSkor, saranKesimpulan, periksaKirimReview, rubrikKosong, kriteriaKosong, rentangPekan, susunanMK, jenisMK, bagiParitas, saringMK, ringkasSemester, htmlRingkasSemester, htmlSaringan, ubahSaringan, esignRps, paritas } from './rps.js?v=2026-11-25-e9f81e';
+import { JENIS_PETA, relasiPeta, petaSvg, usulPeta } from './rps-peta.js?v=2026-11-25-e9f81e';
+import { keB64 } from './pengajuan-mhs.js?v=2026-11-25-e9f81e';
+import { bacaTinjauan, bahanTinjauan } from './tinjauan-rps.js?v=2026-11-25-e9f81e';
+import { SHEETJS } from './nilai-cpl.js?v=2026-11-25-e9f81e';
+import { lembarRps, bacaRpsExcel, bagianBerubah, LEBAR_KOLOM } from './rps-excel.js?v=2026-11-25-e9f81e';
+import { modelBerkasReview, buatReviewDocx, namaBerkasReview } from './review-docx.js?v=2026-11-25-e9f81e';
+import { tenggatReview, hariKe, teksHari, mkTenggatRps, HARI_REVIEW_BAWAAN } from './pengingat-rps.js?v=2026-11-25-e9f81e';
+import { pngPeta, pngQr, entryPeta } from './rps-word.js?v=2026-11-25-e9f81e';
+import { buatRpsDocx } from './rps-docx.js?v=2026-11-25-e9f81e';
 
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));

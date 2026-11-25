@@ -11,8 +11,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-25-8cae0a">
-<link rel="stylesheet" href="kepala.css?v=2026-11-25-8cae0a">
+<link rel="stylesheet" href="tema.css?v=2026-11-25-e9f81e">
+<link rel="stylesheet" href="kepala.css?v=2026-11-25-e9f81e">
 <style>
   /* Kemajuan RPS dan susunan per semester (pemilik 2026-11-19) */
   .kemajuan{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
@@ -57,7 +57,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></div>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-25-8cae0a"></script>
+<script src="config.js?v=2026-11-25-e9f81e"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -75,10 +75,10 @@ addEventListener('error', function (e) {
 // Rekap RPS kurikulum (pemilik 2026-11-19): kalender asesmen lintas MK per semester dan peta CPL dari bagian B (rps-kurikulum.js).
 // Hanya membaca; bahan rapat kurikulum dan narasi LED (beban mahasiswa, keterkaitan CPL-MK, jenjang HOTS).
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-25-8cae0a';
-import { semesterKurikulum, kalenderAsesmen, petaCplKurikulum, kemajuanRps, STATUS_KEMAJUAN, csvKemajuan, KATEGORI_REVIEW, jumlahReview, teksReview } from './rps-kurikulum.js?v=2026-11-25-8cae0a';
-import { cocokIntegrasi, rekapPembelajaran, teksLedPembelajaran } from './rps-integrasi.js?v=2026-11-25-8cae0a';
-import { susunanMK, jenisMK, KESIMPULAN_REVIEW, BENTUK_INTEGRASI } from './rps.js?v=2026-11-25-8cae0a';
+import { gerbang } from './menu.js?v=2026-11-25-e9f81e';
+import { semesterKurikulum, kalenderAsesmen, petaCplKurikulum, kemajuanRps, STATUS_KEMAJUAN, csvKemajuan, KATEGORI_REVIEW, jumlahReview, teksReview } from './rps-kurikulum.js?v=2026-11-25-e9f81e';
+import { cocokIntegrasi, rekapPembelajaran, teksLedPembelajaran } from './rps-integrasi.js?v=2026-11-25-e9f81e';
+import { susunanMK, jenisMK, KESIMPULAN_REVIEW, BENTUK_INTEGRASI } from './rps.js?v=2026-11-25-e9f81e';
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const sb = createClient(window.SB_URL, window.SB_KEY);

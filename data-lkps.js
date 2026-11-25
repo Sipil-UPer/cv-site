@@ -4,8 +4,8 @@
    ===================================================================== */
 // Data Data prodi yang dipakai LKPS dan draf LED (hanya di browser pemakai yang login;
 // tabel yang belum boleh dibaca atau belum ada cukup kosong).
-import { integrasiDisahkan, kunciIntegrasi } from './rps-integrasi.js?v=2026-11-25-8cae0a';
-import { bacaAmpu } from './dosen-hitung.js?v=2026-11-25-8cae0a';
+import { integrasiDisahkan, kunciIntegrasi } from './rps-integrasi.js?v=2026-11-25-e9f81e';
+import { bacaAmpu } from './dosen-hitung.js?v=2026-11-25-e9f81e';
 export async function ambilDaftarLKPS(sb){
   // Tahap 2: lembar daftar (lkps.js petaDaftar). Tabel yang belum ada
   // (patch belum dijalankan) cukup kosong.

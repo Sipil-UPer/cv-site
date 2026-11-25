@@ -11,8 +11,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-25-8cae0a">
-<link rel="stylesheet" href="kepala.css?v=2026-11-25-8cae0a">
+<link rel="stylesheet" href="tema.css?v=2026-11-25-e9f81e">
+<link rel="stylesheet" href="kepala.css?v=2026-11-25-e9f81e">
 <style>
   .tag{display:inline-block;font-size:12px;padding:1px 8px;border:1px solid var(--line);background:var(--bg);white-space:nowrap}
   .tag.tinggi{border-color:var(--merah);color:var(--merah)}
@@ -46,7 +46,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></div>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-25-8cae0a"></script>
+<script src="config.js?v=2026-11-25-e9f81e"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -65,13 +65,14 @@ addEventListener('error', function (e) {
 // dan beban membimbing/menguji per dosen pada periode terpilih (TS, 3 TS, tahun). Sumber: jadwal_ta (semua pengguna login
 // membaca). Unduh Excel khusus admin (memuat NIM).
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-25-8cae0a';
-import { punya } from './koordinator.js?v=2026-11-25-8cae0a';
-import { TAHAP, STATUS, waktuJadwal, rekapTA, lembarTA, revisiBerjalan } from './rekap-ta.js?v=2026-11-25-8cae0a';
-import { opsiPeriode, cocokPeriode, labelPeriode, taTeks, tsKarya, tsBerjalan } from './sdgs-unduh.js?v=2026-11-25-8cae0a';
-import { barisKuota } from './rekap-kp.js?v=2026-11-25-8cae0a';
-import { semesterTA, kunciSemester, teksSemester, geserSemester } from './pengajuan-mhs.js?v=2026-11-25-8cae0a';
-import { SHEETJS } from './nilai-cpl.js?v=2026-11-25-8cae0a';
+import { gerbang } from './menu.js?v=2026-11-25-e9f81e';
+import { pasangTab } from './tab-seksi.js?v=2026-11-25-e9f81e';   // susunan bertab (pemilik 2026-11-25)
+import { punya } from './koordinator.js?v=2026-11-25-e9f81e';
+import { TAHAP, STATUS, waktuJadwal, rekapTA, lembarTA, revisiBerjalan } from './rekap-ta.js?v=2026-11-25-e9f81e';
+import { opsiPeriode, cocokPeriode, labelPeriode, taTeks, tsKarya, tsBerjalan } from './sdgs-unduh.js?v=2026-11-25-e9f81e';
+import { barisKuota } from './rekap-kp.js?v=2026-11-25-e9f81e';
+import { semesterTA, kunciSemester, teksSemester, geserSemester } from './pengajuan-mhs.js?v=2026-11-25-e9f81e';
+import { SHEETJS } from './nilai-cpl.js?v=2026-11-25-e9f81e';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
@@ -297,12 +298,13 @@ async function mulai(){
       g.opsi.map(([v, l]) => `<option value="${v}">${esc(l)}</option>`).join('')}</optgroup>`).join('')}</select></label>
       ${ADMIN ? '<button type="button" class="b" id="unduh">Unduh Excel</button>' : ''}</div>
     <div class="ringkas" id="ringkas"></div>
-    <h2>Beban membimbing dan menguji per dosen</h2><div id="beban"></div>
-    ${SAYA.peran === 'asesor' ? '' : '<h2 id="kuota-ta">Kuota pembimbing TA</h2><div id="kuota"></div>'}
+    <h2 id="jadwal-mendatang">Jadwal mendatang</h2><div id="akan"></div>
     <h2 id="revisi">Revisi berjalan</h2><div id="revisiIsi"></div>
-    ${ADMIN ? '<h2 id="urutan-tahap">Pengecualian urutan tahap</h2><div id="kecuali"></div>' : ''}
-    ${ADMIN ? '<h2 id="berkas-ta">Berkas pendaftaran per tahap</h2><div id="berkasTA"></div>' : ''}
-    <h2>Jadwal mendatang</h2><div id="akan"></div>`;
+    <h2 id="beban-dosen">Beban dosen</h2><div id="beban"></div>
+    ${SAYA.peran === 'asesor' ? '' : '<h2 id="kuota-ta">Kuota pembimbing</h2><div id="kuota"></div>'}
+    ${ADMIN ? '<h2 id="urutan-tahap">Pengecualian urutan</h2><div id="kecuali"></div>' : ''}
+    ${ADMIN ? '<h2 id="berkas-ta">Berkas per tahap</h2><div id="berkasTA"></div>' : ''}`;
+  pasangTab($('isi'));
   $('fPeriode').onchange = e => { PERIODE = e.target.value; gambar(); };
   gambar();
   if ($('kuota')) { await muatKuota(); gambarKuota(); }

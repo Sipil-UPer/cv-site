@@ -11,8 +11,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-25-8cae0a">
-<link rel="stylesheet" href="kepala.css?v=2026-11-25-8cae0a">
+<link rel="stylesheet" href="tema.css?v=2026-11-25-e9f81e">
+<link rel="stylesheet" href="kepala.css?v=2026-11-25-e9f81e">
 <style>
   /* Dasar halaman ruang kerja (sama dengan halaman lain) */
   *{box-sizing:border-box}
@@ -53,7 +53,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></div>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-25-8cae0a"></script>
+<script src="config.js?v=2026-11-25-e9f81e"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -72,8 +72,8 @@ addEventListener('error', function (e) {
 // Satu koordinator + tim per MK per kurikulum; Kaprodi aktif atau admin menetapkan, yang lain (juga GKM) melihat.
 // Status silabus, CPMK, RPS per MK supaya Kaprodi melihat MK yang belum punya koordinator atau dokumen.
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-25-8cae0a';
-import { dosenPilihan, petaStatus, statusMK, bebanDosen, usulanPadanan, luarProdi, ringkasKoordinasi, LABEL_STATUS } from './koordinator-mk.js?v=2026-11-25-8cae0a';
+import { gerbang } from './menu.js?v=2026-11-25-e9f81e';
+import { dosenPilihan, petaStatus, statusMK, bebanDosen, usulanPadanan, luarProdi, ringkasKoordinasi, LABEL_STATUS } from './koordinator-mk.js?v=2026-11-25-e9f81e';
 
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
