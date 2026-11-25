@@ -11,8 +11,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-25-f76269">
-<link rel="stylesheet" href="kepala.css?v=2026-11-25-f76269">
+<link rel="stylesheet" href="tema.css?v=2026-11-25-9d4f29">
+<link rel="stylesheet" href="kepala.css?v=2026-11-25-9d4f29">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
@@ -65,7 +65,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></div>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-25-f76269"></script>
+<script src="config.js?v=2026-11-25-9d4f29"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -89,11 +89,11 @@ addEventListener('error', function (e) {
 //   * form penilaian diubah koordinator TA/admin; tiap simpan = versi baru, jadwal yang sudah dinilai tetap memakai versinya.
 // Hitungan di layar dari penilaian-ta.js; yang berlaku saat menetapkan dihitung ulang di Supabase (ta_nilai_hitung).
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-25-f76269';
-import { punya } from './koordinator.js?v=2026-11-25-f76269';
+import { gerbang } from './menu.js?v=2026-11-25-9d4f29';
+import { punya } from './koordinator.js?v=2026-11-25-9d4f29';
 import { TAHAP_NILAI, labelTahap, PERAN_NILAI, HASIL_LABEL, TINGKAT_AWAL, angka, bulat, bobotBagian, cekNilai, totalNilai, rekapNilai,
-         cekRubrik, tingkatDari, labelTingkat, htmlBA, lembarSiup } from './penilaian-ta.js?v=2026-11-25-f76269';
-import { SHEETJS } from './nilai-cpl.js?v=2026-11-25-f76269';
+         cekRubrik, tingkatDari, labelTingkat, htmlBA, lembarSiup, lembarKomponenSiup } from './penilaian-ta.js?v=2026-11-25-9d4f29';
+import { SHEETJS } from './nilai-cpl.js?v=2026-11-25-9d4f29';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
@@ -484,16 +484,19 @@ async function muatRubrik(){
   RUBRIK = data || [];
 }
 
-// ---------- Nilai untuk SIUP (177, koordinator TA/admin) ----------
-// Berita acara yang sudah ditetapkan: unduh Excel untuk disalin ke SIUP, lalu tandai "sudah diunggah". Membuka kembali berita
-// acara menghapus tandanya (nilai bisa berubah).
-let SIUP_TAHAP = '', SIUP_BELUM = true, DOSEN_NIDN = {};
+// ---------- Nilai untuk SIUP (177, 179) ----------
+// Berita acara yang sudah ditetapkan: unduh Excel (nilai per komponen tiap pembimbing/penguji, dan nilai akhir), salin ke SIUP,
+// lalu tandai "sudah diunggah". 179: dosen pembimbing yang mengunggah (mahasiswanya sendiri); koordinator TA/admin melihat
+// semua. Membuka kembali berita acara menghapus tandanya (nilai bisa berubah).
+let SIUP_TAHAP = '', SIUP_BELUM = true, DOSEN_NIDN = {}, BOLEH_SIUP = false;
 function gambarSiup(){
   const el = $('siup'); if (!el) return;
-  const xs = JADWAL.filter(j => j.ba_ditetapkan && (!SIUP_TAHAP || j.tahap === SIUP_TAHAP) && (!SIUP_BELUM || !j.siup_diunggah))
+  const xs = JADWAL.filter(j => j.ba_ditetapkan && (KOOR || (j.pembimbing || []).includes(SAYA.nidn))
+      && (!SIUP_TAHAP || j.tahap === SIUP_TAHAP) && (!SIUP_BELUM || !j.siup_diunggah))
     .sort((a, b) => a.tanggal.localeCompare(b.tanggal));
-  el.innerHTML = `<p class="ket">Nilai dari berita acara yang sudah ditetapkan. Unduh Excel, salin nilainya ke SIUP, lalu centang dan tandai
-      <b>sudah diunggah</b>. Bila berita acara dibuka kembali, tandanya hilang dan nilainya perlu diunggah ulang.</p>
+  el.innerHTML = `<p class="ket">Nilai dari berita acara yang sudah ditetapkan${KOOR ? '' : ' untuk mahasiswa bimbingan Anda'}. Pembimbing
+      mengunduh Excel (lembar <b>Nilai per komponen</b>: nilai tiap komponen dari tiap pembimbing dan penguji), mengisikannya ke SIUP, lalu
+      centang dan tandai <b>sudah diunggah</b>. Bila berita acara dibuka kembali, tandanya hilang dan nilainya perlu diunggah ulang.</p>
     <div class="saring"><label>Tahap <select id="siupTahap"><option value="">Semua</option>${TAHAP_NILAI.map(([k, l]) =>
       `<option value="${k}"${k === SIUP_TAHAP ? ' selected' : ''}>${esc(l)}</option>`).join('')}</select></label>
       <label><input type="checkbox" id="siupBelum"${SIUP_BELUM ? ' checked' : ''}> hanya yang belum diunggah</label>
@@ -527,13 +530,18 @@ function gambarSiup(){
 async function unduhSiup(xs){
   const b = $('siupUnduh'); b.disabled = true;
   try {
-    const X = await import(SHEETJS), wb = X.utils.book_new(), baris = lembarSiup(xs, DOSEN_NIDN);
-    const ws = X.utils.aoa_to_sheet(baris);
-    ws['!cols'] = baris[0].map((_, j) => ({ wch: Math.min(50, Math.max(8, ...baris.slice(0, 200).map(r => String(r[j] ?? '').length))) }));
-    X.utils.book_append_sheet(wb, ws, 'Nilai TA');
+    const X = await import(SHEETJS), wb = X.utils.book_new();
+    const ids = xs.map(j => j.id);
+    const [nq, rq] = await Promise.all([sb.from('ta_nilai').select('*').in('jadwal_id', ids), sb.from('ta_rubrik').select('id,komponen,komponen_bimbingan')]);
+    if (nq.error || rq.error) throw new Error((nq.error || rq.error).message);
+    const lembar = (nama, baris) => { const ws = X.utils.aoa_to_sheet(baris);
+      ws['!cols'] = baris[0].map((_, j) => ({ wch: Math.min(50, Math.max(8, ...baris.slice(0, 200).map(r => String(r[j] ?? '').length))) }));
+      X.utils.book_append_sheet(wb, ws, nama); };
+    lembar('Nilai per komponen', lembarKomponenSiup(xs, nq.data || [], rq.data || []));   // 179
+    lembar('Nilai akhir', lembarSiup(xs, DOSEN_NIDN));
     const ket = X.utils.aoa_to_sheet([['Nilai TA untuk SIUP'], ['Tahap', SIUP_TAHAP ? labelTahap(SIUP_TAHAP) : 'Semua'],
       ['Isi', SIUP_BELUM ? 'Hanya yang belum ditandai diunggah ke SIUP' : 'Semua berita acara yang sudah ditetapkan'],
-      ['Diunduh', new Date().toLocaleString('id-ID')], ['Catatan', 'Nilai akhir 0–100 dari berita acara. Memuat NIM: untuk keperluan internal.']]);
+      ['Diunduh', new Date().toLocaleString('id-ID')], ['Catatan', 'Nilai per komponen 0–100 dari tiap pembimbing dan penguji (form penilaian versi saat dinilai); nilai akhir dari berita acara. Memuat NIM: untuk keperluan internal.']]);
     ket['!cols'] = [{ wch: 10 }, { wch: 80 }];
     X.utils.book_append_sheet(wb, ket, 'Keterangan');
     X.writeFile(wb, `nilai-ta-siup-${new Date(Date.now() + 7 * 3600e3).toISOString().slice(0, 10)}.xlsx`);
@@ -550,6 +558,7 @@ async function mulai(){
   INFO = { prodi: D.prodi, institusi: D.institusi };
   await muatRubrik();
   await muatDaftar();
+  BOLEH_SIUP = KOOR || JADWAL.some(j => SAYA.nidn && (j.pembimbing || []).includes(SAYA.nidn));   // 179
   $('isi').innerHTML = `
     <p class="ket">Pembimbing dan penguji mengisi nilai seminar proposal, seminar kemajuan, dan sidang akhir menurut form penilaian tahapnya.
       Nilai akhir = rata-rata berbobot nilai penguji, nilai pembimbing, dan (sidang akhir) nilai proses bimbingan; di bawah batas lulus
@@ -563,11 +572,11 @@ async function mulai(){
     <p class="ket">${KOOR ? 'Komponen, bobot, dan uraian rubrik per tahap. Tiap simpan menjadi versi baru; berita acara yang sudah ada tidak berubah.'
       : 'Komponen, bobot, dan uraian rubrik per tahap; diubah koordinator TA.'}</p>
     <div id="form"></div>
-    ${KOOR ? '<h2 id="nilai-siup">Nilai untuk SIUP</h2><div id="siup"></div>' : ''}`;
+    ${BOLEH_SIUP ? '<h2 id="nilai-siup">Nilai untuk SIUP</h2><div id="siup"></div>' : ''}`;
   $('sSaring').onchange = e => { SARING = e.target.value; gambarDaftar(); };
   gambarDaftar();
   gambarForm();
-  if (KOOR) {   // 177
+  if (BOLEH_SIUP) {   // 177, 179: koordinator TA/admin atau pembimbing
     const dq = await sb.from('dosen').select('nidn,nama');
     DOSEN_NIDN = Object.fromEntries((dq.data || []).filter(d => d.nidn).map(d => [d.nidn, d.nama]));
     gambarSiup();

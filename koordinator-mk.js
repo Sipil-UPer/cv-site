@@ -6,7 +6,7 @@
 //   * MK universitas/fakultas (unit_penyelenggara, pemilik 2026-11-24): tanpa koordinator dan tim prodi; koordinator_nidn
 //     dipakai sebagai satu PIC prodi (boleh kosong, lalu admin) yang menyalin silabus dan RPS resmi universitas/fakultas.
 //     Dosen prodi yang mengajar kelasnya dicatat di Penyusunan kelas (nilai CPL dan portofolio kelas dari sana).
-import { kelompokDosen } from './dosen-hitung.js?v=2026-11-25-f76269';
+import { kelompokDosen } from './dosen-hitung.js?v=2026-11-25-9d4f29';
 
 export const LABEL_STATUS = { draf: 'draf', diajukan: 'diajukan', dikembalikan: 'dikembalikan', disahkan: 'disahkan',
   ditetapkan: 'ditetapkan', ada: 'ada', belum: 'belum' };

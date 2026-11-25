@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-25-f76269">
+<link rel="stylesheet" href="tema.css?v=2026-11-25-9d4f29">
 <style>
   /* Pengajuan mahasiswa, publik tanpa masuk akun (pemilik 2026-11-17; patch 90). Warna dari tema.css. */
   *{box-sizing:border-box}
@@ -111,7 +111,7 @@
   <h1>Pengajuan KP, seminar/sidang TA, lomba, publikasi/luaran, kabar kegiatan, surat, dan yudisium</h1><div class="prodi" id="hProdi"></div>
 </div></div>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-25-f76269"></script>
+<script src="config.js?v=2026-11-25-9d4f29"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -127,7 +127,7 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 // Kepala dan kaki bersama situs umum (pemilik 2026-11-19, tahap 2).
-import { pasangKerangka } from './kerangka.js?v=2026-11-25-f76269';
+import { pasangKerangka } from './kerangka.js?v=2026-11-25-9d4f29';
 pasangKerangka({ aktif: 'mahasiswa', muat: true });
 // Mahasiswa tidak login (pemilik 2026-11-17). Tanpa token: formulir baru dan minta tautan lagi; Apps Script
 // membuat pengajuan dan mengirim tautan pribadi ke <NIM>@<domain kampus>. Dengan #t=<token> (dari email):
@@ -137,7 +137,7 @@ pasangKerangka({ aktif: 'mahasiswa', muat: true });
 // tidak ada permintaan ke Supabase atau Google. Tanpa ?latihan: Supabase sungguhan seperti biasa.
 const LATIHAN = new URLSearchParams(location.search).has('latihan');
 if (LATIHAN) { window.LATIHAN = true; window.UPLOAD_URL = 'https://script.google.com/macros/s/latihan/exec'; }
-const { createClient } = LATIHAN ? await import('./latihan/mock-sb.js?v=2026-11-25-f76269')
+const { createClient } = LATIHAN ? await import('./latihan/mock-sb.js?v=2026-11-25-9d4f29')
   : await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm');
 if (LATIHAN) pasangLatihan();
 // Pita MODE LATIHAN, mulai ulang, dan tautan ke pengajuan.html tetap membawa ?latihan=1.
@@ -164,10 +164,10 @@ function pasangLatihan(){
 import { JENIS, LABEL_BERKAS, LABEL_STATUS, TINGKAT, BIDANG, jalur, bolehUbah, bacaAnggota, teksAnggota,
          periksaIsian, judulPengajuan, keB64, bukaIsi, appsScript, labelStatus, jalurTahap, BERKAS_SELESAI, PROGRAM_KP, labelProgram,
          periksaSelesai, bolehBatalMhs, JENIS_SURAT, TAHAP_TA, TAHAP_TA_AJU, TAHAP_PEMBIMBING_TA, penetapanTA, pembimbingCocok, JENIS_PUB, TINGKAT_PUB, INDEKSASI, JENIS_LUARAN,
-         BERKAS_YUDISIUM_BAWAAN, kelengkapanYudisium, labelBerkas, JENIS_KEGIATAN, BERKAS_TA_BAWAAN, berkasTahapTA, TAHAP_TA_BERKAS } from './pengajuan-mhs.js?v=2026-11-25-f76269';
-import { saranInstansi } from './rekap-kp.js?v=2026-11-25-f76269';
-import { CONTOH_PENGAJUAN, contohPengajuan } from './pengajuan-contoh.js?v=2026-11-25-f76269';
-import { HARI_OTOMATIS, CARA_BIMBINGAN, labelCara, statusBimbingan, periksaBimbingan, teksSyarat } from './bimbingan-ta.js?v=2026-11-25-f76269';
+         BERKAS_YUDISIUM_BAWAAN, kelengkapanYudisium, labelBerkas, JENIS_KEGIATAN, BERKAS_TA_BAWAAN, berkasTahapTA, TAHAP_TA_BERKAS } from './pengajuan-mhs.js?v=2026-11-25-9d4f29';
+import { saranInstansi } from './rekap-kp.js?v=2026-11-25-9d4f29';
+import { CONTOH_PENGAJUAN, contohPengajuan } from './pengajuan-contoh.js?v=2026-11-25-9d4f29';
+import { HARI_OTOMATIS, CARA_BIMBINGAN, labelCara, statusBimbingan, periksaBimbingan, teksSyarat } from './bimbingan-ta.js?v=2026-11-25-9d4f29';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
@@ -568,7 +568,8 @@ function htmlBimbingan(){
   const kelas = { dikonfirmasi: 'ada', otomatis: 'ada', dikembalikan: 'kurang', menunggu: '' };
   return `<h2 id="bimbingan">Catatan bimbingan</h2>
     <p class="ket">Catat setiap bimbingan TA di sini; pembimbing mengonfirmasinya. Catatan yang ${b.hari_otomatis || HARI_OTOMATIS} hari tidak ditanggapi
-      terkonfirmasi otomatis. Bimbingan lama (sebelum situs dipakai) boleh dicatat juga.</p>
+      terkonfirmasi otomatis. Bimbingan lama (sebelum situs dipakai) boleh dicatat juga. Tiap catatan boleh diberi satu lampiran (mis. draf bab;
+      PDF/JPG/PNG) selama belum terkonfirmasi; lampiran dihapus otomatis 30 hari setelah Anda lulus, catatannya tetap.</p>
     <ul class="ket" style="margin:4px 0 8px 18px">${(b.syarat || []).map(s => `<li>${esc(teksSyarat(s))}</li>`).join('')}</ul>
     ${pb.length ? `<details class="kotak"${UBAH_BIMB ? ' open' : ''}><summary><b>${UBAH_BIMB ? 'Ubah catatan bimbingan' : 'Catat bimbingan'}</b></summary>
       <form id="frmBimb" novalidate><div class="dua">
@@ -588,7 +589,10 @@ function htmlBimbingan(){
         <b>${esc(tglPendek(c.tanggal))}</b> · ${esc(labelCara(c.cara))}${c.pembimbing ? ' · ' + esc(c.pembimbing) : ''}
         <div>${esc(c.topik)}</div>${c.arahan ? `<div class="meta">Arahan: ${esc(c.arahan)}</div>` : ''}
         <div class="meta">${esc(s.label)}${s.otomatisPada ? ` (otomatis terkonfirmasi ${esc(tglPendek(s.otomatisPada))} bila tidak ditanggapi)` : ''}${
-          c.catatan_pembimbing ? ` · Catatan pembimbing: ${esc(c.catatan_pembimbing)}` : ''}
+          c.catatan_pembimbing ? ` · Catatan pembimbing: ${esc(c.catatan_pembimbing)}` : ''}</div>
+        <div class="meta">${c.ada_lampiran ? `Lampiran: ${esc(c.lampiran_nama || 'berkas')} <button class="b kecil" data-lampiran-buka="${c.id}">Buka</button>`
+          : c.lampiran_dihapus ? 'Lampiran dihapus otomatis (30 hari setelah lulus).' : ''}${bisa ? ` <label class="b kecil" style="cursor:pointer">${c.ada_lampiran ? 'Ganti lampiran' : 'Lampirkan berkas'}
+          <input type="file" accept=".pdf,.jpg,.jpeg,.png" data-lampiran-unggah="${c.id}" hidden></label>` : ''}
           ${bisa ? `<button class="b kecil" data-ubah-bimb="${c.id}">Ubah</button><button class="b kecil" data-hapus-bimb="${c.id}" aria-label="Hapus catatan">×</button>` : ''}</div></div></li>`; }).join('')
       || '<li><span class="kosong">Belum ada catatan bimbingan.</span></li>'}</ul>`;
 }
@@ -611,6 +615,18 @@ function pasangBimbingan(){
   };
   if ($('b_bimb_batal')) $('b_bimb_batal').onclick = () => { UBAH_BIMB = null; halamanSaya(); $('bimbingan').scrollIntoView({ block: 'start' }); };
   document.querySelectorAll('[data-ubah-bimb]').forEach(b => { b.onclick = () => { UBAH_BIMB = +b.dataset.ubahBimb; halamanSaya(); $('bimbingan').scrollIntoView({ block: 'start' }); }; });
+  // 179: lampiran (PDF/JPG/PNG) per catatan yang belum terkonfirmasi; dihapus otomatis 30 hari setelah lulus.
+  document.querySelectorAll('[data-lampiran-unggah]').forEach(x => { x.onchange = async () => {
+    const f = x.files[0]; if (!f) return;
+    tulis('m_bimb', '', `Mengunggah ${f.name}…`);
+    try { await appsScript({ kind: 'mhs_bimbingan_unggah', t: TOKEN, id: +x.dataset.lampiranUnggah, filename: f.name, data: await keB64(f) });
+      await segarkan('Lampiran terunggah.'); }
+    catch (e) { tulis('m_bimb', 'buruk', e.message); }
+  }; });
+  document.querySelectorAll('[data-lampiran-buka]').forEach(b => { b.onclick = async () => {
+    try { bukaIsi(await appsScript({ kind: 'mhs_bimbingan_buka', t: TOKEN, id: +b.dataset.lampiranBuka })); }
+    catch (e) { tulis('m_bimb', 'buruk', e.message); }
+  }; });
   document.querySelectorAll('[data-hapus-bimb]').forEach(b => { b.onclick = async () => {
     if (!confirm('Hapus catatan bimbingan ini?')) return;
     const { error } = await sb.rpc('mhs_bimbingan_hapus', { p_token: TOKEN, p_id: +b.dataset.hapusBimb });

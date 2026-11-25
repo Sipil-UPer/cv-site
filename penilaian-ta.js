@@ -9,7 +9,7 @@
 //   nilai akhir    = Σ(rata-rata bagian × bobot) / Σ bobot bagian yang sudah ada nilainya;
 //   nilai akhir < batas lulus -> mengulang (otomatis), selain itu lulus / lulus dengan revisi (dipilih koordinator).
 
-import { statusBimbingan, labelCara } from './bimbingan-ta.js?v=2026-11-25-f76269';
+import { statusBimbingan, labelCara } from './bimbingan-ta.js?v=2026-11-25-9d4f29';
 
 export const TAHAP_NILAI = [['seminar_proposal', 'Seminar proposal'], ['seminar_kemajuan', 'Seminar kemajuan'], ['sidang_akhir', 'Sidang akhir']];
 export const labelTahap = t => (TAHAP_NILAI.find(x => x[0] === t) || [, t || ''])[1];
@@ -500,4 +500,30 @@ ${baris('Pembimbing', esc(a.pembimbing || '–'))}${baris('Lulus sidang akhir', 
   Berita acara bertanda tangan basah disimpan terpisah (pindaian di Data prodi › Jadwal seminar/sidang TA). Nilai resmi ada di SIUP.</p>
 ${ba.map(h => `<div class="halaman">${badan(h)}</div>`).join('\n')}
 </body></html>`;
+}
+
+/**
+ * Lembar Excel nilai per komponen untuk SIUP (179, pemilik 2026-11-25: "nilai per komponen yang diinput dosen pembimbing
+ * dan penguji; dosen pembimbing yang upload"): satu baris per penilai per komponen, lalu baris total penilai itu.
+ * rows = jadwal_ta yang berita acaranya ditetapkan; nilai = ta_nilai [{jadwal_id, rubrik_id, bagian, peran, penilai_nama,
+ * nilai, total}]; rubrik = ta_rubrik [{id, komponen, komponen_bimbingan}].
+ */
+export function lembarKomponenSiup(rows, nilai = [], rubrik = []){
+  const out = [['No', 'NIM', 'Nama', 'Tahap', 'Tanggal', 'Penilai', 'Peran', 'Bagian', 'Komponen', 'Bobot (%)', 'Nilai']];
+  const urutPeran = { pembimbing: 0, penguji: 1 }, urutBagian = { seminar: 0, bimbingan: 1 };
+  let no = 0;
+  for (const j of [...rows].filter(r => r.ba_ditetapkan)
+    .sort((a, b) => String(a.tanggal).localeCompare(String(b.tanggal)) || String(a.nim).localeCompare(String(b.nim)))) {
+    const xs = nilai.filter(n => n.jadwal_id === j.id).sort((a, b) => (urutBagian[a.bagian || 'seminar'] - urutBagian[b.bagian || 'seminar'])
+      || (urutPeran[a.peran] - urutPeran[b.peran]) || String(a.penilai_nama).localeCompare(String(b.penilai_nama)));
+    for (const n of xs) {
+      const r = rubrik.find(x => x.id === n.rubrik_id) || {}, bimb = n.bagian === 'bimbingan';
+      const awal = [j.nim || '', j.nama_mahasiswa || '', labelTahap(j.tahap), String(j.tanggal || '').slice(0, 10), n.penilai_nama,
+        PERAN_NILAI[n.peran] || n.peran, bimb ? 'Proses bimbingan' : labelTahap(j.tahap)];
+      for (const k of (bimb ? r.komponen_bimbingan : r.komponen) || [])
+        out.push([++no, ...awal, k.label, +k.bobot, n.nilai?.[k.kode] == null ? '' : +n.nilai[k.kode]]);
+      out.push([++no, ...awal, 'Total (rata-rata berbobot)', 100, n.total == null ? '' : +n.total]);
+    }
+  }
+  return out;
 }

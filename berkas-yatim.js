@@ -15,7 +15,7 @@
    Pemakaian: pasangYatim(sb, elemenWadah)
    ===================================================================== */
 
-import { buangBerkas, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-25-f76269';
+import { buangBerkas, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-25-9d4f29';
 
 // Tabel yang bisa memuat tautan Drive. Tambahkan tabel baru yang
 // menyimpan tautan bukti di sini, kalau tidak berkasnya tampak tak terpakai.
@@ -41,7 +41,9 @@ export const TABEL_RUJUKAN = ['karya', 'karya_bukti', 'butir_bukti', 'dokumen', 
   // RPS bertanda tangan Dekan, bukti akreditasi (113-patch-rps-bukti-ttd.sql, 2026-11-19; termasuk versi lama).
   'mk_rps_ttd',
   // Arsip TA per mahasiswa lulus (178-patch-arsip-ta.sql, 2026-11-25; PDF di folder privat arsip-ta).
-  'ta_arsip'];
+  'ta_arsip',
+  // Lampiran catatan bimbingan TA (179-patch-lampiran-bimbingan-siup-ta.sql, 2026-11-25).
+  'ta_bimbingan'];
 // Kolom urut tiap tabel (sama dengan supabase.tables di config.yaml); bawaan 'id'.
 const URUT = { pengaturan: ['kunci'], spmi_capaian: ['standar_id', 'tahun_ts'], ta_arsip: ['nim'] };
 const BARU_MS = 24 * 3600 * 1000;

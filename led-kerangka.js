@@ -17,8 +17,19 @@
    Judul templat dipetakan ke elemen lewat BUTIR_MANUAL[i].led (kode judul di
    templat), atau kode elemen bila `led` tidak ada. Satu judul boleh memuat
    beberapa elemen (LAMDEPILAR: judul A.1 = elemen A.1 dan A.2).
-   Sampul, bab 1-2, dan bab 4-5 templat tidak diubah.
+
+   Di luar judul elemen (isiDepan, pemilik 2026-11-25 "lengkapi LAMDEPILAR"):
+     - sampul: logo prodi, program studi, UPPS dan kota (Narasi LED › Identitas),
+       perguruan tinggi, bulan dan tahun; judul dan periode akreditasi [isi];
+     - surat pengantar: tabel usulan = prodi ini (status terakreditasi), isi surat [isi];
+     - bab 1, 2, 4, 5: kalimat petunjuk templat dipertahankan (abu-abu), teks pengisi
+       (Lorem ipsum / Duis aute) diganti [isi] dan fakta dari situs: TS dan instrumen
+       (1.1), tim penyusun (1.2, Narasi LED › Tim), CPL kurikulum terbaru (4.1, sama
+       dengan LKPS E.4.1), rujukan matriks ke LKPS Tabel E.4.2.
    ===================================================================== */
+import { nilaiIdentitas, KOTA_PT, ISIAN_IDENTITAS } from './led-narasi.js?v=2026-11-25-9d4f29';
+import { anggotaTim } from './led-isi.js?v=2026-11-25-9d4f29';
+import { cplTerbaru } from './lkps-lamdepilar.js?v=2026-11-25-9d4f29';
 
 const JSZIP = 'https://cdn.jsdelivr.net/npm/jszip@3.10.1/+esm';
 const REL_LINK = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink';
@@ -142,7 +153,121 @@ export function isiKerangka(xml, rels, C){
   let out = xml;
   for (const [a, z, s] of ganti.sort((x, y) => y[0] - x[0])) out = out.slice(0, a) + s + out.slice(z);
   const gagal = [...elemen.keys()].filter(k => !terisi.includes(k));
-  return { xml: out, rels: rels.replace('</Relationships>', relBaru.join('') + '</Relationships>'), terisi, gagal, tanpaPengisi };
+  const depan = isiDepan(out, C, rel);
+  return { xml: depan.xml, rels: rels.replace('</Relationships>', relBaru.join('') + '</Relationships>'), terisi, gagal, tanpaPengisi,
+    logo: depan.logo, sisaPengisi: depan.sisaPengisi };
+}
+
+// ---------------------------------------------------------------------
+//  Sampul, surat pengantar, dan bab di luar kriteria (isiDepan)
+// ---------------------------------------------------------------------
+const PENGISI = /Lorem ipsum|Duis aute irure/;
+const BULAN = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+export const LOGO = 'logo-uper.png';                 // make_package: logo.png milik prodi
+export const RID_LOGO = 'rIdLdpLogo';
+const LOGO_LEBAR_EMU = 1800000;                      // 5 cm, sama dengan led.js
+
+// Teks paragraf diganti, gaya run pertama tetap (sampul: gaya Title).
+function gantiTeks(p, teks){
+  let n = 0;
+  return p.replace(/<w:t(?: [^>]*)?>[^<]*<\/w:t>/g, () => n++ ? '<w:t></w:t>' : `<w:t xml:space="preserve">${xe(teks)}</w:t>`);
+}
+
+function paraLogo(cx, cy){
+  return `<w:p><w:pPr><w:spacing w:before="0" w:after="240"/><w:jc w:val="center"/></w:pPr>`
+    + `<w:r><w:drawing><wp:inline distT="0" distB="0" distL="0" distR="0">`
+    + `<wp:extent cx="${cx}" cy="${cy}"/><wp:docPr id="9101" name="Logo perguruan tinggi"/>`
+    + `<wp:cNvGraphicFramePr><a:graphicFrameLocks xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" noChangeAspect="1"/></wp:cNvGraphicFramePr>`
+    + `<a:graphic xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main">`
+    + `<a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture">`
+    + `<pic:pic xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture">`
+    + `<pic:nvPicPr><pic:cNvPr id="0" name="logo.png"/><pic:cNvPicPr/></pic:nvPicPr>`
+    + `<pic:blipFill><a:blip r:embed="${RID_LOGO}"/><a:stretch><a:fillRect/></a:stretch></pic:blipFill>`
+    + `<pic:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="${cx}" cy="${cy}"/></a:xfrm>`
+    + `<a:prstGeom prst="rect"><a:avLst/></a:prstGeom></pic:spPr></pic:pic>`
+    + `</a:graphicData></a:graphic></wp:inline></w:drawing></w:r></w:p>`;
+}
+
+// Tabel usulan di surat pengantar: baris judul tetap, baris contoh pertama menjadi prodi ini, contoh lain dihapus.
+function isiTabelUsulan(tbl, nilai){
+  const baris = [...tbl.matchAll(/<w:tr[ >][\s\S]*?<\/w:tr>/g)];
+  if (baris.length < 2) return tbl;
+  let n = 0;
+  const isiBaris = baris[1][0].replace(/<w:tc>[\s\S]*?<\/w:tc>/g, tc => gantiTeks(tc, nilai[n++] ?? ''));
+  const a = baris[1].index, z = baris[baris.length - 1].index + baris[baris.length - 1][0].length;
+  return tbl.slice(0, a) + isiBaris + tbl.slice(z);
+}
+
+export const daftarKata = xs => xs.length < 3 ? xs.join(' dan ') : `${xs.slice(0, -1).join(', ')}, dan ${xs[xs.length - 1]}`;
+
+// Isi pengganti teks pengisi menurut judul terdekat di atasnya (bab 1, 2, 4, 5).
+function isiBab(judul, C, rel){
+  const X = C.daftar || {}, P = (bagian, o) => paragraf(bagian, rel, o);
+  const ta = C.taDari ? C.taDari(C.ts) : C.ts, ta2 = C.taDari ? C.taDari(C.ts - 2) : C.ts - 2;
+  if (/Dasar Penyusunan/i.test(judul)) return [
+    P([{ t: `Laporan Evaluasi Diri ini disusun untuk akreditasi ${C.instrumen || 'IAPS DEPILAR 1.0'} dengan data TS ${ta} `
+      + `(jendela tiga tahun TS-2 s.d. TS: ${ta2} s.d. ${ta}). ` }, ISI('dasar penyusunan, tujuan, dan ruang lingkup LED')])];
+  if (/Tim Penyusun/i.test(judul)) {
+    const tim = anggotaTim(X.tim, X.dosen).map(d => d.jabatan ? `${d.nama} (${d.jabatan})` : d.nama);
+    return [P([{ t: 'Tim penyusun ditetapkan dengan ' }, ISI('nomor dan tanggal SK tim; SK dilampirkan'), { t: '. ' }]),
+      P(tim.length ? [{ t: `Anggota tim penyusun: ${daftarKata(tim)}.` }]
+        : [{ t: 'Anggota tim penyusun: ' }, ISI('nama anggota tim (Narasi LED, bagian Tim penyusun)')])];
+  }
+  if (/^Capaian Pembelajaran Lulusan$/i.test(judul.trim())) {
+    const { kurikulum, cpl } = cplTerbaru(X);
+    if (!cpl.length) return [P([ISI('rumusan CPL program studi (Data prodi, tab CPL)')])];
+    return [P([{ t: `Capaian pembelajaran lulusan kurikulum ${kurikulum}:` }], { setelah: 40 }),
+      ...cpl.map(c => P([{ t: `${c.kode}: `, b: true }, { t: c.rumusan || '' }], { inden: 360, setelah: 40 })),
+      P([ISI('kaitan CPL dengan standar kinerja bidang keilmuan acuan')])];
+  }
+  if (/Matrik/i.test(judul)) return [P([{ t: 'Matriks mata kuliah terhadap CPL kurikulum terbaru tersedia di LKPS Tabel E.4.2. ' },
+    ISI(`tabel ${judul.trim().toLowerCase()} sesuai pedoman Buku 6`)])];
+  return [P([ISI(`uraian ${judul.trim().toLowerCase() || 'bagian ini'}`)])];
+}
+
+/* Sampul, surat pengantar, dan teks pengisi di luar judul elemen. Murni (string), diuji di Node.
+   C.D {prodi, institusi}, C.jenjang (LKPS.jenjang), C.narasi, C.daftar {tim, dosen, cpl, mk}, C.ts, C.taDari,
+   C.instrumen (nama instrumen), C.logo {cx, cy} bila logo tersedia, C.kini (Date, untuk uji). */
+export function isiDepan(xml, C, rel){
+  const ps = paragrafAtas(xml), ganti = [];
+  const prodi = (C.D && C.D.prodi) || '', pt = (C.D && C.D.institusi) || '';
+  const upps = nilaiIdentitas(C.narasi, ISIAN_IDENTITAS[0]), kota = nilaiIdentitas(C.narasi, KOTA_PT);
+  const kini = C.kini || new Date(), jenjang = C.jenjang || 'Magister';
+  let bagian = 'sampul', judul = '', logo = false, suratKe = 0;
+  ps.forEach(p => {
+    const tx = teksXML(p.xml).trim(), g = gaya(p.xml), t = judulTingkat(p.xml);
+    if (bagian === 'surat' && g === 'Title' && tx === 'Daftar Isi') bagian = 'isi';
+    if (t) judul = tx;
+    const ke = s => ganti.push([p.awal, p.akhir, s]);
+    if (bagian === 'sampul') {
+      if (/Logo Perguruan Tinggi/.test(tx) && C.logo) { ke(paraLogo(LOGO_LEBAR_EMU, Math.round(LOGO_LEBAR_EMU * C.logo.cy / C.logo.cx))); logo = true; }
+      else if (tx === 'Template Laporan Evaluasi Diri') ke(gantiTeks(p.xml, 'Laporan Evaluasi Diri'));
+      else if (tx === 'Judul Laporan Evaluasi Diri') ke(gantiTeks(p.xml, '[isi: judul Laporan Evaluasi Diri]'));
+      else if (tx === 'Program Studi' && prodi) ke(gantiTeks(p.xml, `Program Studi ${jenjang} ${prodi}`));
+      else if (tx === 'UPPS') ke(gantiTeks(p.xml, upps || '[isi: nama UPPS (Narasi LED › Identitas)]'));
+      else if (tx === 'Perguruan Tinggi' && pt) ke(gantiTeks(p.xml, pt));
+      else if (tx === 'Tempat, Bulan, Tahun') ke(gantiTeks(p.xml, `${kota || '[isi: kota]'}, ${BULAN[kini.getMonth()]} ${kini.getFullYear()}`));
+      else if (/^Periode Akreditasi/.test(tx)) ke(gantiTeks(p.xml, 'Periode Akreditasi [isi: Maret/Juni/September dan tahun]'));
+      if (/<w:sectPr/.test(p.xml)) bagian = 'surat';
+      return;
+    }
+    if (bagian === 'surat') {
+      if (p.xml.startsWith('<w:tbl') && /Program Studi/.test(tx) && /Usulan/.test(tx) && prodi)
+        ke(isiTabelUsulan(p.xml, [prodi, jenjang, 'Status Terakreditasi']));
+      // Pengisi pertama = pembuka surat (sebelum tabel usulan), berikutnya = penutup.
+      else if (PENGISI.test(tx)) ke(paragraf([ISI(suratKe++ ? 'penutup surat pengantar dan pernyataan kebenaran data'
+        : 'pembuka surat pengantar pimpinan perguruan tinggi: permohonan akreditasi program studi')], rel));
+      else if (tx === 'Tempat, Tanggal') ke(gantiTeks(p.xml, `${kota || '[isi: kota]'}, [isi: tanggal surat]`));
+      return;
+    }
+    if (t || !PENGISI.test(tx)) return;
+    const awal = tx.slice(0, tx.search(PENGISI)).trim();
+    ke((awal ? paragraf([{ t: `Petunjuk templat: ${awal}`, i: true, warna: '7F7F7F' }], rel) : '') + isiBab(judul, C, rel).join(''));
+  });
+  let out = xml;
+  for (const [a, z, s] of ganti.sort((x, y) => y[0] - x[0])) out = out.slice(0, a) + s + out.slice(z);
+  const sisaPengisi = paragrafAtas(out).filter(p => PENGISI.test(teksXML(p.xml))).length;
+  return { xml: out, logo, sisaPengisi };
 }
 
 /* Unduh draf LED. C dari skor.html unduhLED(): templat, butirManual, unsurButir,
@@ -154,9 +279,21 @@ export async function buatLED(C, opsi = {}){
   const zip = await JSZip.loadAsync(await res.arrayBuffer());
   const xml = await zip.file('word/document.xml').async('string');
   const rels = await zip.file('word/_rels/document.xml.rels').async('string');
-  const h = isiKerangka(xml, rels, C);
+  // Logo prodi di sampul (ukuran dari header PNG); tanpa logo kotak templat tetap.
+  let logoBuf = null;
+  try { const r = await fetch(LOGO); if (r.ok) logoBuf = await r.arrayBuffer(); } catch { /* tanpa logo */ }
+  const dv = logoBuf && logoBuf.byteLength > 24 ? new DataView(logoBuf) : null;
+  const h = isiKerangka(xml, rels, { ...C, logo: dv ? { cx: dv.getUint32(16), cy: dv.getUint32(20) } : null });
+  let relsBaru = h.rels;
+  if (h.logo) {
+    zip.file('word/media/logo_ldp.png', logoBuf);
+    relsBaru = relsBaru.replace('</Relationships>', `<Relationship Id="${RID_LOGO}" `
+      + 'Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/logo_ldp.png"/></Relationships>');
+    const ct = await zip.file('[Content_Types].xml').async('string');
+    if (!/Extension="png"/i.test(ct)) zip.file('[Content_Types].xml', ct.replace('<Default ', '<Default Extension="png" ContentType="image/png"/><Default '));
+  }
   zip.file('word/document.xml', h.xml);
-  zip.file('word/_rels/document.xml.rels', h.rels);
+  zip.file('word/_rels/document.xml.rels', relsBaru);
   const blob = await zip.generateAsync({ type: 'blob', compression: 'DEFLATE',
     mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
   const tgl = new Date().toISOString().slice(0, 10).replace(/-/g, '');

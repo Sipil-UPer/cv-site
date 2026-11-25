@@ -20,11 +20,11 @@
    diputuskan (pemilik 2026-11-24).
    Kolom yang tidak disimpan situs dibiarkan kosong (tanpa tebakan).
    ===================================================================== */
-import { JSZIP, tulisSel, petaLembar, hitungUlangSaatBuka } from './lkps.js?v=2026-11-25-f76269';
-import { daftarProdi, STATUS_PS, tglTeks } from './pustaka-dokumen.js?v=2026-11-25-f76269';
-import { nidnNuptk, masaBerlaku } from './profil-dosen.js?v=2026-11-25-f76269';
-import { ampuPerTA, dosenTS } from './dosen-hitung.js?v=2026-11-25-f76269';
-import { POS_A5 } from './keuangan-a5.js?v=2026-11-25-f76269';
+import { JSZIP, tulisSel, petaLembar, hitungUlangSaatBuka } from './lkps.js?v=2026-11-25-9d4f29';
+import { daftarProdi, STATUS_PS, tglTeks } from './pustaka-dokumen.js?v=2026-11-25-9d4f29';
+import { nidnNuptk, masaBerlaku } from './profil-dosen.js?v=2026-11-25-9d4f29';
+import { ampuPerTA, dosenTS } from './dosen-hitung.js?v=2026-11-25-9d4f29';
+import { POS_A5 } from './keuangan-a5.js?v=2026-11-25-9d4f29';
 
 const JABATAN = { tenaga_pengajar: 'Tenaga Pengajar', asisten_ahli: 'Asisten Ahli', lektor: 'Lektor',
   lektor_kepala: 'Lektor Kepala', guru_besar: 'Profesor' };
@@ -425,10 +425,7 @@ export function petaLKPSLamdepilar(C){
   //   - bobot per KOLOM CPL: bobot MK itu / jumlah bobot semua MK pendukung CPL itu (kosong = 1), kolom berjumlah 1;
   //   - CPL > 5: kolom ditambah setelah O (sisipKolom), Keterangan dan tabel E.4.3 bergeser ke kanan.
   // E.4.1: satu CPL per dua baris tergabung (B8:B9, ...); kolom E (rujukan kesetaraan) tidak disimpan situs.
-  const kurs = [...new Set(mk.map(m => m.kurikulum).filter(Boolean))].sort();
-  const kur = kurs[kurs.length - 1];
-  const cpl = (X.cpl || []).filter(c => c.kurikulum === kur)
-    .sort((a, b) => ((a.urutan ?? 100) - (b.urutan ?? 100)) || String(a.kode).localeCompare(String(b.kode), undefined, { numeric: true }));
+  const { kurikulum: kur, cpl } = cplTerbaru(X);
   const nKol = Math.max(5, cpl.length), geser = nKol - 5;
   const K = 11;                                              // kolom K = CPL pertama
   const kol = j => hurufKolom(K + j);
@@ -540,6 +537,15 @@ export function petaLKPSLamdepilar(C){
 /* calcChain templat dibuang (2026-11-25): sisipan baris menggeser rumus dan rumus baris contoh P.1.2 dihapus,
    sehingga daftar urutan hitung templat tidak lagi cocok dan Excel bisa menawarkan "perbaikan". Bagian ini
    opsional; Excel menyusunnya lagi saat menghitung ulang (fullCalcOnLoad). */
+// CPL kurikulum terbaru di antara MK aktif (pemilik 2026-11-24), dipakai LKPS E.4 dan draf LED (4.1).
+export function cplTerbaru(X){
+  const kurs = [...new Set((X.mk || []).filter(m => m.aktif !== false).map(m => m.kurikulum).filter(Boolean))].sort();
+  const kurikulum = kurs[kurs.length - 1];
+  const cpl = (X.cpl || []).filter(c => c.kurikulum === kurikulum)
+    .sort((a, b) => ((a.urutan ?? 100) - (b.urutan ?? 100)) || String(a.kode).localeCompare(String(b.kode), undefined, { numeric: true }));
+  return { kurikulum, cpl };
+}
+
 export function tanpaCalcChain(rels, types){
   return { rels: rels.replace(/<Relationship\b[^>]*\/calcChain"[^>]*\/>/g, ''),
            types: types.replace(/<Override\b[^>]*PartName="\/xl\/calcChain\.xml"[^>]*\/>/g, '') };
