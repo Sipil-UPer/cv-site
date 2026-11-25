@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="robots" content="noindex, nofollow">
+<title>Penilaian seminar dan sidang TA — Ruang kerja</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tema.css?v=2026-11-25-782f9d">
+<link rel="stylesheet" href="kepala.css?v=2026-11-25-782f9d">
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
+  .wrap{max-width:1120px;margin:0 auto;padding:18px 20px 80px}
+  .kosong, .ket{color:var(--muted)} .ket{font-size:13px}
+  h2{font-family:var(--serif);font-size:19px;font-weight:600;margin:24px 0 8px}
+  h3{font-size:15.5px;margin:16px 0 6px}
+  .msg{font-size:13px;margin-left:6px} .msg.ok{color:var(--hijau)} .msg.err{color:var(--merah)}
+  .tag{display:inline-block;font-size:12px;padding:1px 8px;border:1px solid var(--line);background:var(--bg);white-space:nowrap}
+  .tag.ok{border-color:var(--hijau);color:var(--hijau)} .tag.perlu{border-color:var(--merah);color:var(--merah)}
+  .saring{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;margin:4px 0 10px;font-size:13.5px}
+  select, input, textarea{font:inherit;font-size:14px;padding:5px 7px;border:1px solid var(--line);background:var(--panel);color:var(--ink)}
+  textarea{width:100%;min-height:56px}
+  table{width:100%;border-collapse:collapse;background:var(--panel);border:1px solid var(--line);font-size:14px}
+  th{text-align:left;font-size:12px;color:var(--muted);font-weight:500;border-bottom:1px solid var(--line);padding:7px 10px;background:var(--bg)}
+  td{border-bottom:1px solid var(--line-soft);padding:7px 10px;vertical-align:top}
+  td.n, th.n{text-align:right;font-family:var(--mono);white-space:nowrap}
+  tr.pilih td{background:var(--biru-m3, var(--bg))}
+  button.b{font:inherit;font-size:13.5px;padding:6px 12px;border:1px solid var(--biru);background:var(--biru);color:#fff;cursor:pointer}
+  button.b.dua{background:var(--panel);color:var(--biru)} button.b.bahaya{border-color:var(--merah);background:var(--panel);color:var(--merah)}
+  button.b.kecil{font-size:12.5px;padding:3px 8px}
+  button.b:disabled{opacity:.5;cursor:default}
+  .kotak{background:var(--panel);border:1px solid var(--line);padding:12px 16px;margin:10px 0}
+  .kotak.kunci{border-color:var(--hijau)}
+  .baris-tombol{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:10px 0 4px}
+  .komp{border-top:1px solid var(--line-soft);padding:8px 0;display:grid;grid-template-columns:1fr 120px;gap:4px 14px;align-items:start}
+  .komp input[type=number]{width:110px;text-align:right;font-family:var(--mono)}
+  .komp details{grid-column:1 / -1;font-size:13px} .komp summary{cursor:pointer;color:var(--muted)}
+  .tingkat{list-style:none;margin:4px 0 0;padding:0} .tingkat li{padding:2px 6px;border-left:3px solid transparent}
+  .tingkat li.kini{border-left-color:var(--biru);background:var(--bg)}
+  .tingkat b{display:inline-block;min-width:64px;font-family:var(--mono);font-weight:500}
+  .total{font-family:var(--mono);font-size:18px}
+  .ringkas{display:flex;flex-wrap:wrap;gap:10px;margin:8px 0}
+  .ringkas div{background:var(--bg);border:1px solid var(--line);padding:6px 12px}
+  .ringkas b{font-family:var(--mono);font-size:18px;display:block} .ringkas span{font-size:12.5px;color:var(--muted)}
+  .ubah-komp{border:1px solid var(--line);background:var(--panel);padding:10px 12px;margin:8px 0}
+  .ubah-komp .atas{display:grid;grid-template-columns:1fr 110px auto;gap:8px;align-items:end}
+  .ubah-komp label{font-size:12.5px;color:var(--muted);display:block}
+  .ubah-komp input{width:100%}
+  .ubah-komp .ur{display:grid;grid-template-columns:repeat(2,1fr);gap:6px 10px;margin-top:6px}
+  .angka-atur{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:end}
+  .angka-atur label{font-size:12.5px;color:var(--muted)} .angka-atur input{width:90px;display:block;font-family:var(--mono)}
+  @media(max-width:760px){.lebar-tabel{overflow-x:auto} .komp{grid-template-columns:1fr} .ubah-komp .atas,.ubah-komp .ur{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="hero" role="region" aria-label="Pembuka halaman"><div class="hero-in">
+  <div class="hero-inst" data-identitas></div>
+  <h1>Penilaian seminar dan sidang TA</h1>
+  <div class="sub" id="hSub">Memuat…</div>
+</div></div>
+<main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
+<script src="config.js?v=2026-11-25-782f9d"></script>
+<script>
+// Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
+addEventListener('error', function (e) {
+  if (document.getElementById('galat-muat')) return;
+  var d = document.createElement('div');
+  d.id = 'galat-muat';
+  d.style.cssText = 'margin:16px;padding:12px 14px;border:1px solid var(--merah);' +
+    'background:var(--merah-m3);color:var(--ink);font:14px/1.5 system-ui,sans-serif';
+  d.textContent = 'Halaman gagal dimuat: ' + (e.message || 'galat skrip') +
+    '. Tekan Ctrl+Shift+R untuk memuat ulang tanpa cache; bila tetap muncul, kirim pesan ini ke admin.';
+  document.body.insertBefore(d, document.body.firstChild);
+});
+</script>
+<script type="module">
+// Penilaian seminar proposal, seminar kemajuan, dan sidang akhir (173-patch-penilaian-ta.sql, pemilik 2026-11-25).
+//   * pembimbing dan penguji mengisi nilainya sendiri menurut form penilaian tahap itu (komponen, bobot, rubrik 4 tingkat);
+//   * koordinator TA/admin boleh mengisikan atas nama penilai lain (penguji luar, penilaian di kertas);
+//   * nilai akhir = rata penguji × bobot penguji + rata pembimbing × sisanya; di bawah batas lulus = mengulang;
+//   * koordinator TA/admin menetapkan berita acara (mengunci nilai), lalu berita acara dicetak, ditandatangani basah,
+//     dan pindaiannya diunggah sebagai bukti di Data prodi › Jadwal seminar/sidang TA;
+//   * form penilaian diubah koordinator TA/admin; tiap simpan = versi baru, jadwal yang sudah dinilai tetap memakai versinya.
+// Hitungan di layar dari penilaian-ta.js; yang berlaku saat menetapkan dihitung ulang di Supabase (ta_nilai_hitung).
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
+import { gerbang } from './menu.js?v=2026-11-25-782f9d';
+import { punya } from './koordinator.js?v=2026-11-25-782f9d';
+import { TAHAP_NILAI, labelTahap, PERAN_NILAI, HASIL_LABEL, TINGKAT_AWAL, angka, bulat, bobotBagian, cekNilai, totalNilai, rekapNilai,
+         cekRubrik, tingkatDari, labelTingkat, htmlBA } from './penilaian-ta.js?v=2026-11-25-782f9d';
+
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const $ = id => document.getElementById(id);
+const sb = createClient(window.SB_URL, window.SB_KEY);
+const tgl = s => s ? new Date(String(s).slice(0, 10) + 'T00:00:00Z').toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' }) : '';
+const hariIni = () => new Date(Date.now() + 7 * 3600e3).toISOString().slice(0, 10);   // WIB
+const tulis = (id, k, t) => { const m = $(id); if (m) { m.className = 'msg ' + k; m.textContent = t; } };
+const persen = x => String(bulat(x)).replace('.', ',');
+
+// NILAI_SAYA: jadwal_id -> { seminar: total, bimbingan: total } milik saya.
+let SAYA = null, KOOR = false, JADWAL = [], NILAI_SAYA = new Map(), ADA_NILAI = new Set(), RUBRIK = [], INFO = {};
+let SARING = 'perlu', BUKA = 0, REKAP = null, PENILAI = '';   // PENILAI: '' = saya; 'nidn:<x>' / 'luar' = atas nama (koordinator)
+let TAHAP_FORM = 'seminar_proposal', UBAH = null;                // UBAH: salinan form yang sedang disunting
+
+const diPanel = j => SAYA.nidn && ((j.pembimbing || []).includes(SAYA.nidn) || (j.penguji || []).includes(SAYA.nidn));
+const peranSaya = j => (j.pembimbing || []).includes(SAYA.nidn) ? 'pembimbing' : (j.penguji || []).includes(SAYA.nidn) ? 'penguji' : null;
+const terbaru = t => RUBRIK.filter(r => r.tahap === t).sort((a, b) => b.versi - a.versi)[0] || null;
+const rubrikJadwal = j => (j.rubrik_id && RUBRIK.find(r => r.id === j.rubrik_id)) || terbaru(j.tahap);
+const perluBimbingan = j => peranSaya(j) === 'pembimbing' && bobotBagian(rubrikJadwal(j)).bimbingan > 0;
+const sudahSaya = j => { const n = NILAI_SAYA.get(j.id) || {}; return n.seminar != null && (!perluBimbingan(j) || n.bimbingan != null); };
+const komponenBagian = (r, bagian) => (bagian === 'bimbingan' ? r.komponen_bimbingan : r.komponen) || [];
+
+// ---------- Daftar seminar ----------
+function keadaan(j){
+  if (j.ba_ditetapkan) return `<span class="tag ok">ditetapkan: ${esc(HASIL_LABEL[j.hasil] || j.hasil || '')}</span>`;
+  if (j.status === 'batal' || j.status === 'ditunda') return `<span class="tag">${esc(j.status)}</span>`;
+  if (diPanel(j) && !sudahSaya(j) && j.tanggal <= hariIni()) return '<span class="tag perlu">belum saya nilai</span>';
+  if (KOOR && ADA_NILAI.has(j.id) && j.tanggal <= hariIni()) return '<span class="tag perlu">perlu ditetapkan</span>';
+  return j.tanggal > hariIni() ? '<span class="tag">akan datang</span>' : '<span class="tag">belum dinilai</span>';
+}
+function nilaiSayaTeks(j){
+  const n = NILAI_SAYA.get(j.id) || {};
+  return angka(n.seminar) + (perluBimbingan(j) ? ` <span class="ket">bimbingan</span> ${angka(n.bimbingan)}` : '');
+}
+function gambarDaftar(){
+  const kini = hariIni();
+  let xs = JADWAL.filter(j => KOOR || diPanel(j));
+  if (SARING === 'perlu') xs = xs.filter(j => !j.ba_ditetapkan && !['batal', 'ditunda'].includes(j.status)
+    && (j.tanggal <= kini || (diPanel(j) && j.tanggal <= new Date(Date.now() + 7 * 3600e3 + 14 * 864e5).toISOString().slice(0, 10))));
+  xs.sort((a, b) => (SARING === 'perlu' ? a.tanggal.localeCompare(b.tanggal) : b.tanggal.localeCompare(a.tanggal)) || a.id - b.id);
+  $('daftar').innerHTML = !xs.length ? `<p class="kosong">${SARING === 'perlu' ? 'Tidak ada seminar/sidang yang perlu dinilai atau ditetapkan.'
+      : KOOR ? 'Belum ada jadwal seminar/sidang TA.' : 'Anda belum tercatat sebagai pembimbing atau penguji seminar/sidang TA.'}</p>`
+    : `<div class="lebar-tabel"><table><thead><tr><th>Tanggal</th><th>Tahap</th><th>Mahasiswa</th><th>Judul</th>
+        ${SAYA.nidn ? '<th>Peran saya</th><th class="n">Nilai saya</th>' : ''}<th>Keadaan</th><th></th></tr></thead><tbody>${xs.map(j => `
+      <tr${j.id === BUKA ? ' class="pilih"' : ''}><td>${esc(tgl(j.tanggal))}</td><td>${esc(labelTahap(j.tahap))}</td>
+        <td>${esc(j.nama_mahasiswa)}${KOOR && j.nim ? `<div class="ket">${esc(j.nim)}</div>` : ''}</td><td>${esc(j.judul)}</td>
+        ${SAYA.nidn ? `<td>${esc(PERAN_NILAI[peranSaya(j)] || '–')}</td><td class="n">${diPanel(j) ? nilaiSayaTeks(j) : '–'}</td>` : ''}
+        <td>${keadaan(j)}</td><td><button type="button" class="b kecil dua" data-buka="${j.id}">Buka</button></td></tr>`).join('')}</tbody></table></div>`;
+  $('daftar').querySelectorAll('[data-buka]').forEach(b => { b.onclick = () => buka(+b.dataset.buka); });
+}
+
+async function muatDaftar(){
+  const [jq, nq] = await Promise.all([
+    sb.from('jadwal_ta').select('id,tahap,nama_mahasiswa,nim,judul,pembimbing,penguji,penguji_luar,tanggal,status,hasil,rubrik_id,ba_ditetapkan').order('tanggal'),
+    sb.from('ta_nilai').select('jadwal_id,penilai_nidn,bagian,total')]);
+  if (jq.error) throw new Error(jq.error.message);
+  if (nq.error) throw new Error(/ta_nilai/.test(nq.error.message) ? 'Penilaian belum dipasang: jalankan supabase/173-patch-penilaian-ta.sql.' : nq.error.message);
+  JADWAL = jq.data || [];
+  NILAI_SAYA = new Map();
+  for (const n of nq.data || []) if (SAYA.nidn && n.penilai_nidn === SAYA.nidn)
+    NILAI_SAYA.set(n.jadwal_id, { ...(NILAI_SAYA.get(n.jadwal_id) || {}), [n.bagian || 'seminar']: n.total });
+  ADA_NILAI = new Set((nq.data || []).map(n => n.jadwal_id));
+}
+
+// ---------- Satu seminar ----------
+async function buka(id, gulir = true){
+  BUKA = id; PENILAI = '';
+  history.replaceState(null, '', '#j=' + id);
+  gambarDaftar();
+  $('detail').innerHTML = '<p class="kosong">Memuat…</p>';
+  const { data, error } = await sb.rpc('ta_nilai_rekap', { p_jadwal: id });
+  if (error || !data) { $('detail').innerHTML = `<p class="kosong">${esc(error?.message || 'Rekap nilai tidak bisa dibuka.')}</p>`; return; }
+  REKAP = data;
+  if (!REKAP.saya?.peran && KOOR) PENILAI = (REKAP.panel || [])[0] ? 'nidn:' + REKAP.panel[0].nidn : (REKAP.jadwal.penguji_luar ? 'luar' : '');
+  gambarDetail();
+  if (gulir) $('detail').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// Peran dan nilai penilai yang sedang diisi: saya, atau penilai yang dipilih koordinator.
+const peranTerpilih = () => !PENILAI ? REKAP.saya?.peran : PENILAI === 'luar' ? 'penguji'
+  : (REKAP.panel || []).find(p => 'nidn:' + p.nidn === PENILAI)?.peran;
+function nilaiTerpilih(bagian){
+  const n = (REKAP.nilai || []).filter(x => (x.bagian || 'seminar') === bagian);
+  if (!PENILAI) return n.find(x => x.nidn && x.nidn === SAYA.nidn) || null;
+  if (PENILAI === 'luar') return n.find(x => !x.nidn) || null;
+  return n.find(x => x.nidn === PENILAI.slice(5)) || null;
+}
+
+const AKHIR = { seminar: 'S', bimbingan: 'B' };   // akhiran id elemen per bagian
+function htmlIsian(r, bagian, kunci){
+  const s = AKHIR[bagian], lama = nilaiTerpilih(bagian), t = r.tingkat || TINGKAT_AWAL, lt = labelTingkat(t), w = bobotBagian(r);
+  const judul = bagian === 'bimbingan' ? `Nilai proses bimbingan <span class="ket">bobot ${persen(w.bimbingan)} % di nilai akhir</span>`
+    : `Nilai ${esc(labelTahap(REKAP.jadwal.tahap).toLowerCase())} <span class="ket">bobot penguji ${persen(w.penguji)} %, pembimbing ${persen(w.pembimbing)} % di nilai akhir</span>`;
+  return `<h3>${judul}</h3>${lama?.diwakilkan ? `<p class="ket">Diisikan oleh ${esc(lama.diisi_oleh)}.</p>` : ''}
+    <form id="fNilai${s}" data-bagian="${bagian}">${komponenBagian(r, bagian).map(k => {
+      const v = lama?.nilai?.[k.kode], i = tingkatDari(v, t);
+      return `<div class="komp"><div><b>${esc(k.label)}</b> <span class="ket">bobot ${persen(k.bobot)} %</span></div>
+        <div><input type="number" min="0" max="100" step="0.01" inputmode="decimal" data-kode="${esc(k.kode)}" aria-label="Nilai ${esc(k.label)}"
+          value="${v ?? ''}" ${kunci ? 'disabled' : ''}></div>
+        <details><summary>Rubrik</summary><ul class="tingkat">${(k.uraian || []).map((u, n) =>
+          `<li data-tingkat="${n}"${i === n ? ' class="kini"' : ''}><b>${esc(lt[n])}</b> ${esc(u)}</li>`).join('')}</ul></details></div>`; }).join('')}
+      <div class="komp"><div><b>Total</b> <span class="ket">rata-rata berbobot</span></div><div class="total" id="pTotal${s}">${angka(lama?.total)}</div></div>
+      <label class="ket" for="pCatatan${s}">Catatan untuk berita acara <span>(opsional${bagian === 'seminar' ? '; mis. pokok revisi' : ''})</span></label>
+      <textarea id="pCatatan${s}" maxlength="2000" ${kunci ? 'disabled' : ''}>${esc(lama?.catatan || '')}</textarea>
+      ${kunci ? '' : `<div class="baris-tombol"><button type="submit" class="b" id="pSimpan${s}">Simpan ${bagian === 'bimbingan' ? 'nilai proses bimbingan' : 'nilai'}</button>
+        ${lama ? `<button type="button" class="b bahaya kecil" id="pHapus${s}">Hapus nilai ini</button>` : ''}<span class="msg" id="mNilai${s}"></span></div>`}</form>`;
+}
+
+function htmlForm(r, kunci){
+  const pilihan = KOOR ? [
+    ...(REKAP.saya?.peran ? [['', `Saya sendiri (${PERAN_NILAI[REKAP.saya.peran].toLowerCase()})`]] : []),
+    ...(REKAP.panel || []).filter(p => p.nidn !== SAYA.nidn).map(p => ['nidn:' + p.nidn, `${p.nama} (${PERAN_NILAI[p.peran].toLowerCase()})`]),
+    ...(REKAP.jadwal.penguji_luar ? [['luar', `Penguji luar: ${REKAP.jadwal.penguji_luar}`]] : [])] : [];
+  const namaLuar = (REKAP.nilai || []).find(x => !x.nidn)?.nama || REKAP.jadwal.penguji_luar || '';
+  const bimbingan = bobotBagian(r).bimbingan > 0 && peranTerpilih() === 'pembimbing';
+  return `<h2 style="font-size:17px">${KOOR && PENILAI ? 'Isi nilai atas nama penilai' : 'Nilai saya'}</h2>
+    ${pilihan.length > 1 || (KOOR && PENILAI) ? `<div class="saring"><label>Penilai <select id="pPenilai" ${kunci ? 'disabled' : ''}>${pilihan.map(([v, l]) =>
+      `<option value="${esc(v)}"${v === PENILAI ? ' selected' : ''}>${esc(l)}</option>`).join('')}</select></label>
+      ${PENILAI === 'luar' ? `<label>Nama penguji luar <input id="pLuar" maxlength="200" value="${esc(namaLuar)}" ${kunci ? 'disabled' : ''}></label>` : ''}
+      <span class="ket">Tercatat "diisikan oleh ${esc(SAYA.nama)}".</span></div>` : ''}
+    ${htmlIsian(r, 'seminar', kunci)}${bimbingan ? htmlIsian(r, 'bimbingan', kunci) : ''}`;
+}
+
+const bacaNilai = f => {
+  const out = {};
+  f.querySelectorAll('[data-kode]').forEach(x => { if (x.value.trim() !== '') out[x.dataset.kode] = +x.value.replace(',', '.'); });
+  return out;
+};
+
+function tabelRekap(komponen, xs){
+  return `<div class="lebar-tabel"><table><thead><tr><th>Penilai</th><th>Peran</th>${komponen.map(k =>
+      `<th class="n" title="${esc(k.label)}">${esc(k.label.split(/[ ,]/)[0])}<br>${persen(k.bobot)} %</th>`).join('')}<th class="n">Total</th><th>Diisi</th></tr></thead>
+    <tbody>${xs.map(n => `<tr><td>${esc(n.nama)}${n.di_panel === false ? ' <span class="tag perlu">bukan panel lagi, tidak dihitung</span>' : ''}</td>
+      <td>${esc(PERAN_NILAI[n.peran] || n.peran)}</td>${komponen.map(k => `<td class="n">${angka(n.nilai?.[k.kode])}</td>`).join('')}
+      <td class="n"><b>${angka(n.total)}</b></td><td class="ket">${n.diwakilkan ? 'diisikan ' + esc(n.diisi_oleh) : 'sendiri'}</td></tr>`).join('')}</tbody></table></div>`;
+}
+
+function htmlRekap(r){
+  const j = REKAP.jadwal, nilai = REKAP.nilai || [], h = REKAP.hitung || {}, w = bobotBagian(r);
+  const layar = rekapNilai({ rubrik: r, panel: REKAP.panel || [], nilai: nilai.filter(n => n.di_panel !== false), penguji_luar: j.penguji_luar });
+  const akhir = j.ba_ditetapkan ? j.nilai_akhir : (h.nilai_akhir ?? layar.akhir);
+  const kurang = h.kurang || layar.kurang;
+  const sem = nilai.filter(n => (n.bagian || 'seminar') === 'seminar'), bim = nilai.filter(n => n.bagian === 'bimbingan');
+  const kotak = (x, label, b) => b > 0 ? `<div><b>${angka(x)}</b><span>${label} (${persen(b)} %)</span></div>` : '';
+  return `<h2 style="font-size:17px">Rekap nilai</h2>
+    ${sem.length ? `<h3>Nilai ${esc(labelTahap(j.tahap).toLowerCase())}</h3>${tabelRekap(r.komponen || [], sem)}` : '<p class="kosong">Belum ada nilai.</p>'}
+    ${w.bimbingan > 0 && bim.length ? `<h3>Nilai proses bimbingan</h3>${tabelRekap(r.komponen_bimbingan || [], bim)}` : ''}
+    <div class="ringkas">${kotak(h.rata_penguji ?? layar.rataPenguji, 'rata-rata penguji', w.penguji)}
+      ${kotak(h.rata_pembimbing ?? layar.rataPembimbing, `rata-rata pembimbing saat ${j.tahap === 'sidang_akhir' ? 'sidang' : 'seminar'}`, w.pembimbing)}
+      ${kotak(h.rata_bimbingan ?? layar.rataBimbingan, 'rata-rata proses bimbingan', w.bimbingan)}
+      <div><b>${angka(akhir)}</b><span>nilai akhir (batas lulus ${angka(r.batas_lulus)})</span></div></div>
+    ${kurang.length && !j.ba_ditetapkan ? `<p class="ket">Belum menilai: ${kurang.map(k => esc(k.nama) + ' ('
+      + (k.bagian === 'bimbingan' ? 'proses bimbingan' : esc(PERAN_NILAI[k.peran].toLowerCase())) + ')').join(', ')}.</p>` : ''}`;
+}
+
+function htmlTetapkan(r){
+  const j = REKAP.jadwal, h = REKAP.hitung || {};
+  if (j.ba_ditetapkan) return KOOR ? `<h3>Buka kembali berita acara</h3>
+      <p class="ket">Untuk memperbaiki nilai yang salah. Hasil dan nilai akhir dikosongkan, lalu ditetapkan ulang. Alasan tercatat.</p>
+      <div class="saring"><input id="tAlasan" maxlength="500" placeholder="Alasan membuka kembali" style="flex:1;min-width:240px">
+        <button type="button" class="b bahaya" id="tBuka">Buka kembali</button><span class="msg" id="mTetap"></span></div>` : '';
+  if (!KOOR) return '';
+  const akhir = h.nilai_akhir, mengulang = akhir != null && akhir < r.batas_lulus;
+  const lengkap = (REKAP.nilai || []).length && !(h.kurang || []).length;
+  return `<h3>Tetapkan berita acara</h3>
+    <p class="ket">Setelah ditetapkan, nilai dikunci, seminar tercatat selesai dengan hasilnya, dan mahasiswa melihat hasil (tanpa angka nilai).
+      ${lengkap ? '' : '<b>Bisa ditetapkan setelah semua pembimbing dan penguji menilai.</b>'}</p>
+    ${mengulang ? `<p>Nilai akhir ${angka(akhir)} di bawah batas lulus ${angka(r.batas_lulus)}: hasilnya <b>mengulang</b>.</p>` : `
+      <div class="saring"><label>Hasil <select id="tHasil"><option value="lulus">Lulus</option><option value="lulus_revisi"${j.hasil === 'lulus_revisi' ? ' selected' : ''}>Lulus dengan revisi</option></select></label>
+        <label id="tTenggatL">Tenggat revisi <input type="date" id="tTenggat" value="${esc(j.batas_revisi || '')}" min="${esc(j.tanggal)}"></label></div>
+      <div id="tCatatanL"><label class="ket" for="tCatatan">Catatan revisi untuk mahasiswa <span>(opsional; tampil di halaman pengajuannya)</span></label>
+        <textarea id="tCatatan" maxlength="2000">${esc(j.catatan_revisi || '')}</textarea></div>`}
+    <div class="baris-tombol"><button type="button" class="b" id="tTetap"${lengkap ? '' : ' disabled'}>Tetapkan berita acara</button><span class="msg" id="mTetap"></span></div>`;
+}
+
+function gambarDetail(){
+  const j = REKAP.jadwal, r = REKAP.rubrik;
+  if (!r) { $('detail').innerHTML = '<p class="kosong">Form penilaian tahap ini belum ada. Koordinator TA/admin membuatnya di bagian Form penilaian.</p>'; return; }
+  const bolehIsi = !!REKAP.saya?.peran || KOOR;
+  const kunci = !!j.ba_ditetapkan || ['batal', 'ditunda'].includes(j.status);
+  $('detail').innerHTML = `<div class="kotak${j.ba_ditetapkan ? ' kunci' : ''}">
+      <b>${esc(labelTahap(j.tahap))}: ${esc(j.nama_mahasiswa)}</b>${j.nim && KOOR ? ` <span class="ket">${esc(j.nim)}</span>` : ''}
+      <div>${esc(j.judul)}</div>
+      <div class="ket">${esc(tgl(j.tanggal))}${j.jam ? ', ' + esc(j.jam) : ''}${j.ruang ? ' · ' + esc(j.ruang) : ''} · form penilaian versi ${esc(r.versi)}</div>
+      ${j.ba_ditetapkan ? `<p style="margin:6px 0 0"><b>Berita acara ditetapkan</b> ${esc(new Date(j.ba_ditetapkan).toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' }))} WIB
+        oleh ${esc(j.ba_oleh || '')}: ${esc(HASIL_LABEL[j.hasil] || '')}, nilai akhir ${angka(j.nilai_akhir)}.
+        Nilai dikunci. Cetak, tandatangani, lalu unggah pindaiannya di <a href="data-prodi.html?tab=jadwal_ta">Data prodi › Jadwal seminar/sidang TA</a> (bukti baris).</p>` : ''}
+      ${j.ba_dibuka && !j.ba_ditetapkan ? `<p class="ket">Pernah dibuka kembali: ${esc(j.ba_dibuka)}</p>` : ''}
+      ${['batal', 'ditunda'].includes(j.status) ? `<p class="ket">Seminar ini ${esc(j.status)}; nilai tidak bisa diisi.</p>` : ''}
+    </div>
+    ${bolehIsi ? htmlForm(r, kunci) : ''}
+    ${htmlRekap(r)}
+    <div class="baris-tombol"><button type="button" class="b dua" id="tCetak">${j.ba_ditetapkan ? 'Cetak berita acara' : 'Cetak draf berita acara'}</button>
+      <span class="ket">Membuka jendela cetak (simpan sebagai PDF atau cetak ke kertas).</span></div>
+    ${htmlTetapkan(r)}`;
+  pasangDetail(r, kunci);
+}
+
+function pasangIsian(r, bagian){
+  const s = AKHIR[bagian], f = $('fNilai' + s), komp = komponenBagian(r, bagian), t = r.tingkat || TINGKAT_AWAL;
+  if (!f) return;
+  f.addEventListener('input', () => {
+    f.querySelectorAll('[data-kode]').forEach(x => {
+      const i = tingkatDari(x.value.trim() === '' ? null : +x.value.replace(',', '.'), t);
+      x.closest('.komp').querySelectorAll('[data-tingkat]').forEach(li => li.classList.toggle('kini', +li.dataset.tingkat === i));
+    });
+    $('pTotal' + s).textContent = angka(totalNilai(komp, bacaNilai(f)));
+  });
+  f.onsubmit = async e => {
+    e.preventDefault();
+    const v = bacaNilai(f), g = cekNilai(komp, v);
+    if (g) return tulis('mNilai' + s, 'err', g);
+    const arg = { p_jadwal: BUKA, p_nilai: v, p_catatan: $('pCatatan' + s).value, p_nidn: null, p_nama_luar: null, p_bagian: bagian };
+    if (PENILAI.startsWith('nidn:')) arg.p_nidn = PENILAI.slice(5);
+    if (PENILAI === 'luar') arg.p_nama_luar = ($('pLuar')?.value || '').trim();
+    $('pSimpan' + s).disabled = true;
+    const { data, error } = await sb.rpc('ta_nilai_simpan', arg);
+    $('pSimpan' + s).disabled = false;
+    if (error) return tulis('mNilai' + s, 'err', error.message);
+    await muatDaftar(); await buka(BUKA, false);
+    tulis('mNilai' + s, 'ok', `Nilai tersimpan (total ${angka(data)}).`);
+  };
+  const hapus = $('pHapus' + s);
+  if (hapus) hapus.onclick = async () => {
+    const lama = nilaiTerpilih(bagian);
+    if (!lama || !confirm(`Hapus nilai ${lama.nama}?`)) return;
+    const { error } = await sb.rpc('ta_nilai_hapus', { p_id: lama.id });
+    if (error) return tulis('mNilai' + s, 'err', error.message);
+    await muatDaftar(); await buka(BUKA, false);
+  };
+}
+
+function pasangDetail(r, kunci){
+  if (!kunci) { pasangIsian(r, 'seminar'); pasangIsian(r, 'bimbingan'); }
+  const pp = $('pPenilai');
+  if (pp) pp.onchange = () => { PENILAI = pp.value; gambarDetail(); };
+  $('tCetak').onclick = () => {
+    const w = window.open('', '_blank');
+    if (!w) return alert('Jendela cetak diblokir peramban; izinkan pop-up untuk situs ini.');
+    w.document.write(htmlBA(REKAP, INFO)); w.document.close();
+    setTimeout(() => { try { w.focus(); w.print(); } catch { /* jendela sudah ditutup */ } }, 400);
+  };
+  const hasil = $('tHasil');
+  if (hasil) {
+    const atur = () => { const rv = hasil.value === 'lulus_revisi'; $('tTenggatL').hidden = !rv; $('tCatatanL').hidden = !rv; };
+    hasil.onchange = atur; atur();
+  }
+  const tetap = $('tTetap');
+  if (tetap) tetap.onclick = async () => {
+    const h = $('tHasil')?.value || 'mengulang';
+    if (!confirm('Tetapkan berita acara? Nilai akan dikunci.')) return;
+    tetap.disabled = true;
+    const { error } = await sb.rpc('ta_ba_tetapkan', { p_jadwal: BUKA, p_hasil: h,
+      p_batas_revisi: h === 'lulus_revisi' ? ($('tTenggat').value || null) : null,
+      p_catatan_revisi: h === 'lulus_revisi' ? $('tCatatan').value : null });
+    tetap.disabled = false;
+    if (error) return tulis('mTetap', 'err', error.message);
+    await muatDaftar(); await buka(BUKA, false);
+  };
+  const bk = $('tBuka');
+  if (bk) bk.onclick = async () => {
+    const { error } = await sb.rpc('ta_ba_buka', { p_jadwal: BUKA, p_alasan: $('tAlasan').value });
+    if (error) return tulis('mTetap', 'err', error.message);
+    await muatDaftar(); await buka(BUKA, false);
+  };
+}
+
+// ---------- Form penilaian (koordinator TA/admin menyunting; staf lain membaca) ----------
+// Dua daftar komponen: 'komponen' (nilai seminar/sidang, penguji dan pembimbing) dan 'komponen_bimbingan' (proses bimbingan).
+const GRUP = [['komponen', 'Komponen nilai seminar/sidang (penguji dan pembimbing)'], ['komponen_bimbingan', 'Komponen nilai proses bimbingan (pembimbing)']];
+const salinK = xs => (xs || []).map(k => ({ ...k, uraian: [...(k.uraian || ['', '', '', ''])] }));
+const salin = r => ({ komponen: salinK(r?.komponen), komponen_bimbingan: salinK(r?.komponen_bimbingan),
+  bobot_penguji: +(r?.bobot_penguji ?? 40), bobot_bimbingan: +(r?.bobot_bimbingan ?? 0), batas_lulus: +(r?.batas_lulus ?? 55),
+  tingkat: (r?.tingkat || TINGKAT_AWAL).map(Number), catatan: '' });
+function kodeBaru(label, ada){
+  const dasar = (String(label || '').toLowerCase().normalize('NFD').replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '') || 'komponen').slice(0, 16);
+  let k = dasar, i = 2;
+  while (ada.has(k)) k = `${dasar.slice(0, 16)}_${i++}`;
+  return k;
+}
+const tabelForm = (xs, lt) => `<div class="lebar-tabel"><table><thead><tr><th>Komponen</th><th class="n">Bobot</th>${lt.map(l => `<th>${esc(l)}</th>`).join('')}</tr></thead>
+  <tbody>${xs.map(k => `<tr><td><b>${esc(k.label)}</b></td><td class="n">${persen(k.bobot)} %</td>
+    ${(k.uraian || []).map(u => `<td class="ket">${esc(u)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+
+function gambarForm(){
+  const r = terbaru(TAHAP_FORM), riwayat = RUBRIK.filter(x => x.tahap === TAHAP_FORM).sort((a, b) => b.versi - a.versi);
+  const pilih = `<div class="saring"><label>Tahap <select id="fTahap">${TAHAP_NILAI.map(([k, l]) =>
+    `<option value="${k}"${k === TAHAP_FORM ? ' selected' : ''}>${esc(l)}</option>`).join('')}</select></label>
+    ${r ? `<span class="ket">Versi ${esc(r.versi)}, ${esc(tgl(r.dibuat))}${r.oleh ? ' oleh ' + esc(r.oleh) : ''}</span>` : ''}
+    ${KOOR && !UBAH ? '<button type="button" class="b dua" id="fUbah">Ubah form</button>' : ''}<span class="msg" id="mForm"></span></div>`;
+  if (!UBAH) {
+    const lt = labelTingkat(r?.tingkat || TINGKAT_AWAL), w = bobotBagian(r);
+    $('form').innerHTML = pilih + (!r ? '<p class="kosong">Form tahap ini belum ada.</p> ' : `
+      <p class="ket">Bobot di nilai akhir: penguji ${persen(w.penguji)} %, pembimbing saat ${TAHAP_FORM === 'sidang_akhir' ? 'sidang' : 'seminar'} ${persen(w.pembimbing)} %${
+        w.bimbingan > 0 ? `, proses bimbingan ${persen(w.bimbingan)} %` : ''}; batas lulus ${angka(r.batas_lulus)} (di bawahnya mengulang).</p>
+      <h3>Nilai ${esc(labelTahap(TAHAP_FORM).toLowerCase())}</h3>${tabelForm(r.komponen || [], lt)}
+      ${w.bimbingan > 0 ? `<h3>Nilai proses bimbingan</h3>${tabelForm(r.komponen_bimbingan || [], lt)}` : ''}`)
+      + (riwayat.length > 1 ? `<details style="margin-top:8px"><summary class="ket">Riwayat versi (${riwayat.length})</summary><ul class="ket">${riwayat.map(x =>
+        `<li>Versi ${esc(x.versi)}, ${esc(tgl(x.dibuat))}${x.oleh ? ', ' + esc(x.oleh) : ''}${x.catatan ? ': ' + esc(x.catatan) : ''}</li>`).join('')}</ul></details>` : '');
+    $('fTahap').onchange = e => { TAHAP_FORM = e.target.value; gambarForm(); };
+    if ($('fUbah')) $('fUbah').onclick = () => { UBAH = salin(r); gambarForm(); };
+    return;
+  }
+  const lt = labelTingkat(UBAH.tingkat);
+  const jumlah = g => persen(UBAH[g].reduce((a, k) => a + (+k.bobot || 0), 0));
+  $('form').innerHTML = pilih + `
+    <p class="ket">Simpan = versi ${(r?.versi || 0) + 1}. Seminar yang sudah dinilai tetap memakai versinya; seminar yang belum dinilai memakai versi baru.</p>
+    <div class="angka-atur">
+      <label>Bobot penguji (%)<input type="number" id="uBp" min="0" max="100" step="0.01" value="${UBAH.bobot_penguji}"></label>
+      <label>Bobot proses bimbingan (%)<input type="number" id="uBm" min="0" max="100" step="0.01" value="${UBAH.bobot_bimbingan}"></label>
+      <label>Bobot pembimbing saat seminar/sidang (%)<input type="number" id="uBb" value="${bulat(100 - UBAH.bobot_penguji - UBAH.bobot_bimbingan)}" disabled></label>
+      <label>Batas lulus<input type="number" id="uBatas" min="1" max="100" step="0.01" value="${UBAH.batas_lulus}"></label>
+      <label>Batas bawah tingkat rubrik<span style="display:flex;gap:4px">${UBAH.tingkat.map((t, i) =>
+        `<input type="number" data-tingkat-i="${i}" min="0" max="100" step="0.01" value="${t}" style="width:70px"${i === 3 ? ' disabled' : ''}>`).join('')}</span></label>
+    </div>
+    <p class="ket">Bobot proses bimbingan 0 = tahap ini tanpa nilai proses bimbingan.</p>
+    ${GRUP.map(([g, judul]) => `<h3>${esc(judul)}</h3>
+      ${UBAH[g].map((k, i) => `<div class="ubah-komp" data-grup="${g}" data-i="${i}"><div class="atas">
+          <label>Komponen ${i + 1}<input data-f="label" maxlength="200" value="${esc(k.label)}"></label>
+          <label>Bobot (%)<input type="number" data-f="bobot" min="0.01" max="100" step="0.01" value="${k.bobot}"></label>
+          <span><button type="button" class="b kecil dua" data-naik="${g}:${i}"${i ? '' : ' disabled'} aria-label="Naikkan">↑</button>
+            <button type="button" class="b kecil bahaya" data-buang="${g}:${i}">Hapus</button></span></div>
+        <div class="ur">${[0, 1, 2, 3].map(n => `<label>${esc(lt[n])}<textarea data-u="${n}" maxlength="600">${esc(k.uraian[n] || '')}</textarea></label>`).join('')}</div></div>`).join('')}
+      <div class="baris-tombol"><button type="button" class="b dua kecil" data-tambah="${g}">Tambah komponen</button>
+        <span class="ket">Jumlah bobot: <b id="uJumlah_${g}">${jumlah(g)}</b> % (harus 100${g === 'komponen_bimbingan' ? ' bila bobot proses bimbingan lebih dari 0' : ''})</span></div>`).join('')}
+    <label class="ket" for="uCatatan">Catatan perubahan <span>(opsional; tampil di riwayat versi)</span></label>
+    <textarea id="uCatatan" maxlength="1000">${esc(UBAH.catatan)}</textarea>
+    <div class="baris-tombol"><button type="button" class="b" id="uSimpan">Simpan sebagai versi ${(r?.versi || 0) + 1}</button>
+      <button type="button" class="b dua" id="uBatal">Batal</button></div>`;
+  pasangUbah();
+}
+
+function bacaUbah(){
+  for (const [g] of GRUP) {
+    const ada = new Set(UBAH[g].map(k => k.kode).filter(Boolean));
+    document.querySelectorAll(`.ubah-komp[data-grup="${g}"]`).forEach(el => {
+      const k = UBAH[g][+el.dataset.i];
+      k.label = el.querySelector('[data-f=label]').value;
+      k.bobot = el.querySelector('[data-f=bobot]').value === '' ? NaN : +el.querySelector('[data-f=bobot]').value;
+      k.uraian = [0, 1, 2, 3].map(n => el.querySelector(`[data-u="${n}"]`).value.trim());
+      if (!k.kode) { k.kode = kodeBaru(k.label, ada); ada.add(k.kode); }
+    });
+  }
+  UBAH.bobot_penguji = +$('uBp').value; UBAH.bobot_bimbingan = +$('uBm').value; UBAH.batas_lulus = +$('uBatas').value;
+  UBAH.tingkat = [0, 1, 2].map(i => +document.querySelector(`[data-tingkat-i="${i}"]`).value).concat(0);
+  UBAH.catatan = $('uCatatan').value;
+}
+function pasangUbah(){
+  $('fTahap').onchange = e => {
+    if (!confirm('Pindah tahap? Perubahan yang belum disimpan hilang.')) { e.target.value = TAHAP_FORM; return; }
+    TAHAP_FORM = e.target.value; UBAH = null; gambarForm();
+  };
+  $('form').oninput = () => {
+    for (const [g] of GRUP) {
+      const s = [...document.querySelectorAll(`.ubah-komp[data-grup="${g}"] [data-f=bobot]`)].reduce((a, x) => a + (+x.value || 0), 0);
+      $('uJumlah_' + g).textContent = persen(s);
+    }
+    $('uBb').value = bulat(100 - (+$('uBp').value || 0) - (+$('uBm').value || 0));
+  };
+  const gi = s => { const [g, i] = s.split(':'); return [g, +i]; };
+  document.querySelectorAll('[data-buang]').forEach(b => { b.onclick = () => { bacaUbah(); const [g, i] = gi(b.dataset.buang); UBAH[g].splice(i, 1); gambarForm(); }; });
+  document.querySelectorAll('[data-naik]').forEach(b => { b.onclick = () => { bacaUbah(); const [g, i] = gi(b.dataset.naik);
+    [UBAH[g][i - 1], UBAH[g][i]] = [UBAH[g][i], UBAH[g][i - 1]]; gambarForm(); }; });
+  document.querySelectorAll('[data-tambah]').forEach(b => { b.onclick = () => { bacaUbah();
+    UBAH[b.dataset.tambah].push({ kode: '', label: '', bobot: 0, uraian: ['', '', '', ''] }); gambarForm(); }; });
+  $('uBatal').onclick = () => { UBAH = null; gambarForm(); };
+  $('uSimpan').onclick = async () => {
+    bacaUbah();
+    const g = cekRubrik(UBAH);
+    if (g.length) return tulis('mForm', 'err', g[0]);
+    const bersih = xs => xs.map(({ kode, label, bobot, uraian }) => ({ kode, label: label.trim(), bobot, uraian }));
+    $('uSimpan').disabled = true;
+    const { data, error } = await sb.rpc('ta_rubrik_simpan', { p_tahap: TAHAP_FORM, p_komponen: bersih(UBAH.komponen),
+      p_bobot_penguji: UBAH.bobot_penguji, p_batas_lulus: UBAH.batas_lulus, p_tingkat: UBAH.tingkat, p_catatan: UBAH.catatan,
+      p_bobot_bimbingan: UBAH.bobot_bimbingan, p_komponen_bimbingan: bersih(UBAH.komponen_bimbingan) });
+    $('uSimpan').disabled = false;
+    if (error) return tulis('mForm', 'err', error.message);
+    await muatRubrik(); UBAH = null; gambarForm();
+    tulis('mForm', 'ok', `Tersimpan sebagai versi ${data}.`);
+    if (BUKA) await buka(BUKA, false);
+  };
+}
+
+async function muatRubrik(){
+  const { data, error } = await sb.from('ta_rubrik').select('*').order('versi');
+  if (error) throw new Error(/ta_rubrik/.test(error.message) ? 'Penilaian belum dipasang: jalankan supabase/173-patch-penilaian-ta.sql.' : error.message);
+  RUBRIK = data || [];
+}
+
+async function mulai(){
+  SAYA = await gerbang(sb);
+  if (!SAYA) return;
+  KOOR = SAYA.peran === 'admin' || punya(SAYA, 'koordinator_ta');
+  $('hSub').textContent = `Masuk sebagai ${SAYA.nama}${KOOR ? ' · koordinator TA/admin' : ''}`;
+  const D = await fetch('data.json', { cache: 'no-cache' }).then(r => r.ok ? r.json() : {}).catch(() => ({}));
+  INFO = { prodi: D.prodi, institusi: D.institusi };
+  await muatRubrik();
+  await muatDaftar();
+  $('isi').innerHTML = `
+    <p class="ket">Pembimbing dan penguji mengisi nilai seminar proposal, seminar kemajuan, dan sidang akhir menurut form penilaian tahapnya.
+      Nilai akhir = rata-rata penguji × bobot penguji + rata-rata pembimbing × bobot pembimbing; di bawah batas lulus hasilnya mengulang.
+      Koordinator TA menetapkan berita acara, lalu berita acara dicetak dan ditandatangani. Nilai resmi tetap diisikan ke SIUP.</p>
+    <h2 id="seminar">${KOOR ? 'Seminar dan sidang' : 'Seminar dan sidang yang saya nilai'}</h2>
+    <div class="saring"><label>Tampilkan <select id="sSaring"><option value="perlu">Perlu dinilai atau ditetapkan</option>
+      <option value="semua">Semua</option></select></label></div>
+    <div id="daftar"></div>
+    <div id="detail"></div>
+    <h2 id="form-penilaian">Form penilaian</h2>
+    <p class="ket">${KOOR ? 'Komponen, bobot, dan uraian rubrik per tahap. Tiap simpan menjadi versi baru; berita acara yang sudah ada tidak berubah.'
+      : 'Komponen, bobot, dan uraian rubrik per tahap; diubah koordinator TA.'}</p>
+    <div id="form"></div>`;
+  $('sSaring').onchange = e => { SARING = e.target.value; gambarDaftar(); };
+  gambarDaftar();
+  gambarForm();
+  const awal = +(new URLSearchParams(location.hash.slice(1)).get('j') || 0);
+  if (awal && JADWAL.some(j => j.id === awal)) await buka(awal);
+}
+mulai().catch(e => { $('isi').innerHTML = `<p class="kosong">Gagal memuat: ${esc(e.message)}</p>`; });
+</script>
+</body>
+</html>

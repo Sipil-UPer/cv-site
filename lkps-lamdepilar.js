@@ -20,11 +20,11 @@
    diputuskan (pemilik 2026-11-24).
    Kolom yang tidak disimpan situs dibiarkan kosong (tanpa tebakan).
    ===================================================================== */
-import { JSZIP, tulisSel, petaLembar, hitungUlangSaatBuka } from './lkps.js?v=2026-11-25-a80ff5';
-import { daftarProdi, STATUS_PS, tglTeks } from './pustaka-dokumen.js?v=2026-11-25-a80ff5';
-import { nidnNuptk, masaBerlaku } from './profil-dosen.js?v=2026-11-25-a80ff5';
-import { ampuPerTA, dosenTS } from './dosen-hitung.js?v=2026-11-25-a80ff5';
-import { POS_A5 } from './keuangan-a5.js?v=2026-11-25-a80ff5';
+import { JSZIP, tulisSel, petaLembar, hitungUlangSaatBuka } from './lkps.js?v=2026-11-25-782f9d';
+import { daftarProdi, STATUS_PS, tglTeks } from './pustaka-dokumen.js?v=2026-11-25-782f9d';
+import { nidnNuptk, masaBerlaku } from './profil-dosen.js?v=2026-11-25-782f9d';
+import { ampuPerTA, dosenTS } from './dosen-hitung.js?v=2026-11-25-782f9d';
+import { POS_A5 } from './keuangan-a5.js?v=2026-11-25-782f9d';
 
 const JABATAN = { tenaga_pengajar: 'Tenaga Pengajar', asisten_ahli: 'Asisten Ahli', lektor: 'Lektor',
   lektor_kepala: 'Lektor Kepala', guru_besar: 'Profesor' };
@@ -330,12 +330,17 @@ export function petaLKPSLamdepilar(C){
 
   // P.1.4 Dosen tidak tetap, P.1.5 dosen industri/praktisi: dihitung pada TS (dosenTS), menurut kategori di
   // Kelola dosen. Nomor Induk Kependudukan tidak disimpan situs (kosong).
+  const g14 = geserP1;                                   // sisipan Tabel P.1.1-P.1.3 di atas blok ini
   muat(kategori('tidak_tetap'), 7, 55, 61).forEach(([d, r], i) => {
     set('P.1', `B${r}`, i + 1); set('P.1', `C${r}`, d.nama); set('P.1', `E${r}`, PEND[d.pendidikan]);
     set('P.1', `F${r}`, d.bidang_keahlian); set('P.1', `G${r}`, JABATAN[d.jabatan]); set('P.1', `H${r}`, d.nomor_serdos);
     set('P.1', `I${r}`, srtBerlaku(d)); set('P.1', `J${r}`, mkDiampu(d).map(m => m.nama).join('; '));
     if (d.sesuai_keahlian_mk === true) set('P.1', `K${r}`, 'V');
   });
+  // Analisis P.1.4 (pemilik 2026-11-25): R55 = baris Tabel P.1.4; Jumlah Dosen R56 = dosen tetap (Tabel P.1.1)
+  // + dosen tidak tetap, jadi R57 (rumus templat) = NDTT / (NDT + NDTT).
+  set('P.1', `R${55 + g14}`, { rumus: `COUNTA(C${55 + g14}:C${61 + geserP1})` });
+  set('P.1', `R${56 + g14}`, { rumus: `COUNTA(C8:C${18 + g12})+R${55 + g14}` });
   muat(kategori('industri'), 7, 66, 72).forEach(([d, r], i) => {
     const xs = mkDiampu(d);
     set('P.1', `B${r}`, i + 1); set('P.1', `C${r}`, d.nama); set('P.1', `E${r}`, d.perusahaan);

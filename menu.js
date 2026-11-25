@@ -1,5 +1,5 @@
-import { dosenLogin } from './dosen-login.js?v=2026-11-25-a80ff5';
-import { aktifPada } from './koordinator.js?v=2026-11-25-a80ff5';
+import { dosenLogin } from './dosen-login.js?v=2026-11-25-782f9d';
+import { aktifPada } from './koordinator.js?v=2026-11-25-782f9d';
 // Menu bersama ruang kerja (pemilik 2026-11-04).
 //
 // Situs dibagi dua:
@@ -32,10 +32,10 @@ const pantauanBoleh = (s, href) => PANTAUAN.includes(berkas(href)) || ((s.koordi
 // Asesor dan pimpinan hanya-baca tidak mengisi karya.
 const isiKarya = s => s.peran !== 'asesor' && !hanyaBaca(s);
 
-import { halamanAktif } from './fitur.js?v=2026-11-25-a80ff5';
-import { pasangPemicuBangun } from './pemicu-bangun.js?v=2026-11-25-a80ff5';
+import { halamanAktif } from './fitur.js?v=2026-11-25-782f9d';
+import { pasangPemicuBangun } from './pemicu-bangun.js?v=2026-11-25-782f9d';
 // Tinggi kotak teks mengikuti isi (pemilik 2026-11-25); bentuk "from" agar dicap stamp_versions.py.
-import { pasSemua as pasKotakTeks } from './kotak-teks.js?v=2026-11-25-a80ff5';
+import { pasSemua as pasKotakTeks } from './kotak-teks.js?v=2026-11-25-782f9d';
 
 export const MODUL = [
   // Susunan menu mengikuti alur kerja (pemilik 2026-11-23): Data saya (milik dosen), Pengajaran (urut alur MK:
@@ -119,6 +119,9 @@ export const MODUL = [
     // Rekap seminar/sidang TA dan beban dosen (94-patch-jadwal-ta.sql, pemilik 2026-11-17).
     { href: 'rekap-ta.html', judul: 'Rekap seminar/sidang TA', boleh: s => s.peran !== 'asesor',
       ket: 'Seminar proposal, seminar kemajuan, sidang akhir per periode; beban membimbing dan menguji per dosen.' },
+    // Penilaian seminar/sidang TA dan berita acara (173-patch-penilaian-ta.sql, pemilik 2026-11-25).
+    { href: 'penilaian-ta.html', judul: 'Penilaian seminar dan sidang TA', boleh: s => s.peran !== 'asesor',
+      ket: 'Pembimbing dan penguji mengisi nilai menurut form penilaian; koordinator TA menetapkan dan mencetak berita acara.' },
     // Rekap KP dan magang (105-patch-ruang-kp.sql, pemilik 2026-11-18): angka untuk semua staf; bukti untuk koordinator/admin/asesor.
     { href: 'rekap-kp.html', judul: 'Rekap KP dan magang', boleh: () => true,
       ket: 'Per tahun dan instansi, mitra kerja sama, beban bimbingan KP per dosen, bukti KP selesai untuk asesor.' },
@@ -255,11 +258,11 @@ export const PINTASAN = [
   { label: 'Dekan', cocok: jab('dekan'), href: ['rps.html', 'ekuivalensi.html', 'monitoring.html'] },
   { label: 'Gugus kendali mutu (GKM)', cocok: jab('gkm'), href: ['skor.html', 'mutu-data.html', 'siklus-ppepp.html', 'kelola-survei.html', 'monitoring.html#cpl', 'evaluasi-pembelajaran.html'] },
   { label: 'Koordinator KP/Magang', cocok: jab('koordinator_kp'), href: ['pengajuan-mahasiswa.html', 'rekap-kp.html', 'kelola-layanan-mahasiswa.html'] },
-  { label: 'Koordinator TA', cocok: jab('koordinator_ta'), href: ['pengajuan-mahasiswa.html', 'rekap-ta.html', 'jadwal-berhalangan.html', 'kelola-layanan-mahasiswa.html'] },
+  { label: 'Koordinator TA', cocok: jab('koordinator_ta'), href: ['pengajuan-mahasiswa.html', 'penilaian-ta.html', 'rekap-ta.html', 'jadwal-berhalangan.html', 'kelola-layanan-mahasiswa.html'] },
   { label: 'Pembina kemahasiswaan', cocok: jab('pembina_kemahasiswaan'), href: ['pengajuan-mahasiswa.html', 'kelola-layanan-mahasiswa.html', 'data-prodi.html'] },
   { label: 'Kepala laboratorium', cocok: jab('kepala_lab'), href: ['kelola-laboratorium.html'] },
   { label: 'Asesor', cocok: s => s.peran === 'asesor', href: ['skor.html', 'rincian.html?butir=23', 'portofolio.html', 'monitoring.html#cpl', 'rekap-kp.html'] },
-  { label: 'Dosen', cocok: s => s.peran !== 'asesor', href: ['profil.html', 'karya.html', 'mk-saya.html', 'rps.html', 'nilai-cpl.html', 'pengajuan-mahasiswa.html', 'kalender.html', 'jadwal-berhalangan.html'] },
+  { label: 'Dosen', cocok: s => s.peran !== 'asesor', href: ['profil.html', 'karya.html', 'mk-saya.html', 'rps.html', 'nilai-cpl.html', 'pengajuan-mahasiswa.html', 'penilaian-ta.html', 'kalender.html', 'jadwal-berhalangan.html'] },
 ];
 
 /** Kelompok pintasan untuk `saya`: [{label, halaman: [{href, judul, ket}]}]; hanya halaman yang boleh dan aktif. */
@@ -450,7 +453,7 @@ export async function pasangMenu(sb){
   // Pencarian menyeluruh (pemilik 2026-11-12; cari-ui.js, cari.js): dimuat saat pertama dipakai.
   const kotak = nav.querySelector('.rk-cari input');
   let siapCari = null;
-  const muatCari = () => siapCari || (siapCari = import('./cari-ui.js?v=2026-11-25-a80ff5').then(m =>
+  const muatCari = () => siapCari || (siapCari = import('./cari-ui.js?v=2026-11-25-782f9d').then(m =>
     m.pasangCari(kotak, { sb, saya: u.saya, modul: halamanBoleh(u.saya), boleh: h => bolehBuka(u.saya, h) !== false })));
   kotak.addEventListener('focus', muatCari);
   document.addEventListener('keydown', e => {

@@ -1,17 +1,17 @@
 // "Tugas saya" di Ruang kerja (pemilik 2026-11-12): hal yang menunggu tindakan dosen yang
 // sedang masuk, dari data yang sudah boleh ia baca (RLS). Aturan tenggat sama dengan halaman
 // Pengingat: rapat.js, hibah.js, temuan-ami.js, pengingat-dosen.js.
-import { kurangProfil } from './pengingat-dosen.js?v=2026-11-25-a80ff5';
-import { tindakTerbuka, tglID } from './rapat.js?v=2026-11-25-a80ff5';
-import { tenggatBerikut, teksHari, HARI_LEWAT } from './hibah.js?v=2026-11-25-a80ff5';
-import { hariKeTenggat, labelStatus, HARI_DEKAT } from './temuan-ami.js?v=2026-11-25-a80ff5';
-import { tugasEvaluasi } from './evaluasi-pembelajaran.js?v=2026-11-25-a80ff5';
-import { bolehPengajuan } from './koordinator.js?v=2026-11-25-a80ff5';
-import { tenggatReview, hariKe, teksHari as teksHariRv, tugasTenggatRps, tugasTetapDekan, tanggalPanjang as tglRv } from './pengingat-rps.js?v=2026-11-25-a80ff5';
-import { tugasInsentif } from './insentif.js?v=2026-11-25-a80ff5';
-import { tugasMK } from './tugas-mk.js?v=2026-11-25-a80ff5';
-import { halamanAktif } from './fitur.js?v=2026-11-25-a80ff5';
-import { masaBerlaku, tanggalPanjang as tglSrt } from './profil-dosen.js?v=2026-11-25-a80ff5';
+import { kurangProfil } from './pengingat-dosen.js?v=2026-11-25-782f9d';
+import { tindakTerbuka, tglID } from './rapat.js?v=2026-11-25-782f9d';
+import { tenggatBerikut, teksHari, HARI_LEWAT } from './hibah.js?v=2026-11-25-782f9d';
+import { hariKeTenggat, labelStatus, HARI_DEKAT } from './temuan-ami.js?v=2026-11-25-782f9d';
+import { tugasEvaluasi } from './evaluasi-pembelajaran.js?v=2026-11-25-782f9d';
+import { bolehPengajuan } from './koordinator.js?v=2026-11-25-782f9d';
+import { tenggatReview, hariKe, teksHari as teksHariRv, tugasTenggatRps, tugasTetapDekan, tanggalPanjang as tglRv } from './pengingat-rps.js?v=2026-11-25-782f9d';
+import { tugasInsentif } from './insentif.js?v=2026-11-25-782f9d';
+import { tugasMK } from './tugas-mk.js?v=2026-11-25-782f9d';
+import { halamanAktif } from './fitur.js?v=2026-11-25-782f9d';
+import { masaBerlaku, tanggalPanjang as tglSrt } from './profil-dosen.js?v=2026-11-25-782f9d';
 
 // Sertifikat dengan masa berlaku (pemilik 2026-11-24): diingatkan sejak 90 hari sebelum habis, dan terus setelah lewat.
 export const HARI_SERTIFIKAT = 90;
@@ -32,6 +32,7 @@ const tgl10 = s => String(s || '').slice(0, 10);
  *   target: baris target-kinerja.js barisDosen tahun berjalan, tahunTarget,
  *   pengajuanMhs: pengajuan_mahasiswa yang terbaca [{nama, jenis, status, pembimbing_id, diperbarui}],
  *   revisiTa: jadwal_ta lulus_revisi belum selesai [{nama_mahasiswa, judul, pembimbing, hasil, batas_revisi, revisi_selesai}],
+ *   nilaiTa: ta_nilai_tugas() [{jadwal_id, tahap, nama_mahasiswa, tanggal, tugas: 'nilai'|'tetapkan'}] (173),
  *   dataMK: data koordinator MK/pengampu untuk tugas-mk.js (null bila bukan keduanya),
  *   reviewSaya: baris mk_rps_review milik sendiri [{kurikulum, kode_mk, ditunjuk_pada, kirim_pada}] (118),
  *   rekapReview: rps_review_rekap [{kurikulum, kode_mk, terkirim, ditanggapi}], bolehRps: rps_boleh_saya [{kurikulum, kode_mk}] (119),
@@ -149,6 +150,16 @@ export function tugasSaya(d, kini = new Date()){
     if (!s.nidn || !(r.pembimbing || []).includes(s.nidn) || r.revisi_selesai || r.hasil !== 'lulus_revisi') continue;
     const hari = r.batas_revisi ? Math.round((Date.parse(r.batas_revisi + 'T00:00:00Z') - Date.parse(kini.toISOString().slice(0, 10) + 'T00:00:00Z')) / 864e5) : null;
     tambah('revisi_ta', `Revisi TA ${r.nama_mahasiswa}`, `${r.judul}${r.batas_revisi ? `; batas ${r.batas_revisi}` : '; batas belum diisi'}`, 'rekap-ta.html#revisi', hari);
+  }
+
+  // Penilaian seminar/sidang TA (173): penilai yang belum menilai (sejak hari seminar), koordinator TA/admin yang belum
+  // menetapkan berita acara. Tenggat = hari seminar, jadi tugas tampil 'lewat' sejak sehari sesudahnya.
+  const TAHAP_TA = { seminar_proposal: 'seminar proposal', seminar_kemajuan: 'seminar kemajuan', sidang_akhir: 'sidang akhir' };
+  for (const r of d.nilaiTa || []) {
+    const hari = Math.round((Date.parse(tgl10(r.tanggal) + 'T00:00:00Z') - Date.parse(kini.toISOString().slice(0, 10) + 'T00:00:00Z')) / 864e5);
+    const tahap = TAHAP_TA[r.tahap] || 'seminar TA';
+    if (r.tugas === 'nilai') tambah('nilai_ta', `Isi nilai ${tahap} ${r.nama_mahasiswa}`, `Seminar ${tgl10(r.tanggal)}`, `penilaian-ta.html#j=${r.jadwal_id}`, hari);
+    else if (r.tugas === 'tetapkan') tambah('nilai_ta', `Tetapkan berita acara ${tahap} ${r.nama_mahasiswa}`, `Seminar ${tgl10(r.tanggal)}; sudah ada nilai`, `penilaian-ta.html#j=${r.jadwal_id}`, hari);
   }
 
   return out.map((x, i) => [x, i]).sort(([a, i], [b, j]) => URUT[a.tingkat] - URUT[b.tingkat]

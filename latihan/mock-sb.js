@@ -536,10 +536,123 @@ function q(t){
   };
   return f;
 }
+// 173: penilaian seminar/sidang TA, tiruan ringkas (aturan sama dengan 173-patch-penilaian-ta.sql, kecuali trigger penjaga
+// jadwal_ta). Hitungan dari penilaian-ta.js, dimuat dari folder HALAMAN karena berkas ini juga disalin ke site/latihan/.
+const TA_NILAI = new Set(['ta_nilai_simpan', 'ta_nilai_hapus', 'ta_nilai_rekap', 'ta_ba_tetapkan', 'ta_ba_buka', 'ta_rubrik_simpan', 'ta_nilai_tugas']);
+async function taNilaiRpc(nama, a){
+  const P = await import(new URL('penilaian-ta.js', location.href).href);
+  const gagal = message => ({ data: null, error: { message } }), ok = data => ({ data, error: null });
+  const saya = (DB.dosen || []).find(d => d.email === email());
+  const koor = !!saya && (saya.peran === 'admin' || (DB.koordinator || []).some(k => k.dosen_id === saya.id && k.jabatan === 'koordinator_ta' && !k.selesai));
+  const R = (DB.ta_rubrik ||= []), N = (DB.ta_nilai ||= []), J = DB.jadwal_ta || [];
+  const nama_ = nidn => (DB.dosen || []).find(d => d.nidn === nidn)?.nama || nidn;
+  const rubrikJadwal = j => j.rubrik_id ? R.find(r => r.id === j.rubrik_id) : R.filter(r => r.tahap === j.tahap).sort((x, y) => y.versi - x.versi)[0];
+  const panel = j => [...(j.pembimbing || []).map(n => ({ peran: 'pembimbing', nidn: n, nama: nama_(n) })),
+                      ...(j.penguji || []).map(n => ({ peran: 'penguji', nidn: n, nama: nama_(n) }))];
+  const peranDi = (j, nidn) => (j.pembimbing || []).includes(nidn) ? 'pembimbing' : (j.penguji || []).includes(nidn) ? 'penguji' : null;
+  const diPanel = (j, n) => n.bagian === 'bimbingan' ? peranDi(j, n.penilai_nidn) === 'pembimbing'
+    : !!peranDi(j, n.penilai_nidn) || (!n.penilai_nidn && !!String(j.penguji_luar || '').trim());
+  const hitung = j => { const r = rubrikJadwal(j);
+    const x = P.rekapNilai({ rubrik: r, panel: panel(j), penguji_luar: j.penguji_luar,
+      nilai: N.filter(n => n.jadwal_id === j.id && diPanel(j, n)).map(n => ({ bagian: n.bagian || 'seminar', nidn: n.penilai_nidn, nama: n.penilai_nama, total: n.total })) });
+    return { rubrik_id: r?.id, rata_penguji: x.rataPenguji, rata_pembimbing: x.rataPembimbing, rata_bimbingan: x.rataBimbingan,
+      nilai_akhir: x.akhir, kurang: x.kurang, saran: x.saran }; };
+  const punyaNilai = (j, nidn, bagian) => N.some(n => n.jadwal_id === j.id && n.penilai_nidn === nidn && (n.bagian || 'seminar') === bagian);
+  const kini = new Date(Date.now() + 7 * 3600e3).toISOString().slice(0, 10);
+  if (nama === 'ta_nilai_tugas') {
+    if (!saya) return ok([]);
+    return ok(J.filter(j => ['terjadwal', 'selesai'].includes(j.status) && !j.ba_ditetapkan && j.tanggal <= kini).flatMap(j => [
+      ...(saya.nidn && peranDi(j, saya.nidn) && (!punyaNilai(j, saya.nidn, 'seminar') || (peranDi(j, saya.nidn) === 'pembimbing'
+        && P.bobotBagian(rubrikJadwal(j)).bimbingan > 0 && !punyaNilai(j, saya.nidn, 'bimbingan'))) ? [{ tugas: 'nilai' }] : []),
+      ...(koor && N.some(n => n.jadwal_id === j.id) ? [{ tugas: 'tetapkan' }] : [])]
+      .map(t => ({ jadwal_id: j.id, tahap: j.tahap, nama_mahasiswa: j.nama_mahasiswa, tanggal: j.tanggal, ...t }))));
+  }
+  if (nama === 'ta_rubrik_simpan') {
+    if (!koor) return gagal('Form penilaian TA diubah koordinator TA atau admin.');
+    const g = P.cekRubrik({ komponen: a.p_komponen || [], komponen_bimbingan: a.p_komponen_bimbingan || [], bobot_penguji: a.p_bobot_penguji,
+      bobot_bimbingan: a.p_bobot_bimbingan ?? 0, batas_lulus: a.p_batas_lulus, tingkat: a.p_tingkat });
+    if (g.length) return gagal(g[0]);
+    const versi = Math.max(0, ...R.filter(r => r.tahap === a.p_tahap).map(r => r.versi)) + 1;
+    R.push({ id: baru(), tahap: a.p_tahap, versi, komponen: a.p_komponen, komponen_bimbingan: a.p_komponen_bimbingan || [],
+      bobot_penguji: a.p_bobot_penguji, bobot_bimbingan: a.p_bobot_bimbingan ?? 0, batas_lulus: a.p_batas_lulus,
+      tingkat: a.p_tingkat, catatan: a.p_catatan || null, oleh: saya.nama, dibuat: new Date().toISOString() });
+    simpan(); return ok(versi);
+  }
+  const j = J.find(x => x.id === (a.p_jadwal ?? N.find(n => n.id === a.p_id)?.jadwal_id));
+  if (!j) return gagal('Jadwal seminar/sidang tidak ditemukan.');
+  if (nama === 'ta_nilai_rekap') {
+    const sp = saya?.nidn ? peranDi(j, saya.nidn) : null;
+    if (!koor && !sp) return gagal('Rekap nilai dibuka pembimbing/penguji seminar ini, koordinator TA, atau admin.');
+    return ok({ jadwal: j, rubrik: rubrikJadwal(j) || null, panel: panel(j), hitung: hitung(j), saya: { peran: sp, koordinator: koor },
+      nilai: N.filter(n => n.jadwal_id === j.id).map(n => ({ id: n.id, bagian: n.bagian || 'seminar', peran: n.peran, nidn: n.penilai_nidn, nama: n.penilai_nama, nilai: n.nilai,
+        total: n.total, catatan: n.catatan, diisi_oleh: n.diisi_oleh, diwakilkan: n.diwakilkan, diperbarui: n.diperbarui, rubrik_id: n.rubrik_id,
+        di_panel: diPanel(j, n) })) });
+  }
+  if (nama === 'ta_nilai_simpan') {
+    if (j.ba_ditetapkan) return gagal('Berita acara sudah ditetapkan; nilai tidak bisa diubah. Minta koordinator TA membukanya kembali.');
+    if (!['terjadwal', 'selesai'].includes(j.status)) return gagal(`Seminar/sidang ini berstatus ${j.status}; nilai tidak bisa diisi.`);
+    if (!saya) return gagal('Masuk sebagai dosen terdaftar dulu.');
+    let nidn = saya.nidn, nm = saya.nama, wakil = false, peran = null;
+    if (a.p_nidn || String(a.p_nama_luar || '').trim()) {
+      if (!koor) return gagal('Nilai atas nama penilai lain diisikan koordinator TA atau admin.');
+      wakil = true;
+      if (a.p_nidn) { nidn = a.p_nidn; nm = nama_(nidn); wakil = nidn !== saya.nidn; }
+      else { nidn = null; nm = String(a.p_nama_luar).trim(); peran = 'penguji'; }
+    }
+    peran ||= peranDi(j, nidn);
+    if (!peran) return gagal(`${wakil ? nm : 'Anda'} bukan pembimbing atau penguji seminar ini.`);
+    const r = rubrikJadwal(j), bagian = a.p_bagian || 'seminar';
+    if (!r) return gagal('Form penilaian tahap ini belum ada.');
+    if (bagian === 'bimbingan' && peran !== 'pembimbing') return gagal('Nilai proses bimbingan diisi pembimbing.');
+    if (bagian === 'bimbingan' && !(P.bobotBagian(r).bimbingan > 0)) return gagal('Form penilaian tahap ini tidak memakai nilai proses bimbingan.');
+    const komp = bagian === 'bimbingan' ? r.komponen_bimbingan : r.komponen;
+    const g = P.cekNilai(komp, a.p_nilai);
+    if (g) return gagal(g);
+    const total = P.totalNilai(komp, a.p_nilai);
+    j.rubrik_id ||= r.id;
+    const kunci = n => n.penilai_nidn || 'luar:' + String(n.penilai_nama).toLowerCase().trim();
+    let n = N.find(x => x.jadwal_id === j.id && (x.bagian || 'seminar') === bagian && kunci(x) === (nidn || 'luar:' + nm.toLowerCase()));
+    if (!n) N.push(n = { id: baru(), jadwal_id: j.id, bagian, penilai_nidn: nidn });
+    Object.assign(n, { rubrik_id: r.id, peran, penilai_nama: nm, nilai: a.p_nilai, total, catatan: String(a.p_catatan || '').trim() || null,
+      diisi_oleh: saya.nama, diwakilkan: wakil, diperbarui: new Date().toISOString() });
+    simpan(); return ok(total);
+  }
+  if (nama === 'ta_nilai_hapus') {
+    const n = N.find(x => x.id === a.p_id);
+    if (j.ba_ditetapkan) return gagal('Berita acara sudah ditetapkan; nilai tidak bisa dihapus.');
+    if (!(koor || (n.penilai_nidn && n.penilai_nidn === saya?.nidn))) return gagal('Nilai dihapus penilainya sendiri, koordinator TA, atau admin.');
+    N.splice(N.indexOf(n), 1);
+    if (!N.some(x => x.jadwal_id === j.id)) j.rubrik_id = null;
+    simpan(); return ok('dihapus');
+  }
+  if (!koor) return gagal('Berita acara ditetapkan koordinator TA atau admin.');
+  if (nama === 'ta_ba_buka') {
+    if (String(a.p_alasan || '').trim().length < 5) return gagal('Tulis alasan membuka kembali (5–500 huruf).');
+    if (!j.ba_ditetapkan) return gagal('Berita acara seminar ini belum ditetapkan.');
+    Object.assign(j, { ba_ditetapkan: null, ba_oleh: null, nilai_akhir: null, hasil: null, revisi_selesai: null,
+      ba_dibuka: `${new Date().toISOString().slice(0, 16).replace('T', ' ')}, ${saya.nama}: ${String(a.p_alasan).trim()}` });
+    simpan(); return ok('dibuka');
+  }
+  // ta_ba_tetapkan
+  if (j.ba_ditetapkan) return gagal('Berita acara seminar ini sudah ditetapkan.');
+  if (!N.some(n => n.jadwal_id === j.id)) return gagal('Belum ada nilai untuk seminar ini.');
+  const h = hitung(j), r = rubrikJadwal(j);
+  if (h.kurang.length) return gagal(`Nilai belum lengkap: ${h.kurang.map(k => k.nama + (k.bagian === 'bimbingan' ? ' (proses bimbingan)' : '')).join(', ')} belum menilai.`);
+  let hasil = a.p_hasil;
+  if (h.nilai_akhir < r.batas_lulus) {
+    if ((hasil || 'mengulang') !== 'mengulang') return gagal(`Nilai akhir ${P.angka(h.nilai_akhir)} di bawah batas lulus ${P.angka(r.batas_lulus)}: hasilnya mengulang.`);
+    hasil = 'mengulang';
+  } else if (!['lulus', 'lulus_revisi'].includes(hasil)) return gagal(`Nilai akhir ${P.angka(h.nilai_akhir)} mencapai batas lulus ${P.angka(r.batas_lulus)}: pilih lulus atau lulus dengan revisi.`);
+  if (hasil === 'lulus_revisi' && !a.p_batas_revisi) return gagal('Isi tenggat revisi.');
+  Object.assign(j, { status: 'selesai', hasil, nilai_akhir: h.nilai_akhir, rubrik_id: r.id, ba_ditetapkan: new Date().toISOString(), ba_oleh: saya.nama,
+    batas_revisi: hasil === 'lulus_revisi' ? a.p_batas_revisi : null, catatan_revisi: hasil === 'lulus_revisi' ? (String(a.p_catatan_revisi || '').trim() || null) : null });
+  simpan(); return ok(hasil);
+}
 const sesi = () => email() === 'tamu' ? null : { access_token: 'contoh', user: { email: email() } };
 export function createClient(){
   return { from: q,
     rpc(nama, a){
+      if (TA_NILAI.has(nama)) return taNilaiRpc(nama, a || {});
       const pm = pmRpc(nama, a || {});
       if (pm) return Promise.resolve(pm);
       // Login dengan email utama atau alternatif (69-patch-email-alternatif.sql), tiruan.

@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-25-a80ff5">
+<link rel="stylesheet" href="tema.css?v=2026-11-25-782f9d">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
@@ -100,7 +100,7 @@
 
 <main class="wrap" id="isi"><p class="hint">Memuat&hellip;</p></main>
 
-<script src="config.js?v=2026-11-25-a80ff5"></script>
+<script src="config.js?v=2026-11-25-782f9d"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache) tampil sebagai pesan.
 addEventListener('error', function (e) {
@@ -116,17 +116,17 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { pengguna, pasangMenu, halamanBoleh, bolehBuka, identitas, pasangJudul, pintasanUntuk } from './menu.js?v=2026-11-25-a80ff5';
-import { kelasMengajarSaya } from './mk-saya.js?v=2026-11-25-a80ff5';
-import { hitungVerifikasi } from './verifikasi-hitung.js?v=2026-11-25-a80ff5';
-import { rubrikRps } from './rps.js?v=2026-11-25-a80ff5';
-import { bacaTinjauan } from './tinjauan-rps.js?v=2026-11-25-a80ff5';
-import { isoDari } from './pengingat-rps.js?v=2026-11-25-a80ff5';
-import { tugasSaya } from './tugas-saya.js?v=2026-11-25-a80ff5';
-import { fiturAktif, halamanAktif } from './fitur.js?v=2026-11-25-a80ff5';
+import { pengguna, pasangMenu, halamanBoleh, bolehBuka, identitas, pasangJudul, pintasanUntuk } from './menu.js?v=2026-11-25-782f9d';
+import { kelasMengajarSaya } from './mk-saya.js?v=2026-11-25-782f9d';
+import { hitungVerifikasi } from './verifikasi-hitung.js?v=2026-11-25-782f9d';
+import { rubrikRps } from './rps.js?v=2026-11-25-782f9d';
+import { bacaTinjauan } from './tinjauan-rps.js?v=2026-11-25-782f9d';
+import { isoDari } from './pengingat-rps.js?v=2026-11-25-782f9d';
+import { tugasSaya } from './tugas-saya.js?v=2026-11-25-782f9d';
+import { fiturAktif, halamanAktif } from './fitur.js?v=2026-11-25-782f9d';
 // Situs publik mati (templat akreditasi, pemilik 2026-11-23): tanpa tautan ke beranda umum.
 if (!halamanAktif('index.html')) document.querySelector('a.balik[href="index.html"]')?.remove();
-import { barisDosen } from './target-kinerja.js?v=2026-11-25-a80ff5';
+import { barisDosen } from './target-kinerja.js?v=2026-11-25-782f9d';
 
 const sb = createClient(window.SB_URL, window.SB_KEY);
 const $ = id => document.getElementById(id);
@@ -286,6 +286,8 @@ async function muatTugas(saya){
   // Revisi TA (95-patch-revisi-ta.sql); tanpa kolom = tidak tampil.
   const revisiTa = await baca(sb.from('jadwal_ta').select('id,nama_mahasiswa,judul,pembimbing,hasil,batas_revisi,revisi_selesai')
     .eq('hasil', 'lulus_revisi').is('revisi_selesai', null).limit(500));
+  // Penilaian seminar/sidang TA (173-patch-penilaian-ta.sql); tanpa patch = kosong.
+  const nilaiTa = await sb.rpc('ta_nilai_tugas').then(r => (Array.isArray(r.data) ? r.data : []), () => []);
   // Review sejawat RPS (118/119): penunjukan milik sendiri (RLS), rekap per MK, dan MK yang boleh saya susun. Tanpa patch = kosong.
   const [reviewSaya, rekapReview, bolehRps] = await Promise.all([
     baca(sb.from('mk_rps_review').select('kurikulum,kode_mk,ditunjuk_pada,kirim_pada').eq('reviewer_id', saya.id)),
@@ -314,7 +316,7 @@ async function muatTugas(saya){
       pengelola: saya.peran === 'admin' || (saya.koordinator || []).includes('kaprodi') };
   }
   return tugasSaya({ saya, sertifikat, insentif, karya: [...karya, ...draf], berBukti, bkd, tindak, hibah, temuan, kelasCpl, berkasCpl, target, tahunTarget: th,
-                     evaluasi, tindakEval, perluTL, tanpaBaris, pengajuanMhs, revisiTa, dataMK, reviewSaya, rekapReview, bolehRps, mkNama,
+                     evaluasi, tindakEval, perluTL, tanpaBaris, pengajuanMhs, revisiTa, nilaiTa, dataMK, reviewSaya, rekapReview, bolehRps, mkNama,
                      hariReview: +nilaiAtur('rps_review_hari') || undefined, tenggatRps, mkRef, rpsStatus });
 }
 
