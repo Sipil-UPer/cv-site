@@ -4833,7 +4833,7 @@
      "berkas_en": "course-01211-integrative-thingking.html"
     },
     {
-     "kode": "01X01",
+     "kode": "41301",
      "nama": "Kalkulus 1",
      "semester": 1,
      "nama_en": "Calculus 1",
@@ -4849,11 +4849,11 @@
      "cpl": [
       "G"
      ],
-     "berkas": "mk-01x01-kalkulus-1.html",
-     "berkas_en": "course-01x01-calculus-1.html"
+     "berkas": "mk-41301-kalkulus-1.html",
+     "berkas_en": "course-41301-calculus-1.html"
     },
     {
-     "kode": "01X02",
+     "kode": "41302",
      "nama": "Fisika Dasar 1",
      "semester": 1,
      "nama_en": "Basic Physics 1",
@@ -4869,51 +4869,11 @@
      "cpl": [
       "G"
      ],
-     "berkas": "mk-01x02-fisika-dasar-1.html",
-     "berkas_en": "course-01x02-basic-physics-1.html"
+     "berkas": "mk-41302-fisika-dasar-1.html",
+     "berkas_en": "course-41302-basic-physics-1.html"
     },
     {
-     "kode": "01X03",
-     "nama": "Kimia Dasar 1",
-     "semester": 1,
-     "nama_en": "Basic Chemistry 1",
-     "sks": 2.0,
-     "bagian": {
-      "kuliah": 2.0,
-      "seminar": 0.0,
-      "praktikum": 0.0
-     },
-     "sifat": "wajib",
-     "unit": "universitas",
-     "capstone": false,
-     "cpl": [
-      "G"
-     ],
-     "berkas": "mk-01x03-kimia-dasar-1.html",
-     "berkas_en": "course-01x03-basic-chemistry-1.html"
-    },
-    {
-     "kode": "01X04",
-     "nama": "Praktikum Kimia Dasar",
-     "semester": 1,
-     "nama_en": "General Chemistry Laboratory",
-     "sks": 1.0,
-     "bagian": {
-      "kuliah": 0.0,
-      "seminar": 0.0,
-      "praktikum": 1.0
-     },
-     "sifat": "wajib",
-     "unit": "universitas",
-     "capstone": false,
-     "cpl": [
-      "H"
-     ],
-     "berkas": "mk-01x04-praktikum-kimia-dasar.html",
-     "berkas_en": "course-01x04-general-chemistry-laboratory.html"
-    },
-    {
-     "kode": "01X05",
+     "kode": "41303",
      "nama": "Praktikum Fisika Dasar 1",
      "semester": 1,
      "nama_en": "General Physics Laboratory 1",
@@ -4929,8 +4889,48 @@
      "cpl": [
       "H"
      ],
-     "berkas": "mk-01x05-praktikum-fisika-dasar-1.html",
-     "berkas_en": "course-01x05-general-physics-laboratory-1.html"
+     "berkas": "mk-41303-praktikum-fisika-dasar-1.html",
+     "berkas_en": "course-41303-general-physics-laboratory-1.html"
+    },
+    {
+     "kode": "51502",
+     "nama": "Kimia Dasar 1",
+     "semester": 1,
+     "nama_en": "Basic Chemistry 1",
+     "sks": 2.0,
+     "bagian": {
+      "kuliah": 2.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "wajib",
+     "unit": "universitas",
+     "capstone": false,
+     "cpl": [
+      "G"
+     ],
+     "berkas": "mk-51502-kimia-dasar-1.html",
+     "berkas_en": "course-51502-basic-chemistry-1.html"
+    },
+    {
+     "kode": "51503",
+     "nama": "Praktikum Kimia Dasar",
+     "semester": 1,
+     "nama_en": "General Chemistry Laboratory",
+     "sks": 1.0,
+     "bagian": {
+      "kuliah": 0.0,
+      "seminar": 0.0,
+      "praktikum": 1.0
+     },
+     "sifat": "wajib",
+     "unit": "universitas",
+     "capstone": false,
+     "cpl": [
+      "H"
+     ],
+     "berkas": "mk-51503-praktikum-kimia-dasar.html",
+     "berkas_en": "course-51503-general-chemistry-laboratory.html"
     },
     {
      "kode": "01104",
@@ -4954,68 +4954,7 @@
      "berkas_en": "course-01104-indonesian-language.html"
     },
     {
-     "kode": "01X06",
-     "nama": "Fisika Dasar 2",
-     "semester": 2,
-     "nama_en": "Basic Physics 2",
-     "sks": 3.0,
-     "bagian": {
-      "kuliah": 3.0,
-      "seminar": 0.0,
-      "praktikum": 0.0
-     },
-     "sifat": "wajib",
-     "unit": "universitas",
-     "capstone": false,
-     "cpl": [
-      "C",
-      "G"
-     ],
-     "berkas": "mk-01x06-fisika-dasar-2.html",
-     "berkas_en": "course-01x06-basic-physics-2.html"
-    },
-    {
-     "kode": "01X07",
-     "nama": "Kalkulus 2",
-     "semester": 2,
-     "nama_en": "Calculus 2",
-     "sks": 4.0,
-     "bagian": {
-      "kuliah": 4.0,
-      "seminar": 0.0,
-      "praktikum": 0.0
-     },
-     "sifat": "wajib",
-     "unit": "universitas",
-     "capstone": false,
-     "cpl": [
-      "G"
-     ],
-     "berkas": "mk-01x07-kalkulus-2.html",
-     "berkas_en": "course-01x07-calculus-2.html"
-    },
-    {
-     "kode": "01X08",
-     "nama": "Praktikum Fisika Dasar 2",
-     "semester": 2,
-     "nama_en": "General Physics Laboratory 2",
-     "sks": 1.0,
-     "bagian": {
-      "kuliah": 0.0,
-      "seminar": 0.0,
-      "praktikum": 1.0
-     },
-     "sifat": "wajib",
-     "unit": "universitas",
-     "capstone": false,
-     "cpl": [
-      "H"
-     ],
-     "berkas": "mk-01x08-praktikum-fisika-dasar-2.html",
-     "berkas_en": "course-01x08-general-physics-laboratory-2.html"
-    },
-    {
-     "kode": "41301",
+     "kode": "41304",
      "nama": "Geologi Dasar",
      "semester": 2,
      "nama_en": "Basic Geology",
@@ -5032,11 +4971,52 @@
       "B",
       "G"
      ],
-     "berkas": "mk-41301-geologi-dasar.html",
-     "berkas_en": "course-41301-basic-geology.html"
+     "berkas": "mk-41304-geologi-dasar.html",
+     "berkas_en": "course-41304-basic-geology.html"
     },
     {
-     "kode": "41302",
+     "kode": "41305",
+     "nama": "Fisika Dasar 2",
+     "semester": 2,
+     "nama_en": "Basic Physics 2",
+     "sks": 3.0,
+     "bagian": {
+      "kuliah": 3.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "wajib",
+     "unit": "universitas",
+     "capstone": false,
+     "cpl": [
+      "C",
+      "G"
+     ],
+     "berkas": "mk-41305-fisika-dasar-2.html",
+     "berkas_en": "course-41305-basic-physics-2.html"
+    },
+    {
+     "kode": "41306",
+     "nama": "Kalkulus 2",
+     "semester": 2,
+     "nama_en": "Calculus 2",
+     "sks": 4.0,
+     "bagian": {
+      "kuliah": 4.0,
+      "seminar": 0.0,
+      "praktikum": 0.0
+     },
+     "sifat": "wajib",
+     "unit": "universitas",
+     "capstone": false,
+     "cpl": [
+      "G"
+     ],
+     "berkas": "mk-41306-kalkulus-2.html",
+     "berkas_en": "course-41306-calculus-2.html"
+    },
+    {
+     "kode": "41307",
      "nama": "Pengantar Surveying dan Pemetaan",
      "semester": 2,
      "nama_en": "Introduction to Surveying and Mapping",
@@ -5053,11 +5033,11 @@
       "H",
       "J"
      ],
-     "berkas": "mk-41302-pengantar-surveying-dan-pemetaan.html",
-     "berkas_en": "course-41302-introduction-to-surveying-and-mapping.html"
+     "berkas": "mk-41307-pengantar-surveying-dan-pemetaan.html",
+     "berkas_en": "course-41307-introduction-to-surveying-and-mapping.html"
     },
     {
-     "kode": "41303",
+     "kode": "41308",
      "nama": "Gambar Teknik",
      "semester": 2,
      "nama_en": "Engineering Drawing",
@@ -5074,11 +5054,11 @@
       "E",
       "J"
      ],
-     "berkas": "mk-41303-gambar-teknik.html",
-     "berkas_en": "course-41303-engineering-drawing.html"
+     "berkas": "mk-41308-gambar-teknik.html",
+     "berkas_en": "course-41308-engineering-drawing.html"
     },
     {
-     "kode": "41304",
+     "kode": "41309",
      "nama": "Praktikum Gambar Teknik",
      "semester": 2,
      "nama_en": "Engineering Drawing Laboratory",
@@ -5094,8 +5074,28 @@
      "cpl": [
       "J"
      ],
-     "berkas": "mk-41304-praktikum-gambar-teknik.html",
-     "berkas_en": "course-41304-engineering-drawing-laboratory.html"
+     "berkas": "mk-41309-praktikum-gambar-teknik.html",
+     "berkas_en": "course-41309-engineering-drawing-laboratory.html"
+    },
+    {
+     "kode": "41310",
+     "nama": "Praktikum Fisika Dasar 2",
+     "semester": 2,
+     "nama_en": "General Physics Laboratory 2",
+     "sks": 1.0,
+     "bagian": {
+      "kuliah": 0.0,
+      "seminar": 0.0,
+      "praktikum": 1.0
+     },
+     "sifat": "wajib",
+     "unit": "universitas",
+     "capstone": false,
+     "cpl": [
+      "H"
+     ],
+     "berkas": "mk-41310-praktikum-fisika-dasar-2.html",
+     "berkas_en": "course-41310-general-physics-laboratory-2.html"
     },
     {
      "kode": "41501",
@@ -5140,7 +5140,7 @@
      "berkas_en": "course-01205-energy-literacy.html"
     },
     {
-     "kode": "41305",
+     "kode": "41311",
      "nama": "Pemrograman dan Aplikasi Komputer",
      "semester": 3,
      "nama_en": "Computer Programming and Applications",
@@ -5157,11 +5157,11 @@
       "C",
       "J"
      ],
-     "berkas": "mk-41305-pemrograman-dan-aplikasi-komputer.html",
-     "berkas_en": "course-41305-computer-programming-and-applications.html"
+     "berkas": "mk-41311-pemrograman-dan-aplikasi-komputer.html",
+     "berkas_en": "course-41311-computer-programming-and-applications.html"
     },
     {
-     "kode": "41306",
+     "kode": "41312",
      "nama": "Statistika",
      "semester": 3,
      "nama_en": "Statistics",
@@ -5178,11 +5178,11 @@
       "C",
       "G"
      ],
-     "berkas": "mk-41306-statistika.html",
-     "berkas_en": "course-41306-statistics.html"
+     "berkas": "mk-41312-statistika.html",
+     "berkas_en": "course-41312-statistics.html"
     },
     {
-     "kode": "41307",
+     "kode": "41313",
      "nama": "Analisis Struktur Statis Tertentu",
      "semester": 3,
      "nama_en": "Analysis of Certain Static Structures",
@@ -5199,11 +5199,11 @@
       "C",
       "G"
      ],
-     "berkas": "mk-41307-analisis-struktur-statis-tertentu.html",
-     "berkas_en": "course-41307-analysis-of-certain-static-structures.html"
+     "berkas": "mk-41313-analisis-struktur-statis-tertentu.html",
+     "berkas_en": "course-41313-analysis-of-certain-static-structures.html"
     },
     {
-     "kode": "41308",
+     "kode": "41314",
      "nama": "Rekayasa Bahan",
      "semester": 3,
      "nama_en": "Materials Engineering",
@@ -5220,11 +5220,11 @@
       "C",
       "I"
      ],
-     "berkas": "mk-41308-rekayasa-bahan.html",
-     "berkas_en": "course-41308-materials-engineering.html"
+     "berkas": "mk-41314-rekayasa-bahan.html",
+     "berkas_en": "course-41314-materials-engineering.html"
     },
     {
-     "kode": "41309",
+     "kode": "41315",
      "nama": "Praktikum Teknologi Bahan",
      "semester": 3,
      "nama_en": "Materials Technology Laboratory",
@@ -5240,17 +5240,17 @@
      "cpl": [
       "H"
      ],
-     "berkas": "mk-41309-praktikum-teknologi-bahan.html",
-     "berkas_en": "course-41309-materials-technology-laboratory.html"
+     "berkas": "mk-41315-praktikum-teknologi-bahan.html",
+     "berkas_en": "course-41315-materials-technology-laboratory.html"
     },
     {
-     "kode": "41310",
+     "kode": "41316",
      "nama": "Mekanika Fluida dan Hidraulika",
      "semester": 3,
      "nama_en": "Fluid and Hydraulic Mechanics",
-     "sks": 3.0,
+     "sks": 2.0,
      "bagian": {
-      "kuliah": 3.0,
+      "kuliah": 2.0,
       "seminar": 0.0,
       "praktikum": 0.0
      },
@@ -5261,11 +5261,11 @@
       "C",
       "G"
      ],
-     "berkas": "mk-41310-mekanika-fluida-dan-hidraulika.html",
-     "berkas_en": "course-41310-fluid-and-hydraulic-mechanics.html"
+     "berkas": "mk-41316-mekanika-fluida-dan-hidraulika.html",
+     "berkas_en": "course-41316-fluid-and-hydraulic-mechanics.html"
     },
     {
-     "kode": "41311",
+     "kode": "41317",
      "nama": "Praktikum Mekanika Fluida dan Hidraulika",
      "semester": 3,
      "nama_en": "Fluid and Hydraulic Mechanics Laboratory",
@@ -5281,11 +5281,11 @@
      "cpl": [
       "H"
      ],
-     "berkas": "mk-41311-praktikum-mekanika-fluida-dan-hidraulika.html",
-     "berkas_en": "course-41311-fluid-and-hydraulic-mechanics-laboratory.html"
+     "berkas": "mk-41317-praktikum-mekanika-fluida-dan-hidraulika.html",
+     "berkas_en": "course-41317-fluid-and-hydraulic-mechanics-laboratory.html"
     },
     {
-     "kode": "41312",
+     "kode": "41318",
      "nama": "Rekayasa Lalulintas dan Sistem Transportasi",
      "semester": 3,
      "nama_en": "Traffic Engineering and Transportation Systems",
@@ -5302,8 +5302,8 @@
       "C",
       "H"
      ],
-     "berkas": "mk-41312-rekayasa-lalulintas-dan-sistem-transportasi.html",
-     "berkas_en": "course-41312-traffic-engineering-and-transportation-systems.html"
+     "berkas": "mk-41318-rekayasa-lalulintas-dan-sistem-transportasi.html",
+     "berkas_en": "course-41318-traffic-engineering-and-transportation-systems.html"
     },
     {
      "kode": "01103",
@@ -5327,7 +5327,7 @@
      "berkas_en": "course-01103-civics.html"
     },
     {
-     "kode": "41313",
+     "kode": "41319",
      "nama": "Persamaan Diferensial",
      "semester": 4,
      "nama_en": "Differential Equation",
@@ -5344,11 +5344,11 @@
       "C",
       "G"
      ],
-     "berkas": "mk-41313-persamaan-diferensial.html",
-     "berkas_en": "course-41313-differential-equation.html"
+     "berkas": "mk-41319-persamaan-diferensial.html",
+     "berkas_en": "course-41319-differential-equation.html"
     },
     {
-     "kode": "41314",
+     "kode": "41320",
      "nama": "Mekanika Bahan",
      "semester": 4,
      "nama_en": "Material Mechanics",
@@ -5365,11 +5365,11 @@
       "C",
       "G"
      ],
-     "berkas": "mk-41314-mekanika-bahan.html",
-     "berkas_en": "course-41314-material-mechanics.html"
+     "berkas": "mk-41320-mekanika-bahan.html",
+     "berkas_en": "course-41320-material-mechanics.html"
     },
     {
-     "kode": "41315",
+     "kode": "41321",
      "nama": "Mekanika Tanah 1",
      "semester": 4,
      "nama_en": "Soil Mechanics 1",
@@ -5386,11 +5386,11 @@
       "C",
       "G"
      ],
-     "berkas": "mk-41315-mekanika-tanah-1.html",
-     "berkas_en": "course-41315-soil-mechanics-1.html"
+     "berkas": "mk-41321-mekanika-tanah-1.html",
+     "berkas_en": "course-41321-soil-mechanics-1.html"
     },
     {
-     "kode": "41316",
+     "kode": "41322",
      "nama": "Praktikum Mekanika Tanah 1",
      "semester": 4,
      "nama_en": "Soil Mechanics Laboratory 1",
@@ -5406,11 +5406,11 @@
      "cpl": [
       "H"
      ],
-     "berkas": "mk-41316-praktikum-mekanika-tanah-1.html",
-     "berkas_en": "course-41316-soil-mechanics-laboratory-1.html"
+     "berkas": "mk-41322-praktikum-mekanika-tanah-1.html",
+     "berkas_en": "course-41322-soil-mechanics-laboratory-1.html"
     },
     {
-     "kode": "41317",
+     "kode": "41323",
      "nama": "Hidrologi",
      "semester": 4,
      "nama_en": "Hydrology",
@@ -5427,11 +5427,11 @@
       "C",
       "J"
      ],
-     "berkas": "mk-41317-hidrologi.html",
-     "berkas_en": "course-41317-hydrology.html"
+     "berkas": "mk-41323-hidrologi.html",
+     "berkas_en": "course-41323-hydrology.html"
     },
     {
-     "kode": "41318",
+     "kode": "41324",
      "nama": "Geometri Jalan Raya",
      "semester": 4,
      "nama_en": "Road Geometry",
@@ -5448,11 +5448,11 @@
       "C",
       "I"
      ],
-     "berkas": "mk-41318-geometri-jalan-raya.html",
-     "berkas_en": "course-41318-road-geometry.html"
+     "berkas": "mk-41324-geometri-jalan-raya.html",
+     "berkas_en": "course-41324-road-geometry.html"
     },
     {
-     "kode": "41319",
+     "kode": "41325",
      "nama": "Mekanika Gelombang Laut",
      "semester": 4,
      "nama_en": "Ocean Wave Mechanics",
@@ -5469,8 +5469,8 @@
       "C",
       "G"
      ],
-     "berkas": "mk-41319-mekanika-gelombang-laut.html",
-     "berkas_en": "course-41319-ocean-wave-mechanics.html"
+     "berkas": "mk-41325-mekanika-gelombang-laut.html",
+     "berkas_en": "course-41325-ocean-wave-mechanics.html"
     },
     {
      "kode": "41502",
@@ -5514,7 +5514,7 @@
      "berkas_en": "course-01208-english-2.html"
     },
     {
-     "kode": "41320",
+     "kode": "41337",
      "nama": "Metoda Numerik",
      "semester": 5,
      "nama_en": "Numerical Method",
@@ -5531,11 +5531,11 @@
       "G",
       "J"
      ],
-     "berkas": "mk-41320-metoda-numerik.html",
-     "berkas_en": "course-41320-numerical-method.html"
+     "berkas": "mk-41337-metoda-numerik.html",
+     "berkas_en": "course-41337-numerical-method.html"
     },
     {
-     "kode": "41321",
+     "kode": "41338",
      "nama": "Struktur Baja",
      "semester": 5,
      "nama_en": "Steel Structure",
@@ -5552,11 +5552,11 @@
       "C",
       "I"
      ],
-     "berkas": "mk-41321-struktur-baja.html",
-     "berkas_en": "course-41321-steel-structure.html"
+     "berkas": "mk-41338-struktur-baja.html",
+     "berkas_en": "course-41338-steel-structure.html"
     },
     {
-     "kode": "41322",
+     "kode": "41339",
      "nama": "Mekanika Tanah 2",
      "semester": 5,
      "nama_en": "Soil Mechanics 2",
@@ -5573,11 +5573,11 @@
       "C",
       "I"
      ],
-     "berkas": "mk-41322-mekanika-tanah-2.html",
-     "berkas_en": "course-41322-soil-mechanics-2.html"
+     "berkas": "mk-41339-mekanika-tanah-2.html",
+     "berkas_en": "course-41339-soil-mechanics-2.html"
     },
     {
-     "kode": "41323",
+     "kode": "41340",
      "nama": "Praktikum Mekanika Tanah 2",
      "semester": 5,
      "nama_en": "Soil Mechanics 2",
@@ -5593,11 +5593,11 @@
      "cpl": [
       "H"
      ],
-     "berkas": "mk-41323-praktikum-mekanika-tanah-2.html",
-     "berkas_en": "course-41323-soil-mechanics-2.html"
+     "berkas": "mk-41340-praktikum-mekanika-tanah-2.html",
+     "berkas_en": "course-41340-soil-mechanics-2.html"
     },
     {
-     "kode": "41324",
+     "kode": "41341",
      "nama": "Analisis Struktur Dengan Matriks",
      "semester": 5,
      "nama_en": "Structural Analysis with Matrix",
@@ -5614,11 +5614,11 @@
       "C",
       "G"
      ],
-     "berkas": "mk-41324-analisis-struktur-dengan-matriks.html",
-     "berkas_en": "course-41324-structural-analysis-with-matrix.html"
+     "berkas": "mk-41341-analisis-struktur-dengan-matriks.html",
+     "berkas_en": "course-41341-structural-analysis-with-matrix.html"
     },
     {
-     "kode": "41325",
+     "kode": "41342",
      "nama": "Struktur Beton",
      "semester": 5,
      "nama_en": "Concrete Structure",
@@ -5635,8 +5635,8 @@
       "C",
       "I"
      ],
-     "berkas": "mk-41325-struktur-beton.html",
-     "berkas_en": "course-41325-concrete-structure.html"
+     "berkas": "mk-41342-struktur-beton.html",
+     "berkas_en": "course-41342-concrete-structure.html"
     },
     {
      "kode": "41503",
@@ -5660,7 +5660,7 @@
      "berkas_en": "course-41503-engineering-economics.html"
     },
     {
-     "kode": "41326",
+     "kode": "41343",
      "nama": "Rekayasa Perkerasan Jalan",
      "semester": 6,
      "nama_en": "Road Pavement Engineering",
@@ -5677,11 +5677,11 @@
       "C",
       "I"
      ],
-     "berkas": "mk-41326-rekayasa-perkerasan-jalan.html",
-     "berkas_en": "course-41326-road-pavement-engineering.html"
+     "berkas": "mk-41343-rekayasa-perkerasan-jalan.html",
+     "berkas_en": "course-41343-road-pavement-engineering.html"
     },
     {
-     "kode": "41327",
+     "kode": "41344",
      "nama": "Praktikum Bahan Perkerasan Jalan",
      "semester": 6,
      "nama_en": "Road Pavement Materials Laboratory",
@@ -5697,11 +5697,11 @@
      "cpl": [
       "H"
      ],
-     "berkas": "mk-41327-praktikum-bahan-perkerasan-jalan.html",
-     "berkas_en": "course-41327-road-pavement-materials-laboratory.html"
+     "berkas": "mk-41344-praktikum-bahan-perkerasan-jalan.html",
+     "berkas_en": "course-41344-road-pavement-materials-laboratory.html"
     },
     {
-     "kode": "41328",
+     "kode": "41345",
      "nama": "Desain Struktur Baja Lepas Pantai",
      "semester": 6,
      "nama_en": "Offshore Platform Steel Structure Design",
@@ -5718,11 +5718,11 @@
       "C",
       "I"
      ],
-     "berkas": "mk-41328-desain-struktur-baja-lepas-pantai.html",
-     "berkas_en": "course-41328-offshore-platform-steel-structure-design.html"
+     "berkas": "mk-41345-desain-struktur-baja-lepas-pantai.html",
+     "berkas_en": "course-41345-offshore-platform-steel-structure-design.html"
     },
     {
-     "kode": "41329",
+     "kode": "41346",
      "nama": "Rekayasa Fondasi",
      "semester": 6,
      "nama_en": "Foundation Engineering",
@@ -5739,11 +5739,11 @@
       "C",
       "I"
      ],
-     "berkas": "mk-41329-rekayasa-fondasi.html",
-     "berkas_en": "course-41329-foundation-engineering.html"
+     "berkas": "mk-41346-rekayasa-fondasi.html",
+     "berkas_en": "course-41346-foundation-engineering.html"
     },
     {
-     "kode": "41330",
+     "kode": "41347",
      "nama": "Desain Struktur Beton Tahan Gempa",
      "semester": 6,
      "nama_en": "Earthquake Resistant Concrete Structure",
@@ -5760,11 +5760,11 @@
       "C",
       "I"
      ],
-     "berkas": "mk-41330-desain-struktur-beton-tahan-gempa.html",
-     "berkas_en": "course-41330-earthquake-resistant-concrete-structure.html"
+     "berkas": "mk-41347-desain-struktur-beton-tahan-gempa.html",
+     "berkas_en": "course-41347-earthquake-resistant-concrete-structure.html"
     },
     {
-     "kode": "41331",
+     "kode": "41348",
      "nama": "Metode Pelaksanaan Konstruksi dan K3",
      "semester": 6,
      "nama_en": "Construction Implementation Methods and HSE",
@@ -5781,11 +5781,11 @@
       "B",
       "K"
      ],
-     "berkas": "mk-41331-metode-pelaksanaan-konstruksi-dan-k3.html",
-     "berkas_en": "course-41331-construction-implementation-methods-and-hse.html"
+     "berkas": "mk-41348-metode-pelaksanaan-konstruksi-dan-k3.html",
+     "berkas_en": "course-41348-construction-implementation-methods-and-hse.html"
     },
     {
-     "kode": "41332",
+     "kode": "41349",
      "nama": "Hidrologi Bendungan dan Energi Air",
      "semester": 6,
      "nama_en": "Dam Hydrology and Water Energy",
@@ -5802,8 +5802,8 @@
       "C",
       "I"
      ],
-     "berkas": "mk-41332-hidrologi-bendungan-dan-energi-air.html",
-     "berkas_en": "course-41332-dam-hydrology-and-water-energy.html"
+     "berkas": "mk-41349-hidrologi-bendungan-dan-energi-air.html",
+     "berkas_en": "course-41349-dam-hydrology-and-water-energy.html"
     },
     {
      "kode": "01206",
@@ -5867,7 +5867,7 @@
      "berkas_en": "course-01212-studium-generale.html"
     },
     {
-     "kode": "41333",
+     "kode": "41350",
      "nama": "Kerja Praktik",
      "semester": 7,
      "nama_en": "Internship",
@@ -5887,11 +5887,11 @@
       "E",
       "F"
      ],
-     "berkas": "mk-41333-kerja-praktik.html",
-     "berkas_en": "course-41333-internship.html"
+     "berkas": "mk-41350-kerja-praktik.html",
+     "berkas_en": "course-41350-internship.html"
     },
     {
-     "kode": "41334",
+     "kode": "41351",
      "nama": "Perancangan Bangunan dan Inovasi Teknik Sipil",
      "semester": 7,
      "nama_en": "Building Design and Civil Engineering Innovation",
@@ -5912,11 +5912,11 @@
       "J",
       "K"
      ],
-     "berkas": "mk-41334-perancangan-bangunan-dan-inovasi-teknik-sipil.html",
-     "berkas_en": "course-41334-building-design-and-civil-engineering-innovation.html"
+     "berkas": "mk-41351-perancangan-bangunan-dan-inovasi-teknik-sipil.html",
+     "berkas_en": "course-41351-building-design-and-civil-engineering-innovation.html"
     },
     {
-     "kode": "41335",
+     "kode": "41352",
      "nama": "Metodologi Penelitian",
      "semester": 7,
      "nama_en": "Research Methodology",
@@ -5933,8 +5933,8 @@
       "F",
       "H"
      ],
-     "berkas": "mk-41335-metodologi-penelitian.html",
-     "berkas_en": "course-41335-research-methodology.html"
+     "berkas": "mk-41352-metodologi-penelitian.html",
+     "berkas_en": "course-41352-research-methodology.html"
     },
     {
      "kode": "01101",
@@ -5996,7 +5996,7 @@
      "berkas_en": "course-01214-engineering-ethics.html"
     },
     {
-     "kode": "41336",
+     "kode": "41353",
      "nama": "Tugas Akhir",
      "semester": 8,
      "nama_en": "Final Project",
@@ -6017,8 +6017,8 @@
       "I",
       "J"
      ],
-     "berkas": "mk-41336-tugas-akhir.html",
-     "berkas_en": "course-41336-final-project.html"
+     "berkas": "mk-41353-tugas-akhir.html",
+     "berkas_en": "course-41353-final-project.html"
     },
     {
      "kode": "41401",
@@ -6043,7 +6043,7 @@
      "berkas_en": "course-41401-structural-dynamics.html"
     },
     {
-     "kode": "41402",
+     "kode": "41404",
      "nama": "Analisis Konstruksi Anjungan Lepas Pantai",
      "semester": null,
      "nama_en": "Offshore Platform Construction Analysis",
@@ -6061,11 +6061,11 @@
       "I",
       "J"
      ],
-     "berkas": "mk-41402-analisis-konstruksi-anjungan-lepas-pantai.html",
-     "berkas_en": "course-41402-offshore-platform-construction-analysis.html"
+     "berkas": "mk-41404-analisis-konstruksi-anjungan-lepas-pantai.html",
+     "berkas_en": "course-41404-offshore-platform-construction-analysis.html"
     },
     {
-     "kode": "41403",
+     "kode": "41405",
      "nama": "Desain Bangunan Terapung",
      "semester": null,
      "nama_en": "Design of Floating Structure",
@@ -6083,11 +6083,11 @@
       "I",
       "J"
      ],
-     "berkas": "mk-41403-desain-bangunan-terapung.html",
-     "berkas_en": "course-41403-design-of-floating-structure.html"
+     "berkas": "mk-41405-desain-bangunan-terapung.html",
+     "berkas_en": "course-41405-design-of-floating-structure.html"
     },
     {
-     "kode": "41404",
+     "kode": "41406",
      "nama": "Manajemen Konstruksi dan Aspek Hukum Proyek",
      "semester": null,
      "nama_en": "Construction Management and Legal Aspects of the Project",
@@ -6105,11 +6105,11 @@
       "B",
       "K"
      ],
-     "berkas": "mk-41404-manajemen-konstruksi-dan-aspek-hukum-proyek.html",
-     "berkas_en": "course-41404-construction-management-and-legal-aspects-of-the-project.html"
+     "berkas": "mk-41406-manajemen-konstruksi-dan-aspek-hukum-proyek.html",
+     "berkas_en": "course-41406-construction-management-and-legal-aspects-of-the-project.html"
     },
     {
-     "kode": "41405",
+     "kode": "41407",
      "nama": "Standar Internasional dalam Manajemen Konstruksi",
      "semester": null,
      "nama_en": "International Standards in Construction Management",
@@ -6127,11 +6127,11 @@
       "B",
       "K"
      ],
-     "berkas": "mk-41405-standar-internasional-dalam-manajemen-konstruksi.html",
-     "berkas_en": "course-41405-international-standards-in-construction-management.html"
+     "berkas": "mk-41407-standar-internasional-dalam-manajemen-konstruksi.html",
+     "berkas_en": "course-41407-international-standards-in-construction-management.html"
     },
     {
-     "kode": "41406",
+     "kode": "41408",
      "nama": "Rekayasa Fondasi Lanjut",
      "semester": null,
      "nama_en": "Advance Foundation Engineering",
@@ -6149,11 +6149,11 @@
       "C",
       "I"
      ],
-     "berkas": "mk-41406-rekayasa-fondasi-lanjut.html",
-     "berkas_en": "course-41406-advance-foundation-engineering.html"
+     "berkas": "mk-41408-rekayasa-fondasi-lanjut.html",
+     "berkas_en": "course-41408-advance-foundation-engineering.html"
     },
     {
-     "kode": "41407",
+     "kode": "41409",
      "nama": "Mekanika Tanah Lanjut",
      "semester": null,
      "nama_en": "Advance Soil Mechanics",
@@ -6171,11 +6171,11 @@
       "C",
       "I"
      ],
-     "berkas": "mk-41407-mekanika-tanah-lanjut.html",
-     "berkas_en": "course-41407-advance-soil-mechanics.html"
+     "berkas": "mk-41409-mekanika-tanah-lanjut.html",
+     "berkas_en": "course-41409-advance-soil-mechanics.html"
     },
     {
-     "kode": "41408",
+     "kode": "41410",
      "nama": "Rekayasa Gempa dalam Geoteknik",
      "semester": null,
      "nama_en": "Geotechnical Earthquake Engineering",
@@ -6193,11 +6193,11 @@
       "C",
       "I"
      ],
-     "berkas": "mk-41408-rekayasa-gempa-dalam-geoteknik.html",
-     "berkas_en": "course-41408-geotechnical-earthquake-engineering.html"
+     "berkas": "mk-41410-rekayasa-gempa-dalam-geoteknik.html",
+     "berkas_en": "course-41410-geotechnical-earthquake-engineering.html"
     },
     {
-     "kode": "41409",
+     "kode": "41411",
      "nama": "Perbaikan Tanah",
      "semester": null,
      "nama_en": "Soil Improvement and Stabilization",
@@ -6215,11 +6215,11 @@
       "C",
       "I"
      ],
-     "berkas": "mk-41409-perbaikan-tanah.html",
-     "berkas_en": "course-41409-soil-improvement-and-stabilization.html"
+     "berkas": "mk-41411-perbaikan-tanah.html",
+     "berkas_en": "course-41411-soil-improvement-and-stabilization.html"
     },
     {
-     "kode": "41410",
+     "kode": "41412",
      "nama": "Analisis Kebutuhan Pergerakan",
      "semester": null,
      "nama_en": "Transportation Modelling and Analysis",
@@ -6237,11 +6237,11 @@
       "C",
       "I"
      ],
-     "berkas": "mk-41410-analisis-kebutuhan-pergerakan.html",
-     "berkas_en": "course-41410-transportation-modelling-and-analysis.html"
+     "berkas": "mk-41412-analisis-kebutuhan-pergerakan.html",
+     "berkas_en": "course-41412-transportation-modelling-and-analysis.html"
     },
     {
-     "kode": "41411",
+     "kode": "41413",
      "nama": "Rekayasa Bandara",
      "semester": null,
      "nama_en": "Airport Engineering",
@@ -6259,11 +6259,11 @@
       "C",
       "I"
      ],
-     "berkas": "mk-41411-rekayasa-bandara.html",
-     "berkas_en": "course-41411-airport-engineering.html"
+     "berkas": "mk-41413-rekayasa-bandara.html",
+     "berkas_en": "course-41413-airport-engineering.html"
     },
     {
-     "kode": "41412",
+     "kode": "41414",
      "nama": "Transportasi Berkelanjutan",
      "semester": null,
      "nama_en": "Sustainable Transportation",
@@ -6281,11 +6281,11 @@
       "C",
       "I"
      ],
-     "berkas": "mk-41412-transportasi-berkelanjutan.html",
-     "berkas_en": "course-41412-sustainable-transportation.html"
+     "berkas": "mk-41414-transportasi-berkelanjutan.html",
+     "berkas_en": "course-41414-sustainable-transportation.html"
     },
     {
-     "kode": "41413",
+     "kode": "41415",
      "nama": "Hidrologi Lanjut",
      "semester": null,
      "nama_en": "Advanced Hydrology",
@@ -6303,11 +6303,11 @@
       "C",
       "J"
      ],
-     "berkas": "mk-41413-hidrologi-lanjut.html",
-     "berkas_en": "course-41413-advanced-hydrology.html"
+     "berkas": "mk-41415-hidrologi-lanjut.html",
+     "berkas_en": "course-41415-advanced-hydrology.html"
     },
     {
-     "kode": "41414",
+     "kode": "41416",
      "nama": "Rekayasa Pelabuhan",
      "semester": null,
      "nama_en": "Port Engineering",
@@ -6325,11 +6325,11 @@
       "I",
       "J"
      ],
-     "berkas": "mk-41414-rekayasa-pelabuhan.html",
-     "berkas_en": "course-41414-port-engineering.html"
+     "berkas": "mk-41416-rekayasa-pelabuhan.html",
+     "berkas_en": "course-41416-port-engineering.html"
     },
     {
-     "kode": "41415",
+     "kode": "41417",
      "nama": "Perencanaan Drainase",
      "semester": null,
      "nama_en": "Drainage Planning",
@@ -6347,11 +6347,11 @@
       "I",
       "J"
      ],
-     "berkas": "mk-41415-perencanaan-drainase.html",
-     "berkas_en": "course-41415-drainage-planning.html"
+     "berkas": "mk-41417-perencanaan-drainase.html",
+     "berkas_en": "course-41417-drainage-planning.html"
     },
     {
-     "kode": "41416",
+     "kode": "41418",
      "nama": "Model Sumberdaya Air",
      "semester": null,
      "nama_en": "Water Resources Model",
@@ -6369,11 +6369,11 @@
       "C",
       "J"
      ],
-     "berkas": "mk-41416-model-sumberdaya-air.html",
-     "berkas_en": "course-41416-water-resources-model.html"
+     "berkas": "mk-41418-model-sumberdaya-air.html",
+     "berkas_en": "course-41418-water-resources-model.html"
     },
     {
-     "kode": "41417",
+     "kode": "41419",
      "nama": "Proses dan Bangunan Pantai",
      "semester": null,
      "nama_en": "Coastal Process and Structure",
@@ -6391,11 +6391,11 @@
       "C",
       "I"
      ],
-     "berkas": "mk-41417-proses-dan-bangunan-pantai.html",
-     "berkas_en": "course-41417-coastal-process-and-structure.html"
+     "berkas": "mk-41419-proses-dan-bangunan-pantai.html",
+     "berkas_en": "course-41419-coastal-process-and-structure.html"
     },
     {
-     "kode": "41418",
+     "kode": "41420",
      "nama": "Manajemen Perencanaan Pesisir",
      "semester": null,
      "nama_en": "Coastal Planning Management",
@@ -6413,11 +6413,11 @@
       "C",
       "K"
      ],
-     "berkas": "mk-41418-manajemen-perencanaan-pesisir.html",
-     "berkas_en": "course-41418-coastal-planning-management.html"
+     "berkas": "mk-41420-manajemen-perencanaan-pesisir.html",
+     "berkas_en": "course-41420-coastal-planning-management.html"
     },
     {
-     "kode": "41419",
+     "kode": "41421",
      "nama": "Aspek Kebencanaan dan Kegagalan Infrastruktur",
      "semester": null,
      "nama_en": "Aspects of Disaster and Infrastructure Failure",
@@ -6434,8 +6434,8 @@
      "cpl": [
       "C"
      ],
-     "berkas": "mk-41419-aspek-kebencanaan-dan-kegagalan-infrastruktur.html",
-     "berkas_en": "course-41419-aspects-of-disaster-and-infrastructure-failure.html"
+     "berkas": "mk-41421-aspek-kebencanaan-dan-kegagalan-infrastruktur.html",
+     "berkas_en": "course-41421-aspects-of-disaster-and-infrastructure-failure.html"
     },
     {
      "kode": "41504",
