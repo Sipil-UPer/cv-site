@@ -9,7 +9,7 @@
 //   nilai akhir    = Σ(rata-rata bagian × bobot) / Σ bobot bagian yang sudah ada nilainya;
 //   nilai akhir < batas lulus -> mengulang (otomatis), selain itu lulus / lulus dengan revisi (dipilih koordinator).
 
-import { statusBimbingan, labelCara } from './bimbingan-ta.js?v=2026-11-25-4a2683';
+import { statusBimbingan, labelCara } from './bimbingan-ta.js?v=2026-11-25-396401';
 
 export const TAHAP_NILAI = [['seminar_proposal', 'Seminar proposal'], ['seminar_kemajuan', 'Seminar kemajuan'], ['sidang_akhir', 'Sidang akhir']];
 export const labelTahap = t => (TAHAP_NILAI.find(x => x[0] === t) || [, t || ''])[1];
@@ -529,46 +529,39 @@ export function lembarKomponenSiup(rows, nilai = [], rubrik = []){
 }
 
 /**
- * Lembar unggah SIUP per peran (pemilik 2026-11-25: "per peran; bila penguji 2, bobotnya dibagi sesuai jumlah dosen penguji,
- * juga pembimbing"). Format sama dengan ekspor SIUP yang pernah diunggah: No; NIM; Nama; "<komponen> (<nama>) (xx.xx%)" ...;
- * "Nilai Akhir". Satu kolom per dosen: Penguji i = bobot penguji / jumlah penguji; Pembimbing i = bobot pembimbing saat
- * seminar/sidang / jumlah pembimbing; Bimbingan i = bobot proses bimbingan / jumlah pembimbing (sidang akhir). Penguji luar
- * dihitung penguji. Satu berkas SIUP harus berkolom sama, jadi satu lembar per susunan (tahap + kolom).
- * rows = jadwal_ta (berita acara ditetapkan); nilai = ta_nilai; rubrik = ta_rubrik [{id, bobot_penguji, bobot_bimbingan}].
- * Hasil { lembar: [{nama, baris}], keterangan: [[...]] }.
+ * Lembar unggah SIUP (pemilik 2026-11-25, tangkapan layar "Daftar Komponen Kelas - Tugas Akhir-<pembimbing> 2026-1"): kelas TA
+ * di SIUP per pembimbing, tiga komponen tetap untuk SIDANG AKHIR:
+ *   Sidang (72273) 40 % "Penguji - Sidang"; Sidang (72274) 10 % "Pembimbing - Sidang"; Bimbingan (72275) 50 % "Pembimbing - Bimbingan".
+ * Nilai komponen = rata-rata dosen peran itu (dua penguji = rata-rata keduanya; sama dengan membagi bobot ke jumlah dosen,
+ * keinginan pemilik); penguji luar dihitung penguji. Judul kolom mengikuti ekspor SIUP yang pernah diunggah pemilik
+ * ("<nama komponen> (<detail>) (xx.00%)", mis. "Bimbingan (Institusi) (40.00%)"); bobot dari form penilaian sidang (harus sama
+ * dengan SIUP). Seminar proposal/kemajuan tidak punya komponen di SIUP (tidak masuk lembar ini).
+ * Satu lembar per kelas = pembimbing 1. rows = jadwal_ta (berita acara ditetapkan); nilai = ta_nilai; rubrik = ta_rubrik;
+ * dosen = {nidn: nama}. Hasil { lembar: [{nama, baris}], keterangan: [[...]] }.
  */
-export function lembarSiupPeran(rows, nilai = [], rubrik = []){
+export function lembarSiupPeran(rows, nilai = [], rubrik = [], dosen = {}){
   const persen = w => (Math.round(w * 100) / 100).toFixed(2);
-  const kelompok = new Map(), ket = [['NIM', 'Nama', 'Tahap', 'Lembar', 'Kolom', 'Dosen']];
-  const singkat = { seminar_proposal: 'Proposal', seminar_kemajuan: 'Kemajuan', sidang_akhir: 'Sidang' };
-  for (const j of [...rows].filter(r => r.ba_ditetapkan)
-    .sort((a, b) => String(a.tanggal).localeCompare(String(b.tanggal)) || String(a.nim).localeCompare(String(b.nim)))) {
+  const rata = xs => xs.length ? bulat(xs.reduce((a, n) => a + +n.total, 0) / xs.length) : '';
+  const kelas = new Map(), ket = [['Kelas (pembimbing 1)', 'NIM', 'Nama', 'Komponen', 'Dosen yang dirata-rata']];
+  for (const j of [...rows].filter(r => r.ba_ditetapkan && r.tahap === 'sidang_akhir')
+    .sort((a, b) => String(a.nim).localeCompare(String(b.nim)))) {
     const xs = nilai.filter(n => n.jadwal_id === j.id);
-    const r = rubrik.find(x => x.id === (j.rubrik_id ?? xs[0]?.rubrik_id)) || {};
-    const w = bobotBagian(r);
-    const urut = (daftar, n) => { const i = (daftar || []).indexOf(n.penilai_nidn); return i < 0 ? 999 : i; };
-    const penguji = xs.filter(n => (n.bagian || 'seminar') === 'seminar' && n.peran === 'penguji')
-      .sort((a, b) => urut(j.penguji, a) - urut(j.penguji, b) || String(a.penilai_nama).localeCompare(String(b.penilai_nama)));
-    const pemb = xs.filter(n => (n.bagian || 'seminar') === 'seminar' && n.peran === 'pembimbing').sort((a, b) => urut(j.pembimbing, a) - urut(j.pembimbing, b));
-    const bimb = xs.filter(n => n.bagian === 'bimbingan').sort((a, b) => urut(j.pembimbing, a) - urut(j.pembimbing, b));
-    const kolom = [
-      ...penguji.map((n, i) => [`Penguji ${i + 1}`, w.penguji / penguji.length, n]),
-      ...(w.pembimbing > 0 ? pemb.map((n, i) => [`Pembimbing ${i + 1}`, w.pembimbing / pemb.length, n]) : []),
-      ...(w.bimbingan > 0 ? bimb.map((n, i) => [`Bimbingan ${i + 1}`, w.bimbingan / bimb.length, n]) : [])];
-    const judul = kolom.map(([k, b]) => `${k} (${k}) (${persen(b)}%)`);
-    const kunci = j.tahap + '|' + judul.join('|');
-    if (!kelompok.has(kunci)) {
-      const np = penguji.length, nb = pemb.length || bimb.length;
-      kelompok.set(kunci, { nama: `${singkat[j.tahap] || 'TA'} ${np}Pg ${nb}Pb`, baris: [['No', 'NIM', 'Nama', ...judul, 'Nilai Akhir']] });
-    }
-    const g = kelompok.get(kunci);
-    g.baris.push([g.baris.length, j.nim || '', j.nama_mahasiswa || '', ...kolom.map(([, , n]) => n.total == null ? '' : +n.total),
-      j.nilai_akhir == null ? '' : +j.nilai_akhir]);
-    for (const [k, , n] of kolom) ket.push([j.nim || '', j.nama_mahasiswa || '', labelTahap(j.tahap), g.nama, k, n.penilai_nama]);
+    const w = bobotBagian(rubrik.find(x => x.id === (j.rubrik_id ?? xs[0]?.rubrik_id)) || {});
+    const pg = xs.filter(n => (n.bagian || 'seminar') === 'seminar' && n.peran === 'penguji');
+    const pb = xs.filter(n => (n.bagian || 'seminar') === 'seminar' && n.peran === 'pembimbing');
+    const bm = xs.filter(n => n.bagian === 'bimbingan');
+    const kolom = [['Sidang (Penguji - Sidang)', w.penguji, pg], ['Sidang (Pembimbing - Sidang)', w.pembimbing, pb],
+                   ['Bimbingan (Pembimbing - Bimbingan)', w.bimbingan, bm]];
+    const p1 = (j.pembimbing || [])[0], nmKelas = String(dosen[p1] || p1 || 'Tanpa pembimbing');
+    const judul = kolom.map(([k, b]) => `${k} (${persen(b)}%)`);
+    const kunci = nmKelas + '|' + judul.join('|');
+    if (!kelas.has(kunci)) kelas.set(kunci, { nama: ('TA ' + nmKelas).replace(/[\/?*[\]:]/g, ' ').slice(0, 31), baris: [['No', 'NIM', 'Nama', ...judul, 'Nilai Akhir']] });
+    const g = kelas.get(kunci);
+    g.baris.push([g.baris.length, j.nim || '', j.nama_mahasiswa || '', ...kolom.map(([, , d]) => rata(d)), j.nilai_akhir == null ? '' : +j.nilai_akhir]);
+    for (const [k, , d] of kolom) ket.push([nmKelas, j.nim || '', j.nama_mahasiswa || '', k, d.map(n => n.penilai_nama).join('; ')]);
   }
-  // Nama lembar unik (maks. 31 huruf): susunan sama di tahap berbeda sudah dibedakan oleh nama tahap.
-  const lembar = [...kelompok.values()];
-  const dipakai = new Map();
-  for (const l of lembar) { const n = (dipakai.get(l.nama) || 0) + 1; dipakai.set(l.nama, n); if (n > 1) l.nama = `${l.nama} (${n})`; l.nama = l.nama.slice(0, 31); }
+  // Nama lembar unik (maks. 31 huruf): pembimbing sama dengan bobot form berbeda mendapat akhiran.
+  const lembar = [...kelas.values()], dipakai = new Map();
+  for (const l of lembar) { const n = (dipakai.get(l.nama) || 0) + 1; dipakai.set(l.nama, n); if (n > 1) l.nama = `${l.nama.slice(0, 26)} (${n})`; }
   return { lembar, keterangan: ket };
 }

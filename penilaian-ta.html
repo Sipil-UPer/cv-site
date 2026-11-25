@@ -11,8 +11,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-25-4a2683">
-<link rel="stylesheet" href="kepala.css?v=2026-11-25-4a2683">
+<link rel="stylesheet" href="tema.css?v=2026-11-25-396401">
+<link rel="stylesheet" href="kepala.css?v=2026-11-25-396401">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
@@ -65,7 +65,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></div>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-25-4a2683"></script>
+<script src="config.js?v=2026-11-25-396401"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -89,11 +89,11 @@ addEventListener('error', function (e) {
 //   * form penilaian diubah koordinator TA/admin; tiap simpan = versi baru, jadwal yang sudah dinilai tetap memakai versinya.
 // Hitungan di layar dari penilaian-ta.js; yang berlaku saat menetapkan dihitung ulang di Supabase (ta_nilai_hitung).
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-25-4a2683';
-import { punya } from './koordinator.js?v=2026-11-25-4a2683';
+import { gerbang } from './menu.js?v=2026-11-25-396401';
+import { punya } from './koordinator.js?v=2026-11-25-396401';
 import { TAHAP_NILAI, labelTahap, PERAN_NILAI, HASIL_LABEL, TINGKAT_AWAL, angka, bulat, bobotBagian, cekNilai, totalNilai, rekapNilai,
-         cekRubrik, tingkatDari, labelTingkat, htmlBA, lembarSiup, lembarKomponenSiup, lembarSiupPeran } from './penilaian-ta.js?v=2026-11-25-4a2683';
-import { SHEETJS } from './nilai-cpl.js?v=2026-11-25-4a2683';
+         cekRubrik, tingkatDari, labelTingkat, htmlBA, lembarSiup, lembarKomponenSiup, lembarSiupPeran } from './penilaian-ta.js?v=2026-11-25-396401';
+import { SHEETJS } from './nilai-cpl.js?v=2026-11-25-396401';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
@@ -495,7 +495,8 @@ function gambarSiup(){
       && (!SIUP_TAHAP || j.tahap === SIUP_TAHAP) && (!SIUP_BELUM || !j.siup_diunggah))
     .sort((a, b) => a.tanggal.localeCompare(b.tanggal));
   el.innerHTML = `<p class="ket">Nilai dari berita acara yang sudah ditetapkan${KOOR ? '' : ' untuk mahasiswa bimbingan Anda'}. Pembimbing
-      mengunduh Excel (lembar pertama berformat SIUP: satu kolom per penguji/pembimbing, bobot peran dibagi rata ke jumlah dosennya), mengisikannya ke SIUP, lalu
+      mengunduh Excel (lembar "TA &lt;pembimbing&gt;" berformat komponen kelas TA di SIUP: Penguji - Sidang, Pembimbing - Sidang, Pembimbing - Bimbingan;
+      nilai tiap komponen = rata-rata dosen peran itu), mengisikannya ke SIUP, lalu
       centang dan tandai <b>sudah diunggah</b>. Bila berita acara dibuka kembali, tandanya hilang dan nilainya perlu diunggah ulang.</p>
     <div class="saring"><label>Tahap <select id="siupTahap"><option value="">Semua</option>${TAHAP_NILAI.map(([k, l]) =>
       `<option value="${k}"${k === SIUP_TAHAP ? ' selected' : ''}>${esc(l)}</option>`).join('')}</select></label>
@@ -537,15 +538,16 @@ async function unduhSiup(xs){
     const lembar = (nama, baris) => { const ws = X.utils.aoa_to_sheet(baris);
       ws['!cols'] = baris[0].map((_, j) => ({ wch: Math.min(50, Math.max(8, ...baris.slice(0, 200).map(r => String(r[j] ?? '').length))) }));
       X.utils.book_append_sheet(wb, ws, nama); };
-    // Pemilik 2026-11-25: format unggah SIUP per peran, bobot dibagi rata ke jumlah dosen tiap peran; satu lembar per susunan.
-    const per = lembarSiupPeran(xs, nq.data || [], rq.data || []);
+    // Pemilik 2026-11-25: komponen kelas TA di SIUP (sidang akhir): Penguji - Sidang 40 %, Pembimbing - Sidang 10 %,
+    // Pembimbing - Bimbingan 50 %; nilai = rata-rata dosen peran itu; satu lembar per kelas (pembimbing 1).
+    const per = lembarSiupPeran(xs, nq.data || [], rq.data || [], DOSEN_NIDN);
     for (const l of per.lembar) lembar(l.nama, l.baris);
-    lembar('Dosen per kolom', per.keterangan);
+    lembar('Dosen yang dirata-rata', per.keterangan);
     lembar('Nilai per komponen', lembarKomponenSiup(xs, nq.data || [], rq.data || []));   // 179: rincian rubrik
     lembar('Nilai akhir', lembarSiup(xs, DOSEN_NIDN));
     const ket = X.utils.aoa_to_sheet([['Nilai TA untuk SIUP'], ['Tahap', SIUP_TAHAP ? labelTahap(SIUP_TAHAP) : 'Semua'],
       ['Isi', SIUP_BELUM ? 'Hanya yang belum ditandai diunggah ke SIUP' : 'Semua berita acara yang sudah ditetapkan'],
-      ['Diunduh', new Date().toLocaleString('id-ID')], ['Catatan', 'Lembar pertama (mis. "Sidang 2Pg 1Pb") berformat unggah SIUP: satu kolom per dosen, bobot peran dibagi rata ke jumlah dosen peran itu; satu lembar per susunan (jumlah penguji/pembimbing). Lembar "Dosen per kolom": siapa Penguji 1, 2, dst. tiap mahasiswa. Bobot dibulatkan 2 desimal (mis. 13,33 %), sehingga hitungan SIUP bisa berbeda sedikit dari Nilai Akhir berita acara. Memuat NIM: untuk keperluan internal.']]);
+      ['Diunduh', new Date().toLocaleString('id-ID')], ['Catatan', 'Lembar "TA <pembimbing>" berformat komponen kelas TA di SIUP (sidang akhir): Sidang (Penguji - Sidang), Sidang (Pembimbing - Sidang), Bimbingan (Pembimbing - Bimbingan); nilai tiap komponen = rata-rata dosen peran itu (lihat lembar "Dosen yang dirata-rata"). Bobot dari form penilaian sidang; samakan dengan bobot komponen di SIUP. Seminar proposal/kemajuan tidak diunggah ke SIUP (rinciannya di lembar Nilai per komponen). Memuat NIM: untuk keperluan internal.']]);
     ket['!cols'] = [{ wch: 10 }, { wch: 80 }];
     X.utils.book_append_sheet(wb, ket, 'Keterangan');
     X.writeFile(wb, `nilai-ta-siup-${new Date(Date.now() + 7 * 3600e3).toISOString().slice(0, 10)}.xlsx`);
