@@ -20,11 +20,11 @@
    diputuskan (pemilik 2026-11-24).
    Kolom yang tidak disimpan situs dibiarkan kosong (tanpa tebakan).
    ===================================================================== */
-import { JSZIP, tulisSel, petaLembar, hitungUlangSaatBuka } from './lkps.js?v=2026-11-24-1bc7f7';
-import { daftarProdi, STATUS_PS, tglTeks } from './pustaka-dokumen.js?v=2026-11-24-1bc7f7';
-import { nidnNuptk, masaBerlaku } from './profil-dosen.js?v=2026-11-24-1bc7f7';
-import { ampuPerTA, dosenTS } from './dosen-hitung.js?v=2026-11-24-1bc7f7';
-import { POS_A5 } from './keuangan-a5.js?v=2026-11-24-1bc7f7';
+import { JSZIP, tulisSel, petaLembar, hitungUlangSaatBuka } from './lkps.js?v=2026-11-25-35c4ae';
+import { daftarProdi, STATUS_PS, tglTeks } from './pustaka-dokumen.js?v=2026-11-25-35c4ae';
+import { nidnNuptk, masaBerlaku } from './profil-dosen.js?v=2026-11-25-35c4ae';
+import { ampuPerTA, dosenTS } from './dosen-hitung.js?v=2026-11-25-35c4ae';
+import { POS_A5 } from './keuangan-a5.js?v=2026-11-25-35c4ae';
 
 const JABATAN = { tenaga_pengajar: 'Tenaga Pengajar', asisten_ahli: 'Asisten Ahli', lektor: 'Lektor',
   lektor_kepala: 'Lektor Kepala', guru_besar: 'Profesor' };
@@ -34,6 +34,17 @@ export function kosongkanSel(xml, ref){
   const re = new RegExp(`<c r="${ref}"(?=[\\s>/])[^>]*?(?:/>|>[\\s\\S]*?</c>)`);
   const m = re.exec(xml);
   if (!m || /<f[\s>]/.test(m[0])) return xml;
+  const s = (/\ss="(\d+)"/.exec(m[0]) || [])[1];
+  return xml.slice(0, m.index) + `<c r="${ref}"${s ? ` s="${s}"` : ''}/>` + xml.slice(m.index + m[0].length);
+}
+
+// Kosongkan sel berumus (rumus dan nilai tersimpan), gaya tetap. Untuk rumus baris contoh templat yang
+// menjadi #DIV/0! bila barisnya tidak terisi (P.1.2 G/K/L 24-27, pemilik 2026-11-25). Rumus shared harus
+// dihapus satu kelompok utuh (induk dan semua anaknya); pemanggil yang menjamin.
+export function hapusRumus(xml, ref){
+  const re = new RegExp(`<c r="${ref}"(?=[\\s>/])[^>]*?(?:/>|>[\\s\\S]*?</c>)`);
+  const m = re.exec(xml);
+  if (!m || !/<f[\s>/]/.test(m[0])) return xml;
   const s = (/\ss="(\d+)"/.exec(m[0]) || [])[1];
   return xml.slice(0, m.index) + `<c r="${ref}"${s ? ` s="${s}"` : ''}/>` + xml.slice(m.index + m[0].length);
 }
@@ -238,7 +249,12 @@ export function petaLKPSLamdepilar(C){
   // P.1.2 Pembimbing utama tugas akhir (Data prodi › Pembimbing utama TA, 167-patch, pemilik 2026-11-24):
   // dosen dengan bimbingan > 0 pada TS-2 s.d. TS (PS ini atau PS lain), urut nama; tahun tanpa baris = 0.
   // G/K/L = rumus rata-rata templat, ditulis per baris (templat hanya punya rumus di baris contoh).
-  // Analisis R21/R22/U21/U22 tidak diisi (definisi "jumlah dosen" dan "> 6 mahasiswa" belum diputuskan).
+  // Analisis (pemilik 2026-11-25), sebagai rumus agar ikut berubah bila prodi menyunting tabel:
+  // R21 = banyak baris Tabel P.1.2; R22 = U22 = banyak dosen tetap Tabel P.1.1; U21 = pembimbing dengan
+  // rata-rata bimbingan per tahun di semua program > 6, yaitu (D+E+F+H+I+J)/3 > 6 (= G+K karena ketiga
+  // tahun selalu terisi; G/K tidak dipakai karena baris contoh kosong berumus AVERAGE bisa #DIV/0!).
+  // R23/U23 = rumus templat; labelnya (tersalin dari P.1.1) dibiarkan.
+  const g12 = geserP1;                                   // sisipan Tabel P.1.1 di atas blok ini
   const bimb = X.bimbinganUtama || [];
   const taP12 = [ts - 2, ts - 1, ts].map(t => `${t - 1}/${t}`);
   const namaNidn = n => ((X.dosen || []).find(d => d.nidn === n) || {}).nama || n;
@@ -255,6 +271,14 @@ export function petaLKPSLamdepilar(C){
     set('P.1', `K${r}`, { rumus: `AVERAGE(H${r}:J${r})` });
     set('P.1', `L${r}`, { rumus: `AVERAGE(D${r}:K${r})` });
   });
+  {
+    const a = 24 + g12, b = 35 + geserP1, k = c => `${c}${a}:${c}${b}`;
+    const nTetap = { rumus: `COUNTA(C8:C${18 + g12})` };
+    set('P.1', `R${21 + g12}`, { rumus: `COUNTA(${k('C')})` });
+    set('P.1', `R${22 + g12}`, nTetap);
+    set('P.1', `U${21 + g12}`, { rumus: `SUMPRODUCT(--((${[...'DEFHIJ'].map(k).join('+')})/3>6))` });
+    set('P.1', `U${22 + g12}`, nTetap);
+  }
 
   // P.1.3 EWMP (Data prodi › BKD), sama dengan lkps.js 4.c: TS laporan, jumlah kedua semester, V = DTPS;
   // dosen lain tampil bila BKD-nya ada. K = SUM templat. L = rata-rata per semester TS-2 s.d. TS:
@@ -459,6 +483,9 @@ export function petaLKPSLamdepilar(C){
   Object.defineProperty(peta, 'sisip', { value: geser ? [{ lembar: 'E.4', setelah: nomorKolom('O'), n: geser }] : [] });
   Object.defineProperty(peta, 'kosongTambahan', { value: tambahKosong.length ? { 'E.4': tambahKosong } : {} });
   Object.defineProperty(peta, 'peringatan', { value: peringatan });
+  // Rumus baris contoh P.1.2 (G24/K24/L24 biasa, G/K/L25:27 shared) dihapus utuh, alamat templat; baris terisi
+  // mendapat rumusnya lagi dari blok P.1.2, baris kosong tidak lagi #DIV/0! (pemilik 2026-11-25).
+  Object.defineProperty(peta, 'hapusRumus', { value: { 'P.1': [...'GKL'].flatMap(c => [24, 25, 26, 27].map(r => `${c}${r}`)) } });
   // A.5.1 pemasukan, A.5.2 pembiayaan, blok Program Magister (Data prodi › Keuangan A.5, 169-patch, pemilik
   // 2026-11-24): rupiah -> juta rupiah; D-F UPPS, H-J PS untuk TS-2..TS. Pos yang tidak diisi untuk satu tahun
   // dibiarkan kosong (bukan 0). Jumlah, rata-rata, rasio, dan neraca A.5.3 dihitung rumus templat.
@@ -476,6 +503,14 @@ export function petaLKPSLamdepilar(C){
 }
 
 /* Isi templat (string XML per lembar). Murni: { path: xml } -> { path: xml }. */
+/* calcChain templat dibuang (2026-11-25): sisipan baris menggeser rumus dan rumus baris contoh P.1.2 dihapus,
+   sehingga daftar urutan hitung templat tidak lagi cocok dan Excel bisa menawarkan "perbaikan". Bagian ini
+   opsional; Excel menyusunnya lagi saat menghitung ulang (fullCalcOnLoad). */
+export function tanpaCalcChain(rels, types){
+  return { rels: rels.replace(/<Relationship\b[^>]*\/calcChain"[^>]*\/>/g, ''),
+           types: types.replace(/<Override\b[^>]*PartName="\/xl\/calcChain\.xml"[^>]*\/>/g, '') };
+}
+
 export function isiLembar(xmlPerLembar, lembar, contoh, peta){
   const out = { ...xmlPerLembar };
   let kosong = 0, isi = 0;
@@ -489,6 +524,11 @@ export function isiLembar(xmlPerLembar, lembar, contoh, peta){
       for (const ref of refs) { x = kosongkanSel(x, ref); kosong++; }
       out[lembar[nama]] = x;
     }
+  for (const [nama, refs] of Object.entries(peta.hapusRumus || {})) {
+    let x = out[lembar[nama]];
+    for (const ref of refs) x = hapusRumus(x, ref);
+    out[lembar[nama]] = x;
+  }
   for (const s of peta.sisip || []) {
     out[lembar[s.lembar]] = sisipKolom(out[lembar[s.lembar]], s.setelah, s.n);
     for (const [nama, path] of Object.entries(lembar))
@@ -529,6 +569,9 @@ export async function buatLKPS(C, opsi = {}){
   const h = isiLembar(xml, lembar, contoh, peta);
   for (const [path, x] of Object.entries(h.xml)) zip.file(path, x);
   zip.file('xl/workbook.xml', hitungUlangSaatBuka(wb));
+  const t = tanpaCalcChain(await zip.file('xl/_rels/workbook.xml.rels').async('string'),
+    await zip.file('[Content_Types].xml').async('string'));
+  zip.file('xl/_rels/workbook.xml.rels', t.rels); zip.file('[Content_Types].xml', t.types); zip.remove('xl/calcChain.xml');
   const blob = await zip.generateAsync({ type: 'blob', compression: 'DEFLATE',
     mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
   const nama = `LKPS-${(C.prodi || 'prodi').replace(/[^\w-]+/g, '_')}-TS${C.ts}.xlsx`;
