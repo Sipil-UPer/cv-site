@@ -20,11 +20,11 @@
    diputuskan (pemilik 2026-11-24).
    Kolom yang tidak disimpan situs dibiarkan kosong (tanpa tebakan).
    ===================================================================== */
-import { JSZIP, tulisSel, petaLembar, hitungUlangSaatBuka } from './lkps.js?v=2026-11-25-35c4ae';
-import { daftarProdi, STATUS_PS, tglTeks } from './pustaka-dokumen.js?v=2026-11-25-35c4ae';
-import { nidnNuptk, masaBerlaku } from './profil-dosen.js?v=2026-11-25-35c4ae';
-import { ampuPerTA, dosenTS } from './dosen-hitung.js?v=2026-11-25-35c4ae';
-import { POS_A5 } from './keuangan-a5.js?v=2026-11-25-35c4ae';
+import { JSZIP, tulisSel, petaLembar, hitungUlangSaatBuka } from './lkps.js?v=2026-11-25-a80ff5';
+import { daftarProdi, STATUS_PS, tglTeks } from './pustaka-dokumen.js?v=2026-11-25-a80ff5';
+import { nidnNuptk, masaBerlaku } from './profil-dosen.js?v=2026-11-25-a80ff5';
+import { ampuPerTA, dosenTS } from './dosen-hitung.js?v=2026-11-25-a80ff5';
+import { POS_A5 } from './keuangan-a5.js?v=2026-11-25-a80ff5';
 
 const JABATAN = { tenaga_pengajar: 'Tenaga Pengajar', asisten_ahli: 'Asisten Ahli', lektor: 'Lektor',
   lektor_kepala: 'Lektor Kepala', guru_besar: 'Profesor' };
@@ -162,7 +162,9 @@ export function tulisRumus(xml, ref, f){
   if (m && /<f[\s>]/.test(m[0])) return xml;
   const x = tulisSel(xml, ref, 0);
   const c = re.exec(x);
-  return x.slice(0, c.index) + c[0].replace(/<v>0<\/v>/, `<f>${f}</f>`) + x.slice(c.index + c[0].length);
+  // Teks rumus di-escape (COUNTIFS "<>", ">6"): "<" mentah membuat XML lembar tidak sah.
+  const e = f.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  return x.slice(0, c.index) + c[0].replace(/<v>0<\/v>/, () => `<f>${e}</f>`) + x.slice(c.index + c[0].length);
 }
 
 /* Rumus lembar lain yang merujuk lembar `nama` di kanan kolom `setelah` ikut bergeser (Daftar Isi: E.4!T4). */
@@ -278,6 +280,20 @@ export function petaLKPSLamdepilar(C){
     set('P.1', `R${22 + g12}`, nTetap);
     set('P.1', `U${21 + g12}`, { rumus: `SUMPRODUCT(--((${[...'DEFHIJ'].map(k).join('+')})/3>6))` });
     set('P.1', `U${22 + g12}`, nTetap);
+    // Analisis P.1.1 (pemilik 2026-11-25), di atas tabel jadi tidak bergeser; rentang = baris Tabel P.1.1.
+    // R6 = dosen yang mengampu MK di PS ini (L terisi) tanpa V kesesuaian (M); U6 = nomor serdos (J) terisi;
+    // U7 = sertifikat kompetensi/profesi/industri berlaku (K) terisi; X6/X7 = jabatan (I) Profesor/Lektor Kepala;
+    // jumlah dosen = banyak baris. X6 (=1) dan X9 (=2/4) rumus contoh templat: dihapus (hapusRumus) lalu ditulis.
+    const t = c => `${c}8:${c}${18 + g12}`, ada = c => `${t(c)},"<>"`;
+    set('P.1', 'R6', { rumus: `COUNTIFS(${ada('C')},${ada('L')},${t('M')},"<>V")` });
+    set('P.1', 'R7', nTetap);
+    set('P.1', 'U6', { rumus: `COUNTIFS(${ada('C')},${ada('J')})` });
+    set('P.1', 'U7', { rumus: `COUNTIFS(${ada('C')},${ada('K')})` });
+    set('P.1', 'U8', nTetap);
+    set('P.1', 'X6', { rumus: `COUNTIF(${t('I')},"Profesor")` });
+    set('P.1', 'X7', { rumus: `COUNTIF(${t('I')},"Lektor Kepala")` });
+    set('P.1', 'X8', nTetap);
+    set('P.1', 'X9', { rumus: '(X6+X7)/X8' });
   }
 
   // P.1.3 EWMP (Data prodi › BKD), sama dengan lkps.js 4.c: TS laporan, jumlah kedua semester, V = DTPS;
@@ -290,6 +306,7 @@ export function petaLKPSLamdepilar(C){
   const dtps = urutNama(diTS.dtps);
   const ewmp = [...dtps, ...urutNama(diTS.hitung.filter(d => !dtps.includes(d) && bkdTS.some(b => b.nidn === d.nidn)))]
     .filter(d => bkdTS.some(b => b.nidn === d.nidn));
+  const g13 = geserP1;                                   // sisipan Tabel P.1.1-P.1.2 di atas blok ini
   muat(ewmp, 7, 45, 51).forEach(([d, r], i) => {
     const rows = bkdTS.filter(b => b.nidn === d.nidn), s = k => rows.reduce((a, b) => a + (+b[k] || 0), 0);
     set('P.1', `B${r}`, i + 1); set('P.1', `C${r}`, d.nama); if (dtps.includes(d)) set('P.1', `D${r}`, 'V');
@@ -299,6 +316,17 @@ export function petaLKPSLamdepilar(C){
     if (tiga.length) set('P.1', `L${r}`, Math.round(tiga.reduce((a, b) => a + KOL_BKD.reduce((x, k) => x + (+b[k] || 0), 0), 0)
       / tiga.length * 100) / 100);
   });
+  // Analisis P.1.3 (pemilik 2026-11-25): K = jumlah dua semester TS, jadi ambang per semester 12 dan 20
+  // dibandingkan dengan K/2; Jumlah Dosen = baris Tabel P.1.3. R44/U44 tetap rumus templat (labelnya
+  // keliru menyalin P.1.1, dibiarkan). Baris kosong tidak dihitung (syarat nama terisi).
+  {
+    const a = 45 + g13, b = 51 + geserP1, t = c => `${c}${a}:${c}${b}`;
+    const n = { rumus: `COUNTA(${t('C')})` };
+    set('P.1', `R${42 + g13}`, { rumus: `SUMPRODUCT((${t('C')}<>"")*(${t('K')}/2<12))` });
+    set('P.1', `R${43 + g13}`, n);
+    set('P.1', `U${42 + g13}`, { rumus: `SUMPRODUCT((${t('C')}<>"")*(${t('K')}/2>20))` });
+    set('P.1', `U${43 + g13}`, n);
+  }
 
   // P.1.4 Dosen tidak tetap, P.1.5 dosen industri/praktisi: dihitung pada TS (dosenTS), menurut kategori di
   // Kelola dosen. Nomor Induk Kependudukan tidak disimpan situs (kosong).
@@ -485,7 +513,8 @@ export function petaLKPSLamdepilar(C){
   Object.defineProperty(peta, 'peringatan', { value: peringatan });
   // Rumus baris contoh P.1.2 (G24/K24/L24 biasa, G/K/L25:27 shared) dihapus utuh, alamat templat; baris terisi
   // mendapat rumusnya lagi dari blok P.1.2, baris kosong tidak lagi #DIV/0! (pemilik 2026-11-25).
-  Object.defineProperty(peta, 'hapusRumus', { value: { 'P.1': [...'GKL'].flatMap(c => [24, 25, 26, 27].map(r => `${c}${r}`)) } });
+  // X6/X9: rumus contoh analisis P.1.1 (=1, =2/4), diganti rumus hitung dari tabel.
+  Object.defineProperty(peta, 'hapusRumus', { value: { 'P.1': [...[...'GKL'].flatMap(c => [24, 25, 26, 27].map(r => `${c}${r}`)), 'X6', 'X9'] } });
   // A.5.1 pemasukan, A.5.2 pembiayaan, blok Program Magister (Data prodi › Keuangan A.5, 169-patch, pemilik
   // 2026-11-24): rupiah -> juta rupiah; D-F UPPS, H-J PS untuk TS-2..TS. Pos yang tidak diisi untuk satu tahun
   // dibiarkan kosong (bukan 0). Jumlah, rata-rata, rasio, dan neraca A.5.3 dihitung rumus templat.

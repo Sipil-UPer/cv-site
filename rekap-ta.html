@@ -11,8 +11,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-25-35c4ae">
-<link rel="stylesheet" href="kepala.css?v=2026-11-25-35c4ae">
+<link rel="stylesheet" href="tema.css?v=2026-11-25-a80ff5">
+<link rel="stylesheet" href="kepala.css?v=2026-11-25-a80ff5">
 <style>
   .tag{display:inline-block;font-size:12px;padding:1px 8px;border:1px solid var(--line);background:var(--bg);white-space:nowrap}
   .tag.tinggi{border-color:var(--merah);color:var(--merah)}
@@ -46,7 +46,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></div>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-25-35c4ae"></script>
+<script src="config.js?v=2026-11-25-a80ff5"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -65,12 +65,12 @@ addEventListener('error', function (e) {
 // dan beban membimbing/menguji per dosen pada periode terpilih (TS, 3 TS, tahun). Sumber: jadwal_ta (semua pengguna login
 // membaca). Unduh Excel khusus admin (memuat NIM).
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-25-35c4ae';
-import { punya } from './koordinator.js?v=2026-11-25-35c4ae';
-import { TAHAP, STATUS, waktuJadwal, rekapTA, lembarTA, revisiBerjalan } from './rekap-ta.js?v=2026-11-25-35c4ae';
-import { opsiPeriode, cocokPeriode, labelPeriode, taTeks, tsKarya, tsBerjalan } from './sdgs-unduh.js?v=2026-11-25-35c4ae';
-import { barisKuota } from './rekap-kp.js?v=2026-11-25-35c4ae';
-import { SHEETJS } from './nilai-cpl.js?v=2026-11-25-35c4ae';
+import { gerbang } from './menu.js?v=2026-11-25-a80ff5';
+import { punya } from './koordinator.js?v=2026-11-25-a80ff5';
+import { TAHAP, STATUS, waktuJadwal, rekapTA, lembarTA, revisiBerjalan } from './rekap-ta.js?v=2026-11-25-a80ff5';
+import { opsiPeriode, cocokPeriode, labelPeriode, taTeks, tsKarya, tsBerjalan } from './sdgs-unduh.js?v=2026-11-25-a80ff5';
+import { barisKuota } from './rekap-kp.js?v=2026-11-25-a80ff5';
+import { SHEETJS } from './nilai-cpl.js?v=2026-11-25-a80ff5';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
@@ -179,6 +179,47 @@ function gambarKuota(){
   el.querySelectorAll('[data-kuota]').forEach(i => { i.onchange = () => simpan(i.dataset.kuota, i.value); });
 }
 
+// Urutan tahap TA (172-patch-urutan-tahap-ta.sql, pemilik 2026-11-25): kemajuan setelah proposal lulus + revisi selesai,
+// sidang setelah kemajuan. Koordinator TA/admin mengecualikan satu mahasiswa untuk satu tahap dengan alasan tercatat.
+const TAHAP_KECUALI = [['seminar_kemajuan', 'Seminar kemajuan'], ['sidang_akhir', 'Sidang akhir']];
+let KECUALI = null;
+async function muatKecuali(){
+  const { data, error } = await sb.from('ta_kecuali_urutan').select('*').order('dibuat', { ascending: false });
+  KECUALI = error ? null : (data || []);
+}
+function tulisKecuali(k, t){ const m = $('mKecuali'); if (m) { m.className = 'msg ' + k; m.textContent = t; } }
+function gambarKecuali(){
+  const el = $('kecuali'); if (!el) return;
+  if (!KECUALI) { el.innerHTML = '<p class="kosong">Belum tersedia (jalankan supabase/172-patch-urutan-tahap-ta.sql).</p>'; return; }
+  const nmT = k => (TAHAP_KECUALI.find(t => t[0] === k) || [, k])[1];
+  el.innerHTML = `<p class="ket">Mahasiswa hanya bisa mengirim pendaftaran seminar kemajuan setelah seminar proposalnya lulus dan revisinya
+      dinyatakan selesai, dan sidang akhir setelah seminar kemajuan. Untuk mahasiswa yang sudah melalui tahap itu sebelum pendaftaran lewat situs,
+      catat seminar lamanya di Data prodi › Jadwal seminar/sidang TA (dengan NIM), atau beri pengecualian di sini dengan alasannya.</p>
+    <div class="saring"><label>NIM <input id="kNim" maxlength="30" style="width:9em"></label>
+      <label>Tahap yang boleh didaftarkan <select id="kTahap">${TAHAP_KECUALI.map(([v, l]) => `<option value="${v}">${esc(l)}</option>`).join('')}</select></label>
+      <label style="flex:1 1 260px">Alasan <input id="kAlasan" maxlength="500" style="width:100%" placeholder="mis. seminar kemajuan 2025, sebelum pendaftaran lewat situs"></label>
+      <button type="button" class="b" id="kCatat">Catat pengecualian</button><span class="msg" id="mKecuali"></span></div>
+    ${KECUALI.length ? `<div class="lebar-tabel"><table><thead><tr><th>NIM</th><th>Tahap</th><th>Alasan</th><th>Dicatat</th><th></th></tr></thead>
+      <tbody>${KECUALI.map(r => `<tr><td>${esc(r.nim)}</td><td>${esc(nmT(r.tahap))}</td><td>${esc(r.alasan)}</td>
+        <td class="ket">${esc(r.oleh || '')}<br>${esc(String(r.dibuat || '').slice(0, 10))}</td>
+        <td><button type="button" class="b kecil" data-hapus-kecuali="${esc(r.nim)}|${esc(r.tahap)}">Hapus</button></td></tr>`).join('')}</tbody></table></div>`
+      : '<p class="kosong">Belum ada pengecualian.</p>'}`;
+  const kirim = async (nim, tahap, alasan, pesan) => {
+    const { error } = await sb.rpc('ta_kecualikan_urutan', { p_nim: nim, p_tahap: tahap, p_alasan: alasan });
+    if (error) { tulisKecuali('err', error.message); return; }
+    await muatKecuali(); gambarKecuali(); tulisKecuali('ok', pesan);
+  };
+  $('kCatat').onclick = () => {
+    const nim = $('kNim').value.trim(), alasan = $('kAlasan').value.trim();
+    if (!nim || alasan.length < 5) { tulisKecuali('err', 'Isi NIM dan alasan (minimal 5 huruf).'); return; }
+    kirim(nim, $('kTahap').value, alasan, 'Pengecualian tercatat.');
+  };
+  el.querySelectorAll('[data-hapus-kecuali]').forEach(b => { b.onclick = () => {
+    const [nim, tahap] = b.dataset.hapusKecuali.split('|');
+    if (confirm(`Hapus pengecualian ${nim} (${nmT(tahap)})?`)) kirim(nim, tahap, null, 'Pengecualian dihapus.');
+  }; });
+}
+
 async function mulai(){
   SAYA = await gerbang(sb);
   if (!SAYA) return;
@@ -199,10 +240,12 @@ async function mulai(){
     <h2>Beban membimbing dan menguji per dosen</h2><div id="beban"></div>
     ${SAYA.peran === 'asesor' ? '' : '<h2 id="kuota-ta">Kuota pembimbing TA</h2><div id="kuota"></div>'}
     <h2 id="revisi">Revisi berjalan</h2><div id="revisiIsi"></div>
+    ${ADMIN ? '<h2 id="urutan-tahap">Pengecualian urutan tahap</h2><div id="kecuali"></div>' : ''}
     <h2>Jadwal mendatang</h2><div id="akan"></div>`;
   $('fPeriode').onchange = e => { PERIODE = e.target.value; gambar(); };
   gambar();
   if ($('kuota')) { await muatKuota(); gambarKuota(); }
+  if ($('kecuali')) { await muatKecuali(); gambarKecuali(); }
 }
 mulai().catch(e => { $('isi').innerHTML = `<p class="kosong">Gagal memuat: ${esc(e.message)}</p>`; });
 </script>

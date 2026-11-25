@@ -3,9 +3,9 @@
 // (pasangBkd) dan verifikasi.html (pasangVerifikasiBkd). Dosen lain diisi admin
 // di Data prodi. Berkas LKD privat: lihat unggahLKD dan bukaLKD.
 
-import { ubahan } from './prestasi.js?v=2026-11-25-35c4ae';
-import { htmlSaran } from './saran-bukti.js?v=2026-11-25-35c4ae';
-import { htmlTautanButir, tsDariTA } from './tautan-butir.js?v=2026-11-25-35c4ae';
+import { ubahan } from './prestasi.js?v=2026-11-25-a80ff5';
+import { htmlSaran } from './saran-bukti.js?v=2026-11-25-a80ff5';
+import { htmlTautanButir, tsDariTA } from './tautan-butir.js?v=2026-11-25-a80ff5';
 
 // Bagian C LKD. Pendidikan dipecah per PS untuk Tabel 4.c; SISTER tidak
 // punya kolom prodi, jadi dosen memilahnya menurut kode kelas.

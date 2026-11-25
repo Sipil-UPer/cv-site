@@ -8570,7 +8570,14 @@
   "responden": 0,
   "min": 5
  },
- "akreditasi_prodi": {},
+ "akreditasi_prodi": {
+  "peringkat": "Baik Sekali",
+  "kode": "baik_sekali",
+  "nomor_sk": "0443/SK/LAM/AS/XII/2023",
+  "tanggal_sk": "2023-12-21",
+  "berlaku_sampai": "2028-12-20",
+  "lembaga": "LAM Teknik"
+ },
  "kerja_sama": [],
  "profil": {
   "sejarah": "Program Studi Teknik Sipil Universitas Pertamina dibuka berdasarkan Surat Keputusan Nomor 60/KPT/I/2016 tanggal 1 Februari 2016 sebagai program pendidikan sarjana (S1) di Fakultas Perencanaan Infrastruktur. Lulusannya memperoleh gelar Sarjana Teknik (S.T.) dan dipersiapkan untuk bekerja di industri, pemerintahan, maupun melanjutkan studi ke jenjang yang lebih tinggi.\n\nSejak dibuka, kurikulum program studi berkembang mengikuti tiga periode pengembangan kurikulum Universitas Pertamina. Periode 2016–2021 menekankan kemampuan berpikir kritis dan kreatif. Periode 2021–2026, melalui Kurikulum 2021, menekankan inovasi dan kewirausahaan. Mulai 2026, Kurikulum 2026 mengusung tema kesadaran dan tindakan untuk keberlanjutan, dengan perhatian khusus pada ketahanan energi, lingkungan, dan pembangunan infrastruktur berkelanjutan.\n\nProgram studi terakreditasi Baik Sekali berdasarkan Keputusan LAM Teknik Nomor 0443/SK/LAM Teknik/AS/XII/2023. Kurikulum 2026 disusun dengan pendekatan pendidikan berbasis capaian (outcome-based education), mengacu pada standar LAM Teknik, dan mulai diarahkan untuk memenuhi standar akreditasi internasional IABEE.\n\nKegiatan pendidikan dan penelitian dikelompokkan dalam lima bidang keahlian: Rekayasa Struktur dan Material, Rekayasa Sumber Daya Air, Rekayasa Transportasi, Rekayasa Geoteknik, serta Manajemen dan Rekayasa Konstruksi. Praktikum dan penelitian didukung Laboratorium Transportasi dan Rekayasa Jalan, Laboratorium Mekanika Tanah, serta Laboratorium Struktur (Bahan dan Konstruksi).",
