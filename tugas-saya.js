@@ -1,17 +1,17 @@
 // "Tugas saya" di Ruang kerja (pemilik 2026-11-12): hal yang menunggu tindakan dosen yang
 // sedang masuk, dari data yang sudah boleh ia baca (RLS). Aturan tenggat sama dengan halaman
 // Pengingat: rapat.js, hibah.js, temuan-ami.js, pengingat-dosen.js.
-import { kurangProfil } from './pengingat-dosen.js?v=2026-11-25-2a26c3';
-import { tindakTerbuka, tglID } from './rapat.js?v=2026-11-25-2a26c3';
-import { tenggatBerikut, teksHari, HARI_LEWAT } from './hibah.js?v=2026-11-25-2a26c3';
-import { hariKeTenggat, labelStatus, HARI_DEKAT } from './temuan-ami.js?v=2026-11-25-2a26c3';
-import { tugasEvaluasi } from './evaluasi-pembelajaran.js?v=2026-11-25-2a26c3';
-import { bolehPengajuan } from './koordinator.js?v=2026-11-25-2a26c3';
-import { tenggatReview, hariKe, teksHari as teksHariRv, tugasTenggatRps, tugasTetapDekan, tanggalPanjang as tglRv } from './pengingat-rps.js?v=2026-11-25-2a26c3';
-import { tugasInsentif } from './insentif.js?v=2026-11-25-2a26c3';
-import { tugasMK } from './tugas-mk.js?v=2026-11-25-2a26c3';
-import { halamanAktif } from './fitur.js?v=2026-11-25-2a26c3';
-import { masaBerlaku, tanggalPanjang as tglSrt } from './profil-dosen.js?v=2026-11-25-2a26c3';
+import { kurangProfil } from './pengingat-dosen.js?v=2026-11-25-f76269';
+import { tindakTerbuka, tglID } from './rapat.js?v=2026-11-25-f76269';
+import { tenggatBerikut, teksHari, HARI_LEWAT } from './hibah.js?v=2026-11-25-f76269';
+import { hariKeTenggat, labelStatus, HARI_DEKAT } from './temuan-ami.js?v=2026-11-25-f76269';
+import { tugasEvaluasi } from './evaluasi-pembelajaran.js?v=2026-11-25-f76269';
+import { bolehPengajuan } from './koordinator.js?v=2026-11-25-f76269';
+import { tenggatReview, hariKe, teksHari as teksHariRv, tugasTenggatRps, tugasTetapDekan, tanggalPanjang as tglRv } from './pengingat-rps.js?v=2026-11-25-f76269';
+import { tugasInsentif } from './insentif.js?v=2026-11-25-f76269';
+import { tugasMK } from './tugas-mk.js?v=2026-11-25-f76269';
+import { halamanAktif } from './fitur.js?v=2026-11-25-f76269';
+import { masaBerlaku, tanggalPanjang as tglSrt } from './profil-dosen.js?v=2026-11-25-f76269';
 
 // Sertifikat dengan masa berlaku (pemilik 2026-11-24): diingatkan sejak 90 hari sebelum habis, dan terus setelah lewat.
 export const HARI_SERTIFIKAT = 90;
@@ -32,7 +32,7 @@ const tgl10 = s => String(s || '').slice(0, 10);
  *   target: baris target-kinerja.js barisDosen tahun berjalan, tahunTarget,
  *   pengajuanMhs: pengajuan_mahasiswa yang terbaca [{nama, jenis, status, pembimbing_id, diperbarui}],
  *   revisiTa: jadwal_ta lulus_revisi belum selesai [{nama_mahasiswa, judul, pembimbing, hasil, batas_revisi, revisi_selesai}],
- *   nilaiTa: ta_nilai_tugas() [{jadwal_id, tahap, nama_mahasiswa, tanggal, tugas: 'nilai'|'tetapkan'|'siup'}] (173, 177),
+ *   nilaiTa: ta_nilai_tugas() [{jadwal_id, tahap, nama_mahasiswa, tanggal, tugas: 'nilai'|'tetapkan'|'siup'|'arsip'}] (173, 177, 178),
  *   bimbinganTa: ta_bimbingan_menunggu() [{nim, nama, n, tertua}] catatan bimbingan menunggu konfirmasi saya (175),
  *   dataMK: data koordinator MK/pengampu untuk tugas-mk.js (null bila bukan keduanya),
  *   reviewSaya: baris mk_rps_review milik sendiri [{kurikulum, kode_mk, ditunjuk_pada, kirim_pada}] (118),
@@ -163,6 +163,10 @@ export function tugasSaya(d, kini = new Date()){
     else if (r.tugas === 'tetapkan') tambah('nilai_ta', `Tetapkan berita acara ${tahap} ${r.nama_mahasiswa}`, `Seminar ${tgl10(r.tanggal)}; sudah ada nilai`, `penilaian-ta.html#j=${r.jadwal_id}`, hari);
   }
   // 177: nilai yang berita acaranya sudah ditetapkan tetapi belum ditandai diunggah ke SIUP (koordinator TA/admin), satu tugas.
+  // 178: mahasiswa lulus yang arsip TA-nya belum disimpan ke Drive.
+  const arsip = (d.nilaiTa || []).filter(r => r.tugas === 'arsip');
+  if (arsip.length) tambah('nilai_ta', `${arsip.length} arsip TA mahasiswa lulus belum disimpan`,
+    arsip.slice(0, 3).map(r => r.nama_mahasiswa).join(', ') + (arsip.length > 3 ? ', …' : ''), 'bimbingan-ta.html#arsip-ta');
   const siup = (d.nilaiTa || []).filter(r => r.tugas === 'siup');
   if (siup.length) tambah('nilai_ta', `${siup.length} nilai TA belum diunggah ke SIUP`,
     siup.slice(0, 3).map(r => r.nama_mahasiswa).join(', ') + (siup.length > 3 ? ', …' : ''), 'penilaian-ta.html#nilai-siup');

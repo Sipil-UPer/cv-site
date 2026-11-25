@@ -11,8 +11,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-25-2a26c3">
-<link rel="stylesheet" href="kepala.css?v=2026-11-25-2a26c3">
+<link rel="stylesheet" href="tema.css?v=2026-11-25-f76269">
+<link rel="stylesheet" href="kepala.css?v=2026-11-25-f76269">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
@@ -45,7 +45,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></div>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-25-2a26c3"></script>
+<script src="config.js?v=2026-11-25-f76269"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -65,9 +65,11 @@ addEventListener('error', function (e) {
 // tanggapan = terkonfirmasi otomatis. Koordinator TA/admin melihat semua mahasiswa, boleh mengonfirmasi atas nama
 // pembimbing, dan mengatur minimal bimbingan terkonfirmasi per tahap (syarat mendaftar seminar/sidang).
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-25-2a26c3';
-import { punya } from './koordinator.js?v=2026-11-25-2a26c3';
-import { HARI_LAMA, NAMA_TAHAP, labelCara, statusBimbingan, hariSejak } from './bimbingan-ta.js?v=2026-11-25-2a26c3';
+import { gerbang } from './menu.js?v=2026-11-25-f76269';
+import { punya } from './koordinator.js?v=2026-11-25-f76269';
+import { HARI_LAMA, NAMA_TAHAP, labelCara, statusBimbingan, hariSejak } from './bimbingan-ta.js?v=2026-11-25-f76269';
+import { htmlArsipTA } from './penilaian-ta.js?v=2026-11-25-f76269';
+import { appsScript, bukaIsi } from './pengajuan-mhs.js?v=2026-11-25-f76269';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
@@ -161,6 +163,65 @@ function gambarSyarat(){
   };
 }
 
+// ---------- Arsip TA mahasiswa lulus (178, koordinator TA/admin) ----------
+// Lulus = sidang akhir lulus, atau lulus dengan revisi yang sudah selesai. Situs menyusun arsip (ringkasan, riwayat bimbingan,
+// berita acara); Apps Script menjadikannya PDF di Drive prodi dan mencatat tautannya. Perbarui = PDF baru, yang lama dibuang.
+let ARSIP = [], INFO = {};
+const sesi = async () => (await sb.auth.getSession()).data.session?.access_token;
+async function muatArsip(){
+  const { data, error } = await sb.rpc('ta_arsip_siap');
+  ARSIP = error ? null : (data || []);
+}
+async function susunArsip(r){
+  const jq = await sb.from('jadwal_ta').select('*');
+  if (jq.error) throw new Error(jq.error.message);
+  const jadwal = (jq.data || []).filter(j => String(j.nim || '').trim().toUpperCase() === r.nim);
+  const rekap = [];
+  for (const j of jadwal.filter(j => j.ba_ditetapkan)) {
+    const { data, error } = await sb.rpc('ta_nilai_rekap', { p_jadwal: j.id });
+    if (error) throw new Error(error.message);
+    rekap.push(data);
+  }
+  const bimbingan = CATATAN.filter(c => c.nim === r.nim).map(c => ({ ...c, pembimbing: DOSEN[c.pembimbing_id] || '' }));
+  const pb = REKAP.find(x => x.nim === r.nim)?.pembimbing || '';
+  return htmlArsipTA({ nim: r.nim, nama: r.nama, judul: r.judul, lulus: r.lulus, pembimbing: pb, jadwal, rekap, bimbingan },
+    { ...INFO, oleh: SAYA.nama });
+}
+function gambarArsip(){
+  const el = $('arsip'); if (!el) return;
+  if (!ARSIP) { el.innerHTML = '<p class="kosong">Belum tersedia (jalankan supabase/178-patch-arsip-ta.sql).</p>'; return; }
+  el.innerHTML = `<p class="ket">Mahasiswa yang lulus sidang akhir (lulus, atau lulus dengan revisi yang sudah selesai). <b>Simpan arsip ke Drive</b>
+      membuat PDF berisi ringkasan seminar/sidang, riwayat bimbingan, dan berita acara tiap tahap di folder Drive prodi.
+      Perbarui = PDF baru, yang lama dibuang ke Sampah Drive.</p>
+    ${!ARSIP.length ? '<p class="kosong">Belum ada mahasiswa yang lulus sidang akhir.</p>' : `<div class="lebar-tabel"><table><thead><tr><th>Mahasiswa</th>
+      <th>Lulus</th><th>Arsip</th><th></th></tr></thead><tbody>${ARSIP.map(r => `<tr><td>${esc(r.nama)}<div class="ket">${esc(r.nim)}</div></td>
+      <td>${esc(tgl(r.lulus))}</td><td>${r.arsip_url ? `<span class="tag ok">disimpan ${esc(tgl(r.arsip_dibuat))}</span><div class="ket">${esc(r.arsip_oleh || '')}</div>`
+        : '<span class="tag perlu">belum</span>'}</td>
+      <td><button type="button" class="b kecil dua" data-arsip-lihat="${esc(r.nim)}">Pratinjau</button>
+        <button type="button" class="b kecil" data-arsip-simpan="${esc(r.nim)}">${r.arsip_url ? 'Perbarui' : 'Simpan arsip ke Drive'}</button>
+        ${r.arsip_url ? `<button type="button" class="b kecil dua" data-arsip-buka="${esc(r.nim)}">Buka</button>` : ''}</td></tr>`).join('')}</tbody></table></div>`}
+    <span class="msg" id="mArsip"></span>`;
+  const cari = nim => ARSIP.find(r => r.nim === nim);
+  el.querySelectorAll('[data-arsip-lihat]').forEach(b => { b.onclick = async () => {
+    try { const w = window.open('', '_blank'); if (!w) return alert('Jendela diblokir peramban; izinkan pop-up untuk situs ini.');
+      w.document.write(await susunArsip(cari(b.dataset.arsipLihat))); w.document.close(); }
+    catch (e) { tulis('mArsip', 'err', e.message); }
+  }; });
+  el.querySelectorAll('[data-arsip-simpan]').forEach(b => { b.onclick = async () => {
+    const r = cari(b.dataset.arsipSimpan);
+    b.disabled = true; tulis('mArsip', '', `Menyimpan arsip ${r.nama}…`);
+    try {
+      await appsScript({ kind: 'ta_arsip_simpan', token: await sesi(), nim: r.nim, nama: r.nama, tahun: String(r.lulus || '').slice(0, 4),
+        html: await susunArsip(r) });
+      await muatArsip(); gambarArsip(); tulis('mArsip', 'ok', `Arsip ${r.nama} tersimpan di Drive prodi.`);
+    } catch (e) { b.disabled = false; tulis('mArsip', 'err', e.message); }
+  }; });
+  el.querySelectorAll('[data-arsip-buka]').forEach(b => { b.onclick = async () => {
+    try { bukaIsi(await appsScript({ kind: 'ta_arsip_buka', token: await sesi(), nim: b.dataset.arsipBuka })); }
+    catch (e) { tulis('mArsip', 'err', e.message); }
+  }; });
+}
+
 async function muat(){
   const [rk, ct, sy] = await Promise.all([sb.rpc('ta_bimbingan_rekap'),
     sb.from('ta_bimbingan').select('*').order('tanggal', { ascending: false }).order('id', { ascending: false }),
@@ -187,8 +248,15 @@ async function mulai(){
       ${KOOR ? 'Sebagai koordinator TA/admin Anda melihat semua mahasiswa dan boleh mengonfirmasi atas nama pembimbing.' : 'Anda melihat mahasiswa bimbingan Anda.'}</p>
     <h2 id="menunggu-konfirmasi">Menunggu konfirmasi</h2><div id="menunggu"></div>
     <h2 id="rekap-bimbingan">Rekap per mahasiswa</h2><div id="rekap"></div>
+    ${KOOR ? '<h2 id="arsip-ta">Arsip TA mahasiswa lulus</h2><div id="arsip"></div>' : ''}
     ${KOOR ? '<h2 id="minimal-bimbingan">Minimal bimbingan per tahap</h2><div id="syarat"></div>' : ''}`;
   gambar();
+  if (KOOR) {   // 178
+    const D = await fetch('data.json', { cache: 'no-cache' }).then(r => r.ok ? r.json() : {}).catch(() => ({}));
+    INFO = { prodi: D.prodi, institusi: D.institusi };
+    await muatArsip(); gambarArsip();
+    if (location.hash === '#arsip-ta') $('arsip-ta').scrollIntoView();
+  }
 }
 mulai().catch(e => { $('isi').innerHTML = `<p class="kosong">Gagal memuat: ${esc(e.message)}</p>`; });
 </script>

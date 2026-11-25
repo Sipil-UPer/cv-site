@@ -9,6 +9,8 @@
 //   nilai akhir    = Σ(rata-rata bagian × bobot) / Σ bobot bagian yang sudah ada nilainya;
 //   nilai akhir < batas lulus -> mengulang (otomatis), selain itu lulus / lulus dengan revisi (dipilih koordinator).
 
+import { statusBimbingan, labelCara } from './bimbingan-ta.js?v=2026-11-25-f76269';
+
 export const TAHAP_NILAI = [['seminar_proposal', 'Seminar proposal'], ['seminar_kemajuan', 'Seminar kemajuan'], ['sidang_akhir', 'Sidang akhir']];
 export const labelTahap = t => (TAHAP_NILAI.find(x => x[0] === t) || [, t || ''])[1];
 export const PERAN_NILAI = { pembimbing: 'Pembimbing', penguji: 'Penguji' };
@@ -453,4 +455,49 @@ export function lembarSiup(rows, dosen = {}){
       .map((r, i) => [i + 1, r.nim || '', r.nama_mahasiswa || '', labelTahap(r.tahap), tgl(r.tanggal), r.nilai_akhir == null ? '' : +r.nilai_akhir,
         HASIL_LABEL[r.hasil] || '', r.judul || '', nm(r.pembimbing), [nm(r.penguji), r.penguji_luar].filter(Boolean).join('; '),
         tgl(r.ba_ditetapkan), r.siup_diunggah ? tgl(r.siup_diunggah) : 'belum'])];
+}
+
+/**
+ * Arsip TA satu mahasiswa (178, pemilik 2026-11-25): dokumen HTML utuh untuk dijadikan PDF oleh Apps Script (ta_arsip_simpan)
+ * atau dicetak. a = { nim, nama, judul, lulus, pembimbing: 'nama; nama', jadwal: jadwal_ta mahasiswa itu,
+ * rekap: hasil ta_nilai_rekap untuk jadwal yang berita acaranya ditetapkan, bimbingan: ta_bimbingan [+ pembimbing (nama)] };
+ * info = { prodi, institusi, oleh, kini }. Berita acara memakai isi htmlBA yang sama (tiap tahap di halaman baru).
+ */
+export function htmlArsipTA(a, info = {}){
+  const urutT = { seminar_proposal: 1, seminar_kemajuan: 2, sidang_akhir: 3 };
+  const jadwal = [...(a.jadwal || [])].filter(j => j.status !== 'batal')
+    .sort((x, y) => (urutT[x.tahap] - urutT[y.tahap]) || String(x.tanggal).localeCompare(String(y.tanggal)));
+  const rekap = [...(a.rekap || [])].sort((x, y) => (urutT[x.jadwal.tahap] - urutT[y.jadwal.tahap]) || String(x.jadwal.tanggal).localeCompare(String(y.jadwal.tanggal)));
+  const ba = rekap.map(r => htmlBA(r, info));
+  const gaya = (ba[0] || htmlBA({ jadwal: {}, rubrik: { komponen: [] } }, info)).match(/<style>([\s\S]*?)<\/style>/)[1];
+  const badan = h => h.match(/<body>([\s\S]*?)<\/body>/)[1].replace(/<div class="draf"[^>]*>DRAF<\/div>/, '');
+  const kini = info.kini ? new Date(info.kini) : new Date();
+  const bim = [...(a.bimbingan || [])].sort((x, y) => String(x.tanggal).localeCompare(String(y.tanggal)) || x.id - y.id);
+  const baris = (k, v) => `<tr><th>${esc(k)}</th><td>${v}</td></tr>`;
+  return `<!DOCTYPE html><html lang="id"><head><meta charset="utf-8">
+<title>Arsip TA — ${esc(a.nim)} ${esc(a.nama)}</title>
+<style>${gaya}
+  .halaman{page-break-before:always;break-before:page}
+  table.kecil td,table.kecil th{font-size:10pt}
+</style></head><body>
+<div class="kop"><b>${esc([info.prodi ? 'Program Studi ' + info.prodi : '', info.institusi].filter(Boolean).join(' · ') || 'Program Studi')}</b></div>
+<h1>ARSIP TUGAS AKHIR</h1>
+<table class="id">${baris('Nama mahasiswa', esc(a.nama))}${baris('NIM', esc(a.nim))}${baris('Judul', esc(a.judul || '–'))}
+${baris('Pembimbing', esc(a.pembimbing || '–'))}${baris('Lulus sidang akhir', esc(tglPanjang(a.lulus) || '–'))}</table>
+<h2>Seminar dan sidang</h2>
+<table class="garis kecil"><thead><tr><th>Tahap</th><th>Tanggal</th><th>Status</th><th>Hasil</th><th class="n">Nilai akhir</th><th>Berita acara</th></tr></thead>
+<tbody>${jadwal.map(j => `<tr><td>${esc(labelTahap(j.tahap))}</td><td>${esc(tglPanjang(j.tanggal))}</td><td>${esc(j.status || '')}</td>
+  <td>${esc(HASIL_LABEL[j.hasil] || '–')}${j.hasil === 'lulus_revisi' ? (j.revisi_selesai ? `; revisi selesai ${esc(tglPanjang(j.revisi_selesai))}` : '; revisi belum selesai') : ''}</td>
+  <td class="n">${angka(j.nilai_akhir)}</td><td>${j.ba_ditetapkan ? `ditetapkan ${esc(tglPanjang(j.ba_ditetapkan))}` : 'tanpa penilaian di situs'}</td></tr>`).join('')
+  || '<tr><td colspan="6">Tidak ada catatan seminar/sidang.</td></tr>'}</tbody></table>
+<h2>Riwayat bimbingan (${bim.length})</h2>
+<table class="garis kecil"><thead><tr><th class="n">No</th><th>Tanggal</th><th>Cara</th><th>Pembimbing</th><th>Topik dan arahan</th><th>Konfirmasi</th></tr></thead>
+<tbody>${bim.map((b, i) => { const st = statusBimbingan(b, kini); return `<tr><td class="n">${i + 1}</td><td>${esc(tglPanjang(b.tanggal))}</td>
+  <td>${esc(labelCara(b.cara))}</td><td>${esc(b.pembimbing || '')}</td><td>${esc(b.topik)}${b.arahan ? `<br><span class="ket">Arahan: ${esc(b.arahan)}</span>` : ''}</td>
+  <td>${esc(st.label)}${b.catatan_pembimbing ? `<br><span class="ket">${esc(b.catatan_pembimbing)}</span>` : ''}</td></tr>`; }).join('')
+  || '<tr><td colspan="6">Belum ada catatan bimbingan di situs.</td></tr>'}</tbody></table>
+<p class="ket">Arsip dibuat ${esc(tglWaktu(kini.toISOString()))}${info.oleh ? ' oleh ' + esc(info.oleh) : ''} dari situs prodi.
+  Berita acara bertanda tangan basah disimpan terpisah (pindaian di Data prodi › Jadwal seminar/sidang TA). Nilai resmi ada di SIUP.</p>
+${ba.map(h => `<div class="halaman">${badan(h)}</div>`).join('\n')}
+</body></html>`;
 }

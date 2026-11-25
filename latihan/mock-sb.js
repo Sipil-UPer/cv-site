@@ -65,6 +65,16 @@ function pmPembimbingNim(nim){
   return [[o.pembimbing_id, 1], [o.data?.pembimbing_2, 2]].filter(([id], i) => id && d(id) && (i === 0 || id !== o.pembimbing_id))
     .map(([id, ke]) => ({ id, nama: d(id).nama, ke }));
 }
+// 178: lulus = sidang akhir selesai, lulus atau lulus dengan revisi yang sudah selesai.
+function pmArsipSiap(){
+  const g = new Map();
+  for (const t of (DB.jadwal_ta || []).filter(t => t.nim && t.tahap === 'sidang_akhir' && t.status === 'selesai'
+      && (t.hasil === 'lulus' || (t.hasil === 'lulus_revisi' && t.revisi_selesai))).sort((a, b) => a.tanggal.localeCompare(b.tanggal))) {
+    const a = (DB.ta_arsip || []).find(x => x.nim === t.nim);
+    g.set(t.nim, { nim: t.nim, nama: t.nama_mahasiswa, judul: t.judul, lulus: t.tanggal, arsip_url: a?.url || null, arsip_dibuat: a?.dibuat || null, arsip_oleh: a?.oleh || null });
+  }
+  return [...g.values()];
+}
 const pmBimbSah = b => b.status === 'dikonfirmasi' || (b.status === 'menunggu' && +new Date(b.diajukan) <= Date.now() - 14 * 864e5);
 function pmSyaratBimb(nim, tahap){
   const minimal = (DB.ta_syarat_bimbingan || []).find(s => s.tahap === tahap)?.minimal ?? 0;
@@ -79,6 +89,12 @@ function pmRpc(nama, a){
   if (nama === 'ta_berkas_daftar') return { data: (DB.ta_berkas || []).filter(t => t.aktif)
     .sort((a, b) => a.tahap.localeCompare(b.tahap) || a.urut - b.urut || a.kode.localeCompare(b.kode))
     .map(({ tahap, kode, label, keterangan, wajib }) => ({ tahap, kode, label, keterangan, wajib })), error: null };
+  // 178: mahasiswa lulus sidang akhir + status arsip (koordinator TA/admin), tiruan.
+  if (nama === 'ta_arsip_siap') {
+    const saya = (DB.dosen || []).find(d => d.email === email());
+    const koor = !!saya && (saya.peran === 'admin' || (DB.koordinator || []).some(k => k.dosen_id === saya.id && k.jabatan === 'koordinator_ta' && !k.selesai));
+    return { data: koor ? pmArsipSiap() : [], error: null };
+  }
   if (nama === 'pembimbing_pilihan') return { data: (DB.dosen || []).filter(d => d.aktif && d.peran !== 'asesor' && (d.dtps || d.kategori) && !d.tugas_belajar)
     .map(d => ({ id: d.id, nama: d.nama })).sort((x, y) => x.nama.localeCompare(y.nama)), error: null };
   // Kuota dan penetapan pembimbing KP (107), tiruan: "koordinator" = admin.
@@ -494,6 +510,22 @@ function pmAppsScript(q){
   }
   // RPS (102; 113: RPS bertanda tangan Dekan), tiruan: tautan Drive palsu.
   if (q.kind === 'rps') return { ok: true, url: `https://drive.google.com/file/d/contohrps${baru()}abcdefghij/view`, name: q.filename };
+  // 178: arsip TA (tiruan Apps Script): isi HTML disimpan di peramban; "Buka" mengembalikannya sebagai HTML.
+  if (q.kind === 'ta_arsip_simpan' || q.kind === 'ta_arsip_buka') {
+    const saya = (DB.dosen || []).find(d => d.email === email());
+    const koor = !!saya && (saya.peran === 'admin' || (DB.koordinator || []).some(k => k.dosen_id === saya.id && k.jabatan === 'koordinator_ta' && !k.selesai));
+    if (!koor) return { ok: false, error: 'Arsip TA disimpan koordinator TA atau admin.' };
+    const A = (DB.ta_arsip ||= []);
+    if (q.kind === 'ta_arsip_buka') { const a = A.find(x => x.nim === q.nim);
+      if (!a) return { ok: false, error: 'Arsip TA mahasiswa ini belum disimpan.' };
+      return { ok: true, name: `Arsip TA ${a.nim}.html`, mime: 'text/html', data: btoa(unescape(encodeURIComponent(a.html))) }; }
+    if (!pmArsipSiap().some(r => r.nim === q.nim)) return { ok: false, error: `Mahasiswa ${q.nim} belum lulus sidang akhir (atau revisinya belum selesai).` };
+    const lama = A.find(x => x.nim === q.nim);
+    const baris = { nim: q.nim, nama: q.nama, url: `https://drive.google.com/file/d/contoharsip${baru()}abcdefghij/view`, oleh: saya.nama,
+      dibuat: new Date().toISOString(), html: q.html };
+    if (lama) Object.assign(lama, baris); else A.push(baris);
+    simpan(); return { ok: true, url: baris.url, name: `Arsip TA ${q.nim} ${q.nama}.pdf` };
+  }
   if (q.kind === 'mhs_unggah' || q.kind === 'mhs_unggah_prodi') {
     // Mahasiswa hanya PDF dan gambar (sama dengan MHS_EXT di Code.gs, pemilik 2026-11-20).
     if (q.kind === 'mhs_unggah' && !/\.(pdf|jpe?g|png)$/i.test(q.filename || '')) return { ok: false, error: 'Mahasiswa hanya bisa mengunggah PDF, JPG, atau PNG. Simpan berkas Word/Excel sebagai PDF dulu.' };
@@ -526,7 +558,7 @@ window.fetch = (u, o) => {
   if (!String(u).includes('script.google.com')) return asli(u, o);
   const q = JSON.parse(o.body);
   const id = 'contohberkas' + baru() + 'abcdefghij';
-  const pm = String(q.kind || '').startsWith('mhs_') || q.kind === 'rps_review_kabari' ? pmAppsScript(q) : null;
+  const pm = String(q.kind || '').startsWith('mhs_') || String(q.kind || '').startsWith('ta_arsip_') || q.kind === 'rps_review_kabari' ? pmAppsScript(q) : null;   // 178: arsip TA
   const out = pm ? pm : q.kind === 'sidik' ? { ok: true, hasil: [] }
     : { ok: true, url: `https://drive.google.com/file/d/${id}/view`, name: q.filename || 'berkas.pdf', id, ...(q.privat || q.kind === 'bkd' ? { privat: true } : {}) };
   return new Promise(r => setTimeout(() => r(new Response(JSON.stringify(out))), 500));
@@ -654,7 +686,10 @@ async function taNilaiRpc(nama, a){
       .map(t => ({ jadwal_id: j.id, tahap: j.tahap, nama_mahasiswa: j.nama_mahasiswa, tanggal: j.tanggal, ...t })))
       // 177: nilai belum diunggah ke SIUP (koordinator TA/admin).
       .concat(koor ? J.filter(j => j.ba_ditetapkan && !j.siup_diunggah).map(j => ({ jadwal_id: j.id, tahap: j.tahap, nama_mahasiswa: j.nama_mahasiswa,
-        tanggal: j.tanggal, tugas: 'siup' })) : []));
+        tanggal: j.tanggal, tugas: 'siup' })) : [])
+      // 178: mahasiswa lulus yang arsipnya belum disimpan.
+      .concat(koor ? pmArsipSiap().filter(r => !r.arsip_url).map(r => ({ jadwal_id: null, tahap: 'sidang_akhir', nama_mahasiswa: r.nama,
+        tanggal: r.lulus, tugas: 'arsip' })) : []));
   }
   if (nama === 'ta_rubrik_simpan') {
     if (!koor) return gagal('Form penilaian TA diubah koordinator TA atau admin.');
