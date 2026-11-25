@@ -11,8 +11,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-25-8c7887">
-<link rel="stylesheet" href="kepala.css?v=2026-11-25-8c7887">
+<link rel="stylesheet" href="tema.css?v=2026-11-25-48a677">
+<link rel="stylesheet" href="kepala.css?v=2026-11-25-48a677">
 <style>
   .tag{display:inline-block;font-size:12px;padding:1px 8px;border:1px solid var(--line);background:var(--bg);white-space:nowrap}
   .tag.tinggi{border-color:var(--merah);color:var(--merah)}
@@ -46,7 +46,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></div>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-25-8c7887"></script>
+<script src="config.js?v=2026-11-25-48a677"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -65,12 +65,12 @@ addEventListener('error', function (e) {
 // dan beban membimbing/menguji per dosen pada periode terpilih (TS, 3 TS, tahun). Sumber: jadwal_ta (semua pengguna login
 // membaca). Unduh Excel khusus admin (memuat NIM).
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-25-8c7887';
-import { punya } from './koordinator.js?v=2026-11-25-8c7887';
-import { TAHAP, STATUS, waktuJadwal, rekapTA, lembarTA, revisiBerjalan } from './rekap-ta.js?v=2026-11-25-8c7887';
-import { opsiPeriode, cocokPeriode, labelPeriode, taTeks, tsKarya, tsBerjalan } from './sdgs-unduh.js?v=2026-11-25-8c7887';
-import { barisKuota } from './rekap-kp.js?v=2026-11-25-8c7887';
-import { SHEETJS } from './nilai-cpl.js?v=2026-11-25-8c7887';
+import { gerbang } from './menu.js?v=2026-11-25-48a677';
+import { punya } from './koordinator.js?v=2026-11-25-48a677';
+import { TAHAP, STATUS, waktuJadwal, rekapTA, lembarTA, revisiBerjalan } from './rekap-ta.js?v=2026-11-25-48a677';
+import { opsiPeriode, cocokPeriode, labelPeriode, taTeks, tsKarya, tsBerjalan } from './sdgs-unduh.js?v=2026-11-25-48a677';
+import { barisKuota } from './rekap-kp.js?v=2026-11-25-48a677';
+import { SHEETJS } from './nilai-cpl.js?v=2026-11-25-48a677';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
@@ -223,8 +223,8 @@ function gambarKecuali(){
 // Berkas pendaftaran seminar/sidang TA per tahap (174-patch-berkas-tahap-ta.sql, pemilik 2026-11-25): koordinator TA/admin
 // mengubah label, keterangan, wajib, urutan, aktif, dan menambah berkas (kode ta_*). Naskah (naskah_ta) selalu wajib dan aktif.
 // Tidak ada hapus: berkas yang tidak dipakai lagi dinonaktifkan supaya berkas lama mahasiswa tetap berlabel.
-const TAHAP_BERKAS = [['seminar_proposal', 'Seminar proposal'], ['seminar_kemajuan', 'Seminar kemajuan'], ['sidang_akhir', 'Sidang akhir']];
-let BERKAS_TA = null, TAHAP_B = 'seminar_proposal';
+const TAHAP_BERKAS = [['penetapan_pembimbing', 'Pengajuan pembimbing TA'], ['seminar_proposal', 'Seminar proposal'], ['seminar_kemajuan', 'Seminar kemajuan'], ['sidang_akhir', 'Sidang akhir']];
+let BERKAS_TA = null, TAHAP_B = 'penetapan_pembimbing';
 async function muatBerkasTA(){
   const { data, error } = await sb.from('ta_berkas').select('*').order('urut').order('kode');
   BERKAS_TA = error ? null : (data || []);
@@ -235,8 +235,8 @@ function gambarBerkasTA(){
   const el = $('berkasTA'); if (!el) return;
   if (!BERKAS_TA) { el.innerHTML = '<p class="kosong">Belum tersedia (jalankan supabase/174-patch-berkas-tahap-ta.sql).</p>'; return; }
   const xs = BERKAS_TA.filter(r => r.tahap === TAHAP_B);
-  el.innerHTML = `<p class="ket">Berkas yang diunggah mahasiswa saat mendaftar seminar/sidang. Berkas wajib harus ada sebelum pendaftaran bisa dikirim.
-      Naskah selalu wajib. Berkas yang tidak dipakai lagi dinonaktifkan (tidak dihapus), supaya berkas lama tetap berlabel.</p>
+  el.innerHTML = `<p class="ket">Berkas yang diunggah mahasiswa saat mengajukan pembimbing TA dan saat mendaftar seminar/sidang. Berkas wajib harus ada
+      sebelum pengajuan bisa dikirim. Naskah selalu wajib di seminar/sidang. Bimbingan dibuktikan lewat catatan bimbingan (halaman Bimbingan TA). Berkas yang tidak dipakai lagi dinonaktifkan (tidak dihapus), supaya berkas lama tetap berlabel.</p>
     <div class="saring"><label>Tahap <select id="bTahap">${TAHAP_BERKAS.map(([v, l]) => `<option value="${v}"${v === TAHAP_B ? ' selected' : ''}>${esc(l)}</option>`).join('')}</select></label>
       <span class="msg" id="mBerkas"></span></div>
     <div class="lebar-tabel"><table><thead><tr><th>Berkas</th><th>Keterangan untuk mahasiswa</th><th>Wajib</th><th>Aktif</th><th class="n">Urutan</th><th></th></tr></thead>

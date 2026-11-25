@@ -48,15 +48,14 @@ export function kelengkapanYudisium(daftar = BERKAS_YUDISIUM_BAWAAN, berkas = []
 /** Label jenis berkas; kode yud_ dan ta_ dari daftar yudisium atau berkas TA. */
 export const labelBerkas = (kode, daftar = BERKAS_YUDISIUM_BAWAAN) => LABEL_BERKAS[kode] || daftar.find(d => d.kode === kode)?.label || kode;
 
-// Berkas pendaftaran seminar/sidang TA per tahap (174-patch-berkas-tahap-ta.sql, pemilik 2026-11-25): isi awal tabel ta_berkas;
-// dipakai bila ta_berkas_daftar() belum ada (situs coba, contoh). Kode ta_* diunggah sebagai pengajuan_berkas.jenis; naskah_ta selalu wajib.
+// Berkas pendaftaran TA per tahap (174, 176; pemilik 2026-11-25): isi tabel ta_berkas yang aktif sesudah patch 176 (bukti
+// bimbingan SIUP dinonaktifkan, bukti terdaftar TA di SIUP di pengajuan pembimbing); dipakai bila ta_berkas_daftar() belum ada
+// (situs coba, contoh). Kode ta_* diunggah sebagai pengajuan_berkas.jenis; naskah_ta selalu wajib (seminar/sidang).
 export const BERKAS_TA_BAWAAN = [
+  ['penetapan_pembimbing', 'ta_terdaftar_siup', 'Bukti terdaftar TA di SIUP', 'KRS/KHS atau tangkapan layar SIUP yang menunjukkan mata kuliah Tugas Akhir sudah diambil semester ini.'],
   ['seminar_proposal', 'naskah_ta', 'Naskah proposal TA', 'PDF naskah proposal yang akan diseminarkan.'],
-  ['seminar_proposal', 'ta_bukti_bimbingan', 'Bukti bimbingan SIUP', 'Tangkapan layar atau cetakan riwayat bimbingan dari SIUP.'],
   ['seminar_kemajuan', 'naskah_ta', 'Laporan kemajuan TA', 'PDF laporan kemajuan yang akan diseminarkan.'],
-  ['seminar_kemajuan', 'ta_bukti_bimbingan', 'Bukti bimbingan SIUP', 'Tangkapan layar atau cetakan riwayat bimbingan dari SIUP.'],
   ['sidang_akhir', 'naskah_ta', 'Laporan akhir TA', 'PDF laporan akhir yang akan disidangkan.'],
-  ['sidang_akhir', 'ta_bukti_bimbingan', 'Bukti bimbingan SIUP', 'Tangkapan layar atau cetakan riwayat bimbingan dari SIUP.'],
   ['sidang_akhir', 'ta_transkrip', 'Transkrip atau KHS', 'Transkrip atau KHS terakhir dari SIUP.'],
   ['sidang_akhir', 'ta_artikel', 'Draf artikel atau bukti publikasi', 'Draf artikel ilmiah dari TA, atau LoA/bukti terbit bila sudah dipublikasikan.'],
 ].map(([tahap, kode, label, keterangan]) => ({ tahap, kode, label, keterangan, wajib: true }));
@@ -64,7 +63,7 @@ export const BERKAS_TA_BAWAAN = [
 export const berkasTahapTA = (daftar = BERKAS_TA_BAWAAN, tahap) => daftar.filter(d => d.tahap === tahap)
   .map(({ kode, label, keterangan, wajib }) => ({ kode, label, keterangan: keterangan || '', wajib: !!wajib }))
   .concat([{ kode: 'lainnya', label: 'Lainnya', keterangan: 'Berkas pendukung lain (opsional).', wajib: false }]);
-export const TAHAP_TA_BERKAS = ['seminar_proposal', 'seminar_kemajuan', 'sidang_akhir'];
+export const TAHAP_TA_BERKAS = ['penetapan_pembimbing', 'seminar_proposal', 'seminar_kemajuan', 'sidang_akhir'];
 
 export const JENIS_PUB = [['jurnal', 'Jurnal'], ['prosiding', 'Prosiding'], ['buku', 'Buku'], ['lainnya', 'Lainnya']];
 export const TINGKAT_PUB = [['internasional', 'Internasional'], ['nasional', 'Nasional'], ['wilayah', 'Wilayah']];
@@ -107,7 +106,7 @@ export const LABEL_BERKAS = {
   laporan_lomba: 'Laporan lomba', sertifikat: 'Sertifikat/piagam', surat_tugas: 'SK/surat tugas', foto: 'Foto kegiatan',
   lainnya: 'Lainnya', surat_pengantar: 'Surat pengantar dari prodi', surat_jadi: 'Surat dari prodi (bertanda tangan)',
   naskah_ta: 'Naskah TA (proposal / laporan kemajuan / laporan akhir)',
-  ta_bukti_bimbingan: 'Bukti bimbingan SIUP', ta_transkrip: 'Transkrip atau KHS', ta_artikel: 'Draf artikel atau bukti publikasi',   // 174
+  ta_bukti_bimbingan: 'Bukti bimbingan SIUP', ta_terdaftar_siup: 'Bukti terdaftar TA di SIUP', ta_transkrip: 'Transkrip atau KHS', ta_artikel: 'Draf artikel atau bukti publikasi',   // 174
   bukti_luaran: 'Bukti publikasi/luaran (naskah, LoA, sertifikat HKI, halaman ISBN)',
 };
 

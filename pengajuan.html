@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-25-8c7887">
+<link rel="stylesheet" href="tema.css?v=2026-11-25-48a677">
 <style>
   /* Pengajuan mahasiswa, publik tanpa masuk akun (pemilik 2026-11-17; patch 90). Warna dari tema.css. */
   *{box-sizing:border-box}
@@ -111,7 +111,7 @@
   <h1>Pengajuan KP, seminar/sidang TA, lomba, publikasi/luaran, kabar kegiatan, surat, dan yudisium</h1><div class="prodi" id="hProdi"></div>
 </div></div>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-25-8c7887"></script>
+<script src="config.js?v=2026-11-25-48a677"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -127,7 +127,7 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 // Kepala dan kaki bersama situs umum (pemilik 2026-11-19, tahap 2).
-import { pasangKerangka } from './kerangka.js?v=2026-11-25-8c7887';
+import { pasangKerangka } from './kerangka.js?v=2026-11-25-48a677';
 pasangKerangka({ aktif: 'mahasiswa', muat: true });
 // Mahasiswa tidak login (pemilik 2026-11-17). Tanpa token: formulir baru dan minta tautan lagi; Apps Script
 // membuat pengajuan dan mengirim tautan pribadi ke <NIM>@<domain kampus>. Dengan #t=<token> (dari email):
@@ -137,7 +137,7 @@ pasangKerangka({ aktif: 'mahasiswa', muat: true });
 // tidak ada permintaan ke Supabase atau Google. Tanpa ?latihan: Supabase sungguhan seperti biasa.
 const LATIHAN = new URLSearchParams(location.search).has('latihan');
 if (LATIHAN) { window.LATIHAN = true; window.UPLOAD_URL = 'https://script.google.com/macros/s/latihan/exec'; }
-const { createClient } = LATIHAN ? await import('./latihan/mock-sb.js?v=2026-11-25-8c7887')
+const { createClient } = LATIHAN ? await import('./latihan/mock-sb.js?v=2026-11-25-48a677')
   : await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm');
 if (LATIHAN) pasangLatihan();
 // Pita MODE LATIHAN, mulai ulang, dan tautan ke pengajuan.html tetap membawa ?latihan=1.
@@ -164,10 +164,10 @@ function pasangLatihan(){
 import { JENIS, LABEL_BERKAS, LABEL_STATUS, TINGKAT, BIDANG, jalur, bolehUbah, bacaAnggota, teksAnggota,
          periksaIsian, judulPengajuan, keB64, bukaIsi, appsScript, labelStatus, jalurTahap, BERKAS_SELESAI, PROGRAM_KP, labelProgram,
          periksaSelesai, bolehBatalMhs, JENIS_SURAT, TAHAP_TA, TAHAP_TA_AJU, TAHAP_PEMBIMBING_TA, penetapanTA, pembimbingCocok, JENIS_PUB, TINGKAT_PUB, INDEKSASI, JENIS_LUARAN,
-         BERKAS_YUDISIUM_BAWAAN, kelengkapanYudisium, labelBerkas, JENIS_KEGIATAN, BERKAS_TA_BAWAAN, berkasTahapTA, TAHAP_TA_BERKAS } from './pengajuan-mhs.js?v=2026-11-25-8c7887';
-import { saranInstansi } from './rekap-kp.js?v=2026-11-25-8c7887';
-import { CONTOH_PENGAJUAN, contohPengajuan } from './pengajuan-contoh.js?v=2026-11-25-8c7887';
-import { HARI_OTOMATIS, CARA_BIMBINGAN, labelCara, statusBimbingan, periksaBimbingan, teksSyarat } from './bimbingan-ta.js?v=2026-11-25-8c7887';
+         BERKAS_YUDISIUM_BAWAAN, kelengkapanYudisium, labelBerkas, JENIS_KEGIATAN, BERKAS_TA_BAWAAN, berkasTahapTA, TAHAP_TA_BERKAS } from './pengajuan-mhs.js?v=2026-11-25-48a677';
+import { saranInstansi } from './rekap-kp.js?v=2026-11-25-48a677';
+import { CONTOH_PENGAJUAN, contohPengajuan } from './pengajuan-contoh.js?v=2026-11-25-48a677';
+import { HARI_OTOMATIS, CARA_BIMBINGAN, labelCara, statusBimbingan, periksaBimbingan, teksSyarat } from './bimbingan-ta.js?v=2026-11-25-48a677';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
@@ -204,8 +204,9 @@ let YUD = BERKAS_YUDISIUM_BAWAAN;
 // Berkas seminar/sidang TA per tahap (174): daftar dari ta_berkas_daftar(); tanpa patch 174 daftar bawaan.
 let TAB = BERKAS_TA_BAWAAN;
 // Pengajuan seminar/sidang TA (bukan pengajuan pembimbing): daftar berkas tahapnya, atau null.
-const berkasTA = p => p.jenis === 'ta' && !penetapanTA(p) && TAHAP_TA_BERKAS.includes(p.data?.tahap_ta) ? berkasTahapTA(TAB, p.data.tahap_ta) : null;
-const NAMA_TAHAP_BERKAS = { seminar_proposal: 'seminar proposal', seminar_kemajuan: 'seminar kemajuan', sidang_akhir: 'sidang akhir' };
+// 176: termasuk pengajuan pembimbing TA (bukti terdaftar TA di SIUP).
+const berkasTA = p => p.jenis === 'ta' && TAHAP_TA_BERKAS.includes(p.data?.tahap_ta) ? berkasTahapTA(TAB, p.data.tahap_ta) : null;
+const NAMA_TAHAP_BERKAS = { penetapan_pembimbing: 'pengajuan pembimbing TA', seminar_proposal: 'seminar proposal', seminar_kemajuan: 'seminar kemajuan', sidang_akhir: 'sidang akhir' };
 
 function tulis(id, kelas, teks){ const m = $(id); m.className = 'msg ' + kelas; m.textContent = teks; }
 

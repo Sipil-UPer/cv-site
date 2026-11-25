@@ -439,13 +439,13 @@ function pmRpc(nama, a){
     if (wajib && !(DB.pengajuan_berkas || []).some(b => b.pengajuan_id === p.id && b.jenis === wajib))
       return pmGagal(`Unggah berkas wajib dulu: ${namaWajib[wajib] || wajib.replace(/_/g, ' ')}.`);
     // 174: seminar/sidang TA = berkas wajib tahapnya (ta_berkas), pesan sama dengan ta_periksa_berkas.
-    const tahapTA = p.jenis === 'ta' && !aju ? p.data?.tahap_ta : null;
+    const tahapTA = p.jenis === 'ta' ? p.data?.tahap_ta : null;   // 176: termasuk pengajuan pembimbing TA
     const kurangTA = (DB.ta_berkas || []).filter(t => t.tahap === tahapTA && t.aktif && t.wajib
       && !(DB.pengajuan_berkas || []).some(b => b.pengajuan_id === p.id && b.jenis === t.kode)).sort((a, b) => a.urut - b.urut).map(t => t.label);
     // 175: minimal bimbingan terkonfirmasi sejak tahap sebelumnya (sesudah pemeriksaan berkas, sama dengan urutan trigger).
-    if (tahapTA && !kurangTA.length) { const s = pmSyaratBimb(p.nim, tahapTA);
+    if (tahapTA && !aju && !kurangTA.length) { const s = pmSyaratBimb(p.nim, tahapTA);
       if (!s.cukup) return pmGagal(`Bimbingan terkonfirmasi${s.sejak ? ' sejak tahap sebelumnya (' + s.sejak.split('-').reverse().join('-') + ')' : ''}: baru ${s.terhitung} dari minimal ${s.minimal}. Catat bimbingan Anda di bagian Catatan bimbingan dan minta pembimbing mengonfirmasinya (catatan yang 14 hari tidak ditanggapi terkonfirmasi otomatis).`); }
-    if (kurangTA.length) return pmGagal(`Berkas wajib ${{ seminar_proposal: 'seminar proposal', seminar_kemajuan: 'seminar kemajuan', sidang_akhir: 'sidang akhir' }[tahapTA]} belum lengkap: ${kurangTA.join(', ')}.`);
+    if (kurangTA.length) return pmGagal(`Berkas wajib ${{ penetapan_pembimbing: 'pengajuan pembimbing TA', seminar_proposal: 'seminar proposal', seminar_kemajuan: 'seminar kemajuan', sidang_akhir: 'sidang akhir' }[tahapTA]} belum lengkap: ${kurangTA.join(', ')}.`);
     // 122: yudisium = 14 berkas wajib (daftar bawaan patch 122), langsung ke admin prodi.
     if (p.jenis === 'yudisium') {
       const ada = new Set((DB.pengajuan_berkas || []).filter(b => b.pengajuan_id === p.id).map(b => b.jenis));

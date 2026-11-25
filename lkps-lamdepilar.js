@@ -20,11 +20,11 @@
    diputuskan (pemilik 2026-11-24).
    Kolom yang tidak disimpan situs dibiarkan kosong (tanpa tebakan).
    ===================================================================== */
-import { JSZIP, tulisSel, petaLembar, hitungUlangSaatBuka } from './lkps.js?v=2026-11-25-8c7887';
-import { daftarProdi, STATUS_PS, tglTeks } from './pustaka-dokumen.js?v=2026-11-25-8c7887';
-import { nidnNuptk, masaBerlaku } from './profil-dosen.js?v=2026-11-25-8c7887';
-import { ampuPerTA, dosenTS } from './dosen-hitung.js?v=2026-11-25-8c7887';
-import { POS_A5 } from './keuangan-a5.js?v=2026-11-25-8c7887';
+import { JSZIP, tulisSel, petaLembar, hitungUlangSaatBuka } from './lkps.js?v=2026-11-25-48a677';
+import { daftarProdi, STATUS_PS, tglTeks } from './pustaka-dokumen.js?v=2026-11-25-48a677';
+import { nidnNuptk, masaBerlaku } from './profil-dosen.js?v=2026-11-25-48a677';
+import { ampuPerTA, dosenTS } from './dosen-hitung.js?v=2026-11-25-48a677';
+import { POS_A5 } from './keuangan-a5.js?v=2026-11-25-48a677';
 
 const JABATAN = { tenaga_pengajar: 'Tenaga Pengajar', asisten_ahli: 'Asisten Ahli', lektor: 'Lektor',
   lektor_kepala: 'Lektor Kepala', guru_besar: 'Profesor' };
