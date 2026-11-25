@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-25-448835">
+<link rel="stylesheet" href="tema.css?v=2026-11-25-8c7887">
 <style>
   /* Pengajuan mahasiswa, publik tanpa masuk akun (pemilik 2026-11-17; patch 90). Warna dari tema.css. */
   *{box-sizing:border-box}
@@ -111,7 +111,7 @@
   <h1>Pengajuan KP, seminar/sidang TA, lomba, publikasi/luaran, kabar kegiatan, surat, dan yudisium</h1><div class="prodi" id="hProdi"></div>
 </div></div>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-25-448835"></script>
+<script src="config.js?v=2026-11-25-8c7887"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -127,7 +127,7 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 // Kepala dan kaki bersama situs umum (pemilik 2026-11-19, tahap 2).
-import { pasangKerangka } from './kerangka.js?v=2026-11-25-448835';
+import { pasangKerangka } from './kerangka.js?v=2026-11-25-8c7887';
 pasangKerangka({ aktif: 'mahasiswa', muat: true });
 // Mahasiswa tidak login (pemilik 2026-11-17). Tanpa token: formulir baru dan minta tautan lagi; Apps Script
 // membuat pengajuan dan mengirim tautan pribadi ke <NIM>@<domain kampus>. Dengan #t=<token> (dari email):
@@ -137,7 +137,7 @@ pasangKerangka({ aktif: 'mahasiswa', muat: true });
 // tidak ada permintaan ke Supabase atau Google. Tanpa ?latihan: Supabase sungguhan seperti biasa.
 const LATIHAN = new URLSearchParams(location.search).has('latihan');
 if (LATIHAN) { window.LATIHAN = true; window.UPLOAD_URL = 'https://script.google.com/macros/s/latihan/exec'; }
-const { createClient } = LATIHAN ? await import('./latihan/mock-sb.js?v=2026-11-25-448835')
+const { createClient } = LATIHAN ? await import('./latihan/mock-sb.js?v=2026-11-25-8c7887')
   : await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm');
 if (LATIHAN) pasangLatihan();
 // Pita MODE LATIHAN, mulai ulang, dan tautan ke pengajuan.html tetap membawa ?latihan=1.
@@ -164,9 +164,10 @@ function pasangLatihan(){
 import { JENIS, LABEL_BERKAS, LABEL_STATUS, TINGKAT, BIDANG, jalur, bolehUbah, bacaAnggota, teksAnggota,
          periksaIsian, judulPengajuan, keB64, bukaIsi, appsScript, labelStatus, jalurTahap, BERKAS_SELESAI, PROGRAM_KP, labelProgram,
          periksaSelesai, bolehBatalMhs, JENIS_SURAT, TAHAP_TA, TAHAP_TA_AJU, TAHAP_PEMBIMBING_TA, penetapanTA, pembimbingCocok, JENIS_PUB, TINGKAT_PUB, INDEKSASI, JENIS_LUARAN,
-         BERKAS_YUDISIUM_BAWAAN, kelengkapanYudisium, labelBerkas, JENIS_KEGIATAN, BERKAS_TA_BAWAAN, berkasTahapTA, TAHAP_TA_BERKAS } from './pengajuan-mhs.js?v=2026-11-25-448835';
-import { saranInstansi } from './rekap-kp.js?v=2026-11-25-448835';
-import { CONTOH_PENGAJUAN, contohPengajuan } from './pengajuan-contoh.js?v=2026-11-25-448835';
+         BERKAS_YUDISIUM_BAWAAN, kelengkapanYudisium, labelBerkas, JENIS_KEGIATAN, BERKAS_TA_BAWAAN, berkasTahapTA, TAHAP_TA_BERKAS } from './pengajuan-mhs.js?v=2026-11-25-8c7887';
+import { saranInstansi } from './rekap-kp.js?v=2026-11-25-8c7887';
+import { CONTOH_PENGAJUAN, contohPengajuan } from './pengajuan-contoh.js?v=2026-11-25-8c7887';
+import { HARI_OTOMATIS, CARA_BIMBINGAN, labelCara, statusBimbingan, periksaBimbingan, teksSyarat } from './bimbingan-ta.js?v=2026-11-25-8c7887';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
@@ -546,6 +547,75 @@ async function muat(){
   const { data, error } = await sb.rpc('mhs_lihat', { p_token: TOKEN });
   if (error) throw new Error(error.message);
   P = data;
+  await muatBimbingan();   // 175
+}
+
+// Catatan bimbingan TA (175, pemilik 2026-11-25): mahasiswa mencatat tiap bimbingan; pembimbing mengonfirmasi atau
+// mengembalikan; 14 hari tanpa tanggapan = terkonfirmasi otomatis. Syarat mendaftar seminar/sidang = jumlah terkonfirmasi.
+// BIMB = hasil mhs_bimbingan(token); null = bukan TA, pratinjau admin, contoh, atau patch 175 belum ada.
+let BIMB = null, UBAH_BIMB = null;
+async function muatBimbingan(){
+  BIMB = null;
+  if (!TOKEN || P?.jenis !== 'ta') return;
+  const { data, error } = await sb.rpc('mhs_bimbingan', { p_token: TOKEN });
+  if (!error && data) BIMB = data;
+}
+function htmlBimbingan(){
+  const b = BIMB, x = UBAH_BIMB ? b.catatan.find(c => c.id === UBAH_BIMB) || {} : {};
+  const hariIni = new Date(Date.now() + 7 * 3600e3).toISOString().slice(0, 10);
+  const pb = b.pembimbing || [];
+  const kelas = { dikonfirmasi: 'ada', otomatis: 'ada', dikembalikan: 'kurang', menunggu: '' };
+  return `<h2 id="bimbingan">Catatan bimbingan</h2>
+    <p class="ket">Catat setiap bimbingan TA di sini; pembimbing mengonfirmasinya. Catatan yang ${b.hari_otomatis || HARI_OTOMATIS} hari tidak ditanggapi
+      terkonfirmasi otomatis. Bimbingan lama (sebelum situs dipakai) boleh dicatat juga.</p>
+    <ul class="ket" style="margin:4px 0 8px 18px">${(b.syarat || []).map(s => `<li>${esc(teksSyarat(s))}</li>`).join('')}</ul>
+    ${pb.length ? `<details class="kotak"${UBAH_BIMB ? ' open' : ''}><summary><b>${UBAH_BIMB ? 'Ubah catatan bimbingan' : 'Catat bimbingan'}</b></summary>
+      <form id="frmBimb" novalidate><div class="dua">
+        <div class="fld"><label for="bm_tgl">Tanggal bimbingan</label><input id="bm_tgl" type="date" max="${hariIni}" value="${esc(x.tanggal || '')}"></div>
+        <div class="fld"><label for="bm_cara">Cara</label><select id="bm_cara">${CARA_BIMBINGAN.map(([k, l]) =>
+          `<option value="${k}"${k === (x.cara || 'tatap_muka') ? ' selected' : ''}>${esc(l)}</option>`).join('')}</select></div>
+        <div class="fld"><label for="bm_pb">Pembimbing</label><select id="bm_pb">${pb.map(d =>
+          `<option value="${esc(d.id)}"${d.id === (x.pembimbing_id || pb[0].id) ? ' selected' : ''}>${esc(d.nama)} (pembimbing ${d.ke})</option>`).join('')}</select></div></div>
+        <div class="fld"><label for="bm_topik">Topik yang dibahas</label><textarea id="bm_topik" maxlength="1000" placeholder="mis. Bab 3 metodologi: pemilihan data hujan">${esc(x.topik || '')}</textarea></div>
+        <div class="fld"><label for="bm_arahan">Arahan pembimbing dan rencana berikutnya <span>(opsional)</span></label>
+          <textarea id="bm_arahan" maxlength="2000">${esc(x.arahan || '')}</textarea></div>
+        <p><button type="submit" class="b utama" id="b_bimb">${UBAH_BIMB ? 'Simpan perubahan' : 'Simpan catatan'}</button>
+          ${UBAH_BIMB ? '<button type="button" class="b" id="b_bimb_batal">Batal</button>' : ''}<span class="msg" id="m_bimb" role="status"></span></p></form></details>`
+      : '<p class="kosong">Pembimbing TA Anda belum tercatat. Ajukan pembimbing TA dulu (Tahap: Pengajuan pembimbing TA).</p>'}
+    <ul class="daftar yud">${(b.catatan || []).map(c => { const s = statusBimbingan(c), bisa = !c.sah;
+      return `<li class="${kelas[s.kode]}"><div class="isi"><span class="tanda-yud">${esc(s.kode === 'menunggu' ? 'menunggu' : s.kode === 'dikembalikan' ? 'kembali' : '✓')}</span>
+        <b>${esc(tglPendek(c.tanggal))}</b> · ${esc(labelCara(c.cara))}${c.pembimbing ? ' · ' + esc(c.pembimbing) : ''}
+        <div>${esc(c.topik)}</div>${c.arahan ? `<div class="meta">Arahan: ${esc(c.arahan)}</div>` : ''}
+        <div class="meta">${esc(s.label)}${s.otomatisPada ? ` (otomatis terkonfirmasi ${esc(tglPendek(s.otomatisPada))} bila tidak ditanggapi)` : ''}${
+          c.catatan_pembimbing ? ` · Catatan pembimbing: ${esc(c.catatan_pembimbing)}` : ''}
+          ${bisa ? `<button class="b kecil" data-ubah-bimb="${c.id}">Ubah</button><button class="b kecil" data-hapus-bimb="${c.id}" aria-label="Hapus catatan">×</button>` : ''}</div></div></li>`; }).join('')
+      || '<li><span class="kosong">Belum ada catatan bimbingan.</span></li>'}</ul>`;
+}
+const tglPendek = s => s ? new Date(String(s).slice(0, 10) + 'T00:00:00Z').toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' }) : '';
+function pasangBimbingan(){
+  if (!BIMB || !$('bimbingan')) return;
+  const segarkan = async pesan => { await muatBimbingan(); UBAH_BIMB = null; halamanSaya(); if (pesan) tulis('m_bimb', 'ok', pesan); };
+  const f = $('frmBimb');
+  if (f) f.onsubmit = async e => {
+    e.preventDefault();
+    const x = { tanggal: $('bm_tgl').value, cara: $('bm_cara').value, pembimbing: $('bm_pb').value, topik: $('bm_topik').value, arahan: $('bm_arahan').value };
+    const g = periksaBimbingan(x, BIMB.pembimbing || []);
+    if (g.length) return tulis('m_bimb', 'buruk', g.join(' '));
+    $('b_bimb').disabled = true;
+    const { error } = await sb.rpc('mhs_bimbingan_simpan', { p_token: TOKEN, p_id: UBAH_BIMB, p_tanggal: x.tanggal, p_cara: x.cara,
+      p_pembimbing: x.pembimbing, p_topik: x.topik, p_arahan: x.arahan });
+    if (error) { $('b_bimb').disabled = false; return tulis('m_bimb', 'buruk', error.message); }
+    await segarkan('Catatan tersimpan; menunggu konfirmasi pembimbing.');
+    $('bimbingan').scrollIntoView({ block: 'start' });
+  };
+  if ($('b_bimb_batal')) $('b_bimb_batal').onclick = () => { UBAH_BIMB = null; halamanSaya(); $('bimbingan').scrollIntoView({ block: 'start' }); };
+  document.querySelectorAll('[data-ubah-bimb]').forEach(b => { b.onclick = () => { UBAH_BIMB = +b.dataset.ubahBimb; halamanSaya(); $('bimbingan').scrollIntoView({ block: 'start' }); }; });
+  document.querySelectorAll('[data-hapus-bimb]').forEach(b => { b.onclick = async () => {
+    if (!confirm('Hapus catatan bimbingan ini?')) return;
+    const { error } = await sb.rpc('mhs_bimbingan_hapus', { p_token: TOKEN, p_id: +b.dataset.hapusBimb });
+    if (error) return tulis('m_bimb', 'buruk', error.message);
+    await segarkan('Catatan dihapus.');
+  }; });
 }
 
 // Pratinjau admin: pita di atas, hasil pemeriksaan tombol Kirim (bunyi pesan sama dengan yang dilihat mahasiswa), lalu
@@ -712,6 +782,7 @@ function halamanSaya(){
         <p><button type="submit" class="b" id="b_simpanS">Simpan laporan</button><span class="msg" id="m_simpanS" role="status"></span></p>
         <p><button type="button" class="b utama" id="b_kirimS">Kirim laporan selesai</button><span class="msg" id="m_kirimS" role="status"></span></p></form>`
       : `<dl class="kotak ringkas">${ringkasSelesai.filter(([, v]) => v).map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join('')}</dl>`}` : ''}
+    ${BIMB && p.jenis === 'ta' ? htmlBimbingan() : ''}
     <h2>${sus ? 'Data KP' : 'Isian pengajuan'}</h2>
     ${ubahPengajuan ? `<form class="kotak" id="frmUbah" novalidate>${htmlIsian(p.jenis, d, p.nama, p.pembimbing_id || '')}
       <p><button type="submit" class="b" id="b_simpan">Simpan isian</button><span class="msg" id="m_simpan" role="status"></span></p></form>
@@ -744,6 +815,7 @@ function halamanSaya(){
     $('frmSelesai').onsubmit = async e => { e.preventDefault(); await simpanSelesai(); };
     $('b_kirimS').onclick = kirimSelesai;
   }
+  pasangBimbingan();   // 175
 }
 
 // Berkas yudisium (122): daftar kelengkapan per butir; tiap butir boleh lebih dari satu berkas; berkas yang melebihi

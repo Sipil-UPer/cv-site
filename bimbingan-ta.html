@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="robots" content="noindex, nofollow">
+<title>Bimbingan TA — Ruang kerja</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tema.css?v=2026-11-25-8c7887">
+<link rel="stylesheet" href="kepala.css?v=2026-11-25-8c7887">
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
+  .wrap{max-width:1120px;margin:0 auto;padding:18px 20px 80px}
+  .kosong, .ket{color:var(--muted)} .ket{font-size:13px}
+  h2{font-family:var(--serif);font-size:19px;font-weight:600;margin:24px 0 8px}
+  .msg{font-size:13px;margin-left:6px} .msg.ok{color:var(--hijau)} .msg.err{color:var(--merah)}
+  .tag{display:inline-block;font-size:12px;padding:1px 8px;border:1px solid var(--line);background:var(--bg);white-space:nowrap}
+  .tag.perlu{border-color:var(--merah);color:var(--merah)} .tag.ok{border-color:var(--hijau);color:var(--hijau)}
+  .saring{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;margin:4px 0 10px;font-size:13.5px}
+  select, input, textarea{font:inherit;font-size:14px;padding:5px 7px;border:1px solid var(--line);background:var(--panel);color:var(--ink)}
+  table{width:100%;border-collapse:collapse;background:var(--panel);border:1px solid var(--line);font-size:14px}
+  th{text-align:left;font-size:12px;color:var(--muted);font-weight:500;border-bottom:1px solid var(--line);padding:7px 10px;background:var(--bg)}
+  td{border-bottom:1px solid var(--line-soft);padding:7px 10px;vertical-align:top}
+  td.n, th.n{text-align:right;font-family:var(--mono);white-space:nowrap}
+  tr.pilih td{background:var(--bg)}
+  button.b{font:inherit;font-size:13.5px;padding:6px 12px;border:1px solid var(--biru);background:var(--biru);color:#fff;cursor:pointer}
+  button.b.dua{background:var(--panel);color:var(--biru)} button.b.bahaya{border-color:var(--merah);background:var(--panel);color:var(--merah)}
+  button.b.kecil{font-size:12.5px;padding:3px 8px}
+  button.b:disabled{opacity:.5;cursor:default}
+  .lewat{color:var(--merah);font-weight:600}
+  .kotak{background:var(--panel);border:1px solid var(--line);padding:12px 16px;margin:10px 0}
+  @media(max-width:760px){.lebar-tabel{overflow-x:auto}}
+</style>
+</head>
+<body>
+<div class="hero" role="region" aria-label="Pembuka halaman"><div class="hero-in">
+  <div class="hero-inst" data-identitas></div>
+  <h1>Bimbingan TA</h1>
+  <div class="sub" id="hSub">Memuat…</div>
+</div></div>
+<main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
+<script src="config.js?v=2026-11-25-8c7887"></script>
+<script>
+// Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
+addEventListener('error', function (e) {
+  if (document.getElementById('galat-muat')) return;
+  var d = document.createElement('div');
+  d.id = 'galat-muat';
+  d.style.cssText = 'margin:16px;padding:12px 14px;border:1px solid var(--merah);' +
+    'background:var(--merah-m3);color:var(--ink);font:14px/1.5 system-ui,sans-serif';
+  d.textContent = 'Halaman gagal dimuat: ' + (e.message || 'galat skrip') +
+    '. Tekan Ctrl+Shift+R untuk memuat ulang tanpa cache; bila tetap muncul, kirim pesan ini ke admin.';
+  document.body.insertBefore(d, document.body.firstChild);
+});
+</script>
+<script type="module">
+// Catatan bimbingan TA (175-patch-bimbingan-ta.sql, pemilik 2026-11-25): mahasiswa mencatat tiap bimbingan lewat tautan
+// pribadi pengajuan TA-nya; pembimbing mengonfirmasi (banyak sekaligus) atau mengembalikan dengan alasan; 14 hari tanpa
+// tanggapan = terkonfirmasi otomatis. Koordinator TA/admin melihat semua mahasiswa, boleh mengonfirmasi atas nama
+// pembimbing, dan mengatur minimal bimbingan terkonfirmasi per tahap (syarat mendaftar seminar/sidang).
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
+import { gerbang } from './menu.js?v=2026-11-25-8c7887';
+import { punya } from './koordinator.js?v=2026-11-25-8c7887';
+import { HARI_LAMA, NAMA_TAHAP, labelCara, statusBimbingan, hariSejak } from './bimbingan-ta.js?v=2026-11-25-8c7887';
+
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const $ = id => document.getElementById(id);
+const sb = createClient(window.SB_URL, window.SB_KEY);
+const tgl = s => s ? new Date(String(s).slice(0, 10) + 'T00:00:00Z').toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' }) : '';
+const tulis = (id, k, t) => { const m = $(id); if (m) { m.className = 'msg ' + k; m.textContent = t; } };
+
+let SAYA = null, KOOR = false, REKAP = [], CATATAN = [], DOSEN = {}, BUKA = '', SEMUA = false, SYARAT = [];
+
+// ---------- Menunggu konfirmasi ----------
+function gambarMenunggu(){
+  const xs = CATATAN.filter(c => statusBimbingan(c).kode === 'menunggu');
+  $('menunggu').innerHTML = !xs.length ? '<p class="kosong">Tidak ada catatan bimbingan yang menunggu konfirmasi. <span class="msg" id="mMenunggu"></span></p>' : `
+    <p class="ket">Centang catatan yang benar, lalu <b>Konfirmasi terpilih</b>. Catatan yang tidak sesuai dikembalikan dengan alasan;
+      mahasiswa memperbaikinya. Tanpa tanggapan, catatan terkonfirmasi otomatis pada tanggal yang tertera.</p>
+    <div class="lebar-tabel"><table><thead><tr><th><input type="checkbox" id="pilihSemua" aria-label="Pilih semua"></th><th>Mahasiswa</th><th>Tanggal</th>
+      <th>Topik dan arahan</th><th>Pembimbing</th><th>Otomatis</th><th></th></tr></thead><tbody>${xs.map(c => `<tr>
+      <td><input type="checkbox" data-pilih="${c.id}" aria-label="Pilih"></td>
+      <td>${esc(c.nama)}<div class="ket">${esc(c.nim)}</div></td><td>${esc(tgl(c.tanggal))}<div class="ket">${esc(labelCara(c.cara))}</div></td>
+      <td>${esc(c.topik)}${c.arahan ? `<div class="ket">Arahan: ${esc(c.arahan)}</div>` : ''}</td>
+      <td>${esc(DOSEN[c.pembimbing_id] || '')}</td><td class="ket">${esc(tgl(statusBimbingan(c).otomatisPada))}</td>
+      <td><button type="button" class="b kecil bahaya" data-kembali="${c.id}">Kembalikan</button></td></tr>`).join('')}</tbody></table></div>
+    <div class="saring" style="margin-top:8px"><button type="button" class="b" id="konfirmasi">Konfirmasi terpilih</button>
+      <span class="msg" id="mMenunggu"></span></div>`;
+  if (!xs.length) return;
+  $('pilihSemua').onchange = e => document.querySelectorAll('[data-pilih]').forEach(x => { x.checked = e.target.checked; });
+  $('konfirmasi').onclick = async () => {
+    const ids = [...document.querySelectorAll('[data-pilih]:checked')].map(x => +x.dataset.pilih);
+    if (!ids.length) return tulis('mMenunggu', 'err', 'Centang catatan dulu.');
+    await kirim(ids, true, null, 'mMenunggu');
+  };
+  document.querySelectorAll('[data-kembali]').forEach(b => { b.onclick = async () => {
+    const alasan = prompt('Alasan mengembalikan (dibaca mahasiswa):');
+    if (alasan === null) return;
+    await kirim([+b.dataset.kembali], false, alasan, 'mMenunggu');
+  }; });
+}
+async function kirim(ids, setuju, catatan, idPesan){
+  const { data, error } = await sb.rpc('ta_bimbingan_konfirmasi', { p_ids: ids, p_setuju: setuju, p_catatan: catatan });
+  if (error) return tulis(idPesan, 'err', error.message);
+  await muat(); gambar();
+  tulis('mMenunggu', 'ok', `${data} catatan ${setuju ? 'dikonfirmasi' : 'dikembalikan'}.`);
+}
+
+// ---------- Rekap per mahasiswa ----------
+function gambarRekap(){
+  const xs = REKAP.filter(r => SEMUA || r.tahap_lulus !== 'sidang_akhir');
+  $('rekap').innerHTML = `<div class="saring"><label><input type="checkbox" id="semua"${SEMUA ? ' checked' : ''}> tampilkan juga yang sudah lulus sidang</label></div>
+    ${!xs.length ? '<p class="kosong">Belum ada mahasiswa TA.</p>' : `<div class="lebar-tabel"><table><thead><tr><th>Mahasiswa</th><th>Pembimbing</th>
+      <th class="n">Terkonfirmasi</th><th class="n">Menunggu</th><th class="n">Dikembalikan</th><th>Bimbingan terakhir</th><th>Tahap lulus</th><th></th></tr></thead>
+      <tbody>${xs.map(r => { const h = hariSejak(r.terakhir);
+        return `<tr${r.nim === BUKA ? ' class="pilih"' : ''}><td>${esc(r.nama)}<div class="ket">${esc(r.nim)}</div></td><td>${esc(r.pembimbing || '–')}</td>
+        <td class="n">${r.sah}</td><td class="n">${r.menunggu || ''}</td><td class="n">${r.dikembalikan || ''}</td>
+        <td>${r.terakhir ? `${esc(tgl(r.terakhir))} <span class="${h > HARI_LAMA && r.tahap_lulus !== 'sidang_akhir' ? 'lewat' : 'ket'}">(${h} hari)</span>`
+          : `<span class="${r.tahap_lulus === 'sidang_akhir' ? 'ket' : 'lewat'}">belum ada</span>`}</td>
+        <td>${esc(NAMA_TAHAP[r.tahap_lulus] || '–')}</td>
+        <td><button type="button" class="b kecil dua" data-nim="${esc(r.nim)}">Riwayat</button></td></tr>`; }).join('')}</tbody></table></div>`}
+    <div id="riwayat"></div>`;
+  $('semua').onchange = e => { SEMUA = e.target.checked; gambarRekap(); };
+  document.querySelectorAll('[data-nim]').forEach(b => { b.onclick = () => { BUKA = b.dataset.nim; gambarRekap(); }; });
+  if (BUKA) gambarRiwayat();
+}
+function gambarRiwayat(){
+  const r = REKAP.find(x => x.nim === BUKA), xs = CATATAN.filter(c => c.nim === BUKA);
+  if (!r) return;
+  $('riwayat').innerHTML = `<div class="kotak"><b>Riwayat bimbingan ${esc(r.nama)}</b> <span class="ket">${esc(r.nim)}</span>
+    ${xs.length ? `<div class="lebar-tabel" style="margin-top:8px"><table><thead><tr><th>Tanggal</th><th>Topik dan arahan</th><th>Pembimbing</th><th>Status</th></tr></thead>
+      <tbody>${xs.map(c => { const s = statusBimbingan(c); return `<tr><td>${esc(tgl(c.tanggal))}<div class="ket">${esc(labelCara(c.cara))}</div></td>
+        <td>${esc(c.topik)}${c.arahan ? `<div class="ket">Arahan: ${esc(c.arahan)}</div>` : ''}</td><td>${esc(DOSEN[c.pembimbing_id] || '')}</td>
+        <td><span class="tag ${s.kode === 'dikembalikan' ? 'perlu' : s.kode === 'menunggu' ? '' : 'ok'}">${esc(s.label)}</span>
+          ${c.catatan_pembimbing ? `<div class="ket">${esc(c.catatan_pembimbing)}</div>` : ''}</td></tr>`; }).join('')}</tbody></table></div>`
+      : '<p class="kosong">Belum ada catatan bimbingan.</p>'}</div>`;
+  $('riwayat').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+// ---------- Minimal bimbingan per tahap (koordinator TA/admin) ----------
+function gambarSyarat(){
+  const el = $('syarat'); if (!el) return;
+  el.innerHTML = `<p class="ket">Jumlah bimbingan terkonfirmasi (termasuk otomatis) yang harus ada sebelum mahasiswa bisa mengirim pendaftaran.
+      Dihitung sejak tahap sebelumnya: seminar kemajuan sesudah seminar proposal lulus, sidang akhir sesudah seminar kemajuan. 0 = tanpa syarat.</p>
+    <div class="saring">${SYARAT.map(s => `<label>${esc(NAMA_TAHAP[s.tahap])} <input type="number" min="0" max="50" data-syarat="${s.tahap}" value="${s.minimal}" style="width:5em"></label>`).join('')}
+      <button type="button" class="b" id="simpanSyarat">Simpan</button><span class="msg" id="mSyarat"></span></div>`;
+  $('simpanSyarat').onclick = async () => {
+    for (const x of document.querySelectorAll('[data-syarat]')) {
+      const v = +x.value;
+      if (!Number.isInteger(v) || v < 0 || v > 50) return tulis('mSyarat', 'err', 'Minimal bimbingan 0–50.');
+      const { error } = await sb.from('ta_syarat_bimbingan').update({ minimal: v, oleh: SAYA.nama, diperbarui: new Date().toISOString() }).eq('tahap', x.dataset.syarat);
+      if (error) return tulis('mSyarat', 'err', error.message);
+    }
+    await muat(); gambarSyarat(); tulis('mSyarat', 'ok', 'Tersimpan.');
+  };
+}
+
+async function muat(){
+  const [rk, ct, sy] = await Promise.all([sb.rpc('ta_bimbingan_rekap'),
+    sb.from('ta_bimbingan').select('*').order('tanggal', { ascending: false }).order('id', { ascending: false }),
+    sb.from('ta_syarat_bimbingan').select('*').order('tahap')]);
+  if (rk.error || ct.error) throw new Error(/ta_bimbingan/.test((rk.error || ct.error).message)
+    ? 'Catatan bimbingan belum dipasang: jalankan supabase/175-patch-bimbingan-ta.sql.' : (rk.error || ct.error).message);
+  REKAP = rk.data || []; CATATAN = ct.data || [];
+  const urut = ['seminar_proposal', 'seminar_kemajuan', 'sidang_akhir'];
+  SYARAT = (sy.data || []).sort((a, b) => urut.indexOf(a.tahap) - urut.indexOf(b.tahap));
+}
+function gambar(){ gambarMenunggu(); gambarRekap(); gambarSyarat(); }
+
+async function mulai(){
+  SAYA = await gerbang(sb);
+  if (!SAYA) return;
+  KOOR = SAYA.peran === 'admin' || punya(SAYA, 'koordinator_ta');
+  $('hSub').textContent = `Masuk sebagai ${SAYA.nama}${KOOR ? ' · koordinator TA/admin' : ''}`;
+  const dq = await sb.from('dosen').select('id,nama');
+  DOSEN = Object.fromEntries((dq.data || []).map(d => [d.id, d.nama]));
+  await muat();
+  $('isi').innerHTML = `
+    <p class="ket">Mahasiswa mencatat setiap bimbingan TA lewat tautan pribadi pengajuannya; pembimbing mengonfirmasi di sini.
+      Bimbingan terkonfirmasi menjadi syarat mendaftar seminar dan sidang, dan bahan nilai proses bimbingan.
+      ${KOOR ? 'Sebagai koordinator TA/admin Anda melihat semua mahasiswa dan boleh mengonfirmasi atas nama pembimbing.' : 'Anda melihat mahasiswa bimbingan Anda.'}</p>
+    <h2 id="menunggu-konfirmasi">Menunggu konfirmasi</h2><div id="menunggu"></div>
+    <h2 id="rekap-bimbingan">Rekap per mahasiswa</h2><div id="rekap"></div>
+    ${KOOR ? '<h2 id="minimal-bimbingan">Minimal bimbingan per tahap</h2><div id="syarat"></div>' : ''}`;
+  gambar();
+}
+mulai().catch(e => { $('isi').innerHTML = `<p class="kosong">Gagal memuat: ${esc(e.message)}</p>`; });
+</script>
+</body>
+</html>

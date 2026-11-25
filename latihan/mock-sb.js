@@ -56,6 +56,24 @@ const pmToken = t => PM().find(p => p.token === t);
 const pmRiwayat = (p, status, oleh, catatan = null) => (DB.pengajuan_riwayat ||= []).push({ id: baru(), pengajuan_id: p.id, status, oleh, catatan,
   tahap: p.tahap || 'pengajuan', waktu: new Date().toISOString() });
 const pmGagal = message => ({ data: null, error: { message } });
+// 175: pembimbing TA (penetapan disetujui, atau pengajuan TA terakhir yang dikirim), sah = dikonfirmasi atau 14 hari, syarat per tahap.
+function pmPembimbingNim(nim){
+  const xs = PM().filter(o => o.nim === nim && o.jenis === 'ta' && o.pembimbing_id && !['draf', 'ditolak', 'dibatalkan'].includes(o.status));
+  const o = xs.find(x => x.data?.tahap_ta === 'penetapan_pembimbing' && x.status === 'disetujui') || xs.at(-1);
+  if (!o) return [];
+  const d = id => (DB.dosen || []).find(x => x.id === id);
+  return [[o.pembimbing_id, 1], [o.data?.pembimbing_2, 2]].filter(([id], i) => id && d(id) && (i === 0 || id !== o.pembimbing_id))
+    .map(([id, ke]) => ({ id, nama: d(id).nama, ke }));
+}
+const pmBimbSah = b => b.status === 'dikonfirmasi' || (b.status === 'menunggu' && +new Date(b.diajukan) <= Date.now() - 14 * 864e5);
+function pmSyaratBimb(nim, tahap){
+  const minimal = (DB.ta_syarat_bimbingan || []).find(s => s.tahap === tahap)?.minimal ?? 0;
+  const sebelum = { seminar_kemajuan: 'seminar_proposal', sidang_akhir: 'seminar_kemajuan' }[tahap];
+  const sejak = sebelum ? (DB.jadwal_ta || []).filter(t => t.nim === nim && t.tahap === sebelum && t.status === 'selesai' && ['lulus', 'lulus_revisi'].includes(t.hasil))
+    .map(t => t.tanggal).sort().at(-1) || null : null;
+  const terhitung = (DB.ta_bimbingan || []).filter(b => b.nim === nim && pmBimbSah(b) && (!sejak || b.tanggal > sejak)).length;
+  return { tahap, minimal, terhitung, sejak, cukup: terhitung >= minimal };
+}
 function pmRpc(nama, a){
   // 174: berkas pendaftaran seminar/sidang TA per tahap (daftar aktif, urut seperti ta_berkas_daftar).
   if (nama === 'ta_berkas_daftar') return { data: (DB.ta_berkas || []).filter(t => t.aktif)
@@ -273,6 +291,38 @@ function pmRpc(nama, a){
     DB = JSON.parse(salinan); simpan();
     return { data: { lihat: { ...lihat, token: undefined }, periksa }, error: null };
   }
+  // 175: catatan bimbingan TA, tiruan (aturan sama dengan 175-patch-bimbingan-ta.sql).
+  if (['ta_bimbingan_konfirmasi', 'ta_bimbingan_rekap', 'ta_bimbingan_menunggu'].includes(nama)) {
+    const saya = (DB.dosen || []).find(d => d.email === email()), B = (DB.ta_bimbingan ||= []);
+    const koor = !!saya && (saya.peran === 'admin' || (DB.koordinator || []).some(k => k.dosen_id === saya.id && k.jabatan === 'koordinator_ta' && !k.selesai));
+    const pbSaya = nim => pmPembimbingNim(nim).some(x => x.id === saya?.id);
+    if (nama === 'ta_bimbingan_menunggu') {
+      const g = new Map();
+      for (const b of B.filter(b => b.status === 'menunggu' && !pmBimbSah(b) && pbSaya(b.nim))) {
+        const x = g.get(b.nim) || { nim: b.nim, nama: b.nama, n: 0, tertua: b.diajukan }; x.n++; if (b.diajukan < x.tertua) x.tertua = b.diajukan; g.set(b.nim, x); }
+      return { data: [...g.values()], error: null };
+    }
+    if (nama === 'ta_bimbingan_rekap') {
+      const nims = new Map();
+      for (const o of PM().filter(o => o.jenis === 'ta' && !['draf', 'ditolak', 'dibatalkan'].includes(o.status))) nims.set(o.nim, o.nama);
+      for (const b of B) if (!nims.has(b.nim)) nims.set(b.nim, b.nama);
+      const urutT = { sidang_akhir: 3, seminar_kemajuan: 2, seminar_proposal: 1 };
+      return { data: [...nims].filter(([nim]) => koor || pbSaya(nim)).map(([nim, nm]) => { const xs = B.filter(b => b.nim === nim);
+        const lulus = (DB.jadwal_ta || []).filter(t => t.nim === nim && t.status === 'selesai' && ['lulus', 'lulus_revisi'].includes(t.hasil))
+          .sort((a, b) => urutT[b.tahap] - urutT[a.tahap])[0];
+        return { nim, nama: nm, pembimbing: pmPembimbingNim(nim).map(x => x.nama).join(', ') || null, sah: xs.filter(pmBimbSah).length,
+          menunggu: xs.filter(b => b.status === 'menunggu' && !pmBimbSah(b)).length, dikembalikan: xs.filter(b => b.status === 'dikembalikan').length,
+          terakhir: xs.map(b => b.tanggal).sort().at(-1) || null, tahap_lulus: lulus?.tahap || null }; }).sort((a, b) => a.nama.localeCompare(b.nama)), error: null };
+    }
+    if (!saya) return pmGagal('Masuk sebagai dosen terdaftar dulu.');
+    if (!a.p_setuju && String(a.p_catatan || '').trim().length < 3) return pmGagal('Tulis alasan mengembalikan (minimal 3 huruf).');
+    const xs = B.filter(b => (a.p_ids || []).includes(b.id));
+    if (!xs.length) return pmGagal('Pilih catatan bimbingan dulu.');
+    if (xs.some(b => !(koor || pbSaya(b.nim)))) return pmGagal('Catatan bimbingan dikonfirmasi pembimbingnya, koordinator TA, atau admin.');
+    for (const b of xs) Object.assign(b, { status: a.p_setuju ? 'dikonfirmasi' : 'dikembalikan', catatan_pembimbing: String(a.p_catatan || '').trim() || null,
+      konfirmasi_oleh: saya.nama, konfirmasi_pada: new Date().toISOString() });
+    simpan(); return { data: xs.length, error: null };
+  }
   if (!nama.startsWith('mhs_')) return null;
   const p = pmToken(a.p_token);
   if (!p) return pmGagal('Tautan tidak berlaku. Minta tautan baru di halaman pengajuan.');
@@ -335,6 +385,30 @@ function pmRpc(nama, a){
     pmRiwayat(p, 'dibatalkan', 'mahasiswa', 'Dibatalkan mahasiswa' + (al ? ': ' + al : '') + '.'); simpan();
     return { data: 'dibatalkan', error: null };
   }
+  // 175: catatan bimbingan TA mahasiswa, tiruan (tidak bergantung status pengajuan, sama dengan SQL).
+  if (nama === 'mhs_bimbingan' || nama === 'mhs_bimbingan_simpan' || nama === 'mhs_bimbingan_hapus') {
+    if (p.jenis !== 'ta') return pmGagal('Catatan bimbingan ada di pengajuan TA.');
+    const B = (DB.ta_bimbingan ||= []), pb = pmPembimbingNim(p.nim);
+    if (nama === 'mhs_bimbingan') return { data: { hari_otomatis: 14, pembimbing: pb,
+      catatan: B.filter(b => b.nim === p.nim).sort((x, y) => y.tanggal.localeCompare(x.tanggal) || y.id - x.id).map(b => ({ ...b,
+        pembimbing: (DB.dosen || []).find(d => d.id === b.pembimbing_id)?.nama || null, sah: pmBimbSah(b) })),
+      syarat: ['seminar_proposal', 'seminar_kemajuan', 'sidang_akhir'].map(t => pmSyaratBimb(p.nim, t)) }, error: null };
+    if (nama === 'mhs_bimbingan_hapus') {
+      const b = B.find(x => x.id === a.p_id && x.nim === p.nim);
+      if (!b) return pmGagal('Catatan bimbingan tidak ditemukan.');
+      if (pmBimbSah(b)) return pmGagal('Catatan yang sudah terkonfirmasi tidak bisa dihapus.');
+      B.splice(B.indexOf(b), 1); simpan(); return { data: 'dihapus', error: null };
+    }
+    if (!pb.length) return pmGagal('Pembimbing TA Anda belum tercatat; ajukan pembimbing TA dulu.');
+    if (!pb.some(x => x.id === a.p_pembimbing)) return pmGagal('Pilih pembimbing yang membimbing.');
+    const kini = new Date().toISOString(), isi = { tanggal: a.p_tanggal, cara: a.p_cara, pembimbing_id: a.p_pembimbing,
+      topik: String(a.p_topik || '').trim(), arahan: String(a.p_arahan || '').trim(), status: 'menunggu', diajukan: kini };
+    if (!a.p_id) { const b = { id: baru(), nim: p.nim, nama: p.nama, dibuat: kini, ...isi }; B.push(b); simpan(); return { data: b.id, error: null }; }
+    const b = B.find(x => x.id === a.p_id && x.nim === p.nim);
+    if (!b) return pmGagal('Catatan bimbingan tidak ditemukan.');
+    if (pmBimbSah(b)) return pmGagal('Catatan yang sudah terkonfirmasi tidak bisa diubah.');
+    Object.assign(b, isi); simpan(); return { data: b.id, error: null };
+  }
   if (!['draf', 'dikembalikan'].includes(p.status)) return pmGagal('Pengajuan sedang diperiksa; isian tidak bisa diubah.');
   if (nama === 'mhs_ubah') { Object.assign(p, { nama: a.p_nama, pembimbing_id: a.p_pembimbing, data: a.p_data, diperbarui: new Date().toISOString() }); simpan(); return { data: 'ok', error: null }; }
   // 122: tautan Google Drive untuk berkas yudisium yang terlalu besar.
@@ -368,6 +442,9 @@ function pmRpc(nama, a){
     const tahapTA = p.jenis === 'ta' && !aju ? p.data?.tahap_ta : null;
     const kurangTA = (DB.ta_berkas || []).filter(t => t.tahap === tahapTA && t.aktif && t.wajib
       && !(DB.pengajuan_berkas || []).some(b => b.pengajuan_id === p.id && b.jenis === t.kode)).sort((a, b) => a.urut - b.urut).map(t => t.label);
+    // 175: minimal bimbingan terkonfirmasi sejak tahap sebelumnya (sesudah pemeriksaan berkas, sama dengan urutan trigger).
+    if (tahapTA && !kurangTA.length) { const s = pmSyaratBimb(p.nim, tahapTA);
+      if (!s.cukup) return pmGagal(`Bimbingan terkonfirmasi${s.sejak ? ' sejak tahap sebelumnya (' + s.sejak.split('-').reverse().join('-') + ')' : ''}: baru ${s.terhitung} dari minimal ${s.minimal}. Catat bimbingan Anda di bagian Catatan bimbingan dan minta pembimbing mengonfirmasinya (catatan yang 14 hari tidak ditanggapi terkonfirmasi otomatis).`); }
     if (kurangTA.length) return pmGagal(`Berkas wajib ${{ seminar_proposal: 'seminar proposal', seminar_kemajuan: 'seminar kemajuan', sidang_akhir: 'sidang akhir' }[tahapTA]} belum lengkap: ${kurangTA.join(', ')}.`);
     // 122: yudisium = 14 berkas wajib (daftar bawaan patch 122), langsung ke admin prodi.
     if (p.jenis === 'yudisium') {
