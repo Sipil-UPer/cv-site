@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-25-3c67d0">
+<link rel="stylesheet" href="tema.css?v=2026-11-25-52b8dc">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
@@ -74,7 +74,7 @@
   footer{margin-top:44px;border-top:1px solid var(--line);padding-top:18px;
          font-size:12.5px;color:var(--muted)}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-25-3c67d0">
+<link rel="stylesheet" href="kepala.css?v=2026-11-25-52b8dc">
 </head>
 <body>
 
@@ -633,11 +633,14 @@ function render(){
      f:grafikCakupan},
   ];
 
+  // Catatan kaki menyebut aturan butir LAM Teknik; instrumen lain hanya mendapat kalimat sumber data (2026-11-25).
+  const kakiInstrumen = k => window.BUTIR_LAM_TEKNIK !== false || !k ? k : k.replace(/\s*\([^()]*\b[Bb]utir \d[^()]*\)/g, '')
+    .split(/(?<=\.)\s+/).filter(x => !/\b[Bb]utir \d/.test(x)).join(' ');
   const kartu = daftar.map(g => {
     const hasil = g.f();
     const isi = hasil
       ? `<div class="svg-wadah">${hasil.svg}</div>
-         <p class="kaki">${hasil.kaki}</p>
+         ${kakiInstrumen(hasil.kaki) ? `<p class="kaki">${kakiInstrumen(hasil.kaki)}</p>` : ''}
          <div class="aksi">
            <button data-unduh="${g.id}">Unduh PNG</button>
            <button data-salin="${g.id}">Salin ke papan klip</button>
@@ -645,7 +648,7 @@ function render(){
       : `<p class="kosong">Data belum tersedia. Grafik muncul otomatis
          setelah sumbernya terisi.</p>`;
     return `<section class="kartu" data-g="${g.id}">
-      <h2>${esc(g.judul)}</h2><p class="ket">${esc(g.ket)}</p>${isi}</section>`;
+      <h2>${esc(g.judul)}</h2>${window.BUTIR_LAM_TEKNIK !== false ? `<p class="ket">${esc(g.ket)}</p>` : ''}${isi}</section>`;   // ket menyebut butir LAM Teknik (nilai dari modul di bawah)
   }).join('');
 
   document.getElementById('isi').innerHTML = `
@@ -660,7 +663,7 @@ function render(){
       <div id="ledGrafikIsi"><p class="kosong">Memuat&hellip;</p></div></section>
     <h2 class="bagian">Grafik tambahan (tidak masuk draf LED)</h2>
     <p class="ket">Untuk laporan dan presentasi. Periode mengikuti pilihan Tahun/TS di atas, sehingga angkanya bisa berbeda
-    dengan LKPS; untuk LED gunakan grafik di bagian atas.</p>
+    dengan LKPS<span class="hanya-lam">; untuk LED gunakan grafik di bagian atas</span>.</p>
     <div class="grid">${kartu}</div>
     <footer>Diperbarui ${esc(D.diperbarui || '')} ·
     Angka mengikuti mode ${MODE === 'ts' ? 'tahun akademik (TS)' : 'tahun kalender'}
@@ -702,7 +705,7 @@ window.mulaiHalaman = () => fetch('data.json', {cache: 'no-cache'})
       `<p class="kosong">Data belum tersedia. Hubungi admin prodi.</p>`;
   });
 </script>
-<script src="config.js?v=2026-11-25-3c67d0"></script>
+<script src="config.js?v=2026-11-25-52b8dc"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -720,9 +723,10 @@ addEventListener('error', function (e) {
 <script type="module">
 // Ruang kerja, khusus email terdaftar (pemilik 2026-11-04).
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-25-3c67d0';
-import { BUTIR_GRAFIK, grafikButir, tabelGrafik, kalimatGrafik } from './led-data.js?v=2026-11-25-3c67d0';
-import { gambarGrafik } from './led-grafik.js?v=2026-11-25-3c67d0';
+import { gerbang } from './menu.js?v=2026-11-25-52b8dc';
+import { BUTIR_GRAFIK, grafikButir, tabelGrafik, kalimatGrafik } from './led-data.js?v=2026-11-25-52b8dc';
+import { gambarGrafik } from './led-grafik.js?v=2026-11-25-52b8dc';
+import { BUTIR_LAM_TEKNIK } from './bobot.js?v=2026-11-25-52b8dc';
 // Grafik di draf LED (pemilik 2026-11-23): spesifikasi, gambar, kalimat, dan tabel yang sama dengan led.js.
 const tsBerjalan = () => { const d = new Date(); return d.getMonth() >= 8 ? d.getFullYear() + 1 : d.getFullYear(); };
 let TS_LED = null;
@@ -730,6 +734,12 @@ const escL = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<':
 window.gambarGrafikLED = async D => {
   const w = document.getElementById('ledGrafikIsi');
   if (!w) return;
+  // Grafik draf LED dan nomornya milik butir LAM Teknik (led.js); draf LED instrumen lain tanpa grafik (2026-11-25).
+  if (!BUTIR_LAM_TEKNIK) {
+    document.getElementById('ledGrafik')?.remove();
+    document.querySelectorAll('.hanya-lam').forEach(e => e.remove());
+    return;
+  }
   TS_LED ??= tsBerjalan();
   const pilih = [0, 1, 2].map(k => tsBerjalan() - k).map(t => `<option value="${t}"${t === TS_LED ? ' selected' : ''}>${t - 1}/${t}</option>`).join('');
   const kartu = [];
@@ -752,6 +762,7 @@ window.gambarGrafikLED = async D => {
   document.getElementById('tsLed').onchange = e => { TS_LED = +e.target.value; window.gambarGrafikLED(D); };
 };
 await gerbang(createClient(window.SB_URL, window.SB_KEY));
+window.BUTIR_LAM_TEKNIK = BUTIR_LAM_TEKNIK;   // dibaca skrip klasik di atas (keterangan grafik)
 window.mulaiHalaman();
 </script>
 </body>

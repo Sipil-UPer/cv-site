@@ -9,7 +9,7 @@
      lingkup  umum, C1..C7 (kriteria), b1..b60 (butir)
    Isian tersimpan ditulis dengan token ⟪teks⟫: tampil tanpa sorot di Word.
    ===================================================================== */
-import { dokumenKriteria, labelDokumenLED, tokenTautan } from './led-isi.js?v=2026-11-25-3c67d0';
+import { dokumenKriteria, labelDokumenLED, tokenTautan } from './led-isi.js?v=2026-11-25-52b8dc';
 
 const rentangNo = (a, b) => Array.from({ length: b - a + 1 }, (_, i) => String(a + i));
 export const KRITERIA = {
@@ -232,6 +232,13 @@ export function kalimatUmum(bagian, C){
 
 // Susunan halaman isian: [{ lingkup, judul, kalimat:[{id, teks}], tambahan }].
 export function bagianNarasi(C){
+  const umum0 = (bagian, judul) => ({ lingkup: 'umum', judul, kalimat: kalimatUmum(bagian, C) });
+  // Instrumen dengan draf LED kerangka (LAMDEPILAR, 2026-11-25): LED hanya membaca isian Identitas dan
+  // Tim penyusun (led-kerangka.js isiDepan); kriteria C1-C7 dan butir 1-60 milik LAM Teknik tidak ditampilkan.
+  if (C.hanyaIdentitasTim) return [
+    { id: 'identitas', pendek: 'Identitas', kelompok: 'Identitas pengusul, sampul, dan lampiran', bagian: [umum0('identitas', 'Identitas pengusul')] },
+    { id: 'A', pendek: 'Tim penyusun', kelompok: 'Tim penyusun LED', bagian: [umum0('tim', 'Tim penyusun')] },
+  ];
   const adaData = no => !C.manual.has(String(no));
   const butir = no => ({ lingkup: `b${no}`, judul: `Butir ${no}. ${(C.judulButir || {})[no] || ''}`, tambahan: true,
     kalimat: [...komponenButir(no).flatMap(k => kalimatButir(String(no), k, C, adaData(no))), kalimatCapaian(C, adaData(no), no)] });

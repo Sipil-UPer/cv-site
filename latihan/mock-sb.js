@@ -146,17 +146,44 @@ function pmRpc(nama, a){
   const penetapan = x => x.jenis === 'ta' && x.data?.tahap_ta === 'penetapan_pembimbing';
   if (nama === 'pembimbing_pilihan_ta') return { data: pmRpc('pembimbing_pilihan').data.map(d => { const k = kkDosen(d.id);
     return { ...d, kk: k, kk_cocok: k ? [...new Set([k, ...DB.ta_kk_dekat.filter(x => [x.kk_a, x.kk_b].includes(k)).map(x => x.kk_a === k ? x.kk_b : x.kk_a)])].sort() : [] }; }), error: null };
+  // 180: kuota per semester; beban pada pembimbing pertama (pembimbing_awal); dibimbing = semester sebelumnya, belum lulus.
+  const smtIdx = t => { const m = String(t || '').match(/^(\d{4})-(\d{2})/); if (!m) return null; const y = +m[1], b = +m[2];
+    return b >= 9 ? (y + 1) * 2 : b <= 2 ? y * 2 : y * 2 + 1; };
+  const lulusTA = nim => (DB.jadwal_ta || []).some(j => j.nim === nim && j.tahap === 'sidang_akhir' && j.status === 'selesai'
+    && (j.hasil === 'lulus' || (j.hasil === 'lulus_revisi' && j.revisi_selesai)));
   if (nama === 'ta_beban') {
-    const k = DB.ta_kuota || [], bawaan = k.find(x => x.ts === a.p_ts && !x.dosen_id)?.kuota ?? null;
-    return { data: pmRpc('pembimbing_pilihan').data.map(d => { const sendiri = k.find(x => x.ts === a.p_ts && x.dosen_id === d.id);
+    const k = (DB.ta_kuota || []).filter(x => x.ts === a.p_ts && (x.semester || 'Ganjil') === a.p_sm), bawaan = k.find(x => !x.dosen_id)?.kuota ?? null;
+    const i = a.p_ts * 2 + (a.p_sm === 'Genap' ? 1 : 0), jalan = p => penetapan(p) && !['draf', 'ditolak'].includes(p.status);
+    return { data: pmRpc('pembimbing_pilihan').data.map(d => { const sendiri = k.find(x => x.dosen_id === d.id);
       return { dosen_id: d.id, nama: d.nama, kk: kkDosen(d.id), kuota: sendiri ? sendiri.kuota : bawaan, kuota_sendiri: !!sendiri,
-        beban: PM().filter(p => penetapan(p) && p.pembimbing_id === d.id && !['draf', 'ditolak'].includes(p.status) && tsDari(p.dibuat) === a.p_ts).length }; }), error: null };
+        beban: PM().filter(p => jalan(p) && (p.data?.pembimbing_awal || p.pembimbing_id) === d.id && smtIdx(p.dibuat) === i).length,
+        dibimbing: new Set(PM().filter(p => jalan(p) && p.pembimbing_id === d.id && smtIdx(p.dibuat) < i && !lulusTA(p.nim)).map(p => p.nim)).size }; }),
+      error: null };
   }
   if (nama === 'ta_atur_kuota') {
     if (!sayaAdmin()) return pmGagal('Kuota TA diatur koordinator TA atau admin.');
-    DB.ta_kuota = (DB.ta_kuota || []).filter(x => !(x.ts === a.p_ts && (x.dosen_id || null) === (a.p_dosen || null)));
-    if (a.p_kuota != null) DB.ta_kuota.push({ id: baru(), ts: a.p_ts, dosen_id: a.p_dosen || null, kuota: a.p_kuota });
+    if (!['Ganjil', 'Genap'].includes(a.p_sm)) return pmGagal('Semester harus Ganjil atau Genap.');
+    DB.ta_kuota = (DB.ta_kuota || []).filter(x => !(x.ts === a.p_ts && (x.semester || 'Ganjil') === a.p_sm && (x.dosen_id || null) === (a.p_dosen || null)));
+    if (a.p_kuota != null) DB.ta_kuota.push({ id: baru(), ts: a.p_ts, semester: a.p_sm, dosen_id: a.p_dosen || null, kuota: a.p_kuota });
     simpan(); return { data: 'ok', error: null };
+  }
+  if (nama === 'ta_ganti_pembimbing') {
+    const p = PM().find(x => x.id === a.p_id), alasan = String(a.p_alasan || '').trim(), judul = String(a.p_judul || '').trim();
+    if (!sayaAdmin()) return pmGagal('Pembimbing TA diganti koordinator TA atau admin.');
+    if (!p || !penetapan(p)) return pmGagal('Pengajuan pembimbing TA tidak ditemukan.');
+    if (p.status !== 'disetujui') return pmGagal('Ganti pembimbing hanya pada penetapan yang sudah disahkan; sebelum itu pakai Tetapkan pembimbing.');
+    if (alasan.length < 5) return pmGagal('Tulis alasan penggantian (bimbingan dibatalkan).');
+    if (a.p_dosen2 && a.p_dosen2 === a.p_dosen) return pmGagal('Pembimbing 2 harus berbeda dari pembimbing 1.');
+    const nm = id => (DB.dosen || []).find(d => d.id === id)?.nama || '-';
+    const catatan = `Bimbingan dibatalkan, pembimbing diganti. Pembimbing 1: ${nm(p.pembimbing_id)} -> ${nm(a.p_dosen)}. Alasan: ${alasan}`;
+    p.data = { ...p.data, pembimbing_awal: p.data?.pembimbing_awal || p.pembimbing_id, ...(judul ? { judul } : {}) };
+    if (a.p_dosen2) p.data.pembimbing_2 = a.p_dosen2; else delete p.data.pembimbing_2;
+    for (const o of PM().filter(o => o.nim === p.nim && o.jenis === 'ta' && o.id !== p.id && !penetapan(o)
+      && ['draf', 'pembimbing', 'admin', 'dikembalikan'].includes(o.status))) { o.pembimbing_id = a.p_dosen; o.data = { ...o.data, pembimbing_2: a.p_dosen2 || undefined }; }
+    p.pembimbing_id = a.p_dosen;
+    (DB.pengajuan_riwayat ||= []).push({ id: baru(), pengajuan_id: p.id, status: p.status, oleh: 'Situs coba (koordinator TA/admin)', catatan,
+      tahap: p.tahap, waktu: new Date().toISOString() });
+    simpan(); return { data: 'diganti', error: null };
   }
   if (nama === 'ta_tetapkan_pembimbing') {
     const saya = sayaAdmin(), p = PM().find(x => x.id === a.p_id);

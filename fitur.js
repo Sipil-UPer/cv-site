@@ -26,6 +26,7 @@ const HALAMAN = {
   'kelola-layanan-mahasiswa.html': 'kemahasiswaan', 'kelola-mahasiswa.html': 'kemahasiswaan', 'pengajuan.html': 'kemahasiswaan',
   'berkas-mahasiswa.html': 'kemahasiswaan', 'kp.html': 'kemahasiswaan', 'kerja-praktik.html': 'kemahasiswaan',
   'layanan-mahasiswa.html': 'kemahasiswaan',
+  'penilaian-ta.html': 'kemahasiswaan', 'bimbingan-ta.html': 'kemahasiswaan',   // 173, 175: penilaian dan bimbingan TA
   'jadwal-kuliah.html': 'jadwal', 'jadwal-berhalangan.html': 'jadwal', 'kabar-kegiatan.html': 'kabar',
   'kelola-profil.html': 'profil_prodi', 'kelola-laboratorium.html': 'profil_prodi',
   // Situs publik. Tetap hidup walau situs publik mati: survei.html (kuesioner akreditasi), lkd.html (bukti privat untuk

@@ -2,15 +2,16 @@
 // kelengkapan.html mengambil data, modul ini menghitung. Aturan terisi sama
 // dengan halaman sumbernya: kotak narasi seperti narasi-led.html, bukti butir
 // seperti rekap bukti di skor.html.
-import { BUTIR_MANUAL } from './butir-manual.js?v=2026-11-25-3c67d0';
-import { UNSUR_BUTIR, pihakUnsur, PIHAK, PJ_UNSUR } from './unsur-butir.js?v=2026-11-25-3c67d0';
-import { BUTIR_DATA } from './butir-data.js?v=2026-11-25-3c67d0';
-import { faktaNarasi, anggotaTim } from './led-isi.js?v=2026-11-25-3c67d0';
-import { pisahKalimat } from './led-narasi.js?v=2026-11-25-3c67d0';
-import { masihKerangka } from './led-saran.js?v=2026-11-25-3c67d0';
-import { JENIS_DOKUMEN, buktiButir } from './rencana-bukti.js?v=2026-11-25-3c67d0';
-import { nilaiCapaian, perluAnalisis } from './capaian-iku.js?v=2026-11-25-3c67d0';
-import { LKPS } from './dokumen-instrumen.js?v=2026-11-25-3c67d0';
+import { BUTIR_MANUAL } from './butir-manual.js?v=2026-11-25-52b8dc';
+import { UNSUR_BUTIR, pihakUnsur, PIHAK, PJ_UNSUR } from './unsur-butir.js?v=2026-11-25-52b8dc';
+import { BUTIR_DATA } from './butir-data.js?v=2026-11-25-52b8dc';
+import { faktaNarasi, anggotaTim } from './led-isi.js?v=2026-11-25-52b8dc';
+import { pisahKalimat } from './led-narasi.js?v=2026-11-25-52b8dc';
+import { masihKerangka } from './led-saran.js?v=2026-11-25-52b8dc';
+import { JENIS_DOKUMEN, buktiButir } from './rencana-bukti.js?v=2026-11-25-52b8dc';
+import { nilaiCapaian, perluAnalisis } from './capaian-iku.js?v=2026-11-25-52b8dc';
+import { LKPS } from './dokumen-instrumen.js?v=2026-11-25-52b8dc';
+import { BUTIR_LAM_TEKNIK } from './bobot.js?v=2026-11-25-52b8dc';
 
 // Tab Data prodi: [id tab, tabel, judul, butir, mesin LKPS]; sama dengan TABEL di data-prodi.html.
 // Elemen ke-5 = tab khusus satu mesin LKPS (mesinLkps di data-prodi.html); tanpa = semua instrumen.
@@ -43,7 +44,9 @@ export function konteksNarasi(D, daftar){
   const ta = t => `${t - 1}/${t}`;
   const C = { ts, daftar, dokumen: daftar.dokumen, ta: ta(ts), ta2: ta(ts - 2),
     manual: new Set(BUTIR_MANUAL.map(b => String(b.no))),
-    judulButir: Object.fromEntries([...BUTIR_DATA, ...BUTIR_MANUAL].map(b => [String(b.no), b.judul])) };
+    judulButir: Object.fromEntries([...BUTIR_DATA, ...BUTIR_MANUAL].map(b => [String(b.no), b.judul])),
+    // Instrumen tanpa butir LAM Teknik (2026-11-25): Narasi LED hanya Identitas dan Tim (led-narasi.js).
+    hanyaIdentitasTim: !BUTIR_LAM_TEKNIK };
   C.P = { ps: `Program Studi ${D.prodi || ''}`, pt: D.institusi || '', ...faktaNarasi(C) };
   return C;
 }
@@ -75,6 +78,16 @@ export function hitungKelompok(g, narasi){
 }
 
 const baris = (judul, ada, n, o = {}) => ({ judul, ada, n, status: statusButir(ada, n), ...o });
+// Rujukan butir di keterangan (2026-11-25): nomor 1-60 hanya untuk LAM Teknik; id 101-130 ditulis sebagai kode
+// elemen (BUTIR_MANUAL), selain itu dihilangkan untuk instrumen lain.
+export function rujukanButir(teks){
+  if (BUTIR_LAM_TEKNIK) return teks ? `butir ${teks}` : '';
+  const kode = String(teks || '').split(/[,–-]/).map(x => (BUTIR_MANUAL.find(b => String(b.no) === x.trim()) || {}).kode).filter(Boolean);
+  return kode.length ? `elemen ${kode.join(', ')}` : '';
+}
+export const namaButir = no => BUTIR_LAM_TEKNIK ? `Butir ${no}`
+  : `Elemen ${(BUTIR_MANUAL.find(b => String(b.no) === String(no)) || {}).kode || no}`;
+const ekor = (teks, no) => { const r = rujukanButir(no); return r ? `${teks} · ${r}` : teks; };
 
 // S: { kelompok, narasi, tugas, tim, dosen, jumlah:{tabel:n|null}, dokumen,
 //      butirBukti, pengaturan, karya, karyaBukti, ts }
@@ -101,7 +114,7 @@ export function rekapKelengkapan(S){
   const data = TAB_AKTIF.map(([id, tabel, judul, butir]) => {
     const j = (S.jumlah || {})[tabel];
     return baris(judul, j > 0 ? 1 : 0, 1, { href: `data-prodi.html?tab=${id}`,
-      ket: j == null ? 'Tidak terbaca' : j ? `${j} baris · butir ${butir}` : `Belum diisi · butir ${butir}` });
+      ket: j == null ? 'Tidak terbaca' : j ? ekor(`${j} baris`, butir) : ekor('Belum diisi', butir) });
   });
   // Butir 56 (pemilik 2026-11-12): indikator yang belum tercapai perlu analisis dan rencana perbaikan.
   // TS berjalan dan TS sebelumnya: capaian TS berjalan biasanya baru lengkap setelah TS berakhir.
@@ -110,18 +123,18 @@ export function rekapKelengkapan(S){
   data.push(baris('Indikator belum tercapai yang dianalisis (TS berjalan dan sebelumnya)',
     belumCapai.length ? belumCapai.length - tanpaAnalisis.length : 1, belumCapai.length || 1,
     { href: 'data-prodi.html?tab=target', kurang: tanpaAnalisis.map(r => `${String(r.jenis).toUpperCase()} ${r.nama}`),
-      ket: belumCapai.length ? 'Analisis akar masalah dan rencana perbaikan · butir 56' : 'Tidak ada indikator belum tercapai · butir 56' }));
+      ket: ekor(belumCapai.length ? 'Analisis akar masalah dan rencana perbaikan' : 'Tidak ada indikator belum tercapai', '56') }));
 
   // Evaluasi pembelajaran semester terakhir (68-patch; rekap_evaluasi(), terbaru dulu). Butir 16 komponen II.
   const ev = (S.rekapEvaluasi || [])[0];
   if (ev) {
     const sem = `${ev.tahun_akademik} ${ev.semester}`;
     data.push(baris(`Refleksi RPS dosen ${sem}`, ev.rps_terisi, ev.jumlah || 1,
-      { href: 'evaluasi-pembelajaran.html', ket: 'Kesesuaian pelaksanaan dengan RPS per mata kuliah · butir 16' }));
+      { href: 'evaluasi-pembelajaran.html', ket: ekor('Kesesuaian pelaksanaan dengan RPS per mata kuliah', '16') }));
     data.push(baris(`EDOM di bawah ambang yang ditindaklanjuti ${sem}`, ev.di_bawah_ambang ? ev.bawah_bertindak : 1, ev.di_bawah_ambang || 1,
-      { href: 'evaluasi-pembelajaran.html', ket: ev.di_bawah_ambang ? 'Tindak lanjut per mata kuliah · butir 16' : 'Tidak ada EDOM di bawah ambang · butir 16' }));
+      { href: 'evaluasi-pembelajaran.html', ket: ekor(ev.di_bawah_ambang ? 'Tindak lanjut per mata kuliah' : 'Tidak ada EDOM di bawah ambang', '16') }));
   } else if (S.rekapEvaluasi) {
-    data.push(baris('Evaluasi pembelajaran per semester', 0, 1, { href: 'evaluasi-pembelajaran.html', ket: 'Belum ada data EDOM/evaluasi · butir 16' }));
+    data.push(baris('Evaluasi pembelajaran per semester', 0, 1, { href: 'evaluasi-pembelajaran.html', ket: ekor('Belum ada data EDOM/evaluasi', '16') }));
   }
 
   const dok = S.dokumen || [];
@@ -137,9 +150,9 @@ export function rekapKelengkapan(S){
   const belumUnsur = semuaUnsur.filter(([no, n]) => !berbukti.has(`${no}|${n}`));
   const bukti = [
     baris('Jenis dokumen di pustaka', JENIS_DOKUMEN.length - belumDok.length, JENIS_DOKUMEN.length, { href: 'input-butir.html', kurang: belumDok.map(j => j.nama) }),
-    baris('Butir yang punya bukti', nos.length - belumBukti.length, nos.length, { href: 'input-butir.html', kurang: belumBukti.map(no => `Butir ${no}`) }),
+    baris('Butir yang punya bukti', nos.length - belumBukti.length, nos.length, { href: 'input-butir.html', kurang: belumBukti.map(namaButir) }),
     baris('Unsur penilaian berbukti', semuaUnsur.length - belumUnsur.length, semuaUnsur.length, { href: 'input-butir.html',
-      kurang: belumUnsur.map(([no, n, l]) => `[${pihakUnsur(no, n)}] Butir ${no} unsur ${n}: ${l}`) }),
+      kurang: belumUnsur.map(([no, n, l]) => `[${pihakUnsur(no, n)}] ${namaButir(no)} unsur ${n}: ${l}`) }),
   ];
 
   const karya = (S.karya || []).filter(k => k.status !== 'ditolak' && k.status !== 'draf');

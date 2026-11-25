@@ -40,5 +40,7 @@ export const SKOR_MAKS = 3;
 
 // Teks rujukan di halaman Skor: label kartu dan kaki halaman.
 export const NAMA_INSTRUMEN = 'IAPS DEPILAR 1.0';
+// 2026-11-25: nomor butir 1-60 di modul umum milik LAM Teknik: halaman menyembunyikan bagian itu (elemen ini 101-130).
+export const BUTIR_LAM_TEKNIK = false;
 export const SUMBER_RUMUS = 'rubrik Lampiran 3 Buku 4 IAPS DEPILAR 1.0 (perolehan status), bobot Tabel 3 ' +
   'kolom Akademik Magister';

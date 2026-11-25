@@ -77,5 +77,7 @@ export const SKOR_MAKS = 4;
 
 // Teks rujukan di halaman Skor (2026-11-24): label kartu dan kaki halaman.
 export const NAMA_INSTRUMEN = 'APS-AV 2025';
+// 2026-11-25: nomor butir 1-60 di modul umum (isi butir, kelengkapan, grafik, verifikasi, survei, PJP, ...) milik instrumen ini.
+export const BUTIR_LAM_TEKNIK = true;
 export const SUMBER_RUMUS = 'Matriks Penilaian APS-AV 2025 1.0 Program Sarjana, bobot mengikuti lampiran ' +
   'Bobot Penilaian Akreditasi Program Studi';

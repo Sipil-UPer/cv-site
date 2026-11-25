@@ -11,7 +11,11 @@
    tetapi diisi lewat butir-manual.js (`hitung`), jadi tidak ada di sini.
    ===================================================================== */
 
-export const BUTIR_DATA = [
+import { BUTIR_LAM_TEKNIK } from './bobot.js?v=2026-11-25-52b8dc';
+
+// Butir berumus LAM Teknik; instrumen lain (LAMDEPILAR: semua elemen dinilai manual) tidak punya,
+// jadi daftarnya kosong dan halaman Isi butir, Kelengkapan, Rincian, pencarian tidak menampilkannya (2026-11-25).
+const BUTIR_DATA_LAM = [
   {no: '6',  judul: 'Kerja sama (Tabel 2.a LKPS)'},
   {no: '9',  judul: 'Biaya operasional pendidikan (Tabel 2.b LKPS)'},
   {no: '10', judul: 'Dana penelitian DTPS (Tabel 2.b LKPS)'},
@@ -41,5 +45,6 @@ export const BUTIR_DATA = [
   {no: '50', judul: 'Kesesuaian bidang kerja (Tabel 6.f.2 LKPS)'},
   {no: '51', judul: 'Tingkat tempat kerja lulusan (Tabel 6.g.1 LKPS)'},
 ];
+export const BUTIR_DATA = BUTIR_LAM_TEKNIK ? BUTIR_DATA_LAM : [];
 
 export const kunciBuktiData = no => `bukti_b${no}`;

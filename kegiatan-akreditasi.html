@@ -11,8 +11,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-25-3c67d0">
-<link rel="stylesheet" href="kepala.css?v=2026-11-25-3c67d0">
+<link rel="stylesheet" href="tema.css?v=2026-11-25-52b8dc">
+<link rel="stylesheet" href="kepala.css?v=2026-11-25-52b8dc">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
@@ -55,7 +55,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></div>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-25-3c67d0"></script>
+<script src="config.js?v=2026-11-25-52b8dc"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -75,7 +75,8 @@ addEventListener('error', function (e) {
 // dan berkas bukti. Bukti pendukung, bukan dasar skor. Agenda suasana akademik per bulan untuk butir 21
 // (skor 4 meminta mimbar akademik terjadwal setiap 1-2 bulan).
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-25-3c67d0';
+import { gerbang } from './menu.js?v=2026-11-25-52b8dc';
+import { BUTIR_LAM_TEKNIK } from './bobot.js?v=2026-11-25-52b8dc';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
@@ -108,13 +109,13 @@ function gambar(){
   const dasar = SEMUA.filter(k => !th || String(k.tanggal).startsWith(th));
   const xs = dasar.filter(k => !PILIH || (k.keterkaitan || []).includes(PILIH));
   $('ringkas').innerHTML = [['', 'Semua kegiatan terverifikasi', dasar.length],
-    ...KAIT.map(([k, l, b]) => [k, `${l} (${b})`, dasar.filter(x => (x.keterkaitan || []).includes(k)).length])]
+    ...KAIT.map(([k, l, b]) => [k, BUTIR_LAM_TEKNIK ? `${l} (${b})` : l, dasar.filter(x => (x.keterkaitan || []).includes(k)).length])]
     .map(([k, l, n]) => `<button type="button" data-kait="${k}" aria-pressed="${PILIH === k}"><b>${n}</b><span>${esc(l)}</span></button>`).join('');
   const { bulan, jeda } = agendaBulanan(SEMUA);
   $('bulan').innerHTML = bulan.map(b => `<div class="${b.n ? 'ada' : 'nol'}"><b>${b.n}</b><small>${BLN[b.m]} ${String(b.y).slice(2)}</small></div>`).join('');
   $('catatanBulan').className = 'catatan ' + (jeda <= 1 ? 'ok' : 'buruk');
   $('catatanBulan').textContent = jeda <= 1 ? 'Agenda akademik terjadwal setidaknya tiap 1–2 bulan dalam 12 bulan terakhir.'
-    : `Ada ${jeda} bulan berturut-turut tanpa kegiatan suasana akademik; butir 21 meminta agenda terjadwal tiap 1–2 bulan.`;
+    : `Ada ${jeda} bulan berturut-turut tanpa kegiatan suasana akademik${BUTIR_LAM_TEKNIK ? '; butir 21 meminta agenda terjadwal tiap 1–2 bulan' : ''}.`;
   $('daftar').innerHTML = xs.length ? `<table><thead><tr><th>Kegiatan</th><th>Keterkaitan</th><th>Rincian</th><th>Bukti</th></tr></thead><tbody>${
     xs.map(k => `<tr><td><div class="judul">${esc(k.judul)}</div>
         <div class="sub">${tgl(k.tanggal)} · ${esc(JENIS[k.jenis] || k.jenis)}${k.tempat ? ' · ' + esc(k.tempat) : ''}</div>
@@ -142,10 +143,10 @@ async function mulai(){
   KS = Object.fromEntries((ks.data || []).map(k => [k.id, k.mitra]));
   const tahun = [...new Set(SEMUA.map(k => String(k.tanggal).slice(0, 4)))].sort().reverse();
   $('isi').innerHTML = `
-    <p class="ket">Kabar kegiatan yang sudah diterbitkan admin, dengan keterkaitan butir akreditasi dan berkas bukti. Ini <b>bukti
+    <p class="ket">Kabar kegiatan yang sudah diterbitkan admin, dengan keterkaitan ${BUTIR_LAM_TEKNIK ? 'butir akreditasi' : 'kegiatan'} dan berkas bukti. Ini <b>bukti
       pendukung</b>, bukan dasar skor. Dosen mengajukan dan melengkapinya di <a href="kabar-kegiatan.html">Operasional › Kabar kegiatan</a>.</p>
     <div class="ringkas" id="ringkas"></div>
-    <h2>Agenda suasana akademik, 12 bulan terakhir (butir 21)</h2>
+    <h2>Agenda suasana akademik, 12 bulan terakhir${BUTIR_LAM_TEKNIK ? ' (butir 21)' : ''}</h2>
     <div class="bulan" id="bulan"></div><p class="catatan" id="catatanBulan"></p>
     <h2>Daftar kegiatan</h2>
     <div class="saring"><label>Tahun <select id="fTahun"><option value="">Semua</option>${tahun.map(t => `<option>${t}</option>`).join('')}</select></label>

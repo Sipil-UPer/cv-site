@@ -3,6 +3,7 @@
 // butir yang memakainya. Kartu dibuka pada TS isian itu lewat ?ts=, supaya
 // daftar "Data yang dipakai" di kartu memuat baris yang sama.
 
+import { BUTIR_LAM_TEKNIK } from './bobot.js?v=2026-11-25-52b8dc';
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
@@ -32,6 +33,8 @@ export function urlButir(no, ts){
 // awalan: "Dipakai di" untuk isian yang sudah terhitung, "Masuk ... setelah
 // diverifikasi" untuk yang belum.
 export function htmlTautanButir(nos, ts, awalan = 'Dipakai di'){
+  // Pemetaan data -> butir di modul ini milik LAM Teknik (1-60); instrumen lain tanpa tautan (2026-11-25).
+  if (!BUTIR_LAM_TEKNIK) return '';
   const xs = [...new Set(nos || [])].map(String);
   if (!xs.length) return '';
   const a = xs.map(n => `<a href="${esc(urlButir(n, ts))}">butir ${esc(n)}</a>`).join(', ');

@@ -87,12 +87,30 @@ export const pembimbingCocok = (dosen, kk) => (dosen || []).filter(d => !!kk && 
 // Sama dengan public.ta_kk_cocok (110): KK sama, atau pasangan ta_kk_dekat {kk_a, kk_b} (dua arah).
 export const kkCocok = (kkTa, kkDosen, dekat = []) => !!kkTa && !!kkDosen && (kkTa === kkDosen
   || dekat.some(k => (k.kk_a === kkTa && k.kk_b === kkDosen) || (k.kk_b === kkTa && k.kk_a === kkDosen)));
-// Pilihan pembimbing 1 untuk koordinator TA: baris ta_beban(ts) -> cocok KK dulu, lalu abjad; teks "Nama - KK - 2/5".
+// Semester (180): Ganjil September-Februari, Genap Maret-Agustus (sama dengan semester_tanggal, 138). ts = tahun akhir
+// tahun akademik. Masukan: tanggal/waktu ISO; waktu dengan jam dibaca dalam WIB.
+export function semesterTA(t){
+  let x = String(t || '');
+  if (/T\d{2}:/.test(x) && !Number.isNaN(Date.parse(x))) x = new Date(Date.parse(x) + 7 * 3600e3).toISOString();
+  const m = x.match(/^(\d{4})-(\d{2})/); if (!m) return null;
+  const y = +m[1], b = +m[2];
+  return b >= 9 ? { ts: y + 1, sm: 'Ganjil' } : b <= 2 ? { ts: y, sm: 'Ganjil' } : { ts: y, sm: 'Genap' };
+}
+export const kunciSemester = s => s ? `${s.ts} ${s.sm}` : '';
+export const teksSemester = s => s ? `${s.ts - 1}/${s.ts} ${s.sm}` : '';
+// Semester ke-n sesudah (n > 0) atau sebelum (n < 0) s.
+export function geserSemester(s, n){
+  let i = s.ts * 2 + (s.sm === 'Genap' ? 1 : 0) + n;
+  return { ts: Math.floor(i / 2), sm: i % 2 ? 'Genap' : 'Ganjil' };
+}
+
+// Pilihan pembimbing 1 untuk koordinator TA: baris ta_beban(ts, sm) -> cocok KK dulu, lalu abjad; teks "Nama - KK - 2/5".
+// dibimbing (180) = mahasiswa semester sebelumnya yang belum lulus; hanya informasi, tidak dihitung kuota.
 export function pilihanPembimbingTA(rows = [], kkTa = '', dekat = []){
   return rows.map(r => {
     const cocok = kkCocok(kkTa, r.kk, dekat), lebih = r.kuota != null && r.beban >= r.kuota;
     return { ...r, cocok, lebih, teks: `${r.nama} — ${r.kk || 'KK belum diisi'} — ${r.beban}${r.kuota == null ? '' : '/' + r.kuota}`
-      + `${lebih ? ' (kuota penuh)' : ''}${cocok ? '' : ' (di luar KK)'}` };
+      + `${lebih ? ' (kuota penuh)' : ''}${cocok ? '' : ' (di luar KK)'}${r.dibimbing ? ` · ${r.dibimbing} masih dibimbing` : ''}` };
   }).sort((a, b) => (b.cocok - a.cocok) || String(a.nama).localeCompare(String(b.nama), 'id'));
 }
 

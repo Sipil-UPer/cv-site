@@ -11,8 +11,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-25-3c67d0">
-<link rel="stylesheet" href="kepala.css?v=2026-11-25-3c67d0">
+<link rel="stylesheet" href="tema.css?v=2026-11-25-52b8dc">
+<link rel="stylesheet" href="kepala.css?v=2026-11-25-52b8dc">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
@@ -57,7 +57,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></div>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-25-3c67d0"></script>
+<script src="config.js?v=2026-11-25-52b8dc"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -74,13 +74,14 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang, bolehBuka } from './menu.js?v=2026-11-25-3c67d0';
-import { ambilDaftarLKPS } from './data-lkps.js?v=2026-11-25-3c67d0';
-import { bagianNarasi, ambilNarasi, ambilPenugasan } from './led-narasi.js?v=2026-11-25-3c67d0';
-import { bacaTinjauan, unsurDariTinjauan } from './tinjauan-rps.js?v=2026-11-25-3c67d0';
-import { TAB_AKTIF, konteksNarasi, rekapKelengkapan, tugasPerPihak } from './kelengkapan.js?v=2026-11-25-3c67d0';
-import { PIHAK } from './unsur-butir.js?v=2026-11-25-3c67d0';
-import { denganOtomatis, muatTambahan, denganTambahan } from './capaian-iku.js?v=2026-11-25-3c67d0';
+import { gerbang, bolehBuka } from './menu.js?v=2026-11-25-52b8dc';
+import { ambilDaftarLKPS } from './data-lkps.js?v=2026-11-25-52b8dc';
+import { bagianNarasi, ambilNarasi, ambilPenugasan } from './led-narasi.js?v=2026-11-25-52b8dc';
+import { bacaTinjauan, unsurDariTinjauan } from './tinjauan-rps.js?v=2026-11-25-52b8dc';
+import { TAB_AKTIF, konteksNarasi, rekapKelengkapan, tugasPerPihak, namaButir } from './kelengkapan.js?v=2026-11-25-52b8dc';
+import { PIHAK } from './unsur-butir.js?v=2026-11-25-52b8dc';
+import { BUTIR_LAM_TEKNIK } from './bobot.js?v=2026-11-25-52b8dc';
+import { denganOtomatis, muatTambahan, denganTambahan } from './capaian-iku.js?v=2026-11-25-52b8dc';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g,
   c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -135,7 +136,7 @@ async function mulai(){
     const xs = tugasPihak[pihak];
     $('tugas-isi').innerHTML = `<p class="kosong">${esc(PIHAK[pihak])}: ${xs.length} unsur belum berbukti
         (per ${new Date().toLocaleDateString('id-ID')}).</p>
-      ${xs.length ? `<ol class="tugas">${xs.map(x => `<li><b>Butir ${x.no} unsur ${x.n}</b>: ${esc(x.label)}</li>`).join('')}</ol>`
+      ${xs.length ? `<ol class="tugas">${xs.map(x => `<li><b>${esc(namaButir(x.no))} unsur ${x.n}</b>: ${esc(x.label)}</li>`).join('')}</ol>`
         : '<p class="kosong">Semua unsur untuk pihak ini sudah berbukti.</p>'}`;
     document.querySelectorAll('[data-pihak]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.pihak === pihak)));
   };
@@ -145,8 +146,8 @@ async function mulai(){
       `<button type="button" data-pihak="${k}">${esc(l)} (${tugasPihak[k].length})</button>`).join('')}
       <button type="button" id="cetak-tugas">Cetak daftar ini</button></div>
     <div id="tugas-isi"></div>
-    <p class="kosong">Bukti diunggah per unsur di kartu butir (halaman Skor atau Isi butir). Butir 20, 22, 24 diisi di Data prodi;
-      butir 15 unsur 1 dan 4 dihitung dari RPS mata kuliah.</p></section>`);
+    <p class="kosong">Bukti diunggah per unsur di kartu butir (halaman Skor atau Isi butir).${BUTIR_LAM_TEKNIK ? ` Butir 20, 22, 24 diisi di Data prodi;
+      butir 15 unsur 1 dan 4 dihitung dari RPS mata kuliah.` : ''}</p></section>`);
   document.querySelectorAll('[data-pihak]').forEach(b => { b.onclick = () => { pihak = b.dataset.pihak; gambarTugas(); }; });
   $('cetak-tugas').onclick = () => { document.body.classList.add('cetak-tugas'); window.print();
     document.body.classList.remove('cetak-tugas'); };

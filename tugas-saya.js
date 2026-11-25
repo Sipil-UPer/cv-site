@@ -1,17 +1,17 @@
 // "Tugas saya" di Ruang kerja (pemilik 2026-11-12): hal yang menunggu tindakan dosen yang
 // sedang masuk, dari data yang sudah boleh ia baca (RLS). Aturan tenggat sama dengan halaman
 // Pengingat: rapat.js, hibah.js, temuan-ami.js, pengingat-dosen.js.
-import { kurangProfil } from './pengingat-dosen.js?v=2026-11-25-3c67d0';
-import { tindakTerbuka, tglID } from './rapat.js?v=2026-11-25-3c67d0';
-import { tenggatBerikut, teksHari, HARI_LEWAT } from './hibah.js?v=2026-11-25-3c67d0';
-import { hariKeTenggat, labelStatus, HARI_DEKAT } from './temuan-ami.js?v=2026-11-25-3c67d0';
-import { tugasEvaluasi } from './evaluasi-pembelajaran.js?v=2026-11-25-3c67d0';
-import { bolehPengajuan } from './koordinator.js?v=2026-11-25-3c67d0';
-import { tenggatReview, hariKe, teksHari as teksHariRv, tugasTenggatRps, tugasTetapDekan, tanggalPanjang as tglRv } from './pengingat-rps.js?v=2026-11-25-3c67d0';
-import { tugasInsentif } from './insentif.js?v=2026-11-25-3c67d0';
-import { tugasMK } from './tugas-mk.js?v=2026-11-25-3c67d0';
-import { halamanAktif } from './fitur.js?v=2026-11-25-3c67d0';
-import { masaBerlaku, tanggalPanjang as tglSrt } from './profil-dosen.js?v=2026-11-25-3c67d0';
+import { kurangProfil } from './pengingat-dosen.js?v=2026-11-25-52b8dc';
+import { tindakTerbuka, tglID } from './rapat.js?v=2026-11-25-52b8dc';
+import { tenggatBerikut, teksHari, HARI_LEWAT } from './hibah.js?v=2026-11-25-52b8dc';
+import { hariKeTenggat, labelStatus, HARI_DEKAT } from './temuan-ami.js?v=2026-11-25-52b8dc';
+import { tugasEvaluasi } from './evaluasi-pembelajaran.js?v=2026-11-25-52b8dc';
+import { bolehPengajuan } from './koordinator.js?v=2026-11-25-52b8dc';
+import { tenggatReview, hariKe, teksHari as teksHariRv, tugasTenggatRps, tugasTetapDekan, tanggalPanjang as tglRv } from './pengingat-rps.js?v=2026-11-25-52b8dc';
+import { tugasInsentif } from './insentif.js?v=2026-11-25-52b8dc';
+import { tugasMK } from './tugas-mk.js?v=2026-11-25-52b8dc';
+import { halamanAktif } from './fitur.js?v=2026-11-25-52b8dc';
+import { masaBerlaku, tanggalPanjang as tglSrt } from './profil-dosen.js?v=2026-11-25-52b8dc';
 
 // Sertifikat dengan masa berlaku (pemilik 2026-11-24): diingatkan sejak 90 hari sebelum habis, dan terus setelah lewat.
 export const HARI_SERTIFIKAT = 90;

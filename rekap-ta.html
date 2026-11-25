@@ -11,8 +11,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-25-3c67d0">
-<link rel="stylesheet" href="kepala.css?v=2026-11-25-3c67d0">
+<link rel="stylesheet" href="tema.css?v=2026-11-25-52b8dc">
+<link rel="stylesheet" href="kepala.css?v=2026-11-25-52b8dc">
 <style>
   .tag{display:inline-block;font-size:12px;padding:1px 8px;border:1px solid var(--line);background:var(--bg);white-space:nowrap}
   .tag.tinggi{border-color:var(--merah);color:var(--merah)}
@@ -46,7 +46,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></div>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-25-3c67d0"></script>
+<script src="config.js?v=2026-11-25-52b8dc"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -65,12 +65,13 @@ addEventListener('error', function (e) {
 // dan beban membimbing/menguji per dosen pada periode terpilih (TS, 3 TS, tahun). Sumber: jadwal_ta (semua pengguna login
 // membaca). Unduh Excel khusus admin (memuat NIM).
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-25-3c67d0';
-import { punya } from './koordinator.js?v=2026-11-25-3c67d0';
-import { TAHAP, STATUS, waktuJadwal, rekapTA, lembarTA, revisiBerjalan } from './rekap-ta.js?v=2026-11-25-3c67d0';
-import { opsiPeriode, cocokPeriode, labelPeriode, taTeks, tsKarya, tsBerjalan } from './sdgs-unduh.js?v=2026-11-25-3c67d0';
-import { barisKuota } from './rekap-kp.js?v=2026-11-25-3c67d0';
-import { SHEETJS } from './nilai-cpl.js?v=2026-11-25-3c67d0';
+import { gerbang } from './menu.js?v=2026-11-25-52b8dc';
+import { punya } from './koordinator.js?v=2026-11-25-52b8dc';
+import { TAHAP, STATUS, waktuJadwal, rekapTA, lembarTA, revisiBerjalan } from './rekap-ta.js?v=2026-11-25-52b8dc';
+import { opsiPeriode, cocokPeriode, labelPeriode, taTeks, tsKarya, tsBerjalan } from './sdgs-unduh.js?v=2026-11-25-52b8dc';
+import { barisKuota } from './rekap-kp.js?v=2026-11-25-52b8dc';
+import { semesterTA, kunciSemester, teksSemester, geserSemester } from './pengajuan-mhs.js?v=2026-11-25-52b8dc';
+import { SHEETJS } from './nilai-cpl.js?v=2026-11-25-52b8dc';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
@@ -140,38 +141,43 @@ async function unduh(xs){
   finally { b.disabled = false; }
 }
 
-// Kuota pembimbing 1 TA per TS (110-patch-pembimbing-ta.sql, pemilik 2026-11-18): sama dengan kuota KP (rekap-kp.html).
-// Semua staf melihat; koordinator TA/admin (ADMIN) mengubah kuota bawaan dan kuota per dosen.
-let TS_KUOTA = tsBerjalan(), KUOTA = null;
-const teksTS = ts => `${ts - 1}/${ts}`;
+// Kuota pembimbing 1 TA per semester (180-patch-kuota-ta-semester.sql, pemilik 2026-11-25; sebelumnya per TS, 110).
+// Semua staf melihat; koordinator TA/admin (ADMIN) mengubah kuota bawaan dan kuota per dosen. Beban = penetapan baru
+// semester itu; mahasiswa lama yang belum lulus (dibimbing) tidak mengurangi kuota.
+const SMT_KINI = semesterTA(new Date().toISOString());
+let SMT_KUOTA = SMT_KINI, KUOTA = null;
 async function muatKuota(){
-  const { data, error } = await sb.rpc('ta_beban', { p_ts: TS_KUOTA });
+  const { data, error } = await sb.rpc('ta_beban', { p_ts: SMT_KUOTA.ts, p_sm: SMT_KUOTA.sm });
   KUOTA = error ? null : barisKuota(data);
 }
 function tulisKuota(k, t){ const m = $('mKuota'); if (m) { m.className = 'msg ' + k; m.textContent = t; } }
 function gambarKuota(){
   const el = $('kuota'); if (!el) return;
-  if (!KUOTA) { el.innerHTML = '<p class="kosong">Kuota belum tersedia (jalankan supabase/110-patch-pembimbing-ta.sql).</p>'; return; }
+  if (!KUOTA) { el.innerHTML = '<p class="kosong">Kuota belum tersedia (jalankan supabase/180-patch-kuota-ta-semester.sql).</p>'; return; }
   const bawaan = KUOTA.find(r => !r.kuota_sendiri)?.kuota ?? null;
-  const pilihTS = [...new Set([tsBerjalan() - 1, tsBerjalan(), tsBerjalan() + 1, TS_KUOTA])].sort();
-  el.innerHTML = `<div class="saring"><label>TS <select id="kTS">${pilihTS.map(t => `<option value="${t}"${t === TS_KUOTA ? ' selected' : ''}>${teksTS(t)}</option>`).join('')}</select></label>
+  const pilih = new Map([-2, -1, 0, 1, 2].map(n => geserSemester(SMT_KINI, n)).concat([SMT_KUOTA]).map(s => [kunciSemester(s), s]));
+  const urut = [...pilih.values()].sort((a, b) => kunciSemester(a).localeCompare(kunciSemester(b)));
+  el.innerHTML = `<div class="saring"><label>Semester <select id="kTS">${urut.map(s => `<option value="${kunciSemester(s)}"${kunciSemester(s) === kunciSemester(SMT_KUOTA)
+    ? ' selected' : ''}>${teksSemester(s)}</option>`).join('')}</select></label>
     ${ADMIN ? `<label>Kuota bawaan semua dosen <input id="kBawaan" type="number" min="0" max="100" style="width:5em" value="${bawaan ?? ''}"
       placeholder="—"></label><button type="button" class="b" id="kSimpanBawaan">Simpan</button>` : ''}<span class="msg" id="mKuota"></span></div>
-    <p class="ket">Beban = pengajuan pembimbing TA (sebagai pembimbing 1) yang diajukan pada TS ${teksTS(TS_KUOTA)}; draf dan pengajuan yang
-      ditolak tidak dihitung. Kuota tidak memblokir: koordinator TA diberi peringatan saat menetapkan pembimbing yang kuotanya penuh.
+    <p class="ket">Kuota per semester. Beban = pengajuan pembimbing TA (sebagai pembimbing 1) yang diajukan pada semester ${teksSemester(SMT_KUOTA)};
+      draf dan pengajuan yang ditolak tidak dihitung. Mahasiswa yang masih dibimbing dari semester sebelumnya (belum lulus) tidak mengurangi kuota.
+      Bila pembimbing diganti (bimbingan dibatalkan), beban tetap pada pembimbing pertama, jadi kuota dosen pengganti tidak berkurang.
+      Kuota tidak memblokir: koordinator TA diberi peringatan saat menetapkan pembimbing yang kuotanya penuh.
       ${ADMIN ? 'Kosongkan kuota seorang dosen untuk kembali ke kuota bawaan.' : ''}</p>
-    <div class="lebar-tabel"><table><thead><tr><th>Dosen</th><th>KK</th><th class="n">Kuota</th><th class="n">Beban</th><th class="n">Sisa</th></tr></thead>
+    <div class="lebar-tabel"><table><thead><tr><th>Dosen</th><th>KK</th><th class="n">Kuota</th><th class="n">Beban semester ini</th><th class="n">Sisa</th><th class="n">Masih dibimbing</th></tr></thead>
     <tbody>${KUOTA.map(r => `<tr><td>${esc(r.nama)}${r.lebih ? ' <span class="tag tinggi">penuh</span>' : ''}</td><td>${esc(r.kk || '—')}</td>
       <td class="n">${ADMIN ? `<input type="number" min="0" max="100" style="width:5em" data-kuota="${r.dosen_id}" value="${r.kuota_sendiri ? r.kuota : ''}"
           placeholder="${r.kuota ?? '—'}" aria-label="Kuota ${esc(r.nama)}">` : (r.kuota ?? '—')}${r.kuota_sendiri && !ADMIN ? '*' : ''}</td>
-      <td class="n">${r.beban}</td><td class="n">${r.sisa ?? '—'}</td></tr>`).join('')}</tbody></table></div>
+      <td class="n">${r.beban}</td><td class="n">${r.sisa ?? '—'}</td><td class="n">${r.dibimbing ?? 0}</td></tr>`).join('')}</tbody></table></div>
     ${ADMIN ? '<p class="ket">Kuota per dosen tersimpan saat kolomnya ditinggalkan (Tab/klik di luar).</p>' : '<p class="ket">* kuota khusus dosen itu.</p>'}`;
-  $('kTS').onchange = async e => { TS_KUOTA = +e.target.value; await muatKuota(); gambarKuota(); };
+  $('kTS').onchange = async e => { SMT_KUOTA = pilih.get(e.target.value) || SMT_KINI; await muatKuota(); gambarKuota(); };
   if (!ADMIN) return;
   const simpan = async (dosen, v) => {
     const n = String(v).trim() === '' ? null : Math.round(+v);
     if (n !== null && !(n >= 0 && n <= 100)) { tulisKuota('err', 'Kuota 0 sampai 100.'); return; }
-    const { error } = await sb.rpc('ta_atur_kuota', { p_ts: TS_KUOTA, p_dosen: dosen, p_kuota: n });
+    const { error } = await sb.rpc('ta_atur_kuota', { p_ts: SMT_KUOTA.ts, p_sm: SMT_KUOTA.sm, p_dosen: dosen, p_kuota: n });
     if (error) { tulisKuota('err', error.message); return; }
     await muatKuota(); gambarKuota(); tulisKuota('ok', 'Kuota tersimpan.');
   };

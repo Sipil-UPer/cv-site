@@ -1,5 +1,5 @@
-import { dosenLogin } from './dosen-login.js?v=2026-11-25-3c67d0';
-import { aktifPada } from './koordinator.js?v=2026-11-25-3c67d0';
+import { dosenLogin } from './dosen-login.js?v=2026-11-25-52b8dc';
+import { aktifPada } from './koordinator.js?v=2026-11-25-52b8dc';
 // Menu bersama ruang kerja (pemilik 2026-11-04).
 //
 // Situs dibagi dua:
@@ -32,10 +32,11 @@ const pantauanBoleh = (s, href) => PANTAUAN.includes(berkas(href)) || ((s.koordi
 // Asesor dan pimpinan hanya-baca tidak mengisi karya.
 const isiKarya = s => s.peran !== 'asesor' && !hanyaBaca(s);
 
-import { halamanAktif } from './fitur.js?v=2026-11-25-3c67d0';
-import { pasangPemicuBangun } from './pemicu-bangun.js?v=2026-11-25-3c67d0';
+import { halamanAktif } from './fitur.js?v=2026-11-25-52b8dc';
+import { BUTIR_LAM_TEKNIK } from './bobot.js?v=2026-11-25-52b8dc';
+import { pasangPemicuBangun } from './pemicu-bangun.js?v=2026-11-25-52b8dc';
 // Tinggi kotak teks mengikuti isi (pemilik 2026-11-25); bentuk "from" agar dicap stamp_versions.py.
-import { pasSemua as pasKotakTeks } from './kotak-teks.js?v=2026-11-25-3c67d0';
+import { pasSemua as pasKotakTeks } from './kotak-teks.js?v=2026-11-25-52b8dc';
 
 export const MODUL = [
   // Susunan menu mengikuti alur kerja (pemilik 2026-11-23): Data saya (milik dosen), Pengajaran (urut alur MK:
@@ -105,7 +106,7 @@ export const MODUL = [
     { href: 'monitoring.html#cpl', judul: 'Capaian CPL',
       ket: 'Ketercapaian CPL: grafik per angkatan, progres per semester, peta MK × CPL, kelas yang belum tercapai.' },
     // Simulasi PJP butir 18 (pemilik 2026-11-19): sks praktikum/praktik/penugasan per MK, di peramban saja.
-    { href: 'pjp.html', judul: 'Simulasi PJP', boleh: s => mutu(s) || s.peran === 'pimpinan' || (s.koordinator || []).includes('kaprodi'),
+    { href: 'pjp.html', judul: 'Simulasi PJP', lam: true, boleh: s => mutu(s) || s.peran === 'pimpinan' || (s.koordinator || []).includes('kaprodi'),
       ket: 'Butir 18 LAM Teknik: PJP sekarang dan simulasi bila sks praktikum/praktik/penugasan beberapa MK diubah; unduh CSV untuk rapat kurikulum.' },
     // Ekuivalensi MK kurikulum lama -> baru (134, pemilik 2026-11-21): semua membaca (Dosen Wali); Kaprodi sahkan, Dekan tetapkan.
     { href: 'ekuivalensi.html', judul: 'Ekuivalensi mata kuliah',
@@ -174,7 +175,7 @@ export const MODUL = [
     // Nama diperjelas (pemilik 2026-11-23): "Siklus PPEPP" kurang dipahami.
     { href: 'siklus-ppepp.html', judul: 'Siklus mutu (PPEPP)',
       ket: 'Catatan siklus mutu per standar SPMI dan per TS: target (Penetapan), capaian dan bukti (Pelaksanaan), hasil AMI '
-        + '(Evaluasi), rencana perbaikan (Pengendalian), revisi standar (Peningkatan). Bukti butir 53 dan 55, Tabel 7b LKPS.' },
+        + '(Evaluasi), rencana perbaikan (Pengendalian), revisi standar (Peningkatan).' + (BUTIR_LAM_TEKNIK ? ' Bukti butir 53 dan 55, Tabel 7b LKPS.' : '') },
     { href: 'kelola-survei.html', judul: 'Kelola survei kepuasan', boleh: mutu,
       ket: 'Survei anonim mahasiswa, dosen, tendik, mitra, pengguna lulusan: buat, bagikan tautan, baca hasil.' },
     { href: 'hasil-survei.html', judul: 'Hasil survei kepuasan',
@@ -239,7 +240,8 @@ const bolehHalaman = (s, h) => hanyaBaca(s) ? pantauanBoleh(s, h.href) : (!h.bol
 
 export function halamanBoleh(saya){
   // Modul yang dimatikan di config.js (FITUR_MATI, fitur.js) tidak tampil.
-  return MODUL.map(m => ({ ...m, halaman: m.halaman.filter(h => halamanAktif(h.href) && bolehHalaman(saya, h)) }))
+  // lam: true = halaman khusus butir LAM Teknik (2026-11-25), tidak tampil untuk instrumen lain.
+  return MODUL.map(m => ({ ...m, halaman: m.halaman.filter(h => halamanAktif(h.href) && bolehHalaman(saya, h) && (!h.lam || BUTIR_LAM_TEKNIK)) }))
     .filter(m => m.halaman.length);
 }
 
@@ -249,7 +251,7 @@ export function bolehBuka(saya, href){
   const b = berkas(href);
   const h = MODUL.flatMap(m => m.halaman).find(x => berkas(x.href) === b);
   if (!h) return null;
-  return halamanAktif(h.href) && bolehHalaman(saya, h);
+  return halamanAktif(h.href) && bolehHalaman(saya, h) && (!h.lam || BUTIR_LAM_TEKNIK);
 }
 
 // Pintasan di halaman depan ruang kerja (pemilik 2026-11-20, tahap 3): per peran/jabatan, jabatan lebih dulu,
@@ -456,7 +458,7 @@ export async function pasangMenu(sb){
   // Pencarian menyeluruh (pemilik 2026-11-12; cari-ui.js, cari.js): dimuat saat pertama dipakai.
   const kotak = nav.querySelector('.rk-cari input');
   let siapCari = null;
-  const muatCari = () => siapCari || (siapCari = import('./cari-ui.js?v=2026-11-25-3c67d0').then(m =>
+  const muatCari = () => siapCari || (siapCari = import('./cari-ui.js?v=2026-11-25-52b8dc').then(m =>
     m.pasangCari(kotak, { sb, saya: u.saya, modul: halamanBoleh(u.saya), boleh: h => bolehBuka(u.saya, h) !== false })));
   kotak.addEventListener('focus', muatCari);
   document.addEventListener('keydown', e => {

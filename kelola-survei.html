@@ -11,8 +11,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-25-3c67d0">
-<link rel="stylesheet" href="kepala.css?v=2026-11-25-3c67d0">
+<link rel="stylesheet" href="tema.css?v=2026-11-25-52b8dc">
+<link rel="stylesheet" href="kepala.css?v=2026-11-25-52b8dc">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
@@ -54,7 +54,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></div>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-25-3c67d0"></script>
+<script src="config.js?v=2026-11-25-52b8dc"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -74,12 +74,13 @@ addEventListener('error', function (e) {
 // membagikan tautan survei.html?t=<token>, menutup, dan membaca hasil.
 // Pertanyaan dikunci setelah ada responden supaya rekap tetap sah.
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-25-3c67d0';
-import { bolehMutu } from './koordinator.js?v=2026-11-25-3c67d0';
+import { gerbang } from './menu.js?v=2026-11-25-52b8dc';
+import { BUTIR_LAM_TEKNIK } from './bobot.js?v=2026-11-25-52b8dc';
+import { bolehMutu } from './koordinator.js?v=2026-11-25-52b8dc';
 import { KELOMPOK_SURVEI, labelKelompok, templatSurvei, cekPertanyaan, hitungDariJawaban, rekapSurvei,
   komentarSurvei, keTabel62, csvJawaban, htmlRekap, CSS_SURVEI, JENIS_PERTANYAAN, IDENTITAS, teksOpsi, bacaOpsi,
   teksSyarat, bacaSyarat, ringkasLain, htmlLain, aspekTindakLanjut, temuanDariAspek, kodeTemuanSurvei,
-  masukanKurikulum, csvKurikulum, identitasBawaan, keTabelTracer, undanganPengguna, butirSurvei, BAGIAN, labelBagian, ringkasJawaban } from './survei-kepuasan.js?v=2026-11-25-3c67d0';
+  masukanKurikulum, csvKurikulum, identitasBawaan, keTabelTracer, undanganPengguna, butirSurvei, BAGIAN, labelBagian, ringkasJawaban } from './survei-kepuasan.js?v=2026-11-25-52b8dc';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
@@ -130,10 +131,12 @@ const terbitInfo = (s, n) => !ADA130() ? '' : s.rekap_terbit
   : ' · <b>belum diterbitkan</b>';
 
 function gambar(){
-  $('isi').innerHTML = `<p class="ket">Kuesioner per kelompok pemangku. Templat bawaan (2026-11-13) menjawab butir 2–3 (VMTS), 5
+  $('isi').innerHTML = `<p class="ket">Kuesioner per kelompok pemangku. ${BUTIR_LAM_TEKNIK ? `Templat bawaan (2026-11-13) menjawab butir 2–3 (VMTS), 5
       (kepemimpinan), 7 (mitra), 12–13 (kurikulum dan kebutuhan pengguna), 16 (pembelajaran), 21 (suasana akademik), 38–39
       (sarana, K3L), 48–51 (tracer, pertanyaan inti DIKTI), 52 (pengguna lulusan, Tabel 6.g.2), dan 57 (kepuasan seluruh
-      pemangku). Semua teks bisa dwibahasa untuk responden asing. Buat survei, bagikan tautannya, lalu baca hasilnya di sini. Rekap angka tampil publik di
+      pemangku).` : `Templat bawaan mencakup VMTS, kepemimpinan, mitra, kurikulum dan kebutuhan pengguna, pembelajaran,
+      suasana akademik, sarana dan K3L, tracer (pertanyaan inti DIKTI), pengguna lulusan, dan kepuasan pemangku; sesuaikan
+      dengan elemen instrumen prodi.`} Semua teks bisa dwibahasa untuk responden asing. Buat survei, bagikan tautannya, lalu baca hasilnya di sini. Rekap angka tampil publik di
       <a href="hasil-survei.html">Hasil survei kepuasan</a> hanya setelah <b>diterbitkan</b> admin (dan "publik" dicentang): periksa jawaban,
       hapus isian uji coba atau iseng, lalu klik "Terbitkan rekap" di Hasil. Jawaban baru tidak tampil sampai diterbitkan ulang. Isian saran hanya terlihat admin.</p>
     <div class="kartu" id="form-survei"></div>
@@ -174,9 +177,10 @@ function htmlKurikulum(){
         ${q.isi.length ? `<ol class="komentar">${q.isi.map(t => `<li>${esc(t)}</li>`).join('')}</ol>` : ''}`).join('')}</div>`).join('')
     : '<p class="kosong">Belum ada.</p>'}`;
   return `<div class="kartu"><h2>Masukan untuk pengembangan kurikulum</h2>
-    <p class="ket">Pertanyaan beraspek "kurikulum" dari semua survei. Bahan rapat evaluasi kurikulum: butir 12 (keterlibatan pemangku
+    <p class="ket">Pertanyaan beraspek "kurikulum" dari semua survei. ${BUTIR_LAM_TEKNIK ? `Bahan rapat evaluasi kurikulum: butir 12 (keterlibatan pemangku
       internal dan eksternal, kesesuaian dengan kebutuhan pengguna), butir 13 unsur 2 (survei pengguna), dan butir 48 unsur 5
-      (pemakaian hasil untuk kurikulum). Unggah notulen rapat yang memakai bahan ini sebagai bukti butir 12.</p>
+      (pemakaian hasil untuk kurikulum). Unggah notulen rapat yang memakai bahan ini sebagai bukti butir 12.`
+      : 'Bahan rapat evaluasi kurikulum (keterlibatan pemangku internal dan eksternal, kesesuaian dengan kebutuhan pengguna). Unggah notulen rapat yang memakai bahan ini sebagai bukti elemen kurikulum.'}</p>
     ${m.length ? `${blok('Pemangku internal (mahasiswa, dosen, tendik)', m.filter(x => x.internal))}
       ${blok('Pemangku eksternal (mitra, pengguna lulusan)', m.filter(x => !x.internal))}
       <p><button class="b" id="kur_csv">Unduh CSV masukan kurikulum</button></p>` : '<p class="kosong">Belum ada jawaban untuk pertanyaan kurikulum.</p>'}</div>`;
@@ -205,12 +209,12 @@ function gambarForm(){
         placeholder="${esc(k === 'alumni' ? `Alumni tracer study ${ts - 1}/${ts}` : `${labelKelompok(k)} satisfaction survey ${ts - 1}/${ts}`)}"></label></div>
       <p><label class="ket">Introduction (EN)<textarea id="s_pengantar_en" maxlength="2000">${esc(s?.pengantar_en || '')}</textarea></label></p>
       <p class="ket">Teks pertanyaan dan opsi bahasa Inggris diisi di baris "EN" di bawah tiap pertanyaan. Jawaban tetap tersimpan sebagai opsi bahasa Indonesia.</p></details>
-    <p class="ket"><b>Butir LAM yang tercakup:</b> ${butirSurvei(PQ).join(', ') || '—'}
-      <span class="ket">(dari kolom Butir; bagian: ${[...new Set(PQ.map(q => q.bagian).filter(Boolean))].map(b => esc(labelBagian(b))).join(' · ') || '—'})</span></p>
+    ${BUTIR_LAM_TEKNIK ? `<p class="ket"><b>Butir LAM yang tercakup:</b> ${butirSurvei(PQ).join(', ') || '—'}
+      <span class="ket">(dari kolom Butir; bagian: ${[...new Set(PQ.map(q => q.bagian).filter(Boolean))].map(b => esc(labelBagian(b))).join(' · ') || '—'})</span></p>` : ''}
     <p class="ket">Pertanyaan ${kunci ? `<b>dikunci: survei ini sudah punya ${n} responden</b>` : `(templat bawaan ${esc(labelKelompok(k).toLowerCase())}, silakan disunting)${
       k === 'pengguna' ? '. Untuk pengguna lulusan, kode ketujuh aspek jangan diubah agar hasil bisa disalin ke Tabel 6.g.2'
       : k === 'alumni' ? '. Untuk tracer, kode tahun_lulus, status, bulan, kesesuaian, tingkat, izin_atasan, email_atasan dan opsinya jangan diubah '
-        + 'agar rekap bisa disalin ke Tabel tracer dan atasan bisa diundang. Templat memuat pertanyaan inti tracer DIKTI 2021 (butir 48 aspek 3)' : ''}.
+        + 'agar rekap bisa disalin ke Tabel tracer dan atasan bisa diundang. Templat memuat pertanyaan inti tracer DIKTI 2021' + (BUTIR_LAM_TEKNIK ? ' (butir 48 aspek 3)' : '') : ''}.
       <b>Opsi</b>: untuk pilihan/centang tulis "a; b; c", untuk angka tulis rentang "0-120" (kosong = bebas).
       <b>Syarat</b>: "kode=nilai1|nilai2" (tampil hanya bila pertanyaan pilihan <i>kode</i> dijawab salah satu nilai itu).
       Aspek "kurikulum" dihimpun ke kartu Masukan kurikulum. <b>Bagian</b>: pertanyaan berurutan dengan bagian sama tampil sebagai satu
@@ -368,7 +372,7 @@ function gambarHasil(s){
     if (!confirm(`Tulis rekap tracer ke Data prodi › Tracer study? Kolom terlacak, waktu tunggu, kesesuaian, dan tingkat tempat kerja tahun itu akan diganti; jumlah lulusan dan bukti tidak berubah.\n\n${ringkas}`)) return;
     const { error } = await sb.from('lkps_tracer_lulusan').upsert(baris.map(r => ({ ...r, oleh: SAYA.email })), { onConflict: 'tahun_lulus' });
     m.className = error ? 'msg buruk' : 'msg ok';
-    m.textContent = error ? 'Gagal: ' + error.message : `${baris.length} tahun lulus tersalin ke Tabel tracer (butir 48–51). Periksa jumlah lulusan dan unggah laporan tracer sebagai bukti.`;
+    m.textContent = error ? 'Gagal: ' + error.message : `${baris.length} tahun lulus tersalin ke Tabel tracer${BUTIR_LAM_TEKNIK ? ' (butir 48–51)' : ''}. Periksa jumlah lulusan dan unggah laporan tracer sebagai bukti.`;
   };
   // Rantai alumni -> pengguna lulusan: kirim tautan survei pengguna ke atasan yang diizinkan alumni.
   const undang = s.kelompok === 'alumni' ? undanganPengguna(rows) : [];
