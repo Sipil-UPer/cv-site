@@ -91,6 +91,10 @@ export const SYARAT_RERATA = [
 ];
 
 export const SASARAN = ['t', 'u3', 'u5'];
+// Tampilan umum (2026-11-25): nama sasaran di tabel penghalang, judul seksi, garis batas di grafik tren potret.
+export const NAMA_SASARAN = { t: 'Terakreditasi', u3: 'Unggul 3 th', u5: 'Unggul 5 th' };
+export const JUDUL_JALAN = 'Jalan menuju Unggul';
+export const BATAS_NA = [[200, 'Terakreditasi'], [331, 'Unggul 3 th'], [361, 'Unggul 5 th']];
 const TOL = 0.005;  // pembulatan dua desimal di layar tidak boleh menggagalkan
 
 export const syaratButir = no => SYARAT_UNGGUL[String(no)] || null;

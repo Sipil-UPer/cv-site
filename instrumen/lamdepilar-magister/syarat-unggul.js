@@ -45,7 +45,13 @@ export const SYARAT_RERATA = [
     t: 80, u3: null, u5: null, ambangIndikator: MEMENUHI, indikator: SEMUA },
 ];
 
-export const SASARAN = ['t', 'u3', 'u5'];
+// Perolehan status: hanya Terakreditasi yang dapat dicapai (skala berhenti di 3, tanpa pelampauan), jadi
+// tabel penghalang dan potret skor hanya memakai sasaran 't' (2026-11-25). statusRerata() tetap mengisi
+// u3ok/u5ok = true (tidak disyaratkan) agar bentuk hasil sama dengan instrumen lain.
+export const SASARAN = ['t'];
+export const NAMA_SASARAN = { t: 'Terakreditasi' };
+export const JUDUL_JALAN = 'Jalan menuju Terakreditasi';
+export const BATAS_NA = [[200, 'Terakreditasi (> 200)']];
 const TOL = 0.005;
 
 export const syaratButir = no => SYARAT_UNGGUL[String(no)] || null;

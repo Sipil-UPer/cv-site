@@ -27,9 +27,9 @@
        (1.1), tim penyusun (1.2, Narasi LED › Tim), CPL kurikulum terbaru (4.1, sama
        dengan LKPS E.4.1), rujukan matriks ke LKPS Tabel E.4.2.
    ===================================================================== */
-import { nilaiIdentitas, KOTA_PT, ISIAN_IDENTITAS } from './led-narasi.js?v=2026-11-25-9d4f29';
-import { anggotaTim } from './led-isi.js?v=2026-11-25-9d4f29';
-import { cplTerbaru } from './lkps-lamdepilar.js?v=2026-11-25-9d4f29';
+import { nilaiIdentitas, KOTA_PT, ISIAN_IDENTITAS } from './led-narasi.js?v=2026-11-25-4a2683';
+import { anggotaTim } from './led-isi.js?v=2026-11-25-4a2683';
+import { cplTerbaru } from './lkps-lamdepilar.js?v=2026-11-25-4a2683';
 
 const JSZIP = 'https://cdn.jsdelivr.net/npm/jszip@3.10.1/+esm';
 const REL_LINK = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink';

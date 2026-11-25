@@ -9,7 +9,7 @@
 //   nilai akhir    = Σ(rata-rata bagian × bobot) / Σ bobot bagian yang sudah ada nilainya;
 //   nilai akhir < batas lulus -> mengulang (otomatis), selain itu lulus / lulus dengan revisi (dipilih koordinator).
 
-import { statusBimbingan, labelCara } from './bimbingan-ta.js?v=2026-11-25-9d4f29';
+import { statusBimbingan, labelCara } from './bimbingan-ta.js?v=2026-11-25-4a2683';
 
 export const TAHAP_NILAI = [['seminar_proposal', 'Seminar proposal'], ['seminar_kemajuan', 'Seminar kemajuan'], ['sidang_akhir', 'Sidang akhir']];
 export const labelTahap = t => (TAHAP_NILAI.find(x => x[0] === t) || [, t || ''])[1];
@@ -526,4 +526,49 @@ export function lembarKomponenSiup(rows, nilai = [], rubrik = []){
     }
   }
   return out;
+}
+
+/**
+ * Lembar unggah SIUP per peran (pemilik 2026-11-25: "per peran; bila penguji 2, bobotnya dibagi sesuai jumlah dosen penguji,
+ * juga pembimbing"). Format sama dengan ekspor SIUP yang pernah diunggah: No; NIM; Nama; "<komponen> (<nama>) (xx.xx%)" ...;
+ * "Nilai Akhir". Satu kolom per dosen: Penguji i = bobot penguji / jumlah penguji; Pembimbing i = bobot pembimbing saat
+ * seminar/sidang / jumlah pembimbing; Bimbingan i = bobot proses bimbingan / jumlah pembimbing (sidang akhir). Penguji luar
+ * dihitung penguji. Satu berkas SIUP harus berkolom sama, jadi satu lembar per susunan (tahap + kolom).
+ * rows = jadwal_ta (berita acara ditetapkan); nilai = ta_nilai; rubrik = ta_rubrik [{id, bobot_penguji, bobot_bimbingan}].
+ * Hasil { lembar: [{nama, baris}], keterangan: [[...]] }.
+ */
+export function lembarSiupPeran(rows, nilai = [], rubrik = []){
+  const persen = w => (Math.round(w * 100) / 100).toFixed(2);
+  const kelompok = new Map(), ket = [['NIM', 'Nama', 'Tahap', 'Lembar', 'Kolom', 'Dosen']];
+  const singkat = { seminar_proposal: 'Proposal', seminar_kemajuan: 'Kemajuan', sidang_akhir: 'Sidang' };
+  for (const j of [...rows].filter(r => r.ba_ditetapkan)
+    .sort((a, b) => String(a.tanggal).localeCompare(String(b.tanggal)) || String(a.nim).localeCompare(String(b.nim)))) {
+    const xs = nilai.filter(n => n.jadwal_id === j.id);
+    const r = rubrik.find(x => x.id === (j.rubrik_id ?? xs[0]?.rubrik_id)) || {};
+    const w = bobotBagian(r);
+    const urut = (daftar, n) => { const i = (daftar || []).indexOf(n.penilai_nidn); return i < 0 ? 999 : i; };
+    const penguji = xs.filter(n => (n.bagian || 'seminar') === 'seminar' && n.peran === 'penguji')
+      .sort((a, b) => urut(j.penguji, a) - urut(j.penguji, b) || String(a.penilai_nama).localeCompare(String(b.penilai_nama)));
+    const pemb = xs.filter(n => (n.bagian || 'seminar') === 'seminar' && n.peran === 'pembimbing').sort((a, b) => urut(j.pembimbing, a) - urut(j.pembimbing, b));
+    const bimb = xs.filter(n => n.bagian === 'bimbingan').sort((a, b) => urut(j.pembimbing, a) - urut(j.pembimbing, b));
+    const kolom = [
+      ...penguji.map((n, i) => [`Penguji ${i + 1}`, w.penguji / penguji.length, n]),
+      ...(w.pembimbing > 0 ? pemb.map((n, i) => [`Pembimbing ${i + 1}`, w.pembimbing / pemb.length, n]) : []),
+      ...(w.bimbingan > 0 ? bimb.map((n, i) => [`Bimbingan ${i + 1}`, w.bimbingan / bimb.length, n]) : [])];
+    const judul = kolom.map(([k, b]) => `${k} (${k}) (${persen(b)}%)`);
+    const kunci = j.tahap + '|' + judul.join('|');
+    if (!kelompok.has(kunci)) {
+      const np = penguji.length, nb = pemb.length || bimb.length;
+      kelompok.set(kunci, { nama: `${singkat[j.tahap] || 'TA'} ${np}Pg ${nb}Pb`, baris: [['No', 'NIM', 'Nama', ...judul, 'Nilai Akhir']] });
+    }
+    const g = kelompok.get(kunci);
+    g.baris.push([g.baris.length, j.nim || '', j.nama_mahasiswa || '', ...kolom.map(([, , n]) => n.total == null ? '' : +n.total),
+      j.nilai_akhir == null ? '' : +j.nilai_akhir]);
+    for (const [k, , n] of kolom) ket.push([j.nim || '', j.nama_mahasiswa || '', labelTahap(j.tahap), g.nama, k, n.penilai_nama]);
+  }
+  // Nama lembar unik (maks. 31 huruf): susunan sama di tahap berbeda sudah dibedakan oleh nama tahap.
+  const lembar = [...kelompok.values()];
+  const dipakai = new Map();
+  for (const l of lembar) { const n = (dipakai.get(l.nama) || 0) + 1; dipakai.set(l.nama, n); if (n > 1) l.nama = `${l.nama} (${n})`; l.nama = l.nama.slice(0, 31); }
+  return { lembar, keterangan: ket };
 }

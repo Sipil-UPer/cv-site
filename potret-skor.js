@@ -3,7 +3,8 @@
 // butir) ke potret_skor: otomatis sekali sebulan saat admin membuka Skor,
 // atau manual dengan catatan. Riwayatnya ditampilkan sebagai tren dan
 // perubahan butir terhadap potret sebelumnya.
-import { SASARAN, gabungSyarat } from './syarat-unggul.js?v=2026-11-25-9d4f29';
+import { SASARAN, gabungSyarat, BATAS_NA } from './syarat-unggul.js?v=2026-11-25-4a2683';
+import { BOBOT_TOTAL, SKOR_MAKS } from './bobot.js?v=2026-11-25-4a2683';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -13,8 +14,9 @@ const f2 = x => x == null ? '—' : (+x).toFixed(2).replace('.', ',');
 // Tanggal 1 bulan dari tanggal lokal, 'YYYY-MM-01'.
 export const bulanDari = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-01`;
 
-// Batas NA menurut pedoman (Tabel 3): Terakreditasi 200, Unggul 331 dan 361.
-export const BATAS_NA = [[200, 'Terakreditasi'], [331, 'Unggul 3 th'], [361, 'Unggul 5 th']];
+// Batas NA dan NA maksimal dari instrumen (2026-11-25): LAM Teknik 200/331/361 dari 400, LAMDEPILAR 200 dari 300.
+export { BATAS_NA };
+const NA_MAKS = Math.round(BOBOT_TOTAL * SKOR_MAKS);
 
 /** Baris potret dari konteks render skor.html (ctxJalan) dan angka ringkasan. */
 export function isiPotret(ctx, { cakupan, butirTerisi, butirTotal }){
@@ -51,12 +53,12 @@ export function svgTrenPotret(rows){
   if (xs.length < 2) return '';
   const W = 720, H = 240, kiri = 44, kanan = 16, atas = 14, bawah = 34;
   const lo = Math.max(0, Math.floor((Math.min(...xs.map(r => +r.na), 200) - 20) / 50) * 50);
-  const y = v => atas + (H - atas - bawah) * (1 - (v - lo) / (400 - lo));
+  const y = v => atas + (H - atas - bawah) * (1 - (v - lo) / (NA_MAKS - lo));
   const x = i => kiri + (W - kiri - kanan) * (i / (xs.length - 1));
   const garis = BATAS_NA.map(([v, l]) => `<line x1="${kiri}" x2="${W - kanan}" y1="${y(v)}" y2="${y(v)}" stroke="currentColor"
       stroke-opacity=".35" stroke-dasharray="4 4"/><text x="${W - kanan}" y="${y(v) - 4}" text-anchor="end" font-size="11"
       fill="currentColor" fill-opacity=".7">${esc(l)} ${v}</text>`).join('');
-  const sumbu = [lo, ...[100, 200, 300, 400].filter(v => v > lo)].map(v => `<text x="${kiri - 6}" y="${y(v) + 4}" text-anchor="end"
+  const sumbu = [lo, ...[100, 200, 300, 400].filter(v => v > lo && v <= NA_MAKS)].map(v => `<text x="${kiri - 6}" y="${y(v) + 4}" text-anchor="end"
       font-size="11" fill="currentColor" fill-opacity=".6">${v}</text>`).join('');
   const label = xs.map((r, i) => (xs.length <= 12 || i % Math.ceil(xs.length / 12) === 0 || i === xs.length - 1)
     ? `<text x="${x(i)}" y="${H - 12}" text-anchor="${i === 0 ? 'start' : i === xs.length - 1 ? 'end' : 'middle'}" font-size="11"

@@ -20,11 +20,11 @@
    diputuskan (pemilik 2026-11-24).
    Kolom yang tidak disimpan situs dibiarkan kosong (tanpa tebakan).
    ===================================================================== */
-import { JSZIP, tulisSel, petaLembar, hitungUlangSaatBuka } from './lkps.js?v=2026-11-25-9d4f29';
-import { daftarProdi, STATUS_PS, tglTeks } from './pustaka-dokumen.js?v=2026-11-25-9d4f29';
-import { nidnNuptk, masaBerlaku } from './profil-dosen.js?v=2026-11-25-9d4f29';
-import { ampuPerTA, dosenTS } from './dosen-hitung.js?v=2026-11-25-9d4f29';
-import { POS_A5 } from './keuangan-a5.js?v=2026-11-25-9d4f29';
+import { JSZIP, tulisSel, petaLembar, hitungUlangSaatBuka } from './lkps.js?v=2026-11-25-4a2683';
+import { daftarProdi, STATUS_PS, tglTeks } from './pustaka-dokumen.js?v=2026-11-25-4a2683';
+import { nidnNuptk, masaBerlaku } from './profil-dosen.js?v=2026-11-25-4a2683';
+import { ampuPerTA, dosenTS } from './dosen-hitung.js?v=2026-11-25-4a2683';
+import { POS_A5 } from './keuangan-a5.js?v=2026-11-25-4a2683';
 
 const JABATAN = { tenaga_pengajar: 'Tenaga Pengajar', asisten_ahli: 'Asisten Ahli', lektor: 'Lektor',
   lektor_kepala: 'Lektor Kepala', guru_besar: 'Profesor' };
@@ -341,13 +341,19 @@ export function petaLKPSLamdepilar(C){
   // + dosen tidak tetap, jadi R57 (rumus templat) = NDTT / (NDT + NDTT).
   set('P.1', `R${55 + g14}`, { rumus: `COUNTA(C${55 + g14}:C${61 + geserP1})` });
   set('P.1', `R${56 + g14}`, { rumus: `COUNTA(C8:C${18 + g12})+R${55 + g14}` });
-  muat(kategori('industri'), 7, 66, 72).forEach(([d, r], i) => {
+  // P.1.5 "Diisi oleh pengusul dari Program Studi pada program Diploma Tiga/Sarjana Terapan": Magister
+  // tidak mengisi barisnya (pemilik 2026-11-25); rumus analisis tetap ditulis (0 %, bukan contoh 0/4).
+  const g15 = geserP1;
+  muat(C.jenjang === 'Magister' ? [] : kategori('industri'), 7, 66, 72).forEach(([d, r], i) => {
     const xs = mkDiampu(d);
     set('P.1', `B${r}`, i + 1); set('P.1', `C${r}`, d.nama); set('P.1', `E${r}`, d.perusahaan);
     set('P.1', `F${r}`, PEND[d.pendidikan] || d.pendidikan); set('P.1', `G${r}`, d.bidang_keahlian);
     set('P.1', `H${r}`, srtBerlaku(d)); set('P.1', `I${r}`, xs.map(m => m.nama).join('; '));
     if (xs.length) set('P.1', `J${r}`, xs.reduce((a, m) => a + (+m.sks || 0), 0));
   });
+  // Analisis P.1.5 (pemilik 2026-11-25): Jumlah Dosen = tetap (P.1.1) + tidak tetap (R55) + praktisi.
+  set('P.1', `R${66 + g15}`, { rumus: `COUNTA(C${66 + g15}:C${72 + geserP1})` });
+  set('P.1', `R${67 + g15}`, { rumus: `COUNTA(C8:C${18 + g12})+R${55 + g14}+R${66 + g15}` });
 
   // P.1.6 Rekognisi DTPS: karya kategori rekognisi TS-2 s.d. TS (sama dengan lkps.js 4.j). Bukti: jenis
   // "SK/kontrak/surat tugas" -> H (Surat Tugas); undangan dan web penyelenggara tidak punya jenis bukti
@@ -360,6 +366,7 @@ export function petaLKPSLamdepilar(C){
     const u = p.find(x => x.peran === 'ketua' || x.peran === 'penulis_pertama') || p[0]; return u?.dosen?.nama || ''; };
   const rekognisi = (X.karya || []).filter(k => k.kategori === 'rekognisi' && tsKarya(k) >= ts - 2 && tsKarya(k) <= ts)
     .sort((a, b) => (a.tahun - b.tahun) || String(a.judul).localeCompare(String(b.judul)));
+  const g16 = geserP1;
   muat(rekognisi, 7, 77, 83).forEach(([k, r], i) => {
     const nama = ketua(k);
     set('P.1', `B${r}`, i + 1); set('P.1', `C${r}`, nama);
@@ -371,6 +378,14 @@ export function petaLKPSLamdepilar(C){
     if (t) set('P.1', `${t}${r}`, 'V');
     set('P.1', `L${r}`, +k.tahun);
   });
+  // Analisis P.1.6 (pemilik 2026-11-25): dosen UNIK per tingkat (satu baris = satu rekognisi; tiap baris
+  // berbobot 1 / banyak baris dengan nama dan isian tingkat yang sama, penyebut >= 1); Jumlah Dosen = P.1.1.
+  {
+    const a = 77 + g16, b = 83 + geserP1, t = c => `${c}${a}:${c}${b}`;
+    const unik = c => ({ rumus: `SUMPRODUCT((${t('C')}<>"")*(${t(c)}="V")/COUNTIFS(${t('C')},${t('C')}&"",${t(c)},${t(c)}&""))` });
+    set('P.1', `R${77 + g16}`, unik('I')); set('P.1', `R${78 + g16}`, unik('J')); set('P.1', `R${79 + g16}`, unik('K'));
+    set('P.1', `R${80 + g16}`, { rumus: `COUNTA(C8:C${18 + g12})` });
+  }
 
   // P.1.7 Tenaga kependidikan (Data prodi › Tendik), aktif; sama dengan lkps.js 4.b. Pendidikan V di kolom
   // SMA (F), DI/DII (G), DIII (H), DIV (I), S1 (J), S2 (K); S3 tidak punya kolom di templat. NIP tidak disimpan.
@@ -380,12 +395,19 @@ export function petaLKPSLamdepilar(C){
     admin_prodi: 'Admin prodi', asisten_lab: 'Asisten laboratorium' };
   const UNIT_TENDIK = { upps: 'UPPS', prodi: 'Program Studi', institusi: 'Institusi' };
   // Tabel terakhir di lembar: tanpa batas baris, cukup bergeser sebanyak sisipan di atasnya.
-  urutNama((X.tendik || []).filter(x => x.aktif !== false && x.status_kerja !== 'magang')).forEach((x, i) => {
+  const tendikLKPS = urutNama((X.tendik || []).filter(x => x.aktif !== false && x.status_kerja !== 'magang'));
+  tendikLKPS.forEach((x, i) => {
     const r = 88 + geserP1 + i;
     set('P.1', `B${r}`, i + 1); set('P.1', `C${r}`, x.nama);
     if (KOL_PEND_TENDIK[x.pendidikan]) set('P.1', `${KOL_PEND_TENDIK[x.pendidikan]}${r}`, 'V');
     set('P.1', `L${r}`, x.sertifikat); set('P.1', `M${r}`, TUGAS_TENDIK[x.jabatan]); set('P.1', `N${r}`, UNIT_TENDIK[x.unit_kerja]);
   });
+  // Analisis P.1.7 (2026-11-25, tanpa pilihan: label templat): banyak V per kolom pendidikan atas baris tendik
+  // (7 baris templat 88-94 atau lebih); DIV/S1 = kolom I + J. R94 SUM dan S = R/$R$94 tetap rumus templat.
+  {
+    const a = 88 + geserP1, b = a + Math.max(7, tendikLKPS.length) - 1, n = c => `COUNTIF(${c}${a}:${c}${b},"V")`;
+    [['E'], ['F'], ['G'], ['H'], ['I', 'J'], ['K']].forEach((cs, i) => set('P.1', `R${a + i}`, { rumus: cs.map(n).join('+') }));
+  }
 
   // L.1 Sarana menurut standar (Data prodi › Sarana menurut standar, 165-patch; pemilik 2026-11-24).
   // L.1.1 belajar: lima blok kategori (butir di C bernomor "1. …" seperti templat); L.1.2-L.1.4: nomor di B.

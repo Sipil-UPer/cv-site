@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-25-9d4f29">
+<link rel="stylesheet" href="tema.css?v=2026-11-25-4a2683">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
@@ -177,7 +177,7 @@
     font-size:13px;line-height:1.5}
   @media print{.png-baris, #ami-admin, .kontrol-seksi{display:none}}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-25-9d4f29">
+<link rel="stylesheet" href="kepala.css?v=2026-11-25-4a2683">
 </head>
 <body>
 
@@ -527,8 +527,8 @@ ${seksiLipat('cakupan', 'Cakupan', '', `
       pada periode ini — <b>bukan penilaian kinerja</b>, melainkan penanda bahwa datanya
       mungkin belum diinput.</p></div>
 `, true)}${seksiLipat('syarat', 'Syarat perlu peringkat', '', `
-    <p class="ket">Pemeriksaan capaian terhadap ambang LAM Teknik jenjang Sarjana
-    di <code>ambang.js</code>. Bagian ini <b>tidak mengikuti pemilih periode</b> di
+    <p class="ket">Pemeriksaan capaian terhadap ambang ${esc(((window.AMBANG || {}).instrumen || {}).versi || 'instrumen')}
+    (${esc(((window.AMBANG || {}).instrumen || {}).jenjang || '')}) di <code>ambang.js</code>. Bagian ini <b>tidak mengikuti pemilih periode</b> di
     atas: tiap butir memakai jendela tahun yang ditetapkan instrumen. Ini alat bantu
     internal, bukan penilaian resmi.</p>
     ${bagianSyaratPerlu()}
@@ -785,6 +785,12 @@ function bagianSyaratPerlu(){
 
   const S = A.sasaran || [{id:'u3',label:'Unggul'}];
   const ins = A.instrumen || {};
+  // Instrumen tanpa ambang data (LAMDEPILAR: syarat Tabel 7 = agregat skor elemen, 2026-11-25): tanpa
+  // pesan ini halaman menyimpulkan "seluruh butir terpenuhi" dari daftar kosong.
+  if(!A.butir.length)
+    return `<div class="kartu"><p>Syarat perlu ${esc(ins.versi || 'instrumen ini')} berupa agregat skor
+      elemen, bukan ambang data, sehingga tidak diperiksa di halaman ini. Pemenuhannya dihitung di
+      halaman <a href="skor.html">Skor dan LED</a> (sasaran: ${S.map(x=>esc(x.label)).join(', ')}).</p></div>`;
   const fmt = (v, sat) => sat === '%'    ? `${v}%`
                         : sat === 'skor' ? Number(v).toFixed(2)
                         : `${v} ${sat}`;
@@ -870,7 +876,7 @@ function bagianSyaratPerlu(){
       </tr></thead><tbody>${baris}</tbody></table></div>
       <p class="kaki">Seluruh butir harus terpenuhi; satu butir yang belum
       memenuhi menggugurkan sasaran peringkat tersebut. Butir yang tidak berlaku
-      untuk jenjang Sarjana tidak ditampilkan — lihat catatan di
+      untuk jenjang ${esc(ins.jenjang || 'ini')} tidak ditampilkan — lihat catatan di
       <code>ambang.js</code>. Butir bertanda <b>manual</b> tidak dihitung dari
       data dan harus diisi sendiri.</p>
     </div>`;
@@ -1079,7 +1085,7 @@ function kartuRinci(judul, peta){
       <div class="an">${v}</div></div>`).join('')}</div>`;
 }
 </script>
-<script src="config.js?v=2026-11-25-9d4f29"></script>
+<script src="config.js?v=2026-11-25-4a2683"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -1098,13 +1104,13 @@ addEventListener('error', function (e) {
 // Ruang kerja, khusus email terdaftar (pemilik 2026-11-04); tanpa masuk akun hanya
 // lewat tautan AMI yang masih berlaku (pemilik 2026-11-11, 50-patch-tautan-ami.sql).
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-25-9d4f29';
-import * as CAPAIAN_IKU from './capaian-iku.js?v=2026-11-25-9d4f29';
-import * as TEMUAN_AMI from './temuan-ami.js?v=2026-11-25-9d4f29';
-import * as TAUTAN_AMI from './ami-tautan.js?v=2026-11-25-9d4f29';
-import * as CAPAIAN_CPL from './capaian-cpl.js?v=2026-11-25-9d4f29';
-import * as RAPAT_M from './rapat.js?v=2026-11-25-9d4f29';
-import * as HIBAH from './hibah.js?v=2026-11-25-9d4f29';
+import { gerbang } from './menu.js?v=2026-11-25-4a2683';
+import * as CAPAIAN_IKU from './capaian-iku.js?v=2026-11-25-4a2683';
+import * as TEMUAN_AMI from './temuan-ami.js?v=2026-11-25-4a2683';
+import * as TAUTAN_AMI from './ami-tautan.js?v=2026-11-25-4a2683';
+import * as CAPAIAN_CPL from './capaian-cpl.js?v=2026-11-25-4a2683';
+import * as RAPAT_M from './rapat.js?v=2026-11-25-4a2683';
+import * as HIBAH from './hibah.js?v=2026-11-25-4a2683';
 const sb = createClient(window.SB_URL, window.SB_KEY);
 window.HIBAH = HIBAH;
 window.RAPAT_M = RAPAT_M;
