@@ -57,6 +57,10 @@ const pmRiwayat = (p, status, oleh, catatan = null) => (DB.pengajuan_riwayat ||=
   tahap: p.tahap || 'pengajuan', waktu: new Date().toISOString() });
 const pmGagal = message => ({ data: null, error: { message } });
 function pmRpc(nama, a){
+  // 174: berkas pendaftaran seminar/sidang TA per tahap (daftar aktif, urut seperti ta_berkas_daftar).
+  if (nama === 'ta_berkas_daftar') return { data: (DB.ta_berkas || []).filter(t => t.aktif)
+    .sort((a, b) => a.tahap.localeCompare(b.tahap) || a.urut - b.urut || a.kode.localeCompare(b.kode))
+    .map(({ tahap, kode, label, keterangan, wajib }) => ({ tahap, kode, label, keterangan, wajib })), error: null };
   if (nama === 'pembimbing_pilihan') return { data: (DB.dosen || []).filter(d => d.aktif && d.peran !== 'asesor' && (d.dtps || d.kategori) && !d.tugas_belajar)
     .map(d => ({ id: d.id, nama: d.nama })).sort((x, y) => x.nama.localeCompare(y.nama)), error: null };
   // Kuota dan penetapan pembimbing KP (107), tiruan: "koordinator" = admin.
@@ -360,6 +364,11 @@ function pmRpc(nama, a){
     const namaWajib = { naskah_ta: 'naskah TA', bukti_luaran: 'bukti publikasi/luaran', foto: 'foto kegiatan' };
     if (wajib && !(DB.pengajuan_berkas || []).some(b => b.pengajuan_id === p.id && b.jenis === wajib))
       return pmGagal(`Unggah berkas wajib dulu: ${namaWajib[wajib] || wajib.replace(/_/g, ' ')}.`);
+    // 174: seminar/sidang TA = berkas wajib tahapnya (ta_berkas), pesan sama dengan ta_periksa_berkas.
+    const tahapTA = p.jenis === 'ta' && !aju ? p.data?.tahap_ta : null;
+    const kurangTA = (DB.ta_berkas || []).filter(t => t.tahap === tahapTA && t.aktif && t.wajib
+      && !(DB.pengajuan_berkas || []).some(b => b.pengajuan_id === p.id && b.jenis === t.kode)).sort((a, b) => a.urut - b.urut).map(t => t.label);
+    if (kurangTA.length) return pmGagal(`Berkas wajib ${{ seminar_proposal: 'seminar proposal', seminar_kemajuan: 'seminar kemajuan', sidang_akhir: 'sidang akhir' }[tahapTA]} belum lengkap: ${kurangTA.join(', ')}.`);
     // 122: yudisium = 14 berkas wajib (daftar bawaan patch 122), langsung ke admin prodi.
     if (p.jenis === 'yudisium') {
       const ada = new Set((DB.pengajuan_berkas || []).filter(b => b.pengajuan_id === p.id).map(b => b.jenis));

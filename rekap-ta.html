@@ -11,8 +11,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-25-782f9d">
-<link rel="stylesheet" href="kepala.css?v=2026-11-25-782f9d">
+<link rel="stylesheet" href="tema.css?v=2026-11-25-448835">
+<link rel="stylesheet" href="kepala.css?v=2026-11-25-448835">
 <style>
   .tag{display:inline-block;font-size:12px;padding:1px 8px;border:1px solid var(--line);background:var(--bg);white-space:nowrap}
   .tag.tinggi{border-color:var(--merah);color:var(--merah)}
@@ -46,7 +46,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></div>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-25-782f9d"></script>
+<script src="config.js?v=2026-11-25-448835"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -65,12 +65,12 @@ addEventListener('error', function (e) {
 // dan beban membimbing/menguji per dosen pada periode terpilih (TS, 3 TS, tahun). Sumber: jadwal_ta (semua pengguna login
 // membaca). Unduh Excel khusus admin (memuat NIM).
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-25-782f9d';
-import { punya } from './koordinator.js?v=2026-11-25-782f9d';
-import { TAHAP, STATUS, waktuJadwal, rekapTA, lembarTA, revisiBerjalan } from './rekap-ta.js?v=2026-11-25-782f9d';
-import { opsiPeriode, cocokPeriode, labelPeriode, taTeks, tsKarya, tsBerjalan } from './sdgs-unduh.js?v=2026-11-25-782f9d';
-import { barisKuota } from './rekap-kp.js?v=2026-11-25-782f9d';
-import { SHEETJS } from './nilai-cpl.js?v=2026-11-25-782f9d';
+import { gerbang } from './menu.js?v=2026-11-25-448835';
+import { punya } from './koordinator.js?v=2026-11-25-448835';
+import { TAHAP, STATUS, waktuJadwal, rekapTA, lembarTA, revisiBerjalan } from './rekap-ta.js?v=2026-11-25-448835';
+import { opsiPeriode, cocokPeriode, labelPeriode, taTeks, tsKarya, tsBerjalan } from './sdgs-unduh.js?v=2026-11-25-448835';
+import { barisKuota } from './rekap-kp.js?v=2026-11-25-448835';
+import { SHEETJS } from './nilai-cpl.js?v=2026-11-25-448835';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
@@ -220,6 +220,60 @@ function gambarKecuali(){
   }; });
 }
 
+// Berkas pendaftaran seminar/sidang TA per tahap (174-patch-berkas-tahap-ta.sql, pemilik 2026-11-25): koordinator TA/admin
+// mengubah label, keterangan, wajib, urutan, aktif, dan menambah berkas (kode ta_*). Naskah (naskah_ta) selalu wajib dan aktif.
+// Tidak ada hapus: berkas yang tidak dipakai lagi dinonaktifkan supaya berkas lama mahasiswa tetap berlabel.
+const TAHAP_BERKAS = [['seminar_proposal', 'Seminar proposal'], ['seminar_kemajuan', 'Seminar kemajuan'], ['sidang_akhir', 'Sidang akhir']];
+let BERKAS_TA = null, TAHAP_B = 'seminar_proposal';
+async function muatBerkasTA(){
+  const { data, error } = await sb.from('ta_berkas').select('*').order('urut').order('kode');
+  BERKAS_TA = error ? null : (data || []);
+}
+function tulisBerkas(k, t){ const m = $('mBerkas'); if (m) { m.className = 'msg ' + k; m.textContent = t; } }
+const kodeBerkas = label => 'ta_' + (String(label).toLowerCase().normalize('NFD').replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '') || 'berkas').slice(0, 40);
+function gambarBerkasTA(){
+  const el = $('berkasTA'); if (!el) return;
+  if (!BERKAS_TA) { el.innerHTML = '<p class="kosong">Belum tersedia (jalankan supabase/174-patch-berkas-tahap-ta.sql).</p>'; return; }
+  const xs = BERKAS_TA.filter(r => r.tahap === TAHAP_B);
+  el.innerHTML = `<p class="ket">Berkas yang diunggah mahasiswa saat mendaftar seminar/sidang. Berkas wajib harus ada sebelum pendaftaran bisa dikirim.
+      Naskah selalu wajib. Berkas yang tidak dipakai lagi dinonaktifkan (tidak dihapus), supaya berkas lama tetap berlabel.</p>
+    <div class="saring"><label>Tahap <select id="bTahap">${TAHAP_BERKAS.map(([v, l]) => `<option value="${v}"${v === TAHAP_B ? ' selected' : ''}>${esc(l)}</option>`).join('')}</select></label>
+      <span class="msg" id="mBerkas"></span></div>
+    <div class="lebar-tabel"><table><thead><tr><th>Berkas</th><th>Keterangan untuk mahasiswa</th><th>Wajib</th><th>Aktif</th><th class="n">Urutan</th><th></th></tr></thead>
+      <tbody>${xs.map(r => { const n = r.kode === 'naskah_ta', k = esc(r.kode);
+        return `<tr data-kode="${k}"${r.aktif ? '' : ' style="opacity:.6"'}><td><input data-f="label" maxlength="200" value="${esc(r.label)}" style="width:100%"><div class="ket">${k}</div></td>
+        <td><input data-f="keterangan" maxlength="500" value="${esc(r.keterangan)}" style="width:100%"></td>
+        <td><input type="checkbox" data-f="wajib"${r.wajib ? ' checked' : ''}${n ? ' disabled title="Naskah selalu wajib"' : ''} aria-label="Wajib"></td>
+        <td><input type="checkbox" data-f="aktif"${r.aktif ? ' checked' : ''}${n ? ' disabled title="Naskah selalu aktif"' : ''} aria-label="Aktif"></td>
+        <td class="n"><input type="number" data-f="urut" value="${esc(r.urut)}" style="width:5em"></td>
+        <td><button type="button" class="b kecil" data-simpan-berkas="${k}">Simpan</button></td></tr>`; }).join('')}</tbody></table></div>
+    <div class="saring" style="margin-top:10px"><label style="flex:1 1 220px">Berkas baru <input id="bLabel" maxlength="200" style="width:100%" placeholder="mis. Surat persetujuan pembimbing"></label>
+      <label style="flex:2 1 260px">Keterangan <input id="bKet" maxlength="500" style="width:100%"></label>
+      <label><input type="checkbox" id="bWajib" checked> wajib</label>
+      <button type="button" class="b" id="bTambah">Tambah</button></div>`;
+  $('bTahap').onchange = e => { TAHAP_B = e.target.value; gambarBerkasTA(); };
+  const segarkan = async pesan => { await muatBerkasTA(); gambarBerkasTA(); tulisBerkas('ok', pesan); };
+  el.querySelectorAll('[data-simpan-berkas]').forEach(b => { b.onclick = async () => {
+    const tr = b.closest('tr'), v = f => tr.querySelector(`[data-f="${f}"]`);
+    const ubah = { label: v('label').value.trim(), keterangan: v('keterangan').value.trim(), urut: +v('urut').value || 100, diperbarui: new Date().toISOString() };
+    if (tr.dataset.kode !== 'naskah_ta') Object.assign(ubah, { wajib: v('wajib').checked, aktif: v('aktif').checked });
+    if (ubah.label.length < 2) return tulisBerkas('err', 'Nama berkas minimal 2 huruf.');
+    const { error } = await sb.from('ta_berkas').update(ubah).eq('tahap', TAHAP_B).eq('kode', tr.dataset.kode);
+    if (error) return tulisBerkas('err', error.message);
+    await segarkan('Tersimpan.');
+  }; });
+  $('bTambah').onclick = async () => {
+    const label = $('bLabel').value.trim();
+    if (label.length < 2) return tulisBerkas('err', 'Tulis nama berkas baru.');
+    const kode = kodeBerkas(label);
+    if (xs.some(r => r.kode === kode)) return tulisBerkas('err', 'Berkas dengan nama itu sudah ada di tahap ini (aktifkan bila nonaktif).');
+    const { error } = await sb.from('ta_berkas').insert({ tahap: TAHAP_B, kode, label, keterangan: $('bKet').value.trim(),
+      wajib: $('bWajib').checked, aktif: true, urut: Math.max(0, ...xs.map(r => +r.urut || 0)) + 1 });
+    if (error) return tulisBerkas('err', error.message);
+    await segarkan('Berkas ditambahkan.');
+  };
+}
+
 async function mulai(){
   SAYA = await gerbang(sb);
   if (!SAYA) return;
@@ -241,11 +295,13 @@ async function mulai(){
     ${SAYA.peran === 'asesor' ? '' : '<h2 id="kuota-ta">Kuota pembimbing TA</h2><div id="kuota"></div>'}
     <h2 id="revisi">Revisi berjalan</h2><div id="revisiIsi"></div>
     ${ADMIN ? '<h2 id="urutan-tahap">Pengecualian urutan tahap</h2><div id="kecuali"></div>' : ''}
+    ${ADMIN ? '<h2 id="berkas-ta">Berkas pendaftaran per tahap</h2><div id="berkasTA"></div>' : ''}
     <h2>Jadwal mendatang</h2><div id="akan"></div>`;
   $('fPeriode').onchange = e => { PERIODE = e.target.value; gambar(); };
   gambar();
   if ($('kuota')) { await muatKuota(); gambarKuota(); }
   if ($('kecuali')) { await muatKecuali(); gambarKecuali(); }
+  if ($('berkasTA')) { await muatBerkasTA(); gambarBerkasTA(); }
 }
 mulai().catch(e => { $('isi').innerHTML = `<p class="kosong">Gagal memuat: ${esc(e.message)}</p>`; });
 </script>
