@@ -9,7 +9,7 @@
 //   nilai akhir    = Σ(rata-rata bagian × bobot) / Σ bobot bagian yang sudah ada nilainya;
 //   nilai akhir < batas lulus -> mengulang (otomatis), selain itu lulus / lulus dengan revisi (dipilih koordinator).
 
-import { statusBimbingan, labelCara } from './bimbingan-ta.js?v=2026-11-25-52b8dc';
+import { statusBimbingan, labelCara } from './bimbingan-ta.js?v=2026-11-25-8cae0a';
 
 export const TAHAP_NILAI = [['seminar_proposal', 'Seminar proposal'], ['seminar_kemajuan', 'Seminar kemajuan'], ['sidang_akhir', 'Sidang akhir']];
 export const labelTahap = t => (TAHAP_NILAI.find(x => x[0] === t) || [, t || ''])[1];
@@ -259,6 +259,21 @@ export const angka = x => x == null || x === '' || !Number.isFinite(+x) ? '–'
   : (+x).toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const persen = x => String(bulat(x)).replace('.', ',');
 
+/**
+ * Tanda CPL awal komponen form sidang akhir (181, pemilik 2026-11-25; MK Tugas Akhir K26 memikul CPL C, E, F, H, I, J).
+ * Salinan sama persis dengan blok cpl_awal di supabase/181-patch-cpl-penilaian-ta.sql (diperiksa tests/js/penilaian_ta.test.mjs).
+ * Capaian CPL hanya dari sidang akhir; tanda bisa diubah koordinator TA di editor form (kunci cpl tiap komponen).
+ */
+export const CPL_AWAL = {
+  sidang_akhir: {
+    komponen: { materi: ['C', 'F'], metode: ['H', 'J'], hasil: ['C', 'I'], penulisan: ['E'], presentasi: ['E'] },
+    komponen_bimbingan: { keaktifan: ['F'], kemandirian: ['F'], ketepatan: ['F'], sikap: ['F'] }
+  }
+};
+export const TAHAP_CPL = 'sidang_akhir';
+const KODE_CPL = /^[A-Za-z0-9.-]{1,10}$/;
+const urutCpl = (a, b) => String(a).localeCompare(String(b), 'id', { numeric: true });
+
 /** Bobot tiga bagian dari form: { penguji, pembimbing, bimbingan } (jumlah 100). */
 export function bobotBagian(r){
   const penguji = +(r?.bobot_penguji ?? 40), bimbingan = +(r?.bobot_bimbingan ?? 0);
@@ -330,6 +345,9 @@ function cekKomponen(komponen, awalan, g){
     if (typeof k.bobot !== 'number' || !(k.bobot > 0) || k.bobot > 100) g.push(`${awalan}Bobot komponen "${nama}" harus lebih dari 0 dan paling besar 100.`);
     if (!Array.isArray(k.uraian) || k.uraian.length !== 4 || k.uraian.some(u => typeof u !== 'string' || u.length > 600))
       g.push(`${awalan}Uraian rubrik "${nama}" harus 4 tingkat, masing-masing paling banyak 600 huruf.`);
+    if (k.cpl != null && (!Array.isArray(k.cpl) || k.cpl.length > 12 || k.cpl.some(c => typeof c !== 'string' || !KODE_CPL.test(c))
+        || new Set(k.cpl).size !== k.cpl.length))
+      g.push(`${awalan}Tanda CPL komponen "${nama}" harus daftar kode CPL berbeda (paling banyak 12).`);
   }
   const jumlah = bulat(komponen.reduce((a, k) => a + (+k.bobot || 0), 0));
   if (komponen.length && jumlah !== 100) g.push(`${awalan}Jumlah bobot komponen harus 100 (sekarang ${persen(jumlah)}).`);
@@ -365,6 +383,38 @@ export function labelTingkat(tingkat = TINGKAT_AWAL){
     : bulatSemua ? `${f(b)}–${f(tingkat[i - 1] - 1)}` : `${f(b)} – < ${f(tingkat[i - 1])}`);
 }
 
+/**
+ * Capaian CPL satu jadwal (181): rata-rata berbobot nilai komponen yang bertanda CPL itu. Tiap bagian (penguji, pembimbing saat
+ * sidang, proses bimbingan) memakai rata-rata penilainya per komponen; bobot = bobot bagian x bobot komponen. Penilai yang dihitung
+ * sama dengan rekapNilai (panel sekarang; penguji luar bila jadwal punya). Hasil [{cpl, nilai, komponen: [label]}] urut kode;
+ * [] bila tidak ada komponen bertanda CPL atau belum ada nilai.
+ */
+export function capaianCPL({ rubrik, panel = [], nilai = [], penguji_luar = null }){
+  const luar = !!String(penguji_luar || '').trim(), w = bobotBagian(rubrik);
+  const nidnPeran = p => new Set(panel.filter(x => x.peran === p).map(x => x.nidn));
+  const pg = nidnPeran('penguji'), pb = nidnPeran('pembimbing');
+  const sem = nilai.filter(n => (n.bagian || 'seminar') === 'seminar'), bim = nilai.filter(n => n.bagian === 'bimbingan');
+  const bagian = [[sem.filter(n => (n.nidn && pg.has(n.nidn)) || (!n.nidn && luar)), rubrik?.komponen, w.penguji],
+                  [sem.filter(n => n.nidn && pb.has(n.nidn)), rubrik?.komponen, w.pembimbing],
+                  [bim.filter(n => n.nidn && pb.has(n.nidn)), rubrik?.komponen_bimbingan, w.bimbingan]];
+  const C = new Map();
+  for (const [xs, komponen, b] of bagian) {
+    if (!(b > 0) || !xs.length) continue;
+    for (const k of komponen || []) {
+      if (!(k.cpl || []).length) continue;
+      const v = xs.map(n => n.nilai?.[k.kode]).filter(x => typeof x === 'number' && Number.isFinite(x));
+      if (!v.length) continue;
+      const r = v.reduce((a, x) => a + x, 0) / v.length, bb = b * +k.bobot;
+      for (const c of k.cpl) {
+        const t = C.get(c) || { jml: 0, bobot: 0, komponen: new Set() };
+        t.jml += r * bb; t.bobot += bb; t.komponen.add(k.label); C.set(c, t);
+      }
+    }
+  }
+  return [...C.entries()].sort(([a], [b]) => urutCpl(a, b))
+    .map(([cpl, t]) => ({ cpl, nilai: bulat(t.jml / t.bobot), komponen: [...t.komponen] }));
+}
+
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const tglPanjang = s => s ? new Date(String(s).slice(0, 10) + 'T00:00:00Z').toLocaleDateString('id-ID',
   { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }) : '';
@@ -377,6 +427,15 @@ function tabelNilai(komponen, xs){
 <tbody>${(komponen || []).map(k => `<tr><td>${esc(k.label)}</td><td class="n">${esc(persen(k.bobot))} %</td>${xs.map(n =>
       `<td class="n">${angka(n.nilai?.[k.kode])}</td>`).join('')}</tr>`).join('')}
 <tr><th>Total</th><th class="n">100 %</th>${xs.map(n => `<th class="n">${angka(n.total)}</th>`).join('')}</tr></tbody></table>`;
+}
+
+/** Tabel capaian CPL untuk berita acara/rekap; rumusan = {kode: rumusan CPL} (opsional). '' bila kosong. */
+export function capaianHtml(xs, rumusan = {}, kelas = 'garis'){
+  if (!(xs || []).length) return '';
+  return `<h2>Capaian CPL (sidang akhir)</h2>
+<table class="${kelas}"><thead><tr><th>CPL</th><th class="n">Capaian</th><th>Dari komponen</th></tr></thead>
+<tbody>${xs.map(c => `<tr><td><b>${esc(c.cpl)}</b>${rumusan?.[c.cpl] ? `<br><span class="ket">${esc(rumusan[c.cpl])}</span>` : ''}</td>
+<td class="n">${angka(c.nilai)}</td><td>${esc(c.komponen.join('; '))}</td></tr>`).join('')}</tbody></table>`;
 }
 
 /**
@@ -434,6 +493,7 @@ ${w.bimbingan > 0 ? `<tr><td>Rata-rata proses bimbingan (bobot ${esc(persen(w.bi
 ${j.hasil === 'lulus_revisi' ? `<tr><td>Tenggat revisi</td><td class="n">${esc(tglPanjang(j.batas_revisi))}</td></tr>` : ''}
 </tbody></table>
 ${j.hasil === 'lulus_revisi' && j.catatan_revisi ? `<h2>Catatan revisi</h2><p>${esc(j.catatan_revisi).replace(/\n/g, '<br>')}</p>` : ''}
+${capaianHtml(j.tahap === TAHAP_CPL ? capaianCPL({ rubrik: r, panel: x.panel || [], nilai, penguji_luar: j.penguji_luar }) : [], info.cpl)}
 ${catatan.length ? `<h2>Catatan penilai</h2>${catatan.map(n => `<p><b>${esc(n.nama)}</b>${n.bagian === 'bimbingan' ? ' (proses bimbingan)' : ''}: ${esc(n.catatan).replace(/\n/g, '<br>')}</p>`).join('')}` : ''}
 <p class="ket">Form penilaian ${esc(labelTahap(j.tahap).toLowerCase())} versi ${esc(r.versi ?? '–')}. Nilai resmi diisikan ke SIUP.
 ${j.ba_ditetapkan ? ` Ditetapkan ${esc(tglWaktu(j.ba_ditetapkan))}${j.ba_oleh ? ' oleh ' + esc(j.ba_oleh) : ''}.` : ''}</p>

@@ -1,11 +1,11 @@
 // Tugas saya untuk koordinator MK dan pengampu kelas (pemilik 2026-11-17; OBE O2 dan O3).
 // Hanya yang belum punya pengingat lain: CPMK/RPS (cpmk.html) dan unggahan portofolio (portofolio.html).
 // Berkas nilai CPL dan refleksi evaluasi sudah diingatkan tugas-saya.js / evaluasi-pembelajaran.js.
-import { periksaStruktur } from './templat-cpl.js?v=2026-11-25-52b8dc';
-import { cplMK, dataTemplat, statusStruktur } from './cpmk.js?v=2026-11-25-52b8dc';
-import { bolehTinjau, cariTinjauan, statusTindak, petaRps, daftarSemester as semesterTinjau, mkSemester as mkTinjau } from './tinjauan-rps.js?v=2026-11-25-52b8dc';
-import { kelengkapan, mkSemester, daftarSemester } from './portofolio.js?v=2026-11-25-52b8dc';
-import { luarProdi } from './koordinator-mk.js?v=2026-11-25-52b8dc';
+import { periksaStruktur } from './templat-cpl.js?v=2026-11-25-8cae0a';
+import { cplMK, dataTemplat, statusStruktur } from './cpmk.js?v=2026-11-25-8cae0a';
+import { bolehTinjau, cariTinjauan, statusTindak, petaRps, daftarSemester as semesterTinjau, mkSemester as mkTinjau } from './tinjauan-rps.js?v=2026-11-25-8cae0a';
+import { kelengkapan, mkSemester, daftarSemester } from './portofolio.js?v=2026-11-25-8cae0a';
+import { luarProdi } from './koordinator-mk.js?v=2026-11-25-8cae0a';
 
 const kecil = s => String(s || '').trim().toLowerCase();
 const potong = (xs, n = 6) => xs.slice(0, n).join('; ') + (xs.length > n ? `; dan ${xs.length - n} lagi` : '');
