@@ -7,10 +7,10 @@
 // ikut tampil pada publikasi/luaran/integrasi turunannya tanpa disalin.
 // st = { KB: karya_id -> [karya_bukti], INDUK: id -> karya } dari muatBuktiKarya.
 
-import { namaJenisBukti } from './rencana-bukti.js?v=2026-11-25-396401';
-import { buangBerkas, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-25-396401';
-import { htmlTautanButir, butirKarya, tsBaris } from './tautan-butir.js?v=2026-11-25-396401';
-import { urlPublikasi, aTautan, doiBaku } from './tautan-publikasi.js?v=2026-11-25-396401';
+import { namaJenisBukti } from './rencana-bukti.js?v=2026-11-25-3c67d0';
+import { buangBerkas, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-25-3c67d0';
+import { htmlTautanButir, butirKarya, tsBaris } from './tautan-butir.js?v=2026-11-25-3c67d0';
+import { urlPublikasi, aTautan, doiBaku } from './tautan-publikasi.js?v=2026-11-25-3c67d0';
 
 /** Baris tautan publikasi (DOI atau URL) yang bisa diklik; '' bila bukan publikasi atau tanpa tautan (pemilik 2026-11-24). */
 export function tautanPublikasiKarya(k){

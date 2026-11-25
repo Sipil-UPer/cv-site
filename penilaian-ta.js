@@ -9,7 +9,7 @@
 //   nilai akhir    = Σ(rata-rata bagian × bobot) / Σ bobot bagian yang sudah ada nilainya;
 //   nilai akhir < batas lulus -> mengulang (otomatis), selain itu lulus / lulus dengan revisi (dipilih koordinator).
 
-import { statusBimbingan, labelCara } from './bimbingan-ta.js?v=2026-11-25-396401';
+import { statusBimbingan, labelCara } from './bimbingan-ta.js?v=2026-11-25-3c67d0';
 
 export const TAHAP_NILAI = [['seminar_proposal', 'Seminar proposal'], ['seminar_kemajuan', 'Seminar kemajuan'], ['sidang_akhir', 'Sidang akhir']];
 export const labelTahap = t => (TAHAP_NILAI.find(x => x[0] === t) || [, t || ''])[1];
@@ -564,4 +564,17 @@ export function lembarSiupPeran(rows, nilai = [], rubrik = [], dosen = {}){
   const lembar = [...kelas.values()], dipakai = new Map();
   for (const l of lembar) { const n = (dipakai.get(l.nama) || 0) + 1; dipakai.set(l.nama, n); if (n > 1) l.nama = `${l.nama.slice(0, 26)} (${n})`; }
   return { lembar, keterangan: ket };
+}
+
+/**
+ * Isi CSV unggah SIUP dari satu lembar lembarSiupPeran (pemilik 2026-11-25), meniru ekspor SIUP yang pernah diunggah:
+ * pemisah ';', UTF-8 tanpa BOM, baris diakhiri LF; judul dikutip bila memuat spasi/tanda baca (No;NIM;Nama tidak);
+ * data: No dan NIM tanpa kutip, Nama dikutip, nilai 2 desimal bertitik (85.00); sel kosong tetap kosong.
+ */
+export function csvSiup(baris){
+  const kutip = s => `"${String(s).replace(/"/g, '""')}"`;
+  const judul = baris[0].map(h => /^[A-Za-z0-9_]+$/.test(String(h)) ? String(h) : kutip(h)).join(';');
+  const data = baris.slice(1).map(r => r.map((v, i) => i === 0 || i === 1 ? String(v ?? '') : i === 2 ? kutip(v ?? '')
+    : v === '' || v == null ? '' : (+v).toFixed(2)).join(';'));
+  return [judul, ...data].join('\n') + '\n';
 }
