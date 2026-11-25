@@ -391,3 +391,71 @@ export function lembarPengajuan(xs, tsTeks = () => '', daftarYud = BERKAS_YUDISI
     labelBerkas(b.jenis, daftarYud), b.nama || '', b.url ? { t: b.url, l: b.url } : ''])));
   return L;
 }
+
+// ---------- Kemajuan TA (182, pemilik 2026-11-26) ----------
+// Langkah TA satu mahasiswa dari mhs_kemajuan_ta(token) = { pengajuan, jadwal, syarat }. Hasil [{kode, label, keadaan, ket, id}]
+// dengan keadaan seperti htmlJalur: selesai | kini (langkah pertama yang belum selesai) | kembali (kini, pengajuannya
+// dikembalikan) | nanti. id = pengajuan yang bisa dibuka dari langkah itu (atau null).
+const HASIL_TA = { lulus: 'Lulus', lulus_revisi: 'Lulus dengan revisi', mengulang: 'Mengulang' };
+const LULUS_TA = h => h === 'lulus' || h === 'lulus_revisi';
+export const tglIndo = s => s ? new Date(String(s).slice(0, 10) + 'T00:00:00Z')
+  .toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' }) : '';
+
+export function kemajuanTA(k){
+  if (!k) return [];
+  const ta = (k.pengajuan || []).filter(x => x.jenis === 'ta' && x.status !== 'dibatalkan');
+  const terbaru = t => ta.filter(x => x.tahap_ta === t).sort((a, b) => String(b.dibuat).localeCompare(String(a.dibuat)))[0] || null;
+  const jadwal = t => (k.jadwal || []).filter(j => j.tahap === t).slice(-1)[0] || null;   // urut tanggal: terakhir
+  const syarat = t => (k.syarat || []).find(s => s?.tahap === t) || null;
+  const label = x => labelStatus({ ...x, data: { tahap_ta: x.tahap_ta } });
+  const L = [];
+
+  const pen = terbaru(TAHAP_PEMBIMBING_TA);
+  const adaSeminar = TAHAP_TA.some(([t]) => terbaru(t) || jadwal(t));
+  L.push({ kode: 'pembimbing', label: 'Pembimbing ditetapkan', id: pen?.id ?? null, kembali: pen?.status === 'dikembalikan',
+    selesai: pen?.status === 'disetujui' || (!pen && adaSeminar),
+    ket: pen ? (pen.status === 'disetujui' ? tglIndo(pen.diperbarui) : label(pen)) : adaSeminar ? 'tidak tercatat di situs' : 'Ajukan pembimbing TA' });
+
+  const seminar = TAHAP_TA.map(([t, nama]) => {
+    const j = jadwal(t), a = terbaru(t);
+    const lulus = j?.status === 'selesai' && LULUS_TA(j.hasil);
+    let ket;
+    if (lulus) ket = `${HASIL_TA[j.hasil]} · ${tglIndo(j.tanggal)}`;
+    else if (j?.status === 'selesai' && j.hasil === 'mengulang')
+      ket = a && String(a.dibuat).slice(0, 10) > String(j.tanggal) ? label(a) : `Mengulang (${tglIndo(j.tanggal)}): daftar lagi`;
+    else if (j?.status === 'terjadwal') ket = `Dijadwalkan ${tglIndo(j.tanggal)}`;
+    else if (j?.status === 'ditunda') ket = 'Ditunda; tunggu jadwal baru';
+    else if (j?.status === 'selesai') ket = 'Menunggu hasil';
+    else if (a && a.status !== 'ditolak') ket = label(a);
+    else ket = 'Belum mendaftar';
+    return { kode: t, label: nama, id: a?.id ?? j?.pengajuan_id ?? null, selesai: lulus, kembali: !j && a?.status === 'dikembalikan', ket,
+      ada: !!j || (!!a && a.status !== 'ditolak'), dikirim: !!j || ['pembimbing', 'admin', 'disetujui'].includes(a?.status) };
+  });
+  // Tahap tanpa catatan di situs (mis. seminar sebelum situs dipakai) padahal tahap sesudahnya sudah berjalan: dianggap selesai.
+  for (let i = seminar.length - 2; i >= 0; i--)
+    if ((seminar[i + 1].selesai || seminar[i + 1].ada) && !seminar[i].selesai && !seminar[i].ada)
+      Object.assign(seminar[i], { selesai: true, ket: 'tidak tercatat di situs' });
+
+  // Bimbingan: syarat jumlah untuk tahap seminar/sidang yang sedang dituju, diletakkan tepat sebelum tahap itu.
+  const sasaran = seminar.find(s => !s.selesai), sy = sasaran && syarat(sasaran.kode);
+  const bimb = { kode: 'bimbingan', label: sasaran ? `Bimbingan untuk ${sasaran.label.toLowerCase()}` : 'Bimbingan', id: null, kembali: false,
+    selesai: !sasaran || !sy || !sy.minimal || !!sy.cukup || sasaran.dikirim,   // dikirim: syarat sudah diperiksa saat mendaftar
+    ket: !sasaran ? 'Semua tahap selesai' : !sy ? '' : !sy.minimal ? 'Tanpa syarat jumlah'
+      : `${sy.terhitung} dari ${sy.minimal} terkonfirmasi${sy.sejak ? ' sejak ' + tglIndo(sy.sejak) : ''}` };
+  const ke = sasaran ? seminar.indexOf(sasaran) : seminar.length;
+  L.push(...seminar.slice(0, ke), bimb, ...seminar.slice(ke));
+
+  const js = jadwal('sidang_akhir'), lulusAkhir = js?.status === 'selesai' && LULUS_TA(js.hasil);
+  L.push({ kode: 'revisi', label: 'Revisi sidang akhir', id: null, kembali: false,
+    selesai: lulusAkhir && (js.hasil === 'lulus' || !!js.revisi_selesai),
+    ket: !lulusAkhir ? '' : js.hasil === 'lulus' ? 'Tanpa revisi' : js.revisi_selesai ? `Selesai ${tglIndo(js.revisi_selesai)}`
+      : `Batas ${js.batas_revisi ? tglIndo(js.batas_revisi) : '(belum ditetapkan)'}` });
+  L.push({ kode: 'siup', label: 'Nilai di SIUP', id: null, kembali: false, selesai: !!js?.siup_diunggah,
+    ket: js?.siup_diunggah ? tglIndo(js.siup_diunggah) : lulusAkhir ? 'Menunggu nilai diunggah ke SIUP' : '' });
+
+  let kini = false;
+  return L.map(({ selesai, kembali, ada, dikirim, ...x }) => {
+    const keadaan = selesai ? 'selesai' : kini ? 'nanti' : (kini = true, kembali ? 'kembali' : 'kini');
+    return { ...x, keadaan };
+  });
+}

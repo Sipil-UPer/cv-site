@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-25-e9f81e">
+<link rel="stylesheet" href="tema.css?v=2026-11-26-09fe1d">
 <style>
   *{box-sizing:border-box}
   /* Daftar per kelompok (154, pemilik 2026-11-22) */
@@ -74,7 +74,7 @@
   .masuk{max-width:420px;margin:40px auto;background:#fff;border:1px solid var(--line);padding:20px}
   .masuk input{width:100%;padding:8px 10px;margin:8px 0;font:inherit}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-25-e9f81e">
+<link rel="stylesheet" href="kepala.css?v=2026-11-26-09fe1d">
 </head>
 <body>
 
@@ -88,7 +88,7 @@
 
 <main class="wrap" id="isi"></main>
 
-<script src="config.js?v=2026-11-25-e9f81e"></script>
+<script src="config.js?v=2026-11-26-09fe1d"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -105,14 +105,14 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { pasangMenu, hanyaBaca } from './menu.js?v=2026-11-25-e9f81e';
-import { dosenLogin } from './dosen-login.js?v=2026-11-25-e9f81e';
-import { htmlSaran } from './saran-bukti.js?v=2026-11-25-e9f81e';
-import { unduhCV } from './cv-dosen.js?v=2026-11-25-e9f81e';
+import { pasangMenu, hanyaBaca } from './menu.js?v=2026-11-26-09fe1d';
+import { dosenLogin } from './dosen-login.js?v=2026-11-26-09fe1d';
+import { htmlSaran } from './saran-bukti.js?v=2026-11-26-09fe1d';
+import { unduhCV } from './cv-dosen.js?v=2026-11-26-09fe1d';
 import { KOLOM_PROFIL, KATEGORI, JABATAN,
-  formLKPS, bacaFormLKPS, pasangEditor } from './profil-dosen.js?v=2026-11-25-e9f81e';
-import { hitungVerifikasi } from './verifikasi-hitung.js?v=2026-11-25-e9f81e';
-import { KELOMPOK as KELOMPOK_LABEL, URUT_KELOMPOK, kelompokDosen, ampuPerTA, statusTS, hitungTS, catatTB, tbLewat } from './dosen-hitung.js?v=2026-11-25-e9f81e';
+  formLKPS, bacaFormLKPS, pasangEditor } from './profil-dosen.js?v=2026-11-26-09fe1d';
+import { hitungVerifikasi } from './verifikasi-hitung.js?v=2026-11-26-09fe1d';
+import { KELOMPOK as KELOMPOK_LABEL, URUT_KELOMPOK, kelompokDosen, ampuPerTA, statusTS, hitungTS, catatTB, tbLewat } from './dosen-hitung.js?v=2026-11-26-09fe1d';
 
 /* =====================================================================
    KELOLA DOSEN — daftar dosen prodi diisi admin di situs (keputusan

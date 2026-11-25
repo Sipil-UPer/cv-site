@@ -408,6 +408,21 @@ function pmRpc(nama, a){
   const jd = (DB.jadwal_ta || []).find(j => j.pengajuan_id === p.id);
   const tetapTA = PM().filter(o => o.nim === p.nim && o.jenis === 'ta' && o.data?.tahap_ta === 'penetapan_pembimbing' && o.status === 'disetujui').at(-1);
   const nmD = id => (DB.dosen || []).find(d => d.id === id)?.nama || null;
+  // 182: kemajuan TA dan pindah pengajuan, tiruan. mhs_tautan_lain memberi token pengajuan tujuan sendiri (situs coba
+  // tidak memakai kunci tambahan); syaratnya sama dengan SQL: NIM sama.
+  if (nama === 'mhs_kemajuan_ta') return { data: {
+    pengajuan: PM().filter(o => o.nim === p.nim).map(o => ({ id: o.id, jenis: o.jenis, tahap_ta: o.data?.tahap_ta || null, status: o.status,
+      judul: o.data?.judul || o.data?.instansi || o.data?.nama_kegiatan || '', dibuat: o.dibuat, diperbarui: o.diperbarui }))
+      .sort((x, y) => String(y.dibuat).localeCompare(String(x.dibuat))),
+    jadwal: (DB.jadwal_ta || []).filter(j => j.nim === p.nim && j.status !== 'batal')
+      .sort((x, y) => String(x.tanggal).localeCompare(String(y.tanggal)) || x.id - y.id)
+      .map(j => ({ tahap: j.tahap, tanggal: j.tanggal, status: j.status, hasil: j.hasil || null, batas_revisi: j.batas_revisi || null,
+        revisi_selesai: j.revisi_selesai || null, ba_ditetapkan: j.ba_ditetapkan || null, siup_diunggah: j.siup_diunggah || null, pengajuan_id: j.pengajuan_id || null })),
+    syarat: ['seminar_proposal', 'seminar_kemajuan', 'sidang_akhir'].map(t => pmSyaratBimb(p.nim, t)) }, error: null };
+  if (nama === 'mhs_tautan_lain') {
+    const o = PM().find(x => x.id === a.p_id && x.nim === p.nim);
+    return o ? { data: o.token, error: null } : pmGagal('Pengajuan tidak ditemukan.');
+  }
   if (nama === 'mhs_lihat') return { data: { ...p, token: undefined, tahap, data_selesai: p.data_selesai || {},
     penetapan_ta: tetapTA ? { id: tetapTA.id, kk_ta: tetapTA.data.kk_ta, judul: tetapTA.data.judul, pembimbing: nmD(tetapTA.pembimbing_id),
       pembimbing_2: nmD(tetapTA.data.pembimbing_2) } : null,
@@ -415,7 +430,7 @@ function pmRpc(nama, a){
     jadwal: jd ? { ...jd, penguji: (jd.penguji || []).map(n => (DB.dosen || []).find(d => d.nidn === n)?.nama || n) } : null,
     boleh_ubah: ['draf', 'dikembalikan'].includes(p.status) || (p.jenis === 'kp' && tahap === 'pengajuan' && p.status === 'disetujui'), jendela_selesai: jendela,
     lain: PM().filter(o => o.nim === p.nim && o.id !== p.id).map(o => ({ id: o.id, jenis: o.jenis, status: o.status, tahap: o.tahap || 'pengajuan',
-      judul: o.data?.instansi || o.data?.nama_kegiatan || '' })), pembimbing: (DB.dosen || []).find(d => d.id === p.pembimbing_id)?.nama,
+      judul: o.data?.instansi || o.data?.nama_kegiatan || o.data?.judul || '' })), pembimbing: (DB.dosen || []).find(d => d.id === p.pembimbing_id)?.nama,
     berkas: (DB.pengajuan_berkas || []).filter(b => b.pengajuan_id === p.id).map(b => ({ ...b, oleh: b.oleh === 'mahasiswa' ? 'mahasiswa' : 'prodi' })),
     riwayat: (DB.pengajuan_riwayat || []).filter(r => r.pengajuan_id === p.id) }, error: null };
   // 161: batalkan pengajuan oleh mahasiswa, tiruan (sama dengan mhs_batal).

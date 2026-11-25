@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-25-e9f81e">
+<link rel="stylesheet" href="tema.css?v=2026-11-26-09fe1d">
 <style>
   /* Pengajuan mahasiswa, publik tanpa masuk akun (pemilik 2026-11-17; patch 90). Warna dari tema.css. */
   *{box-sizing:border-box}
@@ -78,6 +78,7 @@
   .jalur li.kembali{border-top-color:var(--emas)} .jalur li.tolak{border-top-color:var(--merah)} .jalur li.batal{border-top-color:var(--muted)}
   .jalur .tanda{font-family:var(--mono);font-size:11px;text-transform:uppercase;color:var(--muted)}
   .jalur .cat{margin-top:4px;white-space:pre-line;color:var(--ink)}
+  .jalur.kemajuan .b.kecil{margin-top:4px}
   .status{font-weight:600}
   h3.sub-h{font-size:14px;font-weight:600;color:var(--muted);margin:14px 0 0;text-transform:uppercase;letter-spacing:.04em}
   .daftar{list-style:none;margin:6px 0 0;padding:0;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--panel)}
@@ -111,7 +112,7 @@
   <h1>Pengajuan KP, seminar/sidang TA, lomba, publikasi/luaran, kabar kegiatan, surat, dan yudisium</h1><div class="prodi" id="hProdi"></div>
 </div></div>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-25-e9f81e"></script>
+<script src="config.js?v=2026-11-26-09fe1d"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -127,7 +128,7 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 // Kepala dan kaki bersama situs umum (pemilik 2026-11-19, tahap 2).
-import { pasangKerangka } from './kerangka.js?v=2026-11-25-e9f81e';
+import { pasangKerangka } from './kerangka.js?v=2026-11-26-09fe1d';
 pasangKerangka({ aktif: 'mahasiswa', muat: true });
 // Mahasiswa tidak login (pemilik 2026-11-17). Tanpa token: formulir baru dan minta tautan lagi; Apps Script
 // membuat pengajuan dan mengirim tautan pribadi ke <NIM>@<domain kampus>. Dengan #t=<token> (dari email):
@@ -137,7 +138,7 @@ pasangKerangka({ aktif: 'mahasiswa', muat: true });
 // tidak ada permintaan ke Supabase atau Google. Tanpa ?latihan: Supabase sungguhan seperti biasa.
 const LATIHAN = new URLSearchParams(location.search).has('latihan');
 if (LATIHAN) { window.LATIHAN = true; window.UPLOAD_URL = 'https://script.google.com/macros/s/latihan/exec'; }
-const { createClient } = LATIHAN ? await import('./latihan/mock-sb.js?v=2026-11-25-e9f81e')
+const { createClient } = LATIHAN ? await import('./latihan/mock-sb.js?v=2026-11-26-09fe1d')
   : await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm');
 if (LATIHAN) pasangLatihan();
 // Pita MODE LATIHAN, mulai ulang, dan tautan ke pengajuan.html tetap membawa ?latihan=1.
@@ -164,10 +165,10 @@ function pasangLatihan(){
 import { JENIS, LABEL_BERKAS, LABEL_STATUS, TINGKAT, BIDANG, jalur, bolehUbah, bacaAnggota, teksAnggota,
          periksaIsian, judulPengajuan, keB64, bukaIsi, appsScript, labelStatus, jalurTahap, BERKAS_SELESAI, PROGRAM_KP, labelProgram,
          periksaSelesai, bolehBatalMhs, JENIS_SURAT, TAHAP_TA, TAHAP_TA_AJU, TAHAP_PEMBIMBING_TA, penetapanTA, pembimbingCocok, JENIS_PUB, TINGKAT_PUB, INDEKSASI, JENIS_LUARAN,
-         BERKAS_YUDISIUM_BAWAAN, kelengkapanYudisium, labelBerkas, JENIS_KEGIATAN, BERKAS_TA_BAWAAN, berkasTahapTA, TAHAP_TA_BERKAS } from './pengajuan-mhs.js?v=2026-11-25-e9f81e';
-import { saranInstansi } from './rekap-kp.js?v=2026-11-25-e9f81e';
-import { CONTOH_PENGAJUAN, contohPengajuan } from './pengajuan-contoh.js?v=2026-11-25-e9f81e';
-import { HARI_OTOMATIS, CARA_BIMBINGAN, labelCara, statusBimbingan, periksaBimbingan, teksSyarat } from './bimbingan-ta.js?v=2026-11-25-e9f81e';
+         BERKAS_YUDISIUM_BAWAAN, kelengkapanYudisium, labelBerkas, JENIS_KEGIATAN, BERKAS_TA_BAWAAN, berkasTahapTA, TAHAP_TA_BERKAS, kemajuanTA } from './pengajuan-mhs.js?v=2026-11-26-09fe1d';
+import { saranInstansi } from './rekap-kp.js?v=2026-11-26-09fe1d';
+import { CONTOH_PENGAJUAN, contohPengajuan } from './pengajuan-contoh.js?v=2026-11-26-09fe1d';
+import { HARI_OTOMATIS, CARA_BIMBINGAN, labelCara, statusBimbingan, periksaBimbingan, teksSyarat } from './bimbingan-ta.js?v=2026-11-26-09fe1d';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
@@ -549,6 +550,31 @@ async function muat(){
   if (error) throw new Error(error.message);
   P = data;
   await muatBimbingan();   // 175
+  await muatKemajuan();    // 182
+}
+
+// Kemajuan TA dan pindah pengajuan (182, pemilik 2026-11-26): KEM = hasil mhs_kemajuan_ta(token); null = patch 182 belum
+// ada, pratinjau admin, atau contoh. Tanpa KEM: panel tidak tampil dan daftar "Semua pengajuan Anda" tidak bisa dibuka.
+let KEM = null;
+async function muatKemajuan(){
+  KEM = null;
+  if (!TOKEN) return;
+  try { const { data, error } = await sb.rpc('mhs_kemajuan_ta', { p_token: TOKEN }); if (!error && data) KEM = data; } catch (e) { /* tanpa 182 */ }
+}
+function htmlKemajuan(){
+  const xs = kemajuanTA(KEM);
+  return `<h3 class="sub-h" id="kemajuan-ta">Kemajuan TA Anda</h3>
+    <ol class="jalur kemajuan" aria-label="Kemajuan TA">${xs.map(t => `<li class="${t.keadaan}">
+      <span class="tanda">${{ selesai: 'selesai', kini: 'sekarang', nanti: 'berikutnya', kembali: 'perlu diperbaiki' }[t.keadaan]}</span>
+      <b>${esc(t.label)}</b>${t.ket ? `<div class="meta ket">${esc(t.ket)}</div>` : ''}
+      ${t.id && t.id !== P.id ? `<button type="button" class="b kecil" data-pindah="${t.id}">Buka</button>` : t.id === P.id ? '<div class="meta ket">sedang dibuka</div>' : ''}</li>`).join('')}</ol>`;
+}
+// Buka pengajuan lain dengan NIM yang sama dari tautan ini: kunci pembuka baru, lalu muat ulang dengan #t=<kunci>.
+async function pindah(id, tombol){
+  tombol.disabled = true;
+  const { data, error } = await sb.rpc('mhs_tautan_lain', { p_token: TOKEN, p_id: id });
+  if (error || !data) { tombol.disabled = false; alert(error?.message || 'Pengajuan tidak bisa dibuka.'); return; }
+  location.hash = 't=' + encodeURIComponent(data); location.reload();
 }
 
 // Catatan bimbingan TA (175, pemilik 2026-11-25): mahasiswa mencatat tiap bimbingan; pembimbing mengonfirmasi atau
@@ -736,14 +762,17 @@ function halamanSaya(){
     [ds.pembimbing_lapangan, ds.jabatan_lapangan].filter(Boolean).join(', ')], ['Kontak', ds.kontak_lapangan], ['Bagian/proyek', ds.divisi],
     ['Ringkasan', ds.ringkasan]];
   const pengantar = p.berkas.filter(b => b.jenis === 'surat_pengantar' || b.jenis === 'surat_jadi');
-  const semua = [{ id: p.id, jenis: p.jenis, status: p.status, tahap: p.tahap, judul: judulPengajuan(p), ini: true }, ...(p.lain || [])];
+  const tahapTA = new Map((KEM?.pengajuan || []).map(x => [x.id, x.tahap_ta]));   // 182: pengajuan pembimbing vs seminar
+  const semua = [{ id: p.id, jenis: p.jenis, status: p.status, tahap: p.tahap, judul: judulPengajuan(p), data: p.data, ini: true },
+    ...(p.lain || []).map(x => ({ ...x, data: { tahap_ta: tahapTA.get(x.id) } }))];
   $('isi').innerHTML = `
     <p class="ket">Halaman ini terbuka dengan tautan pribadi dari email kampus Anda. Jangan bagikan alamatnya.</p>
     <h2>${esc(J.label)}${p.jenis === 'yudisium' ? (d.judul ? ': ' + esc(d.judul) : '') : ': ' + esc(judulPengajuan(p))}</h2>
     <div>Status: <span class="status">${esc(labelStatus(p))}</span> · ${esc(p.nama)} (${esc(p.nim)})
       ${J.tanpaPembimbing ? '' : (p.jenis === 'kabar' ? '· dosen pendamping ' : '· pembimbing ') + esc([p.pembimbing, p.pembimbing_2].filter(Boolean).join(', ') || '—')}</div>
+    ${p.jenis === 'ta' && KEM ? htmlKemajuan() : ''}
     ${sus === 'selesai' ? '<p class="ket">KP dilaporkan setelah selesai: tahap pengajuan dan surat pengantar dilewati.</p>'
-      : `${p.jenis === 'kp' ? '<h3 class="sub-h">Pengajuan KP</h3>' : ''}${htmlJalur(jalurTahap(p, 'pengajuan'))}`}
+      : `${p.jenis === 'kp' ? '<h3 class="sub-h">Pengajuan KP</h3>' : p.jenis === 'ta' && KEM ? '<h3 class="sub-h">Proses pendaftaran ini</h3>' : ''}${htmlJalur(jalurTahap(p, 'pengajuan'))}`}
     ${adaSelesai && (bukaSelesai || p.tahap === 'selesai') ? `<h3 class="sub-h">Pelaporan selesai KP</h3>${htmlJalur(jalurTahap(p, 'selesai'))}` : ''}
     ${p.jenis === 'ta' && !penetapanTA(p) && p.penetapan_ta ? `<div class="kotak"><b>Pembimbing TA Anda (ditetapkan koordinator TA):</b>
       ${esc([p.penetapan_ta.pembimbing, p.penetapan_ta.pembimbing_2].filter(Boolean).join(', '))}.
@@ -812,12 +841,15 @@ function halamanSaya(){
       <div class="fld"><label for="b_alasan">Alasan (opsional)</label><input id="b_alasan" maxlength="300" placeholder="mis. salah memilih jalur KP"></div>
       <p><button type="button" class="b awas" id="b_batal">Ya, batalkan pengajuan</button><span class="msg" id="m_batal" role="status"></span></p></details>` : ''}
     <h2>Semua pengajuan Anda</h2>
-    <p class="ket">Semua pengajuan dengan NIM ${esc(p.nim)}. Tiap pengajuan dibuka dengan tautannya sendiri dari email;
-      tautan hilang? <a href="pengajuan.html">Minta tautan baru</a> untuk semuanya sekaligus.</p>
-    <ul class="daftar">${semua.map(x => `<li><div class="isi">${esc(JENIS[x.jenis]?.singkat || x.jenis)}: ${esc(x.judul || '—')}
-      <div class="meta">${esc(labelStatus(x))}${x.ini ? ' · sedang dibuka' : ''}</div></div></li>`).join('')}</ul>
+    <p class="ket">Semua pengajuan dengan NIM ${esc(p.nim)}. ${KEM ? 'Tekan <b>Buka</b> untuk membuka pengajuan lain dari halaman ini.'
+      : 'Tiap pengajuan dibuka dengan tautannya sendiri dari email.'} Tautan hilang? <a href="pengajuan.html">Minta tautan baru</a> untuk semuanya sekaligus.</p>
+    <ul class="daftar">${semua.map(x => `<li><div class="isi">${esc(x.jenis === 'ta' && x.data?.tahap_ta === TAHAP_PEMBIMBING_TA ? 'Pembimbing TA'
+        : x.jenis === 'ta' && x.data?.tahap_ta ? (TAHAP_TA.find(t => t[0] === x.data.tahap_ta) || [, 'TA'])[1] : JENIS[x.jenis]?.singkat || x.jenis)}: ${esc(x.judul || '—')}
+      <div class="meta">${esc(labelStatus(x))}${x.ini ? ' · sedang dibuka' : ''}</div></div>
+      ${KEM && !x.ini ? `<button type="button" class="b kecil" data-pindah="${x.id}">Buka</button>` : ''}</li>`).join('')}</ul>
     <p class="ket"><a href="pengajuan.html">Buat pengajuan baru</a> (tautannya dikirim ke email kampus).</p>`;
   document.querySelectorAll('[data-buka]').forEach(b => { b.onclick = () => buka(+b.dataset.buka, b); });
+  document.querySelectorAll('[data-pindah]').forEach(b => { b.onclick = () => pindah(+b.dataset.pindah, b); });
   document.querySelectorAll('[data-buang]').forEach(b => { b.onclick = () => buang(+b.dataset.buang, b); });
   if (ubah) $('b_unggah').onclick = unggah;
   if (ubah && $('b_tautan')) $('b_tautan').onclick = tempelTautan;
