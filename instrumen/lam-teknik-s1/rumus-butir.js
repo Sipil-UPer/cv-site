@@ -608,12 +608,31 @@ function butir45(){
   if (k){
     const fr = k.lulus_3_5_sd_4_5 / k.masuk;
     const skor = fr >= 0.5 ? 4 : fr > 0 ? 1 + 6 * fr : 0;
+    // Pemilik 2026-11-26: selama TS belum berakhir, angkatan baris TS-3 belum mencapai 4 tahun (lulus tepat waktunya
+    // baru di akhir TS), jadi PTW bisa rendah atau 0. Skor tetap rumus instrumen; kartu menjelaskan dan memberi
+    // pembanding angkatan sebelumnya (baris TS-3 pada TS sebelumnya), yang tidak dipakai untuk skor.
+    const hari = typeof h.hariIni === 'function' ? h.hariIni() : new Date(Date.now() + 7 * 3600e3).toISOString().slice(0, 10);
+    const akhirTS = `${TS}-08-31`;
+    let catatTS = '';
+    if (hari < akhirTS) {
+      const sb = kohort6d().find(x => x.tahun_masuk === thm - 1 && x.masuk > 0)
+        || (((D.akreditasi || {}).kohort) || []).find(x => x.tahun_masuk === thm - 1 && x.masuk > 0);
+      const frSb = sb ? sb.lulus_3_5_sd_4_5 / sb.masuk : null;
+      const skorSb = frSb == null ? null : frSb >= 0.5 ? 4 : frSb > 0 ? 1 + 6 * frSb : 0;
+      catatTS = `<div class="rumus"><b>TS ${esc(taDari(TS))} belum berakhir</b> (sampai ${esc(akhirTS)}): angkatan ${thm}
+        baru mencapai masa studi normal 4 tahun pada akhir TS ini, sehingga lulusan tepat waktunya umumnya baru tercatat
+        setelah yudisium akhir TS. Lulusan tepat waktu yang sudah tercatat: ${k.lulus_3_5_sd_4_5} dari ${k.masuk}.
+        Skor di atas mengikuti rumus instrumen dan akan naik setelah data yudisium akhir TS masuk.`
+        + (sb ? `<br>Pembanding (tidak dipakai untuk skor): angkatan ${sb.tahun_masuk}, `
+          + `baris TS-3 pada TS ${esc(taDari(TS - 1))}: ${sb.lulus_3_5_sd_4_5}/${sb.masuk} = ${f2(frSb * 100)}% → skor ${f2(skorSb)}.` : '')
+        + `</div>`;
+    }
     const isi = `
       <div class="gulir"><table class="rin"><thead><tr><th>Angkatan (baris TS-3)</th>
         <th>Masuk (a)</th><th>Lulus 3,5 &lt; MS ≤ 4,5 (b)</th></tr></thead><tbody>
         <tr><td>${k.tahun_masuk}</td><td>${k.masuk}</td><td>${k.lulus_3_5_sd_4_5}</td></tr>
       </tbody></table></div>
-      <div class="rumus">PTW = (b/a) × 100% = ${f2(fr * 100)}% · ≥ 50% → 4 · 0 &lt; PTW &lt; 50% → 1 + (6 × PTW) · 0 → 0</div>`;
+      <div class="rumus">PTW = (b/a) × 100% = ${f2(fr * 100)}% · ≥ 50% → 4 · 0 &lt; PTW &lt; 50% → 1 + (6 × PTW) · 0 → 0</div>${catatTS}`;
     return kartuButir(45, 'Kelulusan tepat waktu (Tabel 6.d LKPS)', isi, skor,
       'a dan b mengikuti penanda (a)(b) Tabel 6.d pada kohort baris TS-3 ' +
       `(angkatan masuk ${thm}). Rumus instrumen tidak mendefinisikan a dan b; ` +

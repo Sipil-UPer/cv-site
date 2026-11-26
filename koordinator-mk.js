@@ -7,7 +7,7 @@
 //     dipakai sebagai satu koordinator prodi (boleh kosong, lalu admin). Pemilik 2026-11-26: koordinator prodi meminta silabus
 //     dan RPS resmi dari universitas/fakultas dan melengkapi portofolio tingkat MK (sebelumnya "PIC prodi", hanya RPS).
 //     Dosen prodi yang mengajar kelasnya dicatat di Penyusunan kelas (nilai CPL dan portofolio kelas dari sana).
-import { kelompokDosen } from './dosen-hitung.js?v=2026-11-26-f69430';
+import { kelompokDosen } from './dosen-hitung.js?v=2026-11-26-902945';
 
 export const LABEL_STATUS = { draf: 'draf', diajukan: 'diajukan', dikembalikan: 'dikembalikan', disahkan: 'disahkan',
   ditetapkan: 'ditetapkan', ada: 'ada', belum: 'belum' };
