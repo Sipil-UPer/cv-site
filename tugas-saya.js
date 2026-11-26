@@ -1,18 +1,18 @@
 // "Tugas saya" di Ruang kerja (pemilik 2026-11-12): hal yang menunggu tindakan dosen yang
 // sedang masuk, dari data yang sudah boleh ia baca (RLS). Aturan tenggat sama dengan halaman
 // Pengingat: rapat.js, hibah.js, temuan-ami.js, pengingat-dosen.js.
-import { kurangProfil } from './pengingat-dosen.js?v=2026-11-26-b79e4c';
-import { tindakTerbuka, tglID } from './rapat.js?v=2026-11-26-b79e4c';
-import { tenggatBerikut, teksHari, HARI_LEWAT } from './hibah.js?v=2026-11-26-b79e4c';
-import { hariKeTenggat, labelStatus, HARI_DEKAT } from './temuan-ami.js?v=2026-11-26-b79e4c';
-import { tugasEvaluasi } from './evaluasi-pembelajaran.js?v=2026-11-26-b79e4c';
-import { bolehPengajuan } from './koordinator.js?v=2026-11-26-b79e4c';
-import { tenggatReview, hariKe, teksHari as teksHariRv, tugasTenggatRps, tugasTetapDekan, tanggalPanjang as tglRv } from './pengingat-rps.js?v=2026-11-26-b79e4c';
-import { tugasInsentif } from './insentif.js?v=2026-11-26-b79e4c';
-import { tugasMK } from './tugas-mk.js?v=2026-11-26-b79e4c';
-import { tugasPerwalian } from './perwalian.js?v=2026-11-26-b79e4c';
-import { halamanAktif } from './fitur.js?v=2026-11-26-b79e4c';
-import { masaBerlaku, tanggalPanjang as tglSrt } from './profil-dosen.js?v=2026-11-26-b79e4c';
+import { kurangProfil } from './pengingat-dosen.js?v=2026-11-26-65b325';
+import { tindakTerbuka, tglID } from './rapat.js?v=2026-11-26-65b325';
+import { tenggatBerikut, teksHari, HARI_LEWAT } from './hibah.js?v=2026-11-26-65b325';
+import { hariKeTenggat, labelStatus, HARI_DEKAT } from './temuan-ami.js?v=2026-11-26-65b325';
+import { tugasEvaluasi } from './evaluasi-pembelajaran.js?v=2026-11-26-65b325';
+import { bolehPengajuan } from './koordinator.js?v=2026-11-26-65b325';
+import { tenggatReview, hariKe, teksHari as teksHariRv, tugasTenggatRps, tugasTetapDekan, tanggalPanjang as tglRv } from './pengingat-rps.js?v=2026-11-26-65b325';
+import { tugasInsentif } from './insentif.js?v=2026-11-26-65b325';
+import { tugasMK } from './tugas-mk.js?v=2026-11-26-65b325';
+import { tugasPerwalian } from './perwalian.js?v=2026-11-26-65b325';
+import { halamanAktif } from './fitur.js?v=2026-11-26-65b325';
+import { masaBerlaku, tanggalPanjang as tglSrt } from './profil-dosen.js?v=2026-11-26-65b325';
 
 // Sertifikat dengan masa berlaku (pemilik 2026-11-24): diingatkan sejak 90 hari sebelum habis, dan terus setelah lewat.
 export const HARI_SERTIFIKAT = 90;
@@ -135,7 +135,7 @@ export function tugasSaya(d, kini = new Date()){
     kurang.map(b => `${b.label} ${b.sah} dari ${String(+b.target).replace('.', ',')}${b.menunggu ? ` (+${b.menunggu} menunggu verifikasi)` : ''}`).join('; '),
     'target.html');
 
-  // Pengajuan mahasiswa KP/lomba (90-patch-pengajuan-mahasiswa.sql): tahap pembimbing untuk pembimbingnya, tahap admin untuk admin.
+  // Pengajuan mahasiswa semua jenis (90-patch-pengajuan-mahasiswa.sql): tahap pembimbing untuk pembimbingnya, tahap admin untuk admin.
   // Umur dihitung sejak pengajuan terakhir berubah; lebih dari 7 hari = lewat (tidak ada tenggat resmi).
   // 144: kabar kegiatan tanpa dosen pendamping menunggu pembina kemahasiswaan/admin sejak tahap pertama.
   const mhs = (d.pengajuanMhs || []).filter(p => (p.status === 'pembimbing' && p.pembimbing_id === s.id)
@@ -143,8 +143,11 @@ export function tugasSaya(d, kini = new Date()){
     || (p.status === 'admin' && bolehPengajuan(s, p.jenis)));   // koordinator bidangnya (97)
   if (mhs.length) {
     const tertua = Math.min(...mhs.map(p => +new Date(p.diperbarui)));
-    tambah('pengajuan_mhs', `Periksa ${mhs.length} pengajuan mahasiswa (KP/lomba)`,
-      mhs.slice(0, 3).map(p => `${p.nama} (${p.jenis === 'kp' ? 'KP' : p.jenis === 'kabar' ? 'kabar kegiatan' : 'lomba'})`).join(', ') + (mhs.length > 3 ? ', …' : ''),
+    // Label per jenis (pemilik 2026-11-26: TA sempat tertulis "lomba"); jenis baru tanpa label tampil apa adanya.
+    const JENIS_TUGAS = { kp: 'KP', lomba: 'lomba', surat: 'surat', ta: 'TA', luaran: 'publikasi/luaran',
+                          yudisium: 'yudisium', kabar: 'kabar kegiatan' };
+    tambah('pengajuan_mhs', `Periksa ${mhs.length} pengajuan mahasiswa`,
+      mhs.slice(0, 3).map(p => `${p.nama} (${JENIS_TUGAS[p.jenis] || p.jenis})`).join(', ') + (mhs.length > 3 ? ', …' : ''),
       'pengajuan-mahasiswa.html', 7 - Math.floor((+kini - tertua) / 864e5));
   }
 

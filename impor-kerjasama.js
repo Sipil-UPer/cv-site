@@ -2,7 +2,7 @@
 // diisi admin, diunggah di Data prodi › Kerja sama, diperiksa (pratinjau dan galat per baris), lalu disimpan sekaligus ke
 // lkps_kerjasama. Aturan sama dengan formulir tab itu (data-prodi.html): mitra, jenis, tingkat wajib; tahun dari tanggal;
 // tanggal awal atau tahun mulai wajib; tanggal akhir tidak lebih awal. Logika murni, diuji di tests/js/impor_kerjasama.test.mjs.
-import { JENIS_BUKTI_KS } from './manfaat-kerjasama.js?v=2026-11-26-b79e4c';
+import { JENIS_BUKTI_KS } from './manfaat-kerjasama.js?v=2026-11-26-65b325';
 
 // Pilihan sama dengan formulir tab Kerja sama (data-prodi.html: jenis, TINGKAT_3) dan cek basis data (16-patch-data-lkps.sql).
 export const JENIS_KS = [['pendidikan', 'Pendidikan'], ['penelitian', 'Penelitian'], ['pkm', 'PkM']];

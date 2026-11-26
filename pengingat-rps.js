@@ -1,8 +1,8 @@
 // Tenggat RPS dan review (120, pemilik 2026-11-19): dipakai halaman Pengingat (admin mengirim manual), Tugas saya, dan RPS.
 // Keputusan pemilik: tenggat RPS per semester ganjil/genap = RPS sudah DIAJUKAN ke Kaprodi; tenggat review = N hari sejak
 // reviewer ditunjuk (pengaturan rps_review_hari, bawaan 14). Tanpa DOM.
-import { paritas, penyusunMK } from './rps.js?v=2026-11-26-b79e4c';
-import { tanggalPanjang } from './rps-docx.js?v=2026-11-26-b79e4c';
+import { paritas, penyusunMK } from './rps.js?v=2026-11-26-65b325';
+import { tanggalPanjang } from './rps-docx.js?v=2026-11-26-65b325';
 
 export const HARI_REVIEW_BAWAAN = 14;
 export { tanggalPanjang };
