@@ -1,11 +1,11 @@
 // Tugas saya untuk koordinator MK dan pengampu kelas (pemilik 2026-11-17; OBE O2 dan O3).
 // Hanya yang belum punya pengingat lain: CPMK/RPS (cpmk.html) dan unggahan portofolio (portofolio.html).
 // Berkas nilai CPL dan refleksi evaluasi sudah diingatkan tugas-saya.js / evaluasi-pembelajaran.js.
-import { periksaStruktur } from './templat-cpl.js?v=2026-11-26-f3ad75';
-import { cplMK, dataTemplat, statusStruktur } from './cpmk.js?v=2026-11-26-f3ad75';
-import { bolehTinjau, cariTinjauan, statusTindak, petaRps, daftarSemester as semesterTinjau, mkSemester as mkTinjau } from './tinjauan-rps.js?v=2026-11-26-f3ad75';
-import { kelengkapan, mkSemester, daftarSemester } from './portofolio.js?v=2026-11-26-f3ad75';
-import { luarProdi } from './koordinator-mk.js?v=2026-11-26-f3ad75';
+import { periksaStruktur } from './templat-cpl.js?v=2026-11-26-e38917';
+import { cplMK, dataTemplat, statusStruktur } from './cpmk.js?v=2026-11-26-e38917';
+import { bolehTinjau, cariTinjauan, statusTindak, petaRps, daftarSemester as semesterTinjau, mkSemester as mkTinjau } from './tinjauan-rps.js?v=2026-11-26-e38917';
+import { kelengkapan, mkSemester, daftarSemester } from './portofolio.js?v=2026-11-26-e38917';
+import { luarProdi } from './koordinator-mk.js?v=2026-11-26-e38917';
 
 const kecil = s => String(s || '').trim().toLowerCase();
 const potong = (xs, n = 6) => xs.slice(0, n).join('; ') + (xs.length > n ? `; dan ${xs.length - n} lagi` : '');
@@ -22,8 +22,8 @@ export function tugasMK(d){
   const mk = d.mk || [];
   const str = new Map((d.struktur || []).map(s => [`${s.kurikulum}|${s.kode_mk}`, s.data]));
   const koor = m => (m?.pengampu || []);
-  // MK universitas/fakultas (pemilik 2026-11-24): hanya PIC prodi (koordinator_nidn; tanpa kolom itu = pengampu pertama), dan
-  // hanya RPS yang diingatkan (disalin dari universitas). CPMK dan portofolio tingkat MK dari penyelenggaranya.
+  // MK universitas/fakultas (pemilik 2026-11-24): hanya koordinator prodi (koordinator_nidn; tanpa kolom itu = pengampu pertama).
+  // Diingatkan RPS (diminta dan disalin dari universitas) dan, sejak 2026-11-26, portofolio tingkat MK. CPMK dari penyelenggaranya.
   const pic = m => (m && 'koordinator_nidn' in m ? m.koordinator_nidn : koor(m)[0]) === nidn;
   const saya = m => !!nidn && (luarProdi(m) ? pic(m) : koor(m).includes(nidn));
 
@@ -66,7 +66,7 @@ export function tugasMK(d){
   const butir = [];
   for (const x of mkSemester(d.kelas, d.berkas, mk, sem.ta, sem.sm)) {
     const ref = mk.find(m => m.kurikulum === x.kurikulum && m.kode === x.kode);
-    const sayaKoor = !!nidn && !luarProdi(ref) && koor(ref).includes(nidn);
+    const sayaKoor = !!nidn && (luarProdi(ref) ? pic(ref) : koor(ref).includes(nidn));   // MK universitas: koordinator prodi
     // 137: juga kelas tempat saya anggota team teaching (Penyusunan kelas).
     const kelasSaya = x.kelas.filter(c => (email && kecil(c.dosen_email) === email) || (d.tim || []).some(k => k.tahun_akademik === sem.ta
       && k.semester === sem.sm && String(k.kode_mk).toUpperCase() === String(x.kode).toUpperCase() && k.kelas === c.kelas)).map(c => c.kelas);
@@ -77,7 +77,7 @@ export function tugasMK(d){
     const k = kelengkapan({ rps: true, cpmkLengkap: true, refleksi: true, asesmen: (s?.asesmen || []).map(a => a.nama), berkas,
       rubrikRps: d.rubrikRps?.get(`${x.kurikulum}|${x.kode}`),
       kelas: x.kelas.map(c => ({ kelas: c.kelas, nilai: true })) });
-    const nMK = !luarProdi(ref) && (sayaKoor || (!koor(ref).length && kelasSaya.length)) ? k.mk.filter(it => it.komponen && !it.ada).length : 0;
+    const nMK = (sayaKoor || (!luarProdi(ref) && !koor(ref).length && kelasSaya.length)) ? k.mk.filter(it => it.komponen && !it.ada).length : 0;
     const nKelas = k.kelas.filter(c => kelasSaya.includes(c.kelas)).map(c => [c.kelas, c.item.filter(it => it.komponen && !it.ada).length]).filter(([, n]) => n);
     if (nMK || nKelas.length) butir.push({ x, teks: `${x.kode}${[nMK ? `tingkat MK ${nMK} komponen` : '', ...nKelas.map(([kl, n]) => `kelas ${kl} ${n} komponen`)]
       .filter(Boolean).join(', ').replace(/^/, ' (')})` });

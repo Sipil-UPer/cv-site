@@ -4,9 +4,10 @@
 //   * status dokumen per MK: silabus (mk_silabus.status), CPMK (mk_struktur ada), RPS (mk_rps.status, ditetapkan bila
 //     tetap_pada terisi);
 //   * MK universitas/fakultas (unit_penyelenggara, pemilik 2026-11-24): tanpa koordinator dan tim prodi; koordinator_nidn
-//     dipakai sebagai satu PIC prodi (boleh kosong, lalu admin) yang menyalin silabus dan RPS resmi universitas/fakultas.
+//     dipakai sebagai satu koordinator prodi (boleh kosong, lalu admin). Pemilik 2026-11-26: koordinator prodi meminta silabus
+//     dan RPS resmi dari universitas/fakultas dan melengkapi portofolio tingkat MK (sebelumnya "PIC prodi", hanya RPS).
 //     Dosen prodi yang mengajar kelasnya dicatat di Penyusunan kelas (nilai CPL dan portofolio kelas dari sana).
-import { kelompokDosen } from './dosen-hitung.js?v=2026-11-26-f3ad75';
+import { kelompokDosen } from './dosen-hitung.js?v=2026-11-26-e38917';
 
 export const LABEL_STATUS = { draf: 'draf', diajukan: 'diajukan', dikembalikan: 'dikembalikan', disahkan: 'disahkan',
   ditetapkan: 'ditetapkan', ada: 'ada', belum: 'belum' };
@@ -20,6 +21,12 @@ export const luarProdi = m => ['universitas', 'fakultas'].includes(m?.unit_penye
 export function dosenPilihan(dosen = []){
   return dosen.filter(d => d.nidn && d.aktif !== false && !['staf', 'asesor'].includes(kelompokDosen(d)))
     .sort((a, b) => String(a.nama).localeCompare(String(b.nama)));
+}
+
+/** Pilihan koordinator MK dan koordinator prodi MKU (pemilik 2026-11-26): hanya DTPS aktif, bukan dosen tidak tetap,
+ *  industri, atau yang sedang tugas belajar. Tim MK tetap memakai dosenPilihan. */
+export function dosenKoordinator(dosen = []){
+  return dosenPilihan(dosen).filter(d => kelompokDosen(d) === 'dtps');
 }
 
 /** Peta status dokumen per MK: Map 'kur|kode' -> { silabus, cpmk, rps } (string status, 'belum' bila tidak ada). */

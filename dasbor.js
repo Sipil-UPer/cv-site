@@ -1,7 +1,7 @@
 // Dasbor operasional koordinator prodi (pemilik 2026-11-17, tahap 3 koordinator): per bidang, siapa penanggung jawabnya
 // (koordinator aktif) dan antrean/keterlambatan, dengan tautan ke halaman kerjanya. Dipakai dasbor.html.
-import { statusTindak, petaRps } from './tinjauan-rps.js?v=2026-11-26-f3ad75';
-import { aktifPada, labelJabatan } from './koordinator.js?v=2026-11-26-f3ad75';
+import { statusTindak, petaRps } from './tinjauan-rps.js?v=2026-11-26-e38917';
+import { aktifPada, labelJabatan } from './koordinator.js?v=2026-11-26-e38917';
 
 export const HARI_ANTRE = 7;     // pengajuan yang menunggu lebih dari ini = terlambat
 export const HARI_SK = 30;       // penugasan berakhir dalam sekian hari = perlu diperpanjang
@@ -120,8 +120,27 @@ export function lalu(waktu, kini = new Date()){
   const m = Math.max(0, Math.round((kini - new Date(waktu)) / 60000));
   return m < 60 ? `${m} menit lalu` : m < 48 * 60 ? `${Math.round(m / 60)} jam lalu` : `${Math.round(m / 1440)} hari lalu`;
 }
-export function ringkasKesehatan(x, kini = new Date()){
-  const butir = (x?.butir || []).map(b => ({ ...b, teks: LABEL_KESEHATAN[b.status] || b.status, kapan: lalu(b.waktu, kini),
-    kelas: b.status === 'baik' ? 'ok' : b.status === 'info' ? 'info' : 'awas' }));
-  return { butir, perlu: Number(x?.perlu_dicek || 0), mb: x?.basis_data_mb ?? null, ringkasan: x?.ringkasan_terakhir || null };
+// 184 (pemilik 2026-11-26): versiRepo = VERSI_APPS_SCRIPT (site/versi-apps-script.js, dari stamp_versions.py) dibandingkan
+// dengan x.apps_script_versi (KODE_VERSI yang dilaporkan Apps Script tiap jam). Beda atau belum dilaporkan pada butir yang
+// "baik": jadi "perlu dicek" dengan petunjuk tempel ulang Code.gs.
+export function versiAppsScript(dilapor, versiRepo){
+  if (!versiRepo) return null;
+  if (dilapor === versiRepo) return { cocok: true, teks: `Code.gs terbaru (versi ${versiRepo})` };
+  return { cocok: false, teks: dilapor
+    ? `Code.gs di Apps Script versi ${dilapor}, di repo ${versiRepo}: tempel ulang apps-script/Code.gs di editor Apps Script`
+    : `Apps Script belum melaporkan versi Code.gs (repo ${versiRepo}): tempel ulang apps-script/Code.gs; laporan masuk tiap jam` };
+}
+export function ringkasKesehatan(x, kini = new Date(), versiRepo = null){
+  const v = versiAppsScript(x?.apps_script_versi || null, versiRepo);
+  let tambah = 0;
+  const butir = (x?.butir || []).map(b0 => {
+    let b = b0;
+    if (b.kunci === 'apps_script' && v && b.status !== 'belum_ada') {
+      b = { ...b, rinci: [b.rinci, v.teks].filter(Boolean).join(' · ') };
+      if (!v.cocok && b.status === 'baik') { b.status = 'perlu_dicek'; tambah++; }
+    }
+    return { ...b, teks: LABEL_KESEHATAN[b.status] || b.status, kapan: lalu(b.waktu, kini),
+      kelas: b.status === 'baik' ? 'ok' : b.status === 'info' ? 'info' : 'awas' };
+  });
+  return { butir, perlu: Number(x?.perlu_dicek || 0) + tambah, mb: x?.basis_data_mb ?? null, ringkasan: x?.ringkasan_terakhir || null };
 }

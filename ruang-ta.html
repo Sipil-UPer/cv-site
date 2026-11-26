@@ -11,8 +11,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-26-f3ad75">
-<link rel="stylesheet" href="kepala.css?v=2026-11-26-f3ad75">
+<link rel="stylesheet" href="tema.css?v=2026-11-26-e38917">
+<link rel="stylesheet" href="kepala.css?v=2026-11-26-e38917">
 <style>
   /* Dasar halaman ruang kerja (sama dengan halaman lain) */
   *{box-sizing:border-box}
@@ -44,7 +44,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></div>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-26-f3ad75"></script>
+<script src="config.js?v=2026-11-26-e38917"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -62,8 +62,8 @@ addEventListener('error', function (e) {
 // Tugas Akhir (pemilik 2026-11-25: susunan situs dirapikan): satu pintu ke halaman TA menurut alur, pekerjaan yang menunggu
 // (ta_nilai_tugas 173/177/178, ta_bimbingan_menunggu 175), dan tautan untuk mahasiswa. Hanya membaca.
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-26-f3ad75';
-import { punya } from './koordinator.js?v=2026-11-26-f3ad75';
+import { gerbang } from './menu.js?v=2026-11-26-e38917';
+import { punya } from './koordinator.js?v=2026-11-26-e38917';
 
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
