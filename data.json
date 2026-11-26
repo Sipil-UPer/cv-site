@@ -8831,6 +8831,38 @@
  },
  "tracer": [
   {
+   "tahun_lulus": 2025,
+   "lulusan": 66,
+   "terlacak": 36,
+   "waktu_tunggu_bulan": 3.48,
+   "sesuai_bidang": 0,
+   "kerja_internasional": 2,
+   "kerja_nasional": 19,
+   "kerja_wilayah": 6,
+   "wt_kurang_3": 12,
+   "wt_3_18": 15,
+   "wt_lebih_18": 0,
+   "kesesuaian_rendah": 7,
+   "kesesuaian_sedang": 8,
+   "kesesuaian_tinggi": 13
+  },
+  {
+   "tahun_lulus": 2024,
+   "lulusan": 96,
+   "terlacak": 50,
+   "waktu_tunggu_bulan": 3.87,
+   "sesuai_bidang": 0,
+   "kerja_internasional": 12,
+   "kerja_nasional": 22,
+   "kerja_wilayah": 11,
+   "wt_kurang_3": 24,
+   "wt_3_18": 20,
+   "wt_lebih_18": 1,
+   "kesesuaian_rendah": 9,
+   "kesesuaian_sedang": 6,
+   "kesesuaian_tinggi": 30
+  },
+  {
    "tahun_lulus": 2023,
    "lulusan": 105,
    "terlacak": 71,
@@ -9013,6 +9045,62 @@
    }
   ],
   "kepuasan": [
+   {
+    "tahun_ts": 2026,
+    "aspek": "bahasa_asing",
+    "sangat_baik": 55.56,
+    "baik": 44.44,
+    "cukup": 0.0,
+    "kurang": 0.0
+   },
+   {
+    "tahun_ts": 2026,
+    "aspek": "etika",
+    "sangat_baik": 55.56,
+    "baik": 44.44,
+    "cukup": 0.0,
+    "kurang": 0.0
+   },
+   {
+    "tahun_ts": 2026,
+    "aspek": "keahlian_bidang_ilmu",
+    "sangat_baik": 33.33,
+    "baik": 66.67,
+    "cukup": 0.0,
+    "kurang": 0.0
+   },
+   {
+    "tahun_ts": 2026,
+    "aspek": "kerja_sama_tim",
+    "sangat_baik": 66.67,
+    "baik": 33.33,
+    "cukup": 0.0,
+    "kurang": 0.0
+   },
+   {
+    "tahun_ts": 2026,
+    "aspek": "komunikasi",
+    "sangat_baik": 44.44,
+    "baik": 44.45,
+    "cukup": 11.11,
+    "kurang": 0.0
+   },
+   {
+    "tahun_ts": 2026,
+    "aspek": "pengembangan_diri",
+    "sangat_baik": 55.56,
+    "baik": 44.44,
+    "cukup": 0.0,
+    "kurang": 0.0
+   },
+   {
+    "tahun_ts": 2026,
+    "aspek": "teknologi_informasi",
+    "sangat_baik": 33.33,
+    "baik": 66.67,
+    "cukup": 0.0,
+    "kurang": 0.0
+   },
    {
     "tahun_ts": 2025,
     "aspek": "bahasa_asing",
