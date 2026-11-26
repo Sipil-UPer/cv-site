@@ -47,6 +47,12 @@ export function sedangTB(d, ta = null, hari = null){
   return mulai <= akhir && (!selesai || selesai >= awal);
 }
 
+/**
+ * Calon pembimbing/penguji TA dan dosen wali (pemilik 2026-11-26): DTPS atau berperan dosen (staf admin dan pimpinan yang
+ * bukan DTPS tidak), dan tidak sedang tugas belajar hari ini. Status aktif diperiksa halaman (Data prodi mencatat riwayat).
+ */
+export const calonTA = (d, hari = null) => !!d?.nidn && (ya(d.dtps) || d.peran === 'dosen') && !sedangTB(d, null, hari);
+
 /** Masa tugas belajar sudah lewat (selesai < hari ini) tetapi keterangan masih terisi: admin perlu mengosongkannya. */
 export const tbLewat = (d, hari = null) => catatTB(d) && !!d.tugas_belajar_selesai && String(d.tugas_belajar_selesai).slice(0, 10) < (hari || tglKini());
 

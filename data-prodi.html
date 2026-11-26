@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-26-6d9dac">
+<link rel="stylesheet" href="tema.css?v=2026-11-26-ad8d34">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
@@ -104,7 +104,7 @@
   .masuk{max-width:420px;margin:40px auto;background:#fff;border:1px solid var(--line);padding:20px}
   .masuk input{width:100%;padding:8px 10px;margin:8px 0;font:inherit}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-26-6d9dac">
+<link rel="stylesheet" href="kepala.css?v=2026-11-26-ad8d34">
 </head>
 <body>
 
@@ -118,7 +118,7 @@
 
 <main class="wrap" id="isi"></main>
 
-<script src="config.js?v=2026-11-26-6d9dac"></script>
+<script src="config.js?v=2026-11-26-ad8d34"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -135,31 +135,32 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { buangBerkas, buangSemua, PESAN_SAMPAH, fotoPrestasiPublik, PERINGATAN_FOTO } from './hapus-berkas.js?v=2026-11-26-6d9dac';
-import { pasangMenu } from './menu.js?v=2026-11-26-6d9dac';
-import { LKPS } from './dokumen-instrumen.js?v=2026-11-26-6d9dac';
-import { POS_A5, labelPos } from './keuangan-a5.js?v=2026-11-26-6d9dac';
-import { dosenLogin } from './dosen-login.js?v=2026-11-26-6d9dac';
-import { aktifPada, tabBoleh, labelJabatan, labelPeran } from './koordinator.js?v=2026-11-26-6d9dac';
-import { unggahKePustaka, opsiPustaka, opsiJenis, labelDokumen, cariDokumen } from './pustaka-dokumen.js?v=2026-11-26-6d9dac';
-import { pasangRapikan } from './rapikan-berkas.js?v=2026-11-26-6d9dac';
-import { UNSUR, skorUnsur, pihakUnsur } from './unsur-butir.js?v=2026-11-26-6d9dac';
-import { OPSI_SUMBER } from './iku-otomatis.js?v=2026-11-26-6d9dac';
-import { denganOtomatis as otomatisDari, tsTersedia, tsAwal, htmlCapaianIKU, KET_CAPAIAN, muatTambahan, denganTambahan } from './capaian-iku.js?v=2026-11-26-6d9dac';
-import { KATEGORI_TEMUAN, STATUS_TEMUAN, PIHAK_TEMUAN, ringkasTemuan, htmlRingkasTemuan } from './temuan-ami.js?v=2026-11-26-6d9dac';
-import { bacaRekapSPM, rencanaImporSPM, tsDariTanggal, labelTS, ringkasLembar, picProdi } from './standar-spmi.js?v=2026-11-26-6d9dac';
-import { SHEETJS } from './nilai-cpl.js?v=2026-11-26-6d9dac';
-import { bacaKerjasama, rencanaImporKS, LEMBAR_KS } from './impor-kerjasama.js?v=2026-11-26-6d9dac';
-import { bacaCSV, normKur, normCpl, KOLOM_IMPOR, CONTOH_IMPOR, rencanaImpor, sebaranCPL, htmlSebaran } from './kurikulum-cpl.js?v=2026-11-26-6d9dac';
-import { htmlContoh, pasangContoh, JENIS_BUKTI_KS } from './manfaat-kerjasama.js?v=2026-11-26-6d9dac';
-import { infoJenis } from './rencana-bukti.js?v=2026-11-26-6d9dac';
-import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-26-6d9dac';
-import { BOBOT } from './bobot.js?v=2026-11-26-6d9dac';
-import { nomorButir, htmlTautanButir } from './tautan-butir.js?v=2026-11-26-6d9dac';
-import { htmlSaran } from './saran-bukti.js?v=2026-11-26-6d9dac';
-import { tautanBerkas, privatkanLama, adalahPrivat } from './tautan-privat.js?v=2026-11-26-6d9dac';
-import { unggahLKD, buangLKD, bukaLKD, pendidikanTotal, pendidikanPS } from './bkd.js?v=2026-11-26-6d9dac';
-import { teksPelaksanaan } from './rekap-kp.js?v=2026-11-26-6d9dac';
+import { buangBerkas, buangSemua, PESAN_SAMPAH, fotoPrestasiPublik, PERINGATAN_FOTO } from './hapus-berkas.js?v=2026-11-26-ad8d34';
+import { pasangMenu } from './menu.js?v=2026-11-26-ad8d34';
+import { LKPS } from './dokumen-instrumen.js?v=2026-11-26-ad8d34';
+import { POS_A5, labelPos } from './keuangan-a5.js?v=2026-11-26-ad8d34';
+import { dosenLogin } from './dosen-login.js?v=2026-11-26-ad8d34';
+import { calonTA } from './dosen-hitung.js?v=2026-11-26-ad8d34';
+import { aktifPada, tabBoleh, labelJabatan, labelPeran } from './koordinator.js?v=2026-11-26-ad8d34';
+import { unggahKePustaka, opsiPustaka, opsiJenis, labelDokumen, cariDokumen } from './pustaka-dokumen.js?v=2026-11-26-ad8d34';
+import { pasangRapikan } from './rapikan-berkas.js?v=2026-11-26-ad8d34';
+import { UNSUR, skorUnsur, pihakUnsur } from './unsur-butir.js?v=2026-11-26-ad8d34';
+import { OPSI_SUMBER } from './iku-otomatis.js?v=2026-11-26-ad8d34';
+import { denganOtomatis as otomatisDari, tsTersedia, tsAwal, htmlCapaianIKU, KET_CAPAIAN, muatTambahan, denganTambahan } from './capaian-iku.js?v=2026-11-26-ad8d34';
+import { KATEGORI_TEMUAN, STATUS_TEMUAN, PIHAK_TEMUAN, ringkasTemuan, htmlRingkasTemuan } from './temuan-ami.js?v=2026-11-26-ad8d34';
+import { bacaRekapSPM, rencanaImporSPM, tsDariTanggal, labelTS, ringkasLembar, picProdi } from './standar-spmi.js?v=2026-11-26-ad8d34';
+import { SHEETJS } from './nilai-cpl.js?v=2026-11-26-ad8d34';
+import { bacaKerjasama, rencanaImporKS, LEMBAR_KS } from './impor-kerjasama.js?v=2026-11-26-ad8d34';
+import { bacaCSV, normKur, normCpl, KOLOM_IMPOR, CONTOH_IMPOR, rencanaImpor, sebaranCPL, htmlSebaran } from './kurikulum-cpl.js?v=2026-11-26-ad8d34';
+import { htmlContoh, pasangContoh, JENIS_BUKTI_KS } from './manfaat-kerjasama.js?v=2026-11-26-ad8d34';
+import { infoJenis } from './rencana-bukti.js?v=2026-11-26-ad8d34';
+import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-26-ad8d34';
+import { BOBOT } from './bobot.js?v=2026-11-26-ad8d34';
+import { nomorButir, htmlTautanButir } from './tautan-butir.js?v=2026-11-26-ad8d34';
+import { htmlSaran } from './saran-bukti.js?v=2026-11-26-ad8d34';
+import { tautanBerkas, privatkanLama, adalahPrivat } from './tautan-privat.js?v=2026-11-26-ad8d34';
+import { unggahLKD, buangLKD, bukaLKD, pendidikanTotal, pendidikanPS } from './bkd.js?v=2026-11-26-ad8d34';
+import { teksPelaksanaan } from './rekap-kp.js?v=2026-11-26-ad8d34';
 // Rentang nomor butir instrumen aktif (LAM Teknik 1-60, LAMDEPILAR 101-130; 159-patch, 2026-11-24).
 const NO_BUTIR = Object.keys(BOBOT).map(Number);
 const BUTIR_MIN = Math.min(...NO_BUTIR), BUTIR_MAKS = Math.max(...NO_BUTIR);
@@ -1044,8 +1045,9 @@ const TABEL = [
       { k: 'judul', l: 'Judul TA', t: 'teks', wajib: true, lebar: true },
       // Bidang keahlian TA (149-patch-bidang-ta.sql, pemilik 2026-11-22): arsip judul TA publik per bidang.
       { k: 'bidang', l: 'Bidang keahlian (arsip judul TA; kosong = ikut pembimbing pertama)', t: 'pilihan', o: () => PEMINATAN, patch149: true },
-      { k: 'pembimbing', l: 'Dosen pembimbing', t: 'jamak', kosong: 'Daftar dosen kosong.', o: () => DOSEN.map(d => [d.nidn, d.nama]) },
-      { k: 'penguji', l: 'Dosen penguji (prodi)', t: 'jamak', kosong: 'Daftar dosen kosong.', o: () => DOSEN.map(d => [d.nidn, d.nama]) },
+      // Pilihan = calonTA (pemilik 2026-11-26: tanpa dosen yang sedang tugas belajar); yang sudah tercatat tetap tampil.
+      { k: 'pembimbing', l: 'Dosen pembimbing', t: 'jamak', kosong: 'Daftar dosen kosong.', o: () => DOSEN.filter(d => calonTA(d)).map(d => [d.nidn, d.nama]) },
+      { k: 'penguji', l: 'Dosen penguji (prodi)', t: 'jamak', kosong: 'Daftar dosen kosong.', o: () => DOSEN.filter(d => calonTA(d)).map(d => [d.nidn, d.nama]) },
       // 187-patch-riwayat-lulusan.sql (pemilik 2026-11-26): pembimbing luar prodi/kampus; riwayat = dari daftar yudisium.
       { k: 'pembimbing_luar', l: 'Pembimbing dari luar prodi (nama, instansi)', t: 'teks', patch187: true },
       { k: 'penguji_luar', l: 'Penguji dari luar prodi (nama, instansi)', t: 'teks' },
@@ -1118,7 +1120,7 @@ TABEL.forEach(T => { T.dok = SARAN_DOK[T.id] || ['lainnya']; });
 // Kunci saran-bukti.js: publikasi dan luaran di sana milik form karya dosen.
 const saranTab = T => htmlSaran(({ publikasi: 'publikasi_mhs', luaran: 'luaran_mhs' })[T.id] || T.id);
 
-let SAYA = null, DOSEN = [], AKTIF = TABEL[0], BARIS = [], SUNTING = null;
+let SAYA = null, DOSEN = [], DOSEN_SEMUA = [], AKTIF = TABEL[0], BARIS = [], SUNTING = null;
 // Pustaka dokumen; ADA29 = lkps_bukti bisa menunjuk dokumen (patch 29).
 let DOK = [], DOK_GAGAL = '', ADA29 = true, ADA30 = true;
 // ADA43 = lkps_bukti.unsur ada (43-patch-unsur-bukti.sql): bukti per unsur butir 20, 22, 24.
@@ -1189,8 +1191,9 @@ async function mulai(){
   } else $('hSub').textContent = `Masuk sebagai ${saya.nama} (${labelPeran(saya)})`;
   // Pilihan dosen (BKD, pembimbing): tanpa admin/asesor yang bukan DTPS
   // (admin staf/tendik bukan dosen).
-  const { data: ds } = await sb.from('dosen').select('nidn,nama,peran,dtps').order('nama');
-  DOSEN = (ds || []).filter(d => d.nidn && (d.dtps || d.peran === 'dosen'));   // pimpinan non-DTPS tidak (pemilik 2026-11-26)
+  const { data: ds } = await sb.from('dosen').select('nidn,nama,peran,dtps,tugas_belajar,tugas_belajar_mulai,tugas_belajar_selesai').order('nama');
+  DOSEN_SEMUA = (ds || []).filter(d => d.nidn);   // nama untuk nilai lama yang tidak lagi ada di pilihan
+  DOSEN = DOSEN_SEMUA.filter(d => d.dtps || d.peran === 'dosen');   // pimpinan non-DTPS tidak (pemilik 2026-11-26)
   ADA29 = !(await sb.from('lkps_bukti').select('dokumen_id').limit(1)).error;
   ADA30 = !(await sb.from('dokumen').select('nomor,tanggal').limit(1)).error;   // 30-patch-spmi.sql
   ADA43 = !(await sb.from('lkps_bukti').select('unsur').limit(1)).error;
@@ -2070,7 +2073,10 @@ function isiJamak(c, terpilih){
   const box = $('f_' + c.k);
   if (!box) return;
   const pilih = new Set(terpilih || []);
-  const o = c.o();
+  // Nilai tercatat yang tidak ada di pilihan (dosen tugas belajar, pimpinan, mantan dosen) tetap tampil tercentang,
+  // supaya menyimpan ulang baris lama tidak menghapusnya diam-diam.
+  const dasar = c.o(), ada = new Set(dasar.map(x => x[0]));
+  const o = [...dasar, ...[...pilih].filter(v => v && !ada.has(v)).map(v => [v, DOSEN_SEMUA.find(d => d.nidn === v)?.nama || v])];
   box.innerHTML = o.length ? o.map(([v, l]) => `<label class="cek"><input type="checkbox" value="${esc(v)}"${
     pilih.has(v) ? ' checked' : ''}>${esc(l)}</label>`).join('') : `<span class="kosong">${esc(c.kosong || 'Belum ada pilihan.')}</span>`;
 }
@@ -2181,6 +2187,11 @@ function isiForm(r){
     if (c.t === 'mhs') { isiMhs(c, r); return; }
     if (c.t === 'jamak') { isiJamak(c, r ? r[c.k] : []); return; }
     el.value = r && r[c.k] != null ? String(r[c.k]) : '';
+    // Pilihan dosen tunggal (BKD): nilai lama di luar daftar (mis. dosen yang kini tidak dipilih) tetap dipertahankan.
+    if (c.t === 'nidn' && r && r[c.k] != null && String(r[c.k]) !== '' && el.value !== String(r[c.k])) {
+      const v = String(r[c.k]);
+      el.add(new Option(DOSEN_SEMUA.find(d => d.nidn === v)?.nama || v, v)); el.value = v;
+    }
     el.classList.remove('salah');
   });
   $('simpan').textContent = r ? 'Simpan perubahan' : 'Tambah baris';

@@ -11,8 +11,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-26-6d9dac">
-<link rel="stylesheet" href="kepala.css?v=2026-11-26-6d9dac">
+<link rel="stylesheet" href="tema.css?v=2026-11-26-ad8d34">
+<link rel="stylesheet" href="kepala.css?v=2026-11-26-ad8d34">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
@@ -54,7 +54,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></div>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-26-6d9dac"></script>
+<script src="config.js?v=2026-11-26-ad8d34"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -74,12 +74,13 @@ addEventListener('error', function (e) {
 // admin, Kaprodi, dan pimpinan melihat rekap; admin mengunggah daftar mahasiswa aktif per semester (ekspor SIAKAD),
 // menetapkan wali, dan mengunduh daftar wali untuk SIUP/Dirsik. Mahasiswa tidak melihat catatan.
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-26-6d9dac';
-import { pasangTab } from './tab-seksi.js?v=2026-11-26-6d9dac';
-import { punya } from './koordinator.js?v=2026-11-26-6d9dac';
-import { semesterTA } from './pengajuan-mhs.js?v=2026-11-26-6d9dac';
-import { SHEETJS } from './nilai-cpl.js?v=2026-11-26-6d9dac';
-import { bacaCsv, barisMahasiswa, semesterDariNama, urutSemester, teksSm, ipkRendah, rekapWali, lembarWali } from './perwalian.js?v=2026-11-26-6d9dac';
+import { gerbang } from './menu.js?v=2026-11-26-ad8d34';
+import { pasangTab } from './tab-seksi.js?v=2026-11-26-ad8d34';
+import { punya } from './koordinator.js?v=2026-11-26-ad8d34';
+import { semesterTA } from './pengajuan-mhs.js?v=2026-11-26-ad8d34';
+import { SHEETJS } from './nilai-cpl.js?v=2026-11-26-ad8d34';
+import { bacaCsv, barisMahasiswa, semesterDariNama, urutSemester, teksSm, ipkRendah, rekapWali, lembarWali } from './perwalian.js?v=2026-11-26-ad8d34';
+import { calonTA } from './dosen-hitung.js?v=2026-11-26-ad8d34';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
@@ -92,7 +93,7 @@ const hariIni = () => new Date(Date.now() + 7 * 3600e3).toISOString().slice(0, 1
 const tulis = (id, k, t) => { const m = $(id); if (m) { m.className = 'msg ' + k; m.textContent = t; } };
 
 let SAYA = null, ADMIN = false, SEMUA = false, ATUR_MIN = false, TAB = null;
-let SMS = [], SM = null, ROWS = [], DOSEN = [], CAT = new Map(), BUKA = null;
+let SMS = [], SM = null, ROWS = [], DOSEN = [], CALON = [], CAT = new Map(), BUKA = null;
 const kunci = s => `${s.ts}|${s.sm}`;
 
 async function muatSemester(){
@@ -238,7 +239,7 @@ function gambarData(){
     <p class="ket">Berlaku untuk semester ini dan semester sesudahnya yang sudah diunggah. Centang mahasiswa (atau satu angkatan), pilih dosen, lalu tetapkan.</p>
     <div class="saring"><label>Angkatan <select id="dAngk"><option value="">Semua</option>${angk.map(a => `<option${a === ANGK ? ' selected' : ''}>${esc(a)}</option>`).join('')}</select></label>
       <label><input type="checkbox" id="dSemua"> Centang semua yang tampil</label>
-      <label>Dosen wali <select id="dDosen"><option value="">(kosongkan wali)</option>${DOSEN.map(d => `<option value="${d.id}">${esc(d.nama)}</option>`).join('')}</select></label>
+      <label>Dosen wali <select id="dDosen"><option value="">(kosongkan wali)</option>${CALON.map(d => `<option value="${d.id}">${esc(d.nama)}</option>`).join('')}</select></label>
       <button type="button" class="b" id="dTetapkan">Tetapkan wali</button>
       <button type="button" class="b ringan" id="dUnduh">Unduh daftar wali untuk SIUP</button><span class="msg" id="mWali" role="status"></span></div>
     <div class="lebar-tabel"><table><thead><tr><th></th><th>Mahasiswa</th><th class="n">Angkatan</th><th>Dosen wali</th></tr></thead>
@@ -316,8 +317,10 @@ async function mulai(){
   await muatSemester();
   const kini = semesterTA(new Date().toISOString());
   SM = SMS.find(s => kunci(s) === kunci(kini)) || (SMS[0] ? { ts: SMS[0].ts, sm: SMS[0].sm } : kini);
-  const dq = await sb.from('dosen').select('id,nama,nidn,aktif,peran,dtps').order('nama');
-  DOSEN = (dq.data || []).filter(d => d.aktif && d.nidn && (d.dtps || d.peran === 'dosen'));   // pimpinan non-DTPS bukan wali
+  const dq = await sb.from('dosen').select('id,nama,nidn,aktif,peran,dtps,tugas_belajar,tugas_belajar_mulai,tugas_belajar_selesai').order('nama');
+  // DOSEN: nama wali (dari SIAKAD bisa siapa saja); CALON = pilihan wali baru (calonTA: tanpa pimpinan non-DTPS dan tugas belajar).
+  DOSEN = (dq.data || []).filter(d => d.nidn);
+  CALON = DOSEN.filter(d => d.aktif && calonTA(d));
   await muatDaftar();
   $('isi').innerHTML = `
     <div class="saring"><label>Semester <select id="fSm"></select></label></div>

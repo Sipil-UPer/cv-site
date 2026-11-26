@@ -11,8 +11,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-26-6d9dac">
-<link rel="stylesheet" href="kepala.css?v=2026-11-26-6d9dac">
+<link rel="stylesheet" href="tema.css?v=2026-11-26-ad8d34">
+<link rel="stylesheet" href="kepala.css?v=2026-11-26-ad8d34">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
@@ -78,7 +78,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></div>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-26-6d9dac"></script>
+<script src="config.js?v=2026-11-26-ad8d34"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -98,18 +98,19 @@ addEventListener('error', function (e) {
 // Berkas privat dibuka lewat Apps Script (mhs_buka_prodi); surat pengantar KP diunggah admin (mhs_unggah_prodi);
 // mahasiswa dikabari email saat dikembalikan, ditolak, atau disetujui (mhs_kabari).
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-26-6d9dac';
-import { bolehPengajuan, punya, labelJabatan } from './koordinator.js?v=2026-11-26-6d9dac';
+import { gerbang } from './menu.js?v=2026-11-26-ad8d34';
+import { bolehPengajuan, punya, labelJabatan } from './koordinator.js?v=2026-11-26-ad8d34';
 import { JENIS, LABEL_BERKAS, LABEL_STATUS, TINGKAT, BIDANG, teksAnggota, judulPengajuan, keB64, bukaIsi, appsScript, labelStatus, JENIS_SURAT, TAHAP_TA, JENIS_PUB, TINGKAT_PUB, INDEKSASI, JENIS_LUARAN, waktuPengajuan, rekapPengajuan, lembarPengajuan, labelProgram, penetapanTA, pilihanPembimbingTA, kkCocok,
          BERKAS_YUDISIUM_BAWAAN, kelengkapanYudisium, labelBerkas, JENIS_KEGIATAN, bolehBatalProdi, BERKAS_TA_BAWAAN, berkasTahapTA, TAHAP_TA_BERKAS,
-         semesterTA, kunciSemester, teksSemester, BATAS_KEMIRIPAN, persenKemiripan, perluCekKemiripan, teksKemiripan } from './pengajuan-mhs.js?v=2026-11-26-6d9dac';
-import { opsiPeriode, cocokPeriode, labelPeriode, taTeks, tsKarya } from './sdgs-unduh.js?v=2026-11-26-6d9dac';
-import { SHEETJS } from './nilai-cpl.js?v=2026-11-26-6d9dac';
-import { barisKuota, teksPilihanPembimbing } from './rekap-kp.js?v=2026-11-26-6d9dac';
-import { siapkan } from './pembimbing.js?v=2026-11-26-6d9dac';
-import { usulPenguji, bebanUji, tsDari } from './usulan-penguji.js?v=2026-11-26-6d9dac';
-import { usulanWaktu } from './cari-waktu.js?v=2026-11-26-6d9dac';
-import { bacaJam, formatJam, sibukSidang, gabungSibuk, periksaWaktu } from './jadwal-sidang.js?v=2026-11-26-6d9dac';
+         semesterTA, kunciSemester, teksSemester, BATAS_KEMIRIPAN, persenKemiripan, perluCekKemiripan, teksKemiripan } from './pengajuan-mhs.js?v=2026-11-26-ad8d34';
+import { opsiPeriode, cocokPeriode, labelPeriode, taTeks, tsKarya } from './sdgs-unduh.js?v=2026-11-26-ad8d34';
+import { SHEETJS } from './nilai-cpl.js?v=2026-11-26-ad8d34';
+import { barisKuota, teksPilihanPembimbing } from './rekap-kp.js?v=2026-11-26-ad8d34';
+import { siapkan } from './pembimbing.js?v=2026-11-26-ad8d34';
+import { usulPenguji, bebanUji, tsDari } from './usulan-penguji.js?v=2026-11-26-ad8d34';
+import { calonTA } from './dosen-hitung.js?v=2026-11-26-ad8d34';
+import { usulanWaktu } from './cari-waktu.js?v=2026-11-26-ad8d34';
+import { bacaJam, formatJam, sibukSidang, gabungSibuk, periksaWaktu } from './jadwal-sidang.js?v=2026-11-26-ad8d34';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
@@ -121,7 +122,7 @@ let YUD = BERKAS_YUDISIUM_BAWAAN;
 let BERKAS_TA = BERKAS_TA_BAWAAN;
 let BATAS = BATAS_KEMIRIPAN;   // 185: batas persen kemiripan sidang akhir (ta_kemiripan_batas)   // 174: berkas seminar/sidang TA per tahap (bukan TAB: itu tab penyaring)
 // Seminar/sidang TA (94): daftar dosen (NIDN, nama) untuk penguji; jadwal per pengajuan.
-let DOSEN = [], JADWAL = new Map(), SEMUA_JADWAL = [], MODEL = null;   // MODEL: mesin Cari pembimbing (usulan penguji)
+let DOSEN = [], CALON = [], JADWAL = new Map(), SEMUA_JADWAL = [], MODEL = null;   // MODEL: mesin Cari pembimbing (usulan penguji)
 // Pembimbing KP ditetapkan koordinator KP/admin (107): beban dan kuota per TS (kp_beban), Map ts -> baris.
 let BEBAN = new Map();
 const tsKP = p => tsDari(String(p.data_selesai?.tanggal_mulai || p.data?.tanggal_mulai || p.data?.rencana_mulai || p.dibuat || ''));
@@ -169,11 +170,12 @@ async function muat(){
   BERKAS_TA = !tb.error && Array.isArray(tb.data) && tb.data.length ? tb.data : BERKAS_TA_BAWAAN;
   const bk = await sb.rpc('ta_kemiripan_batas');
   if (!bk.error && bk.data != null) BATAS = Number(bk.data);
-  const [dq, jq] = await Promise.all([sb.from('dosen').select('id,nidn,nama,aktif,peran,dtps').order('nama'),
+  const [dq, jq] = await Promise.all([sb.from('dosen').select('id,nidn,nama,aktif,peran,dtps,tugas_belajar,tugas_belajar_mulai,tugas_belajar_selesai').order('nama'),
     sb.from('jadwal_ta').select('pengajuan_id,tahap,tanggal,jam,ruang,tautan_daring,status,pembimbing,penguji,penguji_luar')]);
-  // Calon penguji = aturan daftar dosen Data prodi: DTPS atau berperan dosen; staf admin non-dosen dan pimpinan yang bukan
-  // DTPS (Dekan, pemilik 2026-11-26) tidak.
-  DOSEN = (dq.data || []).filter(d => d.aktif && d.nidn && (d.dtps || d.peran === 'dosen'));
+  // DOSEN: semua dosen aktif (nama di jadwal, bentrok jadwal). CALON penguji = calonTA (pemilik 2026-11-26): DTPS atau
+  // berperan dosen, tidak sedang tugas belajar; staf admin dan pimpinan yang bukan DTPS (Dekan) tidak.
+  DOSEN = (dq.data || []).filter(d => d.aktif && d.nidn);
+  CALON = DOSEN.filter(d => calonTA(d));
   SEMUA_JADWAL = jq.error ? [] : jq.data || [];
   JADWAL = new Map(SEMUA_JADWAL.filter(j => j.pengajuan_id).map(j => [j.pengajuan_id, j]));
   // Beban/kuota hanya untuk TS pengajuan KP yang pembimbingnya bisa ditetapkan; sebelum patch 107: kosong.
@@ -444,7 +446,7 @@ async function tetapkan(id, b){
 function htmlUsulan(p, pbId){
   const kecuali = new Set(DOSEN.filter(x => pbId.includes(x.id)).map(x => x.nidn));
   const ts = tsDari(new Date().toISOString().slice(0, 10));
-  const xs = usulPenguji(p.data?.judul, MODEL, DOSEN, { kecuali, beban: bebanUji(SEMUA_JADWAL, ts) });
+  const xs = usulPenguji(p.data?.judul, MODEL, CALON, { kecuali, beban: bebanUji(SEMUA_JADWAL, ts) });
   if (!xs.length) return `<p class="ket">Usulan penguji: ${MODEL ? 'tidak ada dosen yang cocok dengan judul ini; pilih manual.' : 'data keahlian belum termuat.'}</p>`;
   const JN = { topik: 'topik keahlian', bidang: 'bidang', publikasi: 'publikasi', kegiatan: 'penelitian/PkM' };
   return `<div class="usulan"><div class="ket" style="margin-top:6px">Usulan penguji (cocok dengan judul; beban menguji TS ${ts - 1}/${ts}):</div>
@@ -460,7 +462,7 @@ function htmlJadwal(p){
       <label>Ruang <input id="jr_${p.id}" size="14"></label><label>Tautan daring <input id="jd_${p.id}" type="url" placeholder="https://… (opsional)" size="24"></label></div>
     ${htmlUsulan(p, pb)}
     <div class="ket" style="margin-top:6px">Penguji (prodi):</div>
-    <div class="penguji">${DOSEN.filter(x => !pb.includes(x.id)).map(x => `<label><input type="checkbox" data-uji="${p.id}" value="${esc(x.nidn)}"> ${esc(x.nama)}</label>`).join('')}</div>
+    <div class="penguji">${CALON.filter(x => !pb.includes(x.id)).map(x => `<label><input type="checkbox" data-uji="${p.id}" value="${esc(x.nidn)}"> ${esc(x.nama)}</label>`).join('')}</div>
     <div class="baris"><label>Penguji luar prodi <input id="jl_${p.id}" placeholder="nama, instansi (opsional)" size="30"></label></div>
     <div class="baris"><label>Durasi <input type="number" id="jdur_${p.id}" value="90" min="30" max="300" step="15" style="width:70px"> menit</label>
       <button class="b" type="button" data-cekjadwal="${p.id}">Periksa jadwal dosen</button>

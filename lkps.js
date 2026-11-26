@@ -15,12 +15,12 @@
    angka yang sama dengan halaman skor. Lembar lain dibiarkan untuk diisi
    prodi; kolom yang tidak disimpan situs (mis. pita waktu tunggu) kosong.
    ===================================================================== */
-import { versiUntukTS, daftarProdi, STATUS_PS, tglTeks } from './pustaka-dokumen.js?v=2026-11-26-6d9dac';
-import { teksPendidikan, nidnNuptk, masaBerlaku } from './profil-dosen.js?v=2026-11-26-6d9dac';
-import { barisKerjaSama } from './kerjasama-karya.js?v=2026-11-26-6d9dac';
-import { kunciIntegrasi } from './rps-integrasi.js?v=2026-11-26-6d9dac';
-import { karya4i } from './sitasi.js?v=2026-11-26-6d9dac';
-import { ampuPerTA, dosenTS } from './dosen-hitung.js?v=2026-11-26-6d9dac';
+import { versiUntukTS, daftarProdi, STATUS_PS, tglTeks } from './pustaka-dokumen.js?v=2026-11-26-ad8d34';
+import { teksPendidikan, nidnNuptk, masaBerlaku } from './profil-dosen.js?v=2026-11-26-ad8d34';
+import { barisKerjaSama } from './kerjasama-karya.js?v=2026-11-26-ad8d34';
+import { kunciIntegrasi } from './rps-integrasi.js?v=2026-11-26-ad8d34';
+import { karya4i } from './sitasi.js?v=2026-11-26-ad8d34';
+import { ampuPerTA, dosenTS } from './dosen-hitung.js?v=2026-11-26-ad8d34';
 
 const TEMPLATE = 'lkps-template.xlsx';
 export const JSZIP = 'https://cdn.jsdelivr.net/npm/jszip@3.10.1/+esm';
