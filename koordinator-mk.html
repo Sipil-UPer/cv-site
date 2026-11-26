@@ -11,8 +11,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-26-28d33b">
-<link rel="stylesheet" href="kepala.css?v=2026-11-26-28d33b">
+<link rel="stylesheet" href="tema.css?v=2026-11-26-f0c804">
+<link rel="stylesheet" href="kepala.css?v=2026-11-26-f0c804">
 <style>
   /* Dasar halaman ruang kerja (sama dengan halaman lain) */
   *{box-sizing:border-box}
@@ -53,7 +53,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></div>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-26-28d33b"></script>
+<script src="config.js?v=2026-11-26-f0c804"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -72,8 +72,8 @@ addEventListener('error', function (e) {
 // Satu koordinator + tim per MK per kurikulum; Kaprodi aktif atau admin menetapkan, yang lain (juga GKM) melihat.
 // Status silabus, CPMK, RPS per MK supaya Kaprodi melihat MK yang belum punya koordinator atau dokumen.
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-26-28d33b';
-import { dosenPilihan, dosenKoordinator, petaStatus, statusMK, bebanDosen, usulanPadanan, luarProdi, ringkasKoordinasi, LABEL_STATUS } from './koordinator-mk.js?v=2026-11-26-28d33b';
+import { gerbang } from './menu.js?v=2026-11-26-f0c804';
+import { dosenPilihan, dosenKoordinator, petaStatus, statusMK, bebanDosen, usulanPadanan, luarProdi, ringkasKoordinasi, LABEL_STATUS } from './koordinator-mk.js?v=2026-11-26-f0c804';
 
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -113,12 +113,13 @@ function gambar(){
   const xs = semua.filter(m => (!F.sm || String(m.semester) === F.sm) && (!F.kosong || !m.koordinator_nidn)
     && (!F.cari || `${m.kode} ${m.nama} ${(m.pengampu || []).map(nama).join(' ')}`.toLowerCase().includes(F.cari.toLowerCase())));
   // MK universitas/fakultas (pemilik 2026-11-24/26): bagian sendiri dengan koordinator prodi, tidak ikut hitungan koordinator dan usulan.
-  const R = ringkasKoordinasi(semua), xsLuar = xs.filter(luarProdi), xsProdi = xs.filter(m => !luarProdi(m));
+  const R = ringkasKoordinasi(semua);
   const st = semua.map(m => statusMK(STATUS, m));
   const beban = [...bebanDosen(semua)].map(([n, b]) => ({ n, ...b })).sort((a, b) => b.koordinator - a.koordinator || b.tim - a.tim || b.pic - a.pic);
   const usul = BOLEH ? usulanPadanan(MK, PADANAN, F.kur) : [];
   const smList = [...new Set(semua.map(m => m.semester).filter(v => v != null))].sort((a, b) => a - b);
-  const grup = [...new Set(xsProdi.map(m => m.semester ?? '—'))].sort((a, b) => (a === '—') - (b === '—') || a - b);
+  // Semua MK per semester, termasuk MK universitas/fakultas (pemilik 2026-11-26: daftar MK lengkap; MKU bertanda, koordinator prodi).
+  const grup = [...new Set(xs.map(m => m.semester ?? '—'))].sort((a, b) => (a === '—') - (b === '—') || a - b);
 
   // Pilihan koordinator: DTPS saja (pemilik 2026-11-26); koordinator lama yang bukan DTPS tetap tampil dan bertanda.
   const opsiKoor = m => {
@@ -139,7 +140,8 @@ function gambar(){
         `<label><input type="checkbox" data-tim="${esc(id)}" value="${esc(d.nidn)}"${timDari(m).includes(d.nidn) ? ' checked' : ''}> ${esc(d.nama)}</label>`).join('')}</div></details>`
       : (esc(timDari(m).map(nama).join(', ')) || '<span class="ket">—</span>');
     return `<tr${q.get('kode') === m.kode && q.get('kur') === m.kurikulum ? ' class="sorot"' : ''}>
-      <td>${esc(m.kode)}</td><td>${esc(m.nama)}<div class="ket">${esc(m.sks ?? '')} sks${m.sifat ? ' · ' + esc(m.sifat) : ''}</div></td>
+      <td>${esc(m.kode)}</td><td>${esc(m.nama)}<div class="ket">${esc(m.sks ?? '')} sks${m.sifat ? ' · ' + esc(m.sifat) : ''}${luar
+        ? ` · <b>diselenggarakan ${esc(m.unit_penyelenggara || 'universitas/fakultas')}</b>; koordinator prodi` : ''}</div></td>
       <td>${koor}</td><td>${tim}</td>
       <td>${lencana(s.silabus, `silabus.html?kur=${kur}&kode=${kode}`)}</td><td>${luar ? '<span class="ket">dari universitas</span>' : lencana(s.cpmk, `cpmk.html?kode=${kode}`)}</td>
       <td>${lencana(s.rps, `rps.html?kur=${kur}&kode=${kode}`)}</td>
@@ -177,14 +179,7 @@ function gambar(){
       ${beban.map(b => `<tr><td>${esc(nama(b.n))}</td><td>${b.koordinator}</td><td>${b.tim}</td><td>${b.pic}</td></tr>`).join('') || '<tr><td colspan="4" class="kosong">Belum ada.</td></tr>'}</table></details>
     ${grup.map(g => `<h2>Semester ${esc(g)}</h2><div class="gulir"><table class="t"><thead><tr><th>Kode</th><th>Mata kuliah</th><th>Koordinator</th><th>Tim</th>
       <th>Silabus</th><th>CPMK</th><th>RPS</th>${BOLEH ? '<th></th>' : ''}</tr></thead>
-      <tbody>${xsProdi.filter(m => (m.semester ?? '—') === g).sort((a, b) => String(a.kode).localeCompare(String(b.kode))).map(baris).join('')}</tbody></table></div>`).join('')}
-    ${xsLuar.length ? `<h2>Diselenggarakan universitas/fakultas</h2>
-      <p class="ket">Koordinator prodi meminta silabus dan RPS resmi ke universitas/fakultas, menyalinnya ke situs (bukti untuk asesor),
-      memetakan MK ke CPL prodi, dan melengkapi portofolio tingkat MK.
-        CPMK, nilai, dan portofolio tingkat MK dari penyelenggaranya; dosen prodi yang mengajar kelasnya mengisi bagian kelas.</p>
-      <div class="gulir"><table class="t"><thead><tr><th>Kode</th><th>Mata kuliah</th><th>Koordinator prodi</th><th>Pengajar</th>
-      <th>Silabus</th><th>CPMK</th><th>RPS</th>${BOLEH ? '<th></th>' : ''}</tr></thead>
-      <tbody>${xsLuar.sort((a, b) => (a.semester ?? 99) - (b.semester ?? 99) || String(a.kode).localeCompare(String(b.kode))).map(baris).join('')}</tbody></table></div>` : ''}
+      <tbody>${xs.filter(m => (m.semester ?? '—') === g).sort((a, b) => String(a.kode).localeCompare(String(b.kode))).map(baris).join('')}</tbody></table></div>`).join('')}
     ${xs.length ? '' : '<p class="kosong">Tidak ada mata kuliah yang cocok.</p>'}`;
 
   $('fKur').onchange = e => { F.kur = e.target.value; F.sm = ''; gambar(); };
