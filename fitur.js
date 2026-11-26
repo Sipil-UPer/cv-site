@@ -28,6 +28,7 @@ const HALAMAN = {
   'layanan-mahasiswa.html': 'kemahasiswaan',
   'penilaian-ta.html': 'kemahasiswaan', 'bimbingan-ta.html': 'kemahasiswaan',   // 173, 175: penilaian dan bimbingan TA
   'perwalian.html': 'kemahasiswaan',   // 186: perwalian dosen wali (pemilik 2026-11-26)
+  'daftar-mahasiswa.html': 'kemahasiswaan',   // daftar mahasiswa aktif + lulusan (pemilik 2026-11-26)
   'ruang-ta.html': 'kemahasiswaan',   // pintu halaman TA (pemilik 2026-11-25; tugas-akhir.html = arsip publik)
   'jadwal-kuliah.html': 'jadwal', 'jadwal-berhalangan.html': 'jadwal', 'kabar-kegiatan.html': 'kabar',
   'kelola-profil.html': 'profil_prodi', 'kelola-laboratorium.html': 'profil_prodi',

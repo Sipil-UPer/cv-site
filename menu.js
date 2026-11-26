@@ -1,5 +1,5 @@
-import { dosenLogin } from './dosen-login.js?v=2026-11-26-902945';
-import { aktifPada } from './koordinator.js?v=2026-11-26-902945';
+import { dosenLogin } from './dosen-login.js?v=2026-11-27-a01aa2';
+import { aktifPada } from './koordinator.js?v=2026-11-27-a01aa2';
 // Menu bersama ruang kerja (pemilik 2026-11-04).
 //
 // Situs dibagi dua:
@@ -43,11 +43,11 @@ const koorTA = s => pengelola(s) || mutu(s) || punyaJ(s, 'koordinator_ta');
 const koorKP = s => pemantau(s) || punyaJ(s, 'koordinator_kp');
 const koorLayanan = s => pengelola(s) || punyaJ(s, 'koordinator_ta', 'koordinator_kp', 'pembina_kemahasiswaan');
 
-import { halamanAktif } from './fitur.js?v=2026-11-26-902945';
-import { BUTIR_LAM_TEKNIK } from './bobot.js?v=2026-11-26-902945';
-import { pasangPemicuBangun } from './pemicu-bangun.js?v=2026-11-26-902945';
+import { halamanAktif } from './fitur.js?v=2026-11-27-a01aa2';
+import { BUTIR_LAM_TEKNIK } from './bobot.js?v=2026-11-27-a01aa2';
+import { pasangPemicuBangun } from './pemicu-bangun.js?v=2026-11-27-a01aa2';
 // Tinggi kotak teks mengikuti isi (pemilik 2026-11-25); bentuk "from" agar dicap stamp_versions.py.
-import { pasSemua as pasKotakTeks } from './kotak-teks.js?v=2026-11-26-902945';
+import { pasSemua as pasKotakTeks } from './kotak-teks.js?v=2026-11-27-a01aa2';
 
 export const MODUL = [
   // Susunan menu mengikuti alur kerja (pemilik 2026-11-23): Data saya (milik dosen), Pengajaran (urut alur MK:
@@ -142,6 +142,9 @@ export const MODUL = [
     // admin, Kaprodi, pimpinan; admin mengunggah daftar mahasiswa aktif dari SIAKAD dan menetapkan wali.
     { href: 'perwalian.html', judul: 'Perwalian', boleh: s => s.peran !== 'asesor',
       ket: 'Mahasiswa perwalian dan catatan pertemuan per semester; rekap per dosen wali; unggah daftar mahasiswa aktif dan tetapkan wali.' },
+    // Daftar mahasiswa (pemilik 2026-11-26): aktif + lulusan, IPK/SKS, email, wali, TA; akses = RLS mahasiswa (186).
+    { href: 'daftar-mahasiswa.html', judul: 'Daftar mahasiswa', boleh: s => s.peran !== 'asesor',
+      ket: 'Mahasiswa aktif dan lulusan: cari, saring per angkatan/status/tahun lulus, IPK dan SKS terakhir, wali, TA; unduh Excel (sasaran tracer).' },
   ]},
   { judul: 'Koordinasi kemahasiswaan', ket: 'Rekap seminar/sidang TA, rekap KP dan magang, dan layanan mahasiswa: untuk koordinator TA/KP, pembina kemahasiswaan, Kaprodi, dan admin.', halaman: [
     // Rekap seminar/sidang TA dan beban dosen (94-patch-jadwal-ta.sql, pemilik 2026-11-17).
@@ -481,7 +484,7 @@ export async function pasangMenu(sb){
   // Pencarian menyeluruh (pemilik 2026-11-12; cari-ui.js, cari.js): dimuat saat pertama dipakai.
   const kotak = nav.querySelector('.rk-cari input');
   let siapCari = null;
-  const muatCari = () => siapCari || (siapCari = import('./cari-ui.js?v=2026-11-26-902945').then(m =>
+  const muatCari = () => siapCari || (siapCari = import('./cari-ui.js?v=2026-11-27-a01aa2').then(m =>
     m.pasangCari(kotak, { sb, saya: u.saya, modul: halamanBoleh(u.saya), boleh: h => bolehBuka(u.saya, h) !== false })));
   kotak.addEventListener('focus', muatCari);
   document.addEventListener('keydown', e => {
