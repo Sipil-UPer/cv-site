@@ -11,8 +11,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-26-e38917">
-<link rel="stylesheet" href="kepala.css?v=2026-11-26-e38917">
+<link rel="stylesheet" href="tema.css?v=2026-11-26-b110e6">
+<link rel="stylesheet" href="kepala.css?v=2026-11-26-b110e6">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
@@ -78,7 +78,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></div>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-26-e38917"></script>
+<script src="config.js?v=2026-11-26-b110e6"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -98,18 +98,18 @@ addEventListener('error', function (e) {
 // Berkas privat dibuka lewat Apps Script (mhs_buka_prodi); surat pengantar KP diunggah admin (mhs_unggah_prodi);
 // mahasiswa dikabari email saat dikembalikan, ditolak, atau disetujui (mhs_kabari).
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-26-e38917';
-import { bolehPengajuan, punya, labelJabatan } from './koordinator.js?v=2026-11-26-e38917';
+import { gerbang } from './menu.js?v=2026-11-26-b110e6';
+import { bolehPengajuan, punya, labelJabatan } from './koordinator.js?v=2026-11-26-b110e6';
 import { JENIS, LABEL_BERKAS, LABEL_STATUS, TINGKAT, BIDANG, teksAnggota, judulPengajuan, keB64, bukaIsi, appsScript, labelStatus, JENIS_SURAT, TAHAP_TA, JENIS_PUB, TINGKAT_PUB, INDEKSASI, JENIS_LUARAN, waktuPengajuan, rekapPengajuan, lembarPengajuan, labelProgram, penetapanTA, pilihanPembimbingTA, kkCocok,
          BERKAS_YUDISIUM_BAWAAN, kelengkapanYudisium, labelBerkas, JENIS_KEGIATAN, bolehBatalProdi, BERKAS_TA_BAWAAN, berkasTahapTA, TAHAP_TA_BERKAS,
-         semesterTA, kunciSemester, teksSemester } from './pengajuan-mhs.js?v=2026-11-26-e38917';
-import { opsiPeriode, cocokPeriode, labelPeriode, taTeks, tsKarya } from './sdgs-unduh.js?v=2026-11-26-e38917';
-import { SHEETJS } from './nilai-cpl.js?v=2026-11-26-e38917';
-import { barisKuota, teksPilihanPembimbing } from './rekap-kp.js?v=2026-11-26-e38917';
-import { siapkan } from './pembimbing.js?v=2026-11-26-e38917';
-import { usulPenguji, bebanUji, tsDari } from './usulan-penguji.js?v=2026-11-26-e38917';
-import { usulanWaktu } from './cari-waktu.js?v=2026-11-26-e38917';
-import { bacaJam, formatJam, sibukSidang, gabungSibuk, periksaWaktu } from './jadwal-sidang.js?v=2026-11-26-e38917';
+         semesterTA, kunciSemester, teksSemester, BATAS_KEMIRIPAN, persenKemiripan, perluCekKemiripan, teksKemiripan } from './pengajuan-mhs.js?v=2026-11-26-b110e6';
+import { opsiPeriode, cocokPeriode, labelPeriode, taTeks, tsKarya } from './sdgs-unduh.js?v=2026-11-26-b110e6';
+import { SHEETJS } from './nilai-cpl.js?v=2026-11-26-b110e6';
+import { barisKuota, teksPilihanPembimbing } from './rekap-kp.js?v=2026-11-26-b110e6';
+import { siapkan } from './pembimbing.js?v=2026-11-26-b110e6';
+import { usulPenguji, bebanUji, tsDari } from './usulan-penguji.js?v=2026-11-26-b110e6';
+import { usulanWaktu } from './cari-waktu.js?v=2026-11-26-b110e6';
+import { bacaJam, formatJam, sibukSidang, gabungSibuk, periksaWaktu } from './jadwal-sidang.js?v=2026-11-26-b110e6';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
@@ -118,7 +118,8 @@ const tgl = s => s ? new Date(s).toLocaleString('id-ID', { day: 'numeric', month
 const KABARI = new Set(['dikembalikan', 'ditolak', 'disetujui']);   // status yang dikabarkan ke email mahasiswa
 let SAYA = null, ADMIN = false, UNDUH = false, DATA = [], TAB = 'tunggu', BUKA = new Set();
 let YUD = BERKAS_YUDISIUM_BAWAAN;
-let BERKAS_TA = BERKAS_TA_BAWAAN;   // 174: berkas seminar/sidang TA per tahap (bukan TAB: itu tab penyaring)
+let BERKAS_TA = BERKAS_TA_BAWAAN;
+let BATAS = BATAS_KEMIRIPAN;   // 185: batas persen kemiripan sidang akhir (ta_kemiripan_batas)   // 174: berkas seminar/sidang TA per tahap (bukan TAB: itu tab penyaring)
 // Seminar/sidang TA (94): daftar dosen (NIDN, nama) untuk penguji; jadwal per pengajuan.
 let DOSEN = [], JADWAL = new Map(), SEMUA_JADWAL = [], MODEL = null;   // MODEL: mesin Cari pembimbing (usulan penguji)
 // Pembimbing KP ditetapkan koordinator KP/admin (107): beban dan kuota per TS (kp_beban), Map ts -> baris.
@@ -166,6 +167,8 @@ async function muat(){
   YUD = !yd.error && Array.isArray(yd.data) && yd.data.length ? yd.data : BERKAS_YUDISIUM_BAWAAN;
   const tb = await sb.rpc('ta_berkas_daftar');
   BERKAS_TA = !tb.error && Array.isArray(tb.data) && tb.data.length ? tb.data : BERKAS_TA_BAWAAN;
+  const bk = await sb.rpc('ta_kemiripan_batas');
+  if (!bk.error && bk.data != null) BATAS = Number(bk.data);
   const [dq, jq] = await Promise.all([sb.from('dosen').select('id,nidn,nama,aktif,peran,dtps').order('nama'),
     sb.from('jadwal_ta').select('pengajuan_id,tahap,tanggal,jam,ruang,tautan_daring,status,pembimbing,penguji,penguji_luar')]);
   // Calon penguji = aturan daftar dosen Data prodi: DTPS atau berperan dosen/pimpinan; staf admin non-dosen tidak.
@@ -221,6 +224,8 @@ function ringkas(p){
        ...(TAHAP_TA_BERKAS.includes(d.tahap_ta) ? [(k => ['Berkas wajib', `${k.ada} dari ${k.wajib}${k.kurang.length ? ' · belum: ' + k.kurang.join(', ') : ' (lengkap)'}`])(
          kelengkapanYudisium(berkasTahapTA(BERKAS_TA, d.tahap_ta), p.pengajuan_berkas || []))] : []),   // 174
        ['Nama di jadwal publik', d.tampil_nama ? 'disetujui mahasiswa' : 'tidak'],
+       ...(d.tahap_ta === 'sidang_akhir' ? [['Cek kemiripan', teksKemiripan(d, BATAS)]] : []),   // 185
+       ...(d.tahap_ta === 'seminar_proposal' && d.metopen ? [['Metodologi Penelitian', 'bagian dari MK Metopen semester ini']] : []),
        ...(j ? [['Jadwal', [j.tanggal, j.jam, j.ruang, j.tautan_daring ? 'daring' : ''].filter(Boolean).join(' · ') + (j.status !== 'terjadwal' ? ` (${j.status})` : '')],
                 ['Penguji', [...(j.penguji || []).map(nmNidn), j.penguji_luar].filter(Boolean).join(', ')]] : [])]
     : p.jenis === 'surat'
@@ -293,6 +298,7 @@ function kartu(p){
       ${saya ? `<div class="aksi"><label class="ket" for="c_${p.id}">Catatan untuk mahasiswa (wajib bila dikembalikan${bolehTolak ? ' atau ditolak' : ''};
           terkirim lewat email dan tampil di halaman mahasiswa)</label>
         <textarea id="c_${p.id}" maxlength="2000"></textarea>
+        ${perluCekKemiripan(p) ? htmlKemiripan(p) : ''}
         ${p.jenis === 'ta' && p.status === 'admin' && boleh(p) && !penetapanTA(p) ? htmlJadwal(p) : ''}
         <div class="baris">${p.jenis === 'ta' && p.status === 'admin' && !penetapanTA(p) ? '' : `<button class="b utama" data-aksi="setujui" data-p="${p.id}">${p.status === 'pembimbing' && !['lomba', 'kabar'].includes(p.jenis) ? 'Setujui, teruskan ke admin' : 'Sahkan'}</button>`}
           <button class="b" data-aksi="kembalikan" data-p="${p.id}">Kembalikan untuk diperbaiki</button>
@@ -528,6 +534,7 @@ async function jadwalkan(id, b){
   if (!penguji.length && !v('jl_')) return pesan(id, 'buruk', 'Pilih minimal satu penguji.');
   b.disabled = true;
   try {
+    await catatKemiripan(id);   // 185
     const { error } = await sb.rpc('pengajuan_jadwalkan', { p_id: id, p_tanggal: v('jt_'), p_jam: v('jj_'), p_ruang: v('jr_'),
       p_tautan: v('jd_') || null, p_penguji: penguji, p_penguji_luar: v('jl_') || null });
     if (error) throw new Error(error.message);
@@ -582,9 +589,33 @@ async function buka(b){
   finally { b.disabled = false; }
 }
 
+// Cek kemiripan sidang akhir (185, pemilik 2026-11-26): pembimbing 1, koordinator TA, atau admin mengisi persen menurut
+// laporan dan mencentang sudah diperiksa; dicatat (ta_kemiripan_periksa) tepat sebelum Setujui/Jadwalkan.
+function htmlKemiripan(p){
+  const d = p.data || {};
+  return `<div class="jadwal-form"><b>Cek kemiripan laporan akhir</b>
+    <div class="baris"><label for="km_${p.id}">Persen menurut laporan</label>
+      <input id="km_${p.id}" inputmode="decimal" maxlength="6" style="width:7em" value="${esc(d.kemiripan_persen ?? '')}"> %
+      <label class="cek"><input type="checkbox" id="kmc_${p.id}"> Laporan cek kemiripan sudah saya buka dan angkanya sesuai</label></div>
+    <p class="ket">Wajib sebelum ${p.status === 'pembimbing' ? 'diteruskan ke admin' : 'dijadwalkan'}; batas ${esc(BATAS)} %.
+      Laporannya ada di Berkas (Laporan cek kemiripan). Di atas batas: kembalikan ke mahasiswa dengan catatan.</p></div>`;
+}
+async function catatKemiripan(id){
+  const p = DATA.find(x => x.id === id);
+  if (!perluCekKemiripan(p)) return;
+  const n = persenKemiripan($('km_' + id)?.value);
+  if (n == null) throw new Error('Isi persen kemiripan menurut laporan (angka 0 sampai 100).');
+  if (!$('kmc_' + id)?.checked) throw new Error('Centang dulu bahwa laporan cek kemiripan sudah Anda buka.');
+  if (n > BATAS) throw new Error(`Kemiripan ${n} % di atas batas ${BATAS} %: kembalikan ke mahasiswa untuk diperbaiki.`);
+  const { data, error } = await sb.rpc('ta_kemiripan_periksa', { p_id: id, p_persen: n });
+  if (error) throw new Error(error.message);
+  p.data = { ...p.data, kemiripan_cek: data };
+}
+
 async function putuskan(id, aksi, b){
   const catatan = $('c_' + id).value.trim();
   if (aksi !== 'setujui' && !catatan) return pesan(id, 'buruk', 'Tulis catatan untuk mahasiswa dulu.');
+  if (aksi === 'setujui') try { await catatKemiripan(id); } catch (e) { return pesan(id, 'buruk', e.message); }
   if (aksi === 'tolak' && !confirm('Tolak pengajuan ini? Mahasiswa tidak bisa mengirim ulang pengajuan yang ditolak.')) return;
   document.querySelectorAll(`[data-p="${id}"]`).forEach(x => { x.disabled = true; });
   try {

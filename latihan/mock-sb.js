@@ -209,7 +209,10 @@ function pmRpc(nama, a){
     if (a.p_dosen2 && a.p_dosen2 === a.p_dosen) return pmGagal('Pembimbing 2 harus berbeda dari pembimbing 1.');
     const nm = id => (DB.dosen || []).find(d => d.id === id)?.nama || '-';
     const catatan = `Bimbingan dibatalkan, pembimbing diganti. Pembimbing 1: ${nm(p.pembimbing_id)} -> ${nm(a.p_dosen)}. Alasan: ${alasan}`;
-    p.data = { ...p.data, pembimbing_awal: p.data?.pembimbing_awal || p.pembimbing_id, ...(judul ? { judul } : {}) };
+    // 185: ganti pembimbing 1 atau judul = seminar proposal diulang (ganti_pada); pembimbing 2 saja tidak.
+    const ulang = a.p_dosen !== p.pembimbing_id || (judul && judul !== p.data?.judul);
+    p.data = { ...p.data, pembimbing_awal: p.data?.pembimbing_awal || p.pembimbing_id, ...(judul ? { judul } : {}),
+      ...(ulang ? { ganti_pada: new Date(Date.now() + 7 * 3600e3).toISOString().slice(0, 10) } : {}) };
     if (a.p_dosen2) p.data.pembimbing_2 = a.p_dosen2; else delete p.data.pembimbing_2;
     for (const o of PM().filter(o => o.nim === p.nim && o.jenis === 'ta' && o.id !== p.id && !penetapan(o)
       && ['draf', 'pembimbing', 'admin', 'dikembalikan'].includes(o.status))) { o.pembimbing_id = a.p_dosen; o.data = { ...o.data, pembimbing_2: a.p_dosen2 || undefined }; }
@@ -255,11 +258,48 @@ function pmRpc(nama, a){
     j.revisi_selesai = a.p_selesai === false ? null : new Date().toISOString().slice(0, 10); simpan();
     return { data: j.revisi_selesai, error: null };
   }
+  // 185: cek kemiripan sidang akhir, tiruan (aturan sama dengan 185-patch-kemiripan-seminar-ulang-metopen.sql).
+  const batasKm = () => +((DB.pengaturan || []).find(x => x.kunci === 'ta_batas_kemiripan')?.nilai ?? 25);
+  const belumCekKm = p => p.jenis === 'ta' && p.data?.tahap_ta === 'sidang_akhir' && !p.data?.kemiripan_cek;
+  if (nama === 'ta_kemiripan_batas') return { data: batasKm(), error: null };
+  if (nama === 'ta_kemiripan_atur') {
+    if (!sayaAdmin()) return pmGagal('Batas kemiripan diatur koordinator TA atau admin.');
+    if (!(a.p_batas >= 1 && a.p_batas <= 100)) return pmGagal('Batas kemiripan: 1 sampai 100 persen.');
+    const P = (DB.pengaturan ||= []), x = P.find(y => y.kunci === 'ta_batas_kemiripan');
+    if (x) x.nilai = a.p_batas; else P.push({ kunci: 'ta_batas_kemiripan', nilai: a.p_batas });
+    simpan(); return { data: 'ok', error: null };
+  }
+  if (nama === 'ta_kemiripan_periksa') {
+    const p = PM().find(x => x.id === a.p_id), saya = (DB.dosen || []).find(d => d.email === email());
+    if (!p || p.jenis !== 'ta' || p.data?.tahap_ta !== 'sidang_akhir') return pmGagal('Pengajuan sidang akhir tidak ditemukan.');
+    if (!(sayaAdmin() || p.pembimbing_id === saya?.id)) return pmGagal('Cek kemiripan diperiksa pembimbing 1, koordinator TA, atau admin.');
+    if (!['pembimbing', 'admin'].includes(p.status)) return pmGagal('Pengajuan tidak sedang diperiksa.');
+    if (!(a.p_persen >= 0 && a.p_persen <= 100)) return pmGagal('Isi persen kemiripan menurut laporan (0 sampai 100).');
+    if (!(DB.pengajuan_berkas || []).some(b => b.pengajuan_id === p.id && b.jenis === 'ta_kemiripan'))
+      return pmGagal('Laporan cek kemiripan belum diunggah mahasiswa: kembalikan dengan catatan.');
+    if (a.p_persen > batasKm()) return pmGagal(`Kemiripan ${a.p_persen} % di atas batas ${batasKm()} %: kembalikan ke mahasiswa untuk diperbaiki.`);
+    const cek = { persen: a.p_persen, batas: batasKm(), oleh: saya?.nama || 'prodi', waktu: new Date().toISOString() };
+    p.data = { ...p.data, kemiripan_cek: cek };
+    pmRiwayat(p, p.status, cek.oleh, `Cek kemiripan diperiksa: ${a.p_persen} % (batas ${cek.batas} %).`); simpan();
+    return { data: cek, error: null };
+  }
+  if (nama === 'ta_metopen') {
+    const saya = (DB.dosen || []).find(d => d.email === email());
+    if (!saya || saya.peran === 'asesor') return pmGagal('Khusus dosen dan admin prodi.');
+    return { data: PM().filter(o => o.jenis === 'ta' && o.data?.tahap_ta === 'seminar_proposal' && o.data?.metopen && !['dibatalkan', 'ditolak'].includes(o.status))
+      .sort((x, y) => String(y.dibuat).localeCompare(String(x.dibuat))).map(o => {
+        const j = (DB.jadwal_ta || []).filter(x => x.pengajuan_id === o.id && x.status !== 'batal').sort((x, y) => String(x.tanggal).localeCompare(String(y.tanggal))).at(-1);
+        return { pengajuan_id: o.id, nim: o.nim, nama: o.nama, judul: o.data?.judul || '', pembimbing: pmPembimbingNim(o.nim).map(x => x.nama).join(', ') || null,
+          dibuat: o.dibuat, status: o.status, tanggal: j?.tanggal || null, status_jadwal: j?.status || null, hasil: j?.hasil || null,
+          nilai_akhir: j?.nilai_akhir ?? null, ba_ditetapkan: j?.ba_ditetapkan || null };
+      }), error: null };
+  }
   // Jadwalkan seminar/sidang TA (94), tiruan ringkas.
   if (nama === 'pengajuan_jadwalkan') {
     const p = PM().find(x => x.id === a.p_id), saya = (DB.dosen || []).find(d => d.email === email());
     if (!saya || saya.peran !== 'admin') return pmGagal('Menjadwalkan khusus admin.');
     if (!p || p.status !== 'admin') return pmGagal('Pengajuan belum disetujui pembimbing atau sudah dijadwalkan.');
+    if (belumCekKm(p)) return pmGagal('Periksa laporan cek kemiripan dulu (isi persennya menurut laporan, lalu centang sudah diperiksa).');
     if (!(a.p_penguji || []).length && !a.p_penguji_luar) return pmGagal('Tetapkan minimal satu penguji.');
     const nidn = id => (DB.dosen || []).find(d => d.id === id)?.nidn;
     (DB.jadwal_ta ||= []).push({ id: baru(), pengajuan_id: p.id, tahap: p.data?.tahap_ta, nama_mahasiswa: p.nama, nim: p.nim, judul: p.data?.judul,
@@ -337,6 +377,8 @@ function pmRpc(nama, a){
     if (p.status === 'pembimbing' && !(adm || p.pembimbing_id === saya.id)) return pmGagal('Hanya dosen pembimbing atau admin.');
     if (p.status === 'admin' && !adm) return pmGagal('Tahap ini diputuskan admin.');
     if (a.p_aksi !== 'setujui' && !a.p_catatan) return pmGagal('Tulis catatan untuk mahasiswa.');
+    if (a.p_aksi === 'setujui' && p.status === 'pembimbing' && p.jenis === 'ta' && p.data?.tahap_ta === 'sidang_akhir' && !p.data?.kemiripan_cek)   // 185
+      return pmGagal('Periksa laporan cek kemiripan dulu (isi persennya menurut laporan, lalu centang sudah diperiksa).');
     if (p.jenis === 'surat' && p.status === 'admin' && a.p_aksi === 'setujui' && !(DB.pengajuan_berkas || []).some(b => b.pengajuan_id === p.id && b.jenis === 'surat_jadi'))
       return pmGagal('Unggah surat yang sudah ditandatangani dulu.');
     // 108: lomba satu persetujuan.
@@ -451,7 +493,8 @@ function pmRpc(nama, a){
       .sort((x, y) => String(x.tanggal).localeCompare(String(y.tanggal)) || x.id - y.id)
       .map(j => ({ tahap: j.tahap, tanggal: j.tanggal, status: j.status, hasil: j.hasil || null, batas_revisi: j.batas_revisi || null,
         revisi_selesai: j.revisi_selesai || null, ba_ditetapkan: j.ba_ditetapkan || null, siup_diunggah: j.siup_diunggah || null, pengajuan_id: j.pengajuan_id || null })),
-    syarat: ['seminar_proposal', 'seminar_kemajuan', 'sidang_akhir'].map(t => pmSyaratBimb(p.nim, t)) }, error: null };
+    syarat: ['seminar_proposal', 'seminar_kemajuan', 'sidang_akhir'].map(t => pmSyaratBimb(p.nim, t)),
+    ganti_pada: tetapTA?.data?.ganti_pada || null }, error: null };   // 185
   if (nama === 'mhs_tautan_lain') {
     const o = PM().find(x => x.id === a.p_id && x.nim === p.nim);
     return o ? { data: o.token, error: null } : pmGagal('Pengajuan tidak ditemukan.');
@@ -501,7 +544,18 @@ function pmRpc(nama, a){
     Object.assign(b, isi); simpan(); return { data: b.id, error: null };
   }
   if (!['draf', 'dikembalikan'].includes(p.status)) return pmGagal('Pengajuan sedang diperiksa; isian tidak bisa diubah.');
-  if (nama === 'mhs_ubah') { Object.assign(p, { nama: a.p_nama, pembimbing_id: a.p_pembimbing, data: a.p_data, diperbarui: new Date().toISOString() }); simpan(); return { data: 'ok', error: null }; }
+  if (nama === 'mhs_ubah') {
+    // 185 (sama dengan mhs_rapikan): data disusun ulang dari isian, jadi catatan cek kemiripan hilang; persen hanya sidang akhir,
+    // metopen hanya seminar proposal.
+    const d = { ...(a.p_data || {}) };
+    if (p.jenis === 'ta') {
+      if (d.tahap_ta !== 'sidang_akhir' || String(d.kemiripan_persen ?? '').trim() === '') delete d.kemiripan_persen;
+      else { d.kemiripan_persen = String(d.kemiripan_persen).trim().replace(',', '.');
+        if (!/^\d{1,3}(\.\d{1,2})?$/.test(d.kemiripan_persen) || +d.kemiripan_persen > 100) return pmGagal('Persen kemiripan harus angka 0 sampai 100.'); }
+      if (d.tahap_ta !== 'seminar_proposal' || !d.metopen) delete d.metopen;
+    }
+    Object.assign(p, { nama: a.p_nama, pembimbing_id: a.p_pembimbing, data: d, diperbarui: new Date().toISOString() }); simpan(); return { data: 'ok', error: null };
+  }
   // 122: tautan Google Drive untuk berkas yudisium yang terlalu besar.
   if (nama === 'mhs_tautan_berkas') {
     if (p.jenis !== 'yudisium') return pmGagal('Tautan berkas hanya untuk berkas yudisium.');
@@ -536,6 +590,12 @@ function pmRpc(nama, a){
     // 175: minimal bimbingan terkonfirmasi sejak tahap sebelumnya (sesudah pemeriksaan berkas, sama dengan urutan trigger).
     if (tahapTA && !aju && !kurangTA.length) { const s = pmSyaratBimb(p.nim, tahapTA);
       if (!s.cukup) return pmGagal(`Bimbingan terkonfirmasi${s.sejak ? ' sejak tahap sebelumnya (' + s.sejak.split('-').reverse().join('-') + ')' : ''}: baru ${s.terhitung} dari minimal ${s.minimal}. Catat bimbingan Anda di bagian Catatan bimbingan dan minta pembimbing mengonfirmasinya (catatan yang 14 hari tidak ditanggapi terkonfirmasi otomatis).`); }
+    // 185: sidang akhir = persen kemiripan diisi dan tidak di atas batas (sesudah berkas dan bimbingan, sama dengan urutan trigger).
+    if (tahapTA === 'sidang_akhir' && !kurangTA.length) {
+      const km = p.data?.kemiripan_persen, bt = +((DB.pengaturan || []).find(x => x.kunci === 'ta_batas_kemiripan')?.nilai ?? 25);
+      if (km == null || km === '') return pmGagal('Isi persen kemiripan laporan akhir (dari laporan cek kemiripan) dulu.');
+      if (+km > bt) return pmGagal(`Kemiripan ${km} % di atas batas ${bt} %. Perbaiki laporan akhir dan cek kemiripan ulang sebelum mendaftar sidang akhir.`);
+    }
     if (kurangTA.length) return pmGagal(`Berkas wajib ${{ penetapan_pembimbing: 'pengajuan pembimbing TA', seminar_proposal: 'seminar proposal', seminar_kemajuan: 'seminar kemajuan', sidang_akhir: 'sidang akhir' }[tahapTA]} belum lengkap: ${kurangTA.join(', ')}.`);
     // 122: yudisium = 14 berkas wajib (daftar bawaan patch 122), langsung ke admin prodi.
     if (p.jenis === 'yudisium') {

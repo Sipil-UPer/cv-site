@@ -11,8 +11,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-26-e38917">
-<link rel="stylesheet" href="kepala.css?v=2026-11-26-e38917">
+<link rel="stylesheet" href="tema.css?v=2026-11-26-b110e6">
+<link rel="stylesheet" href="kepala.css?v=2026-11-26-b110e6">
 <style>
   .tag{display:inline-block;font-size:12px;padding:1px 8px;border:1px solid var(--line);background:var(--bg);white-space:nowrap}
   .tag.tinggi{border-color:var(--merah);color:var(--merah)}
@@ -46,7 +46,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></div>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-26-e38917"></script>
+<script src="config.js?v=2026-11-26-b110e6"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -65,14 +65,14 @@ addEventListener('error', function (e) {
 // dan beban membimbing/menguji per dosen pada periode terpilih (TS, 3 TS, tahun). Sumber: jadwal_ta (semua pengguna login
 // membaca). Unduh Excel khusus admin (memuat NIM).
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-26-e38917';
-import { pasangTab } from './tab-seksi.js?v=2026-11-26-e38917';   // susunan bertab (pemilik 2026-11-25)
-import { punya } from './koordinator.js?v=2026-11-26-e38917';
-import { TAHAP, STATUS, waktuJadwal, rekapTA, lembarTA, revisiBerjalan } from './rekap-ta.js?v=2026-11-26-e38917';
-import { opsiPeriode, cocokPeriode, labelPeriode, taTeks, tsKarya, tsBerjalan } from './sdgs-unduh.js?v=2026-11-26-e38917';
-import { barisKuota } from './rekap-kp.js?v=2026-11-26-e38917';
-import { semesterTA, kunciSemester, teksSemester, geserSemester, TAHAP_PERINGATAN, teksPeringatanTA } from './pengajuan-mhs.js?v=2026-11-26-e38917';
-import { SHEETJS } from './nilai-cpl.js?v=2026-11-26-e38917';
+import { gerbang } from './menu.js?v=2026-11-26-b110e6';
+import { pasangTab } from './tab-seksi.js?v=2026-11-26-b110e6';   // susunan bertab (pemilik 2026-11-25)
+import { punya } from './koordinator.js?v=2026-11-26-b110e6';
+import { TAHAP, STATUS, waktuJadwal, rekapTA, lembarTA, revisiBerjalan } from './rekap-ta.js?v=2026-11-26-b110e6';
+import { opsiPeriode, cocokPeriode, labelPeriode, taTeks, tsKarya, tsBerjalan } from './sdgs-unduh.js?v=2026-11-26-b110e6';
+import { barisKuota } from './rekap-kp.js?v=2026-11-26-b110e6';
+import { semesterTA, kunciSemester, teksSemester, geserSemester, TAHAP_PERINGATAN, teksPeringatanTA, BATAS_KEMIRIPAN, HASIL_TA } from './pengajuan-mhs.js?v=2026-11-26-b110e6';
+import { SHEETJS } from './nilai-cpl.js?v=2026-11-26-b110e6';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
@@ -222,6 +222,66 @@ function gambarPeringatan(){
   };
 }
 
+// Penanda Metopen (185, pemilik 2026-11-26): seminar proposal sebagai nilai UAS Metodologi Penelitian. Daftar ta_metopen()
+// per semester (dari tanggal pendaftaran, WIB) dengan nilai akhir setelah berita acara ditetapkan; diunduh dosen Metopen.
+let METOPEN = null, SM_METOPEN = '';
+async function muatMetopen(){
+  const { data, error } = await sb.rpc('ta_metopen');
+  METOPEN = error ? null : (data || []);
+}
+const LABEL_AJU = { draf: 'Draf', pembimbing: 'Diperiksa pembimbing', admin: 'Menunggu jadwal', disetujui: 'Terjadwal', dikembalikan: 'Dikembalikan' };
+function barisMetopen(r){
+  return { ...r, semester: kunciSemester(semesterTA(r.dibuat)),
+    keadaan: r.hasil ? (HASIL_TA[r.hasil] || r.hasil) : r.status_jadwal === 'terjadwal' ? 'Terjadwal' : r.status_jadwal === 'selesai' ? 'Menunggu hasil'
+      : LABEL_AJU[r.status] || r.status,
+    nilai: r.ba_ditetapkan && r.nilai_akhir != null ? Number(r.nilai_akhir) : null };
+}
+function gambarMetopen(){
+  const el = $('metopenIsi'); if (!el) return;
+  if (!METOPEN) { el.innerHTML = '<p class="kosong">Belum tersedia (jalankan supabase/185-patch-kemiripan-seminar-ulang-metopen.sql).</p>'; return; }
+  const semua = METOPEN.map(barisMetopen), sms = [...new Set(semua.map(r => r.semester).filter(Boolean))].sort().reverse();
+  if (!sms.includes(SM_METOPEN)) SM_METOPEN = sms[0] || '';
+  const xs = semua.filter(r => r.semester === SM_METOPEN);
+  const teksSm = k => { const [ts, sm] = k.split(' '); return teksSemester({ ts: +ts, sm }); };
+  el.innerHTML = `<p class="ket">Seminar proposal yang ditandai mahasiswa sebagai bagian dari MK Metodologi Penelitian. Jalurnya sama dengan
+      seminar proposal lain; nilai akhir tampil setelah berita acara ditetapkan dan bisa dipakai sebagai nilai UAS Metopen.</p>
+    ${sms.length ? `<div class="saring"><label>Semester <select id="mtSm">${sms.map(k => `<option value="${esc(k)}"${k === SM_METOPEN ? ' selected' : ''}>${esc(teksSm(k))}</option>`).join('')}</select></label>
+      <button type="button" class="b" id="mtUnduh"${xs.length ? '' : ' disabled'}>Unduh Excel</button></div>` : ''}
+    ${xs.length ? `<div class="lebar-tabel"><table><thead><tr><th>Mahasiswa</th><th>Judul</th><th>Pembimbing</th><th>Seminar</th><th>Keadaan</th><th class="n">Nilai akhir</th></tr></thead>
+      <tbody>${xs.map(r => `<tr><td>${esc(r.nama)}<div class="ket">${esc(r.nim)}</div></td><td>${esc(r.judul)}</td><td>${esc(r.pembimbing || '—')}</td>
+        <td>${esc(r.tanggal || '—')}</td><td>${esc(r.keadaan)}</td><td class="n">${r.nilai == null ? '—' : esc(r.nilai.toFixed(2))}</td></tr>`).join('')}</tbody></table></div>`
+      : '<p class="kosong">Belum ada seminar proposal bertanda Metopen.</p>'}`;
+  TAB?.angka(TAB.panel.findIndex(p => p.contains(el)), xs.length);
+  if ($('mtSm')) $('mtSm').onchange = e => { SM_METOPEN = e.target.value; gambarMetopen(); };
+  if ($('mtUnduh')) $('mtUnduh').onclick = async () => {
+    try {
+      const X = await import(SHEETJS), wb = X.utils.book_new();
+      const ws = X.utils.aoa_to_sheet([['NIM', 'Nama', 'Judul', 'Pembimbing', 'Tanggal seminar', 'Keadaan', 'Nilai akhir'],
+        ...xs.map(r => [r.nim, r.nama, r.judul, r.pembimbing || '', r.tanggal || '', r.keadaan, r.nilai ?? ''])]);
+      ws['!cols'] = [12, 28, 60, 36, 14, 18, 10].map(wch => ({ wch }));
+      X.utils.book_append_sheet(wb, ws, 'Metopen');
+      X.writeFile(wb, `metopen-proposal-${SM_METOPEN.replace(' ', '-')}.xlsx`);
+    } catch (e) { alert('Unduh gagal: ' + (e.message || e)); }
+  };
+}
+
+// Batas kemiripan sidang akhir (185): koordinator TA/admin.
+async function gambarBatasKemiripan(){
+  const el = $('batasKm'); if (!el) return;
+  const r = await sb.rpc('ta_kemiripan_batas');
+  if (r.error) { el.innerHTML = ''; return; }
+  el.innerHTML = `<div class="saring"><label>Batas kemiripan laporan akhir (sidang akhir)
+      <input id="kmBatas" type="number" min="1" max="100" step="0.5" style="width:5em" value="${esc(r.data ?? BATAS_KEMIRIPAN)}"> %</label>
+    <button type="button" class="b" id="kmSimpan">Simpan batas</button><span class="msg" id="mKm" role="status"></span></div>
+    <p class="ket">Mahasiswa tidak bisa mendaftar sidang akhir bila persen kemiripannya di atas batas ini; pembimbing 1, koordinator TA,
+      atau admin memeriksa laporannya sebelum pendaftaran diteruskan atau dijadwalkan.</p>`;
+  $('kmSimpan').onclick = async () => {
+    const m = $('mKm');
+    const { error } = await sb.rpc('ta_kemiripan_atur', { p_batas: +$('kmBatas').value });
+    m.className = 'msg ' + (error ? 'err' : 'ok'); m.textContent = error ? error.message : 'Batas tersimpan.';
+  };
+}
+
 // Urutan tahap TA (172-patch-urutan-tahap-ta.sql, pemilik 2026-11-25): kemajuan setelah proposal lulus + revisi selesai,
 // sidang setelah kemajuan. Koordinator TA/admin mengecualikan satu mahasiswa untuk satu tahap dengan alasan tercatat.
 const TAHAP_KECUALI = [['seminar_kemajuan', 'Seminar kemajuan'], ['sidang_akhir', 'Sidang akhir']];
@@ -340,14 +400,16 @@ async function mulai(){
     <h2 id="beban-dosen">Beban dosen</h2><div id="beban"></div>
     ${SAYA.peran === 'asesor' ? '' : '<h2 id="kuota-ta">Kuota pembimbing</h2><div id="kuota"></div>'}
     ${ADMIN ? '<h2 id="urutan-tahap">Pengecualian urutan</h2><div id="kecuali"></div>' : ''}
-    ${ADMIN ? '<h2 id="berkas-ta">Berkas per tahap</h2><div id="berkasTA"></div>' : ''}`;
+    ${SAYA.peran === 'asesor' ? '' : '<h2 id="metopen">Metopen</h2><div id="metopenIsi"></div>'}
+    ${ADMIN ? '<h2 id="berkas-ta">Berkas per tahap</h2><div id="batasKm"></div><div id="berkasTA"></div>' : ''}`;
   TAB = pasangTab($('isi'));
   $('fPeriode').onchange = e => { PERIODE = e.target.value; gambar(); };
   gambar();
   if ($('peringatan')) { await muatPeringatan(); gambarPeringatan(); }
   if ($('kuota')) { await muatKuota(); gambarKuota(); }
   if ($('kecuali')) { await muatKecuali(); gambarKecuali(); }
-  if ($('berkasTA')) { await muatBerkasTA(); gambarBerkasTA(); }
+  if ($('berkasTA')) { await muatBerkasTA(); gambarBerkasTA(); await gambarBatasKemiripan(); }
+  if ($('metopenIsi')) { await muatMetopen(); gambarMetopen(); }
 }
 mulai().catch(e => { $('isi').innerHTML = `<p class="kosong">Gagal memuat: ${esc(e.message)}</p>`; });
 </script>

@@ -58,6 +58,7 @@ export const BERKAS_TA_BAWAAN = [
   ['sidang_akhir', 'naskah_ta', 'Laporan akhir TA', 'PDF laporan akhir yang akan disidangkan.'],
   ['sidang_akhir', 'ta_transkrip', 'Transkrip atau KHS', 'Transkrip atau KHS terakhir dari SIUP.'],
   ['sidang_akhir', 'ta_artikel', 'Draf artikel atau bukti publikasi', 'Draf artikel ilmiah dari TA, atau LoA/bukti terbit bila sudah dipublikasikan.'],
+  ['sidang_akhir', 'ta_kemiripan', 'Laporan cek kemiripan', 'Laporan hasil cek kemiripan (mis. Turnitin) atas laporan akhir yang akan disidangkan.'],   // 185
 ].map(([tahap, kode, label, keterangan]) => ({ tahap, kode, label, keterangan, wajib: true }));
 /** Daftar berkas satu tahap TA (urut daftar) + 'Lainnya' opsional; bentuknya sama dengan daftar yudisium (kelengkapanYudisium). */
 export const berkasTahapTA = (daftar = BERKAS_TA_BAWAAN, tahap) => daftar.filter(d => d.tahap === tahap)
@@ -125,6 +126,7 @@ export const LABEL_BERKAS = {
   lainnya: 'Lainnya', surat_pengantar: 'Surat pengantar dari prodi', surat_jadi: 'Surat dari prodi (bertanda tangan)',
   naskah_ta: 'Naskah TA (proposal / laporan kemajuan / laporan akhir)',
   ta_bukti_bimbingan: 'Bukti bimbingan SIUP', ta_terdaftar_siup: 'Bukti terdaftar TA di SIUP', ta_transkrip: 'Transkrip atau KHS', ta_artikel: 'Draf artikel atau bukti publikasi',   // 174
+  ta_kemiripan: 'Laporan cek kemiripan',   // 185
   bukti_luaran: 'Bukti publikasi/luaran (naskah, LoA, sertifikat HKI, halaman ISBN)',
 };
 
@@ -260,6 +262,9 @@ export function periksaIsian(jenis, { nim, nama, pembimbing, data = {} }){
     if (data.tahap_ta === TAHAP_PEMBIMBING_TA && !data.kk_ta) g.push('Pilih kelompok keahlian topik TA.');
     if (String(data.judul || '').trim().length < 3) g.push(data.tahap_ta === TAHAP_PEMBIMBING_TA ? 'Tulis judul awal TA.' : 'Tulis judul TA.');
     if (data.pembimbing_2 && data.pembimbing_2 === pembimbing) g.push('Pembimbing 2 harus berbeda dari pembimbing 1.');
+    // 185: persen kemiripan laporan akhir (sama dengan mhs_rapikan); batasnya diperiksa saat dikirim.
+    if (data.tahap_ta === 'sidang_akhir' && String(data.kemiripan_persen ?? '').trim() !== '' && persenKemiripan(data.kemiripan_persen) == null)
+      g.push('Persen kemiripan harus angka 0 sampai 100.');
   }
   if (jenis === 'kabar') {   // 144: batas kabar_kegiatan (judul 3-200, ringkasan 20-1200)
     if (String(data.judul || '').trim().length < 3) g.push('Tulis judul kegiatan.');
@@ -396,7 +401,7 @@ export function lembarPengajuan(xs, tsTeks = () => '', daftarYud = BERKAS_YUDISI
 // Langkah TA satu mahasiswa dari mhs_kemajuan_ta(token) = { pengajuan, jadwal, syarat }. Hasil [{kode, label, keadaan, ket, id}]
 // dengan keadaan seperti htmlJalur: selesai | kini (langkah pertama yang belum selesai) | kembali (kini, pengajuannya
 // dikembalikan) | nanti. id = pengajuan yang bisa dibuka dari langkah itu (atau null).
-const HASIL_TA = { lulus: 'Lulus', lulus_revisi: 'Lulus dengan revisi', mengulang: 'Mengulang' };
+export const HASIL_TA = { lulus: 'Lulus', lulus_revisi: 'Lulus dengan revisi', mengulang: 'Mengulang' };
 const LULUS_TA = h => h === 'lulus' || h === 'lulus_revisi';
 export const tglIndo = s => s ? new Date(String(s).slice(0, 10) + 'T00:00:00Z')
   .toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' }) : '';
@@ -404,8 +409,10 @@ export const tglIndo = s => s ? new Date(String(s).slice(0, 10) + 'T00:00:00Z')
 export function kemajuanTA(k){
   if (!k) return [];
   const ta = (k.pengajuan || []).filter(x => x.jenis === 'ta' && x.status !== 'dibatalkan');
-  const terbaru = t => ta.filter(x => x.tahap_ta === t).sort((a, b) => String(b.dibuat).localeCompare(String(a.dibuat)))[0] || null;
-  const jadwal = t => (k.jadwal || []).filter(j => j.tahap === t).slice(-1)[0] || null;   // urut tanggal: terakhir
+  // 185: pembimbing 1 atau judul diganti (ganti_pada) = seminar diulang; seminar dan pendaftaran sebelum tanggal itu diabaikan.
+  const ganti = k.ganti_pada || '', baru = (x, t) => !ganti || x.tahap_ta === TAHAP_PEMBIMBING_TA || String(t || '').slice(0, 10) >= ganti;
+  const terbaru = t => ta.filter(x => x.tahap_ta === t && baru(x, x.dibuat)).sort((a, b) => String(b.dibuat).localeCompare(String(a.dibuat)))[0] || null;
+  const jadwal = t => (k.jadwal || []).filter(j => j.tahap === t && baru(j, j.tanggal)).slice(-1)[0] || null;   // urut tanggal: terakhir
   const syarat = t => (k.syarat || []).find(s => s?.tahap === t) || null;
   const label = x => labelStatus({ ...x, data: { tahap_ta: x.tahap_ta } });
   const L = [];
@@ -414,7 +421,8 @@ export function kemajuanTA(k){
   const adaSeminar = TAHAP_TA.some(([t]) => terbaru(t) || jadwal(t));
   L.push({ kode: 'pembimbing', label: 'Pembimbing ditetapkan', id: pen?.id ?? null, kembali: pen?.status === 'dikembalikan',
     selesai: pen?.status === 'disetujui' || (!pen && adaSeminar),
-    ket: pen ? (pen.status === 'disetujui' ? tglIndo(pen.diperbarui) : label(pen)) : adaSeminar ? 'tidak tercatat di situs' : 'Ajukan pembimbing TA' });
+    ket: pen ? (pen.status !== 'disetujui' ? label(pen) : ganti ? `Diganti ${tglIndo(ganti)}; seminar proposal diulang` : tglIndo(pen.diperbarui))
+      : adaSeminar ? 'tidak tercatat di situs' : 'Ajukan pembimbing TA' });
 
   const seminar = TAHAP_TA.map(([t, nama]) => {
     const j = jadwal(t), a = terbaru(t);
@@ -458,6 +466,25 @@ export function kemajuanTA(k){
     const keadaan = selesai ? 'selesai' : kini ? 'nanti' : (kini = true, kembali ? 'kembali' : 'kini');
     return { ...x, keadaan };
   });
+}
+
+// ---------- Cek kemiripan sebelum sidang akhir (185, pemilik 2026-11-26) ----------
+export const BATAS_KEMIRIPAN = 25;   // bawaan; nilai berlaku dari ta_kemiripan_batas()
+/** '12,5' -> 12.5; bukan angka 0-100 (maks. 2 desimal) -> null. Sama dengan mhs_rapikan (185). */
+export function persenKemiripan(v){
+  const s = String(v ?? '').trim().replace(',', '.');
+  if (!/^\d{1,3}(\.\d{1,2})?$/.test(s)) return null;
+  const n = Number(s);
+  return n <= 100 ? n : null;
+}
+/** Sidang akhir yang sedang diperiksa dan belum dicatat pemeriksaan kemiripannya (pembimbing 1, koordinator TA, admin). */
+export const perluCekKemiripan = p => p?.jenis === 'ta' && p?.data?.tahap_ta === 'sidang_akhir'
+  && ['pembimbing', 'admin'].includes(p?.status) && !p?.data?.kemiripan_cek;
+/** "12.5 % menurut mahasiswa · diperiksa 12.5 % oleh Nama, 26-11-2026 (batas 25 %)". */
+export function teksKemiripan(d = {}, batas = BATAS_KEMIRIPAN){
+  const c = d.kemiripan_cek, b = c?.batas ?? batas;
+  const mhs = d.kemiripan_persen != null && d.kemiripan_persen !== '' ? `${d.kemiripan_persen} % menurut mahasiswa` : 'belum diisi mahasiswa';
+  return `${mhs} · ${c ? `diperiksa ${c.persen} % oleh ${c.oleh || 'prodi'}${c.waktu ? ', ' + tglIndo(c.waktu) : ''}` : 'belum diperiksa'} (batas ${b} %)`;
 }
 
 // ---------- Peringatan dini TA (183, pemilik 2026-11-26) ----------
