@@ -11,8 +11,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-26-f0c804">
-<link rel="stylesheet" href="kepala.css?v=2026-11-26-f0c804">
+<link rel="stylesheet" href="tema.css?v=2026-11-26-8dd1cc">
+<link rel="stylesheet" href="kepala.css?v=2026-11-26-8dd1cc">
 <style>
   .tag{display:inline-block;font-size:12px;padding:1px 8px;border:1px solid var(--line);background:var(--bg);white-space:nowrap}
   .tag.tinggi{border-color:var(--merah);color:var(--merah)}
@@ -46,7 +46,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></div>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-26-f0c804"></script>
+<script src="config.js?v=2026-11-26-8dd1cc"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -65,19 +65,19 @@ addEventListener('error', function (e) {
 // dan beban membimbing/menguji per dosen pada periode terpilih (TS, 3 TS, tahun). Sumber: jadwal_ta (semua pengguna login
 // membaca). Unduh Excel khusus admin (memuat NIM).
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-26-f0c804';
-import { pasangTab } from './tab-seksi.js?v=2026-11-26-f0c804';   // susunan bertab (pemilik 2026-11-25)
-import { punya } from './koordinator.js?v=2026-11-26-f0c804';
-import { TAHAP, STATUS, waktuJadwal, rekapTA, lembarTA, revisiBerjalan } from './rekap-ta.js?v=2026-11-26-f0c804';
-import { opsiPeriode, cocokPeriode, labelPeriode, taTeks, tsKarya, tsBerjalan } from './sdgs-unduh.js?v=2026-11-26-f0c804';
-import { barisKuota } from './rekap-kp.js?v=2026-11-26-f0c804';
-import { semesterTA, kunciSemester, teksSemester, geserSemester, TAHAP_PERINGATAN, teksPeringatanTA, BATAS_KEMIRIPAN, HASIL_TA } from './pengajuan-mhs.js?v=2026-11-26-f0c804';
-import { SHEETJS } from './nilai-cpl.js?v=2026-11-26-f0c804';
+import { gerbang } from './menu.js?v=2026-11-26-8dd1cc';
+import { pasangTab } from './tab-seksi.js?v=2026-11-26-8dd1cc';   // susunan bertab (pemilik 2026-11-25)
+import { punya } from './koordinator.js?v=2026-11-26-8dd1cc';
+import { TAHAP, STATUS, waktuJadwal, rekapTA, lembarTA, revisiBerjalan } from './rekap-ta.js?v=2026-11-26-8dd1cc';
+import { opsiPeriode, cocokPeriode, labelPeriode, taTeks, tsKarya, tsBerjalan } from './sdgs-unduh.js?v=2026-11-26-8dd1cc';
+import { barisKuota } from './rekap-kp.js?v=2026-11-26-8dd1cc';
+import { semesterTA, kunciSemester, teksSemester, geserSemester, TAHAP_PERINGATAN, teksPeringatanTA, BATAS_KEMIRIPAN, HASIL_TA } from './pengajuan-mhs.js?v=2026-11-26-8dd1cc';
+import { SHEETJS } from './nilai-cpl.js?v=2026-11-26-8dd1cc';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
 const sb = createClient(window.SB_URL, window.SB_KEY);
-let SAYA = null, ADMIN = false, BARIS = [], DOSEN = {}, PERIODE = '';
+let SAYA = null, ADMIN = false, KOOR = false, BARIS = [], DOSEN = {}, PERIODE = '';
 const dgWaktu = r => ({ ...r, ...waktuJadwal(r) });
 const tsTeks = r => { const t = tsKarya(waktuJadwal(r)); return t ? taTeks(t) : ''; };
 
@@ -88,7 +88,7 @@ function gambar(){
   const nm = v => (Array.isArray(v) ? v : []).map(n => DOSEN[n] || n).join(', ');
   $('ringkas').innerHTML = TAHAP.map(([k, l]) => `<div><b>${r.tahap[k].selesai} / ${r.tahap[k].semua}</b><span>${esc(l)}: selesai / semua</span></div>`).join('')
     + `<div><b>${r.dosen.length}</b><span>dosen terlibat</span></div>`;
-  $('beban').innerHTML = r.dosen.length ? `<div class="lebar-tabel"><table><thead><tr><th>Dosen</th><th class="n">Membimbing</th>${TAHAP.map(([, l]) =>
+  if ($('beban')) $('beban').innerHTML = r.dosen.length ? `<div class="lebar-tabel"><table><thead><tr><th>Dosen</th><th class="n">Membimbing</th>${TAHAP.map(([, l]) =>
       `<th class="n">${esc(l)}</th>`).join('')}<th class="n">Menguji</th>${TAHAP.map(([, l]) => `<th class="n">${esc(l)}</th>`).join('')}</tr></thead>
     <tbody>${r.dosen.map(d => `<tr><td>${esc(d.nama)}</td><td class="n">${d.bimbing}</td>${TAHAP.map(([k]) => `<td class="n">${d['bimbing_' + k]}</td>`).join('')}
       <td class="n">${d.uji}</td>${TAHAP.map(([k]) => `<td class="n">${d['uji_' + k]}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`
@@ -381,6 +381,8 @@ async function mulai(){
   SAYA = await gerbang(sb);
   if (!SAYA) return;
   ADMIN = SAYA.peran === 'admin' || punya(SAYA, 'koordinator_ta');   // koordinator TA (97): unduh dan tandai revisi
+  // Beban dosen dan kuota pembimbing (pemilik 2026-11-26): koordinator TA, Kaprodi, pimpinan, GKM, admin; dosen biasa tidak.
+  KOOR = ADMIN || punya(SAYA, 'kaprodi') || punya(SAYA, 'gkm') || SAYA.peran === 'pimpinan';
   $('hSub').textContent = `Masuk sebagai ${SAYA.nama}`;
   const [jq, dq] = await Promise.all([sb.from('jadwal_ta').select('*').order('tanggal'), sb.from('dosen').select('nidn,nama')]);
   if (jq.error) throw new Error(/jadwal_ta/.test(jq.error.message) ? 'Tabel belum ada: jalankan supabase/94-patch-jadwal-ta.sql.' : jq.error.message);
@@ -397,8 +399,8 @@ async function mulai(){
     <h2 id="jadwal-mendatang">Jadwal mendatang</h2><div id="akan"></div>
     <h2 id="revisi">Revisi berjalan</h2><div id="revisiIsi"></div>
     ${SAYA.peran === 'asesor' ? '' : '<h2 id="peringatan-dini">Peringatan dini</h2><div id="peringatan"></div>'}
-    <h2 id="beban-dosen">Beban dosen</h2><div id="beban"></div>
-    ${SAYA.peran === 'asesor' ? '' : '<h2 id="kuota-ta">Kuota pembimbing</h2><div id="kuota"></div>'}
+    ${KOOR || SAYA.peran === 'asesor' ? '<h2 id="beban-dosen">Beban dosen</h2><div id="beban"></div>' : ''}
+    ${KOOR ? '<h2 id="kuota-ta">Kuota pembimbing</h2><div id="kuota"></div>' : ''}
     ${ADMIN ? '<h2 id="urutan-tahap">Pengecualian urutan</h2><div id="kecuali"></div>' : ''}
     ${SAYA.peran === 'asesor' ? '' : '<h2 id="metopen">Metopen</h2><div id="metopenIsi"></div>'}
     ${ADMIN ? '<h2 id="berkas-ta">Berkas per tahap</h2><div id="batasKm"></div><div id="berkasTA"></div>' : ''}`;

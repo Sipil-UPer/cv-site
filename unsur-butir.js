@@ -3,8 +3,8 @@
 // dari sini; <id> ditulis tools/pilih_instrumen.py (pemilik 2026-11-24).
 // Masih khusus LAM Teknik di sini: nomor butir 20/22/24 di hitungUnsur (pindah
 // bersama rumus skor.html).
-import { UNSUR_BUTIR, PJ_UNSUR, PJ_DATA, PJ_BUKTI } from './instrumen/lam-teknik-s1/unsur-butir.js?v=2026-11-26-f0c804';
-export * from './instrumen/lam-teknik-s1/unsur-butir.js?v=2026-11-26-f0c804';
+import { UNSUR_BUTIR, PJ_UNSUR, PJ_DATA, PJ_BUKTI } from './instrumen/lam-teknik-s1/unsur-butir.js?v=2026-11-26-8dd1cc';
+export * from './instrumen/lam-teknik-s1/unsur-butir.js?v=2026-11-26-8dd1cc';
 
 // Banyaknya unsur berurutan mulai unsur 1 yang ada buktinya (0-4).
 export function skorUnsur(ada){
