@@ -11,8 +11,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-26-8dd1cc">
-<link rel="stylesheet" href="kepala.css?v=2026-11-26-8dd1cc">
+<link rel="stylesheet" href="tema.css?v=2026-11-26-6d9dac">
+<link rel="stylesheet" href="kepala.css?v=2026-11-26-6d9dac">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
@@ -78,7 +78,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></div>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-26-8dd1cc"></script>
+<script src="config.js?v=2026-11-26-6d9dac"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -98,18 +98,18 @@ addEventListener('error', function (e) {
 // Berkas privat dibuka lewat Apps Script (mhs_buka_prodi); surat pengantar KP diunggah admin (mhs_unggah_prodi);
 // mahasiswa dikabari email saat dikembalikan, ditolak, atau disetujui (mhs_kabari).
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-26-8dd1cc';
-import { bolehPengajuan, punya, labelJabatan } from './koordinator.js?v=2026-11-26-8dd1cc';
+import { gerbang } from './menu.js?v=2026-11-26-6d9dac';
+import { bolehPengajuan, punya, labelJabatan } from './koordinator.js?v=2026-11-26-6d9dac';
 import { JENIS, LABEL_BERKAS, LABEL_STATUS, TINGKAT, BIDANG, teksAnggota, judulPengajuan, keB64, bukaIsi, appsScript, labelStatus, JENIS_SURAT, TAHAP_TA, JENIS_PUB, TINGKAT_PUB, INDEKSASI, JENIS_LUARAN, waktuPengajuan, rekapPengajuan, lembarPengajuan, labelProgram, penetapanTA, pilihanPembimbingTA, kkCocok,
          BERKAS_YUDISIUM_BAWAAN, kelengkapanYudisium, labelBerkas, JENIS_KEGIATAN, bolehBatalProdi, BERKAS_TA_BAWAAN, berkasTahapTA, TAHAP_TA_BERKAS,
-         semesterTA, kunciSemester, teksSemester, BATAS_KEMIRIPAN, persenKemiripan, perluCekKemiripan, teksKemiripan } from './pengajuan-mhs.js?v=2026-11-26-8dd1cc';
-import { opsiPeriode, cocokPeriode, labelPeriode, taTeks, tsKarya } from './sdgs-unduh.js?v=2026-11-26-8dd1cc';
-import { SHEETJS } from './nilai-cpl.js?v=2026-11-26-8dd1cc';
-import { barisKuota, teksPilihanPembimbing } from './rekap-kp.js?v=2026-11-26-8dd1cc';
-import { siapkan } from './pembimbing.js?v=2026-11-26-8dd1cc';
-import { usulPenguji, bebanUji, tsDari } from './usulan-penguji.js?v=2026-11-26-8dd1cc';
-import { usulanWaktu } from './cari-waktu.js?v=2026-11-26-8dd1cc';
-import { bacaJam, formatJam, sibukSidang, gabungSibuk, periksaWaktu } from './jadwal-sidang.js?v=2026-11-26-8dd1cc';
+         semesterTA, kunciSemester, teksSemester, BATAS_KEMIRIPAN, persenKemiripan, perluCekKemiripan, teksKemiripan } from './pengajuan-mhs.js?v=2026-11-26-6d9dac';
+import { opsiPeriode, cocokPeriode, labelPeriode, taTeks, tsKarya } from './sdgs-unduh.js?v=2026-11-26-6d9dac';
+import { SHEETJS } from './nilai-cpl.js?v=2026-11-26-6d9dac';
+import { barisKuota, teksPilihanPembimbing } from './rekap-kp.js?v=2026-11-26-6d9dac';
+import { siapkan } from './pembimbing.js?v=2026-11-26-6d9dac';
+import { usulPenguji, bebanUji, tsDari } from './usulan-penguji.js?v=2026-11-26-6d9dac';
+import { usulanWaktu } from './cari-waktu.js?v=2026-11-26-6d9dac';
+import { bacaJam, formatJam, sibukSidang, gabungSibuk, periksaWaktu } from './jadwal-sidang.js?v=2026-11-26-6d9dac';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
@@ -171,8 +171,9 @@ async function muat(){
   if (!bk.error && bk.data != null) BATAS = Number(bk.data);
   const [dq, jq] = await Promise.all([sb.from('dosen').select('id,nidn,nama,aktif,peran,dtps').order('nama'),
     sb.from('jadwal_ta').select('pengajuan_id,tahap,tanggal,jam,ruang,tautan_daring,status,pembimbing,penguji,penguji_luar')]);
-  // Calon penguji = aturan daftar dosen Data prodi: DTPS atau berperan dosen/pimpinan; staf admin non-dosen tidak.
-  DOSEN = (dq.data || []).filter(d => d.aktif && d.nidn && (d.dtps || ['dosen', 'pimpinan'].includes(d.peran)));
+  // Calon penguji = aturan daftar dosen Data prodi: DTPS atau berperan dosen; staf admin non-dosen dan pimpinan yang bukan
+  // DTPS (Dekan, pemilik 2026-11-26) tidak.
+  DOSEN = (dq.data || []).filter(d => d.aktif && d.nidn && (d.dtps || d.peran === 'dosen'));
   SEMUA_JADWAL = jq.error ? [] : jq.data || [];
   JADWAL = new Map(SEMUA_JADWAL.filter(j => j.pengajuan_id).map(j => [j.pengajuan_id, j]));
   // Beban/kuota hanya untuk TS pengajuan KP yang pembimbingnya bisa ditetapkan; sebelum patch 107: kosong.

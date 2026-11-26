@@ -11,8 +11,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-26-8dd1cc">
-<link rel="stylesheet" href="kepala.css?v=2026-11-26-8dd1cc">
+<link rel="stylesheet" href="tema.css?v=2026-11-26-6d9dac">
+<link rel="stylesheet" href="kepala.css?v=2026-11-26-6d9dac">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
@@ -54,7 +54,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></div>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-26-8dd1cc"></script>
+<script src="config.js?v=2026-11-26-6d9dac"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -74,12 +74,12 @@ addEventListener('error', function (e) {
 // admin, Kaprodi, dan pimpinan melihat rekap; admin mengunggah daftar mahasiswa aktif per semester (ekspor SIAKAD),
 // menetapkan wali, dan mengunduh daftar wali untuk SIUP/Dirsik. Mahasiswa tidak melihat catatan.
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-26-8dd1cc';
-import { pasangTab } from './tab-seksi.js?v=2026-11-26-8dd1cc';
-import { punya } from './koordinator.js?v=2026-11-26-8dd1cc';
-import { semesterTA } from './pengajuan-mhs.js?v=2026-11-26-8dd1cc';
-import { SHEETJS } from './nilai-cpl.js?v=2026-11-26-8dd1cc';
-import { bacaCsv, barisMahasiswa, semesterDariNama, urutSemester, teksSm, ipkRendah, rekapWali, lembarWali } from './perwalian.js?v=2026-11-26-8dd1cc';
+import { gerbang } from './menu.js?v=2026-11-26-6d9dac';
+import { pasangTab } from './tab-seksi.js?v=2026-11-26-6d9dac';
+import { punya } from './koordinator.js?v=2026-11-26-6d9dac';
+import { semesterTA } from './pengajuan-mhs.js?v=2026-11-26-6d9dac';
+import { SHEETJS } from './nilai-cpl.js?v=2026-11-26-6d9dac';
+import { bacaCsv, barisMahasiswa, semesterDariNama, urutSemester, teksSm, ipkRendah, rekapWali, lembarWali } from './perwalian.js?v=2026-11-26-6d9dac';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
@@ -317,7 +317,7 @@ async function mulai(){
   const kini = semesterTA(new Date().toISOString());
   SM = SMS.find(s => kunci(s) === kunci(kini)) || (SMS[0] ? { ts: SMS[0].ts, sm: SMS[0].sm } : kini);
   const dq = await sb.from('dosen').select('id,nama,nidn,aktif,peran,dtps').order('nama');
-  DOSEN = (dq.data || []).filter(d => d.aktif && d.nidn && (d.dtps || ['dosen', 'pimpinan'].includes(d.peran)));
+  DOSEN = (dq.data || []).filter(d => d.aktif && d.nidn && (d.dtps || d.peran === 'dosen'));   // pimpinan non-DTPS bukan wali
   await muatDaftar();
   $('isi').innerHTML = `
     <div class="saring"><label>Semester <select id="fSm"></select></label></div>

@@ -35,7 +35,7 @@ export function lembarTA(rows, dosen = {}, tsTeks = () => ''){
   const L = { Jadwal: [['No', 'Tanggal', 'Jam', 'Tahap', 'Nama', 'NIM', 'Judul', 'Pembimbing', 'Penguji', 'Penguji luar', 'Ruang', 'Status', 'Hasil', 'TS']],
     'Beban dosen': [['Dosen', 'NIDN', 'Membimbing', ...TAHAP.map(([, l]) => `Bimbing: ${l}`), 'Menguji', ...TAHAP.map(([, l]) => `Uji: ${l}`)]] };
   [...rows].sort((a, b) => String(a.tanggal).localeCompare(String(b.tanggal))).forEach((r, i) => L.Jadwal.push([i + 1, r.tanggal || '', r.jam || '',
-    lbl(r.tahap), r.nama_mahasiswa || '', r.nim || '', r.judul || '', nm(r.pembimbing), nm(r.penguji), r.penguji_luar || '', r.ruang || '',
+    lbl(r.tahap), r.nama_mahasiswa || '', r.nim || '', r.judul || '', [nm(r.pembimbing), r.pembimbing_luar].filter(Boolean).join('; '), nm(r.penguji), r.penguji_luar || '', r.ruang || '',
     STATUS[r.status] || r.status || '', HASIL[r.hasil] || '', tsTeks(r)]));
   rekapTA(rows, dosen).dosen.forEach(d => L['Beban dosen'].push([d.nama, d.nidn, d.bimbing, ...TAHAP.map(([k]) => d[`bimbing_${k}`]),
     d.uji, ...TAHAP.map(([k]) => d[`uji_${k}`])]));

@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-26-8dd1cc">
+<link rel="stylesheet" href="tema.css?v=2026-11-26-6d9dac">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
@@ -100,7 +100,7 @@
 
 <main class="wrap" id="isi"><p class="hint">Memuat&hellip;</p></main>
 
-<script src="config.js?v=2026-11-26-8dd1cc"></script>
+<script src="config.js?v=2026-11-26-6d9dac"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache) tampil sebagai pesan.
 addEventListener('error', function (e) {
@@ -116,17 +116,17 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { pengguna, pasangMenu, halamanBoleh, bolehBuka, identitas, pasangJudul, pintasanUntuk } from './menu.js?v=2026-11-26-8dd1cc';
-import { kelasMengajarSaya } from './mk-saya.js?v=2026-11-26-8dd1cc';
-import { hitungVerifikasi } from './verifikasi-hitung.js?v=2026-11-26-8dd1cc';
-import { rubrikRps } from './rps.js?v=2026-11-26-8dd1cc';
-import { bacaTinjauan } from './tinjauan-rps.js?v=2026-11-26-8dd1cc';
-import { isoDari } from './pengingat-rps.js?v=2026-11-26-8dd1cc';
-import { tugasSaya } from './tugas-saya.js?v=2026-11-26-8dd1cc';
-import { fiturAktif, halamanAktif } from './fitur.js?v=2026-11-26-8dd1cc';
+import { pengguna, pasangMenu, halamanBoleh, bolehBuka, identitas, pasangJudul, pintasanUntuk } from './menu.js?v=2026-11-26-6d9dac';
+import { kelasMengajarSaya } from './mk-saya.js?v=2026-11-26-6d9dac';
+import { hitungVerifikasi } from './verifikasi-hitung.js?v=2026-11-26-6d9dac';
+import { rubrikRps } from './rps.js?v=2026-11-26-6d9dac';
+import { bacaTinjauan } from './tinjauan-rps.js?v=2026-11-26-6d9dac';
+import { isoDari } from './pengingat-rps.js?v=2026-11-26-6d9dac';
+import { tugasSaya } from './tugas-saya.js?v=2026-11-26-6d9dac';
+import { fiturAktif, halamanAktif } from './fitur.js?v=2026-11-26-6d9dac';
 // Situs publik mati (templat akreditasi, pemilik 2026-11-23): tanpa tautan ke beranda umum.
 if (!halamanAktif('index.html')) document.querySelector('a.balik[href="index.html"]')?.remove();
-import { barisDosen } from './target-kinerja.js?v=2026-11-26-8dd1cc';
+import { barisDosen } from './target-kinerja.js?v=2026-11-26-6d9dac';
 
 const sb = createClient(window.SB_URL, window.SB_KEY);
 const $ = id => document.getElementById(id);

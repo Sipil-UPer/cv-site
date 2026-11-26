@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-26-8dd1cc">
+<link rel="stylesheet" href="tema.css?v=2026-11-26-6d9dac">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
@@ -104,7 +104,7 @@
   .masuk{max-width:420px;margin:40px auto;background:#fff;border:1px solid var(--line);padding:20px}
   .masuk input{width:100%;padding:8px 10px;margin:8px 0;font:inherit}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-26-8dd1cc">
+<link rel="stylesheet" href="kepala.css?v=2026-11-26-6d9dac">
 </head>
 <body>
 
@@ -118,7 +118,7 @@
 
 <main class="wrap" id="isi"></main>
 
-<script src="config.js?v=2026-11-26-8dd1cc"></script>
+<script src="config.js?v=2026-11-26-6d9dac"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -135,31 +135,31 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { buangBerkas, buangSemua, PESAN_SAMPAH, fotoPrestasiPublik, PERINGATAN_FOTO } from './hapus-berkas.js?v=2026-11-26-8dd1cc';
-import { pasangMenu } from './menu.js?v=2026-11-26-8dd1cc';
-import { LKPS } from './dokumen-instrumen.js?v=2026-11-26-8dd1cc';
-import { POS_A5, labelPos } from './keuangan-a5.js?v=2026-11-26-8dd1cc';
-import { dosenLogin } from './dosen-login.js?v=2026-11-26-8dd1cc';
-import { aktifPada, tabBoleh, labelJabatan, labelPeran } from './koordinator.js?v=2026-11-26-8dd1cc';
-import { unggahKePustaka, opsiPustaka, opsiJenis, labelDokumen, cariDokumen } from './pustaka-dokumen.js?v=2026-11-26-8dd1cc';
-import { pasangRapikan } from './rapikan-berkas.js?v=2026-11-26-8dd1cc';
-import { UNSUR, skorUnsur, pihakUnsur } from './unsur-butir.js?v=2026-11-26-8dd1cc';
-import { OPSI_SUMBER } from './iku-otomatis.js?v=2026-11-26-8dd1cc';
-import { denganOtomatis as otomatisDari, tsTersedia, tsAwal, htmlCapaianIKU, KET_CAPAIAN, muatTambahan, denganTambahan } from './capaian-iku.js?v=2026-11-26-8dd1cc';
-import { KATEGORI_TEMUAN, STATUS_TEMUAN, PIHAK_TEMUAN, ringkasTemuan, htmlRingkasTemuan } from './temuan-ami.js?v=2026-11-26-8dd1cc';
-import { bacaRekapSPM, rencanaImporSPM, tsDariTanggal, labelTS, ringkasLembar, picProdi } from './standar-spmi.js?v=2026-11-26-8dd1cc';
-import { SHEETJS } from './nilai-cpl.js?v=2026-11-26-8dd1cc';
-import { bacaKerjasama, rencanaImporKS, LEMBAR_KS } from './impor-kerjasama.js?v=2026-11-26-8dd1cc';
-import { bacaCSV, normKur, normCpl, KOLOM_IMPOR, CONTOH_IMPOR, rencanaImpor, sebaranCPL, htmlSebaran } from './kurikulum-cpl.js?v=2026-11-26-8dd1cc';
-import { htmlContoh, pasangContoh, JENIS_BUKTI_KS } from './manfaat-kerjasama.js?v=2026-11-26-8dd1cc';
-import { infoJenis } from './rencana-bukti.js?v=2026-11-26-8dd1cc';
-import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-26-8dd1cc';
-import { BOBOT } from './bobot.js?v=2026-11-26-8dd1cc';
-import { nomorButir, htmlTautanButir } from './tautan-butir.js?v=2026-11-26-8dd1cc';
-import { htmlSaran } from './saran-bukti.js?v=2026-11-26-8dd1cc';
-import { tautanBerkas, privatkanLama, adalahPrivat } from './tautan-privat.js?v=2026-11-26-8dd1cc';
-import { unggahLKD, buangLKD, bukaLKD, pendidikanTotal, pendidikanPS } from './bkd.js?v=2026-11-26-8dd1cc';
-import { teksPelaksanaan } from './rekap-kp.js?v=2026-11-26-8dd1cc';
+import { buangBerkas, buangSemua, PESAN_SAMPAH, fotoPrestasiPublik, PERINGATAN_FOTO } from './hapus-berkas.js?v=2026-11-26-6d9dac';
+import { pasangMenu } from './menu.js?v=2026-11-26-6d9dac';
+import { LKPS } from './dokumen-instrumen.js?v=2026-11-26-6d9dac';
+import { POS_A5, labelPos } from './keuangan-a5.js?v=2026-11-26-6d9dac';
+import { dosenLogin } from './dosen-login.js?v=2026-11-26-6d9dac';
+import { aktifPada, tabBoleh, labelJabatan, labelPeran } from './koordinator.js?v=2026-11-26-6d9dac';
+import { unggahKePustaka, opsiPustaka, opsiJenis, labelDokumen, cariDokumen } from './pustaka-dokumen.js?v=2026-11-26-6d9dac';
+import { pasangRapikan } from './rapikan-berkas.js?v=2026-11-26-6d9dac';
+import { UNSUR, skorUnsur, pihakUnsur } from './unsur-butir.js?v=2026-11-26-6d9dac';
+import { OPSI_SUMBER } from './iku-otomatis.js?v=2026-11-26-6d9dac';
+import { denganOtomatis as otomatisDari, tsTersedia, tsAwal, htmlCapaianIKU, KET_CAPAIAN, muatTambahan, denganTambahan } from './capaian-iku.js?v=2026-11-26-6d9dac';
+import { KATEGORI_TEMUAN, STATUS_TEMUAN, PIHAK_TEMUAN, ringkasTemuan, htmlRingkasTemuan } from './temuan-ami.js?v=2026-11-26-6d9dac';
+import { bacaRekapSPM, rencanaImporSPM, tsDariTanggal, labelTS, ringkasLembar, picProdi } from './standar-spmi.js?v=2026-11-26-6d9dac';
+import { SHEETJS } from './nilai-cpl.js?v=2026-11-26-6d9dac';
+import { bacaKerjasama, rencanaImporKS, LEMBAR_KS } from './impor-kerjasama.js?v=2026-11-26-6d9dac';
+import { bacaCSV, normKur, normCpl, KOLOM_IMPOR, CONTOH_IMPOR, rencanaImpor, sebaranCPL, htmlSebaran } from './kurikulum-cpl.js?v=2026-11-26-6d9dac';
+import { htmlContoh, pasangContoh, JENIS_BUKTI_KS } from './manfaat-kerjasama.js?v=2026-11-26-6d9dac';
+import { infoJenis } from './rencana-bukti.js?v=2026-11-26-6d9dac';
+import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-26-6d9dac';
+import { BOBOT } from './bobot.js?v=2026-11-26-6d9dac';
+import { nomorButir, htmlTautanButir } from './tautan-butir.js?v=2026-11-26-6d9dac';
+import { htmlSaran } from './saran-bukti.js?v=2026-11-26-6d9dac';
+import { tautanBerkas, privatkanLama, adalahPrivat } from './tautan-privat.js?v=2026-11-26-6d9dac';
+import { unggahLKD, buangLKD, bukaLKD, pendidikanTotal, pendidikanPS } from './bkd.js?v=2026-11-26-6d9dac';
+import { teksPelaksanaan } from './rekap-kp.js?v=2026-11-26-6d9dac';
 // Rentang nomor butir instrumen aktif (LAM Teknik 1-60, LAMDEPILAR 101-130; 159-patch, 2026-11-24).
 const NO_BUTIR = Object.keys(BOBOT).map(Number);
 const BUTIR_MIN = Math.min(...NO_BUTIR), BUTIR_MAKS = Math.max(...NO_BUTIR);
@@ -1046,6 +1046,8 @@ const TABEL = [
       { k: 'bidang', l: 'Bidang keahlian (arsip judul TA; kosong = ikut pembimbing pertama)', t: 'pilihan', o: () => PEMINATAN, patch149: true },
       { k: 'pembimbing', l: 'Dosen pembimbing', t: 'jamak', kosong: 'Daftar dosen kosong.', o: () => DOSEN.map(d => [d.nidn, d.nama]) },
       { k: 'penguji', l: 'Dosen penguji (prodi)', t: 'jamak', kosong: 'Daftar dosen kosong.', o: () => DOSEN.map(d => [d.nidn, d.nama]) },
+      // 187-patch-riwayat-lulusan.sql (pemilik 2026-11-26): pembimbing luar prodi/kampus; riwayat = dari daftar yudisium.
+      { k: 'pembimbing_luar', l: 'Pembimbing dari luar prodi (nama, instansi)', t: 'teks', patch187: true },
       { k: 'penguji_luar', l: 'Penguji dari luar prodi (nama, instansi)', t: 'teks' },
       { k: 'status', l: 'Status', t: 'pilihan', wajib: true,
         o: [['terjadwal', 'Terjadwal'], ['selesai', 'Selesai'], ['ditunda', 'Ditunda'], ['batal', 'Batal']] },
@@ -1057,6 +1059,7 @@ const TABEL = [
       { k: 'revisi_selesai', l: 'Revisi selesai pada (diisi pembimbing di Rekap TA, atau di sini)', t: 'tanggal' },
       { k: 'tampil_nama', l: 'Mahasiswa setuju namanya tampil di jadwal publik', t: 'cek' },
       { k: 'sembunyikan_publik', l: 'Sembunyikan dari jadwal publik', t: 'cek' },
+      { k: 'riwayat', l: 'Riwayat dari daftar yudisium (tidak dinilai di situs)', t: 'cek', patch187: true },
     ],
     cek: r => !String(r.nama_mahasiswa || '').trim() ? 'Isi nama mahasiswa.' : '' },
   { id: 'publikasi', tabel: 'lkps_publikasi_mahasiswa', judul: 'Publikasi mahasiswa', butir: '46',
@@ -1128,6 +1131,8 @@ let ADA46 = true;
 let ADA145 = true, PEMINATAN = [];
 // ADA149 = jadwal_ta.bidang ada (149-patch-bidang-ta.sql); pilihan memakai PEMINATAN yang sama.
 let ADA149 = true;
+// ADA187 = jadwal_ta.riwayat dan pembimbing_luar ada (187-patch-riwayat-lulusan.sql).
+let ADA187 = true;
 // ADA164 = lkps_tendik.status_kerja ada (164-patch-tendik.sql); LAB_OPSI = [id teks, nama] laboratorium untuk tendik.
 let ADA164 = true, LAB_OPSI = [];
 // ADA70 = ref_mata_kuliah.kurikulum ada (70-patch-kurikulum-mk.sql): MK K21 dan K26 berdampingan.
@@ -1144,7 +1149,8 @@ let LB = new Map(), LB_GAGAL = '', ANTREAN = [];
 // ADA67 = spmi_standar ada (67-patch-standar-spmi.sql); kolom patch67 disembunyikan bila belum.
 let ADA67 = true;
 const kolomForm = T => T.kolom.filter(c => c.t !== 'url' && !(c.patch45 && !ADA45) && !(c.patch46 && !ADA46) && !(c.patch48 && !ADA48)
-  && !(c.patch67 && !ADA67) && !(c.patch70 && !ADA70) && !(c.patch145 && !ADA145) && !(c.patch149 && !ADA149) && !(c.patch164 && !ADA164));
+  && !(c.patch67 && !ADA67) && !(c.patch70 && !ADA70) && !(c.patch145 && !ADA145) && !(c.patch149 && !ADA149) && !(c.patch164 && !ADA164)
+  && !(c.patch187 && !ADA187));
 const kolomLama = T => (T.kolom.find(c => c.t === 'url') || {}).k;
 
 // Pilihan standar, rapat, dan temuan untuk tab SPMI (67-patch-standar-spmi.sql).
@@ -1184,7 +1190,7 @@ async function mulai(){
   // Pilihan dosen (BKD, pembimbing): tanpa admin/asesor yang bukan DTPS
   // (admin staf/tendik bukan dosen).
   const { data: ds } = await sb.from('dosen').select('nidn,nama,peran,dtps').order('nama');
-  DOSEN = (ds || []).filter(d => d.nidn && (d.dtps || ['dosen', 'pimpinan'].includes(d.peran)));
+  DOSEN = (ds || []).filter(d => d.nidn && (d.dtps || d.peran === 'dosen'));   // pimpinan non-DTPS tidak (pemilik 2026-11-26)
   ADA29 = !(await sb.from('lkps_bukti').select('dokumen_id').limit(1)).error;
   ADA30 = !(await sb.from('dokumen').select('nomor,tanggal').limit(1)).error;   // 30-patch-spmi.sql
   ADA43 = !(await sb.from('lkps_bukti').select('unsur').limit(1)).error;
@@ -1195,6 +1201,7 @@ async function mulai(){
   ADA164 = !(await sb.from('lkps_tendik').select('status_kerja').limit(1)).error;
   LAB_OPSI = ((await sb.from('laboratorium').select('id,nama').order('nama')).data || []).map(l => [String(l.id), l.nama]);
   ADA149 = !(await sb.from('jadwal_ta').select('bidang').limit(1)).error;
+  ADA187 = !(await sb.from('jadwal_ta').select('riwayat,pembimbing_luar').limit(1)).error;
   if (ADA145 || ADA149) PEMINATAN = await fetch('data.json', {cache: 'no-cache'}).then(r => r.ok ? r.json() : {}).catch(() => ({}))
     .then(d => [...(d.situs?.kelompok_keahlian || []), ...(d.situs?.peminatan_lain || [])].map(x => [x.kode, x.nama]));
   ADA48 = !(await sb.from('lkps_target_kinerja').select('sumber').limit(1)).error;

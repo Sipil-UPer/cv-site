@@ -1,8 +1,8 @@
 // Silabus mata kuliah (129-patch-silabus.sql, pemilik 2026-11-20): kolom isian, pemeriksaan kelengkapan, CPL terkait,
 // rencana impor isi awal, dan isi Word "Lampiran: Silabus Mata Kuliah" dokumen kurikulum (bentuk Lampiran Kurikulum SIAKUP,
 // dua bahasa). Fungsi murni; halaman: silabus.html.
-import { para, run, judul, tabel } from './docx-dasar.js?v=2026-11-26-8dd1cc';
-import { susunanMK, jenisMK } from './rps.js?v=2026-11-26-8dd1cc';
+import { para, run, judul, tabel } from './docx-dasar.js?v=2026-11-26-6d9dac';
+import { susunanMK, jenisMK } from './rps.js?v=2026-11-26-6d9dac';
 
 const t = s => String(s ?? '').trim();
 
@@ -35,8 +35,9 @@ export const kekuranganSilabus = d => KOLOM_SILABUS.filter(c => c.wajib && !t(d?
 export const statusSilabus = s => (s ? s.status : 'belum');
 
 /** MK berpenyelenggara universitas (MKU, MKPT, Kalkulus, Fisika Dasar, ...): silabusnya dari universitas. Pemilik 2026-11-20:
- *  tetap tampil, boleh diisi (disalin dari universitas), ikut lampiran dan angka kemajuan; hanya impor isi awal yang
- *  melewatinya (silabus lama prodi untuk MK ini sengaja dihapus). */
+ *  tetap tampil, boleh diisi (disalin dari universitas), ikut lampiran dan angka kemajuan; impor isi awal olahan prodi
+ *  melewatinya (silabus lama prodi untuk MK ini sengaja dihapus). Pemilik 2026-11-26: berkas impor bertanda
+ *  "universitas": true (silabus resmi universitas) mengisi MK ini, dan hanya MK ini. */
 export const dariUniversitas = m => m?.unit_penyelenggara === 'universitas';
 
 /** CPL terkait MK (urut kurikulum) dari peta MK-CPL dan daftar CPL: [{ kode, rumusan, rumusan_en }]. */
@@ -61,7 +62,7 @@ export function rencanaImpor(berkas, mk = [], silabus = new Map()){
   const kodeAda = new Set(mkKur.map(m => m.kode));
   const perNama = new Map();
   for (const m of mkKur) { const n = normNama(m.nama); perNama.set(n, perNama.has(n) ? null : m.kode); }
-  const out = { kurikulum: kur, baris: [], sudahAda: [], tanpaMk: [], ganda: [], universitas: [] };
+  const out = { kurikulum: kur, baris: [], sudahAda: [], tanpaMk: [], ganda: [], universitas: [], prodi: [] };
   const dipakai = new Set();
   for (const s of berkas.silabus) {
     let kode = t(s.kode);
@@ -71,7 +72,10 @@ export function rencanaImpor(berkas, mk = [], silabus = new Map()){
       kode = k || '';
     }
     if (!kode || !kodeAda.has(kode)) { out.tanpaMk.push({ kode: t(s.kode), nama: t(s.nama) }); continue; }
-    if (dariUniversitas(mkKur.find(m => m.kode === kode))) { out.universitas.push(kode); continue; }
+    // Berkas biasa (olahan prodi) melewati MK universitas; berkas silabus resmi universitas ("universitas": true,
+    // pemilik 2026-11-26) hanya mengisi MK universitas, MK prodi dilewati.
+    const univ = dariUniversitas(mkKur.find(m => m.kode === kode));
+    if (univ !== (berkas.universitas === true)) { (univ ? out.universitas : out.prodi).push(kode); continue; }
     if (dipakai.has(kode)) { out.ganda.push(`${kode} ${t(s.nama)}`); continue; }
     dipakai.add(kode);
     if (silabus.has(`${kur}|${kode}`)) { out.sudahAda.push(kode); continue; }
