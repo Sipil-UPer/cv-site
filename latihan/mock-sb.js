@@ -101,6 +101,84 @@ function pmRpc(nama, a){
   const tsDari = t => { const m = String(t || '').match(/^(\d{4})-(\d{2})/); return m ? (+m[2] >= 9 ? +m[1] + 1 : +m[1]) : 0; };
   const tsKP = p => tsDari(p.data_selesai?.tanggal_mulai || p.data?.tanggal_mulai || p.data?.rencana_mulai || p.dibuat);
   const sayaAdmin = () => (DB.dosen || []).find(d => d.email === email() && d.peran === 'admin');
+  // 186: perwalian, tiruan (aturan sama dengan 186-patch-perwalian.sql).
+  if (nama.startsWith('perwalian_')) {
+    const saya = (DB.dosen || []).find(d => d.email === email());
+    const semua = !!saya && (saya.peran === 'admin' || saya.peran === 'pimpinan'
+      || (DB.koordinator || []).some(k => k.dosen_id === saya.id && k.jabatan === 'kaprodi' && !k.selesai));
+    const MS = (DB.mahasiswa_semester ||= []), MH = (DB.mahasiswa ||= []), CT = (DB.perwalian_catatan ||= []);
+    const ke = (ts, sm) => ts * 2 + (sm === 'Genap' ? 1 : 0);
+    const minimal = () => +((DB.pengaturan || []).find(x => x.kunci === 'perwalian_minimal')?.nilai ?? 2);
+    const lihat = s => semua || s.wali_id === saya?.id;
+    const nCat = s => CT.filter(c => c.nim === s.nim && c.ts === s.ts && c.semester === s.semester);
+    if (nama === 'perwalian_semester') {
+      const g = new Map();
+      for (const s of MS.filter(lihat)) { const k = `${s.ts}|${s.semester}`; const x = g.get(k) || { ts: s.ts, semester: s.semester, jumlah: 0, tanpa_wali: 0 };
+        x.jumlah++; if (!s.wali_id) x.tanpa_wali++; g.set(k, x); }
+      return { data: [...g.values()].sort((x, y) => ke(y.ts, y.semester) - ke(x.ts, x.semester)), error: null };
+    }
+    if (nama === 'perwalian_daftar') {
+      const nmD = id => (DB.dosen || []).find(d => d.id === id)?.nama || null;
+      return { data: MS.filter(s => s.ts === a.p_ts && s.semester === a.p_sm && lihat(s)).map(s => {
+        const m = MH.find(x => x.nim === s.nim) || {}, c = nCat(s);
+        return { nim: s.nim, nama: m.nama, angkatan: m.angkatan ?? null, email: m.email ?? null, sks_total: s.sks_total ?? null, ipk: s.ipk ?? null,
+          wali_id: s.wali_id || null, wali: nmD(s.wali_id), pertemuan: c.length, terakhir: c.map(x => x.tanggal).sort().at(-1) || null, minimal: minimal() };
+      }).sort((x, y) => (x.wali == null) - (y.wali == null) || String(x.wali).localeCompare(String(y.wali)) || (x.angkatan - y.angkatan) || x.nama.localeCompare(y.nama)), error: null };
+    }
+    if (nama === 'perwalian_tugas') {
+      const kini = new Date(Date.now() + 7 * 3600e3), b = kini.getUTCMonth() + 1, y = kini.getUTCFullYear();
+      const ts = b >= 9 ? y + 1 : y, sm = b >= 3 && b <= 8 ? 'Genap' : 'Ganjil';
+      const xs = MS.filter(s => s.ts === ts && s.semester === sm && s.wali_id === saya?.id);
+      const awal = sm === 'Ganjil' ? `${ts - 1}-09-01` : `${ts}-03-01`, akhir = sm === 'Ganjil' ? `${ts}-03-01` : `${ts}-09-01`;
+      return { data: { ts, semester: sm, awal, akhir, minimal: minimal(), total: xs.length,
+        belum: xs.map(s => ({ nim: s.nim, nama: MH.find(m => m.nim === s.nim)?.nama, n: nCat(s).length })).filter(x => x.n < minimal()) }, error: null };
+    }
+    if (nama === 'perwalian_atur_minimal') {
+      if (!(saya?.peran === 'admin' || (DB.koordinator || []).some(k => k.dosen_id === saya?.id && k.jabatan === 'kaprodi'))) return pmGagal('Minimal pertemuan diatur admin atau Kaprodi.');
+      if (!(a.p_n >= 1 && a.p_n <= 10)) return pmGagal('Minimal pertemuan: 1 sampai 10.');
+      const P = (DB.pengaturan ||= []), x = P.find(y => y.kunci === 'perwalian_minimal');
+      if (x) x.nilai = a.p_n; else P.push({ kunci: 'perwalian_minimal', nilai: a.p_n });
+      simpan(); return { data: 'ok', error: null };
+    }
+    if (!sayaAdmin()) return pmGagal(nama === 'perwalian_impor' ? 'Daftar mahasiswa diunggah admin prodi.' : 'Dosen wali ditetapkan admin prodi.');
+    if (nama === 'perwalian_atur_wali') {
+      if (!(a.p_nim || []).length) return pmGagal('Pilih mahasiswa dulu.');
+      let n = 0;
+      for (const s of MS) if (a.p_nim.includes(s.nim) && ke(s.ts, s.semester) >= ke(a.p_ts, a.p_sm)) { s.wali_id = a.p_dosen || null; n++; }
+      simpan(); return { data: n, error: null };
+    }
+    if (nama === 'perwalian_impor') {
+      const cari = v => { const q = String(v || '').trim().toLowerCase(); return q ? (DB.dosen || []).find(d => d.aktif && [d.email, d.email_alternatif, d.nidn, d.nama]
+        .some(x => String(x || '').toLowerCase() === q))?.id || null : null; };
+      const r = { jumlah: 0, baru: 0, wali_berkas: 0, wali_terbawa: 0, tanpa_wali: 0, dihapus: 0, tertahan: 0, wali_tak_dikenal: [], baris_salah: [] };
+      const nims = [];
+      for (const x of a.p_baris || []) {
+        const nim = String(x.nim || '').replace(/\s/g, ''), nm = String(x.nama || '').trim();
+        if (!/^[0-9]{6,15}$/.test(nim) || !nm) { r.baris_salah.push(nim || '(kosong)'); continue; }
+        if (nims.includes(nim)) continue; nims.push(nim);
+        let m = MH.find(y => y.nim === nim); if (!m) { m = { nim }; MH.push(m); r.baru++; }
+        Object.assign(m, { nama: nm, email: x.email || m.email || null, angkatan: x.angkatan ? +x.angkatan : m.angkatan ?? null });
+        let w = cari(x.wali);
+        if (x.wali && !w) r.wali_tak_dikenal.push(`${nim}: ${x.wali}`);
+        if (w) r.wali_berkas++;
+        else {
+          w = MS.find(s => s.nim === nim && s.ts === a.p_ts && s.semester === a.p_sm)?.wali_id
+            || MS.filter(s => s.nim === nim && s.wali_id && ke(s.ts, s.semester) < ke(a.p_ts, a.p_sm)).sort((u, v) => ke(v.ts, v.semester) - ke(u.ts, u.semester))[0]?.wali_id || null;
+          if (w) r.wali_terbawa++; else r.tanpa_wali++;
+        }
+        let s = MS.find(y => y.nim === nim && y.ts === a.p_ts && y.semester === a.p_sm);
+        if (!s) { s = { nim, ts: a.p_ts, semester: a.p_sm }; MS.push(s); }
+        Object.assign(s, { sks_total: x.sks === '' || x.sks == null ? null : +x.sks, ipk: x.ipk === '' || x.ipk == null ? null : +String(x.ipk).replace(',', '.'), wali_id: w });
+        r.jumlah++;
+      }
+      if (!r.jumlah) return pmGagal('Tidak ada baris yang sah (NIM angka dan nama wajib).');
+      if (a.p_ganti !== false) for (let i = MS.length - 1; i >= 0; i--) {
+        const s = MS[i]; if (s.ts !== a.p_ts || s.semester !== a.p_sm || nims.includes(s.nim)) continue;
+        if (nCat(s).length) r.tertahan++; else { MS.splice(i, 1); r.dihapus++; }
+      }
+      simpan(); return { data: r, error: null };
+    }
+  }
   if (nama === 'kp_beban') {
     const k = DB.kp_kuota || [], bawaan = k.find(x => x.ts === a.p_ts && !x.dosen_id)?.kuota ?? null;
     return { data: pmRpc('pembimbing_pilihan').data.map(d => { const sendiri = k.find(x => x.ts === a.p_ts && x.dosen_id === d.id);

@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="robots" content="noindex, nofollow">
+<title>Perwalian — Ruang kerja</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tema.css?v=2026-11-26-28d33b">
+<link rel="stylesheet" href="kepala.css?v=2026-11-26-28d33b">
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
+  .wrap{max-width:1120px;margin:0 auto;padding:18px 20px 80px}
+  .kosong, .ket{color:var(--muted)} .ket{font-size:13px}
+  h2{font-family:var(--serif);font-size:19px;font-weight:600;margin:22px 0 8px}
+  h3{font-size:15px;margin:16px 0 6px}
+  .saring{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;margin:4px 0 12px;font-size:13.5px}
+  .saring select, .saring input[type=number], .fld input, .fld select, .fld textarea{font:inherit;font-size:14px;padding:5px 7px;border:1px solid var(--line);background:var(--panel);color:var(--ink)}
+  .ringkas{display:flex;flex-wrap:wrap;gap:10px;margin:4px 0 14px}
+  .ringkas div{background:var(--panel);border:1px solid var(--line);padding:8px 14px}
+  .ringkas b{font-family:var(--mono);font-size:20px;display:block}
+  .ringkas span{font-size:12.5px;color:var(--muted)}
+  table{width:100%;border-collapse:collapse;background:var(--panel);border:1px solid var(--line);font-size:14px}
+  th{text-align:left;font-size:12px;color:var(--muted);font-weight:500;border-bottom:1px solid var(--line);padding:7px 10px;background:var(--bg)}
+  td{border-bottom:1px solid var(--line-soft);padding:7px 10px;vertical-align:top}
+  td.n, th.n{text-align:right;font-family:var(--mono)}
+  button.b{font:inherit;font-size:13.5px;padding:6px 12px;border:1px solid var(--biru);background:var(--biru);color:#fff;cursor:pointer}
+  button.b.ringan{background:var(--panel);color:var(--biru)}
+  button.b:disabled{opacity:.5;cursor:default}
+  button.b.kecil{font-size:12.5px;padding:3px 8px}
+  .tag{display:inline-block;font-size:12px;padding:1px 8px;border:1px solid var(--line);background:var(--bg);white-space:nowrap}
+  .tag.merah{border-color:var(--merah);color:var(--merah)} .tag.hijau{border-color:var(--hijau);color:var(--hijau)}
+  .msg{font-size:13px} .msg.ok{color:var(--hijau)} .msg.err{color:var(--merah)}
+  tr.buka > td{background:var(--bg)}
+  .form{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px 12px;margin:6px 0 10px}
+  .fld{display:flex;flex-direction:column;gap:3px;font-size:13px}
+  .fld.lebar{grid-column:1/-1} .fld textarea{min-height:56px}
+  ul.catatan{list-style:none;margin:6px 0 0;padding:0}
+  ul.catatan li{border-top:1px solid var(--line-soft);padding:7px 0;font-size:14px}
+  ul.catatan .meta{font-size:12.5px;color:var(--muted)}
+  @media(max-width:760px){.lebar-tabel{overflow-x:auto} .form{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="hero" role="region" aria-label="Pembuka halaman"><div class="hero-in">
+  <div class="hero-inst" data-identitas></div>
+  <h1>Perwalian</h1>
+  <div class="sub" id="hSub">Memuat…</div>
+</div></div>
+<main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
+<script src="config.js?v=2026-11-26-28d33b"></script>
+<script>
+// Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
+// halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
+addEventListener('error', function (e) {
+  if (document.getElementById('galat-muat')) return;
+  var d = document.createElement('div');
+  d.id = 'galat-muat';
+  d.style.cssText = 'margin:16px;padding:12px 14px;border:1px solid var(--merah);' +
+    'background:var(--merah-m3);color:var(--ink);font:14px/1.5 system-ui,sans-serif';
+  d.textContent = 'Halaman gagal dimuat: ' + (e.message || 'galat skrip') +
+    '. Tekan Ctrl+Shift+R untuk memuat ulang tanpa cache; bila tetap muncul, kirim pesan ini ke admin.';
+  document.body.insertBefore(d, document.body.firstChild);
+});
+</script>
+<script type="module">
+// Perwalian (186-patch-perwalian.sql, pemilik 2026-11-26): dosen wali mencatat pertemuan (minimal 2 per semester);
+// admin, Kaprodi, dan pimpinan melihat rekap; admin mengunggah daftar mahasiswa aktif per semester (ekspor SIAKAD),
+// menetapkan wali, dan mengunduh daftar wali untuk SIUP/Dirsik. Mahasiswa tidak melihat catatan.
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
+import { gerbang } from './menu.js?v=2026-11-26-28d33b';
+import { pasangTab } from './tab-seksi.js?v=2026-11-26-28d33b';
+import { punya } from './koordinator.js?v=2026-11-26-28d33b';
+import { semesterTA } from './pengajuan-mhs.js?v=2026-11-26-28d33b';
+import { SHEETJS } from './nilai-cpl.js?v=2026-11-26-28d33b';
+import { bacaCsv, barisMahasiswa, semesterDariNama, urutSemester, teksSm, ipkRendah, rekapWali, lembarWali } from './perwalian.js?v=2026-11-26-28d33b';
+
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const $ = id => document.getElementById(id);
+const sb = createClient(window.SB_URL, window.SB_KEY);
+const JENIS = [['awal', 'Awal semester (KRS)'], ['tengah', 'Tengah semester'], ['akhir', 'Akhir semester'], ['lainnya', 'Lainnya']];
+const CARA = [['tatap_muka', 'Tatap muka'], ['daring', 'Daring']];
+const lbl = (xs, k) => (xs.find(x => x[0] === k) || [, k])[1];
+const tglID = s => s ? new Date(String(s).slice(0, 10) + 'T00:00:00Z').toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' }) : '—';
+const hariIni = () => new Date(Date.now() + 7 * 3600e3).toISOString().slice(0, 10);
+const tulis = (id, k, t) => { const m = $(id); if (m) { m.className = 'msg ' + k; m.textContent = t; } };
+
+let SAYA = null, ADMIN = false, SEMUA = false, ATUR_MIN = false, TAB = null;
+let SMS = [], SM = null, ROWS = [], DOSEN = [], CAT = new Map(), BUKA = null;
+const kunci = s => `${s.ts}|${s.sm}`;
+
+async function muatSemester(){
+  const { data, error } = await sb.rpc('perwalian_semester');
+  if (error) throw new Error(/perwalian_semester/.test(error.message) ? 'Fitur perwalian belum dipasang: jalankan supabase/186-patch-perwalian.sql.' : error.message);
+  SMS = (data || []).map(r => ({ ts: r.ts, sm: r.semester, jumlah: r.jumlah, tanpa_wali: r.tanpa_wali }));
+}
+async function muatDaftar(){
+  const { data, error } = await sb.rpc('perwalian_daftar', { p_ts: SM.ts, p_sm: SM.sm });
+  if (error) throw new Error(error.message);
+  ROWS = data || [];
+  const saya = ROWS.filter(r => r.wali_id === SAYA.id).map(r => r.nim);
+  CAT = new Map();
+  if (saya.length) {
+    const c = await sb.from('perwalian_catatan').select('*').in('nim', saya).order('tanggal', { ascending: false });
+    for (const x of c.data || []) CAT.set(x.nim, [...(CAT.get(x.nim) || []), x]);
+  }
+}
+
+// ---------- Mahasiswa perwalian saya ----------
+function gambarSaya(){
+  const el = $('sayaIsi'); if (!el) return;
+  const xs = ROWS.filter(r => r.wali_id === SAYA.id);
+  const min = ROWS[0]?.minimal ?? 2;
+  if (!xs.length) { el.innerHTML = `<p class="kosong">Belum ada mahasiswa perwalian Anda pada ${esc(teksSm(SM))}.</p>`; return; }
+  const belum = xs.filter(r => r.pertemuan < r.minimal).length;
+  TAB?.angka(TAB.panel.findIndex(p => p.contains(el)), belum);
+  el.innerHTML = `<p class="ket">Catat setiap pertemuan perwalian; minimal ${min} kali per mahasiswa per semester. Catatan hanya dibaca dosen
+      wali, Kaprodi, dan admin prodi; mahasiswa tidak melihatnya. IPK dan SKS dari ekspor SIAKAD saat daftar diunggah.</p>
+    <div class="ringkas"><div><b>${xs.length}</b><span>mahasiswa</span></div><div><b>${xs.length - belum}</b><span>sudah ${min} kali</span></div>
+      <div><b>${belum}</b><span>belum ${min} kali</span></div><div><b>${xs.filter(ipkRendah).length}</b><span>IPK di bawah 2,00</span></div></div>
+    <div class="lebar-tabel"><table><thead><tr><th>Mahasiswa</th><th class="n">Angkatan</th><th class="n">SKS</th><th class="n">IPK</th>
+      <th>Pertemuan</th><th>Terakhir</th><th></th></tr></thead><tbody>${xs.map(r => `
+      <tr${BUKA === r.nim ? ' class="buka"' : ''}><td>${esc(r.nama)}<div class="ket">${esc(r.nim)}</div></td><td class="n">${esc(r.angkatan ?? '')}</td>
+        <td class="n">${esc(r.sks_total ?? '—')}</td><td class="n">${r.ipk == null ? '—' : `<span class="${ipkRendah(r) ? 'tag merah' : ''}">${Number(r.ipk).toFixed(2)}</span>`}</td>
+        <td><span class="tag ${r.pertemuan >= r.minimal ? 'hijau' : 'merah'}">${r.pertemuan} / ${r.minimal}</span></td><td>${tglID(r.terakhir)}</td>
+        <td><button type="button" class="b kecil ${BUKA === r.nim ? 'ringan' : ''}" data-buka="${esc(r.nim)}">${BUKA === r.nim ? 'Tutup' : 'Catat / riwayat'}</button></td></tr>
+      ${BUKA === r.nim ? `<tr class="buka"><td colspan="7">${htmlCatat(r)}</td></tr>` : ''}`).join('')}</tbody></table></div>`;
+  el.querySelectorAll('[data-buka]').forEach(b => { b.onclick = () => { BUKA = BUKA === b.dataset.buka ? null : b.dataset.buka; gambarSaya(); }; });
+  if (BUKA) pasangCatat(xs.find(r => r.nim === BUKA));
+}
+function htmlCatat(r){
+  const cat = CAT.get(r.nim) || [], nmD = id => DOSEN.find(d => d.id === id)?.nama || '';
+  return `<h3>Catat pertemuan: ${esc(r.nama)}</h3>
+    <div class="form">
+      <label class="fld">Tanggal<input type="date" id="cTgl" value="${hariIni()}"></label>
+      <label class="fld">Jenis<select id="cJenis">${JENIS.map(([v, l]) => `<option value="${v}">${esc(l)}</option>`).join('')}</select></label>
+      <label class="fld">Cara<select id="cCara">${CARA.map(([v, l]) => `<option value="${v}">${esc(l)}</option>`).join('')}</select></label>
+      <label class="fld lebar">Topik / hal yang dibahas<textarea id="cTopik" maxlength="2000" placeholder="mis. rencana studi, MK yang diulang, kendala belajar"></textarea></label>
+      <label class="fld lebar"><span>Tindak lanjut <span class="ket">(opsional)</span></span><textarea id="cTL" maxlength="2000"></textarea></label>
+    </div>
+    <button type="button" class="b" id="cSimpan">Simpan catatan</button> <span class="msg" id="mCatat" role="status"></span>
+    <h3>Riwayat perwalian</h3>
+    ${cat.length ? `<ul class="catatan">${cat.map(c => `<li><div class="meta">${tglID(c.tanggal)} · ${esc(teksSm({ ts: c.ts, sm: c.semester }))} ·
+      ${esc(lbl(JENIS, c.jenis))} · ${esc(lbl(CARA, c.cara))}${c.dosen_id !== SAYA.id ? ' · ' + esc(nmD(c.dosen_id)) : ''}
+      ${c.dosen_id === SAYA.id ? ` <button type="button" class="b kecil ringan" data-hapus="${c.id}">Hapus</button>` : ''}</div>
+      <div>${esc(c.topik)}</div>${c.tindak_lanjut ? `<div class="ket">Tindak lanjut: ${esc(c.tindak_lanjut)}</div>` : ''}</li>`).join('')}</ul>`
+      : '<p class="kosong">Belum ada catatan.</p>'}`;
+}
+function pasangCatat(r){
+  if (!r) return;
+  $('cSimpan').onclick = async () => {
+    const topik = $('cTopik').value.trim();
+    if (topik.length < 3) return tulis('mCatat', 'err', 'Tulis topik yang dibahas.');
+    $('cSimpan').disabled = true;
+    const { error } = await sb.from('perwalian_catatan').insert({ nim: r.nim, ts: SM.ts, semester: SM.sm, tanggal: $('cTgl').value,
+      jenis: $('cJenis').value, cara: $('cCara').value, topik, tindak_lanjut: $('cTL').value.trim() || null, dosen_id: SAYA.id });
+    if (error) { $('cSimpan').disabled = false; return tulis('mCatat', 'err', error.message); }
+    await muatDaftar(); gambarSaya(); gambarRekap(); tulis('mCatat', 'ok', 'Tersimpan.');
+  };
+  document.querySelectorAll('[data-hapus]').forEach(b => { b.onclick = async () => {
+    if (!confirm('Hapus catatan ini?')) return;
+    const { error } = await sb.from('perwalian_catatan').delete().eq('id', +b.dataset.hapus);
+    if (error) return alert(error.message);
+    await muatDaftar(); gambarSaya(); gambarRekap();
+  }; });
+}
+
+// ---------- Rekap (admin, Kaprodi, pimpinan) ----------
+let HANYA_BELUM = false;
+function gambarRekap(){
+  const el = $('rekapIsi'); if (!el) return;
+  if (!ROWS.length) { el.innerHTML = `<p class="kosong">Belum ada daftar mahasiswa ${esc(teksSm(SM))}.</p>`; return; }
+  const min = ROWS[0].minimal, w = rekapWali(ROWS), belum = ROWS.filter(r => r.pertemuan < r.minimal);
+  const xs = HANYA_BELUM ? belum : ROWS;
+  el.innerHTML = `<div class="ringkas"><div><b>${ROWS.length}</b><span>mahasiswa aktif</span></div><div><b>${ROWS.length - belum.length}</b><span>sudah ${min} kali</span></div>
+      <div><b>${belum.length}</b><span>belum ${min} kali</span></div><div><b>${ROWS.filter(r => !r.wali_id).length}</b><span>belum ada wali</span></div>
+      <div><b>${ROWS.filter(ipkRendah).length}</b><span>IPK di bawah 2,00</span></div></div>
+    ${ATUR_MIN ? `<div class="saring"><label>Minimal pertemuan per semester <input type="number" id="rMin" min="1" max="10" style="width:4.5em" value="${min}"></label>
+      <button type="button" class="b ringan" id="rMinSimpan">Simpan</button><span class="msg" id="mMin" role="status"></span></div>` : ''}
+    <h3>Per dosen wali</h3>
+    <div class="lebar-tabel"><table><thead><tr><th>Dosen wali</th><th class="n">Mahasiswa</th><th class="n">Sudah ${min} kali</th><th class="n">Belum</th><th class="n">IPK &lt; 2,00</th></tr></thead>
+      <tbody>${w.map(x => `<tr><td>${esc(x.wali)}</td><td class="n">${x.jumlah}</td><td class="n">${x.cukup}</td><td class="n">${x.belum}</td><td class="n">${x.ipk_rendah}</td></tr>`).join('')}</tbody></table></div>
+    <h3>Per mahasiswa</h3>
+    <div class="saring"><label><input type="checkbox" id="rBelum"${HANYA_BELUM ? ' checked' : ''}> Hanya yang belum ${min} kali</label>
+      <button type="button" class="b" id="rUnduh">Unduh Excel</button></div>
+    <div class="lebar-tabel"><table><thead><tr><th>Mahasiswa</th><th class="n">Angkatan</th><th>Dosen wali</th><th class="n">IPK</th><th>Pertemuan</th><th>Terakhir</th></tr></thead>
+      <tbody>${xs.map(r => `<tr><td>${esc(r.nama)}<div class="ket">${esc(r.nim)}</div></td><td class="n">${esc(r.angkatan ?? '')}</td><td>${esc(r.wali || '—')}</td>
+        <td class="n">${r.ipk == null ? '—' : Number(r.ipk).toFixed(2)}</td><td><span class="tag ${r.pertemuan >= r.minimal ? 'hijau' : 'merah'}">${r.pertemuan} / ${r.minimal}</span></td>
+        <td>${tglID(r.terakhir)}</td></tr>`).join('')}</tbody></table></div>`;
+  $('rBelum').onchange = e => { HANYA_BELUM = e.target.checked; gambarRekap(); };
+  $('rUnduh').onclick = () => unduh(`perwalian-${SM.ts - 1}-${SM.ts}-${SM.sm}.xlsx`, 'Perwalian',
+    [['NIM', 'Nama', 'Angkatan', 'Dosen wali', 'SKS', 'IPK', 'Pertemuan', 'Minimal', 'Terakhir'],
+     ...ROWS.map(r => [r.nim, r.nama, r.angkatan ?? '', r.wali || '', r.sks_total ?? '', r.ipk ?? '', r.pertemuan, r.minimal, r.terakhir || ''])]);
+  if ($('rMinSimpan')) $('rMinSimpan').onclick = async () => {
+    const { error } = await sb.rpc('perwalian_atur_minimal', { p_n: Math.round(+$('rMin').value) });
+    if (error) return tulis('mMin', 'err', error.message);
+    await muatDaftar(); gambarSaya(); gambarRekap(); tulis('mMin', 'ok', 'Tersimpan.');
+  };
+}
+async function unduh(nama, lembar, aoa){
+  try {
+    const X = await import(SHEETJS), wb = X.utils.book_new(), ws = X.utils.aoa_to_sheet(aoa);
+    ws['!cols'] = aoa[0].map((_, j) => ({ wch: Math.min(50, Math.max(8, ...aoa.slice(0, 200).map(r => String(r[j] ?? '').length))) }));
+    X.utils.book_append_sheet(wb, ws, lembar); X.writeFile(wb, nama);
+  } catch (e) { alert('Unduh gagal: ' + (e.message || e)); }
+}
+
+// ---------- Data mahasiswa (admin) ----------
+let SIAP = [], ANGK = '', HASIL_IMPOR = [];   // hasil unggah terakhir, tetap tampil setelah bagian digambar ulang
+function opsiSemester(){
+  const kini = semesterTA(new Date().toISOString()), out = [];
+  for (let i = 1; i >= -12; i--) { const n = urutSemester(kini) + i; out.push({ ts: Math.floor(n / 2), sm: n % 2 ? 'Genap' : 'Ganjil' }); }
+  return out;
+}
+function gambarData(){
+  const el = $('dataIsi'); if (!el) return;
+  const xs = ROWS.filter(r => !ANGK || String(r.angkatan) === ANGK), angk = [...new Set(ROWS.map(r => String(r.angkatan ?? '')))].sort();
+  el.innerHTML = `<h3>Unggah daftar mahasiswa aktif</h3>
+    <p class="ket">Ekspor SIAKAD/SIUP per semester (CSV titik koma atau Excel) dengan kolom NIM, Nama, Email, Tahun Masuk, SKS Total, IPK.
+      Kolom dosen wali opsional (nama, email, atau NIDN/NIP): bila ada, wali mengikuti SIUP; bila tidak, wali semester sebelumnya terbawa.
+      Semester dibaca dari nama berkas (mis. <code>2026_ganjil.csv</code> = 2026/2027 Ganjil); beberapa berkas boleh dipilih sekaligus.
+      Mahasiswa semester itu yang tidak ada di berkas dihapus dari daftar semester itu, kecuali sudah punya catatan perwalian.</p>
+    <div class="saring"><input type="file" id="dBerkas" multiple accept=".csv,.xlsx,.xls">
+      <label>Semester (bila tidak terbaca dari nama) <select id="dSm">${opsiSemester().map(s => `<option value="${kunci(s)}"${kunci(s) === kunci(SM) ? ' selected' : ''}>${esc(teksSm(s))}</option>`).join('')}</select></label></div>
+    <div id="dSiap"></div>
+    ${HASIL_IMPOR.length ? `<p><b>Hasil unggah terakhir</b></p><ul class="ket" id="dHasilAkhir">${HASIL_IMPOR.map(x => `<li>${esc(x)}</li>`).join('')}</ul>` : ''}
+    <h3>Semester yang sudah diunggah</h3>
+    ${SMS.length ? `<div class="lebar-tabel"><table><thead><tr><th>Semester</th><th class="n">Mahasiswa</th><th class="n">Belum ada wali</th></tr></thead>
+      <tbody>${SMS.map(s => `<tr><td>${esc(teksSm(s))}</td><td class="n">${s.jumlah}</td><td class="n">${s.tanpa_wali}</td></tr>`).join('')}</tbody></table></div>`
+      : '<p class="kosong">Belum ada.</p>'}
+    <h3>Tetapkan dosen wali (${esc(teksSm(SM))})</h3>
+    <p class="ket">Berlaku untuk semester ini dan semester sesudahnya yang sudah diunggah. Centang mahasiswa (atau satu angkatan), pilih dosen, lalu tetapkan.</p>
+    <div class="saring"><label>Angkatan <select id="dAngk"><option value="">Semua</option>${angk.map(a => `<option${a === ANGK ? ' selected' : ''}>${esc(a)}</option>`).join('')}</select></label>
+      <label><input type="checkbox" id="dSemua"> Centang semua yang tampil</label>
+      <label>Dosen wali <select id="dDosen"><option value="">(kosongkan wali)</option>${DOSEN.map(d => `<option value="${d.id}">${esc(d.nama)}</option>`).join('')}</select></label>
+      <button type="button" class="b" id="dTetapkan">Tetapkan wali</button>
+      <button type="button" class="b ringan" id="dUnduh">Unduh daftar wali untuk SIUP</button><span class="msg" id="mWali" role="status"></span></div>
+    <div class="lebar-tabel"><table><thead><tr><th></th><th>Mahasiswa</th><th class="n">Angkatan</th><th>Dosen wali</th></tr></thead>
+      <tbody>${xs.map(r => `<tr><td><input type="checkbox" data-nim="${esc(r.nim)}" aria-label="Pilih ${esc(r.nama)}"></td>
+        <td>${esc(r.nama)}<div class="ket">${esc(r.nim)}</div></td><td class="n">${esc(r.angkatan ?? '')}</td><td>${esc(r.wali || '—')}</td></tr>`).join('')}</tbody></table></div>`;
+  $('dBerkas').onchange = e => siapkan([...e.target.files]);
+  $('dAngk').onchange = e => { ANGK = e.target.value; gambarData(); };
+  $('dSemua').onchange = e => el.querySelectorAll('[data-nim]').forEach(c => { c.checked = e.target.checked; });
+  $('dTetapkan').onclick = async () => {
+    const nims = [...el.querySelectorAll('[data-nim]:checked')].map(c => c.dataset.nim);
+    if (!nims.length) return tulis('mWali', 'err', 'Centang mahasiswa dulu.');
+    const dosen = $('dDosen').value || null;
+    if (!dosen && !confirm(`Kosongkan wali ${nims.length} mahasiswa?`)) return;
+    const { data, error } = await sb.rpc('perwalian_atur_wali', { p_ts: SM.ts, p_sm: SM.sm, p_nim: nims, p_dosen: dosen });
+    if (error) return tulis('mWali', 'err', error.message);
+    await muatSemester(); await muatDaftar(); gambarSemua(); tulis('mWali', 'ok', `${nims.length} mahasiswa diperbarui (${data} baris semester).`);
+  };
+  $('dUnduh').onclick = () => unduh(`dosen-wali-${SM.ts - 1}-${SM.ts}-${SM.sm}.xlsx`, 'Dosen wali', lembarWali(ROWS, DOSEN));
+}
+async function bacaBerkas(f){
+  if (/\.csv$/i.test(f.name)) return bacaCsv(await f.text());
+  const X = await import(SHEETJS), wb = X.read(await f.arrayBuffer());
+  return X.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { header: 1, raw: false, defval: '' });
+}
+async function siapkan(files){
+  const pil = $('dSm').value.split('|'), cadangan = { ts: +pil[0], sm: pil[1] };
+  SIAP = [];
+  for (const f of files) {
+    try { const r = barisMahasiswa(await bacaBerkas(f)); SIAP.push({ nama: f.name, sm: semesterDariNama(f.name) || cadangan, ...r }); }
+    catch (e) { SIAP.push({ nama: f.name, sm: cadangan, baris: [], kolom: [], galat: ['Tidak terbaca: ' + (e.message || e)] }); }
+  }
+  SIAP.sort((a, b) => urutSemester(a.sm) - urutSemester(b.sm));   // lama dulu, supaya wali terbawa ke semester berikutnya
+  const ada = new Set(SMS.map(kunci));
+  $('dSiap').innerHTML = `<div class="lebar-tabel"><table><thead><tr><th>Berkas</th><th>Semester</th><th class="n">Mahasiswa</th><th>Kolom wali</th><th>Catatan</th></tr></thead>
+    <tbody>${SIAP.map(s => `<tr><td>${esc(s.nama)}</td><td>${esc(teksSm(s.sm))}${ada.has(kunci(s.sm)) ? ' <span class="tag">ganti</span>' : ''}</td>
+      <td class="n">${s.baris.length}</td><td>${s.kolom.includes('wali') ? 'ada' : 'tidak (wali terbawa)'}</td><td class="ket">${esc(s.galat.join(' '))}</td></tr>`).join('')}</tbody></table></div>
+    <p><button type="button" class="b" id="dImpor"${SIAP.some(s => s.baris.length) ? '' : ' disabled'}>Unggah ${SIAP.filter(s => s.baris.length).length} berkas</button>
+      <span class="msg" id="mImpor" role="status"></span></p><ul class="ket" id="dHasil"></ul>`;
+  $('dImpor').onclick = impor;
+}
+async function impor(){
+  $('dImpor').disabled = true;
+  const out = [];
+  for (const s of SIAP.filter(x => x.baris.length)) {
+    tulis('mImpor', '', `Mengunggah ${s.nama}…`);
+    const { data: r, error } = await sb.rpc('perwalian_impor', { p_ts: s.sm.ts, p_sm: s.sm.sm, p_baris: s.baris, p_ganti: true });
+    out.push(error ? `${teksSm(s.sm)}: gagal, ${error.message}`
+      : `${teksSm(s.sm)}: ${r.jumlah} mahasiswa (${r.baru} baru); wali dari berkas ${r.wali_berkas}, terbawa ${r.wali_terbawa}, belum ada ${r.tanpa_wali}`
+        + (r.dihapus ? `; ${r.dihapus} tidak aktif lagi dihapus` : '') + (r.tertahan ? `; ${r.tertahan} tetap karena punya catatan` : '')
+        + (r.wali_tak_dikenal.length ? `; wali tidak dikenal: ${r.wali_tak_dikenal.slice(0, 5).join(', ')}${r.wali_tak_dikenal.length > 5 ? ', …' : ''}` : '')
+        + (r.baris_salah.length ? `; baris dilewati: ${r.baris_salah.slice(0, 5).join(', ')}` : ''));
+    $('dHasil').innerHTML = out.map(t => `<li>${esc(t)}</li>`).join('');
+  }
+  tulis('mImpor', 'ok', 'Selesai.');
+  await muatSemester();
+  if (!SMS.some(s => kunci(s) === kunci(SM)) && SMS.length) SM = { ts: SMS[0].ts, sm: SMS[0].sm };
+  HASIL_IMPOR = out; SIAP = [];
+  await muatDaftar(); gambarSemua();
+}
+
+function gambarSemua(){
+  const pil = $('fSm');
+  if (pil) pil.innerHTML = (SMS.some(s => kunci(s) === kunci(SM)) ? SMS : [SM, ...SMS])
+    .map(s => `<option value="${kunci(s)}"${kunci(s) === kunci(SM) ? ' selected' : ''}>${esc(teksSm(s))}</option>`).join('');
+  gambarSaya(); gambarRekap(); gambarData();
+}
+
+async function mulai(){
+  SAYA = await gerbang(sb);
+  if (!SAYA) return;
+  ADMIN = SAYA.peran === 'admin';
+  SEMUA = ADMIN || punya(SAYA, 'kaprodi') || SAYA.peran === 'pimpinan';
+  ATUR_MIN = ADMIN || punya(SAYA, 'kaprodi');
+  $('hSub').textContent = `Masuk sebagai ${SAYA.nama}`;
+  await muatSemester();
+  const kini = semesterTA(new Date().toISOString());
+  SM = SMS.find(s => kunci(s) === kunci(kini)) || (SMS[0] ? { ts: SMS[0].ts, sm: SMS[0].sm } : kini);
+  const dq = await sb.from('dosen').select('id,nama,nidn,aktif,peran,dtps').order('nama');
+  DOSEN = (dq.data || []).filter(d => d.aktif && d.nidn && (d.dtps || ['dosen', 'pimpinan'].includes(d.peran)));
+  await muatDaftar();
+  $('isi').innerHTML = `
+    <div class="saring"><label>Semester <select id="fSm"></select></label></div>
+    <h2 id="mahasiswa-saya">Mahasiswa perwalian saya</h2><div id="sayaIsi"></div>
+    ${SEMUA ? '<h2 id="rekap">Rekap</h2><div id="rekapIsi"></div>' : ''}
+    ${ADMIN ? '<h2 id="data-mahasiswa">Data mahasiswa</h2><div id="dataIsi"></div>' : ''}`;
+  TAB = pasangTab($('isi'));
+  $('fSm').onchange = async e => { const [ts, sm] = e.target.value.split('|'); SM = { ts: +ts, sm }; BUKA = null; await muatDaftar(); gambarSemua(); };
+  gambarSemua();
+}
+mulai().catch(e => { $('isi').innerHTML = `<p class="kosong">Gagal memuat: ${esc(e.message)}</p>`; });
+</script>
+</body>
+</html>

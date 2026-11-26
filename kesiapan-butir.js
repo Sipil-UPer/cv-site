@@ -6,7 +6,7 @@
 // Baris: { no, judul, bobot, skor (0-4 | null), status ('lengkap' | 'sebagian' | 'kosong'),
 //          pj: ['UPPS', 'Prodi', ...], tertaut, dianjurkan, unsur: {ada, n} | null, karya: {ada, n} | null }
 
-import { PIHAK } from './unsur-butir.js?v=2026-11-26-b110e6';
+import { PIHAK } from './unsur-butir.js?v=2026-11-26-28d33b';
 
 export const STATUS = { lengkap: 'lengkap', sebagian: 'sebagian', kosong: 'kosong' };
 export const URUT_PJ = Object.values(PIHAK);

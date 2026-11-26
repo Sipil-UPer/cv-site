@@ -11,8 +11,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-26-b110e6">
-<link rel="stylesheet" href="kepala.css?v=2026-11-26-b110e6">
+<link rel="stylesheet" href="tema.css?v=2026-11-26-28d33b">
+<link rel="stylesheet" href="kepala.css?v=2026-11-26-28d33b">
 <style>
   /* Penyusunan kelas (136-patch-penyusunan-kelas.sql, pemilik 2026-11-21) */
   *{box-sizing:border-box}
@@ -57,7 +57,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></div>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-26-b110e6"></script>
+<script src="config.js?v=2026-11-26-28d33b"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -76,10 +76,10 @@ addEventListener('error', function (e) {
 // beberapa kelas, team teaching = satu koordinator + anggota), manual atau impor CSV; ekspor CSV untuk optimasi jadwal di luar
 // situs; salin ke daftar kelas nilai CPL. Admin dan Kaprodi aktif menyusun; dosen lain membaca. Logika: kelas.js.
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-26-b110e6';
-import { punya } from './koordinator.js?v=2026-11-26-b110e6';
-import { semesterKini, tsDariTA } from './evaluasi-pembelajaran.js?v=2026-11-26-b110e6';
-import { mkDitawarkan, kelasBerikut, usulanKelasAwal, tanpaDosenBoleh, csvKelas, bacaCsvKelas, rekapBeban, csvBeban } from './kelas.js?v=2026-11-26-b110e6';
+import { gerbang } from './menu.js?v=2026-11-26-28d33b';
+import { punya } from './koordinator.js?v=2026-11-26-28d33b';
+import { semesterKini, tsDariTA } from './evaluasi-pembelajaran.js?v=2026-11-26-28d33b';
+import { mkDitawarkan, kelasBerikut, usulanKelasAwal, tanpaDosenBoleh, csvKelas, bacaCsvKelas, rekapBeban, csvBeban } from './kelas.js?v=2026-11-26-28d33b';
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const sb = createClient(window.SB_URL, window.SB_KEY);
