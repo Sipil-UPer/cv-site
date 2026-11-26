@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-26-65b325">
+<link rel="stylesheet" href="tema.css?v=2026-11-26-760434">
 <style>
   /* Formulir survei bertahap (pemilik 2026-11-13: lebih rapi dan menarik, dwibahasa). Warna dari tema.css. */
   *{box-sizing:border-box}
@@ -89,7 +89,7 @@
   </div>
 </div></div>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-26-65b325"></script>
+<script src="config.js?v=2026-11-26-760434"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -103,7 +103,7 @@ addEventListener('error', function (e) {
   document.body.insertBefore(d, document.body.firstChild);
 });
 </script>
-<script type="module" src="kotak-teks.js?v=2026-11-26-65b325"></script>
+<script type="module" src="kotak-teks.js?v=2026-11-26-760434"></script>
 <script type="module">
 // Formulir survei untuk responden tanpa masuk akun (pemilik 2026-11-11; 54-patch-survei-kepuasan.sql).
 // 2026-11-13 (pemilik): bertahap per bagian dengan progres, pilihan berbentuk tombol, dan dwibahasa
@@ -112,7 +112,7 @@ addEventListener('error', function (e) {
 // draf jawaban disimpan di perangkat ini sampai terkirim.
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
 import { SKALA, SKALA_EN, labelKelompok, aktifQ, wajibQ, cekJawaban, teksQ, ketQ, opsiQ, ujungQ, labelBagian }
-  from './survei-kepuasan.js?v=2026-11-26-65b325';
+  from './survei-kepuasan.js?v=2026-11-26-760434';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);

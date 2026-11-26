@@ -5,6 +5,7 @@
 //
 // Lulusan: tracer study lulusan tahun TS-1 (lulusan TS-1 dilacak pada TS).
 
+import { sesuaiTracer } from './tracer-skor.js?v=2026-11-26-760434';
 const diTS = (xs, ts) => (xs || []).filter(x => +x.tahun_ts === +ts);
 const tracerTS = (D, ts) => (D.tracer || []).find(t => +t.tahun_lulus === +ts - 1) || null;
 const persen = (a, b) => (b > 0 ? (a / b) * 100 : null);
@@ -63,7 +64,10 @@ export const SUMBER_IKU = [
   }],
   ['tracer_sesuai_bidang', 'Lulusan bekerja sesuai bidang', '%', (D, ts) => {
     const t = tracerTS(D, ts);
-    return t && t.terlacak ? { nilai: persen(+t.sesuai_bidang || 0, +t.terlacak), ket: `${t.sesuai_bidang} dari ${t.terlacak} lulusan ${t.tahun_lulus} terlacak` } : null;
+    // Sama dengan butir 50 (tracer-skor.js, pemilik 2026-11-05): sedang + tinggi; tanpa tingkat kesesuaian memakai
+    // isian lama "Bekerja sesuai bidang" (pemilik 2026-11-26: dulu selalu isian lama, jadi 0% untuk impor tracer).
+    const s = t ? sesuaiTracer(t) : 0;
+    return t && t.terlacak ? { nilai: persen(s, +t.terlacak), ket: `${s} dari ${t.terlacak} lulusan ${t.tahun_lulus} terlacak` } : null;
   }],
   ['tracer_terlacak', 'Lulusan terlacak tracer study', '%', (D, ts) => {
     const t = tracerTS(D, ts);
