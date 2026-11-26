@@ -9214,7 +9214,88 @@
     "kurang": 0.0
    }
   ],
-  "kohort": [],
+  "kohort": [
+   {
+    "tahun_masuk": 2026,
+    "masuk": 96,
+    "lulus": 0,
+    "lulus_3_5_sd_4_5": 0,
+    "lulus_4_5_sd_5_5": 0,
+    "lulus_5_5_sd_6_5": 0,
+    "lulus_6_5_sd_8": 0,
+    "ms_tertimbang": 0.0
+   },
+   {
+    "tahun_masuk": 2025,
+    "masuk": 53,
+    "lulus": 0,
+    "lulus_3_5_sd_4_5": 0,
+    "lulus_4_5_sd_5_5": 0,
+    "lulus_5_5_sd_6_5": 0,
+    "lulus_6_5_sd_8": 0,
+    "ms_tertimbang": 0.0
+   },
+   {
+    "tahun_masuk": 2024,
+    "masuk": 44,
+    "lulus": 0,
+    "lulus_3_5_sd_4_5": 0,
+    "lulus_4_5_sd_5_5": 0,
+    "lulus_5_5_sd_6_5": 0,
+    "lulus_6_5_sd_8": 0,
+    "ms_tertimbang": 0.0
+   },
+   {
+    "tahun_masuk": 2023,
+    "masuk": 56,
+    "lulus": 0,
+    "lulus_3_5_sd_4_5": 0,
+    "lulus_4_5_sd_5_5": 0,
+    "lulus_5_5_sd_6_5": 0,
+    "lulus_6_5_sd_8": 0,
+    "ms_tertimbang": 0.0
+   },
+   {
+    "tahun_masuk": 2022,
+    "masuk": 45,
+    "lulus": 19,
+    "lulus_3_5_sd_4_5": 19,
+    "lulus_4_5_sd_5_5": 0,
+    "lulus_5_5_sd_6_5": 0,
+    "lulus_6_5_sd_8": 0,
+    "ms_tertimbang": 4.0
+   },
+   {
+    "tahun_masuk": 2021,
+    "masuk": 57,
+    "lulus": 38,
+    "lulus_3_5_sd_4_5": 35,
+    "lulus_4_5_sd_5_5": 3,
+    "lulus_5_5_sd_6_5": 0,
+    "lulus_6_5_sd_8": 0,
+    "ms_tertimbang": 4.078947368421052
+   },
+   {
+    "tahun_masuk": 2020,
+    "masuk": 101,
+    "lulus": 71,
+    "lulus_3_5_sd_4_5": 47,
+    "lulus_4_5_sd_5_5": 17,
+    "lulus_5_5_sd_6_5": 7,
+    "lulus_6_5_sd_8": 0,
+    "ms_tertimbang": 4.436619718309859
+   },
+   {
+    "tahun_masuk": 2019,
+    "masuk": 106,
+    "lulus": 75,
+    "lulus_3_5_sd_4_5": 64,
+    "lulus_4_5_sd_5_5": 6,
+    "lulus_5_5_sd_6_5": 3,
+    "lulus_6_5_sd_8": 2,
+    "ms_tertimbang": 4.246666666666667
+   }
+  ],
   "kerjasama": [
    {
     "tahun": 2026,
