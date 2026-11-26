@@ -151,7 +151,7 @@ export function indeksPublik(D, aktif = () => true){
       `tugas-akhir.html#ta-${encodeURIComponent(t.id)}`, (t.pembimbing || []).map(o => o.nama).join(' ')));
   for (const k of D?.kabar || [])
     xs.push(entri('kabar', k.judul, [k.tanggal, String(k.ringkasan || '').slice(0, 100)].filter(Boolean).join(' · '),
-      `kabar.html#kabar-${encodeURIComponent(k.id)}`, k.jenis || ''));
+      k.berkas || `kabar.html#kabar-${encodeURIComponent(k.id)}`, k.jenis || ''));
   const mitra = new Map();
   const catatMitra = k => daftarNama(k.mitra).forEach(m => mitra.set(m, (mitra.get(m) || 0) + 1));
   for (const p of D?.publikasi || []) {

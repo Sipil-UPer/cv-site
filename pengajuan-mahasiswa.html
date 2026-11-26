@@ -11,8 +11,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-27-a01aa2">
-<link rel="stylesheet" href="kepala.css?v=2026-11-27-a01aa2">
+<link rel="stylesheet" href="tema.css?v=2026-11-27-a6ccbd">
+<link rel="stylesheet" href="kepala.css?v=2026-11-27-a6ccbd">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
@@ -78,7 +78,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></div>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-27-a01aa2"></script>
+<script src="config.js?v=2026-11-27-a6ccbd"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -98,19 +98,19 @@ addEventListener('error', function (e) {
 // Berkas privat dibuka lewat Apps Script (mhs_buka_prodi); surat pengantar KP diunggah admin (mhs_unggah_prodi);
 // mahasiswa dikabari email saat dikembalikan, ditolak, atau disetujui (mhs_kabari).
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-27-a01aa2';
-import { bolehPengajuan, punya, labelJabatan } from './koordinator.js?v=2026-11-27-a01aa2';
+import { gerbang } from './menu.js?v=2026-11-27-a6ccbd';
+import { bolehPengajuan, punya, labelJabatan } from './koordinator.js?v=2026-11-27-a6ccbd';
 import { JENIS, LABEL_BERKAS, LABEL_STATUS, TINGKAT, BIDANG, teksAnggota, judulPengajuan, keB64, bukaIsi, appsScript, labelStatus, JENIS_SURAT, TAHAP_TA, JENIS_PUB, TINGKAT_PUB, INDEKSASI, JENIS_LUARAN, waktuPengajuan, rekapPengajuan, lembarPengajuan, labelProgram, penetapanTA, pilihanPembimbingTA, kkCocok,
          BERKAS_YUDISIUM_BAWAAN, kelengkapanYudisium, labelBerkas, JENIS_KEGIATAN, bolehBatalProdi, BERKAS_TA_BAWAAN, berkasTahapTA, TAHAP_TA_BERKAS,
-         semesterTA, kunciSemester, teksSemester, BATAS_KEMIRIPAN, persenKemiripan, perluCekKemiripan, teksKemiripan } from './pengajuan-mhs.js?v=2026-11-27-a01aa2';
-import { opsiPeriode, cocokPeriode, labelPeriode, taTeks, tsKarya } from './sdgs-unduh.js?v=2026-11-27-a01aa2';
-import { SHEETJS } from './nilai-cpl.js?v=2026-11-27-a01aa2';
-import { barisKuota, teksPilihanPembimbing } from './rekap-kp.js?v=2026-11-27-a01aa2';
-import { siapkan } from './pembimbing.js?v=2026-11-27-a01aa2';
-import { usulPenguji, bebanUji, tsDari } from './usulan-penguji.js?v=2026-11-27-a01aa2';
-import { calonTA } from './dosen-hitung.js?v=2026-11-27-a01aa2';
-import { usulanWaktu } from './cari-waktu.js?v=2026-11-27-a01aa2';
-import { bacaJam, formatJam, sibukSidang, gabungSibuk, periksaWaktu } from './jadwal-sidang.js?v=2026-11-27-a01aa2';
+         semesterTA, kunciSemester, teksSemester, BATAS_KEMIRIPAN, persenKemiripan, perluCekKemiripan, teksKemiripan } from './pengajuan-mhs.js?v=2026-11-27-a6ccbd';
+import { opsiPeriode, cocokPeriode, labelPeriode, taTeks, tsKarya } from './sdgs-unduh.js?v=2026-11-27-a6ccbd';
+import { SHEETJS } from './nilai-cpl.js?v=2026-11-27-a6ccbd';
+import { barisKuota, teksPilihanPembimbing } from './rekap-kp.js?v=2026-11-27-a6ccbd';
+import { siapkan } from './pembimbing.js?v=2026-11-27-a6ccbd';
+import { usulPenguji, bebanUji, tsDari } from './usulan-penguji.js?v=2026-11-27-a6ccbd';
+import { calonTA } from './dosen-hitung.js?v=2026-11-27-a6ccbd';
+import { usulanWaktu } from './cari-waktu.js?v=2026-11-27-a6ccbd';
+import { bacaJam, formatJam, sibukSidang, gabungSibuk, periksaWaktu } from './jadwal-sidang.js?v=2026-11-27-a6ccbd';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
