@@ -8565,6 +8565,15 @@
  ],
  "kabar": [
   {
+   "id": 2,
+   "judul": "Mengenal Biosoil Mechanics bersama Prof. Toshiro Hata dari Universitas Hiroshima",
+   "tanggal": "2026-11-16",
+   "jenis": "kuliah_tamu",
+   "tempat": "Auditorium, Universitas Pertamina, Jakarta",
+   "ringkasan": "Program Studi Teknik Sipil menggelar sharing session bersama Prof. Toshiro Hata, Guru Besar Department of Civil and Environmental Engineering, Hiroshima University, Jepang, pada 16 November 2026 dengan tema \"Introducing Biosoil Mechanics in Civil and Environmental Engineering\". Acara dibuka oleh Ketua Program Studi terpilih, Nurul Fajar Januriyadi, Ph.D., dan dipandu Arlyn Aristo, Ph.D., dosen pengampu Rekayasa Fondasi. Prof. Hata memperkenalkan biosoil mechanics, yaitu pemanfaatan aktivitas mikroorganisme untuk memperbaiki sifat tanah, misalnya presipitasi kalsium karbonat oleh mikroba (MICP) untuk perbaikan tanah dasar, stabilisasi lereng, dan pemulihan lahan tercemar sebagai alternatif yang lebih ramah lingkungan. Ia juga berbagi peluang studi lanjut di Jepang melalui beasiswa MEXT. Sesi tanya jawab turut dihadiri Rektor Universitas Pertamina, Prof. Ichsan Putra. Mahasiswa dari berbagai angkatan hadir dan antusias; kegiatan ini diharapkan memperkuat jejaring akademik dengan Hiroshima University dan memantik minat riset geoteknik berbasis biologi.",
+   "tautan": ""
+  },
+  {
    "id": 1,
    "judul": "Survei Pengguna LRT Jabodebek dan Transjakarta untuk Penelitian Transportasi Publik Jakarta",
    "tanggal": "2026-09-11",
