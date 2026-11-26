@@ -167,6 +167,39 @@ function pmRpc(nama, a){
     if (a.p_kuota != null) DB.ta_kuota.push({ id: baru(), ts: a.p_ts, semester: a.p_sm, dosen_id: a.p_dosen || null, kuota: a.p_kuota });
     simpan(); return { data: 'ok', error: null };
   }
+  // 183: peringatan dini TA, tiruan (aturan sama dengan 183-patch-peringatan-pengingat-ta.sql).
+  const aturNilai = (k, b) => +((DB.pengaturan || []).find(x => x.kunci === k)?.nilai ?? b);
+  if (nama === 'ta_peringatan_atur') {
+    if (!sayaAdmin()) return pmGagal('Ambang peringatan diatur koordinator TA atau admin.');
+    if (!(a.p_bimbingan >= 14 && a.p_bimbingan <= 365)) return pmGagal('Hari tanpa bimbingan: 14 sampai 365.');
+    if (!(a.p_tahap >= 30 && a.p_tahap <= 730)) return pmGagal('Hari di satu tahap: 30 sampai 730.');
+    const P = (DB.pengaturan ||= []);
+    for (const [k, v] of [['ta_peringatan_bimbingan_hari', a.p_bimbingan], ['ta_peringatan_tahap_hari', a.p_tahap]]) {
+      const x = P.find(y => y.kunci === k); if (x) x.nilai = v; else P.push({ kunci: k, nilai: v }); }
+    simpan(); return { data: 'ok', error: null };
+  }
+  if (nama === 'ta_peringatan_dini') {
+    const saya = (DB.dosen || []).find(d => d.email === email()), ab = aturNilai('ta_peringatan_bimbingan_hari', 60), at = aturNilai('ta_peringatan_tahap_hari', 180);
+    const hariIni = new Date(Date.now() + 7 * 3600e3).toISOString().slice(0, 10), selisih = t => Math.round((Date.parse(hariIni) - Date.parse(String(t).slice(0, 10))) / 864e5);
+    const J = DB.jadwal_ta || [], maks = xs => xs.filter(Boolean).sort().at(-1) || null, lanjut = { seminar_proposal: 'seminar_kemajuan', seminar_kemajuan: 'sidang_akhir', sidang_akhir: 'revisi' };
+    const pen = new Map(); PM().filter(o => penetapan(o) && o.status === 'disetujui').sort((x, y) => String(x.diperbarui || x.dibuat).localeCompare(String(y.diperbarui || y.dibuat)))
+      .forEach(o => pen.set(o.nim, o));
+    const out = [];
+    for (const [nim, o] of pen) {
+      if (lulusTA(nim) || !(sayaAdmin() || pmPembimbingNim(nim).some(x => x.id === saya?.id))) continue;
+      const lulus = J.filter(j => j.nim === nim && j.status === 'selesai' && ['lulus', 'lulus_revisi'].includes(j.hasil)).sort((x, y) => x.tanggal.localeCompare(y.tanggal));
+      const tonggak = maks([String(o.diperbarui || o.dibuat).slice(0, 10), lulus.at(-1)?.tanggal]);
+      const bimb = maks((DB.ta_bimbingan || []).filter(b => b.nim === nim && b.status !== 'dikembalikan').map(b => b.tanggal));
+      const lewat = J.filter(j => j.nim === nim && j.hasil === 'lulus_revisi' && !j.revisi_selesai && j.batas_revisi && j.batas_revisi < hariIni).map(j => j.batas_revisi).sort()[0] || null;
+      const berjalan = J.some(j => j.nim === nim && ['terjadwal', 'ditunda'].includes(j.status))
+        || PM().some(p => p.nim === nim && p.jenis === 'ta' && !penetapan(p) && ['pembimbing', 'admin'].includes(p.status));
+      const hb = selisih(maks([tonggak, bimb])), ht = selisih(tonggak);
+      const sinyal = [!berjalan && hb > ab && 'bimbingan_berhenti', !berjalan && ht > at && 'tahap_lama', lewat && 'revisi_lewat'].filter(Boolean);
+      if (sinyal.length) out.push({ nim, nama: o.nama, judul: o.data?.judul || null, pembimbing: pmPembimbingNim(nim).map(x => x.nama).join(', '),
+        tahap: lanjut[lulus.at(-1)?.tahap] || 'seminar_proposal', sinyal, hari_bimbingan: hb, hari_tahap: ht, batas_revisi: lewat, ambang_bimbingan: ab, ambang_tahap: at });
+    }
+    return { data: out.sort((x, y) => y.hari_tahap - x.hari_tahap), error: null };
+  }
   if (nama === 'ta_ganti_pembimbing') {
     const p = PM().find(x => x.id === a.p_id), alasan = String(a.p_alasan || '').trim(), judul = String(a.p_judul || '').trim();
     if (!sayaAdmin()) return pmGagal('Pembimbing TA diganti koordinator TA atau admin.');
@@ -232,7 +265,7 @@ function pmRpc(nama, a){
     (DB.jadwal_ta ||= []).push({ id: baru(), pengajuan_id: p.id, tahap: p.data?.tahap_ta, nama_mahasiswa: p.nama, nim: p.nim, judul: p.data?.judul,
       pembimbing: [nidn(p.pembimbing_id), nidn(p.data?.pembimbing_2)].filter(Boolean), penguji: a.p_penguji || [], penguji_luar: a.p_penguji_luar,
       tanggal: a.p_tanggal, jam: a.p_jam, ruang: a.p_ruang, tautan_daring: a.p_tautan, status: 'terjadwal', tampil_nama: !!p.data?.tampil_nama });
-    p.status = 'disetujui'; p.diperbarui = new Date().toISOString(); pmRiwayat(p, 'disetujui', saya.nama, 'Dijadwalkan ' + a.p_tanggal); simpan();
+    p.status = 'disetujui'; p.diperbarui = new Date().toISOString(); pmRiwayat(p, 'disetujui', saya.nama, 'Dijadwalkan ' + String(a.p_tanggal).split('-').reverse().join('-')); simpan();
     return { data: 1, error: null };
   }
   // 163: insentif publikasi, tiruan ringkas (aturan sama dengan 163-patch-insentif-publikasi.sql).

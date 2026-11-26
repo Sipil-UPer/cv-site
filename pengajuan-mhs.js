@@ -74,7 +74,7 @@ export const JENIS_LUARAN = [['paten', 'Paten'], ['paten_sederhana', 'Paten sede
   ['buku_isbn', 'Buku ber-ISBN'], ['book_chapter', 'Book chapter']];
 
 export const TAHAP_TA = [['seminar_proposal', 'Seminar proposal'], ['seminar_kemajuan', 'Seminar kemajuan'], ['sidang_akhir', 'Sidang akhir']];
-export const NAMA_TAHAP_TA = ['Isi dan unggah naskah', 'Diperiksa pembimbing 1', 'Dijadwalkan admin prodi', 'Terjadwal'];
+export const NAMA_TAHAP_TA = ['Isi dan unggah naskah', 'Diperiksa pembimbing 1', 'Dijadwalkan Koordinator TA', 'Terjadwal'];   // 2026-11-26: penjadwal = Koordinator TA
 // Pengajuan pembimbing TA (110, pemilik 2026-11-18): sekali di awal; koordinator TA menetapkan pembimbing menurut
 // kelompok keahlian (KK) dan kuota. Pembimbing 1 harus KK sama atau berdekatan; seminar/sidang memakai penetapan ini.
 export const TAHAP_PEMBIMBING_TA = 'penetapan_pembimbing';
@@ -168,7 +168,7 @@ export function labelStatus(p){
     || LABEL_STATUS[p.status] || p.status;
   if (penetapanTA(p)) return { pembimbing: 'Diperiksa koordinator TA', admin: 'Diperiksa koordinator TA',
     disetujui: 'Pembimbing TA ditetapkan' }[p.status] || LABEL_STATUS[p.status] || p.status;
-  if (p.jenis === 'ta') return { pembimbing: 'Diperiksa pembimbing 1', admin: 'Menunggu jadwal dari admin prodi', disetujui: 'Terjadwal' }[p.status]
+  if (p.jenis === 'ta') return { pembimbing: 'Diperiksa pembimbing 1', admin: 'Menunggu jadwal dari Koordinator TA', disetujui: 'Terjadwal' }[p.status]
     || LABEL_STATUS[p.status] || p.status;
   if (p.jenis === 'lomba') return { pembimbing: 'Diperiksa dosen pembimbing atau pembina kemahasiswaan', admin: 'Diperiksa pembina kemahasiswaan/admin',
     disetujui: 'Disahkan; tercatat sebagai prestasi' }[p.status] || LABEL_STATUS[p.status] || p.status;
@@ -458,4 +458,16 @@ export function kemajuanTA(k){
     const keadaan = selesai ? 'selesai' : kini ? 'nanti' : (kini = true, kembali ? 'kembali' : 'kini');
     return { ...x, keadaan };
   });
+}
+
+// ---------- Peringatan dini TA (183, pemilik 2026-11-26) ----------
+// Baris ta_peringatan_dini(): tahap = tahap yang sedang dituju; sinyal = bimbingan_berhenti | tahap_lama | revisi_lewat.
+export const TAHAP_PERINGATAN = { seminar_proposal: 'Menuju seminar proposal', seminar_kemajuan: 'Menuju seminar kemajuan',
+  sidang_akhir: 'Menuju sidang akhir', revisi: 'Revisi sidang akhir' };
+export function teksPeringatanTA(r){
+  return (r?.sinyal || []).map(s => ({
+    bimbingan_berhenti: `${r.hari_bimbingan} hari tanpa catatan bimbingan (ambang ${r.ambang_bimbingan})`,
+    tahap_lama: `${r.hari_tahap} hari sejak tahap terakhir (ambang ${r.ambang_tahap})`,
+    revisi_lewat: `Revisi lewat batas ${tglIndo(r.batas_revisi)}`,
+  }[s] || s));
 }

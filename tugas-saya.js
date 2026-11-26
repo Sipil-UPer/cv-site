@@ -1,17 +1,17 @@
 // "Tugas saya" di Ruang kerja (pemilik 2026-11-12): hal yang menunggu tindakan dosen yang
 // sedang masuk, dari data yang sudah boleh ia baca (RLS). Aturan tenggat sama dengan halaman
 // Pengingat: rapat.js, hibah.js, temuan-ami.js, pengingat-dosen.js.
-import { kurangProfil } from './pengingat-dosen.js?v=2026-11-26-09fe1d';
-import { tindakTerbuka, tglID } from './rapat.js?v=2026-11-26-09fe1d';
-import { tenggatBerikut, teksHari, HARI_LEWAT } from './hibah.js?v=2026-11-26-09fe1d';
-import { hariKeTenggat, labelStatus, HARI_DEKAT } from './temuan-ami.js?v=2026-11-26-09fe1d';
-import { tugasEvaluasi } from './evaluasi-pembelajaran.js?v=2026-11-26-09fe1d';
-import { bolehPengajuan } from './koordinator.js?v=2026-11-26-09fe1d';
-import { tenggatReview, hariKe, teksHari as teksHariRv, tugasTenggatRps, tugasTetapDekan, tanggalPanjang as tglRv } from './pengingat-rps.js?v=2026-11-26-09fe1d';
-import { tugasInsentif } from './insentif.js?v=2026-11-26-09fe1d';
-import { tugasMK } from './tugas-mk.js?v=2026-11-26-09fe1d';
-import { halamanAktif } from './fitur.js?v=2026-11-26-09fe1d';
-import { masaBerlaku, tanggalPanjang as tglSrt } from './profil-dosen.js?v=2026-11-26-09fe1d';
+import { kurangProfil } from './pengingat-dosen.js?v=2026-11-26-f3ad75';
+import { tindakTerbuka, tglID } from './rapat.js?v=2026-11-26-f3ad75';
+import { tenggatBerikut, teksHari, HARI_LEWAT } from './hibah.js?v=2026-11-26-f3ad75';
+import { hariKeTenggat, labelStatus, HARI_DEKAT } from './temuan-ami.js?v=2026-11-26-f3ad75';
+import { tugasEvaluasi } from './evaluasi-pembelajaran.js?v=2026-11-26-f3ad75';
+import { bolehPengajuan } from './koordinator.js?v=2026-11-26-f3ad75';
+import { tenggatReview, hariKe, teksHari as teksHariRv, tugasTenggatRps, tugasTetapDekan, tanggalPanjang as tglRv } from './pengingat-rps.js?v=2026-11-26-f3ad75';
+import { tugasInsentif } from './insentif.js?v=2026-11-26-f3ad75';
+import { tugasMK } from './tugas-mk.js?v=2026-11-26-f3ad75';
+import { halamanAktif } from './fitur.js?v=2026-11-26-f3ad75';
+import { masaBerlaku, tanggalPanjang as tglSrt } from './profil-dosen.js?v=2026-11-26-f3ad75';
 
 // Sertifikat dengan masa berlaku (pemilik 2026-11-24): diingatkan sejak 90 hari sebelum habis, dan terus setelah lewat.
 export const HARI_SERTIFIKAT = 90;
@@ -34,6 +34,7 @@ const tgl10 = s => String(s || '').slice(0, 10);
  *   revisiTa: jadwal_ta lulus_revisi belum selesai [{nama_mahasiswa, judul, pembimbing, hasil, batas_revisi, revisi_selesai}],
  *   nilaiTa: ta_nilai_tugas() [{jadwal_id, tahap, nama_mahasiswa, tanggal, tugas: 'nilai'|'tetapkan'|'siup'|'arsip'}] (173, 177, 178),
  *   bimbinganTa: ta_bimbingan_menunggu() [{nim, nama, n, tertua}] catatan bimbingan menunggu konfirmasi saya (175),
+ *   peringatanTa: ta_peringatan_dini() [{nim, nama, sinyal, ...}] mahasiswa bimbingan saya (koordinator TA: semua) yang perlu disapa (183),
  *   dataMK: data koordinator MK/pengampu untuk tugas-mk.js (null bila bukan keduanya),
  *   reviewSaya: baris mk_rps_review milik sendiri [{kurikulum, kode_mk, ditunjuk_pada, kirim_pada}] (118),
  *   rekapReview: rps_review_rekap [{kurikulum, kode_mk, terkirim, ditanggapi}], bolehRps: rps_boleh_saya [{kurikulum, kode_mk}] (119),
@@ -159,8 +160,8 @@ export function tugasSaya(d, kini = new Date()){
   for (const r of d.nilaiTa || []) {
     const hari = Math.round((Date.parse(tgl10(r.tanggal) + 'T00:00:00Z') - Date.parse(kini.toISOString().slice(0, 10) + 'T00:00:00Z')) / 864e5);
     const tahap = TAHAP_TA[r.tahap] || 'seminar TA';
-    if (r.tugas === 'nilai') tambah('nilai_ta', `Isi nilai ${tahap} ${r.nama_mahasiswa}`, `Seminar ${tgl10(r.tanggal)}`, `penilaian-ta.html#j=${r.jadwal_id}`, hari);
-    else if (r.tugas === 'tetapkan') tambah('nilai_ta', `Tetapkan berita acara ${tahap} ${r.nama_mahasiswa}`, `Seminar ${tgl10(r.tanggal)}; sudah ada nilai`, `penilaian-ta.html#j=${r.jadwal_id}`, hari);
+    if (r.tugas === 'nilai') tambah('nilai_ta', `Isi nilai ${tahap} ${r.nama_mahasiswa}`, `Seminar ${tglID(tgl10(r.tanggal))}`, `penilaian-ta.html#j=${r.jadwal_id}`, hari);
+    else if (r.tugas === 'tetapkan') tambah('nilai_ta', `Tetapkan berita acara ${tahap} ${r.nama_mahasiswa}`, `Seminar ${tglID(tgl10(r.tanggal))}; sudah ada nilai`, `penilaian-ta.html#j=${r.jadwal_id}`, hari);
   }
   // 177: nilai yang berita acaranya sudah ditetapkan tetapi belum ditandai diunggah ke SIUP (koordinator TA/admin), satu tugas.
   // 178: mahasiswa lulus yang arsip TA-nya belum disimpan ke Drive.
@@ -178,6 +179,10 @@ export function tugasSaya(d, kini = new Date()){
     tambah('bimbingan_ta', `Konfirmasi ${n} catatan bimbingan TA`, bim.slice(0, 3).map(r => `${r.nama} (${r.n})`).join(', ') + (bim.length > 3 ? ', …' : ''),
       'bimbingan-ta.html#menunggu-konfirmasi', 14 - Math.floor((+kini - tertua) / 864e5));
   }
+  // Peringatan dini TA (183): bimbingan berhenti, terlalu lama di satu tahap, atau revisi lewat batas. Tanpa tenggat.
+  const pd = d.peringatanTa || [];
+  if (pd.length) tambah('peringatan_ta', `Peringatan dini TA: ${pd.length} mahasiswa perlu disapa`,
+    pd.slice(0, 3).map(r => r.nama).join(', ') + (pd.length > 3 ? ', …' : ''), 'rekap-ta.html#peringatan-dini');
 
 
   return out.map((x, i) => [x, i]).sort(([a, i], [b, j]) => URUT[a.tingkat] - URUT[b.tingkat]

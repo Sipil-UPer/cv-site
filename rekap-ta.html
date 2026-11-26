@@ -11,8 +11,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-26-09fe1d">
-<link rel="stylesheet" href="kepala.css?v=2026-11-26-09fe1d">
+<link rel="stylesheet" href="tema.css?v=2026-11-26-f3ad75">
+<link rel="stylesheet" href="kepala.css?v=2026-11-26-f3ad75">
 <style>
   .tag{display:inline-block;font-size:12px;padding:1px 8px;border:1px solid var(--line);background:var(--bg);white-space:nowrap}
   .tag.tinggi{border-color:var(--merah);color:var(--merah)}
@@ -46,7 +46,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></div>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-26-09fe1d"></script>
+<script src="config.js?v=2026-11-26-f3ad75"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -65,14 +65,14 @@ addEventListener('error', function (e) {
 // dan beban membimbing/menguji per dosen pada periode terpilih (TS, 3 TS, tahun). Sumber: jadwal_ta (semua pengguna login
 // membaca). Unduh Excel khusus admin (memuat NIM).
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-26-09fe1d';
-import { pasangTab } from './tab-seksi.js?v=2026-11-26-09fe1d';   // susunan bertab (pemilik 2026-11-25)
-import { punya } from './koordinator.js?v=2026-11-26-09fe1d';
-import { TAHAP, STATUS, waktuJadwal, rekapTA, lembarTA, revisiBerjalan } from './rekap-ta.js?v=2026-11-26-09fe1d';
-import { opsiPeriode, cocokPeriode, labelPeriode, taTeks, tsKarya, tsBerjalan } from './sdgs-unduh.js?v=2026-11-26-09fe1d';
-import { barisKuota } from './rekap-kp.js?v=2026-11-26-09fe1d';
-import { semesterTA, kunciSemester, teksSemester, geserSemester } from './pengajuan-mhs.js?v=2026-11-26-09fe1d';
-import { SHEETJS } from './nilai-cpl.js?v=2026-11-26-09fe1d';
+import { gerbang } from './menu.js?v=2026-11-26-f3ad75';
+import { pasangTab } from './tab-seksi.js?v=2026-11-26-f3ad75';   // susunan bertab (pemilik 2026-11-25)
+import { punya } from './koordinator.js?v=2026-11-26-f3ad75';
+import { TAHAP, STATUS, waktuJadwal, rekapTA, lembarTA, revisiBerjalan } from './rekap-ta.js?v=2026-11-26-f3ad75';
+import { opsiPeriode, cocokPeriode, labelPeriode, taTeks, tsKarya, tsBerjalan } from './sdgs-unduh.js?v=2026-11-26-f3ad75';
+import { barisKuota } from './rekap-kp.js?v=2026-11-26-f3ad75';
+import { semesterTA, kunciSemester, teksSemester, geserSemester, TAHAP_PERINGATAN, teksPeringatanTA } from './pengajuan-mhs.js?v=2026-11-26-f3ad75';
+import { SHEETJS } from './nilai-cpl.js?v=2026-11-26-f3ad75';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
@@ -184,6 +184,42 @@ function gambarKuota(){
   };
   $('kSimpanBawaan').onclick = () => simpan(null, $('kBawaan').value);
   el.querySelectorAll('[data-kuota]').forEach(i => { i.onchange = () => simpan(i.dataset.kuota, i.value); });
+}
+
+// Peringatan dini TA (183-patch-peringatan-pengingat-ta.sql, pemilik 2026-11-26): mahasiswa TA aktif yang bimbingannya
+// berhenti, terlalu lama di satu tahap, atau revisinya lewat batas. Koordinator TA/admin melihat semua dan mengatur ambang;
+// dosen lain melihat mahasiswa bimbingannya sendiri (penyaringan di SQL). PERINGATAN = null: patch 183 belum ada.
+let PERINGATAN = null, TAB = null, AMBANG = {};
+async function muatPeringatan(){
+  const [r, a] = await Promise.all([sb.rpc('ta_peringatan_dini'),
+    sb.from('pengaturan').select('kunci,nilai').in('kunci', ['ta_peringatan_bimbingan_hari', 'ta_peringatan_tahap_hari'])]);
+  PERINGATAN = r.error ? null : (r.data || []);
+  AMBANG = Object.fromEntries((a.data || []).map(x => [x.kunci, +x.nilai]));
+}
+function gambarPeringatan(){
+  const el = $('peringatan'); if (!el) return;
+  if (!PERINGATAN) { el.innerHTML = '<p class="kosong">Peringatan dini belum tersedia (jalankan supabase/183-patch-peringatan-pengingat-ta.sql).</p>'; return; }
+  TAB?.angka(TAB.panel.findIndex(p => p.contains(el)), PERINGATAN.length);
+  const ab = AMBANG.ta_peringatan_bimbingan_hari ?? PERINGATAN[0]?.ambang_bimbingan ?? 60;
+  const at = AMBANG.ta_peringatan_tahap_hari ?? PERINGATAN[0]?.ambang_tahap ?? 180;
+  el.innerHTML = `<p class="ket">Mahasiswa TA aktif (pembimbing sudah ditetapkan, sidang akhir belum tuntas) yang perlu disapa: tidak ada catatan
+      bimbingan lebih dari ${ab} hari, lebih dari ${at} hari sejak tahap terakhir, atau revisinya lewat batas. Dua yang pertama
+      tidak muncul bila tahap berikutnya sedang diperiksa atau terjadwal. ${ADMIN ? '' : 'Anda melihat mahasiswa bimbingan Anda sendiri.'}</p>
+    ${ADMIN ? `<div class="saring"><label>Hari tanpa bimbingan <input id="pdB" type="number" min="14" max="365" style="width:5em" value="${ab}"></label>
+      <label>Hari di satu tahap <input id="pdT" type="number" min="30" max="730" style="width:5em" value="${at}"></label>
+      <button type="button" class="b" id="pdSimpan">Simpan ambang</button><span class="msg" id="mPd" role="status"></span></div>` : ''}
+    ${PERINGATAN.length ? `<div class="lebar-tabel"><table><thead><tr><th>Mahasiswa</th><th>Pembimbing</th><th>Tahap</th><th>Peringatan</th></tr></thead>
+      <tbody>${PERINGATAN.map(r => `<tr><td>${esc(r.nama)}<div class="ket">${esc(r.nim)}${r.judul ? ' · ' + esc(r.judul) : ''}</div></td>
+        <td>${esc(r.pembimbing || '—')}</td><td>${esc(TAHAP_PERINGATAN[r.tahap] || r.tahap)}</td>
+        <td>${teksPeringatanTA(r).map(t => `<div>${esc(t)}</div>`).join('')}</td></tr>`).join('')}</tbody></table></div>`
+      : '<p class="kosong">Tidak ada mahasiswa yang perlu diperingatkan.</p>'}`;
+  if (!ADMIN) return;
+  $('pdSimpan').onclick = async () => {
+    const m = $('mPd');
+    const { error } = await sb.rpc('ta_peringatan_atur', { p_bimbingan: Math.round(+$('pdB').value), p_tahap: Math.round(+$('pdT').value) });
+    if (error) { m.className = 'msg err'; m.textContent = error.message; return; }
+    await muatPeringatan(); gambarPeringatan(); const m2 = $('mPd'); if (m2) { m2.className = 'msg ok'; m2.textContent = 'Ambang tersimpan.'; }
+  };
 }
 
 // Urutan tahap TA (172-patch-urutan-tahap-ta.sql, pemilik 2026-11-25): kemajuan setelah proposal lulus + revisi selesai,
@@ -300,13 +336,15 @@ async function mulai(){
     <div class="ringkas" id="ringkas"></div>
     <h2 id="jadwal-mendatang">Jadwal mendatang</h2><div id="akan"></div>
     <h2 id="revisi">Revisi berjalan</h2><div id="revisiIsi"></div>
+    ${SAYA.peran === 'asesor' ? '' : '<h2 id="peringatan-dini">Peringatan dini</h2><div id="peringatan"></div>'}
     <h2 id="beban-dosen">Beban dosen</h2><div id="beban"></div>
     ${SAYA.peran === 'asesor' ? '' : '<h2 id="kuota-ta">Kuota pembimbing</h2><div id="kuota"></div>'}
     ${ADMIN ? '<h2 id="urutan-tahap">Pengecualian urutan</h2><div id="kecuali"></div>' : ''}
     ${ADMIN ? '<h2 id="berkas-ta">Berkas per tahap</h2><div id="berkasTA"></div>' : ''}`;
-  pasangTab($('isi'));
+  TAB = pasangTab($('isi'));
   $('fPeriode').onchange = e => { PERIODE = e.target.value; gambar(); };
   gambar();
+  if ($('peringatan')) { await muatPeringatan(); gambarPeringatan(); }
   if ($('kuota')) { await muatKuota(); gambarKuota(); }
   if ($('kecuali')) { await muatKecuali(); gambarKecuali(); }
   if ($('berkasTA')) { await muatBerkasTA(); gambarBerkasTA(); }
