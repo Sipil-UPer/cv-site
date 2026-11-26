@@ -11,7 +11,7 @@
    tetapi diisi lewat butir-manual.js (`hitung`), jadi tidak ada di sini.
    ===================================================================== */
 
-import { BUTIR_LAM_TEKNIK } from './bobot.js?v=2026-11-26-760434';
+import { BUTIR_LAM_TEKNIK } from './bobot.js?v=2026-11-26-d4092a';
 
 // Butir berumus LAM Teknik; instrumen lain (LAMDEPILAR: semua elemen dinilai manual) tidak punya,
 // jadi daftarnya kosong dan halaman Isi butir, Kelengkapan, Rincian, pencarian tidak menampilkannya (2026-11-25).

@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-26-760434">
+<link rel="stylesheet" href="tema.css?v=2026-11-26-d4092a">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
@@ -104,7 +104,7 @@
   .masuk{max-width:420px;margin:40px auto;background:#fff;border:1px solid var(--line);padding:20px}
   .masuk input{width:100%;padding:8px 10px;margin:8px 0;font:inherit}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-26-760434">
+<link rel="stylesheet" href="kepala.css?v=2026-11-26-d4092a">
 </head>
 <body>
 
@@ -118,7 +118,7 @@
 
 <main class="wrap" id="isi"></main>
 
-<script src="config.js?v=2026-11-26-760434"></script>
+<script src="config.js?v=2026-11-26-d4092a"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -135,32 +135,32 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { buangBerkas, buangSemua, PESAN_SAMPAH, fotoPrestasiPublik, PERINGATAN_FOTO } from './hapus-berkas.js?v=2026-11-26-760434';
-import { pasangMenu } from './menu.js?v=2026-11-26-760434';
-import { LKPS } from './dokumen-instrumen.js?v=2026-11-26-760434';
-import { POS_A5, labelPos } from './keuangan-a5.js?v=2026-11-26-760434';
-import { dosenLogin } from './dosen-login.js?v=2026-11-26-760434';
-import { calonTA } from './dosen-hitung.js?v=2026-11-26-760434';
-import { aktifPada, tabBoleh, labelJabatan, labelPeran } from './koordinator.js?v=2026-11-26-760434';
-import { unggahKePustaka, opsiPustaka, opsiJenis, labelDokumen, cariDokumen } from './pustaka-dokumen.js?v=2026-11-26-760434';
-import { pasangRapikan } from './rapikan-berkas.js?v=2026-11-26-760434';
-import { UNSUR, skorUnsur, pihakUnsur } from './unsur-butir.js?v=2026-11-26-760434';
-import { OPSI_SUMBER } from './iku-otomatis.js?v=2026-11-26-760434';
-import { denganOtomatis as otomatisDari, tsTersedia, tsAwal, htmlCapaianIKU, KET_CAPAIAN, muatTambahan, denganTambahan } from './capaian-iku.js?v=2026-11-26-760434';
-import { KATEGORI_TEMUAN, STATUS_TEMUAN, PIHAK_TEMUAN, ringkasTemuan, htmlRingkasTemuan } from './temuan-ami.js?v=2026-11-26-760434';
-import { bacaRekapSPM, rencanaImporSPM, tsDariTanggal, labelTS, ringkasLembar, picProdi } from './standar-spmi.js?v=2026-11-26-760434';
-import { SHEETJS } from './nilai-cpl.js?v=2026-11-26-760434';
-import { bacaKerjasama, rencanaImporKS, LEMBAR_KS } from './impor-kerjasama.js?v=2026-11-26-760434';
-import { bacaCSV, normKur, normCpl, KOLOM_IMPOR, CONTOH_IMPOR, rencanaImpor, sebaranCPL, htmlSebaran } from './kurikulum-cpl.js?v=2026-11-26-760434';
-import { htmlContoh, pasangContoh, JENIS_BUKTI_KS } from './manfaat-kerjasama.js?v=2026-11-26-760434';
-import { infoJenis } from './rencana-bukti.js?v=2026-11-26-760434';
-import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-26-760434';
-import { BOBOT } from './bobot.js?v=2026-11-26-760434';
-import { nomorButir, htmlTautanButir } from './tautan-butir.js?v=2026-11-26-760434';
-import { htmlSaran } from './saran-bukti.js?v=2026-11-26-760434';
-import { tautanBerkas, privatkanLama, adalahPrivat } from './tautan-privat.js?v=2026-11-26-760434';
-import { unggahLKD, buangLKD, bukaLKD, pendidikanTotal, pendidikanPS } from './bkd.js?v=2026-11-26-760434';
-import { teksPelaksanaan } from './rekap-kp.js?v=2026-11-26-760434';
+import { buangBerkas, buangSemua, PESAN_SAMPAH, fotoPrestasiPublik, PERINGATAN_FOTO } from './hapus-berkas.js?v=2026-11-26-d4092a';
+import { pasangMenu } from './menu.js?v=2026-11-26-d4092a';
+import { LKPS } from './dokumen-instrumen.js?v=2026-11-26-d4092a';
+import { POS_A5, labelPos } from './keuangan-a5.js?v=2026-11-26-d4092a';
+import { dosenLogin } from './dosen-login.js?v=2026-11-26-d4092a';
+import { calonTA } from './dosen-hitung.js?v=2026-11-26-d4092a';
+import { aktifPada, tabBoleh, labelJabatan, labelPeran } from './koordinator.js?v=2026-11-26-d4092a';
+import { unggahKePustaka, opsiPustaka, opsiJenis, labelDokumen, cariDokumen } from './pustaka-dokumen.js?v=2026-11-26-d4092a';
+import { pasangRapikan } from './rapikan-berkas.js?v=2026-11-26-d4092a';
+import { UNSUR, skorUnsur, pihakUnsur } from './unsur-butir.js?v=2026-11-26-d4092a';
+import { OPSI_SUMBER } from './iku-otomatis.js?v=2026-11-26-d4092a';
+import { denganOtomatis as otomatisDari, tsTersedia, tsAwal, htmlCapaianIKU, KET_CAPAIAN, muatTambahan, denganTambahan } from './capaian-iku.js?v=2026-11-26-d4092a';
+import { KATEGORI_TEMUAN, STATUS_TEMUAN, PIHAK_TEMUAN, ringkasTemuan, htmlRingkasTemuan } from './temuan-ami.js?v=2026-11-26-d4092a';
+import { bacaRekapSPM, rencanaImporSPM, tsDariTanggal, labelTS, ringkasLembar, picProdi } from './standar-spmi.js?v=2026-11-26-d4092a';
+import { SHEETJS } from './nilai-cpl.js?v=2026-11-26-d4092a';
+import { bacaKerjasama, rencanaImporKS, LEMBAR_KS } from './impor-kerjasama.js?v=2026-11-26-d4092a';
+import { bacaCSV, normKur, normCpl, KOLOM_IMPOR, CONTOH_IMPOR, rencanaImpor, sebaranCPL, htmlSebaran } from './kurikulum-cpl.js?v=2026-11-26-d4092a';
+import { htmlContoh, pasangContoh, JENIS_BUKTI_KS } from './manfaat-kerjasama.js?v=2026-11-26-d4092a';
+import { infoJenis } from './rencana-bukti.js?v=2026-11-26-d4092a';
+import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-26-d4092a';
+import { BOBOT } from './bobot.js?v=2026-11-26-d4092a';
+import { nomorButir, htmlTautanButir } from './tautan-butir.js?v=2026-11-26-d4092a';
+import { htmlSaran } from './saran-bukti.js?v=2026-11-26-d4092a';
+import { tautanBerkas, privatkanLama, adalahPrivat } from './tautan-privat.js?v=2026-11-26-d4092a';
+import { unggahLKD, buangLKD, bukaLKD, pendidikanTotal, pendidikanPS } from './bkd.js?v=2026-11-26-d4092a';
+import { teksPelaksanaan } from './rekap-kp.js?v=2026-11-26-d4092a';
 // Rentang nomor butir instrumen aktif (LAM Teknik 1-60, LAMDEPILAR 101-130; 159-patch, 2026-11-24).
 const NO_BUTIR = Object.keys(BOBOT).map(Number);
 const BUTIR_MIN = Math.min(...NO_BUTIR), BUTIR_MAKS = Math.max(...NO_BUTIR);
@@ -301,7 +301,8 @@ const TABEL = [
     } },
   { id: 'kohort', tabel: 'lkps_kohort_lulusan', judul: 'Kohort lulusan', butir: '44–45',
     ket: 'Meniru Tabel 6.d LKPS: satu baris per TAHUN MASUK (angkatan), mundur s.d. TS-7. '
-       + 'Masa studi (butir 44) dan lulus tepat waktu (butir 45) dihitung dari sini.',
+       + 'Masa studi (butir 44) dan lulus tepat waktu (butir 45) dihitung dari sini. Pakai "Hitung otomatis dari data lulusan" '
+       + 'untuk mengisi dari daftar yudisium dan unggahan SIAKAD.',
     label: r => `Kohort masuk ${r.tahun_masuk || ''}`, tahun: r => r.tahun_masuk,
     kolom: [
       { k: 'tahun_masuk', l: 'Tahun masuk', t: 'tahun', wajib: true },
@@ -1369,6 +1370,40 @@ async function aturPantau(lembar, nilai){
 //  disimpan. Bukti boleh kosong: dilengkapi lewat Ubah; daftar kerja sama tanpa bukti tampil di bawah kotak impor.
 // ---------------------------------------------------------------------
 let RENCANA_KS = null;
+// Kohort otomatis (189-patch-kohort-otomatis.sql, pemilik 2026-11-26): pita masa studi dari angkatan + periode yudisium
+// (Data lulusan), jumlah masuk dari unggahan SIAKAD semester Ganjil pertama (Perwalian). Angkatan sebelum "dari" tidak disentuh.
+function gambarHitungKohort(){
+  const box = $('hitung-kohort');
+  if (!box || box.innerHTML) return;
+  box.innerHTML = `<details class="massal" open><summary><b>Hitung otomatis dari data lulusan</b></summary>
+    <p class="ket">Pita masa studi dihitung dari angkatan dan periode yudisium (semester lulus: yudisium Juli–Desember = akhir
+      semester Genap, Januari–Juni = akhir semester Ganjil). Jumlah masuk = jumlah NIM angkatan itu di semester Ganjil
+      pertamanya dari unggahan SIAKAD (Perwalian › Data mahasiswa); bila belum diunggah, isian manual dipertahankan.
+      Isian pita angkatan yang dihitung akan <b>ditimpa</b>.</p>
+    <div class="unggah-baris"><label>Mulai angkatan <input type="number" id="kh_dari" value="2019" min="2000" max="2100" step="1"
+      style="width:90px"></label> <button type="button" class="btn" id="kh_hitung">Hitung dan simpan</button></div>
+    <div id="kh_hasil"></div></details>`;
+  $('kh_hitung').onclick = async () => {
+    const dari = +$('kh_dari').value, out = $('kh_hasil');
+    if (!confirm(`Isian pita masa studi angkatan ${dari} ke atas akan ditimpa hasil hitungan. Lanjutkan?`)) return;
+    out.innerHTML = '<p class="ket">Menghitung…</p>';
+    const { data, error } = await sb.rpc('kohort_dari_data', { p_dari: dari });
+    if (error) {
+      out.innerHTML = `<p class="msg buruk">${esc(/kohort_dari_data/.test(error.message)
+        ? 'Fungsi belum dipasang: jalankan supabase/189-patch-kohort-otomatis.sql.' : error.message)}</p>`;
+      return;
+    }
+    const xs = data?.angkatan || [];
+    const tanpaMasuk = xs.filter(x => !x.masuk_dari_siakad && x.jumlah_masuk == null).map(x => x.tahun_masuk);
+    out.innerHTML = `<p class="msg ok">${xs.length} angkatan dihitung (${esc(xs.map(x => `${x.tahun_masuk}: ${x.lulus} lulus`
+      + (x.jumlah_masuk != null ? ` dari ${x.jumlah_masuk}` : '')).join('; '))}).</p>`
+      + (tanpaMasuk.length ? `<p class="msg buruk">Jumlah masuk belum ada untuk angkatan ${esc(tanpaMasuk.join(', '))}: unggah daftar
+        SIAKAD semester Ganjil pertamanya di Perwalian, atau isi manual lewat Ubah.</p>` : '')
+      + (data?.di_luar_pita ? `<p class="ket">${data.di_luar_pita} lulusan di luar pita 3,5–8 tahun tidak dihitung.</p>` : '');
+    await muatBaris();
+  };
+}
+
 function gambarImporKS(){
   const box = $('impor-ks');
   if (!box) return;
@@ -2049,7 +2084,7 @@ async function bukaTab(){
   if (T.khusus) return bukaPustaka();
   $('panel').innerHTML = `<p class="ket">${nomorButir(T.butir).length
     ? `<b>${htmlTautanButir(nomorButir(T.butir), null, 'Dipakai di')}.</b>` : `<b>${esc(T.butir)}.</b>`} ${esc(T.ket)}</p>${saranTab(T)}
-    ${T.id === 'kepuasan' ? '<div id="massal"></div>' : ''}${T.id === 'mk' ? '<div id="impor-mk"></div>' : ''}${T.id === 'kerjasama' ? '<div id="impor-ks"></div><div id="ks-tanpa-bukti"></div>' : ''}${JENIS_CPL[T.id] ? `${T.id === 'mk_cpl' ? '<div id="sebaran-cpl"></div>' : ''}<div id="impor-cpl"></div>` : ''}${T.id === 'target' ? '<div id="capaian-iku"></div><div id="impor-iku"></div>' : ''}${T.id === 'temuan' ? '<div id="ringkas-temuan"></div>' : ''}${T.id === 'standar' ? '<div id="pantau-lembar"></div><div id="impor-standar"></div>' : ''}
+    ${T.id === 'kepuasan' ? '<div id="massal"></div>' : ''}${T.id === 'mk' ? '<div id="impor-mk"></div>' : ''}${T.id === 'kerjasama' ? '<div id="impor-ks"></div><div id="ks-tanpa-bukti"></div>' : ''}${JENIS_CPL[T.id] ? `${T.id === 'mk_cpl' ? '<div id="sebaran-cpl"></div>' : ''}<div id="impor-cpl"></div>` : ''}${T.id === 'target' ? '<div id="capaian-iku"></div><div id="impor-iku"></div>' : ''}${T.id === 'temuan' ? '<div id="ringkas-temuan"></div>' : ''}${T.id === 'kohort' ? '<div id="hitung-kohort"></div>' : ''}${T.id === 'standar' ? '<div id="pantau-lembar"></div><div id="impor-standar"></div>' : ''}
     <details class="formulir" id="formLipat"><summary id="formJudul">＋ Tambah baris</summary>
     <form id="form" novalidate><div class="grid">${kolomForm(T).map(isian).join('')}
       ${T.tanpaBukti ? '' : T.privat ? blokLKD() : blokBukti(T)}</div>
@@ -2233,6 +2268,7 @@ async function muatBaris(){
   if (JENIS_CPL[T.id]) { await muatRefCPL(); if (T !== AKTIF) return; gambarKurikulumCPL(T); }
   if (T.id === 'target') gambarCapaianIKU($('ci_ts')?.value);
   if (T.id === 'target' && $('impor-iku') && !$('impor-iku').innerHTML) gambarImporIKU();
+  if (T.id === 'kohort') gambarHitungKohort();
   if (T.id === 'temuan' && $('ringkas-temuan')) $('ringkas-temuan').innerHTML = htmlRingkasTemuan(ringkasTemuan(BARIS));
   if (T.id === 'standar' || T.id === 'temuan') await muatDaftarSPMI();
   if (T.id === 'standar' && $('impor-standar') && !$('impor-standar').innerHTML) gambarImporStandar();
