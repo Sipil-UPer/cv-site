@@ -1,5 +1,5 @@
-import { dosenLogin } from './dosen-login.js?v=2026-11-27-a6ccbd';
-import { aktifPada } from './koordinator.js?v=2026-11-27-a6ccbd';
+import { dosenLogin } from './dosen-login.js?v=2026-11-27-16ffd3';
+import { aktifPada } from './koordinator.js?v=2026-11-27-16ffd3';
 // Menu bersama ruang kerja (pemilik 2026-11-04).
 //
 // Situs dibagi dua:
@@ -43,11 +43,11 @@ const koorTA = s => pengelola(s) || mutu(s) || punyaJ(s, 'koordinator_ta');
 const koorKP = s => pemantau(s) || punyaJ(s, 'koordinator_kp');
 const koorLayanan = s => pengelola(s) || punyaJ(s, 'koordinator_ta', 'koordinator_kp', 'pembina_kemahasiswaan');
 
-import { halamanAktif } from './fitur.js?v=2026-11-27-a6ccbd';
-import { BUTIR_LAM_TEKNIK } from './bobot.js?v=2026-11-27-a6ccbd';
-import { pasangPemicuBangun } from './pemicu-bangun.js?v=2026-11-27-a6ccbd';
+import { halamanAktif } from './fitur.js?v=2026-11-27-16ffd3';
+import { BUTIR_LAM_TEKNIK } from './bobot.js?v=2026-11-27-16ffd3';
+import { pasangPemicuBangun } from './pemicu-bangun.js?v=2026-11-27-16ffd3';
 // Tinggi kotak teks mengikuti isi (pemilik 2026-11-25); bentuk "from" agar dicap stamp_versions.py.
-import { pasSemua as pasKotakTeks } from './kotak-teks.js?v=2026-11-27-a6ccbd';
+import { pasSemua as pasKotakTeks } from './kotak-teks.js?v=2026-11-27-16ffd3';
 
 export const MODUL = [
   // Susunan menu mengikuti alur kerja (pemilik 2026-11-23): Data saya (milik dosen), Pengajaran (urut alur MK:
@@ -484,7 +484,7 @@ export async function pasangMenu(sb){
   // Pencarian menyeluruh (pemilik 2026-11-12; cari-ui.js, cari.js): dimuat saat pertama dipakai.
   const kotak = nav.querySelector('.rk-cari input');
   let siapCari = null;
-  const muatCari = () => siapCari || (siapCari = import('./cari-ui.js?v=2026-11-27-a6ccbd').then(m =>
+  const muatCari = () => siapCari || (siapCari = import('./cari-ui.js?v=2026-11-27-16ffd3').then(m =>
     m.pasangCari(kotak, { sb, saya: u.saya, modul: halamanBoleh(u.saya), boleh: h => bolehBuka(u.saya, h) !== false })));
   kotak.addEventListener('focus', muatCari);
   document.addEventListener('keydown', e => {

@@ -19,7 +19,7 @@
    bukti), mhs, dana, ket1, ket2.
    ===================================================================== */
 
-import { namaJenisBukti } from './rencana-bukti.js?v=2026-11-27-a6ccbd';
+import { namaJenisBukti } from './rencana-bukti.js?v=2026-11-27-16ffd3';
 
 const rapi = s => String(s ?? '').replace(/_/g, ' ');
 

@@ -5,7 +5,7 @@
 // disunting admin per survei; pengguna lulusan memakai 7 aspek resmi 6.g.2.
 // 2026-11-13 (pemilik): templat per kelompok menjawab butir LAM (bagian + butir per pertanyaan),
 // tracer memuat pertanyaan inti DIKTI, dan semua teks bisa dwibahasa (72-patch-survei-dwibahasa.sql).
-import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-27-a6ccbd';
+import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-27-16ffd3';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -75,6 +75,9 @@ export const BAGIAN = {
   instansi: ['Profil instansi', 'About your organisation'],
   kinerja_lulusan: ['Kinerja lulusan', 'Graduate performance'],
   kurikulum: ['Kurikulum dan kompetensi', 'Curriculum and competencies'],
+  // Penilaian CPL (pemilik 2026-11-27): dua langkah terpisah supaya pertanyaan "penting" dan "dikuasai" tidak tertukar.
+  cpl_penting: ['Kemampuan lulusan: tingkat kepentingan', 'Graduate outcomes: importance'],
+  cpl_kuasai: ['Kemampuan lulusan: tingkat penguasaan', 'Graduate outcomes: attainment'],
   masukan: ['Masukan', 'Feedback'],
 };
 export const labelBagian = (b, en = false) => BAGIAN[b] ? BAGIAN[b][en ? 1 : 0] : String(b || '').replace(/_/g, ' ');
@@ -336,6 +339,104 @@ const TEMPLAT = {
       { ...SARAN, butir: ['2', '48'] }])],
 };
 export const templatSurvei = k => (TEMPLAT[k] || []).map(q => JSON.parse(JSON.stringify(q)));
+/** Batas pertanyaan per survei (190-patch-survei-cpl.sql: 60 -> 100 untuk bagian CPL, pemilik 2026-11-27). */
+export const MAKS_PERTANYAAN = 100;
+
+// ---------------------------------------------------------------------------------------------
+// Penilaian CPL dan kebutuhan kompetensi (pemilik 2026-11-27: survei pemangku dipakai juga untuk pengembangan
+// kurikulum). Per CPL kurikulum aktif, skala 1-5 (pola f17 DIKTI): "penting" (dunia kerja/instansi) dan/atau
+// "dikuasai" (oleh responden/lulusan), tergantung kelompok. Jenis "pilihan" (opsi 1-5) sehingga tidak perlu jenis
+// baru di survei_kirim. Kunci tambahan: cpl (kode), cpl_sisi ('penting' | 'kuasai'). Butir 12-13 (masukan pemangku
+// untuk kurikulum); kesenjangan dihitung kesenjanganCPL().
+// ---------------------------------------------------------------------------------------------
+export const SISI_CPL = { mahasiswa: ['kuasai'], alumni: ['penting', 'kuasai'], pengguna: ['penting', 'kuasai'],
+  mitra: ['penting'], dosen: ['kuasai'] };
+const BATANG_CPL = {
+  penting: {
+    alumni: ['Dalam pekerjaan Anda saat ini, seberapa penting kemampuan berikut?', 'In your current job, how important is each outcome?'],
+    pengguna: ['Bagi instansi Anda, seberapa penting kemampuan berikut dimiliki lulusan teknik sipil?',
+      'For your organisation, how important is each outcome for civil engineering graduates?'],
+    mitra: ['Bagi organisasi Anda, seberapa penting kemampuan berikut dimiliki lulusan teknik sipil?',
+      'For your organisation, how important is each outcome for civil engineering graduates?'] },
+  kuasai: {
+    mahasiswa: ['Seberapa besar Anda telah menguasai kemampuan berikut?', 'How well have you attained each outcome?'],
+    alumni: ['Saat lulus, seberapa besar Anda menguasai kemampuan berikut?', 'At graduation, how well had you attained each outcome?'],
+    pengguna: ['Seberapa besar lulusan kami yang bekerja di instansi Anda menguasai kemampuan berikut?',
+      'How well do our graduates working in your organisation demonstrate each outcome?'],
+    dosen: ['Menurut Anda, seberapa besar mahasiswa tingkat akhir telah mencapai kemampuan berikut?',
+      'In your view, how well have final-year students attained each outcome?'] } };
+const UJUNG_CPL = { penting: [['Tidak penting', 'Sangat penting'], ['Not important', 'Very important']],
+  kuasai: [['Sangat rendah', 'Sangat tinggi'], ['Very low', 'Very high']] };
+const kodeIdCpl = k => String(k || '').toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 20);
+export const KEBUTUHAN_OPSI = ['BIM dan pemodelan digital', 'Analisis data dan pemrograman', 'Infrastruktur energi dan energi terbarukan',
+  'Keberlanjutan dan perubahan iklim', 'Manajemen proyek dan kontrak', 'K3 konstruksi', 'Sertifikasi profesi (SKK, insinyur)',
+  'Bahasa Inggris teknis', 'Kewirausahaan', 'Lainnya'];
+const KEBUTUHAN_OPSI_EN = ['BIM and digital modelling', 'Data analysis and programming', 'Energy infrastructure and renewables',
+  'Sustainability and climate change', 'Project and contract management', 'Construction safety (K3)', 'Professional certification',
+  'Technical English', 'Entrepreneurship', 'Other'];
+
+/** Pertanyaan CPL untuk satu kelompok. cpl: [{kode, rumusan, rumusan_en}] urut kurikulum. Kosong bila kelompok tanpa sisi. */
+export function pertanyaanCPL(cpl, kelompok){
+  const out = [];
+  for (const sisi of SISI_CPL[kelompok] || []) {
+    const [b, bEn] = BATANG_CPL[sisi][kelompok], [u, uEn] = UJUNG_CPL[sisi];
+    (cpl || []).forEach((c, i) => out.push({ id: `cpl_${kodeIdCpl(c.kode)}_${sisi === 'penting' ? 'p' : 'k'}`, aspek: `cpl_${sisi}`,
+      teks: `CPL-${c.kode}: ${String(c.rumusan || '').trim()}`, teks_en: `PLO ${c.kode}: ${String(c.rumusan_en || c.rumusan || '').trim()}`,
+      jenis: 'pilihan', opsi: LIMA, opsi_en: LIMA, ujung: u, ujung_en: uEn, cpl: String(c.kode), cpl_sisi: sisi,
+      bagian: `cpl_${sisi}`, butir: ['12', '13'],
+      ...(i ? {} : { ket: `${b} Skala 1 sampai 5.`, ket_en: `${bEn} Scale 1 to 5.` }) }));
+  }
+  if (['alumni', 'pengguna', 'mitra'].includes(kelompok)) {
+    out.push(C('kebutuhan', 'kurikulum', 'Kompetensi atau topik yang perlu diperkuat dalam kurikulum (boleh lebih dari satu)',
+      'Competencies or topics the curriculum should strengthen (select all that apply)', KEBUTUHAN_OPSI, KEBUTUHAN_OPSI_EN,
+      { bagian: 'kurikulum', butir: ['12', '13'] }));
+    out.push(T('kebutuhan_lain', 'kurikulum', 'Kompetensi atau topik lain yang dibutuhkan (boleh dikosongkan).',
+      'Other competencies or topics needed (optional).', { bagian: 'kurikulum', butir: ['12', '13'] }));
+  }
+  return out;
+}
+
+/** Pasang/perbarui bagian CPL di daftar pertanyaan: pertanyaan CPL lama dan "kebutuhan" lama dibuang, yang baru
+ *  disisipkan sebelum bagian masukan (saran) atau di akhir. Pertanyaan lain tidak berubah. */
+export function pasangCPL(pertanyaan, cpl, kelompok){
+  const lain = (pertanyaan || []).filter(q => !q.cpl && !['kebutuhan', 'kebutuhan_lain'].includes(q.id));
+  const baru = pertanyaanCPL(cpl, kelompok);
+  const i = lain.findIndex(q => q.bagian === 'masukan');
+  return i < 0 ? [...lain, ...baru] : [...lain.slice(0, i), ...baru, ...lain.slice(i)];
+}
+
+/** Kesenjangan per CPL dari sebaran opsi {id: {'1': n, ...}} (ringkasLain atau survei_rekap):
+ *  [{kode, teks, penting, n_penting, kuasai, n_kuasai, selisih}] urut pertanyaan; selisih = penting - kuasai (null bila salah satu kosong). */
+export function kesenjanganCPL(pertanyaan, opsi = {}){
+  const per = new Map(), K = ['1', '2', '3', '4', '5'];
+  for (const q of pertanyaan || []) {
+    if (!q.cpl) continue;
+    const c = opsi[q.id] || {}, n = K.reduce((a, k) => a + (+c[k] || 0), 0);
+    const rerata = n ? Math.round(K.reduce((a, k) => a + +k * (+c[k] || 0), 0) / n * 100) / 100 : null;
+    const x = per.get(q.cpl) || { kode: q.cpl, teks: String(q.teks || '').replace(/^CPL-[^:]+:\s*/, ''), penting: null, n_penting: 0,
+      kuasai: null, n_kuasai: 0 };
+    if (q.cpl_sisi === 'penting') Object.assign(x, { penting: rerata, n_penting: n });
+    else Object.assign(x, { kuasai: rerata, n_kuasai: n });
+    per.set(q.cpl, x);
+  }
+  return [...per.values()].map(x => ({ ...x,
+    selisih: x.penting != null && x.kuasai != null ? Math.round((x.penting - x.kuasai) * 100) / 100 : null }));
+}
+
+const escK = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+/** Tabel kesenjangan CPL (admin dan publik): selisih >= 1 ditandai prioritas. '' bila survei tanpa pertanyaan CPL. */
+export function htmlKesenjangan(xs){
+  if (!xs.length) return '';
+  const f = v => v == null ? '—' : v.toFixed(2).replace('.', ',');
+  const ada = s => xs.some(x => x[s] != null), dua = ada('penting') && ada('kuasai');
+  return `<h3>Kemampuan lulusan (CPL): ${dua ? 'kepentingan dan penguasaan' : ada('penting') ? 'kepentingan' : 'penguasaan'}</h3>
+    <p class="ket">Rata-rata skala 1–5.${dua ? ' Selisih = penting − dikuasai; selisih ≥ 1,00 ditandai ▲ sebagai prioritas pengembangan kurikulum.' : ''}</p>
+    <div class="lebar-tabel"><table><thead><tr><th>CPL</th><th>Rumusan</th>${ada('penting') ? '<th class="n">Penting</th>' : ''}${
+      ada('kuasai') ? '<th class="n">Dikuasai</th>' : ''}${dua ? '<th class="n">Selisih</th>' : ''}</tr></thead>
+    <tbody>${xs.map(x => `<tr><td>${escK(x.kode)}</td><td>${escK(x.teks)}</td>${ada('penting') ? `<td class="n">${f(x.penting)}</td>` : ''}${
+      ada('kuasai') ? `<td class="n">${f(x.kuasai)}</td>` : ''}${dua
+        ? `<td class="n">${x.selisih != null && x.selisih >= 1 ? `<b>${f(x.selisih)}</b> ▲` : f(x.selisih)}</td>` : ''}</tr>`).join('')}</tbody></table></div>`;
+}
 /** Identitas bawaan per kelompok: tracer perlu bisa ditindaklanjuti, survei kepuasan anonim. */
 // Alumni wajib (nama + NIM, survei.html) agar tracer bisa dicocokkan dengan daftar lulusan (pemilik 2026-11-14).
 export const identitasBawaan = k => k === 'alumni' ? 'wajib' : 'tidak';
@@ -343,7 +444,7 @@ export const identitasBawaan = k => k === 'alumni' ? 'wajib' : 'tidak';
 /** '' bila daftar pertanyaan sah, selain itu pesan galat. */
 export function cekPertanyaan(xs){
   if (!Array.isArray(xs) || !xs.length) return 'Isi paling sedikit satu pertanyaan.';
-  if (xs.length > 60) return 'Paling banyak 60 pertanyaan.';
+  if (xs.length > MAKS_PERTANYAAN) return `Paling banyak ${MAKS_PERTANYAAN} pertanyaan.`;
   const ids = new Set();
   for (const [i, q] of xs.entries()) {
     if (!/^[a-z0-9_]{1,40}$/.test(q.id || '')) return `Pertanyaan ${i + 1}: kode hanya huruf kecil, angka, garis bawah.`;
