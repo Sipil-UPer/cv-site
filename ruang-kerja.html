@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-27-80978c">
+<link rel="stylesheet" href="tema.css?v=2026-11-27-4ea548">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
@@ -37,6 +37,7 @@
   .m a:hover{background:var(--line-soft)}
   .m a b{color:var(--biru-2)}
   .m a span{display:block;color:var(--muted);font-size:13px}
+  .m h3.m-sub{font-size:11.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);margin:14px 0 2px}
   .info{background:#FFF8E5;border:1px solid #E8D9A8;border-radius:4px;padding:10px 14px;
         margin-bottom:18px;font-size:14px}
   .panel{background:var(--panel);border:1px solid var(--line);border-radius:4px;
@@ -100,7 +101,7 @@
 
 <main class="wrap" id="isi"><p class="hint">Memuat&hellip;</p></main>
 
-<script src="config.js?v=2026-11-27-80978c"></script>
+<script src="config.js?v=2026-11-27-4ea548"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache) tampil sebagai pesan.
 addEventListener('error', function (e) {
@@ -116,17 +117,17 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { pengguna, pasangMenu, halamanBoleh, bolehBuka, identitas, pasangJudul, pintasanUntuk } from './menu.js?v=2026-11-27-80978c';
-import { kelasMengajarSaya } from './mk-saya.js?v=2026-11-27-80978c';
-import { hitungVerifikasi } from './verifikasi-hitung.js?v=2026-11-27-80978c';
-import { rubrikRps } from './rps.js?v=2026-11-27-80978c';
-import { bacaTinjauan } from './tinjauan-rps.js?v=2026-11-27-80978c';
-import { isoDari } from './pengingat-rps.js?v=2026-11-27-80978c';
-import { tugasSaya } from './tugas-saya.js?v=2026-11-27-80978c';
-import { fiturAktif, halamanAktif } from './fitur.js?v=2026-11-27-80978c';
+import { pengguna, pasangMenu, halamanBoleh, bolehBuka, identitas, pasangJudul, pintasanUntuk, denganSub } from './menu.js?v=2026-11-27-4ea548';
+import { kelasMengajarSaya } from './mk-saya.js?v=2026-11-27-4ea548';
+import { hitungVerifikasi } from './verifikasi-hitung.js?v=2026-11-27-4ea548';
+import { rubrikRps } from './rps.js?v=2026-11-27-4ea548';
+import { bacaTinjauan } from './tinjauan-rps.js?v=2026-11-27-4ea548';
+import { isoDari } from './pengingat-rps.js?v=2026-11-27-4ea548';
+import { tugasSaya } from './tugas-saya.js?v=2026-11-27-4ea548';
+import { fiturAktif, halamanAktif } from './fitur.js?v=2026-11-27-4ea548';
 // Situs publik mati (templat akreditasi, pemilik 2026-11-23): tanpa tautan ke beranda umum.
 if (!halamanAktif('index.html')) document.querySelector('a.balik[href="index.html"]')?.remove();
-import { barisDosen } from './target-kinerja.js?v=2026-11-27-80978c';
+import { barisDosen } from './target-kinerja.js?v=2026-11-27-4ea548';
 
 const sb = createClient(window.SB_URL, window.SB_KEY);
 const $ = id => document.getElementById(id);
@@ -166,7 +167,7 @@ async function mulai(){
     + `<h2 class="semua-h">Semua halaman</h2>`
     + `<div class="modul">${halamanBoleh(u.saya).map(m => `<section class="m">
         <h2>${esc(m.judul)}</h2><p>${esc(m.ket)}</p>
-        ${m.halaman.map(h => `<a href="${esc(h.href)}"><b>${esc(h.judul)}</b>
+        ${denganSub(m.halaman).map(([sub, h]) => (sub ? `<h3 class="m-sub">${esc(sub)}</h3>` : '') + `<a href="${esc(h.href)}"><b>${esc(h.judul)}</b>
           <span>${esc(h.ket)}</span></a>`).join('')}</section>`).join('')}</div>`;
   if (u.saya.peran !== 'asesor') {
     ($('isi').querySelector('.pintasan') || $('isi').querySelector('.semua-h')).insertAdjacentHTML('beforebegin', '<div id="tugas"></div>');
@@ -333,7 +334,7 @@ async function muatTugas(saya){
     const buka = await baca(sb.from('survei').select('id,judul,kelompok,tahun_ts,mulai,selesai,dicabut')
       .lte('mulai', hariIni).gte('selesai', hariIni).eq('dicabut', false));
     if (buka.length) {
-      const { muatPopulasi, targetSurvei } = await import('./survei-mutu.js?v=2026-11-27-80978c');
+      const { muatPopulasi, targetSurvei } = await import('./survei-mutu.js?v=2026-11-27-4ea548');
       const [pop, ns] = await Promise.all([muatPopulasi(sb, saya), Promise.all(buka.map(s =>
         sb.from('survei_jawaban').select('id', { count: 'exact', head: true }).eq('survei_id', s.id).then(r => r.count || 0, () => 0)))]);
       surveiBerjalan = buka.map((s, i) => ({ judul: s.judul, selesai: s.selesai, n: ns[i], target: targetSurvei(s, pop, hariIni).target }));

@@ -1,7 +1,7 @@
 // Dasbor operasional koordinator prodi (pemilik 2026-11-17, tahap 3 koordinator): per bidang, siapa penanggung jawabnya
 // (koordinator aktif) dan antrean/keterlambatan, dengan tautan ke halaman kerjanya. Dipakai dasbor.html.
-import { statusTindak, petaRps } from './tinjauan-rps.js?v=2026-11-27-80978c';
-import { aktifPada, labelJabatan } from './koordinator.js?v=2026-11-27-80978c';
+import { statusTindak, petaRps } from './tinjauan-rps.js?v=2026-11-27-4ea548';
+import { aktifPada, labelJabatan } from './koordinator.js?v=2026-11-27-4ea548';
 
 export const HARI_ANTRE = 7;     // pengajuan yang menunggu lebih dari ini = terlambat
 export const HARI_SK = 30;       // penugasan berakhir dalam sekian hari = perlu diperpanjang

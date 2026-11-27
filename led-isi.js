@@ -9,11 +9,11 @@
    Tautan di dalam teks memakai token ⟦url|label⟧; auto() di led.js
    mengubahnya menjadi hyperlink Word.
    ===================================================================== */
-import { versiUntukTS } from './pustaka-dokumen.js?v=2026-11-27-80978c';
-import { infoJenis, JENIS_DOKUMEN, kelompokDokumen, buktiButir, saranDokumen } from './rencana-bukti.js?v=2026-11-27-80978c';
-import { teksPendidikan, nidnNuptk } from './profil-dosen.js?v=2026-11-27-80978c';
-import { karya4i } from './sitasi.js?v=2026-11-27-80978c';
-import { ampuPerTA, dosenTS } from './dosen-hitung.js?v=2026-11-27-80978c';
+import { versiUntukTS } from './pustaka-dokumen.js?v=2026-11-27-4ea548';
+import { infoJenis, JENIS_DOKUMEN, kelompokDokumen, buktiButir, saranDokumen } from './rencana-bukti.js?v=2026-11-27-4ea548';
+import { teksPendidikan, nidnNuptk } from './profil-dosen.js?v=2026-11-27-4ea548';
+import { karya4i } from './sitasi.js?v=2026-11-27-4ea548';
+import { ampuPerTA, dosenTS } from './dosen-hitung.js?v=2026-11-27-4ea548';
 
 export const tokenTautan = (url, label) => `⟦${url}|${String(label).replace(/[⟦⟧|]/g, ' ')}⟧`;
 const isi = t => `[isi: ${t}]`;
@@ -333,7 +333,7 @@ export function tabelPenjelas(no, C){
       const sp = siklusSPMITS(X, ts), DASAR = { rtm: 'Keputusan RTM', ami: 'Temuan AMI', evaluasi_capaian: 'Evaluasi capaian', kebijakan: 'Kebijakan baru', lainnya: 'Lainnya' };
       const tambahan = [...buat(`Capaian standar SPMI TS ${ts - 1}/${ts}`, ['No', 'Lembar standar', 'Butir dipantau', 'Tercapai', 'Belum tercapai', 'Tidak berlaku', 'Belum dinilai'],
           sp.perLembar.map(x => [x.lembar, String(x.dipantau), String(x.tercapai), String(x.belum), String(x.tidak), String(x.dipantau - x.tercapai - x.belum - x.tidak)]),
-          'di Mutu dan akreditasi › Siklus mutu (PPEPP)'),
+          'di Mutu dan pemantauan › Siklus mutu (PPEPP)'),
         ...buat('Perubahan standar SPMI', ['No', 'Tanggal', 'Standar', 'Perubahan', 'Dasar'],
           sp.revisiBaris.map(v => [String(v.tanggal).split('-').reverse().join('/'), sp.kode(v.standar_id), v.perubahan, DASAR[v.dasar] || v.dasar]),
           'di Data prodi › Revisi standar')];
