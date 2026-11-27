@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-27-7c5f44">
+<link rel="stylesheet" href="tema.css?v=2026-11-27-ce245a">
 <style>
   /* Pengajuan mahasiswa, publik tanpa masuk akun (pemilik 2026-11-17; patch 90). Warna dari tema.css. */
   *{box-sizing:border-box}
@@ -120,7 +120,7 @@
   <p class="sub">KP, seminar/sidang TA, lomba, publikasi/luaran, kabar kegiatan, surat, dan yudisium.</p>
 </div></div>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-27-7c5f44"></script>
+<script src="config.js?v=2026-11-27-ce245a"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -136,7 +136,7 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 // Kepala dan kaki bersama situs umum (pemilik 2026-11-19, tahap 2).
-import { pasangKerangka } from './kerangka.js?v=2026-11-27-7c5f44';
+import { pasangKerangka } from './kerangka.js?v=2026-11-27-ce245a';
 pasangKerangka({ aktif: 'mahasiswa', muat: true });
 // Mahasiswa tidak login (pemilik 2026-11-17). Tanpa token: formulir baru dan minta tautan lagi; Apps Script
 // membuat pengajuan dan mengirim tautan pribadi ke <NIM>@<domain kampus>. Dengan #t=<token> (dari email):
@@ -146,7 +146,7 @@ pasangKerangka({ aktif: 'mahasiswa', muat: true });
 // tidak ada permintaan ke Supabase atau Google. Tanpa ?latihan: Supabase sungguhan seperti biasa.
 const LATIHAN = new URLSearchParams(location.search).has('latihan');
 if (LATIHAN) { window.LATIHAN = true; window.UPLOAD_URL = 'https://script.google.com/macros/s/latihan/exec'; }
-const { createClient } = LATIHAN ? await import('./latihan/mock-sb.js?v=2026-11-27-7c5f44')
+const { createClient } = LATIHAN ? await import('./latihan/mock-sb.js?v=2026-11-27-ce245a')
   : await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm');
 if (LATIHAN) pasangLatihan();
 // Pita MODE LATIHAN, mulai ulang, dan tautan ke pengajuan.html tetap membawa ?latihan=1.
@@ -172,11 +172,11 @@ function pasangLatihan(){
 }
 import { JENIS, LABEL_BERKAS, LABEL_STATUS, TINGKAT, BIDANG, jalur, bolehUbah, bacaAnggota, teksAnggota,
          periksaIsian, judulPengajuan, keB64, bukaIsi, appsScript, labelStatus, jalurTahap, BERKAS_SELESAI, PROGRAM_KP, labelProgram,
-         periksaSelesai, bolehBatalMhs, JENIS_SURAT, TAHAP_TA, TAHAP_TA_AJU, TAHAP_PEMBIMBING_TA, penetapanTA, pembimbingCocok, JENIS_PUB, TINGKAT_PUB, INDEKSASI, JENIS_LUARAN,
-         BERKAS_YUDISIUM_BAWAAN, kelengkapanYudisium, labelBerkas, JENIS_KEGIATAN, BERKAS_TA_BAWAAN, berkasTahapTA, TAHAP_TA_BERKAS, kemajuanTA, tglIndo, BATAS_KEMIRIPAN, teksKemiripan } from './pengajuan-mhs.js?v=2026-11-27-7c5f44';
-import { saranInstansi } from './rekap-kp.js?v=2026-11-27-7c5f44';
-import { CONTOH_PENGAJUAN, contohPengajuan } from './pengajuan-contoh.js?v=2026-11-27-7c5f44';
-import { HARI_OTOMATIS, CARA_BIMBINGAN, labelCara, statusBimbingan, periksaBimbingan, teksSyarat } from './bimbingan-ta.js?v=2026-11-27-7c5f44';
+         periksaSelesai, bolehBatalMhs, JENIS_SURAT, TAHAP_TA, TAHAP_TA_AJU, TAHAP_PEMBIMBING_TA, penetapanTA, mkPilihanK26, mkPilihanBidang, teksCekMK, pembimbingCocok, JENIS_PUB, TINGKAT_PUB, INDEKSASI, JENIS_LUARAN,
+         BERKAS_YUDISIUM_BAWAAN, kelengkapanYudisium, labelBerkas, JENIS_KEGIATAN, BERKAS_TA_BAWAAN, berkasTahapTA, TAHAP_TA_BERKAS, kemajuanTA, tglIndo, BATAS_KEMIRIPAN, teksKemiripan } from './pengajuan-mhs.js?v=2026-11-27-ce245a';
+import { saranInstansi } from './rekap-kp.js?v=2026-11-27-ce245a';
+import { CONTOH_PENGAJUAN, contohPengajuan } from './pengajuan-contoh.js?v=2026-11-27-ce245a';
+import { HARI_OTOMATIS, CARA_BIMBINGAN, labelCara, statusBimbingan, periksaBimbingan, teksSyarat } from './bimbingan-ta.js?v=2026-11-27-ce245a';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
@@ -208,6 +208,7 @@ function isiSaran(){
 let DOSEN = [], P = null;
 // TA (110): dosen dengan KK dan kk_cocok (pembimbing_pilihan_ta); KK = [{kode, nama}] dari data.json. null = patch 110 belum ada.
 let DOSEN_TA = null, KK = [];
+let MKP = [];   // 196: MK pilihan K26 dari data.json
 // Berkas yudisium (122): daftar dari yudisium_berkas_daftar(); tanpa patch 122 (situs coba, contoh) daftar bawaan.
 let YUD = BERKAS_YUDISIUM_BAWAAN;
 // Berkas seminar/sidang TA per tahap (174): daftar dari ta_berkas_daftar(); tanpa patch 174 daftar bawaan.
@@ -286,6 +287,13 @@ function htmlIsian(jenis, d = {}, nama = '', pembimbing = ''){
       <div class="fld" data-ta="pembimbing"><label for="f_kk">Kelompok keahlian topik TA</label>
         <select id="f_kk"><option value="">(pilih)</option>${opsi(KK.map(k => [k.kode, k.nama]), d.kk_ta)}</select>
         <small>Pembimbing 1 harus dari kelompok keahlian ini atau yang berdekatan.</small></div>
+      <div class="fld" data-ta="pembimbing"><label for="f_kur">Kurikulum Anda</label>
+        <select id="f_kur"><option value="">(pilih)</option>${opsi([['K21', 'K21'], ['K26', 'K26']], d.kurikulum_ta)}</select>
+        <small>Mahasiswa K26: syarat TA sesuai bidang = sudah mengambil 2 mata kuliah pilihan dari kelompok keahlian topik TA;
+          koordinator TA memeriksanya dengan transkrip Anda.</small></div>
+      ${(MKP_AWAL = d.mk_pilihan_ta || [], '')}<div class="fld" data-ta="pembimbing" id="f_mkp_f"><label for="f_mkp1">Dua mata kuliah pilihan sesuai bidang yang sudah Anda ambil</label>
+        <select id="f_mkp1" aria-label="MK pilihan 1"></select> <select id="f_mkp2" aria-label="MK pilihan 2"></select>
+        <small id="f_mkp_ket"></small></div>
       ${pb.replace('Dosen pembimbing TA', 'Pembimbing 1')}
     </div>
     <p class="ket" data-ta="pembimbing">Pembimbing yang Anda pilih adalah usulan; koordinator TA menetapkan pembimbing menurut kelompok keahlian
@@ -348,18 +356,28 @@ function htmlIsian(jenis, d = {}, nama = '', pembimbing = ''){
 }
 
 // TA (110): tahap Pengajuan pembimbing menampilkan KK dan menyaring pembimbing 1 (KK sama atau berdekatan).
+let MKP_AWAL = [];   // 196: MK pilihan tersimpan, diisi saat formulir digambar
 function pasangTA(){
   const th = $('f_tahap'); if (!th) return;
   const pb = $('f_pb'), awal = pb.value;
   const atur = () => {
     const aju = th.value === TAHAP_PEMBIMBING_TA, kk = $('f_kk').value, pilih = pb.value || awal;
     document.querySelectorAll('[data-ta]').forEach(el => { el.hidden = el.dataset.ta !== (aju ? 'pembimbing' : 'seminar'); });
+    // 196: MK pilihan K26 menurut KK; pilihan sebelumnya dipertahankan bila masih sebidang.
+    if ($('f_mkp_f')) {
+      $('f_mkp_f').hidden = !aju || $('f_kur').value !== 'K26';
+      const xs = mkPilihanBidang(MKP, kk), lama = [$('f_mkp1').value || MKP_AWAL[0], $('f_mkp2').value || MKP_AWAL[1]];
+      const isi = (el, v) => { el.innerHTML = `<option value="">${kk ? '(pilih)' : '(pilih kelompok keahlian dulu)'}</option>` + xs.map(m =>
+        `<option value="${esc(m.kode)}"${m.kode === v ? ' selected' : ''}>${esc(m.nama)} (${esc(m.kode)}, ${esc(m.sks)} sks)</option>`).join(''); };
+      isi($('f_mkp1'), lama[0]); isi($('f_mkp2'), lama[1]);
+      $('f_mkp_ket').textContent = kk && xs.length < 2 ? `Daftar MK pilihan K26 untuk bidang ini kurang dari 2; hubungi koordinator TA.` : '';
+    }
     document.querySelectorAll('[data-tahap]').forEach(el => { el.hidden = !el.dataset.tahap.split(' ').includes(th.value); });   // 185
     const xs = aju && DOSEN_TA ? pembimbingCocok(DOSEN_TA, kk) : DOSEN;
     pb.innerHTML = `<option value="">${aju && !kk ? '(pilih kelompok keahlian dulu)' : '(pilih)'}</option>` + xs.map(x =>
       `<option value="${x.id}"${x.id === pilih ? ' selected' : ''}>${esc(x.nama)}${aju && x.kk && x.kk !== kk ? ` (${esc(x.kk)}, berdekatan)` : ''}</option>`).join('');
   };
-  th.onchange = atur; $('f_kk').onchange = atur; atur();
+  th.onchange = atur; $('f_kk').onchange = atur; if ($('f_kur')) $('f_kur').onchange = atur; atur();
 }
 
 // Kolom publikasi/luaran mengikuti kategori (96).
@@ -387,7 +405,8 @@ function bacaIsian(jenis){
       : { ...umum, jenis_pub: v('f_jp'), tingkat: v('f_tk'), indeksasi: v('f_ix'), terbitan: v('f_tb') } };
   }
   if (jenis === 'ta') return { nama: v('f_nama'), pembimbing: v('f_pb'), data: { tahap_ta: v('f_tahap'), judul: v('f_judul'),
-    pembimbing_2: v('f_pb2'), tampil_nama: $('f_tampil').checked, ...(v('f_tahap') === TAHAP_PEMBIMBING_TA ? { kk_ta: v('f_kk') } : {}),
+    pembimbing_2: v('f_pb2'), tampil_nama: $('f_tampil').checked, ...(v('f_tahap') === TAHAP_PEMBIMBING_TA ? { kk_ta: v('f_kk'),
+      kurikulum_ta: v('f_kur'), ...(v('f_kur') === 'K26' ? { mk_pilihan_ta: [v('f_mkp1'), v('f_mkp2')].filter(Boolean) } : {}) } : {}),   // 196
     ...(v('f_tahap') === 'sidang_akhir' ? { kemiripan_persen: v('f_kemiripan') } : {}),   // 185
     ...(v('f_tahap') === 'seminar_proposal' && $('f_metopen')?.checked ? { metopen: true } : {}) } };
   if (jenis === 'yudisium') return { nama: v('f_nama'), pembimbing: '', data: { judul: v('f_judul'), catatan: v('f_cat') } };
@@ -759,7 +778,10 @@ function halamanSaya(){
     : p.jenis === 'ta'
     ? penetapanTA(p)
       ? [['Tahap', 'Pengajuan pembimbing TA'], ['Kelompok keahlian', KK.find(k => k.kode === d.kk_ta)?.nama || d.kk_ta], ['Judul awal', d.judul],
-         [p.status === 'disetujui' ? 'Pembimbing (ditetapkan)' : 'Pembimbing', [p.pembimbing, p.pembimbing_2].filter(Boolean).join(', ')]]
+         [p.status === 'disetujui' ? 'Pembimbing (ditetapkan)' : 'Pembimbing', [p.pembimbing, p.pembimbing_2].filter(Boolean).join(', ')],
+         ['Kurikulum', d.kurikulum_ta],
+         ...(d.kurikulum_ta === 'K26' ? [['MK pilihan sesuai bidang', (d.mk_pilihan_ta || []).map(k => MKP.find(m => m.kode === k)?.nama || k).join('; ')],
+           ['Verifikasi transkrip', teksCekMK(d.mk_pilihan_cek)]] : [])]
       : [['Tahap', (TAHAP_TA.find(t => t[0] === d.tahap_ta) || [, ''])[1]], ['Judul', d.judul],
          ['Pembimbing', [p.pembimbing, p.pembimbing_2].filter(Boolean).join(', ')], ['Nama di jadwal publik', d.tampil_nama ? 'boleh ditampilkan' : 'tidak'],
          ...(d.tahap_ta === 'sidang_akhir' ? [['Cek kemiripan', teksKemiripan(d, BATAS)]] : []),   // 185
@@ -1121,6 +1143,7 @@ async function mulai(){
   if (D.prodi) document.title = document.title.split(' — ')[0] + ' — ' + ['Program Studi ' + D.prodi, D.institusi].filter(Boolean).join(' ');
   $('hProdi').textContent = [D.prodi, D.institusi].filter(Boolean).join(' · '); SARAN = saranInstansi(D); isiSaran();
   KK = D.situs?.kelompok_keahlian || [];
+  MKP = mkPilihanK26(D);   // 196
   // Pilihan pembimbing TA menurut KK (110); tanpa patch 110: tahap Pengajuan pembimbing tidak ditawarkan.
   const ta = await sb.rpc('pembimbing_pilihan_ta');
   DOSEN_TA = ta.error ? null : (ta.data || []);

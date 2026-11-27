@@ -1,7 +1,7 @@
 // Daftar mahasiswa (pemilik 2026-11-26): satu daftar mahasiswa aktif (unggahan SIAKAD per semester, 186) dan lulusan
 // (periode yudisium, 187), dengan IPK/SKS terakhir, email, dosen wali, dan riwayat TA. Akses mengikuti RLS tabel
 // mahasiswa (admin, Kaprodi, pimpinan: semua; dosen wali: mahasiswa walinya). Fungsi murni; halaman: daftar-mahasiswa.html.
-import { urutSemester, teksSm } from './perwalian.js?v=2026-11-27-7c5f44';
+import { urutSemester, teksSm } from './perwalian.js?v=2026-11-27-ce245a';
 
 export const STATUS_MHS = { aktif: 'Aktif', lulus: 'Lulus', tidak_aktif: 'Tidak tercatat aktif' };
 const TAHAP = { seminar_proposal: 'Seminar proposal', seminar_kemajuan: 'Seminar kemajuan', sidang_akhir: 'Sidang akhir' };
