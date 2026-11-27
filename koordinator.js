@@ -17,7 +17,9 @@ const PENGAJUAN = { ta: 'koordinator_ta', kp: 'koordinator_kp', lomba: 'pembina_
 // Tab Data prodi per jabatan (boleh_tabel di basis data).
 export const TAB_KOORDINATOR = { koordinator_ta: ['jadwal_ta'], pembina_kemahasiswaan: ['prestasi', 'publikasi', 'luaran'],
   // GKM (98-patch-koordinator-mutu-lab.sql): tab mutu Data prodi.
-  gkm: ['dokumen', 'spmi', 'standar', 'revisi', 'temuan', 'target', 'kepuasan'] };
+  gkm: ['dokumen', 'spmi', 'standar', 'revisi', 'temuan', 'target', 'kepuasan', 'agenda'],
+  // Agenda tugas berjadwal (191, pemilik 2026-11-27).
+  kaprodi: ['agenda'] };
 
 const hariIni = (kini = new Date()) => kini.toISOString().slice(0, 10);
 // Penugasan yang berlaku pada tanggal itu (mulai <= hari ini <= selesai, selesai kosong = tanpa batas).

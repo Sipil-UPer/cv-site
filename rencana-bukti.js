@@ -10,11 +10,11 @@
    dan indeks tabel LKPS (LKPS_TABEL) di bawah masih milik LAM Teknik.
    ===================================================================== */
 
-import { pihakBukti, UNSUR_BUTIR } from './unsur-butir.js?v=2026-11-27-31c5a9';
-import { SKOR_MAKS } from './bobot.js?v=2026-11-27-31c5a9';
+import { pihakBukti, UNSUR_BUTIR } from './unsur-butir.js?v=2026-11-27-030f4f';
+import { SKOR_MAKS } from './bobot.js?v=2026-11-27-030f4f';
 
 // Isi per butir dari instrumen terpilih (tools/pilih_instrumen.py mengganti id folder).
-import { RENCANA_BUKTI } from './instrumen/lam-teknik-s1/rencana-bukti-isi.js?v=2026-11-27-31c5a9';
+import { RENCANA_BUKTI } from './instrumen/lam-teknik-s1/rencana-bukti-isi.js?v=2026-11-27-030f4f';
 export { RENCANA_BUKTI };
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g,

@@ -1,18 +1,18 @@
 // "Tugas saya" di Ruang kerja (pemilik 2026-11-12): hal yang menunggu tindakan dosen yang
 // sedang masuk, dari data yang sudah boleh ia baca (RLS). Aturan tenggat sama dengan halaman
 // Pengingat: rapat.js, hibah.js, temuan-ami.js, pengingat-dosen.js.
-import { kurangProfil } from './pengingat-dosen.js?v=2026-11-27-31c5a9';
-import { tindakTerbuka, tglID } from './rapat.js?v=2026-11-27-31c5a9';
-import { tenggatBerikut, teksHari, HARI_LEWAT } from './hibah.js?v=2026-11-27-31c5a9';
-import { hariKeTenggat, labelStatus, HARI_DEKAT } from './temuan-ami.js?v=2026-11-27-31c5a9';
-import { tugasEvaluasi } from './evaluasi-pembelajaran.js?v=2026-11-27-31c5a9';
-import { bolehPengajuan } from './koordinator.js?v=2026-11-27-31c5a9';
-import { tenggatReview, hariKe, teksHari as teksHariRv, tugasTenggatRps, tugasTetapDekan, tanggalPanjang as tglRv } from './pengingat-rps.js?v=2026-11-27-31c5a9';
-import { tugasInsentif } from './insentif.js?v=2026-11-27-31c5a9';
-import { tugasMK } from './tugas-mk.js?v=2026-11-27-31c5a9';
-import { tugasPerwalian } from './perwalian.js?v=2026-11-27-31c5a9';
-import { halamanAktif } from './fitur.js?v=2026-11-27-31c5a9';
-import { masaBerlaku, tanggalPanjang as tglSrt } from './profil-dosen.js?v=2026-11-27-31c5a9';
+import { kurangProfil } from './pengingat-dosen.js?v=2026-11-27-030f4f';
+import { tindakTerbuka, tglID } from './rapat.js?v=2026-11-27-030f4f';
+import { tenggatBerikut, teksHari, HARI_LEWAT } from './hibah.js?v=2026-11-27-030f4f';
+import { hariKeTenggat, labelStatus, HARI_DEKAT } from './temuan-ami.js?v=2026-11-27-030f4f';
+import { tugasEvaluasi } from './evaluasi-pembelajaran.js?v=2026-11-27-030f4f';
+import { bolehPengajuan } from './koordinator.js?v=2026-11-27-030f4f';
+import { tenggatReview, hariKe, teksHari as teksHariRv, tugasTenggatRps, tugasTetapDekan, tanggalPanjang as tglRv } from './pengingat-rps.js?v=2026-11-27-030f4f';
+import { tugasInsentif } from './insentif.js?v=2026-11-27-030f4f';
+import { tugasMK } from './tugas-mk.js?v=2026-11-27-030f4f';
+import { tugasPerwalian } from './perwalian.js?v=2026-11-27-030f4f';
+import { halamanAktif } from './fitur.js?v=2026-11-27-030f4f';
+import { masaBerlaku, tanggalPanjang as tglSrt } from './profil-dosen.js?v=2026-11-27-030f4f';
 
 // Sertifikat dengan masa berlaku (pemilik 2026-11-24): diingatkan sejak 90 hari sebelum habis, dan terus setelah lewat.
 export const HARI_SERTIFIKAT = 90;
@@ -190,10 +190,30 @@ export function tugasSaya(d, kini = new Date()){
   // Perwalian (186): setelah separuh semester, mahasiswa perwalian yang pertemuannya belum mencapai minimal.
   const pw = tugasPerwalian(d.perwalian, kini);
   if (pw) tambah('perwalian', pw.judul, pw.rinci, pw.href);
+  // Agenda tugas berjadwal (191, pemilik 2026-11-27): d.agenda = baris terbuka yang mulai <= hari ini + 14 (ruang kerja,
+  // khusus admin/Kaprodi/GKM). Tenggat = tenggat atau mulai; tautan halaman situs, selain itu Data prodi › Agenda tugas.
+  for (const a of tugasAgenda(d.agenda, kini)) tambah('agenda', a.judul, a.rinci, a.href, a.hari);
 
 
   return out.map((x, i) => [x, i]).sort(([a, i], [b, j]) => URUT[a.tingkat] - URUT[b.tingkat]
     || (a.hari ?? 1e9) - (b.hari ?? 1e9) || i - j).map(([x]) => x);
+}
+
+/** Agenda tugas (191): [{judul, rinci, href, hari}] dari baris agenda_tugas terbuka. Hanya yang mulai paling lambat
+ *  HARI_AGENDA hari lagi; hari = sisa hari ke tenggat (atau mulai). Tautan https tidak dipakai sebagai href (Tugas saya
+ *  hanya menaut halaman situs), jadi agenda bertautan luar menaut ke Data prodi › Agenda tugas. */
+export const HARI_AGENDA = 14;
+export function tugasAgenda(agenda = [], kini = new Date()){
+  const fmt = iso => new Date(String(iso).slice(0, 10) + 'T00:00:00Z').toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
+  return (agenda || []).filter(a => a.status === undefined || a.status === 'terbuka')
+    .filter(a => hariKe(a.mulai, kini) <= HARI_AGENDA)
+    .map(a => {
+      const akhir = a.tenggat || a.mulai;
+      const kapan = a.tenggat && a.tenggat !== a.mulai ? `${fmt(a.mulai)} – ${fmt(a.tenggat)}` : fmt(a.mulai);
+      const lokal = /^[a-z0-9-]+\.html/.test(String(a.tautan || ''));
+      return { judul: a.judul, rinci: [kapan, a.keterangan].filter(Boolean).join('. '),
+        href: lokal ? a.tautan : 'data-prodi.html?tab=agenda', hari: hariKe(akhir, kini) };
+    });
 }
 
 /** Tugas review RPS (118/119): [{jenis, judul, rinci, href}]. Satu MK = tautan langsung ke RPS-nya. */
