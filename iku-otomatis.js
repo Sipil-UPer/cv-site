@@ -5,7 +5,7 @@
 //
 // Lulusan: tracer study lulusan tahun TS-1 (lulusan TS-1 dilacak pada TS).
 
-import { sesuaiTracer } from './tracer-skor.js?v=2026-11-27-16ffd3';
+import { sesuaiTracer } from './tracer-skor.js?v=2026-11-27-31c5a9';
 const diTS = (xs, ts) => (xs || []).filter(x => +x.tahun_ts === +ts);
 const tracerTS = (D, ts) => (D.tracer || []).find(t => +t.tahun_lulus === +ts - 1) || null;
 const persen = (a, b) => (b > 0 ? (a / b) * 100 : null);

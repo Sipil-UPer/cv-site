@@ -5,7 +5,7 @@
 // disunting admin per survei; pengguna lulusan memakai 7 aspek resmi 6.g.2.
 // 2026-11-13 (pemilik): templat per kelompok menjawab butir LAM (bagian + butir per pertanyaan),
 // tracer memuat pertanyaan inti DIKTI, dan semua teks bisa dwibahasa (72-patch-survei-dwibahasa.sql).
-import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-27-16ffd3';
+import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-27-31c5a9';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -404,6 +404,48 @@ export function pasangCPL(pertanyaan, cpl, kelompok){
   const i = lain.findIndex(q => q.bagian === 'masukan');
   return i < 0 ? [...lain, ...baru] : [...lain.slice(0, i), ...baru, ...lain.slice(i)];
 }
+
+// Survei kurikulum ringkas (pemilik 2026-11-27): bila CDC tidak bisa menitipkan pertanyaan prodi, prodi menjalankan
+// sendiri survei kurikulum untuk alumni dan pengguna lulusan, SETELAH periode tracer CDC (Juli–Agustus). Tidak mengulang
+// tracer (tanpa waktu tunggu, gaji, dsb.): hanya CPL (pasangCPL), kebutuhan kompetensi, relevansi kurikulum. Pengguna
+// menilai lulusan prodi di instansinya secara keseluruhan (satu isian per atasan/instansi).
+const BIDANG_KERJA = ['Konsultan perencana/pengawas', 'Kontraktor', 'Pemerintahan', 'BUMN/BUMD (termasuk energi)',
+  'Pendidikan atau riset', 'Lainnya'];
+const BIDANG_KERJA_EN = ['Design/supervision consultant', 'Contractor', 'Government', 'State-owned enterprise (incl. energy)',
+  'Education or research', 'Other'];
+const TEMPLAT_KURIKULUM = {
+  alumni: [
+    ...bag('profil', ['12', '13'], [
+      A('tahun_lulus', 'profil', 'Tahun lulus', 'Year of graduation', { min: 2015, max: 2100, wajib: true }),
+      P('status_kerja', 'profil', 'Kegiatan Anda saat ini', 'Your current activity',
+        ['Bekerja', 'Wirausaha', 'Studi lanjut', 'Belum bekerja'], ['Employed', 'Self-employed', 'Further study', 'Not yet employed']),
+      P('bidang_kerja', 'profil', 'Bidang pekerjaan Anda', 'Your field of work', BIDANG_KERJA, BIDANG_KERJA_EN,
+        sy('status_kerja', ['Bekerja', 'Wirausaha']))]),
+    ...bag('kurikulum', ['12', '13'], [
+      Q('relevansi', 'kurikulum', 'Relevansi kurikulum yang Anda pelajari dengan pekerjaan atau studi Anda saat ini',
+        'Relevance of the curriculum you studied to your current work or study'),
+      I('mk_manfaat', 'kurikulum', 'Mata kuliah yang paling bermanfaat bagi pekerjaan Anda (boleh dikosongkan)',
+        'Course most useful for your work (optional)'),
+      I('mk_kurang', 'kurikulum', 'Mata kuliah yang kurang relevan atau perlu diperbarui (boleh dikosongkan)',
+        'Course that is less relevant or should be updated (optional)')]),
+    { ...SARAN, butir: ['12', '13'] }],
+  pengguna: [
+    ...bag('instansi', ['12', '13'], [
+      I('nama_instansi', 'instansi', 'Nama institusi atau perusahaan Anda', 'Name of your organisation', { wajib: true }),
+      P('jenis_instansi', 'instansi', 'Jenis instansi Anda', 'Type of your organisation', JENIS_INSTANSI, JENIS_INSTANSI_EN),
+      A('jumlah_lulusan', 'instansi', 'Perkiraan jumlah lulusan Teknik Sipil Universitas Pertamina di instansi Anda',
+        'Approximate number of our civil engineering graduates in your organisation', { min: 1, max: 1000 }),
+      I('jabatan', 'instansi', 'Jabatan Anda (boleh dikosongkan)', 'Your position (optional)')]),
+    ...bag('kurikulum', ['7', '13'], [
+      P('kp_magang', 'kurikulum', 'Apakah instansi Anda bersedia menerima mahasiswa kerja praktik/magang?',
+        'Would your organisation host our students for internships?', ['Ya', 'Mungkin', 'Tidak'], ['Yes', 'Maybe', 'No'], { wajib: false })]),
+    { ...SARAN, butir: ['12', '13'] }],
+};
+/** Kelompok yang punya templat survei kurikulum ringkas. */
+export const KELOMPOK_KURIKULUM = Object.keys(TEMPLAT_KURIKULUM);
+/** Templat survei kurikulum ringkas satu kelompok, lengkap dengan bagian CPL (cpl kurikulum terbaru). */
+export const templatKurikulum = (k, cpl) => TEMPLAT_KURIKULUM[k]
+  ? pasangCPL(TEMPLAT_KURIKULUM[k].map(q => JSON.parse(JSON.stringify(q))), cpl, k) : [];
 
 /** Kesenjangan per CPL dari sebaran opsi {id: {'1': n, ...}} (ringkasLain atau survei_rekap):
  *  [{kode, teks, penting, n_penting, kuasai, n_kuasai, selisih}] urut pertanyaan; selisih = penting - kuasai (null bila salah satu kosong). */

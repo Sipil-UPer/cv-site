@@ -11,8 +11,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-27-16ffd3">
-<link rel="stylesheet" href="kepala.css?v=2026-11-27-16ffd3">
+<link rel="stylesheet" href="tema.css?v=2026-11-27-31c5a9">
+<link rel="stylesheet" href="kepala.css?v=2026-11-27-31c5a9">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
@@ -54,7 +54,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></div>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-27-16ffd3"></script>
+<script src="config.js?v=2026-11-27-31c5a9"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -74,13 +74,13 @@ addEventListener('error', function (e) {
 // membagikan tautan survei.html?t=<token>, menutup, dan membaca hasil.
 // Pertanyaan dikunci setelah ada responden supaya rekap tetap sah.
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-27-16ffd3';
-import { BUTIR_LAM_TEKNIK } from './bobot.js?v=2026-11-27-16ffd3';
-import { bolehMutu } from './koordinator.js?v=2026-11-27-16ffd3';
+import { gerbang } from './menu.js?v=2026-11-27-31c5a9';
+import { BUTIR_LAM_TEKNIK } from './bobot.js?v=2026-11-27-31c5a9';
+import { bolehMutu } from './koordinator.js?v=2026-11-27-31c5a9';
 import { KELOMPOK_SURVEI, labelKelompok, templatSurvei, cekPertanyaan, hitungDariJawaban, rekapSurvei,
   komentarSurvei, keTabel62, csvJawaban, htmlRekap, CSS_SURVEI, JENIS_PERTANYAAN, IDENTITAS, teksOpsi, bacaOpsi,
   teksSyarat, bacaSyarat, ringkasLain, htmlLain, aspekTindakLanjut, temuanDariAspek, kodeTemuanSurvei,
-  masukanKurikulum, csvKurikulum, identitasBawaan, keTabelTracer, undanganPengguna, butirSurvei, BAGIAN, labelBagian, ringkasJawaban, pasangCPL, kesenjanganCPL, htmlKesenjangan, SISI_CPL } from './survei-kepuasan.js?v=2026-11-27-16ffd3';
+  masukanKurikulum, csvKurikulum, identitasBawaan, keTabelTracer, undanganPengguna, butirSurvei, BAGIAN, labelBagian, ringkasJawaban, pasangCPL, kesenjanganCPL, htmlKesenjangan, SISI_CPL, templatKurikulum, KELOMPOK_KURIKULUM } from './survei-kepuasan.js?v=2026-11-27-31c5a9';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
@@ -241,7 +241,7 @@ function gambarForm(){
         <td><input class="teks" data-k="teks_en" value="${esc(q.teks_en || '')}" placeholder="Question in English (optional)" title="Pertanyaan bahasa Inggris" ${kunci ? 'disabled' : ''}></td><td></td>
         <td><input data-k="opsi_en" style="width:170px" value="${esc(teksOpsi(q.opsi_en))}" placeholder="${['pilihan', 'centang'].includes(q.jenis) ? 'a; b; c (sama urutan)' : ''}"
           title="Opsi bahasa Inggris, urutan sama dengan opsi" ${kunci || !['pilihan', 'centang'].includes(q.jenis) ? 'disabled' : ''}></td><td colspan="4"></td></tr>`).join('')}</tbody></table></div>
-    ${kunci ? '' : `<p><button class="b" id="tambah-q">Tambah pertanyaan</button><button class="b" id="templat-q">Muat ulang templat</button><button class="b" id="cpl-q" title="Pasang/perbarui penilaian CPL kurikulum terbaru">Perbarui pertanyaan CPL</button></p>`}
+    ${kunci ? '' : `<p><button class="b" id="tambah-q">Tambah pertanyaan</button><button class="b" id="templat-q">Muat ulang templat</button><button class="b" id="cpl-q" title="Pasang/perbarui penilaian CPL kurikulum terbaru">Perbarui pertanyaan CPL</button><button class="b" id="kur-q" title="Alumni/pengguna: hanya CPL dan kebutuhan kompetensi, bila CDC tidak bisa menitipkan pertanyaan prodi">Templat survei kurikulum (ringkas)</button></p>`}
     <p><button class="b utama" id="s_simpan">${s ? 'Simpan perubahan' : 'Buat survei'}</button>
       ${s ? '<button class="b" id="s_batal">Batal</button>' : ''} <span class="msg" id="s_msg"></span></p>`;
   // Baca penyunting ke bentuk tersimpan: opsi -> larik, rentang -> min/max, syarat -> objek.
@@ -273,6 +273,11 @@ function gambarForm(){
   document.querySelectorAll('[data-hapus-q]').forEach(b => b.onclick = () => { bacaPQ(); PQ.splice(+b.dataset.hapusQ, 1); simpanSementara(); });
   if ($('tambah-q')) $('tambah-q').onclick = () => { bacaPQ(); PQ.push({ id: `q${PQ.length + 1}`, aspek: 'lainnya', teks: '', jenis: 'skala' }); simpanSementara(); };
   if ($('templat-q')) $('templat-q').onclick = () => { if (confirm('Ganti semua pertanyaan dengan templat bawaan?')) { PQ = templat($('s_kelompok').value); simpanSementara(); } };
+  // Survei kurikulum ringkas (pemilik 2026-11-27): alumni/pengguna, bila CDC tidak bisa menitipkan pertanyaan prodi.
+  if ($('kur-q')) $('kur-q').onclick = () => { const k = $('s_kelompok').value;
+    if (!KELOMPOK_KURIKULUM.includes(k)) return alert('Templat survei kurikulum ringkas hanya untuk kelompok Alumni dan Pengguna lulusan.');
+    if (confirm('Ganti semua pertanyaan dengan templat survei kurikulum ringkas (CPL dan kebutuhan kompetensi)? '
+      + 'Kirim setelah periode tracer CDC selesai supaya responden tidak menerima dua survei sekaligus.')) { PQ = templatKurikulum(k, CPL); simpanSementara(); } };
   // Perbarui bagian CPL (daftar CPL kurikulum terbaru) tanpa mengubah pertanyaan lain.
   if ($('cpl-q')) $('cpl-q').onclick = () => { const k = $('s_kelompok').value;
     if (!CPL.length) return alert('Daftar CPL kurikulum belum ada (Data prodi › CPL).');
