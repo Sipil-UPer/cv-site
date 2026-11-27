@@ -100,7 +100,7 @@ export function indeksPublik(D, aktif = () => true){
      'pendaftaran pmb daftar kuliah calon mahasiswa baru karier'],
     ['layanan-mahasiswa.html', 'Layanan mahasiswa', 'pengumuman, jadwal, berkas, tanya-jawab', 'pengumuman jadwal formulir tanya'],
     ['ekuivalensi-kurikulum.html', 'Ekuivalensi kurikulum', 'padanan mata kuliah kurikulum lama ke baru', 'konversi padanan transisi'],
-    ['pengajuan.html', 'Pengajuan mahasiswa', 'KP, TA, lomba, luaran, kabar kegiatan, surat, yudisium',
+    ['pengajuan.html', 'Pengajuan', 'KP, TA, lomba, luaran, kabar kegiatan, surat, yudisium',
      'ajukan surat yudisium tugas akhir skripsi lomba'],
     ['peta-situs.html', 'Peta situs', 'daftar seluruh halaman', 'sitemap'],
   ];

@@ -11,8 +11,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-27-403c23">
-<link rel="stylesheet" href="kepala.css?v=2026-11-27-403c23">
+<link rel="stylesheet" href="tema.css?v=2026-11-27-80978c">
+<link rel="stylesheet" href="kepala.css?v=2026-11-27-80978c">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
@@ -91,7 +91,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></div>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-27-403c23"></script>
+<script src="config.js?v=2026-11-27-80978c"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -111,17 +111,17 @@ addEventListener('error', function (e) {
 // mengisi CPMK, Sub-CPMK, butir asesmen, bobot, dan RPS. Templat nilai CPL per kelas diisi dari struktur ini
 // di peramban (templat-cpl.js + JSZip), jadi dosen tinggal mengisi NIM dan nilai.
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-27-403c23';
-import { bolehMutu } from './koordinator.js?v=2026-11-27-403c23';
-import { bawaanHanyaSaya, ingatHanyaSaya, pesanKosongSaya } from './mk-saya.js?v=2026-11-27-403c23';
-import { semesterKini } from './evaluasi-pembelajaran.js?v=2026-11-27-403c23';
-import { periksaStruktur, isiTemplat, namaBerkasTemplat } from './templat-cpl.js?v=2026-11-27-403c23';
+import { gerbang } from './menu.js?v=2026-11-27-80978c';
+import { bolehMutu } from './koordinator.js?v=2026-11-27-80978c';
+import { bawaanHanyaSaya, ingatHanyaSaya, pesanKosongSaya } from './mk-saya.js?v=2026-11-27-80978c';
+import { semesterKini } from './evaluasi-pembelajaran.js?v=2026-11-27-80978c';
+import { periksaStruktur, isiTemplat, namaBerkasTemplat } from './templat-cpl.js?v=2026-11-27-80978c';
 import { cplMK, strukturKosong, tambahCpmk, hapusCpmk, tambahSub, hapusSub, tambahAsesmen, hapusAsesmen, gantiNamaAsesmen,
   aturBobot, jumlahBobot, dataTemplat, statusStruktur,
-  hitungAwal, hitungOtomatis, MODE_HITUNG, PRIORITAS, PEMBULATAN } from './cpmk.js?v=2026-11-27-403c23';
+  hitungAwal, hitungOtomatis, MODE_HITUNG, PRIORITAS, PEMBULATAN } from './cpmk.js?v=2026-11-27-80978c';
 // RPS K26 (111): CPL per Sub-CPMK dan jenis asesmen (kolom Rencana Asesmen Sumatif) disimpan di struktur yang sama.
 import { JENIS_ASESMEN, jenisAsesmen, JENIS_MK, susunanMK, jenisMK, bagiParitas, saringMK, ringkasSemester, htmlRingkasSemester, htmlSaringan, ubahSaringan, KELOMPOK_ASESMEN, kelompokAsesmen, periksaKomposisi,
-  JENIS_KULIAH, jenisKuliah } from './rps.js?v=2026-11-27-403c23';
+  JENIS_KULIAH, jenisKuliah } from './rps.js?v=2026-11-27-80978c';
 
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));

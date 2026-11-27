@@ -1,24 +1,25 @@
 // Kerangka halaman publik (pemilik 2026-11-16): kepala bergaya situs universitas (deret logo di bilah
 // biru, nama prodi, menu turun) dan kaki halaman yang sama di halaman publik. Pemakaian:
-//   import { pasangKerangka, isiKerangka } from './kerangka.js?v=2026-11-27-403c23';
+//   import { pasangKerangka, isiKerangka } from './kerangka.js?v=2026-11-27-80978c';
 //   pasangKerangka({ aktif: 'profil' });     // segera, sebelum data.json
 //   pasangKerangka({ aktif: 'profil', muat: true });   // atau: kerangka memuat data.json sendiri
 //   isiKerangka(D);                           // setelah data.json: nama prodi, kontak, media sosial
 // Logo: window.LOGO_KEPALA di config.js; tanpa itu logo.png. Menu hanya memuat halaman yang ada
 // dan modul yang menyala (fitur.js). Tautan relatif (situs akan pindah ke subdomain kampus).
-import { halamanAktif, alihkanBilaMati } from './fitur.js?v=2026-11-27-403c23';
-import { catatKunjunganPublik } from './kunjungan-publik.js?v=2026-11-27-403c23';
+import { halamanAktif, alihkanBilaMati } from './fitur.js?v=2026-11-27-80978c';
+import { catatKunjunganPublik } from './kunjungan-publik.js?v=2026-11-27-80978c';
 // Tinggi kotak teks mengikuti isi (pemilik 2026-11-25); bentuk "from" agar dicap stamp_versions.py.
-import { pasSemua as pasKotakTeks } from './kotak-teks.js?v=2026-11-27-403c23';
+import { pasSemua as pasKotakTeks } from './kotak-teks.js?v=2026-11-27-80978c';
 
-// Lima kelompok menu (pemilik 2026-11-19, tahap 2): Profil, Dosen dan riset, Mahasiswa, Kinerja, Kontak;
-// Pendaftaran dan Masuk ruang kerja di baris atas. Kaki halaman disusun dari MENU yang sama.
+// Enam kelompok menu (pemilik 2026-11-19, tahap 2; 2026-11-27 Akademik dipisah dari Profil dan Mahasiswa agar mudah
+// dicari): Profil, Akademik, Dosen dan riset, Mahasiswa, Kinerja, Kontak; Pendaftaran dan Masuk ruang kerja di baris atas.
+// Kaki halaman disusun dari MENU yang sama. Butir { sub } = subjudul di dalam kelompok (disembunyikan bila tak ada butir
+// sesudahnya). Butir ber-`ket` menampilkan keterangan kecil di menu atas.
 // Butir ber-`kr` (Kegiatan prodi, Berita, ...) diisi isiKerangka dari data.json dan tersembunyi bila kosong.
 export const MENU = [
   { id: 'profil', judul: 'Profil', isi: [
     { judul: 'Profil program studi', href: 'profil-prodi.html' },
     { judul: 'Visi dan misi', href: 'profil-prodi.html#visi' },
-    { judul: 'Kurikulum', href: 'kurikulum.html' },
     { judul: 'Laboratorium', href: 'laboratorium.html' },
     { judul: 'Kerja sama', href: 'kerja-sama.html' },
     // Kegiatan dan berita dipisah (pemilik 2026-11-23): Kegiatan prodi = kabar.html, diunggah dosen/admin atau mahasiswa
@@ -28,6 +29,16 @@ export const MENU = [
     // Galeri foto (pemilik 2026-11-22): tampil bila ada foto kabar, prestasi, atau laboratorium.
     { judul: 'Galeri foto', href: 'galeri.html', kr: 'galeri' },
   ] },
+  // Akademik (pemilik 2026-11-27): kurikulum dan jadwal yang dicari mahasiswa maupun calon mahasiswa.
+  { id: 'akademik', judul: 'Akademik', isi: [
+    { judul: 'Kurikulum', href: 'kurikulum.html' },
+    { judul: 'Ekuivalensi kurikulum', href: 'ekuivalensi-kurikulum.html' },
+    // Kalender akademik (patch 148), pemilik 2026-11-22.
+    { judul: 'Kalender akademik', href: 'layanan-mahasiswa.html#kalender' },
+    { judul: 'Jadwal seminar/sidang TA', href: 'layanan-mahasiswa.html#jadwal-ta' },
+    // Arsip judul TA (pemilik 2026-11-22): tampil bila ada judul.
+    { judul: 'Arsip tugas akhir', href: 'tugas-akhir.html', kr: 'ta' },
+  ] },
   { id: 'dosen', judul: 'Dosen dan riset', isi: [
     { judul: 'Daftar dosen', href: 'daftar.html?jenis=dosen' },
     { judul: 'Kepakaran dosen', href: 'keahlian.html' },
@@ -36,22 +47,21 @@ export const MENU = [
     { judul: 'Pengabdian kepada masyarakat', href: 'daftar.html?jenis=pkm' },
     { judul: 'Kontribusi SDGs', href: 'sdgs.html' },
   ] },
+  // Mahasiswa dikelompokkan per subjudul (pemilik 2026-11-27).
   { id: 'mahasiswa', judul: 'Mahasiswa', isi: [
+    { sub: 'Calon mahasiswa' },
     // Calon mahasiswa (pemilik 2026-11-20): halaman cerita prodi untuk calon mahasiswa, tanpa promosi berlebihan.
     { judul: 'Untuk calon mahasiswa', href: 'calon-mahasiswa.html' },
+    // Biaya dan beasiswa (tautan resmi), pemilik 2026-11-22.
+    { judul: 'Biaya dan beasiswa', href: 'biaya-beasiswa.html', kr: 'biaya' },
+    { sub: 'Layanan' },
     // Selaras dengan 4 tombol utama Layanan mahasiswa (pemilik 2026-11-19).
     { judul: 'Layanan mahasiswa', href: 'layanan-mahasiswa.html' },
-    { judul: 'Ekuivalensi kurikulum', href: 'ekuivalensi-kurikulum.html' },
-    // Kalender akademik (patch 148) dan Biaya dan beasiswa (tautan resmi), pemilik 2026-11-22.
-    { judul: 'Kalender akademik', href: 'layanan-mahasiswa.html#kalender' },
-    { judul: 'Biaya dan beasiswa', href: 'biaya-beasiswa.html', kr: 'biaya' },
-    // Arsip judul TA (pemilik 2026-11-22): tampil bila ada judul.
-    { judul: 'Arsip tugas akhir', href: 'tugas-akhir.html', kr: 'ta' },
-    { judul: 'Ajukan KP, TA, lomba, luaran, kabar kegiatan, surat, yudisium', href: 'pengajuan.html' },
-    { judul: 'Jadwal seminar/sidang TA', href: 'layanan-mahasiswa.html#jadwal-ta' },
+    { judul: 'Pengajuan', ket: 'KP, TA, lomba, luaran, surat, yudisium', href: 'pengajuan.html' },
     { judul: 'Kerja praktik dan magang', href: 'kerja-praktik.html' },
     { judul: 'Calon pembimbing TA', href: 'layanan-mahasiswa.html#pembimbing' },
     { judul: 'Tanya prodi', href: 'layanan-mahasiswa.html#kirim' },
+    { sub: 'Prestasi dan alumni' },
     { judul: 'Prestasi mahasiswa', href: 'prestasi.html' },
     { judul: 'Alumni dan tracer study', href: 'alumni.html' },
   ] },
@@ -64,7 +74,7 @@ export const MENU = [
   { id: 'kontak', judul: 'Kontak', href: 'kontak.html', isi: [] },
 ];
 // Nilai aktif lama (sebelum 2026-11-19) tetap dikenali, mis. halaman buatan halaman_publik.py versi lama.
-const AKTIF_LAMA = { akademik: 'profil', riset: 'dosen', berita: 'profil' };
+const AKTIF_LAMA = { riset: 'dosen', berita: 'profil' };
 
 const LOGO = () => (Array.isArray(globalThis.LOGO_KEPALA) && globalThis.LOGO_KEPALA.length
   ? globalThis.LOGO_KEPALA : [{ src: 'logo.png', alt: 'Logo institusi', w: 600, h: 300 }]);
@@ -145,6 +155,9 @@ const CSS = `
 .kr-sub a{display:block;padding:8px 18px;font-size:14px;color:var(--ink);text-decoration:none}
 .kr-sub a:hover{background:var(--biru-m11);color:var(--biru)}
 .kr-sub small{display:block;font-size:12px;color:var(--muted)}
+.kr-subjudul{padding:10px 18px 2px;font-size:11.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+.kr-subjudul:first-child{padding-top:4px}
+.kr-kaki .kr-subjudul{padding:8px 0 2px;color:inherit;opacity:.7;font-size:11px}
 .kr-hp{display:none}
 .kr-tautan .kr-cari-buka{background:none;border:0;font:inherit;color:#fff;cursor:pointer;padding:0;display:inline-flex;align-items:center;gap:5px}
 .kr-tautan .kr-cari-buka:hover{color:var(--aksen,#fff)}
@@ -182,7 +195,7 @@ const CSS = `
 }
 @media (max-width:420px){ .kr-kepala-in{min-height:46px} .kr-logo img{height:46px} .kr-burger{margin-right:10px;padding:6px 10px} }
 .kr-kaki{background:var(--biru);color:var(--biru-m4);margin-top:70px;font-size:14px}
-.kr-kaki-in{max-width:1180px;margin:0 auto;padding:44px 20px 28px;display:grid;grid-template-columns:1.3fr repeat(5,1fr);gap:28px}
+.kr-kaki-in{max-width:1180px;margin:0 auto;padding:44px 20px 28px;display:grid;grid-template-columns:1.3fr repeat(6,1fr);gap:24px}
 .kr-kaki h2{border-bottom:2px solid var(--aksen,transparent);padding-bottom:6px;display:inline-block;font-family:var(--mono);font-size:11px;
   letter-spacing:.12em;text-transform:uppercase;color:#fff;margin:0 0 12px;font-weight:500}
 .kr-kaki ul{list-style:none;margin:0;padding:0}
@@ -201,10 +214,13 @@ const CSS = `
 const SOSIAL = { instagram: 'Instagram', instagram_himpunan: 'Instagram HMTS (himpunan mahasiswa)', youtube: 'YouTube',
   linkedin: 'LinkedIn', facebook: 'Facebook', tiktok: 'TikTok', x: 'X' };
 
-const menuAda = () => MENU.map(m => ({ ...m, isi: m.isi.filter(x => x.kr || halamanAktif(x.href)) }))
-  .filter(m => m.isi.length || m.href);
+// Subjudul dibuang bila tak ada butir sesudahnya (sebelum subjudul berikut); kelompok yang hanya berisi subjudul dibuang.
+const tanpaSubKosong = xs => xs.filter((x, i) => !x.sub || (xs[i + 1] && !xs[i + 1].sub));
+const menuAda = () => MENU.map(m => ({ ...m, isi: tanpaSubKosong(m.isi.filter(x => x.sub || x.kr || halamanAktif(x.href))) }))
+  .filter(m => m.isi.some(x => !x.sub) || m.href).map(m => m.isi.some(x => !x.sub) ? m : { ...m, isi: [] });
 // Butir ber-kr disembunyikan sampai isiKerangka mengisi alamatnya.
-const butir = x => `<li${x.kr ? ` data-kr-menu="${x.kr}" hidden` : ''}><a href="${esc(x.href)}">${esc(x.judul)}${x.ket ? `<small>${esc(x.ket)}</small>` : ''}</a></li>`;
+const butir = x => x.sub ? `<li class="kr-subjudul" role="presentation">${esc(x.sub)}</li>`
+  : `<li${x.kr ? ` data-kr-menu="${x.kr}" hidden` : ''}><a href="${esc(x.href)}">${esc(x.judul)}${x.ket ? `<small>${esc(x.ket)}</small>` : ''}</a></li>`;
 
 function menuAtas(aktif){
   aktif = AKTIF_LAMA[aktif] || aktif;
@@ -309,7 +325,7 @@ function pasangCariKepala(kp, burger){
         hasil = document.getElementById('krCariHasil'), tombol = [...kp.querySelectorAll('.kr-cari-buka')];
   let siap = null, aktif = -1;
   const muat = () => siap ??= Promise.all([
-    import('./cari.js?v=2026-11-27-403c23'),
+    import('./cari.js?v=2026-11-27-80978c'),
     DATA_KERANGKA ? Promise.resolve(DATA_KERANGKA) : fetch('data.json', {cache: 'no-cache'}).then(r => r.json()),
   ]).then(([m, D]) => ({ m, idx: m.indeksPublik(D, k => !(window.FITUR_MATI || []).includes(k)) }));
   const tampil = async () => {

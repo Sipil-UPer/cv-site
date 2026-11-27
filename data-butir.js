@@ -24,8 +24,8 @@
        pakai, pembanding, labelPakai, catatan }
    ===================================================================== */
 
-import { barisBkd } from './tautan-butir.js?v=2026-11-27-403c23';
-import { ampuPerTA, dosenTS, bacaAmpu } from './dosen-hitung.js?v=2026-11-27-403c23';
+import { barisBkd } from './tautan-butir.js?v=2026-11-27-80978c';
+import { ampuPerTA, dosenTS, bacaAmpu } from './dosen-hitung.js?v=2026-11-27-80978c';
 
 const angka = v => { const x = parseFloat(String(v ?? '').replace(',', '.')); return Number.isFinite(x) ? x : 0; };
 const bulat = v => Math.trunc(angka(v));
