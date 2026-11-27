@@ -1,5 +1,5 @@
-import { dosenLogin } from './dosen-login.js?v=2026-11-27-c92ba3';
-import { aktifPada } from './koordinator.js?v=2026-11-27-c92ba3';
+import { dosenLogin } from './dosen-login.js?v=2026-11-27-b8300c';
+import { aktifPada } from './koordinator.js?v=2026-11-27-b8300c';
 // Menu bersama ruang kerja (pemilik 2026-11-04).
 //
 // Situs dibagi dua:
@@ -43,11 +43,11 @@ const koorTA = s => pengelola(s) || mutu(s) || punyaJ(s, 'koordinator_ta');
 const koorKP = s => pemantau(s) || punyaJ(s, 'koordinator_kp');
 const koorLayanan = s => pengelola(s) || punyaJ(s, 'koordinator_ta', 'koordinator_kp', 'pembina_kemahasiswaan');
 
-import { halamanAktif } from './fitur.js?v=2026-11-27-c92ba3';
-import { BUTIR_LAM_TEKNIK } from './bobot.js?v=2026-11-27-c92ba3';
-import { pasangPemicuBangun } from './pemicu-bangun.js?v=2026-11-27-c92ba3';
+import { halamanAktif } from './fitur.js?v=2026-11-27-b8300c';
+import { BUTIR_LAM_TEKNIK } from './bobot.js?v=2026-11-27-b8300c';
+import { pasangPemicuBangun } from './pemicu-bangun.js?v=2026-11-27-b8300c';
 // Tinggi kotak teks mengikuti isi (pemilik 2026-11-25); bentuk "from" agar dicap stamp_versions.py.
-import { pasSemua as pasKotakTeks } from './kotak-teks.js?v=2026-11-27-c92ba3';
+import { pasSemua as pasKotakTeks } from './kotak-teks.js?v=2026-11-27-b8300c';
 
 export const MODUL = [
   { judul: 'Data saya', ket: 'Profil, karya, target kinerja, jadwal berhalangan, dan kalender Anda.', halaman: [
@@ -66,6 +66,9 @@ export const MODUL = [
     // Target kinerja per dosen (66-patch-target-dosen.sql, pemilik 2026-11-12): dosen melihat miliknya.
     { href: 'target.html', judul: 'Target kinerja dosen', boleh: s => s.peran !== 'asesor',
       ket: 'Target tahunan per dosen (publikasi, penelitian, PkM, luaran, rekognisi, hibah) dibandingkan capaiannya.' },
+    // Rencana pengembangan dosen dan tendik (198, pemilik 2026-11-27).
+    { href: 'rencana-pengembangan.html', judul: 'Rencana pengembangan', boleh: s => s.peran !== 'asesor',
+      ket: 'Rencana dan realisasi studi lanjut, sertifikasi, pelatihan, dan kenaikan jabatan per tahun; admin/Kaprodi juga untuk tendik, dengan rekap.' },
     // Jadwal berhalangan (132-patch-jadwal-berhalangan.sql, pemilik 2026-11-20): dosen mengisi slot yang tidak bisa; pengatur jadwal mencari slot kosong.
     { href: 'jadwal-berhalangan.html', judul: 'Jadwal berhalangan', boleh: isiKarya,
       ket: 'Slot jam kuliah yang tidak bisa Anda pakai (termasuk jadwal di luar prodi); admin, Kaprodi, dan koordinator TA/KP mencari slot kosong untuk sidang dan rapat.' },
@@ -487,7 +490,7 @@ export async function pasangMenu(sb){
   // Pencarian menyeluruh (pemilik 2026-11-12; cari-ui.js, cari.js): dimuat saat pertama dipakai.
   const kotak = nav.querySelector('.rk-cari input');
   let siapCari = null;
-  const muatCari = () => siapCari || (siapCari = import('./cari-ui.js?v=2026-11-27-c92ba3').then(m =>
+  const muatCari = () => siapCari || (siapCari = import('./cari-ui.js?v=2026-11-27-b8300c').then(m =>
     m.pasangCari(kotak, { sb, saya: u.saya, modul: halamanBoleh(u.saya), boleh: h => bolehBuka(u.saya, h) !== false })));
   kotak.addEventListener('focus', muatCari);
   document.addEventListener('keydown', e => {

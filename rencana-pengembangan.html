@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="robots" content="noindex, nofollow">
+<title>Rencana pengembangan — Ruang kerja</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tema.css?v=2026-11-27-b8300c">
+<link rel="stylesheet" href="kepala.css?v=2026-11-27-b8300c">
+<style>
+  /* Rencana pengembangan dosen dan tendik (198-patch-rencana-pengembangan-sdm.sql, pemilik 2026-11-27) */
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
+  .wrap{max-width:1200px;margin:0 auto;padding:18px 20px 80px}
+  .kosong, .ket{color:var(--muted)}
+  .ket{font-size:13px}
+  .kartu{background:var(--panel);border:1px solid var(--line);padding:14px 18px;margin-bottom:16px}
+  .kartu h2{font-size:17px;margin:0 0 6px;color:var(--biru)}
+  .alat{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:8px 0}
+  select, input[type=text], input[type=number], input[type=date], input[type=url], textarea{font:inherit;font-size:14px;padding:5px 7px;border:1px solid var(--line);background:var(--panel);color:var(--ink)}
+  .form{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px 14px;margin:8px 0}
+  .form label{display:flex;flex-direction:column;font-size:13px;color:var(--muted);gap:3px}
+  .form .lebar{grid-column:1/-1}
+  .b{font:inherit;font-size:14px;padding:5px 12px;border:1px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer}
+  .b.utama{background:var(--biru);border-color:var(--biru);color:#fff}
+  .b.bahaya{color:var(--merah);border-color:var(--merah)}
+  .b.kecil{font-size:12.5px;padding:2px 8px}
+  .pesan{font-size:13.5px;margin:6px 0} .pesan.galat{color:var(--merah)} .pesan.ok{color:var(--hijau)}
+  .gulir{overflow-x:auto}
+  table.ds{width:100%;border-collapse:collapse;font-size:13.5px}
+  table.ds th{text-align:left;font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--line);padding:5px 6px}
+  table.ds td{padding:5px 6px;border-bottom:1px solid var(--line-soft);vertical-align:top}
+  .st{font-size:12px;font-weight:600;padding:1px 7px;border:1px solid var(--line);white-space:nowrap}
+  .st.selesai{color:var(--hijau);border-color:var(--hijau)} .st.batal{color:var(--muted)} .st.berjalan{color:var(--biru);border-color:var(--biru)}
+  @media(max-width:700px){.wrap{padding-left:16px;padding-right:16px}}
+</style>
+</head>
+<body>
+<div class="hero" role="region" aria-label="Pembuka halaman"><div class="hero-in">
+  <div class="hero-inst" data-identitas></div>
+  <h1>Rencana pengembangan</h1>
+  <div class="sub" id="hSub">Memuat…</div>
+</div></div>
+<main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
+<script src="config.js?v=2026-11-27-b8300c"></script>
+<script>
+// Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
+addEventListener('error', function (e) {
+  if (document.getElementById('galat-muat')) return;
+  var d = document.createElement('div');
+  d.id = 'galat-muat';
+  d.style.cssText = 'margin:16px;padding:12px 14px;border:1px solid var(--merah);' +
+    'background:var(--merah-m3);color:var(--ink);font:14px/1.5 system-ui,sans-serif';
+  d.textContent = 'Halaman gagal dimuat: ' + (e.message || 'galat skrip') +
+    '. Tekan Ctrl+Shift+R untuk memuat ulang tanpa cache; bila tetap muncul, kirim pesan ini ke admin.';
+  document.body.insertBefore(d, document.body.firstChild);
+});
+</script>
+<script type="module">
+// Rencana pengembangan dosen dan tendik (198, pemilik 2026-11-27): dosen mengisi rencananya sendiri; admin dan Kaprodi
+// mengelola semua (termasuk tendik); GKM dan pimpinan membaca. Rekap per tahun x jenis untuk butir 5-I, 27-29. Logika: sdm.js.
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
+import { gerbang } from './menu.js?v=2026-11-27-b8300c';
+import { punya } from './koordinator.js?v=2026-11-27-b8300c';
+import { JENIS_SDM, STATUS_SDM, DANA_SDM, rekapSdm, rekapTahun, csvSdm } from './sdm.js?v=2026-11-27-b8300c';
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const sb = createClient(window.SB_URL, window.SB_KEY);
+const opsi = (o, v) => Object.entries(o).map(([k, l]) => `<option value="${k}"${k === v ? ' selected' : ''}>${esc(l)}</option>`).join('');
+const TH = new Date().getFullYear();
+
+let SAYA = null, RENCANA = [], DOSEN = [], TENDIK = [], ADA = true, UBAH = null, SARING = { tahun: '', jenis: '' };
+const KELOLA = () => SAYA?.peran === 'admin' || punya(SAYA, 'kaprodi');
+const BACA_SEMUA = () => KELOLA() || punya(SAYA, 'gkm') || SAYA?.peran === 'pimpinan';
+const namaR = r => r.dosen_id ? (DOSEN.find(d => d.id === r.dosen_id)?.nama || '?') : (TENDIK.find(t => t.id === r.tendik_id)?.nama || 'Tendik');
+function tulis(id, k, t){ const m = $(id); if (m) { m.className = 'pesan ' + k; m.textContent = t; } }
+
+async function muat(){
+  const r = await sb.from('sdm_rencana').select('*').order('tahun_target').order('id');
+  ADA = !r.error; RENCANA = r.data || [];
+}
+
+function formulir(){
+  const x = UBAH || { jenis: 'pelatihan', tahun_target: TH, status: 'rencana' };
+  const orang = KELOLA() ? `<label>Untuk <select id="fOrang">
+      <optgroup label="Dosen">${DOSEN.map(d => `<option value="d:${d.id}"${x.dosen_id === d.id || (!UBAH && d.id === SAYA.id) ? ' selected' : ''}>${esc(d.nama)}</option>`).join('')}</optgroup>
+      ${TENDIK.length ? `<optgroup label="Tendik">${TENDIK.map(t => `<option value="t:${t.id}"${x.tendik_id === t.id ? ' selected' : ''}>${esc(t.nama)}</option>`).join('')}</optgroup>` : ''}
+    </select></label>` : '';
+  return `<div class="form">${orang}
+      <label>Jenis <select id="fJenis">${opsi(JENIS_SDM, x.jenis)}</select></label>
+      <label>Tahun target <input type="number" id="fTahun" min="2015" max="2045" value="${esc(x.tahun_target)}"></label>
+      <label>Status <select id="fStatus">${opsi(STATUS_SDM, x.status)}</select></label>
+      <label>Tanggal selesai <input type="date" id="fSelesai" value="${esc(x.selesai_pada || '')}"></label>
+      <label>Sumber dana <select id="fDana"><option value="">(belum ada)</option>${opsi(DANA_SDM, x.dana)}</select></label>
+      <label class="lebar">Uraian <input type="text" id="fUraian" maxlength="300" value="${esc(x.uraian || '')}"
+        placeholder="mis. S3 Teknik Sipil di ITB; Sertifikasi Ahli Muda Geoteknik (LPJK); Pelatihan BIM Revit"></label>
+      <label class="lebar">Bukti (tautan https, mis. sertifikat atau SK di Google Drive) <input type="url" id="fBukti" value="${esc(x.bukti_url || '')}"></label>
+      <label class="lebar">Catatan <textarea id="fCatatan" maxlength="1000" rows="2">${esc(x.catatan || '')}</textarea></label></div>
+    <div class="alat"><button type="button" class="b utama" id="bSimpan">${UBAH ? 'Simpan perubahan' : 'Tambah rencana'}</button>
+      ${UBAH ? '<button type="button" class="b" id="bBatal">Batal ubah</button>' : ''}<span class="pesan" id="mForm" role="status"></span></div>`;
+}
+
+function barisTabel(xs, tampilNama, bolehUbah){
+  return `<div class="gulir"><table class="ds"><thead><tr>${tampilNama ? '<th>Nama</th>' : ''}<th>Tahun</th><th>Jenis</th><th>Uraian</th><th>Status</th><th>Dana</th><th>Bukti</th><th></th></tr></thead>
+    <tbody>${xs.map(r => `<tr>${tampilNama ? `<td>${esc(namaR(r))}${r.tendik_id ? ' <span class="ket">(tendik)</span>' : ''}</td>` : ''}
+      <td>${esc(r.tahun_target)}</td><td>${esc(JENIS_SDM[r.jenis] || r.jenis)}</td><td>${esc(r.uraian)}${r.catatan ? `<div class="ket">${esc(r.catatan)}</div>` : ''}</td>
+      <td><span class="st ${esc(r.status)}">${esc(STATUS_SDM[r.status] || r.status)}</span>${r.selesai_pada ? `<div class="ket">${esc(r.selesai_pada)}</div>` : ''}</td>
+      <td>${esc(DANA_SDM[r.dana] || '')}</td><td>${r.bukti_url ? `<a href="${esc(r.bukti_url)}" target="_blank" rel="noopener">buka</a>` : ''}</td>
+      <td>${bolehUbah(r) ? `<button type="button" class="b kecil" data-ubah="${r.id}">Ubah</button> <button type="button" class="b kecil bahaya" data-hapus="${r.id}">Hapus</button>` : ''}</td></tr>`).join('')}</tbody></table></div>`;
+}
+
+function gambar(){
+  if (!ADA) { $('isi').innerHTML = '<p class="kosong">Tabel belum ada: jalankan supabase/198-patch-rencana-pengembangan-sdm.sql.</p>'; return; }
+  const milik = RENCANA.filter(r => r.dosen_id === SAYA.id);
+  const bolehUbah = r => KELOLA() || r.dosen_id === SAYA.id;
+  let html = `<section class="kartu" id="form"><h2>${UBAH ? 'Ubah rencana' : 'Tambah rencana'}</h2>
+      <p class="ket">Catat rencana studi lanjut, sertifikasi kompetensi/profesi, pelatihan, dan kenaikan jabatan beserta tahun targetnya. Saat tercapai,
+        ubah status menjadi <b>Selesai</b> dengan tanggal dan buktinya. ${KELOLA() ? 'Admin dan Kaprodi juga mengisi untuk dosen lain dan tendik.' : ''}</p>
+      ${formulir()}</section>
+    <section class="kartu"><h2>Rencana saya</h2>
+      ${milik.length ? barisTabel(milik, false, bolehUbah) : '<p class="kosong">Belum ada rencana.</p>'}</section>`;
+  if (BACA_SEMUA()) {
+    const tahun = [...new Set(RENCANA.map(r => r.tahun_target))].sort();
+    const xs = RENCANA.filter(r => (!SARING.tahun || r.tahun_target === +SARING.tahun) && (!SARING.jenis || r.jenis === SARING.jenis));
+    const rek = rekapSdm(RENCANA), rt = rekapTahun(RENCANA);
+    html += `<section class="kartu" id="rekap"><h2>Rekap target dan realisasi</h2>
+        <p class="ket">Target = semua rencana kecuali yang batal; tercapai = selesai. Bukti butir 5-I (pengembangan sumber daya) dan 27–29;
+          rekap tanpa nama juga masuk Laporan kinerja tahunan.</p>
+        ${rek.length ? `<div class="gulir"><table class="ds"><thead><tr><th>Tahun</th><th>Jenis</th><th>Target</th><th>Selesai</th><th>Berjalan</th><th>Batal</th><th>Tercapai</th></tr></thead>
+          <tbody>${rek.map(x => `<tr><td>${x.tahun}</td><td>${esc(JENIS_SDM[x.jenis])}</td><td>${x.target}</td><td>${x.selesai}</td><td>${x.berjalan}</td><td>${x.batal}</td>
+            <td>${x.persen == null ? '–' : x.persen + '%'}</td></tr>`).join('')}
+          ${rt.map(y => `<tr><th>${y.tahun}</th><th>Semua</th><th>${y.target}</th><th>${y.selesai}</th><th>${y.berjalan}</th><th>${y.batal}</th><th>${y.persen == null ? '–' : y.persen + '%'}</th></tr>`).join('')}
+          </tbody></table></div>` : '<p class="kosong">Belum ada rencana.</p>'}</section>
+      <section class="kartu"><h2>Semua dosen dan tendik</h2>
+        <div class="alat"><label>Tahun <select id="sTahun"><option value="">Semua</option>${tahun.map(t => `<option${String(t) === SARING.tahun ? ' selected' : ''}>${t}</option>`).join('')}</select></label>
+          <label>Jenis <select id="sJenis"><option value="">Semua</option>${opsi(JENIS_SDM, SARING.jenis)}</select></label>
+          <button type="button" class="b" id="bCsv">Unduh CSV</button></div>
+        ${xs.length ? barisTabel([...xs].sort((a, b) => a.tahun_target - b.tahun_target || namaR(a).localeCompare(namaR(b), 'id')), true, bolehUbah)
+          : '<p class="kosong">Tidak ada rencana untuk saringan ini.</p>'}</section>`;
+  }
+  $('isi').innerHTML = html;
+  $('bSimpan').onclick = simpan;
+  if ($('bBatal')) $('bBatal').onclick = () => { UBAH = null; gambar(); };
+  document.querySelectorAll('[data-ubah]').forEach(b => { b.onclick = () => { UBAH = RENCANA.find(r => r.id === +b.dataset.ubah); gambar(); $('form').scrollIntoView(); }; });
+  document.querySelectorAll('[data-hapus]').forEach(b => { b.onclick = () => hapus(+b.dataset.hapus); });
+  if ($('sTahun')) { $('sTahun').onchange = e => { SARING.tahun = e.target.value; gambar(); }; $('sJenis').onchange = e => { SARING.jenis = e.target.value; gambar(); }; }
+  if ($('bCsv')) $('bCsv').onclick = () => {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([csvSdm(RENCANA, namaR)], { type: 'text/csv;charset=utf-8' }));
+    a.download = 'rencana-pengembangan-sdm.csv'; a.click(); URL.revokeObjectURL(a.href);
+  };
+}
+
+async function simpan(){
+  const v = id => $(id)?.value?.trim() ?? '';
+  const isi = { jenis: v('fJenis'), uraian: v('fUraian'), tahun_target: +v('fTahun'), status: v('fStatus'), selesai_pada: v('fSelesai') || null,
+    dana: v('fDana') || null, bukti_url: v('fBukti') || null, catatan: v('fCatatan') || null };
+  if (isi.uraian.length < 3) return tulis('mForm', 'galat', 'Tulis uraian rencana.');
+  if (!(isi.tahun_target >= 2015 && isi.tahun_target <= 2045)) return tulis('mForm', 'galat', 'Tahun target 2015–2045.');
+  if (isi.status === 'selesai' && !isi.selesai_pada) return tulis('mForm', 'galat', 'Isi tanggal selesai.');
+  if (isi.bukti_url && !/^https:\/\/\S+$/i.test(isi.bukti_url)) return tulis('mForm', 'galat', 'Bukti harus tautan https://');
+  const o = KELOLA() ? v('fOrang') : `d:${SAYA.id}`;
+  Object.assign(isi, o.startsWith('t:') ? { tendik_id: +o.slice(2), dosen_id: null } : { dosen_id: o.slice(2), tendik_id: null });
+  const { error } = UBAH ? await sb.from('sdm_rencana').update(isi).eq('id', UBAH.id) : await sb.from('sdm_rencana').insert(isi);
+  if (error) return tulis('mForm', 'galat', 'Gagal menyimpan: ' + error.message);
+  UBAH = null; await muat(); gambar(); tulis('mForm', 'ok', 'Tersimpan.');
+}
+
+async function hapus(id){
+  if (!confirm('Hapus rencana ini? Bila rencananya tidak jadi, lebih baik ubah status menjadi Batal agar tetap tercatat.')) return;
+  const { error } = await sb.from('sdm_rencana').delete().eq('id', id);
+  if (error) return alert('Gagal menghapus: ' + error.message);
+  await muat(); gambar();
+}
+
+async function mulai(){
+  SAYA = await gerbang(sb);
+  if (!SAYA) return;
+  $('hSub').textContent = `Masuk sebagai ${SAYA.nama}`;
+  const [ds, tk] = await Promise.all([sb.from('dosen').select('id,nama,aktif,peran').order('nama'),
+    BACA_SEMUA() ? sb.rpc('sdm_tendik_daftar') : Promise.resolve({ data: [] })]);
+  DOSEN = (ds.data || []).filter(d => d.aktif !== false && !['asesor', 'pimpinan'].includes(d.peran));
+  TENDIK = tk.error ? [] : (tk.data || []);
+  await muat();
+  gambar();
+}
+mulai().catch(e => { $('isi').innerHTML = `<p class="kosong">Gagal memuat: ${esc(e.message)}</p>`; });
+</script>
+</body>
+</html>

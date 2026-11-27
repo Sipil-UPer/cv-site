@@ -3,10 +3,11 @@
 // Satu model isi (daftar blok) dirender ke Word (.docx, disusun sendiri tanpa templat) dan ke HTML (laporan-tahunan.html).
 // Sumber: data.json publik, rekap survei yang sudah diterbitkan (survei_rekap), dan, khusus admin, capaian IKU/IKT,
 // perkiraan status akreditasi, serta Temuan AMI. Versi publik (publik: true) tidak memuat bagian khusus admin.
-import { hitungSumber } from './iku-otomatis.js?v=2026-11-27-c92ba3';
-import { SDGS } from './form-karya.js?v=2026-11-27-c92ba3';
-import { run, para, judul, teks, tabel, buatDocx } from './docx-dasar.js?v=2026-11-27-c92ba3';
-import { rekapSurvei, aspekTindakLanjut, kesenjanganCPL, labelKelompok, labelAspek, lengkapiCPL } from './survei-kepuasan.js?v=2026-11-27-c92ba3';
+import { hitungSumber } from './iku-otomatis.js?v=2026-11-27-b8300c';
+import { SDGS } from './form-karya.js?v=2026-11-27-b8300c';
+import { run, para, judul, teks, tabel, buatDocx } from './docx-dasar.js?v=2026-11-27-b8300c';
+import { rekapSurvei, aspekTindakLanjut, kesenjanganCPL, labelKelompok, labelAspek, lengkapiCPL } from './survei-kepuasan.js?v=2026-11-27-b8300c';
+import { rekapSdm, JENIS_SDM } from './sdm.js?v=2026-11-27-b8300c';
 
 const angka = v => v == null || v === '' ? '—' : (Math.round(+v * 100) / 100).toLocaleString('id-ID');
 const diTS = (xs, ts) => (xs || []).filter(x => +x.tahun_ts === +ts);
@@ -138,6 +139,20 @@ export function susunLaporan(C, { publik = false, kalender = false } = {}){
       ...ed.map(r => [`${r.semester} ${r.tahun_akademik}`, angka(r.ber_edom), angka(r.rerata_edom), angka(r.di_bawah_ambang),
         angka(r.bawah_bertindak), `${angka(r.rps_terisi)} dari ${angka(r.jumlah)}`])]);
     else p('Belum ada rekap EDOM untuk periode ini (Evaluasi pembelajaran › tempel rekap EDOM dari kampus).', true);
+  }
+
+  // Pengembangan dosen dan tendik (198, pemilik 2026-11-27; butir 5-I, 27–29): D._sdm = baris sdm_rencana (tanpa nama), tahun
+  // target = tahun laporan (TS untuk tahun akademik, tahun kalender untuk versi kalender).
+  if (!publik && Array.isArray(D._sdm)) {
+    const thn = ts;
+    h2(`Pengembangan dosen dan tendik, target tahun ${thn}`);
+    const rk = rekapSdm(D._sdm).filter(x => x.tahun === thn);
+    if (rk.length) {
+      tb([['Jenis', 'Target', 'Selesai', 'Berjalan', 'Batal', 'Tercapai'], ...rk.map(x => [JENIS_SDM[x.jenis] || x.jenis, angka(x.target), angka(x.selesai),
+        angka(x.berjalan), angka(x.batal), x.persen == null ? '–' : `${x.persen}%`])]);
+      p('Dari Rencana pengembangan (ruang kerja): rencana studi lanjut, sertifikasi, pelatihan, dan kenaikan jabatan dosen dan tendik; '
+        + 'target = semua rencana kecuali yang batal.', true);
+    } else p(`Belum ada rencana pengembangan bertarget tahun ${thn} (Data saya › Rencana pengembangan).`, true);
   }
 
   // Ujian dan validasi soal (195, pemilik 2026-11-27; butir 15–16 dan 55): D._ujian = rekapUjian() (ujian.js), hanya pengguna
