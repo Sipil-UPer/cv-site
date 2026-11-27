@@ -5,7 +5,7 @@
 // disunting admin per survei; pengguna lulusan memakai 7 aspek resmi 6.g.2.
 // 2026-11-13 (pemilik): templat per kelompok menjawab butir LAM (bagian + butir per pertanyaan),
 // tracer memuat pertanyaan inti DIKTI, dan semua teks bisa dwibahasa (72-patch-survei-dwibahasa.sql).
-import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-27-69f08f';
+import { ASPEK_KEPUASAN } from './butir-manual.js?v=2026-11-27-2a0acd';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -446,6 +446,14 @@ export const KELOMPOK_KURIKULUM = Object.keys(TEMPLAT_KURIKULUM);
 /** Templat survei kurikulum ringkas satu kelompok, lengkap dengan bagian CPL (cpl kurikulum terbaru). */
 export const templatKurikulum = (k, cpl) => TEMPLAT_KURIKULUM[k]
   ? pasangCPL(TEMPLAT_KURIKULUM[k].map(q => JSON.parse(JSON.stringify(q))), cpl, k) : [];
+
+/** Rekap terbit (130) hanya menyimpan id/aspek/teks/jenis/opsi: kunci CPL dipulihkan dari aspek cpl_penting|cpl_kuasai
+ *  dan awalan teks "CPL-<kode>:" (pertanyaanCPL), supaya halaman publik dan laporan tahunan bisa menghitung kesenjangan. */
+export const lengkapiCPL = xs => (xs || []).map(q => {
+  if (q.cpl) return q;
+  const s = /^cpl_(penting|kuasai)$/.exec(q.aspek || ''), k = /^CPL-([^:]+):/.exec(q.teks || '');
+  return s && k ? { ...q, cpl: k[1], cpl_sisi: s[1] } : q;
+});
 
 /** Kesenjangan per CPL dari sebaran opsi {id: {'1': n, ...}} (ringkasLain atau survei_rekap):
  *  [{kode, teks, penting, n_penting, kuasai, n_kuasai, selisih}] urut pertanyaan; selisih = penting - kuasai (null bila salah satu kosong). */
