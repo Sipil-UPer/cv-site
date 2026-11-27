@@ -11,8 +11,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-27-4ea548">
-<link rel="stylesheet" href="kepala.css?v=2026-11-27-4ea548">
+<link rel="stylesheet" href="tema.css?v=2026-11-27-ce288b">
+<link rel="stylesheet" href="kepala.css?v=2026-11-27-ce288b">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
@@ -46,6 +46,8 @@
   .item.selesai{border-left-color:var(--hijau)}
   .item .kepala{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:baseline;font-size:12.5px;color:var(--muted)}
   .item .jenis{font-weight:600;color:var(--biru);text-transform:uppercase;letter-spacing:.05em;font-size:11.5px}
+  .item .jenis.adu{color:#8A1F11}
+  .item textarea[data-tindak]{border-color:var(--biru)}
   .item .isi{white-space:pre-line;margin:6px 0;overflow-wrap:anywhere}
   .item textarea{min-height:48px;font-size:13.5px}
   .item .baris{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:6px}
@@ -68,7 +70,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></div>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-27-4ea548"></script>
+<script src="config.js?v=2026-11-27-ce288b"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -89,8 +91,8 @@ addEventListener('error', function (e) {
 // Berkas pustaka untuk mahasiswa tetap dicentang di Data prodi > Dokumen (76).
 // Halaman publiknya: layanan-mahasiswa.html.
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-27-4ea548';
-import { punya } from './koordinator.js?v=2026-11-27-4ea548';
+import { gerbang } from './menu.js?v=2026-11-27-ce288b';
+import { punya } from './koordinator.js?v=2026-11-27-ce288b';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
@@ -99,7 +101,11 @@ const tgl = s => String(s || '').slice(0, 10).split('-').reverse().join('/');
 const jam = s => s ? new Date(s).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' }) : '';
 const hariIni = () => new Date().toLocaleDateString('sv');   // YYYY-MM-DD waktu setempat
 const STATUS = { baru: 'Baru', ditindaklanjuti: 'Ditindaklanjuti', selesai: 'Selesai' };
-const JENIS = { tanya: 'Pertanyaan', masukan: 'Masukan' };
+const JENIS = { tanya: 'Pertanyaan', masukan: 'Masukan', pengaduan: 'Pengaduan' };
+const KATEGORI = { perkuliahan: 'perkuliahan dan penilaian', fasilitas: 'fasilitas dan sarana', layanan: 'layanan administrasi',
+  perilaku: 'perilaku atau etika', lain: 'lainnya' };
+// Pengaduan (193, pemilik 2026-11-27) hanya dibaca Kaprodi/GKM aktif (RLS); kotak masuk juga terbuka untuk mereka.
+const bacaKotak = s => s?.peran === 'admin' || ['kaprodi', 'gkm'].some(j => punya(s, j));
 
 let SAYA = null, MASUK = [], FAQ = [], PENG = [], EA = [], EA_RIW = [];
 let GAGAL = { masuk: '', faq: '', peng: '', ea: '' };
@@ -124,13 +130,50 @@ async function muatEA(){
 
 async function muat(){
   await muatEA();
-  if (SAYA.peran !== 'admin') return;
+  if (SAYA.peran !== 'admin') {
+    if (!bacaKotak(SAYA)) return;
+    const m = await sb.from('masukan_mahasiswa').select('*').order('dikirim', { ascending: false }).limit(1000);
+    GAGAL.masuk = m.error?.message || ''; MASUK = m.data || [];
+    return;
+  }
   const [m, f, p] = await Promise.all([
     sb.from('masukan_mahasiswa').select('*').order('dikirim', { ascending: false }).limit(1000),
     sb.from('tanya_jawab').select('*').order('topik', { nullsFirst: false }).order('urutan').order('id'),
     sb.from('pengumuman_mahasiswa').select('id,judul,isi,berlaku_sampai,diperbarui').order('diperbarui', { ascending: false })]);
   GAGAL = { ...GAGAL, masuk: m.error?.message || '', faq: f.error?.message || '', peng: p.error?.message || '' };
   MASUK = m.data || []; FAQ = f.data || []; PENG = p.data || [];
+}
+
+const SEKSI_KOTAK = `
+    <section class="kartu" id="kotak"><h2>Kotak masuk pertanyaan, masukan, dan pengaduan</h2>
+      <p class="ket">Kiriman mahasiswa dari halaman Layanan mahasiswa. Pertanyaan dan masukan dibaca admin, Kaprodi, dan GKM;
+        <b>pengaduan hanya dibaca Kaprodi dan GKM</b>. Nama dan email boleh kosong; bila ada email, balas lewat tombol
+        <b>Balas lewat email</b>. Pengirim melihat status dan <b>Tindak lanjut publik</b> dengan kode lacaknya; ringkasan tindakan yang
+        selesai tampil di halaman mahasiswa (Masukan Anda, tindakan kami) tanpa isi kiriman. Catatan internal tidak pernah tampil.</p>
+      <div id="kotak_isi"></div></section>`;
+
+// Nilai kepuasan layanan (194): admin, Kaprodi, GKM (RLS). Rerata per jenis 12 bulan dan 20 komentar terbaru.
+const SEKSI_NILAI = `
+    <section class="kartu" id="nilai-layanan"><h2>Nilai kepuasan layanan</h2>
+      <p class="ket">Nilai 1–5 dari mahasiswa setelah pengajuannya selesai diproses (12 bulan terakhir). Rata-rata per jenis tampil di
+        halaman mahasiswa; komentar hanya di sini. Bukti berkelanjutan butir 57 (kepuasan pemangku).</p>
+      <div id="nilai_isi"><p class="kosong">Memuat…</p></div></section>`;
+async function gambarNilai(){
+  const box = $('nilai_isi');
+  if (!box) return;
+  const dari = new Date(Date.now() - 365 * 864e5).toISOString();
+  const { data, error } = await sb.from('layanan_nilai').select('jenis,skor,komentar,dinilai').gte('dinilai', dari).order('dinilai', { ascending: false }).limit(2000);
+  if (error) { box.innerHTML = `<p class="kosong">Belum bisa dibaca (${esc(error.message)}). Jalankan supabase/194-patch-nilai-layanan.sql.</p>`; return; }
+  if (!data.length) { box.innerHTML = '<p class="kosong">Belum ada nilai.</p>'; return; }
+  const NAMA = { kp: 'KP', lomba: 'Lomba', surat: 'Surat', ta: 'Seminar/sidang TA', luaran: 'Luaran', yudisium: 'Yudisium', kabar: 'Kabar kegiatan' };
+  const per = new Map();
+  for (const x of data) { if (!per.has(x.jenis)) per.set(x.jenis, []); per.get(x.jenis).push(x.skor); }
+  const rata = xs => (xs.reduce((a, b) => a + b, 0) / xs.length).toFixed(2).replace('.', ',');
+  const kom = data.filter(x => x.komentar).slice(0, 20);
+  box.innerHTML = `<div class="tabel-gulir"><table><thead><tr><th>Layanan</th><th>Penilai</th><th>Rata-rata</th><th>Nilai 1–2</th></tr></thead><tbody>
+    ${[...per].map(([j, xs]) => `<tr><td>${esc(NAMA[j] || j)}</td><td>${xs.length}</td><td>${rata(xs)}</td><td>${xs.filter(v => v <= 2).length}</td></tr>`).join('')}
+    <tr><th>Semua</th><th>${data.length}</th><th>${rata(data.map(x => x.skor))}</th><th>${data.filter(x => x.skor <= 2).length}</th></tr></tbody></table></div>
+    ${kom.length ? `<h3>Komentar terbaru</h3><ul>${kom.map(x => `<li><span class="ket">${esc(tgl(x.dinilai))} · ${esc(NAMA[x.jenis] || x.jenis)} · nilai ${x.skor}</span><br>${esc(x.komentar)}</li>`).join('')}</ul>` : ''}`;
 }
 
 const SEKSI_EA = `
@@ -142,22 +185,24 @@ const SEKSI_EA = `
       <div id="ea_isi"></div></section>`;
 
 function kerangka(){
-  if (SAYA.peran !== 'admin') { $('isi').innerHTML = SEKSI_EA; gambarEA(); return; }
+  if (SAYA.peran !== 'admin') {
+    $('isi').innerHTML = (bacaKotak(SAYA) ? SEKSI_KOTAK + SEKSI_NILAI : '') + (bolehEA(SAYA) ? SEKSI_EA : '');
+    if (bacaKotak(SAYA)) { gambarKotak(); gambarNilai(); }
+    if (bolehEA(SAYA)) gambarEA();
+    return;
+  }
   const nBaru = MASUK.filter(x => x.status === 'baru').length;
   $('isi').innerHTML = `
     <nav class="loncat">
       <a href="#kotak">Kotak masuk${nBaru ? `<span class="n">${nBaru}</span>` : ''}</a>
+      <a href="#nilai-layanan">Nilai layanan</a>
       <a href="#faq">Tanya-jawab</a>
       <a href="#pengumuman">Pengumuman teks</a>
       <a href="#email-alt">Email alternatif</a>
       <a href="data-prodi.html?tab=dokumen">Berkas untuk mahasiswa (Data prodi › Dokumen)</a>
       <a href="layanan-mahasiswa.html" target="_blank" rel="noopener">Lihat halaman mahasiswa ↗</a>
     </nav>
-    <section class="kartu" id="kotak"><h2>Kotak masuk pertanyaan dan masukan</h2>
-      <p class="ket">Kiriman mahasiswa dari halaman Layanan mahasiswa. Hanya admin yang bisa membaca. Nama dan email boleh kosong;
-        bila ada email, balas lewat tombol <b>Balas lewat email</b>. Pertanyaan yang sering muncul bisa dijadikan Tanya-jawab publik
-        (tanpa nama penanya).</p>
-      <div id="kotak_isi"></div></section>
+${SEKSI_KOTAK}${SEKSI_NILAI}
     <section class="kartu" id="faq"><h2>Tanya-jawab (pertanyaan yang sering ditanya)</h2>
       <p class="ket">Disusun admin; yang dicentang <b>Tampil</b> muncul di halaman mahasiswa, dikelompokkan per topik
         (urutan kecil lebih atas). Alamat https://… di jawaban menjadi tautan.</p>
@@ -167,7 +212,7 @@ function kerangka(){
         lalu hilang sendiri. Pengumuman berupa berkas (PDF jadwal sidang, dll.) diunggah di
         <a href="data-prodi.html?tab=dokumen">Data prodi › Dokumen</a> dengan jenis <i>Pengumuman untuk mahasiswa</i>.</p>
       <div id="peng_isi"></div></section>` + SEKSI_EA;
-  gambarKotak(); gambarFaq(); gambarPeng(); gambarEA();
+  gambarKotak(); gambarNilai(); gambarFaq(); gambarPeng(); gambarEA();
 }
 
 function gambarEA(){
@@ -226,8 +271,9 @@ function gambarKotak(){
         <option value="aktif">Belum selesai (${n('baru') + n('ditindaklanjuti')})</option>
         ${Object.entries(STATUS).map(([k, v]) => `<option value="${k}">${v} (${n(k)})</option>`).join('')}
         <option value="semua">Semua (${MASUK.length})</option></select>
-      <select id="sr_jenis" aria-label="Saring jenis"><option value="">Pertanyaan dan masukan</option>
-        <option value="tanya">Pertanyaan saja</option><option value="masukan">Masukan saja</option></select>
+      <select id="sr_jenis" aria-label="Saring jenis"><option value="">Semua jenis</option>
+        <option value="tanya">Pertanyaan saja</option><option value="masukan">Masukan saja</option>
+        <option value="pengaduan">Pengaduan saja (${MASUK.filter(x => x.jenis === 'pengaduan' && x.status !== 'selesai').length} belum selesai)</option></select>
       <span class="msg" id="kotak_msg"></span></div>
     ${xs.length ? xs.map(itemKotak).join('') : '<p class="kosong">Tidak ada kiriman.</p>'}`;
   $('sr_status').value = SARING.status; $('sr_jenis').value = SARING.jenis;
@@ -237,17 +283,19 @@ function gambarKotak(){
 
 function itemKotak(x){
   const siapa = [x.nama, x.email].filter(Boolean).join(' · ') || 'tanpa nama';
-  const balas = x.email ? `<a class="b" href="mailto:${esc(x.email)}?subject=${encodeURIComponent('Balasan ' + (x.jenis === 'tanya' ? 'pertanyaan' : 'masukan') + ' Anda')}&body=${encodeURIComponent('\n\n---\nKiriman Anda (' + tgl(x.dikirim) + '):\n' + x.isi)}">Balas lewat email</a>` : '';
+  const balas = x.email ? `<a class="b" href="mailto:${esc(x.email)}?subject=${encodeURIComponent('Balasan ' + (JENIS[x.jenis] || 'kiriman').toLowerCase() + ' Anda')}&body=${encodeURIComponent('\n\n---\nKiriman Anda (' + tgl(x.dikirim) + '):\n' + x.isi)}">Balas lewat email</a>` : '';
   return `<div class="item ${esc(x.status)}" data-masuk="${x.id}">
-    <div class="kepala"><span class="jenis">${JENIS[x.jenis]}</span><span>${esc(jam(x.dikirim))}</span><span>${esc(siapa)}</span>
+    <div class="kepala"><span class="jenis${x.jenis === 'pengaduan' ? ' adu' : ''}">${JENIS[x.jenis] || esc(x.jenis)}</span>${x.kategori ? `<span>${esc(KATEGORI[x.kategori] || x.kategori)}</span>` : ''}
+      <span>${esc(jam(x.dikirim))}</span><span>${esc(siapa)}</span>${x.kode ? `<span>kode ${esc(x.kode)}</span>` : ''}
       ${x.diubah ? `<span>diubah ${esc(jam(x.diubah))}${x.diubah_oleh ? ' oleh ' + esc(x.diubah_oleh) : ''}</span>` : ''}</div>
     <div class="isi">${esc(x.isi)}</div>
-    <textarea data-catatan aria-label="Catatan tindak lanjut" placeholder="Catatan tindak lanjut (hanya admin)">${esc(x.catatan || '')}</textarea>
+    <textarea data-catatan aria-label="Catatan internal" placeholder="Catatan internal (tidak pernah tampil ke mahasiswa)">${esc(x.catatan || '')}</textarea>
+    ${'tindak_publik' in x ? `<textarea data-tindak aria-label="Tindak lanjut publik" maxlength="1000" placeholder="Tindak lanjut publik: ringkasan tindakan yang boleh dibaca pengirim dan umum (tanpa nama orang), mis. AC ruang 2.01 sudah diganti">${esc(x.tindak_publik || '')}</textarea>` : ''}
     <div class="baris"><select data-status aria-label="Status">${Object.entries(STATUS).map(([k, v]) =>
         `<option value="${k}"${k === x.status ? ' selected' : ''}>${v}</option>`).join('')}</select>
       <button type="button" class="b" data-simpan-masuk>Simpan</button>
       ${balas}
-      <button type="button" class="b" data-jadi-faq>Jadikan Tanya-jawab</button>
+      ${SAYA.peran === 'admin' && x.jenis !== 'pengaduan' ? '<button type="button" class="b" data-jadi-faq>Jadikan Tanya-jawab</button>' : ''}
       <button type="button" class="b bahaya" data-hapus-masuk>Hapus</button></div></div>`;
 }
 
@@ -255,6 +303,10 @@ async function simpanMasuk(el){
   const id = +el.dataset.masuk, x = MASUK.find(y => y.id === id);
   const isi = { status: el.querySelector('[data-status]').value, catatan: el.querySelector('[data-catatan]').value.trim() || null,
     diubah: new Date().toISOString(), diubah_oleh: SAYA.email };
+  const t = el.querySelector('[data-tindak]');
+  if (t) isi.tindak_publik = t.value.trim() || null;
+  if (isi.status === 'selesai' && x.jenis !== 'tanya' && t && !isi.tindak_publik
+      && !confirm('Tindak lanjut publik masih kosong, jadi kiriman ini tidak tampil di rekap tindakan. Tetap tandai selesai?')) return;
   const { error } = await sb.from('masukan_mahasiswa').update(isi).eq('id', id);
   if (error) return pesan('kotak_msg', 'buruk', 'Gagal menyimpan: ' + error.message);
   Object.assign(x, isi);

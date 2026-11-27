@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-27-4ea548">
+<link rel="stylesheet" href="tema.css?v=2026-11-27-ce288b">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
@@ -101,7 +101,7 @@
 
 <main class="wrap" id="isi"><p class="hint">Memuat&hellip;</p></main>
 
-<script src="config.js?v=2026-11-27-4ea548"></script>
+<script src="config.js?v=2026-11-27-ce288b"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache) tampil sebagai pesan.
 addEventListener('error', function (e) {
@@ -117,17 +117,17 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { pengguna, pasangMenu, halamanBoleh, bolehBuka, identitas, pasangJudul, pintasanUntuk, denganSub } from './menu.js?v=2026-11-27-4ea548';
-import { kelasMengajarSaya } from './mk-saya.js?v=2026-11-27-4ea548';
-import { hitungVerifikasi } from './verifikasi-hitung.js?v=2026-11-27-4ea548';
-import { rubrikRps } from './rps.js?v=2026-11-27-4ea548';
-import { bacaTinjauan } from './tinjauan-rps.js?v=2026-11-27-4ea548';
-import { isoDari } from './pengingat-rps.js?v=2026-11-27-4ea548';
-import { tugasSaya } from './tugas-saya.js?v=2026-11-27-4ea548';
-import { fiturAktif, halamanAktif } from './fitur.js?v=2026-11-27-4ea548';
+import { pengguna, pasangMenu, halamanBoleh, bolehBuka, identitas, pasangJudul, pintasanUntuk, denganSub } from './menu.js?v=2026-11-27-ce288b';
+import { kelasMengajarSaya } from './mk-saya.js?v=2026-11-27-ce288b';
+import { hitungVerifikasi } from './verifikasi-hitung.js?v=2026-11-27-ce288b';
+import { rubrikRps } from './rps.js?v=2026-11-27-ce288b';
+import { bacaTinjauan } from './tinjauan-rps.js?v=2026-11-27-ce288b';
+import { isoDari } from './pengingat-rps.js?v=2026-11-27-ce288b';
+import { tugasSaya } from './tugas-saya.js?v=2026-11-27-ce288b';
+import { fiturAktif, halamanAktif } from './fitur.js?v=2026-11-27-ce288b';
 // Situs publik mati (templat akreditasi, pemilik 2026-11-23): tanpa tautan ke beranda umum.
 if (!halamanAktif('index.html')) document.querySelector('a.balik[href="index.html"]')?.remove();
-import { barisDosen } from './target-kinerja.js?v=2026-11-27-4ea548';
+import { barisDosen } from './target-kinerja.js?v=2026-11-27-ce288b';
 
 const sb = createClient(window.SB_URL, window.SB_KEY);
 const $ = id => document.getElementById(id);
@@ -221,7 +221,7 @@ async function layarTidakTerdaftar(email){
 
 // "Tugas saya" (pemilik 2026-11-12; tugas-saya.js). Tabel yang belum ada (patch belum
 // dijalankan) dibaca sebagai kosong; RLS membatasi pada data milik sendiri.
-const LABEL_JENIS = { profil: 'Profil', karya: 'Karya', bkd: 'BKD', rapat: 'Rapat', hibah: 'Hibah', ami: 'AMI', cpl: 'CPL', target: 'Target', evaluasi: 'Evaluasi', cpmk: 'CPMK', portofolio: 'Portofolio', tinjauan: 'Tinjauan RPS', review: 'Review RPS', rps: 'RPS', insentif: 'Insentif', perwalian: 'Perwalian', agenda: 'Agenda', survei: 'Survei' };
+const LABEL_JENIS = { profil: 'Profil', karya: 'Karya', bkd: 'BKD', rapat: 'Rapat', hibah: 'Hibah', ami: 'AMI', cpl: 'CPL', target: 'Target', evaluasi: 'Evaluasi', cpmk: 'CPMK', portofolio: 'Portofolio', tinjauan: 'Tinjauan RPS', review: 'Review RPS', rps: 'RPS', insentif: 'Insentif', perwalian: 'Perwalian', agenda: 'Agenda', survei: 'Survei', kotak: 'Kotak masuk' };
 const MAKS_TAMPIL = 8;
 async function muatTugas(saya){
   const baca = q => q.then(r => r.error ? [] : (r.data || []), () => []);
@@ -334,13 +334,16 @@ async function muatTugas(saya){
     const buka = await baca(sb.from('survei').select('id,judul,kelompok,tahun_ts,mulai,selesai,dicabut')
       .lte('mulai', hariIni).gte('selesai', hariIni).eq('dicabut', false));
     if (buka.length) {
-      const { muatPopulasi, targetSurvei } = await import('./survei-mutu.js?v=2026-11-27-4ea548');
+      const { muatPopulasi, targetSurvei } = await import('./survei-mutu.js?v=2026-11-27-ce288b');
       const [pop, ns] = await Promise.all([muatPopulasi(sb, saya), Promise.all(buka.map(s =>
         sb.from('survei_jawaban').select('id', { count: 'exact', head: true }).eq('survei_id', s.id).then(r => r.count || 0, () => 0)))]);
       surveiBerjalan = buka.map((s, i) => ({ judul: s.judul, selesai: s.selesai, n: ns[i], target: targetSurvei(s, pop, hariIni).target }));
     }
   }
-  return tugasSaya({ saya, agenda, surveiBerjalan, sertifikat, insentif, karya: [...karya, ...draf], berBukti, bkd, tindak, hibah, temuan, kelasCpl, berkasCpl, target, tahunTarget: th,
+  // Kotak masuk mahasiswa (193): admin, Kaprodi, GKM; RLS menyaring (pengaduan hanya Kaprodi/GKM).
+  const kotakMasuk = (saya.peran === 'admin' || ['kaprodi', 'gkm'].some(j => (saya.koordinator || []).includes(j)))
+    ? await baca(sb.from('masukan_mahasiswa').select('jenis,status,dikirim').eq('status', 'baru').limit(500)) : [];
+  return tugasSaya({ saya, agenda, surveiBerjalan, kotakMasuk, sertifikat, insentif, karya: [...karya, ...draf], berBukti, bkd, tindak, hibah, temuan, kelasCpl, berkasCpl, target, tahunTarget: th,
                      evaluasi, tindakEval, perluTL, tanpaBaris, pengajuanMhs, revisiTa, nilaiTa, bimbinganTa, peringatanTa, perwalian, dataMK, reviewSaya, rekapReview, bolehRps, mkNama,
                      hariReview: +nilaiAtur('rps_review_hari') || undefined, tenggatRps, mkRef, rpsStatus });
 }

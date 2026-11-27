@@ -1,18 +1,18 @@
 // "Tugas saya" di Ruang kerja (pemilik 2026-11-12): hal yang menunggu tindakan dosen yang
 // sedang masuk, dari data yang sudah boleh ia baca (RLS). Aturan tenggat sama dengan halaman
 // Pengingat: rapat.js, hibah.js, temuan-ami.js, pengingat-dosen.js.
-import { kurangProfil } from './pengingat-dosen.js?v=2026-11-27-4ea548';
-import { tindakTerbuka, tglID } from './rapat.js?v=2026-11-27-4ea548';
-import { tenggatBerikut, teksHari, HARI_LEWAT } from './hibah.js?v=2026-11-27-4ea548';
-import { hariKeTenggat, labelStatus, HARI_DEKAT } from './temuan-ami.js?v=2026-11-27-4ea548';
-import { tugasEvaluasi } from './evaluasi-pembelajaran.js?v=2026-11-27-4ea548';
-import { bolehPengajuan } from './koordinator.js?v=2026-11-27-4ea548';
-import { tenggatReview, hariKe, teksHari as teksHariRv, tugasTenggatRps, tugasTetapDekan, tanggalPanjang as tglRv } from './pengingat-rps.js?v=2026-11-27-4ea548';
-import { tugasInsentif } from './insentif.js?v=2026-11-27-4ea548';
-import { tugasMK } from './tugas-mk.js?v=2026-11-27-4ea548';
-import { tugasPerwalian } from './perwalian.js?v=2026-11-27-4ea548';
-import { halamanAktif } from './fitur.js?v=2026-11-27-4ea548';
-import { masaBerlaku, tanggalPanjang as tglSrt } from './profil-dosen.js?v=2026-11-27-4ea548';
+import { kurangProfil } from './pengingat-dosen.js?v=2026-11-27-ce288b';
+import { tindakTerbuka, tglID } from './rapat.js?v=2026-11-27-ce288b';
+import { tenggatBerikut, teksHari, HARI_LEWAT } from './hibah.js?v=2026-11-27-ce288b';
+import { hariKeTenggat, labelStatus, HARI_DEKAT } from './temuan-ami.js?v=2026-11-27-ce288b';
+import { tugasEvaluasi } from './evaluasi-pembelajaran.js?v=2026-11-27-ce288b';
+import { bolehPengajuan } from './koordinator.js?v=2026-11-27-ce288b';
+import { tenggatReview, hariKe, teksHari as teksHariRv, tugasTenggatRps, tugasTetapDekan, tanggalPanjang as tglRv } from './pengingat-rps.js?v=2026-11-27-ce288b';
+import { tugasInsentif } from './insentif.js?v=2026-11-27-ce288b';
+import { tugasMK } from './tugas-mk.js?v=2026-11-27-ce288b';
+import { tugasPerwalian } from './perwalian.js?v=2026-11-27-ce288b';
+import { halamanAktif } from './fitur.js?v=2026-11-27-ce288b';
+import { masaBerlaku, tanggalPanjang as tglSrt } from './profil-dosen.js?v=2026-11-27-ce288b';
 
 // Sertifikat dengan masa berlaku (pemilik 2026-11-24): diingatkan sejak 90 hari sebelum habis, dan terus setelah lewat.
 export const HARI_SERTIFIKAT = 90;
@@ -194,6 +194,8 @@ export function tugasSaya(d, kini = new Date()){
   // khusus admin/Kaprodi/GKM). Tenggat = tenggat atau mulai; tautan halaman situs, selain itu Data prodi › Agenda tugas.
   for (const a of tugasAgenda(d.agenda, kini)) tambah('agenda', a.judul, a.rinci, a.href, a.hari);
   for (const a of tugasSurvei(d.surveiBerjalan, kini)) tambah('survei', a.judul, a.rinci, 'kelola-survei.html', a.hari);
+  const kotak = tugasKotakMasuk(d.kotakMasuk, kini);
+  if (kotak) tambah('kotak', kotak.judul, kotak.rinci, 'kelola-layanan-mahasiswa.html#kotak', kotak.hari);
 
 
   return out.map((x, i) => [x, i]).sort(([a, i], [b, j]) => URUT[a.tingkat] - URUT[b.tingkat]
@@ -218,6 +220,21 @@ export function tugasSurvei(xs = [], kini = new Date()){
       hari: hariKe(s.selesai, kini) };
   });
 }
+/** Kotak masuk mahasiswa (193, pemilik 2026-11-27): kiriman berstatus baru yang terbaca pengguna (RLS: pengaduan hanya
+ *  Kaprodi/GKM). xs: [{jenis, status, dikirim}]. Target tinjau HARI_KOTAK hari sejak kiriman tertua; pengaduan disebut lebih dulu. */
+export const HARI_KOTAK = 7;
+export function tugasKotakMasuk(xs = [], kini = new Date()){
+  const baru = (xs || []).filter(x => x.status === 'baru');
+  if (!baru.length) return null;
+  const n = j => baru.filter(x => x.jenis === j).length;
+  const bagian = [['pengaduan', 'pengaduan'], ['masukan', 'masukan'], ['tanya', 'pertanyaan']].filter(([j]) => n(j)).map(([j, l]) => `${n(j)} ${l}`);
+  const tertua = baru.map(x => String(x.dikirim).slice(0, 10)).sort()[0];
+  const umur = Math.floor((Date.parse(kini.toISOString().slice(0, 10)) - Date.parse(tertua)) / 864e5);
+  return { judul: `Kotak masuk mahasiswa: ${bagian.join(', ')} belum ditinjau`,
+    rinci: `Kiriman tertua ${umur} hari lalu. Ubah status menjadi Ditindaklanjuti atau Selesai, dan tulis tindak lanjut publik bila sudah ada tindakan.`,
+    hari: HARI_KOTAK - umur, pengaduan: n('pengaduan') };
+}
+
 export function tugasAgenda(agenda = [], kini = new Date()){
   const fmt = iso => new Date(String(iso).slice(0, 10) + 'T00:00:00Z').toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
   return (agenda || []).filter(a => a.status === undefined || a.status === 'terbuka')

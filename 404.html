@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-27-4ea548">
+<link rel="stylesheet" href="tema.css?v=2026-11-27-ce288b">
 <style>
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15.5px;line-height:1.6}
@@ -40,9 +40,9 @@ main li a:hover{background:var(--biru-m11,#eef3fb)}
     <button type="submit">Cari</button></form>
   <ul><li><a href="index.html">Beranda</a></li><li><a href="kurikulum.html">Kurikulum dan mata kuliah</a></li><li><a href="daftar.html?jenis=dosen">Daftar dosen</a></li><li><a href="calon-mahasiswa.html">Untuk calon mahasiswa</a></li><li><a href="layanan-mahasiswa.html">Layanan mahasiswa</a></li><li><a href="kontak.html">Kontak</a></li><li><a href="peta-situs.html">Peta situs: semua halaman</a></li></ul>
 </main>
-<script src="config.js?v=2026-11-27-4ea548"></script>
+<script src="config.js?v=2026-11-27-ce288b"></script>
 <script type="module">
-import { pasangKerangka, isiKerangka } from './kerangka.js?v=2026-11-27-4ea548';
+import { pasangKerangka, isiKerangka } from './kerangka.js?v=2026-11-27-ce288b';
 pasangKerangka({ aktif: '' });
 fetch('kerangka.json', {cache: 'no-cache'}).then(r => r.json()).then(isiKerangka).catch(() => {});
 // Alamat yang dicari menjadi saran kata cari: bagian terakhir alamat tanpa .html, tanda hubung menjadi spasi.
@@ -55,7 +55,7 @@ let INDEKS = null;
 async function rapikan(q) {
   try {
     if (!INDEKS) {
-      const [m, D] = await Promise.all([import('./cari.js?v=2026-11-27-4ea548'), fetch('data.json', {cache: 'no-cache'}).then(r => r.json())]);
+      const [m, D] = await Promise.all([import('./cari.js?v=2026-11-27-ce288b'), fetch('data.json', {cache: 'no-cache'}).then(r => r.json())]);
       INDEKS = { m, idx: m.indeksPublik(D, k => !(window.FITUR_MATI || []).includes(k)) };
     }
     // Kueri lengkap tanpa hasil: buang satu kata (dari belakang) sampai ada hasil. Menyaring per kata tidak cukup karena

@@ -56,5 +56,17 @@ export function penerimaKarya(dosen, karya, berBukti, kini = new Date()){
 }
 
 /** Ganti penanda di subjek/isi email. */
+// Belum pernah masuk ruang kerja (192, pemilik 2026-11-27): dosen/admin aktif ber-email; asesor dan pimpinan (hanya baca) tidak.
+// ids = hasil rpc dosen_belum_masuk(); rinci = tiga hal pertama yang diisi, sama untuk semua penerima.
+export const RINCI_BELUM_MASUK = ['- Profil saya: SINTA, ORCID, jabatan, pendidikan, foto',
+  '- Jadwal berhalangan: jam yang tidak bisa Anda pakai semester depan',
+  '- RPS mata kuliah Anda (tombol Prompt AI dan templat Excel membantu)'].join('\n');
+export const penerimaBelumMasuk = (dosen, ids) => {
+  const belum = new Set(ids || []);
+  return (dosen || []).filter(d => belum.has(d.id) && d.email && d.aktif !== false && ['dosen', 'admin'].includes(d.peran))
+    .sort((a, b) => String(a.nama).localeCompare(String(b.nama), 'id'))
+    .map(d => ({ nama: d.nama, email: d.email, rinci: RINCI_BELUM_MASUK }));
+};
+
 export const isiPola = (pola, p, { situs = '', prodi = '' } = {}) => String(pola)
   .replaceAll('{nama}', p.nama || '').replaceAll('{rinci}', p.rinci || '').replaceAll('{situs}', situs).replaceAll('{prodi}', prodi);

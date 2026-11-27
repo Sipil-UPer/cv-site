@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-27-4ea548">
+<link rel="stylesheet" href="tema.css?v=2026-11-27-ce288b">
 <style>
   /* Layanan mahasiswa, publik (pemilik 2026-11-16; patch 76, 77, 78). Warna dari tema.css. */
   *{box-sizing:border-box}
@@ -76,6 +76,12 @@
   .pilih small{display:block;color:var(--muted);font-size:12.5px}
   .pilih label:has(input:checked) small{color:var(--biru-gelap)}   /* abu di --biru-m4 hanya 3,4:1 (audit 2026-11-22) */
   .fld{margin:10px 0}
+  .kode-lacak{margin-top:12px;padding:12px 14px;border:1px solid var(--line);border-radius:8px;background:#F6FAF4}
+  .kode-lacak b{font-family:var(--mono, monospace);font-size:18px;letter-spacing:.08em}
+  .kode-lacak .ket{display:block;margin-top:4px}
+  .form.lacak{display:flex;gap:8px;flex-wrap:wrap}.form.lacak input{flex:1 1 200px;font-family:var(--mono, monospace);text-transform:uppercase}
+  .lacak-hasil{margin-top:10px;padding:10px 14px;border-left:3px solid var(--biru);background:var(--line-soft, #f5f5f5)}
+  ul.tindakan{padding-left:18px}ul.tindakan li{margin:0 0 8px}
   .fld label{display:block;font-size:13.5px;font-weight:600;margin-bottom:4px}
   .fld label span{font-weight:400;color:var(--muted)}
   .fld input, .fld textarea{width:100%;font:inherit;padding:9px 11px;border:1px solid var(--line);border-radius:7px;background:var(--bg);color:var(--ink)}
@@ -133,6 +139,8 @@
     <a href="#pengumuman" data-ada="pengumuman" hidden>Pengumuman</a>
     <a href="#berkas" data-ada="berkas" hidden>Pedoman dan berkas</a>
     <a href="#tanya-jawab" data-ada="faq" hidden>Tanya-jawab</a>
+    <a href="#kirim">Kirim pertanyaan, masukan, atau pengaduan</a>
+    <a href="#lacak">Lacak kiriman</a>
   </nav>
 </div></div>
 <main class="wrap">
@@ -180,7 +188,13 @@
       <div class="pilih" role="radiogroup" aria-label="Jenis kiriman">
         <label><input type="radio" name="jenis" value="tanya" checked><span>Pertanyaan<small>seputar operasional prodi: TA, KP, perwalian, jadwal…</small></span></label>
         <label><input type="radio" name="jenis" value="masukan"><span>Masukan<small>saran atau keluhan untuk perbaikan prodi</small></span></label>
+        <label><input type="radio" name="jenis" value="pengaduan"><span>Pengaduan<small>masalah serius (perilaku, perlakuan tidak adil, fasilitas berbahaya); hanya dibaca Kaprodi dan Gugus Kendali Mutu</small></span></label>
       </div>
+      <div class="fld" id="k_kat_f" hidden><label for="k_kat">Kategori</label>
+        <select id="k_kat"><option value="perkuliahan">Perkuliahan dan penilaian</option><option value="fasilitas">Fasilitas dan sarana</option>
+          <option value="layanan">Layanan administrasi</option><option value="perilaku">Perilaku atau etika</option><option value="lain" selected>Lainnya</option></select></div>
+      <p class="ket" id="k_adu_ket" hidden>Nama dan email boleh dikosongkan. Setelah terkirim Anda mendapat <b>kode lacak</b> untuk melihat
+        status dan tindak lanjutnya tanpa membuka identitas. Untuk kekerasan seksual, hubungi juga Satgas PPKS universitas.</p>
       <div class="fld"><label for="k_isi">Isi</label>
         <textarea id="k_isi" maxlength="3000" required></textarea><div class="hitung" id="k_hitung">0 / 3000</div></div>
       <div class="dua">
@@ -190,12 +204,27 @@
       <div class="jebakan" aria-hidden="true"><label for="k_situs">Situs web</label><input id="k_situs" type="text" tabindex="-1" autocomplete="off"></div>
       <button type="submit" class="kirim" id="k_kirim">Kirim</button> <span class="msg" id="k_msg" role="status"></span>
     </form>
+    <div class="kode-lacak" id="k_kode" hidden></div>
+  </section>
+
+  <section id="lacak">
+    <h2 class="besar">Lacak kiriman</h2>
+    <p class="ket">Tulis kode lacak yang Anda terima saat mengirim pertanyaan, masukan, atau pengaduan.</p>
+    <form class="form lacak" id="frmLacak" novalidate>
+      <input id="l_kode" maxlength="12" autocomplete="off" placeholder="mis. M7KQ2X9PRT" aria-label="Kode lacak">
+      <button type="submit" class="kirim">Lacak</button></form>
+    <div id="l_hasil" role="status"></div>
+  </section>
+
+  <section id="tindakan" hidden>
+    <h2 class="besar">Masukan Anda, tindakan kami</h2>
+    <div id="tindakan_isi"></div>
   </section>
 
   <footer>Pertanyaan tentang isi berkas: hubungi sekretariat program studi.
     · <a href="kurikulum.html">Kurikulum</a> · <a href="privasi.html">Kebijakan privasi</a></footer>
 </main>
-<script src="config.js?v=2026-11-27-4ea548"></script>
+<script src="config.js?v=2026-11-27-ce288b"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -211,7 +240,7 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 // Kepala dan kaki bersama situs umum (pemilik 2026-11-19, tahap 2).
-import { pasangKerangka } from './kerangka.js?v=2026-11-27-4ea548';
+import { pasangKerangka } from './kerangka.js?v=2026-11-27-ce288b';
 pasangKerangka({ aktif: 'mahasiswa', muat: true });
 // Layanan mahasiswa, tanpa masuk akun (pemilik 2026-11-16). Alamat tetap layanan-mahasiswa.html supaya tautan lama tidak putus.
 //   Berkas: dipilih admin per dokumen pustaka (Data prodi > Dokumen, centang "Mahasiswa"); dokumen_mahasiswa() (76)
@@ -220,8 +249,8 @@ pasangKerangka({ aktif: 'mahasiswa', muat: true });
 //   Tanya-jawab: tanya_jawab_publik() (78), disusun admin di kelola-layanan-mahasiswa.html.
 //   Kiriman: kirim_masukan_mahasiswa() (78) ke kotak masuk tertutup; kolom k_situs adalah jebakan bot.
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { infoJenis } from './rencana-bukti.js?v=2026-11-27-4ea548';
-import { pasangPembimbing } from './pembimbing.js?v=2026-11-27-4ea548';
+import { infoJenis } from './rencana-bukti.js?v=2026-11-27-ce288b';
+import { pasangPembimbing } from './pembimbing.js?v=2026-11-27-ce288b';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
@@ -368,14 +397,71 @@ $('frm').addEventListener('submit', async e => {
   if (email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return tulis('buruk', 'Alamat email tidak sah (atau kosongkan).');
   const jenis = document.querySelector('input[name="jenis"]:checked').value;
   $('k_kirim').disabled = true; tulis('', 'Mengirim…');
-  const { error } = await sb.rpc('kirim_masukan_mahasiswa', { p_jenis: jenis, p_isi: isi,
-    p_nama: $('k_nama').value.trim() || null, p_email: email || null, p_jebakan: $('k_situs').value || null });
+  // 193: kategori untuk masukan/pengaduan; fungsi mengembalikan kode lacak (versi lama mengembalikan 'ok').
+  const { data: kode, error } = await sb.rpc('kirim_masukan_mahasiswa', { p_jenis: jenis, p_isi: isi,
+    p_nama: $('k_nama').value.trim() || null, p_email: email || null, p_jebakan: $('k_situs').value || null,
+    ...(jenis === 'tanya' ? {} : { p_kategori: $('k_kat').value }) });
   $('k_kirim').disabled = false;
   if (error) return tulis('buruk', 'Gagal mengirim: ' + error.message);
   $('k_isi').value = ''; $('k_hitung').textContent = '0 / 3000';
   tulis('ok', jenis === 'tanya'
     ? `Terima kasih, pertanyaan terkirim ke program studi.${email ? ' Balasan akan dikirim ke email Anda.' : ' Pertanyaan yang sering muncul dijawab di Tanya-jawab.'}`
+    : jenis === 'pengaduan' ? 'Terima kasih, pengaduan Anda terkirim dan hanya dibaca Kaprodi dan Gugus Kendali Mutu.'
     : 'Terima kasih, masukan Anda terkirim ke program studi.');
+  if (/^[A-Z0-9]{10}$/.test(kode || '')) {
+    $('k_kode').hidden = false;
+    $('k_kode').innerHTML = `Kode lacak Anda: <b>${esc(kode)}</b> <button type="button" class="b" id="k_salin">Salin</button>
+      <span class="ket">Simpan kode ini; status dan tindak lanjutnya bisa dilihat di <a href="#lacak">Lacak kiriman</a>.</span>`;
+    $('k_salin').onclick = () => navigator.clipboard?.writeText(kode).then(() => { $('k_salin').textContent = 'Tersalin'; }, () => {});
+  }
+});
+const tampilJenis = () => {
+  const j = document.querySelector('input[name="jenis"]:checked').value;
+  $('k_kat_f').hidden = j === 'tanya'; $('k_adu_ket').hidden = j !== 'pengaduan';
+};
+document.querySelectorAll('input[name="jenis"]').forEach(r => r.addEventListener('change', tampilJenis));
+
+// ---------------------------------------------------------------- lacak dan rekap tindakan (193)
+const LABEL_STATUS = { baru: 'Diterima, belum ditinjau', ditindaklanjuti: 'Sedang ditindaklanjuti', selesai: 'Selesai' };
+const LABEL_JENIS = { tanya: 'Pertanyaan', masukan: 'Masukan', pengaduan: 'Pengaduan' };
+const LABEL_KAT = { perkuliahan: 'perkuliahan dan penilaian', fasilitas: 'fasilitas dan sarana', layanan: 'layanan administrasi',
+  perilaku: 'perilaku atau etika', lain: 'lainnya' };
+const tglId = iso => iso ? new Date(String(iso).slice(0, 10) + 'T00:00:00Z').toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }) : '';
+$('frmLacak').addEventListener('submit', async e => {
+  e.preventDefault();
+  const kode = $('l_kode').value.trim().toUpperCase(), out = $('l_hasil');
+  if (!/^[A-Z0-9]{10}$/.test(kode)) { out.innerHTML = '<p class="msg buruk">Kode lacak terdiri atas 10 huruf/angka.</p>'; return; }
+  out.innerHTML = '<p class="ket">Mencari…</p>';
+  const { data: r, error } = await sb.rpc('lacak_masukan', { p_kode: kode });
+  if (error) { out.innerHTML = `<p class="msg buruk">Gagal: ${esc(error.message)}</p>`; return; }
+  out.innerHTML = !r ? '<p class="msg buruk">Kode tidak ditemukan. Periksa lagi penulisannya.</p>'
+    : `<div class="lacak-hasil"><b>${esc(LABEL_JENIS[r.jenis] || r.jenis)}</b>${r.kategori ? ` · ${esc(LABEL_KAT[r.kategori] || r.kategori)}` : ''}
+        · dikirim ${esc(tglId(r.dikirim))}<br>Status: <b>${esc(LABEL_STATUS[r.status] || r.status)}</b>${r.selesai_pada ? ` (${esc(tglId(r.selesai_pada))})` : ''}
+        ${r.tindak_publik ? `<p>Tindak lanjut: ${esc(r.tindak_publik)}</p>` : ''}</div>`;
+});
+// Nilai kepuasan layanan (194): rerata per jenis 12 bulan, tanpa komentar; tanpa patch = tidak tampil.
+const NAMA_LAYANAN = { kp: 'Kerja praktik', lomba: 'Laporan lomba', surat: 'Surat', ta: 'Seminar/sidang TA', luaran: 'Publikasi/luaran',
+  yudisium: 'Yudisium', kabar: 'Kabar kegiatan' };
+sb.rpc('rekap_nilai_layanan_publik').then(({ data: r, error }) => {
+  if (error || !r || !r.n) return;
+  $('tindakan').hidden = false;
+  $('tindakan').insertAdjacentHTML('beforeend', `<h3>Kepuasan layanan</h3>
+    <p class="ket">Nilai 1–5 dari mahasiswa setelah pengajuannya selesai, sejak ${esc(tglId(r.dari))}: rata-rata
+      <b>${String(r.rerata).replace('.', ',')}</b> dari ${r.n} penilaian.</p>
+    <div class="tabel-gulir"><table><thead><tr><th>Layanan</th><th>Penilai</th><th>Rata-rata</th></tr></thead><tbody>${r.per_jenis.map(x =>
+      `<tr><td>${esc(NAMA_LAYANAN[x.jenis] || x.jenis)}</td><td>${x.n}</td><td>${String(x.rerata).replace('.', ',')}</td></tr>`).join('')}</tbody></table></div>`);
+});
+sb.rpc('rekap_masukan_publik').then(({ data: r, error }) => {
+  if (error || !r) return;   // tanpa patch 193 bagian ini tidak tampil
+  const nonTanya = (r.per_jenis || []).filter(x => x.jenis !== 'tanya');
+  if (!nonTanya.length && !(r.tindakan || []).length) return;
+  $('tindakan').hidden = false;
+  $('tindakan_isi').innerHTML = `<p class="ket">Masukan dan pengaduan sejak ${esc(tglId(r.dari))}, tanpa isi dan identitas pengirim.</p>
+    <div class="tabel-gulir"><table><thead><tr><th>Jenis</th><th>Masuk</th><th>Selesai</th><th>Diproses</th><th>Rerata hari sampai selesai</th></tr></thead>
+    <tbody>${nonTanya.map(x => `<tr><td>${esc(LABEL_JENIS[x.jenis])}</td><td>${x.masuk}</td><td>${x.selesai}</td><td>${x.proses}</td>
+      <td>${x.rerata_hari ?? '–'}</td></tr>`).join('')}</tbody></table></div>
+    ${(r.tindakan || []).length ? `<h3>Tindakan yang sudah dilakukan</h3><ul class="tindakan">${r.tindakan.map(t =>
+      `<li><span class="ket">${esc(tglId(t.tanggal))} · ${esc(LABEL_JENIS[t.jenis] || t.jenis)}${t.kategori ? `, ${esc(LABEL_KAT[t.kategori] || t.kategori)}` : ''}</span><br>${esc(t.tindak)}</li>`).join('')}</ul>` : ''}`;
 });
 </script>
 </body>

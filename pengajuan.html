@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-27-4ea548">
+<link rel="stylesheet" href="tema.css?v=2026-11-27-ce288b">
 <style>
   /* Pengajuan mahasiswa, publik tanpa masuk akun (pemilik 2026-11-17; patch 90). Warna dari tema.css. */
   *{box-sizing:border-box}
@@ -80,6 +80,13 @@
   .jalur .cat{margin-top:4px;white-space:pre-line;color:var(--ink)}
   .jalur.kemajuan .b.kecil{margin-top:4px}
   .status{font-weight:600}
+  .nilai-layanan .bintang{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
+  .nilai-layanan .bintang label{flex:1 1 90px;border:1px solid var(--line);border-radius:8px;padding:6px 8px;cursor:pointer;text-align:center}
+  .nilai-layanan .bintang label:has(input:checked){border-color:var(--biru);background:var(--biru-m4, rgba(0,0,0,.04))}
+  .nilai-layanan .bintang input{position:absolute;opacity:0}
+  .nilai-layanan .bintang span{font-weight:700;font-size:18px}.nilai-layanan .bintang small{display:block;font-weight:400;font-size:11.5px;color:var(--muted)}
+  .nilai-layanan .bintang label:has(input:focus-visible){outline:2px solid var(--biru)}
+  .nilai-layanan textarea{width:100%;min-height:60px;margin:4px 0 8px}
   h3.sub-h{font-size:14px;font-weight:600;color:var(--muted);margin:14px 0 0;text-transform:uppercase;letter-spacing:.04em}
   .daftar{list-style:none;margin:6px 0 0;padding:0;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--panel)}
   .daftar li{display:flex;gap:10px;align-items:center;padding:8px 12px;border-bottom:1px solid var(--line-soft);font-size:14px}
@@ -113,7 +120,7 @@
   <p class="sub">KP, seminar/sidang TA, lomba, publikasi/luaran, kabar kegiatan, surat, dan yudisium.</p>
 </div></div>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-27-4ea548"></script>
+<script src="config.js?v=2026-11-27-ce288b"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -129,7 +136,7 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 // Kepala dan kaki bersama situs umum (pemilik 2026-11-19, tahap 2).
-import { pasangKerangka } from './kerangka.js?v=2026-11-27-4ea548';
+import { pasangKerangka } from './kerangka.js?v=2026-11-27-ce288b';
 pasangKerangka({ aktif: 'mahasiswa', muat: true });
 // Mahasiswa tidak login (pemilik 2026-11-17). Tanpa token: formulir baru dan minta tautan lagi; Apps Script
 // membuat pengajuan dan mengirim tautan pribadi ke <NIM>@<domain kampus>. Dengan #t=<token> (dari email):
@@ -139,7 +146,7 @@ pasangKerangka({ aktif: 'mahasiswa', muat: true });
 // tidak ada permintaan ke Supabase atau Google. Tanpa ?latihan: Supabase sungguhan seperti biasa.
 const LATIHAN = new URLSearchParams(location.search).has('latihan');
 if (LATIHAN) { window.LATIHAN = true; window.UPLOAD_URL = 'https://script.google.com/macros/s/latihan/exec'; }
-const { createClient } = LATIHAN ? await import('./latihan/mock-sb.js?v=2026-11-27-4ea548')
+const { createClient } = LATIHAN ? await import('./latihan/mock-sb.js?v=2026-11-27-ce288b')
   : await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm');
 if (LATIHAN) pasangLatihan();
 // Pita MODE LATIHAN, mulai ulang, dan tautan ke pengajuan.html tetap membawa ?latihan=1.
@@ -166,10 +173,10 @@ function pasangLatihan(){
 import { JENIS, LABEL_BERKAS, LABEL_STATUS, TINGKAT, BIDANG, jalur, bolehUbah, bacaAnggota, teksAnggota,
          periksaIsian, judulPengajuan, keB64, bukaIsi, appsScript, labelStatus, jalurTahap, BERKAS_SELESAI, PROGRAM_KP, labelProgram,
          periksaSelesai, bolehBatalMhs, JENIS_SURAT, TAHAP_TA, TAHAP_TA_AJU, TAHAP_PEMBIMBING_TA, penetapanTA, pembimbingCocok, JENIS_PUB, TINGKAT_PUB, INDEKSASI, JENIS_LUARAN,
-         BERKAS_YUDISIUM_BAWAAN, kelengkapanYudisium, labelBerkas, JENIS_KEGIATAN, BERKAS_TA_BAWAAN, berkasTahapTA, TAHAP_TA_BERKAS, kemajuanTA, tglIndo, BATAS_KEMIRIPAN, teksKemiripan } from './pengajuan-mhs.js?v=2026-11-27-4ea548';
-import { saranInstansi } from './rekap-kp.js?v=2026-11-27-4ea548';
-import { CONTOH_PENGAJUAN, contohPengajuan } from './pengajuan-contoh.js?v=2026-11-27-4ea548';
-import { HARI_OTOMATIS, CARA_BIMBINGAN, labelCara, statusBimbingan, periksaBimbingan, teksSyarat } from './bimbingan-ta.js?v=2026-11-27-4ea548';
+         BERKAS_YUDISIUM_BAWAAN, kelengkapanYudisium, labelBerkas, JENIS_KEGIATAN, BERKAS_TA_BAWAAN, berkasTahapTA, TAHAP_TA_BERKAS, kemajuanTA, tglIndo, BATAS_KEMIRIPAN, teksKemiripan } from './pengajuan-mhs.js?v=2026-11-27-ce288b';
+import { saranInstansi } from './rekap-kp.js?v=2026-11-27-ce288b';
+import { CONTOH_PENGAJUAN, contohPengajuan } from './pengajuan-contoh.js?v=2026-11-27-ce288b';
+import { HARI_OTOMATIS, CARA_BIMBINGAN, labelCara, statusBimbingan, periksaBimbingan, teksSyarat } from './bimbingan-ta.js?v=2026-11-27-ce288b';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
@@ -785,6 +792,7 @@ function halamanSaya(){
     <h2>${esc(J.label)}${p.jenis === 'yudisium' ? (d.judul ? ': ' + esc(d.judul) : '') : ': ' + esc(judulPengajuan(p))}</h2>
     <div>Status: <span class="status">${esc(labelStatus(p))}</span> · ${esc(p.nama)} (${esc(p.nim)})
       ${J.tanpaPembimbing ? '' : (p.jenis === 'kabar' ? '· dosen pendamping ' : '· pembimbing ') + esc([p.pembimbing, p.pembimbing_2].filter(Boolean).join(', ') || '—')}</div>
+    ${TOKEN ? '<div id="nilaiLayanan"></div>' : ''}
     ${p.jenis === 'ta' && KEM ? htmlKemajuan() : ''}
     ${sus === 'selesai' ? '<p class="ket">KP dilaporkan setelah selesai: tahap pengajuan dan surat pengantar dilewati.</p>'
       : `${p.jenis === 'kp' ? '<h3 class="sub-h">Pengajuan KP</h3>' : p.jenis === 'ta' && KEM ? '<h3 class="sub-h">Proses pendaftaran ini</h3>' : ''}${htmlJalur(jalurTahap(p, 'pengajuan'))}`}
@@ -880,6 +888,34 @@ function halamanSaya(){
     $('b_kirimS').onclick = kirimSelesai;
   }
   pasangBimbingan();   // 175
+  gambarNilai();       // 194
+}
+
+// Nilai kepuasan layanan (194, pemilik 2026-11-27): setelah pengajuan berstatus akhir; boleh diubah 30 hari.
+// Tanpa patch 194 atau tanpa token (pratinjau admin, contoh): kartu tidak tampil.
+async function gambarNilai(){
+  const box = $('nilaiLayanan');
+  if (!box || !TOKEN) return;
+  let r;
+  try { const res = await sb.rpc('mhs_nilai_lihat', { p_token: TOKEN }); if (res.error) return; r = res.data; } catch (e) { return; }
+  if (!r || (!r.boleh && !r.skor)) return;
+  const LBL = ['', 'Sangat kurang', 'Kurang', 'Cukup', 'Baik', 'Sangat baik'];
+  box.innerHTML = `<div class="kotak nilai-layanan"><b>Nilai layanan ini</b>
+    <p class="ket">Bagaimana pelayanan program studi untuk pengajuan ini? Nilai Anda dibaca pengelola prodi untuk perbaikan layanan
+      dan hanya rata-ratanya yang tampil di situs.${r.boleh ? ' Bisa diubah dalam 30 hari.' : ''}</p>
+    <div class="bintang" role="radiogroup" aria-label="Nilai 1 sampai 5">${[1, 2, 3, 4, 5].map(n =>
+      `<label><input type="radio" name="nl_skor" value="${n}"${r.skor === n ? ' checked' : ''}${r.boleh ? '' : ' disabled'}><span>${n}<small>${LBL[n]}</small></span></label>`).join('')}</div>
+    <textarea id="nl_kom" maxlength="1000" placeholder="Komentar (opsional): apa yang sudah baik, apa yang perlu diperbaiki"${r.boleh ? '' : ' disabled'}>${esc(r.komentar || '')}</textarea>
+    ${r.boleh ? '<button type="button" class="b" id="nl_simpan">Simpan nilai</button>' : ''} <span class="msg" id="nl_m" role="status">${r.skor ? 'Terima kasih, nilai Anda sudah tersimpan.' : ''}</span></div>`;
+  const b = $('nl_simpan');
+  if (b) b.onclick = async () => {
+    const skor = +(document.querySelector('input[name="nl_skor"]:checked')?.value || 0);
+    if (!skor) return tulis('nl_m', 'err', 'Pilih nilai 1 sampai 5.');
+    b.disabled = true;
+    const { error } = await sb.rpc('mhs_nilai', { p_token: TOKEN, p_skor: skor, p_komentar: $('nl_kom').value.trim() || null });
+    b.disabled = false;
+    tulis('nl_m', error ? 'err' : 'ok', error ? 'Gagal: ' + error.message : 'Terima kasih, nilai Anda tersimpan.');
+  };
 }
 
 // Berkas yudisium (122): daftar kelengkapan per butir; tiap butir boleh lebih dari satu berkas; berkas yang melebihi
