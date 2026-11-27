@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<title>Lowongan kerja dan magang — Program Studi</title>
+<meta name="description" content="Lowongan kerja dan magang untuk mahasiswa dan lulusan dari mitra, alumni, dan pemangku kepentingan program studi; alumni dan mitra dapat mengusulkan lowongan.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tema.css?v=2026-11-28-07d8c8">
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:960px;margin:0 auto;padding:0 20px 90px}
+  a{color:var(--biru-2)}
+  .hero{position:relative;background:var(--biru);color:#fff;overflow:hidden;border-bottom:4px solid var(--merah)}
+  .hero-in{position:relative;max-width:960px;margin:0 auto;padding:30px 20px 26px}
+  h1{font-family:var(--serif);font-size:clamp(24px,4.2vw,34px);font-weight:600;letter-spacing:-.018em;margin:0;line-height:1.14;color:#fff}
+  .prodi{color:var(--biru-m4);font-size:14.5px;margin-top:7px}
+  h2{font-family:var(--serif);font-size:21px;font-weight:600;margin:30px 0 8px;color:var(--biru)}
+  h3{font-family:var(--serif);font-size:17px;font-weight:600;margin:0 0 4px;color:var(--biru)}
+  .ket{color:var(--muted);font-size:13px}
+  .kosong{color:var(--muted);font-size:13.5px;padding:16px 0}
+  .kartu{background:var(--panel);border:1px solid var(--line);border-radius:2px;padding:14px 18px;margin:12px 0}
+  .kartu .isi{white-space:pre-wrap;font-size:14px;margin:6px 0}
+  .lencana{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;border:1px solid var(--line);padding:1px 6px;margin-right:6px;color:var(--muted)}
+  .lencana.tegas{color:var(--biru);border-color:var(--biru)}
+  .alat{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:8px 0}
+  .form{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:8px 14px;margin:8px 0}
+  .form label{display:flex;flex-direction:column;font-size:13px;color:var(--muted);gap:3px}
+  .form .lebar{grid-column:1/-1}
+  input, select, textarea{font:inherit;font-size:14px;padding:6px 8px;border:1px solid var(--line);background:var(--panel);color:var(--ink)}
+  textarea{width:100%}
+  .b{font:inherit;font-size:14px;padding:6px 14px;border:1px solid var(--biru);background:var(--biru);color:#fff;cursor:pointer;text-decoration:none}
+  .b.lain{background:var(--panel);color:var(--biru)}
+  .b:disabled{opacity:.6;cursor:default}
+  .pesan{font-size:13.5px;margin:6px 0} .pesan.galat{color:var(--merah)} .pesan.ok{color:var(--hijau)}
+  .jebakan{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+  code{font-family:var(--mono);font-size:13px}
+  footer{margin-top:50px;padding-top:20px;border-top:3px solid var(--biru);font-size:12.5px;color:var(--muted)}
+  footer a{margin-right:14px}
+</style>
+</head>
+<body>
+<div class="hero" role="region" aria-label="Pembuka halaman"><div class="hero-in">
+  <h1>Lowongan kerja dan magang</h1>
+  <div class="prodi" id="hProdi"></div>
+</div></div>
+<main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
+<script src="config.js?v=2026-11-28-07d8c8"></script>
+<script>
+// Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
+addEventListener('error', function (e) {
+  if (document.getElementById('galat-muat')) return;
+  var d = document.createElement('div');
+  d.id = 'galat-muat';
+  d.style.cssText = 'margin:16px;padding:12px 14px;border:1px solid var(--merah);' +
+    'background:var(--merah-m3);color:var(--ink);font:14px/1.5 system-ui,sans-serif';
+  d.textContent = 'Halaman gagal dimuat: ' + (e.message || 'galat skrip') +
+    '. Tekan Ctrl+Shift+R untuk memuat ulang tanpa cache; bila tetap muncul, kirim pesan ini ke admin.';
+  document.body.insertBefore(d, document.body.firstChild);
+});
+</script>
+<script type="module">
+// Lowongan kerja dan magang (202, pemilik 2026-11-28): lowongan_publik() (tayang, belum lewat batas, tanpa data pengusul);
+// alumni/mitra mengusulkan lewat usul_lowongan (dimoderasi admin/Kaprodi/pembina kemahasiswaan). Logika: karier.js.
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
+import { pasangKerangka, isiKerangka } from './kerangka.js?v=2026-11-28-07d8c8';
+pasangKerangka({ aktif: 'mahasiswa' });
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const sb = createClient(window.SB_URL, window.SB_KEY);
+function tulis(id, k, t){ const m = $(id); if (m) { m.className = 'pesan ' + k; m.textContent = t; } }
+const D = await fetch('data.json', { cache: 'no-cache' }).then(r => r.ok ? r.json() : {}).catch(() => ({}));
+isiKerangka(D);
+if (D.prodi) document.title = document.title.split(' — ')[0] + ' — ' + ['Program Studi ' + D.prodi, D.institusi].filter(Boolean).join(' ');
+$('hProdi').textContent = [D.prodi && 'Program Studi ' + D.prodi, D.institusi].filter(Boolean).join(' · ');
+const pesanGalat = e => String(e?.message || e || '') || 'Gagal mengirim.';
+const tgl = iso => (iso ? new Date(String(iso).slice(0, 10) + 'T00:00:00').toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : '');
+import { JENIS_LOWONGAN, saringLowongan, sisaHari, kiniWIB } from './karier.js?v=2026-11-28-07d8c8';
+const SARING = { jenis: '', cari: '' };
+const { data, error } = await sb.rpc('lowongan_publik');
+const SEMUA = error ? null : (data || []);
+
+function kartu(x){
+  const s = sisaHari(x.batas, kiniWIB());
+  return `<div class="kartu"><div><span class="lencana tegas">${esc(JENIS_LOWONGAN[x.jenis] || x.jenis)}</span>${x.bidang ? `<span class="lencana">${esc(x.bidang)}</span>` : ''}
+      ${x.sumber === 'alumni' ? '<span class="lencana">Dari alumni</span>' : x.sumber === 'mitra' ? '<span class="lencana">Mitra kerja sama</span>' : ''}</div>
+    <h3 style="margin-top:6px">${esc(x.judul)}</h3>
+    <div>${esc(x.organisasi)}${x.lokasi ? ` · ${esc(x.lokasi)}` : ''}</div>
+    ${x.deskripsi ? `<div class="isi">${esc(x.deskripsi)}</div>` : ''}
+    ${x.syarat ? `<div class="isi"><b>Syarat:</b> ${esc(x.syarat)}</div>` : ''}
+    ${x.cara_melamar ? `<div class="isi"><b>Cara melamar:</b> ${esc(x.cara_melamar)}</div>` : ''}
+    <div class="alat">${x.tautan ? `<a class="b" href="${esc(x.tautan)}" target="_blank" rel="noopener">Lamar / info lengkap</a>` : ''}
+      ${x.kontak_email ? `<a class="b lain" href="mailto:${esc(x.kontak_email)}">${esc(x.kontak_email)}</a>` : ''}
+      <span class="ket">${x.batas ? `Batas ${esc(tgl(x.batas))}${s != null && s <= 7 ? ` (${s === 0 ? 'hari ini' : s + ' hari lagi'})` : ''}` : 'Tanpa batas waktu'} · tayang ${esc(tgl(x.tayang))}</span></div></div>`;
+}
+function gambarDaftar(){
+  const xs = saringLowongan(SEMUA, SARING);
+  $('daftar').innerHTML = xs.length ? xs.map(kartu).join('')
+    : `<p class="kosong">${SEMUA.length ? 'Tidak ada lowongan untuk saringan ini.' : 'Belum ada lowongan yang sedang dibuka. Kunjungi lagi nanti.'}</p>`;
+}
+const opsiJenis = Object.entries(JENIS_LOWONGAN).map(([k, l]) => `<option value="${k}">${l}</option>`).join('');
+$('isi').innerHTML = `
+  <p>Lowongan kerja dan magang untuk mahasiswa dan lulusan, dari mitra kerja sama, alumni, dan pemangku kepentingan program studi.
+    Program studi memeriksa tiap lowongan sebelum ditayangkan; lamaran dikirim langsung ke perusahaan. Waspadai lowongan yang meminta biaya.</p>
+  ${SEMUA === null ? '<p class="kosong">Daftar lowongan belum tersedia.</p>' : `<div class="alat">
+    <label>Jenis <select id="sJenis"><option value="">Semua</option>${opsiJenis}</select></label>
+    <input type="search" id="sCari" placeholder="Cari posisi, perusahaan, lokasi"></div><div id="daftar"></div>`}
+  <h2 id="usul">Usulkan lowongan</h2>
+  <div class="kartu"><p class="ket">Untuk alumni, mitra, dan pengguna lulusan. Usulan diperiksa program studi sebelum tayang; nama dan email Anda
+    tidak ditampilkan, hanya untuk konfirmasi.</p>
+    <div class="form">
+      <label class="lebar">Posisi / judul lowongan <input type="text" id="uJudul" maxlength="200" placeholder="mis. Site engineer, Magang drafter BIM"></label>
+      <label>Perusahaan / organisasi <input type="text" id="uOrg" maxlength="200"></label>
+      <label>Jenis <select id="uJenis">${opsiJenis}</select></label>
+      <label>Lokasi <input type="text" id="uLokasi" maxlength="200"></label>
+      <label>Batas lamaran <input type="date" id="uBatas"></label>
+      <label class="lebar">Uraian singkat <textarea id="uDesk" rows="4" maxlength="4000"></textarea></label>
+      <label>Tautan lamaran (https) <input type="url" id="uTautan"></label>
+      <label>atau email kontak perusahaan <input type="email" id="uKontak" maxlength="200"></label>
+      <label>Anda <select id="uSumber"><option value="alumni">Alumni</option><option value="mitra">Mitra / perusahaan</option>
+        <option value="pemangku">Pengguna lulusan</option><option value="lainnya">Lainnya</option></select></label>
+      <label>Nama Anda <input type="text" id="uNama" maxlength="120"></label>
+      <label>Email Anda <input type="email" id="uEmail" maxlength="200"></label>
+      <label class="jebakan" aria-hidden="true">Situs <input type="text" id="uSitus" tabindex="-1" autocomplete="off"></label></div>
+    <div class="alat"><button type="button" class="b" id="bUsul">Kirim usulan</button><span class="pesan" id="mUsul" role="status"></span></div></div>
+  <p class="ket">Mencari tempat kerja praktik? Lihat <a href="kerja-praktik.html">Kerja praktik dan magang</a>. Menjadi asisten praktikum atau mata kuliah:
+    <a href="asisten.html">Rekrutmen asisten</a>.</p>`;
+if (SEMUA) {
+  gambarDaftar();
+  $('sJenis').onchange = e => { SARING.jenis = e.target.value; gambarDaftar(); };
+  $('sCari').oninput = e => { SARING.cari = e.target.value; gambarDaftar(); };
+}
+$('bUsul').onclick = async () => {
+  const v = id => $(id).value.trim();
+  if (v('uJudul').length < 3 || v('uOrg').length < 2) return tulis('mUsul', 'galat', 'Tulis posisi dan nama organisasi.');
+  if (!v('uTautan') && !v('uKontak')) return tulis('mUsul', 'galat', 'Tulis tautan lamaran atau email kontak perusahaan.');
+  if (!v('uNama') || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v('uEmail'))) return tulis('mUsul', 'galat', 'Tulis nama dan email Anda.');
+  $('bUsul').disabled = true;
+  const { error: e } = await sb.rpc('usul_lowongan', { p_judul: v('uJudul'), p_organisasi: v('uOrg'), p_jenis: v('uJenis'), p_lokasi: v('uLokasi') || null,
+    p_deskripsi: v('uDesk') || null, p_tautan: v('uTautan') || null, p_kontak_email: v('uKontak') || null, p_batas: v('uBatas') || null,
+    p_pengusul_nama: v('uNama'), p_pengusul_email: v('uEmail'), p_sumber: v('uSumber'), p_jebakan: v('uSitus') || null });
+  $('bUsul').disabled = false;
+  if (e) return tulis('mUsul', 'galat', pesanGalat(e));
+  ['uJudul', 'uOrg', 'uLokasi', 'uBatas', 'uDesk', 'uTautan', 'uKontak'].forEach(id => { $(id).value = ''; });
+  tulis('mUsul', 'ok', 'Terima kasih. Usulan diterima dan akan diperiksa program studi sebelum tayang.');
+};
+</script>
+</body>
+</html>

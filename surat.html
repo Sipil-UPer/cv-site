@@ -11,8 +11,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-28-270965">
-<link rel="stylesheet" href="kepala.css?v=2026-11-28-270965">
+<link rel="stylesheet" href="tema.css?v=2026-11-28-07d8c8">
+<link rel="stylesheet" href="kepala.css?v=2026-11-28-07d8c8">
 <style>
   /* Surat dan SK prodi (201-patch-surat-sk-prodi.sql, pemilik 2026-11-28) */
   *{box-sizing:border-box}
@@ -58,7 +58,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></div>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-28-270965"></script>
+<script src="config.js?v=2026-11-28-07d8c8"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -77,11 +77,12 @@ addEventListener('error', function (e) {
 // sendiri (tanpa a.n.); nomor dari pola per jenis diberikan saat disahkan; Word ber-QR ke verifikasi-surat.html.
 // Dosen melihat surat yang menyebut dirinya. Logika murni: surat.js.
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-28-270965';
-import { punya } from './koordinator.js?v=2026-11-28-270965';
+import { gerbang } from './menu.js?v=2026-11-28-07d8c8';
+import { punya } from './koordinator.js?v=2026-11-28-07d8c8';
 import { STATUS_SURAT, PENANDATANGAN, PENANDA_POLA, galatPola, nomorBerikut, hariIniWIB, buatSurat, namaBerkasSurat, urlVerifikasi, rekapSurat, tglPanjang }
-  from './surat.js?v=2026-11-28-270965';
-import { pngQr } from './rps-word.js?v=2026-11-28-270965';
+  from './surat.js?v=2026-11-28-07d8c8';
+import { pngQr } from './rps-word.js?v=2026-11-28-07d8c8';
+import { drafSkAsisten } from './karier.js?v=2026-11-28-07d8c8';
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const sb = createClient(window.SB_URL, window.SB_KEY);
@@ -154,7 +155,7 @@ function htmlForm(){
   return `<section class="kartu" id="form"><h2>${UBAH ? 'Ubah surat' : 'Tulis surat'}</h2>
     <p class="ket">Susun isi surat, simpan sebagai draf, lalu <b>ajukan</b> ke penandatangan (SK prodi: Dekan; jenis lain: Kaprodi).
       Nomor dan tanggal diberikan otomatis saat disahkan. Sampai templat per jenis tersedia, Word memakai bentuk umum: kop, nomor, perihal,
-      kepada, isi, daftar nama, tanda tangan ber-QR.${PENGAJUAN ? ` <b>Dari permohonan mahasiswa #${PENGAJUAN.id}.</b>` : ''}</p>
+      kepada, isi, daftar nama, tanda tangan ber-QR.${PENGAJUAN ? ` <b>${esc(PENGAJUAN.label || `Dari permohonan mahasiswa #${PENGAJUAN.id}.`)}</b>` : ''}</p>
     <div class="form">
       <label>Jenis <select id="fJenis">${opsiJenis(x.jenis)}</select></label>
       <label class="lebar">Perihal (tampil di halaman verifikasi publik; jangan memuat data pribadi)
@@ -364,11 +365,16 @@ async function simpan(ajukan){
     if (!isi.nomor || !isi.tanggal) return tulis('mForm', 'galat', 'Surat arsip perlu nomor dan tanggal surat.');
     if (isi.arsip_url && !/^https:\/\/\S+$/i.test(isi.arsip_url)) return tulis('mForm', 'galat', 'Berkas harus tautan https://');
   }
-  if (!UBAH && PENGAJUAN) isi.pengajuan_id = PENGAJUAN.id;
+  if (!UBAH && PENGAJUAN && !PENGAJUAN.asisten) isi.pengajuan_id = PENGAJUAN.id;
   const q = UBAH ? sb.from('surat').update(isi).eq('id', UBAH.id).select('id') : sb.from('surat').insert(isi).select('id');
   const { data, error } = await q;
   if (error) return tulis('mForm', 'galat', 'Gagal menyimpan: ' + error.message);
   const sid = data?.[0]?.id;
+  // SK asisten (202): tautkan surat ke rekrutmennya.
+  if (!UBAH && PENGAJUAN?.asisten && sid) {
+    const t = await sb.from('asisten_rekrutmen').update({ sk_surat_id: sid }).eq('id', PENGAJUAN.asisten);
+    if (t.error) alert('Surat tersimpan, tetapi gagal ditautkan ke rekrutmen asisten: ' + t.error.message);
+  }
   if (ajukan && sid && !(await rpc('surat_ajukan', { p_id: sid }, 'Tersimpan sebagai draf, tetapi gagal diajukan'))) { UBAH = null; await muat(); return gambar(); }
   UBAH = null; PENGAJUAN = null; history.replaceState(null, '', location.pathname);
   await muat(); gambar();
@@ -425,6 +431,22 @@ async function dariPengajuan(){
       d.lokasi ? `Lokasi: ${d.lokasi}` : '', d.waktu_pelaksanaan ? `Waktu: ${d.waktu_pelaksanaan}` : ''].filter(Boolean).join('\n') } };
 }
 
+// SK asisten dari rekrutmen (kelola-karier.html, 202): ?asisten=<id> mengisi SK dengan pelamar yang diterima.
+async function dariAsisten(){
+  const rid = +new URLSearchParams(location.search).get('asisten');
+  if (!rid || !KELOLA()) return;
+  const [r, l] = await Promise.all([sb.from('asisten_rekrutmen').select('*').eq('id', rid).maybeSingle(),
+    sb.from('asisten_lamaran').select('nim,nama,status').eq('rekrutmen_id', rid).eq('status', 'diterima')]);
+  if (!r.data) return;
+  if (r.data.sk_surat_id) { const s = SURAT.find(x => x.id === r.data.sk_surat_id);
+    if (s && ['draf', 'dikembalikan'].includes(s.status)) { UBAH = s; return; }
+    if (s && s.status !== 'dibatalkan') { alert(`Rekrutmen ini sudah punya SK (${STATUS_SURAT[s.status]}${s.nomor ? ', ' + s.nomor : ''}).`); return; } }
+  const lab = r.data.laboratorium_id ? (await sb.from('laboratorium').select('nama').eq('id', r.data.laboratorium_id).maybeSingle()).data?.nama : '';
+  const mk = r.data.kode_mk ? (await sb.from('ref_mata_kuliah').select('nama').eq('kurikulum', r.data.kurikulum).eq('kode', r.data.kode_mk).maybeSingle()).data?.nama : '';
+  PENGAJUAN = { id: rid, asisten: rid, label: `SK asisten dari rekrutmen "${r.data.judul}" (${(l.data || []).length} diterima).`,
+    isi: drafSkAsisten(r.data, l.data || [], { labNama: lab, mkNama: mk }) };
+}
+
 async function mulai(){
   SAYA = await gerbang(sb);
   if (!SAYA) return;
@@ -435,6 +457,7 @@ async function mulai(){
   PRODI = { prodi: dj.prodi || '', institusi: dj.institusi || '' };
   await muat();
   await dariPengajuan();
+  await dariAsisten();
   gambar();
   if (location.hash && $(location.hash.slice(1))) $(location.hash.slice(1)).scrollIntoView();
 }

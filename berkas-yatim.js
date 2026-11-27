@@ -15,7 +15,7 @@
    Pemakaian: pasangYatim(sb, elemenWadah)
    ===================================================================== */
 
-import { buangBerkas, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-28-270965';
+import { buangBerkas, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-28-07d8c8';
 
 // Tabel yang bisa memuat tautan Drive. Tambahkan tabel baru yang
 // menyimpan tautan bukti di sini, kalau tidak berkasnya tampak tak terpakai.
@@ -53,7 +53,9 @@ export const TABEL_RUJUKAN = ['karya', 'karya_bukti', 'butir_bukti', 'dokumen', 
   // Forum pemangku (200-patch-forum-pemangku.sql, 2026-11-27): bukti_url masukan.
   'pemangku_masukan',
   // Surat dan SK prodi (201-patch-surat-sk-prodi.sql, 2026-11-28): lampiran_url (konsep) dan arsip_url (berkas bertanda tangan).
-  'surat'];
+  'surat',
+  // Lowongan (202-patch-karier-asisten.sql, 2026-11-28): tautan lamaran/poster bisa berupa berkas Drive.
+  'lowongan'];
 // Kolom urut tiap tabel (sama dengan supabase.tables di config.yaml); bawaan 'id'.
 const URUT = { pengaturan: ['kunci'], spmi_capaian: ['standar_id', 'tahun_ts'], ta_arsip: ['nim'] };
 const BARU_MS = 24 * 3600 * 1000;

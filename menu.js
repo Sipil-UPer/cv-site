@@ -1,5 +1,5 @@
-import { dosenLogin } from './dosen-login.js?v=2026-11-28-270965';
-import { aktifPada } from './koordinator.js?v=2026-11-28-270965';
+import { dosenLogin } from './dosen-login.js?v=2026-11-28-07d8c8';
+import { aktifPada } from './koordinator.js?v=2026-11-28-07d8c8';
 // Menu bersama ruang kerja (pemilik 2026-11-04).
 //
 // Situs dibagi dua:
@@ -44,11 +44,11 @@ const koorTA = s => pengelola(s) || mutu(s) || punyaJ(s, 'koordinator_ta');
 const koorKP = s => pemantau(s) || punyaJ(s, 'koordinator_kp');
 const koorLayanan = s => pengelola(s) || punyaJ(s, 'koordinator_ta', 'koordinator_kp', 'pembina_kemahasiswaan');
 
-import { halamanAktif } from './fitur.js?v=2026-11-28-270965';
-import { BUTIR_LAM_TEKNIK } from './bobot.js?v=2026-11-28-270965';
-import { pasangPemicuBangun } from './pemicu-bangun.js?v=2026-11-28-270965';
+import { halamanAktif } from './fitur.js?v=2026-11-28-07d8c8';
+import { BUTIR_LAM_TEKNIK } from './bobot.js?v=2026-11-28-07d8c8';
+import { pasangPemicuBangun } from './pemicu-bangun.js?v=2026-11-28-07d8c8';
 // Tinggi kotak teks mengikuti isi (pemilik 2026-11-25); bentuk "from" agar dicap stamp_versions.py.
-import { pasSemua as pasKotakTeks } from './kotak-teks.js?v=2026-11-28-270965';
+import { pasSemua as pasKotakTeks } from './kotak-teks.js?v=2026-11-28-07d8c8';
 
 export const MODUL = [
   { judul: 'Data saya', ket: 'Profil, karya, target kinerja, jadwal berhalangan, dan kalender Anda.', halaman: [
@@ -164,6 +164,9 @@ export const MODUL = [
     { sub: 'Koordinasi', href: 'kelola-layanan-mahasiswa.html', judul: 'Kelola layanan mahasiswa',
       boleh: s => admin(s) || (s.koordinator || []).some(j => ['koordinator_kp', 'koordinator_ta', 'pembina_kemahasiswaan', 'kaprodi', 'gkm'].includes(j)), tampil: s => koorLayanan(s) || mutu(s),
       ket: 'Pengumuman, tanya-jawab, kotak masuk pertanyaan/masukan/pengaduan mahasiswa (pengaduan: Kaprodi dan GKM), dan email alternatif mahasiswa.' },
+    // Karier dan rekrutmen asisten (202, pemilik 2026-11-28): lowongan (admin/Kaprodi/pembina), asisten (kepala lab, PJ, Kaprodi).
+    { sub: 'Koordinasi', href: 'kelola-karier.html', judul: 'Kelola karier dan asisten', boleh: s => s.peran !== 'asesor', tampil: s => pengelola(s) || kalab(s) || punyaJ(s, 'pembina_kemahasiswaan'),
+      ket: 'Lowongan kerja/magang (moderasi usulan alumni dan mitra) dan rekrutmen asisten praktikum/MK: lamaran, IPK SIAKAD, keputusan, SK asisten.' },
   ]},
   { judul: 'Riset dan kegiatan', ket: 'Hibah, insentif, kepakaran, SDGs, kalender kegiatan, kabar kegiatan, dan rapat.', halaman: [
     // Sama dengan boleh_hibah() di supabase/58-patch-hibah.sql.
@@ -503,7 +506,7 @@ export async function pasangMenu(sb){
   // Pencarian menyeluruh (pemilik 2026-11-12; cari-ui.js, cari.js): dimuat saat pertama dipakai.
   const kotak = nav.querySelector('.rk-cari input');
   let siapCari = null;
-  const muatCari = () => siapCari || (siapCari = import('./cari-ui.js?v=2026-11-28-270965').then(m =>
+  const muatCari = () => siapCari || (siapCari = import('./cari-ui.js?v=2026-11-28-07d8c8').then(m =>
     m.pasangCari(kotak, { sb, saya: u.saya, modul: halamanBoleh(u.saya), boleh: h => bolehBuka(u.saya, h) !== false })));
   kotak.addEventListener('focus', muatCari);
   document.addEventListener('keydown', e => {

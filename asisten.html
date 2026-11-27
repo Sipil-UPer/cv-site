@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<title>Rekrutmen asisten — Program Studi</title>
+<meta name="description" content="Rekrutmen asisten praktikum laboratorium dan asisten mata kuliah: syarat, kuota, lamaran daring, dan lacak hasil seleksi.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tema.css?v=2026-11-28-07d8c8">
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:960px;margin:0 auto;padding:0 20px 90px}
+  a{color:var(--biru-2)}
+  .hero{position:relative;background:var(--biru);color:#fff;overflow:hidden;border-bottom:4px solid var(--merah)}
+  .hero-in{position:relative;max-width:960px;margin:0 auto;padding:30px 20px 26px}
+  h1{font-family:var(--serif);font-size:clamp(24px,4.2vw,34px);font-weight:600;letter-spacing:-.018em;margin:0;line-height:1.14;color:#fff}
+  .prodi{color:var(--biru-m4);font-size:14.5px;margin-top:7px}
+  h2{font-family:var(--serif);font-size:21px;font-weight:600;margin:30px 0 8px;color:var(--biru)}
+  h3{font-family:var(--serif);font-size:17px;font-weight:600;margin:0 0 4px;color:var(--biru)}
+  .ket{color:var(--muted);font-size:13px}
+  .kosong{color:var(--muted);font-size:13.5px;padding:16px 0}
+  .kartu{background:var(--panel);border:1px solid var(--line);border-radius:2px;padding:14px 18px;margin:12px 0}
+  .kartu .isi{white-space:pre-wrap;font-size:14px;margin:6px 0}
+  .lencana{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;border:1px solid var(--line);padding:1px 6px;margin-right:6px;color:var(--muted)}
+  .lencana.tegas{color:var(--biru);border-color:var(--biru)}
+  .alat{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:8px 0}
+  .form{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:8px 14px;margin:8px 0}
+  .form label{display:flex;flex-direction:column;font-size:13px;color:var(--muted);gap:3px}
+  .form .lebar{grid-column:1/-1}
+  input, select, textarea{font:inherit;font-size:14px;padding:6px 8px;border:1px solid var(--line);background:var(--panel);color:var(--ink)}
+  textarea{width:100%}
+  .b{font:inherit;font-size:14px;padding:6px 14px;border:1px solid var(--biru);background:var(--biru);color:#fff;cursor:pointer;text-decoration:none}
+  .b.lain{background:var(--panel);color:var(--biru)}
+  .b:disabled{opacity:.6;cursor:default}
+  .pesan{font-size:13.5px;margin:6px 0} .pesan.galat{color:var(--merah)} .pesan.ok{color:var(--hijau)}
+  .jebakan{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+  code{font-family:var(--mono);font-size:13px}
+  footer{margin-top:50px;padding-top:20px;border-top:3px solid var(--biru);font-size:12.5px;color:var(--muted)}
+  footer a{margin-right:14px}
+</style>
+</head>
+<body>
+<div class="hero" role="region" aria-label="Pembuka halaman"><div class="hero-in">
+  <h1>Rekrutmen asisten</h1>
+  <div class="prodi" id="hProdi"></div>
+</div></div>
+<main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
+<script src="config.js?v=2026-11-28-07d8c8"></script>
+<script>
+// Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
+addEventListener('error', function (e) {
+  if (document.getElementById('galat-muat')) return;
+  var d = document.createElement('div');
+  d.id = 'galat-muat';
+  d.style.cssText = 'margin:16px;padding:12px 14px;border:1px solid var(--merah);' +
+    'background:var(--merah-m3);color:var(--ink);font:14px/1.5 system-ui,sans-serif';
+  d.textContent = 'Halaman gagal dimuat: ' + (e.message || 'galat skrip') +
+    '. Tekan Ctrl+Shift+R untuk memuat ulang tanpa cache; bila tetap muncul, kirim pesan ini ke admin.';
+  document.body.insertBefore(d, document.body.firstChild);
+});
+</script>
+<script type="module">
+// Rekrutmen asisten (202, pemilik 2026-11-28): asisten_rekrutmen_publik() (yang sedang dibuka), lamar_asisten (kode lacak),
+// lacak_lamaran(kode). Diputuskan kepala lab/PJ/Kaprodi di ruang kerja; SK asisten lewat Surat dan SK. Logika: karier.js.
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
+import { pasangKerangka, isiKerangka } from './kerangka.js?v=2026-11-28-07d8c8';
+pasangKerangka({ aktif: 'mahasiswa' });
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const sb = createClient(window.SB_URL, window.SB_KEY);
+function tulis(id, k, t){ const m = $(id); if (m) { m.className = 'pesan ' + k; m.textContent = t; } }
+const D = await fetch('data.json', { cache: 'no-cache' }).then(r => r.ok ? r.json() : {}).catch(() => ({}));
+isiKerangka(D);
+if (D.prodi) document.title = document.title.split(' — ')[0] + ' — ' + ['Program Studi ' + D.prodi, D.institusi].filter(Boolean).join(' ');
+$('hProdi').textContent = [D.prodi && 'Program Studi ' + D.prodi, D.institusi].filter(Boolean).join(' · ');
+const pesanGalat = e => String(e?.message || e || '') || 'Gagal mengirim.';
+const tgl = iso => (iso ? new Date(String(iso).slice(0, 10) + 'T00:00:00').toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : '');
+import { JENIS_ASISTEN, STATUS_LAMARAN, tempatRekrutmen, sisaHari, kiniWIB } from './karier.js?v=2026-11-28-07d8c8';
+const { data, error } = await sb.rpc('asisten_rekrutmen_publik');
+const R = error ? null : (data || []);
+const pilih = new URLSearchParams(location.search).get('r');
+
+function kartu(r){
+  const s = sisaHari(r.tutup, kiniWIB());
+  return `<div class="kartu"><div><span class="lencana tegas">${esc(JENIS_ASISTEN[r.jenis])}</span><span class="lencana">${esc(r.semester)} ${esc(r.tahun_akademik)}</span></div>
+    <h3 style="margin-top:6px">${esc(r.judul)}</h3>
+    <div>${esc(tempatRekrutmen(r))} · kuota ${esc(r.kuota)} orang${r.ipk_min ? ` · IPK minimal ${esc(String(r.ipk_min).replace('.', ','))}` : ''}</div>
+    ${r.syarat ? `<div class="isi">${esc(r.syarat)}</div>` : ''}
+    <div class="alat"><button type="button" class="b" data-lamar="${r.id}">Lamar</button>
+      <span class="ket">Dibuka sampai ${esc(tgl(r.tutup))}${s != null && s <= 3 ? ` (${s === 0 ? 'hari ini' : s + ' hari lagi'})` : ''}</span></div></div>`;
+}
+function formulir(r){
+  return `<div class="kartu" id="formLamar"><h3>Lamar: ${esc(r.judul)}</h3>
+    <p class="ket">Data Anda hanya dibaca pengelola rekrutmen (kepala laboratorium/dosen penanggung jawab dan Kaprodi). IPK dicocokkan dengan data akademik.</p>
+    <div class="form">
+      <label>NIM <input type="text" id="lNim" inputmode="numeric" maxlength="15"></label>
+      <label>Nama lengkap <input type="text" id="lNama" maxlength="120"></label>
+      <label>Email <input type="email" id="lEmail" maxlength="200"></label>
+      <label>IPK terakhir <input type="number" id="lIpk" min="0" max="4" step="0.01"></label>
+      <label>Nilai mata kuliah terkait (huruf) <input type="text" id="lNilai" maxlength="20" placeholder="mis. A"></label>
+      <label class="lebar">Motivasi (minimal 20 huruf) <textarea id="lMotivasi" rows="4" maxlength="2000"></textarea></label>
+      <label class="lebar">Pengalaman relevan (opsional) <textarea id="lPengalaman" rows="3" maxlength="2000"></textarea></label>
+      <label class="jebakan" aria-hidden="true">Situs <input type="text" id="lSitus" tabindex="-1" autocomplete="off"></label></div>
+    <div class="alat"><button type="button" class="b" id="bLamar" data-r="${r.id}">Kirim lamaran</button><span class="pesan" id="mLamar" role="status"></span></div></div>`;
+}
+$('isi').innerHTML = `
+  <p>Program studi merekrut mahasiswa sebagai asisten praktikum laboratorium dan asisten mata kuliah tiap semester. Asisten yang diterima
+    ditetapkan dengan SK. Lamaran dikirim lewat halaman ini; simpan <b>kode lacak</b> untuk melihat hasilnya.</p>
+  <h2>Rekrutmen yang dibuka</h2>
+  <div id="daftar">${R === null ? '<p class="kosong">Daftar rekrutmen belum tersedia.</p>' : R.length ? R.map(kartu).join('')
+    : '<p class="kosong">Belum ada rekrutmen asisten yang sedang dibuka.</p>'}</div>
+  <div id="wadahForm"></div>
+  <h2 id="lacak">Lacak lamaran</h2>
+  <div class="kartu"><div class="alat"><input type="text" id="kKode" maxlength="12" placeholder="Kode lacak, mis. M7KQ2X9PRT">
+    <button type="button" class="b lain" id="bLacak">Lihat</button><span class="pesan" id="mLacak" role="status"></span></div></div>
+  <p class="ket">Lowongan kerja dan magang di luar kampus: <a href="karier.html">Lowongan kerja dan magang</a>.</p>`;
+
+function bukaForm(id){
+  const r = (R || []).find(x => String(x.id) === String(id));
+  if (!r) return;
+  $('wadahForm').innerHTML = formulir(r);
+  $('formLamar').scrollIntoView({ behavior: 'smooth' });
+  $('bLamar').onclick = kirim;
+}
+document.querySelectorAll('[data-lamar]').forEach(b => { b.onclick = () => bukaForm(b.dataset.lamar); });
+if (pilih) bukaForm(pilih);
+
+async function kirim(){
+  const v = id => $(id).value.trim();
+  if (!/^[0-9]{6,15}$/.test(v('lNim'))) return tulis('mLamar', 'galat', 'NIM tidak sah.');
+  if (v('lNama').length < 2) return tulis('mLamar', 'galat', 'Tulis nama lengkap.');
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v('lEmail'))) return tulis('mLamar', 'galat', 'Alamat email tidak sah.');
+  if (v('lMotivasi').length < 20) return tulis('mLamar', 'galat', 'Tulis motivasi minimal 20 huruf.');
+  $('bLamar').disabled = true;
+  const { data: kode, error: e } = await sb.rpc('lamar_asisten', { p_rekrutmen: +$('bLamar').dataset.r, p_nim: v('lNim'), p_nama: v('lNama'), p_email: v('lEmail'),
+    p_ipk: v('lIpk') === '' ? null : +v('lIpk'), p_nilai_mk: v('lNilai') || null, p_motivasi: v('lMotivasi'), p_pengalaman: v('lPengalaman') || null,
+    p_jebakan: v('lSitus') || null });
+  if (e) { $('bLamar').disabled = false; return tulis('mLamar', 'galat', pesanGalat(e)); }
+  $('wadahForm').innerHTML = `<div class="kartu"><h3>Lamaran terkirim</h3><p>Kode lacak Anda: <code style="font-size:18px">${esc(kode)}</code></p>
+    <p class="ket">Simpan kode ini (tangkapan layar). Kode dipakai di bagian Lacak lamaran untuk melihat hasil seleksi.</p></div>`;
+}
+$('bLacak').onclick = async () => {
+  const k = $('kKode').value.trim();
+  if (k.length < 6) return tulis('mLacak', 'galat', 'Tulis kode lacak.');
+  const { data: x, error: e } = await sb.rpc('lacak_lamaran', { p_kode: k });
+  if (e) return tulis('mLacak', 'galat', pesanGalat(e));
+  if (!x) return tulis('mLacak', 'galat', 'Kode tidak ditemukan.');
+  tulis('mLacak', x.status === 'diterima' ? 'ok' : '', `${x.judul}: ${STATUS_LAMARAN[x.status] || x.status} (dikirim ${tgl(x.dikirim)}${x.diputuskan ? `, diputuskan ${tgl(x.diputuskan)}` : ''}).`);
+};
+</script>
+</body>
+</html>

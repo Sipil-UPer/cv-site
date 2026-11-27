@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-28-270965">
+<link rel="stylesheet" href="tema.css?v=2026-11-28-07d8c8">
 <style>
   /* Laporan kinerja tahunan, versi publik (pemilik 2026-11-27): model isi yang sama dengan laporan Word admin
      (site/laporan-tahunan.js), tanpa IKU/IKT, perkiraan akreditasi, dan temuan internal. */
@@ -68,12 +68,12 @@ addEventListener('error', function (e) {
   </div></div>
   <div class="isi" id="isi"><p class="kosong">Memuat…</p></div>
 </main>
-<script src="config.js?v=2026-11-28-270965"></script>
+<script src="config.js?v=2026-11-28-07d8c8"></script>
 <script type="module">
-import { pasangKerangka, isiKerangka } from './kerangka.js?v=2026-11-28-270965';
+import { pasangKerangka, isiKerangka } from './kerangka.js?v=2026-11-28-07d8c8';
 pasangKerangka({ aktif: 'kinerja' });
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { susunLaporan, htmlDariBlok, buatLaporanTahunan, pilihanTS, pilihanTahun } from './laporan-tahunan.js?v=2026-11-28-270965';
+import { susunLaporan, htmlDariBlok, buatLaporanTahunan, pilihanTS, pilihanTahun } from './laporan-tahunan.js?v=2026-11-28-07d8c8';
 
 const $ = id => document.getElementById(id);
 let D = null, SURVEI = [], TS = null, KAL = false;

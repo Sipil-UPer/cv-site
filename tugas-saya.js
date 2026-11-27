@@ -1,23 +1,24 @@
 // "Tugas saya" di Ruang kerja (pemilik 2026-11-12): hal yang menunggu tindakan dosen yang
 // sedang masuk, dari data yang sudah boleh ia baca (RLS). Aturan tenggat sama dengan halaman
 // Pengingat: rapat.js, hibah.js, temuan-ami.js, pengingat-dosen.js.
-import { kurangProfil } from './pengingat-dosen.js?v=2026-11-28-270965';
-import { tindakTerbuka, tglID } from './rapat.js?v=2026-11-28-270965';
-import { tenggatBerikut, teksHari, HARI_LEWAT } from './hibah.js?v=2026-11-28-270965';
-import { hariKeTenggat, labelStatus, HARI_DEKAT } from './temuan-ami.js?v=2026-11-28-270965';
-import { tugasEvaluasi } from './evaluasi-pembelajaran.js?v=2026-11-28-270965';
-import { bolehPengajuan } from './koordinator.js?v=2026-11-28-270965';
-import { tenggatReview, hariKe, teksHari as teksHariRv, tugasTenggatRps, tugasTetapDekan, tanggalPanjang as tglRv } from './pengingat-rps.js?v=2026-11-28-270965';
-import { tugasInsentif } from './insentif.js?v=2026-11-28-270965';
-import { tugasMK } from './tugas-mk.js?v=2026-11-28-270965';
-import { tugasPerwalian } from './perwalian.js?v=2026-11-28-270965';
-import { halamanAktif } from './fitur.js?v=2026-11-28-270965';
-import { tugasSurat } from './surat.js?v=2026-11-28-270965';
-import { tugasPemangku } from './pemangku.js?v=2026-11-28-270965';
-import { tugasLab } from './lab.js?v=2026-11-28-270965';
-import { tugasSdm } from './sdm.js?v=2026-11-28-270965';
-import { tugasUjian } from './ujian.js?v=2026-11-28-270965';
-import { masaBerlaku, tanggalPanjang as tglSrt } from './profil-dosen.js?v=2026-11-28-270965';
+import { kurangProfil } from './pengingat-dosen.js?v=2026-11-28-07d8c8';
+import { tindakTerbuka, tglID } from './rapat.js?v=2026-11-28-07d8c8';
+import { tenggatBerikut, teksHari, HARI_LEWAT } from './hibah.js?v=2026-11-28-07d8c8';
+import { hariKeTenggat, labelStatus, HARI_DEKAT } from './temuan-ami.js?v=2026-11-28-07d8c8';
+import { tugasEvaluasi } from './evaluasi-pembelajaran.js?v=2026-11-28-07d8c8';
+import { bolehPengajuan } from './koordinator.js?v=2026-11-28-07d8c8';
+import { tenggatReview, hariKe, teksHari as teksHariRv, tugasTenggatRps, tugasTetapDekan, tanggalPanjang as tglRv } from './pengingat-rps.js?v=2026-11-28-07d8c8';
+import { tugasInsentif } from './insentif.js?v=2026-11-28-07d8c8';
+import { tugasMK } from './tugas-mk.js?v=2026-11-28-07d8c8';
+import { tugasPerwalian } from './perwalian.js?v=2026-11-28-07d8c8';
+import { halamanAktif } from './fitur.js?v=2026-11-28-07d8c8';
+import { tugasKarier } from './karier.js?v=2026-11-28-07d8c8';
+import { tugasSurat } from './surat.js?v=2026-11-28-07d8c8';
+import { tugasPemangku } from './pemangku.js?v=2026-11-28-07d8c8';
+import { tugasLab } from './lab.js?v=2026-11-28-07d8c8';
+import { tugasSdm } from './sdm.js?v=2026-11-28-07d8c8';
+import { tugasUjian } from './ujian.js?v=2026-11-28-07d8c8';
+import { masaBerlaku, tanggalPanjang as tglSrt } from './profil-dosen.js?v=2026-11-28-07d8c8';
 
 // Sertifikat dengan masa berlaku (pemilik 2026-11-24): diingatkan sejak 90 hari sebelum habis, dan terus setelah lewat.
 export const HARI_SERTIFIKAT = 90;
@@ -213,6 +214,9 @@ export function tugasSaya(d, kini = new Date()){
   // Surat dan SK (201): penanda tangan aktif (Kaprodi/Dekan) untuk yang diajukan; penyusun (admin/Kaprodi) untuk yang dikembalikan.
   for (const a of tugasSurat(d.surat || [], { tanda: { kaprodi: (s.koordinator || []).includes('kaprodi'), dekan: (s.koordinator || []).includes('dekan') },
     kelola: s.peran === 'admin' || (s.koordinator || []).includes('kaprodi') })) tambah('surat', a.judul, a.rinci, a.href);
+  // Karier dan asisten (202): usulan lowongan untuk pengelola; lamaran yang belum diputuskan; SK asisten untuk admin/Kaprodi.
+  for (const a of tugasKarier({ lowongan: d.lowonganUsulan || [], rekrutmen: d.rekrutmenAsisten || [],
+    surat: s.peran === 'admin' || (s.koordinator || []).includes('kaprodi') })) tambah('karier', a.judul, a.rinci, a.href, a.hari);
   const kotak = tugasKotakMasuk(d.kotakMasuk, kini);
   if (kotak) tambah('kotak', kotak.judul, kotak.rinci, 'kelola-layanan-mahasiswa.html#kotak', kotak.hari);
 

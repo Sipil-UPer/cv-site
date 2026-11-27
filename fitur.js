@@ -26,6 +26,7 @@ const HALAMAN = {
   'kelola-layanan-mahasiswa.html': 'kemahasiswaan', 'kelola-mahasiswa.html': 'kemahasiswaan', 'pengajuan.html': 'kemahasiswaan',
   'berkas-mahasiswa.html': 'kemahasiswaan', 'kp.html': 'kemahasiswaan', 'kerja-praktik.html': 'kemahasiswaan',
   'layanan-mahasiswa.html': 'kemahasiswaan',
+  'asisten.html': 'kemahasiswaan', 'kelola-karier.html': 'kemahasiswaan',   // 202: rekrutmen asisten (pemilik 2026-11-28)
   'penilaian-ta.html': 'kemahasiswaan', 'bimbingan-ta.html': 'kemahasiswaan',   // 173, 175: penilaian dan bimbingan TA
   'perwalian.html': 'kemahasiswaan',   // 186: perwalian dosen wali (pemilik 2026-11-26)
   'daftar-mahasiswa.html': 'kemahasiswaan',   // daftar mahasiswa aktif + lulusan (pemilik 2026-11-26)
@@ -40,6 +41,7 @@ const HALAMAN = {
   'calon-mahasiswa.html': 'publik', 'ekuivalensi-kurikulum.html': 'publik', 'alumni.html': 'publik', 'english.html': 'publik',
   'tugas-akhir.html': 'publik', 'kontak.html': 'publik', 'biaya-beasiswa.html': 'publik',
   'kunjungan-situs.html': 'publik', 'kelengkapan-situs.html': 'publik',
+  'karier.html': 'publik',   // 202: lowongan kerja dan magang (pemilik 2026-11-28)
 };
 
 const berkas = href => String(href ?? '').split(/[?#]/)[0].split('/').pop() || 'index.html';
