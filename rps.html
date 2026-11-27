@@ -11,8 +11,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-27-50c79d">
-<link rel="stylesheet" href="kepala.css?v=2026-11-27-50c79d">
+<link rel="stylesheet" href="tema.css?v=2026-11-27-403c23">
+<link rel="stylesheet" href="kepala.css?v=2026-11-27-403c23">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
@@ -134,7 +134,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></div>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-27-50c79d"></script>
+<script src="config.js?v=2026-11-27-403c23"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -154,22 +154,23 @@ addEventListener('error', function (e) {
 // Penyusun = koordinator MK atau pengampu kelas MK semester terakhir (boleh_rps, 112); GKM dan admin hanya melihat.
 // Pengesahan (112): dosen mengajukan -> Kaprodi aktif mengesahkan atau mengembalikan; daftar revisi (bagian F) otomatis.
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-27-50c79d';
-import { bolehMutu, aktifPada, punya } from './koordinator.js?v=2026-11-27-50c79d';
-import { bawaanHanyaSaya, ingatHanyaSaya, pesanKosongSaya } from './mk-saya.js?v=2026-11-27-50c79d';
-import { cplMK } from './cpmk.js?v=2026-11-27-50c79d';
+import { gerbang } from './menu.js?v=2026-11-27-403c23';
+import { bolehMutu, aktifPada, punya } from './koordinator.js?v=2026-11-27-403c23';
+import { bawaanHanyaSaya, ingatHanyaSaya, pesanKosongSaya } from './mk-saya.js?v=2026-11-27-403c23';
+import { cplMK } from './cpmk.js?v=2026-11-27-403c23';
 import { JENIS_ASESMEN, JENIS_MK, DIREKTORI, jenisAsesmen, bloom, hots, rapikanRps, kerangkaPekan, barisPekan, periksaRps, modelRps,
   namaBerkasRps, penyusunMK, revisiDariLog, tanggalLokal, waktuLokal, evaluasiDariData, BENTUK, SCL, rekapRps, BENTUK_INTEGRASI,
-  bedaRps, salinRps, rpsDariSilabus, ASESMEN_TES, BUTIR_REVIEW, SKALA_REVIEW, KESIMPULAN_REVIEW, rerataReview, butirKosongReview, faktaReview, STATUS_TANGGAPAN, butirTanggapan, sudahDitanggapi, PEMANDU_REVIEW, JAWAB_PEMANDU, kunciTanya, jawabanPemandu, ringkasPemandu, saranSkor, saranKesimpulan, periksaKirimReview, rubrikKosong, kriteriaKosong, rentangPekan, susunanMK, jenisMK, bagiParitas, saringMK, ringkasSemester, htmlRingkasSemester, htmlSaringan, ubahSaringan, esignRps, paritas } from './rps.js?v=2026-11-27-50c79d';
-import { JENIS_PETA, relasiPeta, petaSvg, usulPeta } from './rps-peta.js?v=2026-11-27-50c79d';
-import { keB64 } from './pengajuan-mhs.js?v=2026-11-27-50c79d';
-import { bacaTinjauan, bahanTinjauan } from './tinjauan-rps.js?v=2026-11-27-50c79d';
-import { SHEETJS } from './nilai-cpl.js?v=2026-11-27-50c79d';
-import { lembarRps, bacaRpsExcel, bagianBerubah, LEBAR_KOLOM } from './rps-excel.js?v=2026-11-27-50c79d';
-import { modelBerkasReview, buatReviewDocx, namaBerkasReview } from './review-docx.js?v=2026-11-27-50c79d';
-import { tenggatReview, hariKe, teksHari, mkTenggatRps, HARI_REVIEW_BAWAAN } from './pengingat-rps.js?v=2026-11-27-50c79d';
-import { pngPeta, pngQr, entryPeta } from './rps-word.js?v=2026-11-27-50c79d';
-import { buatRpsDocx } from './rps-docx.js?v=2026-11-27-50c79d';
+  bedaRps, salinRps, rpsDariSilabus, ASESMEN_TES, BUTIR_REVIEW, SKALA_REVIEW, KESIMPULAN_REVIEW, rerataReview, butirKosongReview, faktaReview, STATUS_TANGGAPAN, butirTanggapan, sudahDitanggapi, PEMANDU_REVIEW, JAWAB_PEMANDU, kunciTanya, jawabanPemandu, ringkasPemandu, saranSkor, saranKesimpulan, periksaKirimReview, rubrikKosong, kriteriaKosong, rentangPekan, susunanMK, jenisMK, bagiParitas, saringMK, ringkasSemester, htmlRingkasSemester, htmlSaringan, ubahSaringan, esignRps, paritas } from './rps.js?v=2026-11-27-403c23';
+import { JENIS_PETA, relasiPeta, petaSvg, usulPeta } from './rps-peta.js?v=2026-11-27-403c23';
+import { keB64 } from './pengajuan-mhs.js?v=2026-11-27-403c23';
+import { bacaTinjauan, bahanTinjauan } from './tinjauan-rps.js?v=2026-11-27-403c23';
+import { SHEETJS } from './nilai-cpl.js?v=2026-11-27-403c23';
+import { promptRps } from './rps-prompt.js?v=2026-11-27-403c23';
+import { lembarRps, bacaRpsExcel, bagianBerubah, LEBAR_KOLOM, templatKunci } from './rps-excel.js?v=2026-11-27-403c23';
+import { modelBerkasReview, buatReviewDocx, namaBerkasReview } from './review-docx.js?v=2026-11-27-403c23';
+import { tenggatReview, hariKe, teksHari, mkTenggatRps, HARI_REVIEW_BAWAAN } from './pengingat-rps.js?v=2026-11-27-403c23';
+import { pngPeta, pngQr, entryPeta } from './rps-word.js?v=2026-11-27-403c23';
+import { buatRpsDocx } from './rps-docx.js?v=2026-11-27-403c23';
 
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -505,7 +506,11 @@ function htmlA(m){
       <label class="fld"><span>Disiapkan oleh dosen pengembang RPS</span><select data-p="pengembang"${dis()}><option value="">(pilih)</option>
         ${opsi(penyusun(PILIH).map(d => [d.id, d.nama]), R.pengembang)}</select>
         <span class="ket">Koordinator MK atau dosen pengampu MK ini (semester terakhir).</span></label>
-      <div class="fld"><span>Diperiksa oleh Ketua Program Studi</span><div>${KAPRODI ? esc(KAPRODI.nama_gelar || KAPRODI.nama) : '<span class="kosong">belum ditetapkan (Admin › Penugasan koordinator › Kaprodi)</span>'}</div></div>
+      <div class="fld"><span>Diperiksa oleh Ketua Program Studi</span><div>${(() => {
+        // Sudah disahkan: Kaprodi yang mengesahkan pada tanggal pengesahan (pemilik 2026-11-27), bukan Kaprodi saat ini.
+        const r = RPS.get(PILIH), k = r?.status === 'disahkan' ? (namaDosen(r.sah_atas_nama) || namaDosen(r.sah_oleh) || KAPRODI) : KAPRODI;
+        return k ? esc(k.nama_gelar || k.nama) + (r?.status === 'disahkan' && r.sah_pada ? ` <span class="ket">(disahkan ${esc(tanggalLokal(r.sah_pada))})</span>` : '')
+          : '<span class="kosong">belum ditetapkan (Admin › Penugasan koordinator › Kaprodi)</span>'; })()}</div></div>
     </div>
     <p class="ket">Nama dan NIP di lembar pengesahan memakai "Nama dengan gelar" (Profil) dan NIP (Kelola dosen). Dekan menandatangani di luar situs.</p>
   </section>`;
@@ -803,10 +808,12 @@ function gambar(){
       <div class="alat">${ro() ? `<span class="ket">${BOLEH.has(PILIH) ? 'RPS sedang diajukan; terkunci sampai Kaprodi memutuskan.'
         : 'Anda hanya bisa melihat; RPS disusun koordinator MK atau dosen pengampu MK ini.'}</span>`
         : '<button class="b utama" id="simpan" title="Simpan (Ctrl+S)">Simpan</button>'}<button class="b" id="unduh">Unduh Word (versi ini)</button>
-        <button class="b" id="unduhXlsx" title="Templat Excel berisi isian RPS ini; isi di Excel lalu impor kembali">Unduh templat Excel</button>
+        <button class="b" id="unduhXlsx" title="Templat Excel berisi isian RPS ini; isi sel kuning di Excel lalu impor kembali">Unduh templat Excel</button>
+        <button class="b" id="promptAI" title="Prompt untuk Claude/ChatGPT/Gemini agar membantu mengisi templat Excel dari materi dan tugas Anda">Prompt AI</button>
         ${ro() ? '' : '<button class="b" id="imporXlsx">Impor dari Excel</button><input type="file" id="fileXlsx" accept=".xlsx" hidden>'}
         ${simpanan?.sah ? '<button class="b" id="unduhSah">Unduh versi disahkan</button>' : ''}
         <span class="msg" id="mSimpan">${simpanan ? `Tersimpan ${esc(waktuLokal(simpanan.diperbarui || ''))} oleh ${esc(simpanan.oleh || '')}` : 'Belum pernah disimpan.'}</span></div>
+      <div id="panelPrompt" class="periksa" hidden></div>
       ${PULIH && !ro() ? `<div class="periksa" style="border-color:#8A5A00"><b>Ada isian yang belum tersimpan</b> dari ${esc(waktuLokal(PULIH.waktu))} di peramban ini.
         ${PULIH.dasar !== DASAR ? `<span style="color:#8A5A00">RPS di server sudah berubah sejak itu${simpanan?.oleh ? ` (terakhir oleh ${esc(simpanan.oleh)})` : ''}; periksa ulang setelah memulihkan.</span>` : ''}
         <div class="alat"><button class="b" id="pulihkan">Pulihkan isian itu</button><button class="b awas" id="buangDraf">Buang</button></div></div>` : ''}
@@ -837,16 +844,69 @@ function ambil(path){ return path.split('.').reduce((o, k) => o?.[/^\d+$/.test(k
 // Unduh: isian halaman saat ini (termasuk yang belum disimpan) + bagian B dari halaman CPMK. Impor: ringkasan dulu; Terapkan
 // mengisi halaman (Simpan seperti biasa); bagian B disimpan langsung ke mk_struktur hanya bila dicentang.
 let IMPOR = null;
+// Prompt AI (pemilik 2026-11-27): membantu dosen mengisi templat Excel; materi, bahan, dan tugas per pekan dari dosen.
+function tampilPrompt(){
+  const el = $('panelPrompt'); if (!el) return;
+  if (!el.hidden) { el.hidden = true; return; }
+  const m = mkDari(PILIH), si = silabusMK(PILIH);
+  const teksP = promptRps({ mk: m, R, S: STR.get(PILIH) || null, cpl: cplMK(REF_CPL, PETA, m.kurikulum, m.kode).cpl, silabus: si?.isi || null });
+  el.innerHTML = `<b>Prompt AI untuk mengisi templat Excel</b>
+    <ol class="ket" style="margin:4px 0 8px 18px;padding:0"><li>Unduh templat Excel (tombol di atas).</li>
+      <li>Salin prompt ini ke Claude, ChatGPT, atau Gemini; lengkapi bagian bertanda [ ] dengan materi, bahan, pustaka, tugas, dan asesmen per pekan Anda.</li>
+      <li>Tempel tiap blok jawaban AI ke sel kuning pertama lembar yang sama (A, C, E: sel B2; lainnya: A2), simpan, lalu <b>Impor dari Excel</b>.</li>
+      <li>Periksa hasilnya: isi tetap tanggung jawab dosen. Rubrik, Peta Analisis, dan dosen pengembang diisi di halaman ini.</li></ol>
+    <textarea id="teksPrompt" readonly rows="12" style="width:100%;font-family:var(--mono);font-size:12px">${esc(teksP)}</textarea>
+    <div class="alat"><button class="b utama" id="salinPrompt">Salin prompt</button><button class="b" id="tutupPrompt">Tutup</button><span class="msg" id="mPrompt"></span></div>`;
+  el.hidden = false;
+  $('tutupPrompt').onclick = () => { el.hidden = true; };
+  $('salinPrompt').onclick = async () => {
+    try { await navigator.clipboard.writeText(teksP); $('mPrompt').textContent = 'Tersalin. Tempel ke AI, lalu lengkapi bagian [ ].'; }
+    catch { $('teksPrompt').select(); $('mPrompt').textContent = 'Tekan Ctrl+C untuk menyalin teks yang terpilih.'; }
+  };
+}
+// Templat terkunci (pemilik 2026-11-27): hanya sel isian (kuning) yang bisa disunting, daftar pilihan untuk isian berkode.
+// Ditulis dengan ExcelJS (build peramban, global ExcelJS) karena SheetJS CE tidak menulis status kunci sel; impor tetap SheetJS.
+const EXCELJS = 'https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js';
+function muatExcelJS(){
+  if (window.ExcelJS) return Promise.resolve(window.ExcelJS);
+  return new Promise((ok, gagal) => { const s = document.createElement('script'); s.src = EXCELJS;
+    s.onload = () => (window.ExcelJS ? ok(window.ExcelJS) : gagal(new Error('ExcelJS tidak termuat')));
+    s.onerror = () => gagal(new Error('ExcelJS gagal dimuat (periksa koneksi)')); document.head.appendChild(s); });
+}
+function selDalam(rg, ws, f){
+  const [a, b] = rg.split(':'), p = s => { const m = /^([A-Z]+)(\d+)$/.exec(s); return [m[1].split('').reduce((n, ch) => n * 26 + ch.charCodeAt(0) - 64, 0), +m[2]]; };
+  const [c0, r0] = p(a), [c1, r1] = p(b || a);
+  for (let r = r0; r <= r1; r++) for (let c = c0; c <= c1; c++) f(ws.getCell(r, c));
+}
 async function unduhXlsx(){
-  const X = await import(SHEETJS), m = mkDari(PILIH), wb = X.utils.book_new();
-  for (const [nama, rows] of lembarRps(m, R, STR.get(PILIH) || null, { cpl: cplMK(REF_CPL, PETA, m.kurikulum, m.kode).cpl })) {
-    // Sel kosong ditulis kosong (bukan teks ''); sel rumus {f} diisi sesudahnya.
-    const ws = X.utils.aoa_to_sheet(rows.map(r => r.map(v => (v && typeof v === 'object' ? null : v === '' ? null : v))));
-    rows.forEach((r, i) => r.forEach((v, j) => { if (v && typeof v === 'object' && v.f) ws[X.utils.encode_cell({ r: i, c: j })] = { t: 'n', v: v.v ?? 0, f: v.f }; }));
-    ws['!cols'] = (LEBAR_KOLOM[nama] || []).map(w => ({ wch: w }));
-    X.utils.book_append_sheet(wb, ws, nama);
-  }
-  X.writeFile(wb, `RPS_${m.kurikulum}_${m.kode}.xlsx`);
+  const b = $('unduhXlsx'); if (b) b.disabled = true;
+  try {
+    const ExcelJS = await muatExcelJS(), m = mkDari(PILIH), cpl = cplMK(REF_CPL, PETA, m.kurikulum, m.kode).cpl;
+    const wb = new ExcelJS.Workbook();
+    for (const T of templatKunci(lembarRps(m, R, STR.get(PILIH) || null, { cpl }), { cpl })) {
+      const ws = wb.addWorksheet(T.nama);
+      T.baris.forEach((r, i) => r.forEach((v, j) => {
+        if (v === '' || v == null) return;
+        const c = ws.getCell(i + 1, j + 1);
+        c.value = typeof v === 'object' ? { formula: v.f, result: v.v === '' ? '' : v.v } : v;
+        c.alignment = { wrapText: true, vertical: 'top' };
+      }));
+      ws.columns = (T.lebar || []).map(w => ({ width: w }));
+      if (T.kepala) ws.getRow(1).eachCell(c => { c.font = { bold: true }; c.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFDCE6F2' } }; });
+      for (const rg of T.buka) selDalam(rg, ws, c => { c.protection = { locked: false }; c.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFFF4C2' } };
+        c.alignment = { wrapText: true, vertical: 'top' }; });
+      for (const p of T.pilihan) selDalam(p.rentang, ws, c => { c.dataValidation = { type: 'list', allowBlank: true,
+        formulae: [p.daftar ? `"${p.daftar.join(',')}"` : p.rumus], showErrorMessage: !p.bebas,
+        errorTitle: 'Isian tidak dikenal', error: 'Pilih dari daftar.' }; });
+      for (const rg of T.angka) selDalam(rg, ws, c => { c.dataValidation = { type: 'decimal', operator: 'between', allowBlank: true, formulae: [0, 100],
+        showErrorMessage: true, errorTitle: 'Bobot tidak sah', error: 'Isi angka 0-100 (persen).' }; });
+      await ws.protect('', { selectLockedCells: true, selectUnlockedCells: true, formatColumns: true, formatRows: true });
+    }
+    const blob = new Blob([await wb.xlsx.writeBuffer()], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `RPS_${m.kurikulum}_${m.kode}.xlsx`; a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 3000);
+  } catch (e) { alert('Gagal membuat templat: ' + e.message); }
+  finally { if (b) b.disabled = false; }
 }
 async function imporXlsx(f){
   const X = await import(SHEETJS), wb = X.read(await f.arrayBuffer(), { type: 'array' });
@@ -1303,6 +1363,7 @@ function pasang(){
   $('unduh').onclick = () => unduh(false);
   if ($('pasangTautan')) $('pasangTautan').onclick = async () => { const [kur, kode] = PILIH.split('|'); const t = await pasangTautan(kur, kode);
     tulis('mTautan', /belum/.test(t) ? 'buruk' : 'ok', t.trim() || 'Belum lengkap.'); if (!/belum/.test(t)) $('pasangTautan').remove(); };
+  $('promptAI').onclick = () => tampilPrompt();
   $('unduhXlsx').onclick = () => unduhXlsx().catch(e => tulis('mSimpan', 'buruk', 'Templat gagal dibuat: ' + (e.message || e)));
   if ($('imporXlsx')) { $('imporXlsx').onclick = () => $('fileXlsx').click();
     $('fileXlsx').onchange = e => { const f = e.target.files[0]; e.target.value = '';

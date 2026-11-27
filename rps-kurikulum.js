@@ -3,7 +3,7 @@
 //    penumpukan tugas/kuis di pekan yang sama.
 // 2. Peta CPL dari bagian B (mk_struktur): CPL x semester berisi MK yang benar-benar menilai CPL itu (Sub-CPMK berbobot),
 //    tingkat Bloom tertinggi, ranah A/P; CPL yang dibebankan di peta MK-CPL tetapi tidak dinilai; HOTS rata-rata per tahun.
-import { rentangPekan, bloom, bobotSub, hots, TARGET_HOTS, KESIMPULAN_REVIEW } from './rps.js?v=2026-11-27-50c79d';
+import { rentangPekan, bloom, bobotSub, hots, TARGET_HOTS, KESIMPULAN_REVIEW } from './rps.js?v=2026-11-27-403c23';
 
 const kunci = (kur, kode) => `${kur}|${kode}`;
 const urutSem = s => (s === '' ? 99 : +s || 98);

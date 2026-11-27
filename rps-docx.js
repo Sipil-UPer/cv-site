@@ -70,7 +70,9 @@ const QR_EMU = 648000;   // 1,8 cm
 // 117: tanggal dokumen (per semester) dicetak sebagai tanggal tanda tangan; waktu sistem sebenarnya dicatat kecil di bawahnya.
 function selTtd(x, kata, qr, jabatan, tanggalDok = ''){
   if (!x) return pg('');
-  const sistem = tanggalPanjang(String(x.waktu || '').slice(0, 10)), jab = x.sebutan || jabatan;
+  // Tanggal sistem dalam WIB (waktu basis data UTC; 00.00-07.00 WIB jangan jatuh ke hari sebelumnya).
+  const t = new Date(x.waktu || ''), wib = isNaN(t) ? String(x.waktu || '').slice(0, 10) : new Date(t.getTime() + 7 * 3600e3).toISOString().slice(0, 10);
+  const sistem = tanggalPanjang(wib), jab = x.sebutan || jabatan;
   return (qr ? pg(gambarXml('rIdQR', QR_EMU, QR_EMU, kata === 'Disahkan' ? 3 : 4, 'QR'), { jc: 'center', before: 40, after: 0 }) : '')
     + pg(rn(tanggalDok ? `${kata}, ${tanggalPanjang(tanggalDok)}` : `${kata} elektronik, ${sistem}`, { i: true, sz: 16 }), { jc: 'center', before: 20, after: 0 })
     + (tanggalDok ? pg(rn(`(pengesahan elektronik dicatat sistem ${sistem})`, { i: true, sz: 12 }), { jc: 'center', before: 0, after: 0 }) : '')
@@ -96,8 +98,10 @@ export function dokumenRps(M, o = {}){
      sel('DIPERIKSA OLEH KETUA PROGRAM STUDI', { span: 4, fill: BIRU_PUCAT, b: true, jc: 'center' }),
      sel('DISETUJUI/DITETAPKAN OLEH DEKAN', { span: 2, fill: BIRU_PUCAT, b: true, jc: 'center' })],
     { tinggi: 1100, sel: [sel('', { vm: 'lanjut' }), sel({ xml: selTtd(ES && ES.diajukan, 'Diajukan', false, null, ES?.tanggal) }, { span: 2, va: 'center' }),
-      sel({ xml: selTtd(ES && ES.sah, 'Disahkan', o.qr, 'Ketua Program Studi', ES?.tanggal) }, { span: 4, va: 'center' }),
-      sel({ xml: selTtd(ES && ES.tetap, 'Ditetapkan', o.qr, 'Dekan', ES?.tanggal) }, { span: 2, va: 'center' })] },
+      // Kaprodi dan Dekan bertanggal pengesahan/penetapan masing-masing (pemilik 2026-11-27); tanggal dokumen semester hanya
+      // untuk kolom dosen pengembang dan TGL PENYUSUNAN.
+      sel({ xml: selTtd(ES && ES.sah, 'Disahkan', o.qr, 'Ketua Program Studi') }, { span: 4, va: 'center' }),
+      sel({ xml: selTtd(ES && ES.tetap, 'Ditetapkan', o.qr, 'Dekan') }, { span: 2, va: 'center' })] },
     [sel('', { vm: 'lanjut' }), sel(M.pengembang.nama || 'Nama dan Gelar', { span: 2, jc: 'center', b: true }),
      sel(M.kaprodi.nama || 'Nama dan Gelar', { span: 4, jc: 'center', b: true }), sel(M.dekan?.nama || 'Nama dan Gelar', { span: 2, jc: 'center', b: true })],
     [sel('', { vm: 'lanjut' }), sel(`NIP ${M.pengembang.nip}`.trim(), { span: 2, jc: 'center' }), sel(`NIP ${M.kaprodi.nip}`.trim(), { span: 4, jc: 'center' }),

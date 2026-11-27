@@ -4894,9 +4894,9 @@
     },
     {
      "kode": "51502",
-     "nama": "Kimia Dasar 1",
+     "nama": "Kimia Dasar",
      "semester": 1,
-     "nama_en": "Basic Chemistry 1",
+     "nama_en": "Basic Chemistry",
      "sks": 2.0,
      "bagian": {
       "kuliah": 2.0,
@@ -4909,8 +4909,8 @@
      "cpl": [
       "G"
      ],
-     "berkas": "mk-51502-kimia-dasar-1.html",
-     "berkas_en": "course-51502-basic-chemistry-1.html"
+     "berkas": "mk-51502-kimia-dasar.html",
+     "berkas_en": "course-51502-basic-chemistry.html"
     },
     {
      "kode": "51503",

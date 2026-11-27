@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-27-50c79d">
+<link rel="stylesheet" href="tema.css?v=2026-11-27-403c23">
 <style>
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15.5px;line-height:1.6}
@@ -124,9 +124,9 @@ img.pop:focus-visible{outline:3px solid var(--aksen);outline-offset:2px}
   ke.forEach(b => b.addEventListener('click', () => geser(+b.dataset.arah)));
 })();
 </script>
-<script src="config.js?v=2026-11-27-50c79d"></script>
+<script src="config.js?v=2026-11-27-403c23"></script>
 <script type="module">
-import { pasangKerangka, isiKerangka } from './kerangka.js?v=2026-11-27-50c79d';
+import { pasangKerangka, isiKerangka } from './kerangka.js?v=2026-11-27-403c23';
 pasangKerangka({ aktif: 'mahasiswa' });
 fetch('kerangka.json', {cache: 'no-cache'}).then(r => r.json()).then(isiKerangka).catch(() => {});
 </script>

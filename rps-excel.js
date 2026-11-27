@@ -3,7 +3,7 @@
 // {nama lembar: baris} kembali menjadi RPS (bagian A, C, D, E) dan struktur (bagian B: CPMK, Sub-CPMK, asesmen, bobot).
 // Tidak lewat Excel: rubrik, Peta Analisis, pilihan karya integrasi penelitian/PkM, dosen pengembang (diisi di halaman).
 // Isi lembar menggantikan isian bagian itu (templat sudah memuat isian lama); lembar yang dihapus = bagian itu tidak diubah.
-import { BENTUK, SCL, JENIS_MK, DIREKTORI, JENIS_ASESMEN, KELOMPOK_ASESMEN } from './rps.js?v=2026-11-27-50c79d';
+import { BENTUK, SCL, JENIS_MK, DIREKTORI, JENIS_ASESMEN, KELOMPOK_ASESMEN } from './rps.js?v=2026-11-27-403c23';
 
 export const VERSI_TEMPLAT = 'RPS-XLSX-1';
 export const LEMBAR = {
@@ -28,7 +28,8 @@ export function lembarRps(m, R, S, { cpl = [], kini = new Date() } = {}){
     ['Templat impor RPS'], ['Versi templat', VERSI_TEMPLAT], ['Kurikulum', m.kurikulum], ['Kode MK', m.kode], ['Nama MK', m.nama], ['sks', m.sks ?? ''],
     ['Diunduh', kini.toISOString().slice(0, 10)], [],
     ['Cara mengisi'],
-    ['1. Isi lembar A sampai E. Jangan mengubah nama lembar, judul kolom, kolom "Kunci", dan sel Kurikulum/Kode MK di atas.'],
+    ['1. Isi hanya sel berwarna KUNING di lembar A sampai E; sel lain terkunci supaya format templat tidak berubah. Sel dengan tanda panah berisi daftar pilihan.'],
+    ['   Lembar B Bobot: judul kolom asesmen mengikuti lembar B Asesmen secara otomatis; baris boleh dibiarkan kosong.'],
     ['2. Isi tiap lembar menggantikan isian bagian itu di situs (templat sudah memuat isian yang ada). Lembar yang dihapus = bagian itu tidak diubah.'],
     ['3. Teks panjang boleh beberapa baris dalam satu sel (Alt+Enter). Daftar (Sub-CPMK, bentuk pembelajaran, metode SCL, asesmen) dipisah koma.'],
     ['4. Di halaman RPS klik "Impor dari Excel", periksa ringkasan, klik Terapkan, periksa daftar periksa, lalu Simpan.'],
@@ -84,6 +85,71 @@ export function lembarRps(m, R, S, { cpl = [], kini = new Date() } = {}){
   ]);
   return [[LEMBAR.petunjuk, petunjuk], [LEMBAR.a, a], [LEMBAR.bCpmk, bCpmk], [LEMBAR.bAsesmen, bAs], [LEMBAR.bBobot, bBobot],
     [LEMBAR.c, c], [LEMBAR.cPustaka, cPus], [LEMBAR.d, d], [LEMBAR.e, e]];
+}
+
+// ---------- templat terkunci (pemilik 2026-11-27) ----------
+// Hanya sel isian yang bisa disunting (kuning); sisanya terkunci (proteksi lembar tanpa kata sandi). Daftar pilihan
+// (validasi data) untuk isian berkode. Ditulis dengan ExcelJS di halaman RPS (SheetJS CE tidak menulis status kunci sel).
+export const PETAK = { cpmk: 30, asesmen: 15, sub: 30, pustaka: 15, pekan: 30 };   // baris/kolom isian minimal
+const sel = (c, r) => `${kolom(c)}${r}`;   // c 0-based, r 1-based
+const rentang = (c0, r0, c1, r1) => `${sel(c0, r0)}:${sel(c1, r1)}`;
+const pad = (rows, n, lebar) => [...rows, ...Array.from({ length: Math.max(0, n - rows.length) }, () => Array(lebar).fill(''))];
+const KUNING = 'FFFFF4C2';
+
+/**
+ * Tata letak templat terkunci dari hasil lembarRps. Hasil [{ nama, baris, lebar, buka: ['A2:E31'], pilihan:
+ * [{ rentang, daftar } | { rentang, rumus }], angka: ['B2:P31'], kepala: true|false }]. Sel rumus {f, v}.
+ */
+export function templatKunci(lembar, { cpl = [] } = {}){
+  const L = Object.fromEntries(lembar), out = [];
+  const kv = (nama, pil = {}) => {   // lembar Kunci | Isian | Keterangan: kolom Isian terbuka
+    const b = L[nama], pilihan = [];
+    b.slice(1).forEach((r, i) => { const p = pil[teks(r[0])]; if (p) pilihan.push({ rentang: sel(1, i + 2), daftar: p }); });
+    out.push({ nama, baris: b, lebar: LEBAR_KOLOM[nama], buka: [rentang(1, 2, 1, b.length)], pilihan, angka: [], kepala: true });
+  };
+  out.push({ nama: LEMBAR.petunjuk, baris: L[LEMBAR.petunjuk], lebar: LEBAR_KOLOM[LEMBAR.petunjuk], buka: [], pilihan: [], angka: [], kepala: false });
+  kv(LEMBAR.a, { jenis_mk: JENIS_MK.map(x => x[0]) });
+  // B CPMK
+  const bc = L[LEMBAR.bCpmk], nC = Math.max(bc.length - 1 + 10, PETAK.cpmk), akhirC = nC + 1;
+  out.push({ nama: LEMBAR.bCpmk, baris: pad(bc, nC + 1, 5), lebar: LEBAR_KOLOM[LEMBAR.bCpmk], buka: [rentang(0, 2, 4, akhirC)], angka: [], kepala: true,
+    pilihan: [{ rentang: rentang(0, 2, 0, akhirC), daftar: ['CPMK', 'Sub-CPMK'] },
+      { rentang: rentang(2, 2, 2, akhirC), rumus: `'${LEMBAR.bCpmk}'!$B$2:$B$${akhirC}` },
+      ...(cpl.length ? [{ rentang: rentang(3, 2, 3, akhirC), daftar: cpl.map(c => String(c.kode)) }] : [])] });
+  // B Asesmen: kolom Keterangan tetap terkunci (berisi petunjuk).
+  const ba = L[LEMBAR.bAsesmen], nA = Math.max(ba.length - 1, PETAK.asesmen), akhirA = nA + 1;
+  out.push({ nama: LEMBAR.bAsesmen, baris: pad(ba, nA + 1, 4), lebar: LEBAR_KOLOM[LEMBAR.bAsesmen], buka: [rentang(0, 2, 2, akhirA)], angka: [], kepala: true,
+    pilihan: [{ rentang: rentang(1, 2, 1, akhirA), daftar: JENIS_ASESMEN.map(x => x[0]) },
+      { rentang: rentang(2, 2, 2, akhirA), daftar: KELOMPOK_ASESMEN.map(x => x[0]) }] });
+  // B Bobot: petak Sub-CPMK x asesmen; judul kolom = rumus ke B Asesmen baris yang sama urutannya.
+  const bb = L[LEMBAR.bBobot], namaAs = ba.slice(1).map(r => teks(r[0])), isiSub = bb.slice(1, -1);
+  const nS = Math.max(isiSub.length + 10, PETAK.sub), akhirS = nS + 1, kAkhir = kolom(nA), kJml = nA + 1;
+  const angkaSel = v => { const t = teks(v).replace(',', '.'); return t !== '' && Number.isFinite(+t) ? +t : ''; };
+  const kepala = ['Sub-CPMK', ...Array.from({ length: nA }, (_, j) => ({ f: `IF('${LEMBAR.bAsesmen}'!A${j + 2}="","",'${LEMBAR.bAsesmen}'!A${j + 2})`,
+    v: namaAs[j] || '' })), 'Jumlah (%)'];
+  const isi = Array.from({ length: nS }, (_, i) => {
+    const r = isiSub[i] || [], kode = teks(r[0]), nilai = Array.from({ length: nA }, (_, j) => (kode ? angkaSel(r[j + 1]) : ''));
+    return [kode, ...nilai, { f: `IF(COUNT(B${i + 2}:${kAkhir}${i + 2})=0,"",SUM(B${i + 2}:${kAkhir}${i + 2}))`,
+      v: nilai.some(x => x !== '') ? Math.round(nilai.reduce((t, x) => t + (+x || 0), 0) * 1e6) / 1e6 : '' }];
+  });
+  const totKol = j => Math.round(isi.reduce((t, r) => t + (+r[j + 1] || 0), 0) * 1e6) / 1e6;
+  const jumlah = ['Jumlah (%)', ...Array.from({ length: nA }, (_, j) => ({ f: `SUM(${kolom(j + 1)}2:${kolom(j + 1)}${akhirS})`, v: totKol(j) })),
+    { f: `SUM(B${akhirS + 1}:${kAkhir}${akhirS + 1})`, v: Math.round(Array.from({ length: nA }, (_, j) => totKol(j)).reduce((t, x) => t + x, 0) * 1e6) / 1e6 }];
+  out.push({ nama: LEMBAR.bBobot, baris: [kepala, ...isi, jumlah], lebar: [16, ...Array(nA).fill(12), 12], kepala: true,
+    buka: [rentang(0, 2, kJml - 1, akhirS)], angka: [rentang(1, 2, kJml - 1, akhirS)],
+    pilihan: [{ rentang: rentang(0, 2, 0, akhirS), rumus: `'${LEMBAR.bCpmk}'!$B$2:$B$${akhirC}` }] });
+  kv(LEMBAR.c, { scl_ada: ['Ada', 'Tidak ada'], integrasi_ada: ['Ada', 'Tidak ada'], direktori_status: DIREKTORI.map(x => x[1]) });
+  // C Pustaka
+  const cp = L[LEMBAR.cPustaka], nP = Math.max(cp.length - 1 + 5, PETAK.pustaka);
+  out.push({ nama: LEMBAR.cPustaka, baris: pad(cp, nP + 1, 2), lebar: LEBAR_KOLOM[LEMBAR.cPustaka], buka: [rentang(0, 2, 1, nP + 1)], pilihan: [], angka: [], kepala: true });
+  // D Pekan: petak isian, lalu satu baris kosong dan keterangan (terkunci).
+  const d = L[LEMBAR.d], kosongD = d.findIndex((r, i) => i > 0 && !r.length), isiD = kosongD < 0 ? d.slice(1) : d.slice(1, kosongD),
+    ketD = kosongD < 0 ? [] : d.slice(kosongD + 1), nD = Math.max(isiD.length + 5, PETAK.pekan), akhirD = nD + 1;
+  out.push({ nama: LEMBAR.d, baris: [d[0], ...pad(isiD, nD, KEPALA_PEKAN.length), [], ...ketD], lebar: LEBAR_KOLOM[LEMBAR.d], kepala: true,
+    buka: [rentang(0, 2, KEPALA_PEKAN.length - 1, akhirD)], angka: [],
+    pilihan: [{ rentang: rentang(1, 2, 1, akhirD), daftar: ['kuliah', 'uts', 'uas'] },
+      { rentang: rentang(2, 2, 2, akhirD), rumus: `'${LEMBAR.bCpmk}'!$B$2:$B$${akhirC}`, bebas: true }] });
+  kv(LEMBAR.e, { baru: ['Ya', 'Tidak'] });
+  return out;
 }
 
 /** Lebar kolom (karakter) per lembar untuk SheetJS ws['!cols']. */
@@ -214,10 +280,13 @@ export function bacaRpsExcel(buku, m, R, S){
     const kep = (L(LEMBAR.d)[0] || []).map(teks);
     if (kep.join('|') !== KEPALA_PEKAN.join('|')) galat.push(`${LEMBAR.d}: judul kolom berubah; pakai templat dari tombol "Unduh templat Excel".`);
     else {
-      const rows = (L(LEMBAR.d) || []).slice(1);
-      const akhir = rows.findIndex(r => !(r || []).some(v => teks(v)));   // berhenti di baris kosong pertama (di bawahnya keterangan)
-      N.pekan = (akhir < 0 ? rows : rows.slice(0, akhir)).map((r, i) => {
-        const baris = `${LEMBAR.d} baris ${i + 2}`, jn = teks(r[1]).toLowerCase() || 'kuliah';
+      // Templat terkunci (2026-11-27) menyediakan petak baris kosong: baris kosong dilewati; berhenti di baris keterangan
+      // di bawah petak ("Jenis: ..." / "Metode SCL: ..."), sehingga templat lama pun tetap terbaca.
+      const semua = (L(LEMBAR.d) || []).slice(1).map((r, i) => [r || [], i + 2]);
+      const akhir = semua.findIndex(([r]) => /^(Jenis:|Metode SCL:)/.test(teks(r[0])));
+      const rows = (akhir < 0 ? semua : semua.slice(0, akhir)).filter(([r]) => r.some(v => teks(v)));
+      N.pekan = rows.map(([r, nb]) => {
+        const baris = `${LEMBAR.d} baris ${nb}`, jn = teks(r[1]).toLowerCase() || 'kuliah';
         if (!['kuliah', 'uts', 'uas'].includes(jn)) galat.push(`${baris}: Jenis "${teks(r[1])}" harus kuliah, uts, atau uas.`);
         const sub = pisah(r[2]), as = pisah(r[12]);
         for (const k of sub) if (!kodeSub.has(k)) galat.push(`${baris}: Sub-CPMK "${k}" tidak ada di bagian B.`);
