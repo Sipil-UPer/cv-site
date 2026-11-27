@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-27-cafd7e">
+<link rel="stylesheet" href="tema.css?v=2026-11-27-c92ba3">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
@@ -101,7 +101,7 @@
 
 <main class="wrap" id="isi"><p class="hint">Memuat&hellip;</p></main>
 
-<script src="config.js?v=2026-11-27-cafd7e"></script>
+<script src="config.js?v=2026-11-27-c92ba3"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache) tampil sebagai pesan.
 addEventListener('error', function (e) {
@@ -117,17 +117,17 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { pengguna, pasangMenu, halamanBoleh, bolehBuka, identitas, pasangJudul, pintasanUntuk, denganSub } from './menu.js?v=2026-11-27-cafd7e';
-import { kelasMengajarSaya } from './mk-saya.js?v=2026-11-27-cafd7e';
-import { hitungVerifikasi } from './verifikasi-hitung.js?v=2026-11-27-cafd7e';
-import { rubrikRps } from './rps.js?v=2026-11-27-cafd7e';
-import { bacaTinjauan } from './tinjauan-rps.js?v=2026-11-27-cafd7e';
-import { isoDari } from './pengingat-rps.js?v=2026-11-27-cafd7e';
-import { tugasSaya } from './tugas-saya.js?v=2026-11-27-cafd7e';
-import { fiturAktif, halamanAktif } from './fitur.js?v=2026-11-27-cafd7e';
+import { pengguna, pasangMenu, halamanBoleh, bolehBuka, identitas, pasangJudul, pintasanUntuk, denganSub } from './menu.js?v=2026-11-27-c92ba3';
+import { kelasMengajarSaya } from './mk-saya.js?v=2026-11-27-c92ba3';
+import { hitungVerifikasi } from './verifikasi-hitung.js?v=2026-11-27-c92ba3';
+import { rubrikRps } from './rps.js?v=2026-11-27-c92ba3';
+import { bacaTinjauan } from './tinjauan-rps.js?v=2026-11-27-c92ba3';
+import { isoDari } from './pengingat-rps.js?v=2026-11-27-c92ba3';
+import { tugasSaya } from './tugas-saya.js?v=2026-11-27-c92ba3';
+import { fiturAktif, halamanAktif } from './fitur.js?v=2026-11-27-c92ba3';
 // Situs publik mati (templat akreditasi, pemilik 2026-11-23): tanpa tautan ke beranda umum.
 if (!halamanAktif('index.html')) document.querySelector('a.balik[href="index.html"]')?.remove();
-import { barisDosen } from './target-kinerja.js?v=2026-11-27-cafd7e';
+import { barisDosen } from './target-kinerja.js?v=2026-11-27-c92ba3';
 
 const sb = createClient(window.SB_URL, window.SB_KEY);
 const $ = id => document.getElementById(id);
@@ -334,7 +334,7 @@ async function muatTugas(saya){
     const buka = await baca(sb.from('survei').select('id,judul,kelompok,tahun_ts,mulai,selesai,dicabut')
       .lte('mulai', hariIni).gte('selesai', hariIni).eq('dicabut', false));
     if (buka.length) {
-      const { muatPopulasi, targetSurvei } = await import('./survei-mutu.js?v=2026-11-27-cafd7e');
+      const { muatPopulasi, targetSurvei } = await import('./survei-mutu.js?v=2026-11-27-c92ba3');
       const [pop, ns] = await Promise.all([muatPopulasi(sb, saya), Promise.all(buka.map(s =>
         sb.from('survei_jawaban').select('id', { count: 'exact', head: true }).eq('survei_id', s.id).then(r => r.count || 0, () => 0)))]);
       surveiBerjalan = buka.map((s, i) => ({ judul: s.judul, selesai: s.selesai, n: ns[i], target: targetSurvei(s, pop, hariIni).target }));

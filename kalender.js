@@ -3,7 +3,7 @@
 // melihat; ekspor berupa unduhan .ics. Tenggat pribadi (tindak lanjut rapat, proposal/laporan
 // hibah, temuan AMI) tampil untuk yang bersangkutan; admin melihat semuanya.
 // Jam di situs ini WIB (UTC+7, tanpa musim panas); di .ics ditulis sebagai UTC.
-import { JENIS_LIBUR } from './hari-libur.js?v=2026-11-27-cafd7e';
+import { JENIS_LIBUR } from './hari-libur.js?v=2026-11-27-c92ba3';
 
 export const JENIS_ACARA = {
   libur:     { label: 'Hari libur', warna: '#9E3A26' },   // 139-patch-hari-libur.sql, pemilik 2026-11-21
@@ -16,6 +16,7 @@ export const JENIS_ACARA = {
   ami:       { label: 'Temuan AMI', warna: '#C2185B' },
   evaluasi:  { label: 'Tindak lanjut evaluasi pembelajaran', warna: '#00695C' },
   berhalangan: { label: 'Berhalangan saya', warna: '#757575' },   // 132/135, hanya di Kalender saya (162, pemilik 2026-11-24)
+  ujian:     { label: 'Ujian saya', warna: '#4E342E' },   // 195: mengawas dan ujian kelas saya, hanya di Kalender saya (pemilik 2026-11-27)
 };
 export const JENIS_KEGIATAN = {
   ami: 'AMI', akademik: 'Akademik (UTS/UAS, perkuliahan)', yudisium: 'Yudisium', wisuda: 'Wisuda',
@@ -79,6 +80,11 @@ export function kumpulkanAcara(d, saya){
       jamMulai: jam(k.jam_mulai), jamSelesai: jam(k.jam_selesai), tempat: k.tempat || '',
       ket: [JENIS_KEGIATAN[k.jenis], k.ditugaskan?.length ? 'Ditugaskan: ' + k.ditugaskan.join(', ') : '', k.keterangan, k.tautan]
         .filter(Boolean).join('\n'), href: k.tautan || '', jenis: k.jenis });
+
+  // Ujian saya (195, Kalender saya): sudah berbentuk acara (ujianSaya di ujian.js).
+  for (const u of d.ujian || [])
+    tambah({ uid: `ujian-${u.id}`, sumber: 'ujian', judul: u.judul, mulai: u.tanggal, jamMulai: u.mulai, jamSelesai: u.selesai,
+      tempat: u.ruang || '', ket: u.ket || '', href: 'ujian.html#saya' });
 
   // Berhalangan saya (Kalender saya, 162): sudah berbentuk acara (acaraBerhalangan).
   for (const b of d.berhalangan || []) tambah({ ...b, sumber: 'berhalangan', href: 'jadwal-berhalangan.html' });

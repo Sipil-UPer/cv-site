@@ -128,3 +128,49 @@ export function csvUjian(xs = [], namaDosen = id => id){
         (u.pengawas || []).map(namaDosen).join(', ')]));
   return '﻿' + baris.map(r => r.map(q).join(';')).join('\r\n');
 }
+
+/** Ujian untuk Kalender saya: rows = ujian_jadwal + kelas_kuliah + ujian_pengawas (yang saya awasi atau kelas yang saya ajar).
+ *  Hasil [{id, tanggal, mulai, selesai, ruang, judul, ket}] urut tanggal dan jam. */
+export function ujianSaya(rows = [], sayaId, kelasSaya = [], mk = [], namaDosen = id => id){
+  const nm = k => mk.find(m => m.kurikulum === k?.kurikulum && m.kode === k?.kode_mk)?.nama || k?.kode_mk || '';
+  const sudah = new Set();
+  return rows.filter(u => u && !sudah.has(u.id) && sudah.add(u.id)).map(u => {
+    const pengawas = (u.ujian_pengawas || []).map(p => p.dosen_id), awas = pengawas.includes(sayaId);
+    const ajar = kelasSaya.includes(u.kelas_id), k = u.kelas_kuliah || {};
+    return { id: u.id, tanggal: u.tanggal, mulai: jam(u.mulai), selesai: jam(u.selesai), ruang: u.ruang || '',
+      judul: `${awas ? 'Mengawas ' : ''}${JENIS_UJIAN[u.jenis] || u.jenis} ${nm(k)}${k.kelas ? ` (${k.kelas})` : ''}`,
+      ket: [awas && ajar ? 'Anda pengawas dan pengampu kelas ini' : awas ? 'Anda pengawas' : 'Kelas yang Anda ajar',
+        pengawas.length ? `Pengawas: ${pengawas.map(namaDosen).join(', ')}` : 'Pengawas belum ditetapkan'].join('\n') };
+  }).filter(x => x.tanggal && (x.judul)).sort((a, b) => a.tanggal.localeCompare(b.tanggal) || menit(a.mulai) - menit(b.mulai));
+}
+
+/** Rekap ujian per semester untuk akreditasi (butir 15–16, 55). kelas: kelas_kuliah; ujian: ujian_jadwal + pengawas: [id];
+ *  validasi: soal_validasi (+ riwayat). Hasil [{tahun_akademik, semester, mk, kelas, terjadwal: {uts, uas},
+ *  layak: {uts, uas}, menunggu, revisi, pernahRevisi, tugasAwas, pengawas, bebanAwas: Map id -> n}]. */
+export function rekapUjian({ kelas = [], ujian = [], validasi = [] } = {}){
+  const per = new Map();
+  const ambil = (ta, sm) => {
+    const k = `${ta}|${sm}`;
+    if (!per.has(k)) per.set(k, { tahun_akademik: ta, semester: sm, mkSet: new Set(), kelas: 0, terjadwal: { uts: 0, uas: 0 },
+      layak: { uts: 0, uas: 0 }, menunggu: 0, revisi: 0, pernahRevisi: 0, tugasAwas: 0, bebanAwas: new Map() });
+    return per.get(k);
+  };
+  const kelasId = new Map(kelas.map(k => [k.id, k]));
+  for (const k of kelas) { const r = ambil(k.tahun_akademik, k.semester); r.kelas++; r.mkSet.add(`${k.kurikulum}|${k.kode_mk}`); }
+  for (const u of ujian) {
+    const k = kelasId.get(u.kelas_id); if (!k) continue;
+    const r = ambil(k.tahun_akademik, k.semester);
+    if (u.jenis in r.terjadwal) r.terjadwal[u.jenis]++;
+    for (const d of (u.pengawas || [])) { r.tugasAwas++; r.bebanAwas.set(d, (r.bebanAwas.get(d) || 0) + 1); }
+  }
+  for (const v of validasi) {
+    const r = ambil(v.tahun_akademik, v.semester), j = cocokAsesmen(v.asesmen, 'uts') ? 'uts' : cocokAsesmen(v.asesmen, 'uas') ? 'uas' : null;
+    if (v.status === 'layak' && j) r.layak[j]++;
+    if (v.status === 'diajukan') r.menunggu++;
+    if (v.status === 'revisi') r.revisi++;
+    if ((v.riwayat || []).some(x => x?.status === 'revisi')) r.pernahRevisi++;
+  }
+  const urutSm = s => (s === 'Genap' ? 2 : 1);
+  return [...per.values()].map(({ mkSet, ...r }) => ({ ...r, mk: mkSet.size, pengawas: r.bebanAwas.size }))
+    .sort((a, b) => a.tahun_akademik.localeCompare(b.tahun_akademik) || urutSm(a.semester) - urutSm(b.semester));
+}

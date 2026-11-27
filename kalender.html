@@ -11,8 +11,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-27-cafd7e">
-<link rel="stylesheet" href="kepala.css?v=2026-11-27-cafd7e">
+<link rel="stylesheet" href="tema.css?v=2026-11-27-c92ba3">
+<link rel="stylesheet" href="kepala.css?v=2026-11-27-c92ba3">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
@@ -71,7 +71,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></div>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-27-cafd7e"></script>
+<script src="config.js?v=2026-11-27-c92ba3"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -90,11 +90,12 @@ addEventListener('error', function (e) {
 // Rapat, panggilan hibah, dan kegiatan manual untuk semua pengguna terdaftar; tenggat
 // tindak lanjut, hibah tim, dan temuan AMI untuk yang bersangkutan (admin: semua).
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-27-cafd7e';
-import { tglID } from './masa-berlaku.js?v=2026-11-27-cafd7e';
-import { JENIS_ACARA, JENIS_KEGIATAN, kumpulkanAcara, acaraPada, kisiBulan, isoTanggal, keIcs, saringSaya, acaraBerhalangan } from './kalender.js?v=2026-11-27-cafd7e';
-import { JENIS_LIBUR, petaLibur, tanggalAntara, bacaCsvLibur, csvLibur } from './hari-libur.js?v=2026-11-27-cafd7e';
-import { pertemuanKuliah } from './jadwal-kuliah.js?v=2026-11-27-cafd7e';
+import { gerbang } from './menu.js?v=2026-11-27-c92ba3';
+import { tglID } from './masa-berlaku.js?v=2026-11-27-c92ba3';
+import { JENIS_ACARA, JENIS_KEGIATAN, kumpulkanAcara, acaraPada, kisiBulan, isoTanggal, keIcs, saringSaya, acaraBerhalangan } from './kalender.js?v=2026-11-27-c92ba3';
+import { ujianSaya } from './ujian.js?v=2026-11-27-c92ba3';
+import { JENIS_LIBUR, petaLibur, tanggalAntara, bacaCsvLibur, csvLibur } from './hari-libur.js?v=2026-11-27-c92ba3';
+import { pertemuanKuliah } from './jadwal-kuliah.js?v=2026-11-27-c92ba3';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
@@ -330,7 +331,7 @@ function gambar(){
       <button class="b" id="kini">Hari ini</button>
       <button class="b" id="mBulan" aria-pressed="${MODE === 'bulan'}">Bulan</button><button class="b" id="mDaftar" aria-pressed="${MODE === 'daftar'}">Daftar</button>
       <span style="flex:1"></span><button class="b utama" id="ics">Unduh .ics</button><span class="msg" id="m_ics"></span></div>
-    <div class="saring">${Object.entries(JENIS_ACARA).filter(([k]) => PRIBADI || k !== 'berhalangan').map(([k, w]) => `<label><input type="checkbox" data-s="${k}"${TAMPIL.has(k) ? ' checked' : ''}>
+    <div class="saring">${Object.entries(JENIS_ACARA).filter(([k]) => PRIBADI || !['berhalangan', 'ujian'].includes(k)).map(([k, w]) => `<label><input type="checkbox" data-s="${k}"${TAMPIL.has(k) ? ' checked' : ''}>
       <span class="titik" style="background:${w.warna}"></span>${esc(w.label)}</label>`).join('')}</div>
     <div id="kal"></div>
     <p class="ket">${PRIBADI ? `Kalender saya: rapat yang mencentang Anda sebagai peserta, kegiatan prodi untuk semua dosen dan agenda yang ditugaskan
@@ -383,11 +384,25 @@ async function muat(){
     const [ps, bt, br] = await Promise.all([baca(sb.from('rapat_peserta').select('rapat_id').eq('dosen_id', SAYA.id)),
       baca(sb.from('dosen_berhalangan_tgl').select('id,tanggal,slot_id,alasan').eq('dosen_id', SAYA.id)),
       baca(sb.from('dosen_berhalangan_rentang').select('id,mulai,selesai,hari,slot_ids,alasan').eq('dosen_id', SAYA.id))]);
-    DATA = { ...saringSaya({ ...DATA, pesertaRapat: ps.data, kegiatanDosen: kd.data }, SAYA), berhalangan: acaraBerhalangan(bt.data, br.data) };
+    DATA = { ...saringSaya({ ...DATA, pesertaRapat: ps.data, kegiatanDosen: kd.data }, SAYA), berhalangan: acaraBerhalangan(bt.data, br.data),
+             ujian: await muatUjian(baca, nama) };
   }
   // Kalender saya: tenggat milik sendiri saja, juga untuk admin (di kalender prodi admin melihat semuanya).
   ACARA = kumpulkanAcara(DATA, PRIBADI ? { ...SAYA, peran: 'dosen' } : SAYA);
   gambar();
+}
+
+// Ujian saya (195, pemilik 2026-11-27): ujian yang saya awasi dan ujian kelas yang saya ajar. Tanpa patch 195: kosong.
+async function muatUjian(baca, nama){
+  const q = 'id,jenis,tanggal,mulai,selesai,ruang,kelas_id,kelas_kuliah(kurikulum,kode_mk,kelas),ujian_pengawas(dosen_id)';
+  const [aw, kd] = await Promise.all([baca(sb.from('ujian_pengawas').select('ujian_id').eq('dosen_id', SAYA.id)),
+    baca(sb.from('kelas_dosen').select('kelas_id').eq('dosen_id', SAYA.id))]);
+  const idU = aw.data.map(x => x.ujian_id), idK = [...new Set(kd.data.map(x => x.kelas_id))];
+  if (!idU.length && !idK.length) return [];
+  const [a, b, mk] = await Promise.all([idU.length ? baca(sb.from('ujian_jadwal').select(q).in('id', idU)) : { data: [] },
+    idK.length ? baca(sb.from('ujian_jadwal').select(q).in('kelas_id', idK)) : { data: [] },
+    baca(sb.from('ref_mata_kuliah').select('kurikulum,kode,nama'))]);
+  return ujianSaya([...a.data, ...b.data], SAYA.id, idK, mk.data, id => nama.get(id) || '?');
 }
 
 // Jadwal mengajar saya (150/152, pemilik 2026-11-22): kelas yang diajar pengguna ini pada periode yang disahkan Kaprodi,

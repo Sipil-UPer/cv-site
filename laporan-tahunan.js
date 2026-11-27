@@ -3,10 +3,10 @@
 // Satu model isi (daftar blok) dirender ke Word (.docx, disusun sendiri tanpa templat) dan ke HTML (laporan-tahunan.html).
 // Sumber: data.json publik, rekap survei yang sudah diterbitkan (survei_rekap), dan, khusus admin, capaian IKU/IKT,
 // perkiraan status akreditasi, serta Temuan AMI. Versi publik (publik: true) tidak memuat bagian khusus admin.
-import { hitungSumber } from './iku-otomatis.js?v=2026-11-27-cafd7e';
-import { SDGS } from './form-karya.js?v=2026-11-27-cafd7e';
-import { run, para, judul, teks, tabel, buatDocx } from './docx-dasar.js?v=2026-11-27-cafd7e';
-import { rekapSurvei, aspekTindakLanjut, kesenjanganCPL, labelKelompok, labelAspek, lengkapiCPL } from './survei-kepuasan.js?v=2026-11-27-cafd7e';
+import { hitungSumber } from './iku-otomatis.js?v=2026-11-27-c92ba3';
+import { SDGS } from './form-karya.js?v=2026-11-27-c92ba3';
+import { run, para, judul, teks, tabel, buatDocx } from './docx-dasar.js?v=2026-11-27-c92ba3';
+import { rekapSurvei, aspekTindakLanjut, kesenjanganCPL, labelKelompok, labelAspek, lengkapiCPL } from './survei-kepuasan.js?v=2026-11-27-c92ba3';
 
 const angka = v => v == null || v === '' ? '—' : (Math.round(+v * 100) / 100).toLocaleString('id-ID');
 const diTS = (xs, ts) => (xs || []).filter(x => +x.tahun_ts === +ts);
@@ -138,6 +138,22 @@ export function susunLaporan(C, { publik = false, kalender = false } = {}){
       ...ed.map(r => [`${r.semester} ${r.tahun_akademik}`, angka(r.ber_edom), angka(r.rerata_edom), angka(r.di_bawah_ambang),
         angka(r.bawah_bertindak), `${angka(r.rps_terisi)} dari ${angka(r.jumlah)}`])]);
     else p('Belum ada rekap EDOM untuk periode ini (Evaluasi pembelajaran › tempel rekap EDOM dari kampus).', true);
+  }
+
+  // Ujian dan validasi soal (195, pemilik 2026-11-27; butir 15–16 dan 55): D._ujian = rekapUjian() (ujian.js), hanya pengguna
+  // terdaftar; tanpa nama dosen. Periode sama dengan EDOM.
+  if (!publik && Array.isArray(D._ujian)) {
+    h2(`Ujian dan validasi soal${kal ? `, semester yang berjalan pada tahun ${ts}` : ''}`);
+    const smt = kal ? [[ta(ts), 'Genap'], [ta(ts + 1), 'Ganjil']] : [[ta(ts), 'Ganjil'], [ta(ts), 'Genap']];
+    const uj = smt.map(([t, s]) => D._ujian.find(r => r.tahun_akademik === t && r.semester === s)).filter(Boolean);
+    if (uj.length) {
+      tb([['Semester', 'MK ditawarkan', 'Soal UTS layak', 'Soal UAS layak', 'Soal pernah direvisi', 'Kelas terjadwal UTS / UAS', 'Tugas mengawas'],
+        ...uj.map(r => [`${r.semester} ${r.tahun_akademik}`, angka(r.mk), `${angka(r.layak.uts)} dari ${angka(r.mk)}`, `${angka(r.layak.uas)} dari ${angka(r.mk)}`,
+          angka(r.pernahRevisi), `${angka(r.terjadwal.uts)} / ${angka(r.terjadwal.uas)} dari ${angka(r.kelas)}`,
+          `${angka(r.tugasAwas)} (${angka(r.pengawas)} dosen)`])]);
+      p('Soal divalidasi GKM atau Kaprodi yang bukan pengampu mata kuliahnya, dengan daftar periksa enam butir (Sub-CPMK, tingkat Bloom, '
+        + 'bobot, kejelasan, waktu, kunci/rubrik); soal yang belum layak direvisi lalu diajukan ulang.', true);
+    } else p('Belum ada jadwal ujian atau validasi soal untuk periode ini (Pengajaran › Ujian dan validasi soal).', true);
   }
 
   // 5. Kesenjangan CPL

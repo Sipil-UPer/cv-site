@@ -11,8 +11,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-27-cafd7e">
-<link rel="stylesheet" href="kepala.css?v=2026-11-27-cafd7e">
+<link rel="stylesheet" href="tema.css?v=2026-11-27-c92ba3">
+<link rel="stylesheet" href="kepala.css?v=2026-11-27-c92ba3">
 <style>
   /* Ujian dan validasi soal (195-patch-ujian-validasi-soal.sql, pemilik 2026-11-27) */
   *{box-sizing:border-box}
@@ -59,7 +59,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></div>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-27-cafd7e"></script>
+<script src="config.js?v=2026-11-27-c92ba3"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -78,11 +78,11 @@ addEventListener('error', function (e) {
 // semua dosen membaca. Validasi soal: penyusun MK mengajukan setelah soal diunggah di Portofolio; validator = GKM/Kaprodi/admin
 // yang bukan pengampu MK itu (diperiksa basis data). Logika murni: ujian.js.
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-27-cafd7e';
-import { punya } from './koordinator.js?v=2026-11-27-cafd7e';
-import { semesterKini } from './evaluasi-pembelajaran.js?v=2026-11-27-cafd7e';
-import { tanggalSemester } from './jadwal-berhalangan.js?v=2026-11-27-cafd7e';
-import { JENIS_UJIAN, CEK_SOAL, STATUS_SOAL, jam, bentrok, saranPengawas, cocokAsesmen, csvUjian } from './ujian.js?v=2026-11-27-cafd7e';
+import { gerbang } from './menu.js?v=2026-11-27-c92ba3';
+import { punya } from './koordinator.js?v=2026-11-27-c92ba3';
+import { semesterKini } from './evaluasi-pembelajaran.js?v=2026-11-27-c92ba3';
+import { tanggalSemester } from './jadwal-berhalangan.js?v=2026-11-27-c92ba3';
+import { JENIS_UJIAN, CEK_SOAL, STATUS_SOAL, jam, bentrok, saranPengawas, cocokAsesmen, csvUjian, rekapUjian } from './ujian.js?v=2026-11-27-c92ba3';
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const sb = createClient(window.SB_URL, window.SB_KEY);
@@ -144,11 +144,12 @@ function gambar(){
     ${ADA ? '' : '<p class="periksa">Tabel ujian belum ada: jalankan supabase/195-patch-ujian-validasi-soal.sql.</p>'}
     <section class="kartu" id="jadwal"></section>
     <section class="kartu" id="validasi"></section>
-    <section class="kartu" id="saya"></section>`;
+    <section class="kartu" id="saya"></section>
+    <section class="kartu" id="rekap"></section>`;
   $('pPeriode').onchange = async e => { PERIODE = ps[+e.target.value]; BUKA = null; BUKA_V = null; EDIT.clear(); PILIH.clear(); await muat(); gambar(); };
   document.querySelectorAll('[data-jenis]').forEach(b => { b.onclick = () => { JENIS = b.dataset.jenis; BUKA = null; BUKA_V = null; EDIT.clear(); PILIH.clear(); gambar(); }; });
   $('bCsv').onclick = unduhCsv;
-  gambarJadwal(); gambarValidasi(); gambarSaya();
+  gambarJadwal(); gambarValidasi(); gambarSaya(); gambarRekap();
   if (location.hash) document.querySelector(location.hash)?.scrollIntoView();
 }
 
@@ -306,6 +307,24 @@ function gambarSaya(){
         <td>${[u.pengawas.includes(SAYA.id) ? 'pengawas' : '', kelasSaya.has(u.kelas_id) ? 'pengampu' : ''].filter(Boolean).join(', ')}</td>
         <td>${u.pengawas.map(d => `<span class="chip">${esc(namaD(d))}</span>`).join('')}</td></tr>`).join('')}</tbody></table></div>`
       : '<p class="kosong">Belum ada jadwal ujian untuk Anda di periode ini.</p>'}`;
+}
+
+// ---------------------------------------------------------------- rekap untuk akreditasi (butir 15–16, 55)
+function gambarRekap(){
+  const r = rekapUjian({ kelas: KELAS, ujian: UJIAN, validasi: VAL })
+    .find(x => x.tahun_akademik === PERIODE.ta && x.semester === PERIODE.sm);
+  if (!r) { $('rekap').innerHTML = `<h2>Rekap untuk akreditasi</h2><p class="kosong">Belum ada kelas untuk periode ini.</p>`; return; }
+  const beban = [...r.bebanAwas].map(([id, n]) => [namaD(id), n]).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], 'id'));
+  $('rekap').innerHTML = `<h2>Rekap untuk akreditasi, ${esc(PERIODE.ta)} ${esc(PERIODE.sm)}</h2>
+    <p class="ket">Angka yang sama masuk Laporan kinerja tahunan (Skor akreditasi dan LED › Unduh laporan). Bukti butir 15–16 (asesmen) dan 55
+      (penjaminan mutu).</p>
+    <div class="ringkas"><div><b>${r.mk}</b><span>MK ditawarkan</span></div>
+      <div><b>${r.layak.uts} / ${r.layak.uas}</b><span>soal layak UTS / UAS</span></div>
+      <div><b>${r.menunggu}</b><span>menunggu validasi</span></div><div><b>${r.pernahRevisi}</b><span>soal pernah direvisi</span></div>
+      <div><b>${r.terjadwal.uts} / ${r.terjadwal.uas}</b><span>kelas terjadwal UTS / UAS dari ${r.kelas}</span></div>
+      <div><b>${r.tugasAwas}</b><span>tugas mengawas, ${r.pengawas} dosen</span></div></div>
+    ${beban.length ? `<details><summary>Beban mengawas per dosen</summary><div class="gulir"><table class="ds"><thead><tr><th>Dosen</th><th>Tugas mengawas</th></tr></thead>
+      <tbody>${beban.map(([n, k]) => `<tr><td>${esc(n)}</td><td>${k}</td></tr>`).join('')}</tbody></table></div></details>` : ''}`;
 }
 
 async function mulai(){
