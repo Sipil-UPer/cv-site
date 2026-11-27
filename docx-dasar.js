@@ -50,14 +50,22 @@ export const GAYA = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <w:pPr><w:keepNext/><w:spacing w:before="200" w:after="80"/><w:outlineLvl w:val="1"/></w:pPr><w:rPr><w:b/><w:sz w:val="24"/><w:szCs w:val="24"/></w:rPr></w:style>
 </w:styles>`;
 
-// Berkas .docx (Blob) dari isi <w:body> (paragraf dan tabel), kertas A4.
-export async function buatDocx(isiBody){
+// Gambar sebaris (PNG) untuk buatDocx(..., { gambar }); cx/cy dalam EMU (914400 = 1 inci). Surat ber-QR (201, pemilik 2026-11-28).
+export const gambar = (rid, cx, cy, id, nama) => `<w:r><w:drawing><wp:inline distT="0" distB="0" distL="0" distR="0"><wp:extent cx="${cx}" cy="${cy}"/>` +
+  `<wp:docPr id="${id}" name="${xe(nama)}"/><a:graphic xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main">` +
+  `<a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture"><pic:pic xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture">` +
+  `<pic:nvPicPr><pic:cNvPr id="${id}" name="${xe(nama)}"/><pic:cNvPicPr/></pic:nvPicPr><pic:blipFill><a:blip r:embed="${rid}"/><a:stretch><a:fillRect/></a:stretch></pic:blipFill>` +
+  `<pic:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="${cx}" cy="${cy}"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></pic:spPr></pic:pic></a:graphicData></a:graphic></wp:inline></w:drawing></w:r>`;
+
+// Berkas .docx (Blob) dari isi <w:body> (paragraf dan tabel), kertas A4. o.gambar = [{ rid, png (Uint8Array) }] untuk gambar().
+export async function buatDocx(isiBody, o = {}){
+  const gb = (o.gambar || []).filter(g => g && g.png);
   const { default: JSZip } = await import(JSZIP);
   const zip = new JSZip();
   zip.file('[Content_Types].xml', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
 <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
-<Default Extension="xml" ContentType="application/xml"/>
+<Default Extension="xml" ContentType="application/xml"/>${gb.length ? '\n<Default Extension="png" ContentType="image/png"/>' : ''}
 <Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>
 <Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/>
 </Types>`);
@@ -67,11 +75,14 @@ export async function buatDocx(isiBody){
 </Relationships>`);
   zip.file('word/_rels/document.xml.rels', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
-<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>
+<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>${
+  gb.map((g, i) => `
+<Relationship Id="${g.rid}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/gambar${i + 1}.png"/>`).join('')}
 </Relationships>`);
+  gb.forEach((g, i) => zip.file(`word/media/gambar${i + 1}.png`, g.png));
   zip.file('word/styles.xml', GAYA);
   zip.file('word/document.xml', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
+<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing">
 <w:body>${isiBody}<w:sectPr><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="1440" w:right="1106" w:bottom="1440" w:left="1440" w:header="708" w:footer="708" w:gutter="0"/></w:sectPr></w:body></w:document>`);
   return zip.generateAsync({ type: 'blob', mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
 }

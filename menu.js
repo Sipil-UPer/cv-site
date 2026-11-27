@@ -1,5 +1,5 @@
-import { dosenLogin } from './dosen-login.js?v=2026-11-27-c0ada6';
-import { aktifPada } from './koordinator.js?v=2026-11-27-c0ada6';
+import { dosenLogin } from './dosen-login.js?v=2026-11-28-270965';
+import { aktifPada } from './koordinator.js?v=2026-11-28-270965';
 // Menu bersama ruang kerja (pemilik 2026-11-04).
 //
 // Situs dibagi dua:
@@ -27,7 +27,8 @@ const penyusun = s => admin(s) || (!!s.tim_penyusun && s.peran !== 'asesor');
 export const hanyaBaca = s => s?.peran === 'pimpinan' && !(s.dtps === true || ['ya', 'y', 'true', '1'].includes(String(s.dtps ?? '').toLowerCase()));
 const PANTAUAN = ['dasbor.html', 'monitoring.html', 'skor.html', 'grafik.html', 'hasil-survei.html', 'kalender.html', 'panduan.html'];
 // Dekan aktif (Penugasan koordinator) tetap menetapkan RPS dan ekuivalensi (116, 134).
-const PENETAPAN_DEKAN = ['rps.html', 'ekuivalensi.html'];
+// Surat dan SK (201, pemilik 2026-11-28): Dekan menandatangani SK prodi.
+const PENETAPAN_DEKAN = ['rps.html', 'ekuivalensi.html', 'surat.html'];
 const pantauanBoleh = (s, href) => PANTAUAN.includes(berkas(href)) || ((s.koordinator || []).includes('dekan') && PENETAPAN_DEKAN.includes(berkas(href)));
 // Asesor dan pimpinan hanya-baca tidak mengisi karya.
 const isiKarya = s => s.peran !== 'asesor' && !hanyaBaca(s);
@@ -43,11 +44,11 @@ const koorTA = s => pengelola(s) || mutu(s) || punyaJ(s, 'koordinator_ta');
 const koorKP = s => pemantau(s) || punyaJ(s, 'koordinator_kp');
 const koorLayanan = s => pengelola(s) || punyaJ(s, 'koordinator_ta', 'koordinator_kp', 'pembina_kemahasiswaan');
 
-import { halamanAktif } from './fitur.js?v=2026-11-27-c0ada6';
-import { BUTIR_LAM_TEKNIK } from './bobot.js?v=2026-11-27-c0ada6';
-import { pasangPemicuBangun } from './pemicu-bangun.js?v=2026-11-27-c0ada6';
+import { halamanAktif } from './fitur.js?v=2026-11-28-270965';
+import { BUTIR_LAM_TEKNIK } from './bobot.js?v=2026-11-28-270965';
+import { pasangPemicuBangun } from './pemicu-bangun.js?v=2026-11-28-270965';
 // Tinggi kotak teks mengikuti isi (pemilik 2026-11-25); bentuk "from" agar dicap stamp_versions.py.
-import { pasSemua as pasKotakTeks } from './kotak-teks.js?v=2026-11-27-c0ada6';
+import { pasSemua as pasKotakTeks } from './kotak-teks.js?v=2026-11-28-270965';
 
 export const MODUL = [
   { judul: 'Data saya', ket: 'Profil, karya, target kinerja, jadwal berhalangan, dan kalender Anda.', halaman: [
@@ -69,6 +70,9 @@ export const MODUL = [
     // Rencana pengembangan dosen dan tendik (198, pemilik 2026-11-27).
     { href: 'rencana-pengembangan.html', judul: 'Rencana pengembangan', boleh: s => s.peran !== 'asesor',
       ket: 'Rencana dan realisasi studi lanjut, sertifikasi, pelatihan, dan kenaikan jabatan per tahun; admin/Kaprodi juga untuk tendik, dengan rekap.' },
+    // Surat dan SK yang menyebut dosen (201, pemilik 2026-11-28); pengelola membuka halaman yang sama dari Pengelolaan.
+    { href: 'surat.html#saya', judul: 'Surat dan SK saya', boleh: s => s.peran !== 'asesor', tampil: s => !(pengelola(s) || punyaJ(s, 'dekan')),
+      ket: 'SK prodi dan surat tugas yang menyebut nama Anda, dengan Word bertanda tangan elektronik (QR) untuk BKD/SISTER.' },
     // Jadwal berhalangan (132-patch-jadwal-berhalangan.sql, pemilik 2026-11-20): dosen mengisi slot yang tidak bisa; pengatur jadwal mencari slot kosong.
     { href: 'jadwal-berhalangan.html', judul: 'Jadwal berhalangan', boleh: isiKarya,
       ket: 'Slot jam kuliah yang tidak bisa Anda pakai (termasuk jadwal di luar prodi); admin, Kaprodi, dan koordinator TA/KP mencari slot kosong untuk sidang dan rapat.' },
@@ -241,6 +245,9 @@ export const MODUL = [
     // Inventaris, perawatan, peminjaman alat, dan induksi K3 (199, pemilik 2026-11-27): dosen membaca inventaris.
     { href: 'lab-inventaris.html', judul: 'Inventaris dan K3 laboratorium', boleh: s => s.peran !== 'asesor', tampil: s => kalab(s) || pengelola(s) || mutu(s),
       ket: 'Alat per laboratorium (kondisi, kalibrasi), riwayat perawatan, peminjaman, dan induksi K3 mahasiswa; rekap butir 38–39.' },
+    // Surat dan SK prodi (201, pemilik 2026-11-28): admin/Kaprodi menyusun; SK disahkan Dekan, lainnya Kaprodi; nomor otomatis, QR.
+    { href: 'surat.html', judul: 'Surat dan SK', boleh: s => s.peran !== 'asesor', tampil: s => pengelola(s) || punyaJ(s, 'dekan'),
+      ket: 'Agenda surat prodi: susun, ajukan, tanda tangan elektronik ber-QR (SK oleh Dekan, surat lain oleh Kaprodi), nomor otomatis, arsip.' },
     { href: 'kelengkapan-situs.html', judul: 'Kelengkapan situs publik', boleh: admin,
       ket: 'Bagian situs publik yang masih kosong atau sebagian (profil, akreditasi, laboratorium, kerja sama, kabar, foto dosen) dan tempat mengisinya.' },
     // Pemakaian ruang kerja (133-patch-pemakaian-halaman.sql, pemilik 2026-11-20): dasar memutuskan fitur yang dipertahankan/dibuang.
@@ -496,7 +503,7 @@ export async function pasangMenu(sb){
   // Pencarian menyeluruh (pemilik 2026-11-12; cari-ui.js, cari.js): dimuat saat pertama dipakai.
   const kotak = nav.querySelector('.rk-cari input');
   let siapCari = null;
-  const muatCari = () => siapCari || (siapCari = import('./cari-ui.js?v=2026-11-27-c0ada6').then(m =>
+  const muatCari = () => siapCari || (siapCari = import('./cari-ui.js?v=2026-11-28-270965').then(m =>
     m.pasangCari(kotak, { sb, saya: u.saya, modul: halamanBoleh(u.saya), boleh: h => bolehBuka(u.saya, h) !== false })));
   kotak.addEventListener('focus', muatCari);
   document.addEventListener('keydown', e => {

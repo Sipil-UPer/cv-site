@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-27-c0ada6">
+<link rel="stylesheet" href="tema.css?v=2026-11-28-270965">
 <style>
   /* Panduan pengguna ruang kerja (pemilik 2026-11-04). Bagian admin hanya
      tampil untuk peran admin. Perbarui bila tombol atau halaman berubah. */
@@ -43,7 +43,7 @@
   @media(max-width:640px){nav.isi ol{columns:1}.wrap{padding:18px 16px 60px}}
   @media print{nav.isi{display:none}section{break-inside:avoid}}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-27-c0ada6">
+<link rel="stylesheet" href="kepala.css?v=2026-11-28-270965">
 </head>
 <body>
 
@@ -75,6 +75,7 @@
       <li><a href="#ta-mk-pilihan">Tugas Akhir: syarat 2 MK pilihan (K26)</a></li>
       <li><a href="#lab">Inventaris dan K3 laboratorium</a></li>
       <li><a href="#pemangku">Forum pemangku kepentingan</a></li>
+      <li><a href="#surat">Surat dan SK prodi</a></li>
       <li><a href="#lihat">Monitoring dan skor</a></li>
       <li><a href="#publik">Apa yang tampil untuk umum</a></li>
       <li class="adm" hidden><a href="#verifikasi">Admin: verifikasi dan ajuan</a></li>
@@ -479,8 +480,30 @@
     </ol>
   </section>
 
+  <section id="surat">
+    <h2>17. Surat dan SK prodi</h2>
+    <p>Buka <b>Pengelolaan ▾ › Surat dan SK</b> (admin dan Kaprodi menyusun; Dekan menandatangani SK). Dosen melihat surat yang menyebut
+      namanya di <b>Data saya › Surat dan SK saya</b>.</p>
+    <ol>
+      <li><b>Pengaturan nomor</b> (admin, sekali): isi <b>kode nomor</b> tiap jenis (mis. bagian kode prodi di nomor surat) dan polanya, mis.
+        <code>{urut}/{kode}/{bulan_romawi}/{tahun}</code>. Jenis dengan <b>urutan</b> sama berbagi satu nomor urut per tahun. Bila tahun ini sudah ada
+        surat bernomor sebelum situs dipakai, isi <b>nomor urut terakhir</b> agar nomor berikutnya melanjutkan.</li>
+      <li><b>Tulis surat</b>: jenis, perihal (tampil di halaman verifikasi publik, jangan memuat data pribadi), kepada, isi, dan dosen yang disebut
+        (lampiran daftar nama). Simpan draf, unduh <b>konsep Word</b> bila perlu diperiksa, lalu <b>Ajukan</b>.</li>
+      <li><b>Tanda tangan</b>: SK prodi oleh <b>Dekan</b>, jenis lain oleh <b>Kaprodi</b>, masing-masing sendiri (tidak bisa diwakilkan admin).
+        Bagian <b>Menunggu tanda tangan Anda</b> dan Tugas saya menampilkan yang diajukan. <b>Sahkan</b> memberi nomor, tanggal hari ini, dan kode QR;
+        <b>Kembalikan</b> wajib dengan catatan.</li>
+      <li><b>Setelah disahkan</b>: unduh Word bertanda tangan elektronik (QR ke halaman verifikasi), simpan sebagai PDF, kirim, lalu isi
+        <b>Berkas akhir</b> (tautan Drive). Isi tidak bisa diubah; bila keliru, <b>Batalkan</b> dengan alasan (nomor tidak dipakai ulang; halaman
+        verifikasi menyatakan tidak berlaku) dan buat surat baru.</li>
+      <li><b>Surat mahasiswa</b>: dari permohonan di Pengajuan mahasiswa, tekan <b>Buat surat bernomor</b>; isian terisi dari permohonan. Setelah
+        disahkan, unggah PDF-nya di permohonan itu seperti biasa.</li>
+      <li><b>Surat lama</b> atau yang ditandatangani di luar situs: centang <b>arsip</b>, tulis nomor dan tanggal sesuai surat, dan tautan berkasnya.</li>
+    </ol>
+  </section>
+
   <section id="lihat">
-    <h2>17. Monitoring dan skor</h2>
+    <h2>18. Monitoring dan skor</h2>
     <ul>
       <li><b>Pemantauan ▾ › Pemantauan kinerja</b>: rekap per tahun atau TS, per dosen, dan syarat unggul.</li>
       <li><b>Data saya ▾ › Target kinerja dosen</b>: target tahun ini (publikasi, penelitian, PkM, luaran, rekognisi, proposal hibah eksternal) dan capaian Anda. Capaian dihitung dari karya tahun itu yang mencantumkan Anda sebagai penulis atau anggota: yang terverifikasi masuk "Tercapai", yang masih diajukan tampil sebagai "menunggu". Target ditetapkan admin per jabatan akademik (bisa khusus per dosen). Yang belum tercapai juga tampil di <b>Tugas saya</b>. Admin dan pimpinan melihat semua dosen; admin mengisi target baku dan target khusus di halaman yang sama.</li>
@@ -493,7 +516,7 @@
   </section>
 
   <section id="publik">
-    <h2>18. Apa yang tampil untuk umum</h2>
+    <h2>19. Apa yang tampil untuk umum</h2>
     <p>Beranda tanpa masuk akun hanya menampilkan grafik dan angka rekap; daftar dosen, publikasi, penelitian,
       pengabdian, prestasi, dan mitra dibuka dengan mengklik angkanya. Yang tampil hanya karya
       <b>terverifikasi</b>, tanpa tautan bukti, tanpa nominal dana, tanpa beban kerja dosen, dan tanpa
@@ -502,7 +525,7 @@
 
   <div id="bagian-admin" hidden>
   <section id="verifikasi" class="admin">
-    <h2>19. Verifikasi dan ajuan <span class="peran">admin</span></h2>
+    <h2>20. Verifikasi dan ajuan <span class="peran">admin</span></h2>
     <p>Buka halaman <b>Verifikasi</b> (menu Admin prodi, atau tautan <b>Verifikasi</b> di
       Karya dosen). Tab <b>Karya dosen</b>, <b>Profil dosen</b>, <b>BKD</b>, dan <b>Prestasi mahasiswa</b>
       masing-masing menampilkan jumlah yang menunggu; angka total juga tampil di kartu ruang kerja.
@@ -526,7 +549,7 @@
   </section>
 
   <section id="dosen" class="admin">
-    <h2>20. Kelola dosen <span class="peran">admin</span></h2>
+    <h2>21. Kelola dosen <span class="peran">admin</span></h2>
     <ul>
       <li>Tambah dosen: email (untuk masuk), NIDN, nama, peran, pendidikan, jabatan. Staf tanpa NIDN memakai nomor pegawai.</li>
       <li>Peran: <span class="tbl">dosen</span> mengisi karya; <span class="tbl">admin</span> semua halaman;
@@ -543,7 +566,7 @@
   </section>
 
   <section id="dataprodi" class="admin">
-    <h2>21. Data prodi <span class="peran">admin</span></h2>
+    <h2>22. Data prodi <span class="peran">admin</span></h2>
     <p>Buka <b>Pengelolaan ▾ › Data prodi</b>. Tiap tab satu tabel LKPS; <b>Tambah baris</b>, <b>Ubah</b>,
       <b>Hapus</b>, dan bukti per baris. Tab dikelompokkan: baris atas memilih kelompok (Dokumen,
       Dosen &amp; SDM, Kurikulum &amp; CPL, Penelitian &amp; kerja sama, Mahasiswa &amp; lulusan,
@@ -590,7 +613,7 @@
   </section>
 
   <section id="butir" class="admin">
-    <h2>22. Isian butir dan dokumen <span class="peran">admin</span></h2>
+    <h2>23. Isian butir dan dokumen <span class="peran">admin</span></h2>
     <ul>
       <li>Butir yang dinilai dengan matriks: isi skor 0–4 dan bukti, lalu <b>Simpan perubahan</b>.</li>
       <li><b>Dokumen</b>: pustaka dokumen (statuta, kurikulum, SK, notulen, …). Unggah ulang dengan tahun sama mengganti versi lama; yang lama diarsipkan.</li>
@@ -599,7 +622,7 @@
   </section>
 
   <section id="ppepp" class="admin">
-    <h2>23. Standar SPMI dan siklus PPEPP <span class="peran">admin</span></h2>
+    <h2>24. Standar SPMI dan siklus PPEPP <span class="peran">admin</span></h2>
     <ol>
       <li><b>Impor standar.</b> Buka <b>Data prodi › SPMI › Standar SPMI</b>, pada <b>Impor rekap standar SPM</b> pilih berkas Excel dari SPM
         (mis. "Draft Rekap Standar"). Lembar Pendidikan, Penelitian, PkM, Akreditasi Unggul LAMTEK, dan IKU PT tercentang; lembar unit lain bisa
@@ -630,7 +653,7 @@
   </section>
 
   <section id="skor" class="admin">
-    <h2>24. Skor dan draf LED <span class="peran">admin</span></h2>
+    <h2>25. Skor dan draf LED <span class="peran">admin</span></h2>
     <p><b>Mutu dan akreditasi ▾ › Kelengkapan LED</b> menghitung sendiri yang sudah dan belum terisi: tim, narasi, Data prodi, dokumen, bukti, dan karya, dengan tautan ke tempat mengisinya. "Selesai" berarti datanya ada, bukan isinya sudah benar.</p>
     <p>Di halaman <b>Narasi LED</b>, tombol di atas daftar menyaring bagian yang tampil, dan kotak cari menemukan satu butir. Tombol <b>Identitas</b> memuat isian Identitas Pengusul, kota pada sampul, folder induk, dan narahubung; <b>A</b> dan <b>B</b> sama dengan bagian A dan B pada Bab II. Daftar program studi dan akreditasi diambil dari <b>Data prodi</b>, tab Prodi di UPPS. Buka <b>Tim penyusun dan pembagian bagian</b>, centang yang masuk tim penyusun (dosen yang dicentang bisa menulis narasi tanpa hak admin lainnya), atur urutan dan deskripsi kerjanya, tambahkan orang di luar sistem bila ada (namanya tertulis di LED tanpa akun), lalu pilih penanggung jawab tiap bagian; tombol <b>Bagian saya</b> lalu menampilkan bagian masing-masing. Admin lain tetap boleh menyunting. Bila dua admin mengubah kotak yang sama, yang menyimpan belakangan diberi peringatan sebelum menimpa.</p>
     <p>Tombol unduh ada di panel <b>Unduh dokumen akreditasi</b>, paling atas halaman Skor; pilih TS lebih dulu. Isi narasi di halaman <b>Mutu dan akreditasi ▾ › Narasi LED</b>: tiap kotak tersimpan sendiri dan masuk draf LED saat diunduh, jadi tidak perlu mengetik ulang di Word. Yang masih tertinggal di draf bertanda [isi].</p>
@@ -649,7 +672,7 @@
   </section>
 
   <section id="perbarui" class="admin">
-    <h2>25. Kapan situs diperbarui <span class="peran">admin</span></h2>
+    <h2>26. Kapan situs diperbarui <span class="peran">admin</span></h2>
     <p>Situs dibangun ulang otomatis tiap jam pada menit ke-23 (GitHub Actions). Untuk memperbarui saat itu
       juga, pengelola teknis menjalankan <span class="tbl">bangun-dan-push.bat</span> lalu menjawab
       <b>y</b> pada "Bangun dan terbitkan sekarang?".</p>
@@ -657,7 +680,7 @@
   </div>
 </main>
 
-<script src="config.js?v=2026-11-27-c0ada6"></script>
+<script src="config.js?v=2026-11-28-270965"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -674,8 +697,8 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-27-c0ada6';
-import { BUTIR_LAM_TEKNIK, NAMA_INSTRUMEN } from './bobot.js?v=2026-11-27-c0ada6';
+import { gerbang } from './menu.js?v=2026-11-28-270965';
+import { BUTIR_LAM_TEKNIK, NAMA_INSTRUMEN } from './bobot.js?v=2026-11-28-270965';
 // Panduan ini memakai contoh LAM Teknik (2026-11-25): instrumen lain mendapat catatan perbedaan di atas.
 if (!BUTIR_LAM_TEKNIK) { const c = document.getElementById('catatanInstrumen'); c.hidden = false;
   c.innerHTML = `<b>Instrumen prodi ini: ${NAMA_INSTRUMEN}.</b> Panduan ini ditulis dengan contoh LAM Teknik Sarjana (butir 1–60). Untuk instrumen ini: elemen, bobot, rubrik, dan syarat status mengikuti halaman <a href="skor.html">Skor dan LED</a>; draf LED dan LKPS memakai templat resmi instrumen ini (diunduh dari halaman yang sama); Simulasi PJP, grafik bernomor di draf LED, dan nomor butir di bagian lain panduan ini tidak berlaku.`; }
