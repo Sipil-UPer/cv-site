@@ -1,5 +1,5 @@
-import { dosenLogin } from './dosen-login.js?v=2026-11-27-586a25';
-import { aktifPada } from './koordinator.js?v=2026-11-27-586a25';
+import { dosenLogin } from './dosen-login.js?v=2026-11-27-8426d4';
+import { aktifPada } from './koordinator.js?v=2026-11-27-8426d4';
 // Menu bersama ruang kerja (pemilik 2026-11-04).
 //
 // Situs dibagi dua:
@@ -43,11 +43,11 @@ const koorTA = s => pengelola(s) || mutu(s) || punyaJ(s, 'koordinator_ta');
 const koorKP = s => pemantau(s) || punyaJ(s, 'koordinator_kp');
 const koorLayanan = s => pengelola(s) || punyaJ(s, 'koordinator_ta', 'koordinator_kp', 'pembina_kemahasiswaan');
 
-import { halamanAktif } from './fitur.js?v=2026-11-27-586a25';
-import { BUTIR_LAM_TEKNIK } from './bobot.js?v=2026-11-27-586a25';
-import { pasangPemicuBangun } from './pemicu-bangun.js?v=2026-11-27-586a25';
+import { halamanAktif } from './fitur.js?v=2026-11-27-8426d4';
+import { BUTIR_LAM_TEKNIK } from './bobot.js?v=2026-11-27-8426d4';
+import { pasangPemicuBangun } from './pemicu-bangun.js?v=2026-11-27-8426d4';
 // Tinggi kotak teks mengikuti isi (pemilik 2026-11-25); bentuk "from" agar dicap stamp_versions.py.
-import { pasSemua as pasKotakTeks } from './kotak-teks.js?v=2026-11-27-586a25';
+import { pasSemua as pasKotakTeks } from './kotak-teks.js?v=2026-11-27-8426d4';
 
 export const MODUL = [
   { judul: 'Data saya', ket: 'Profil, karya, target kinerja, jadwal berhalangan, dan kalender Anda.', halaman: [
@@ -207,6 +207,9 @@ export const MODUL = [
       ket: 'Survei anonim mahasiswa, dosen, tendik, mitra, pengguna lulusan: buat, bagikan tautan, baca hasil.' },
     { sub: 'Siklus mutu', href: 'hasil-survei.html', judul: 'Hasil survei kepuasan', tampil: akreditasi,
       ket: 'Rekap survei kepuasan per kelompok dan aspek; halaman publik.' },
+    // Forum pemangku kepentingan (200, pemilik 2026-11-27).
+    { sub: 'Siklus mutu', href: 'forum-pemangku.html', judul: 'Forum pemangku kepentingan', boleh: s => s.peran !== 'asesor', tampil: s => pengelola(s) || mutu(s),
+      ket: 'Anggota forum/IAB, pertemuan (Rapat), masukan industri dan alumni beserta tindak lanjutnya; rekap butir 2, 12, 58.' },
     { sub: 'Siklus mutu', href: 'mutu-data.html', judul: 'Mutu data', boleh: mutu,
       ket: 'Data yang perlu diperbaiki: karya tanpa bukti, DOI ganda, judul mirip, ID dosen, RPS, tracer.' },
     // Dasbor operasional (pemilik 2026-11-17): antrean dan keterlambatan per bidang dan penanggung jawabnya.
@@ -493,7 +496,7 @@ export async function pasangMenu(sb){
   // Pencarian menyeluruh (pemilik 2026-11-12; cari-ui.js, cari.js): dimuat saat pertama dipakai.
   const kotak = nav.querySelector('.rk-cari input');
   let siapCari = null;
-  const muatCari = () => siapCari || (siapCari = import('./cari-ui.js?v=2026-11-27-586a25').then(m =>
+  const muatCari = () => siapCari || (siapCari = import('./cari-ui.js?v=2026-11-27-8426d4').then(m =>
     m.pasangCari(kotak, { sb, saya: u.saya, modul: halamanBoleh(u.saya), boleh: h => bolehBuka(u.saya, h) !== false })));
   kotak.addEventListener('focus', muatCari);
   document.addEventListener('keydown', e => {

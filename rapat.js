@@ -2,8 +2,8 @@
 // peramban: jenis rapat dan unsur butir yang disarankan, tindak lanjut (Pengingat,
 // Monitoring), isi notulen Word, token daftar hadir. Dipakai rapat.html, hadir.html,
 // pengingat.html, monitoring.html.
-import { selisihHari, tglID } from './masa-berlaku.js?v=2026-11-27-586a25';
-import { para, run, judul, teks, tabel, buatDocx } from './docx-dasar.js?v=2026-11-27-586a25';
+import { selisihHari, tglID } from './masa-berlaku.js?v=2026-11-27-8426d4';
+import { para, run, judul, teks, tabel, buatDocx } from './docx-dasar.js?v=2026-11-27-8426d4';
 
 // Unsur butir yang meminta notulen/berita acara rapat (label dari unsur-butir.js UNSUR_BUTIR,
 // diperiksa 2026-11-12). Saran saja: admin memilih saat menautkan notulen sebagai bukti.
@@ -17,6 +17,8 @@ export const JENIS_RAPAT = [
   { id: 'rtm', nama: 'Rapat Tinjauan Manajemen (RTM)', saran: [[53, 4]] },
   { id: 'kinerja', nama: 'Tinjauan hasil pengukuran kinerja', saran: [[56, 3]] },
   { id: 'kk', nama: 'Rapat kelompok keahlian', saran: [] },
+  // Forum pemangku/IAB (200, pemilik 2026-11-27): masukan dan tindak lanjutnya dicatat di forum-pemangku.html.
+  { id: 'pemangku', nama: 'Forum pemangku kepentingan (IAB)', saran: [] },
   { id: 'lainnya', nama: 'Lainnya', saran: [] },
 ];
 export const jenisRapat = id => JENIS_RAPAT.find(j => j.id === id) || JENIS_RAPAT[JENIS_RAPAT.length - 1];
