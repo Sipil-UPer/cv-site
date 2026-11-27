@@ -8,7 +8,7 @@
    ===================================================================== */
 
 export { BUTIR_MANUAL, SEKSI_MANUAL, SEKSI_KARTU, ASPEK_KEPUASAN, cekKepuasan, tkKepuasan }
-  from './instrumen/lam-teknik-s1/butir-manual.js?v=2026-11-27-ce288b';
+  from './instrumen/lam-teknik-s1/butir-manual.js?v=2026-11-27-7c5f44';
 
 // Kunci pengaturan untuk satu butir.
 export function kunciButir(b){

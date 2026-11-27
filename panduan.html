@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-27-ce288b">
+<link rel="stylesheet" href="tema.css?v=2026-11-27-7c5f44">
 <style>
   /* Panduan pengguna ruang kerja (pemilik 2026-11-04). Bagian admin hanya
      tampil untuk peran admin. Perbarui bila tombol atau halaman berubah. */
@@ -43,7 +43,7 @@
   @media(max-width:640px){nav.isi ol{columns:1}.wrap{padding:18px 16px 60px}}
   @media print{nav.isi{display:none}section{break-inside:avoid}}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-27-ce288b">
+<link rel="stylesheet" href="kepala.css?v=2026-11-27-7c5f44">
 </head>
 <body>
 
@@ -566,7 +566,7 @@
   </div>
 </main>
 
-<script src="config.js?v=2026-11-27-ce288b"></script>
+<script src="config.js?v=2026-11-27-7c5f44"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -583,8 +583,8 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-27-ce288b';
-import { BUTIR_LAM_TEKNIK, NAMA_INSTRUMEN } from './bobot.js?v=2026-11-27-ce288b';
+import { gerbang } from './menu.js?v=2026-11-27-7c5f44';
+import { BUTIR_LAM_TEKNIK, NAMA_INSTRUMEN } from './bobot.js?v=2026-11-27-7c5f44';
 // Panduan ini memakai contoh LAM Teknik (2026-11-25): instrumen lain mendapat catatan perbedaan di atas.
 if (!BUTIR_LAM_TEKNIK) { const c = document.getElementById('catatanInstrumen'); c.hidden = false;
   c.innerHTML = `<b>Instrumen prodi ini: ${NAMA_INSTRUMEN}.</b> Panduan ini ditulis dengan contoh LAM Teknik Sarjana (butir 1–60). Untuk instrumen ini: elemen, bobot, rubrik, dan syarat status mengikuti halaman <a href="skor.html">Skor dan LED</a>; draf LED dan LKPS memakai templat resmi instrumen ini (diunduh dari halaman yang sama); Simulasi PJP, grafik bernomor di draf LED, dan nomor butir di bagian lain panduan ini tidak berlaku.`; }

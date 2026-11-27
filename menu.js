@@ -1,5 +1,5 @@
-import { dosenLogin } from './dosen-login.js?v=2026-11-27-ce288b';
-import { aktifPada } from './koordinator.js?v=2026-11-27-ce288b';
+import { dosenLogin } from './dosen-login.js?v=2026-11-27-7c5f44';
+import { aktifPada } from './koordinator.js?v=2026-11-27-7c5f44';
 // Menu bersama ruang kerja (pemilik 2026-11-04).
 //
 // Situs dibagi dua:
@@ -43,11 +43,11 @@ const koorTA = s => pengelola(s) || mutu(s) || punyaJ(s, 'koordinator_ta');
 const koorKP = s => pemantau(s) || punyaJ(s, 'koordinator_kp');
 const koorLayanan = s => pengelola(s) || punyaJ(s, 'koordinator_ta', 'koordinator_kp', 'pembina_kemahasiswaan');
 
-import { halamanAktif } from './fitur.js?v=2026-11-27-ce288b';
-import { BUTIR_LAM_TEKNIK } from './bobot.js?v=2026-11-27-ce288b';
-import { pasangPemicuBangun } from './pemicu-bangun.js?v=2026-11-27-ce288b';
+import { halamanAktif } from './fitur.js?v=2026-11-27-7c5f44';
+import { BUTIR_LAM_TEKNIK } from './bobot.js?v=2026-11-27-7c5f44';
+import { pasangPemicuBangun } from './pemicu-bangun.js?v=2026-11-27-7c5f44';
 // Tinggi kotak teks mengikuti isi (pemilik 2026-11-25); bentuk "from" agar dicap stamp_versions.py.
-import { pasSemua as pasKotakTeks } from './kotak-teks.js?v=2026-11-27-ce288b';
+import { pasSemua as pasKotakTeks } from './kotak-teks.js?v=2026-11-27-7c5f44';
 
 export const MODUL = [
   { judul: 'Data saya', ket: 'Profil, karya, target kinerja, jadwal berhalangan, dan kalender Anda.', halaman: [
@@ -107,6 +107,9 @@ export const MODUL = [
     // Jadwal kuliah (150, pemilik 2026-11-22): admin/Kaprodi menyusun (run_jadwal.py), Kaprodi mengesahkan, lalu dosen melihat.
     { sub: 'Penyusunan', href: 'jadwal-kuliah.html', judul: 'Jadwal kuliah', boleh: s => s.peran !== 'asesor',
       ket: 'Hari, jam, dan ruang tiap kelas: disusun dengan run_jadwal.py atau manual, diperiksa bentroknya, disahkan Kaprodi, lalu tampil untuk semua dosen.' },
+    // Ujian dan validasi soal (195, pemilik 2026-11-27).
+    { sub: 'Penyusunan', href: 'ujian.html', judul: 'Ujian dan validasi soal', boleh: s => s.peran !== 'asesor',
+      ket: 'Jadwal UTS/UAS per kelas, ruang, dan pengawas (saran dari Jadwal berhalangan); validasi soal oleh GKM/Kaprodi yang bukan pengampu.' },
     { sub: 'Kurikulum dan CPL', href: 'data-prodi.html?tab=mk', judul: 'Mata kuliah dan CPL', boleh: admin,
       ket: 'Data prodi › Kurikulum & CPL: mata kuliah, CPL per kurikulum, peta MK–CPL, korelasi CPL antar kurikulum.' },
     // Rekap RPS kurikulum (pemilik 2026-11-19): kalender asesmen lintas MK dan peta CPL dari bagian B.
@@ -279,9 +282,9 @@ export function bolehBuka(saya, href){
 const jab = j => s => (s.koordinator || []).includes(j);
 export const PINTASAN = [
   { label: 'Admin prodi', cocok: admin, href: ['verifikasi.html', 'pengajuan-mahasiswa.html', 'data-prodi.html', 'pengingat.html', 'dasbor.html', 'kelola-dosen.html'] },
-  { label: 'Kaprodi', cocok: s => jab('kaprodi')(s) || s.peran === 'pimpinan', href: ['dasbor.html', 'koordinator-mk.html', 'tinjauan-rps.html', 'silabus.html', 'ekuivalensi.html', 'kelas.html', 'jadwal-kuliah.html', 'rps-kurikulum.html', 'monitoring.html', 'pjp.html'] },
+  { label: 'Kaprodi', cocok: s => jab('kaprodi')(s) || s.peran === 'pimpinan', href: ['dasbor.html', 'koordinator-mk.html', 'tinjauan-rps.html', 'silabus.html', 'ekuivalensi.html', 'kelas.html', 'jadwal-kuliah.html', 'ujian.html', 'rps-kurikulum.html', 'monitoring.html', 'pjp.html'] },
   { label: 'Dekan', cocok: jab('dekan'), href: ['rps.html', 'ekuivalensi.html', 'monitoring.html'] },
-  { label: 'Gugus kendali mutu (GKM)', cocok: jab('gkm'), href: ['skor.html', 'mutu-data.html', 'siklus-ppepp.html', 'kelola-survei.html', 'monitoring.html#cpl', 'evaluasi-pembelajaran.html'] },
+  { label: 'Gugus kendali mutu (GKM)', cocok: jab('gkm'), href: ['skor.html', 'mutu-data.html', 'siklus-ppepp.html', 'kelola-survei.html', 'monitoring.html#cpl', 'evaluasi-pembelajaran.html', 'ujian.html'] },
   { label: 'Koordinator KP/Magang', cocok: jab('koordinator_kp'), href: ['pengajuan-mahasiswa.html', 'rekap-kp.html', 'kelola-layanan-mahasiswa.html'] },
   { label: 'Koordinator TA', cocok: jab('koordinator_ta'), href: ['ruang-ta.html', 'pengajuan-mahasiswa.html', 'bimbingan-ta.html', 'penilaian-ta.html', 'rekap-ta.html', 'jadwal-berhalangan.html', 'kelola-layanan-mahasiswa.html'] },
   { label: 'Pembina kemahasiswaan', cocok: jab('pembina_kemahasiswaan'), href: ['pengajuan-mahasiswa.html', 'kelola-layanan-mahasiswa.html', 'data-prodi.html'] },
@@ -484,7 +487,7 @@ export async function pasangMenu(sb){
   // Pencarian menyeluruh (pemilik 2026-11-12; cari-ui.js, cari.js): dimuat saat pertama dipakai.
   const kotak = nav.querySelector('.rk-cari input');
   let siapCari = null;
-  const muatCari = () => siapCari || (siapCari = import('./cari-ui.js?v=2026-11-27-ce288b').then(m =>
+  const muatCari = () => siapCari || (siapCari = import('./cari-ui.js?v=2026-11-27-7c5f44').then(m =>
     m.pasangCari(kotak, { sb, saya: u.saya, modul: halamanBoleh(u.saya), boleh: h => bolehBuka(u.saya, h) !== false })));
   kotak.addEventListener('focus', muatCari);
   document.addEventListener('keydown', e => {

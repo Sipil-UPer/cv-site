@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="robots" content="noindex, nofollow">
+<title>Ujian dan validasi soal — Ruang kerja</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tema.css?v=2026-11-27-7c5f44">
+<link rel="stylesheet" href="kepala.css?v=2026-11-27-7c5f44">
+<style>
+  /* Ujian dan validasi soal (195-patch-ujian-validasi-soal.sql, pemilik 2026-11-27) */
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
+  .wrap{max-width:1300px;margin:0 auto;padding:18px 20px 80px}
+  .kosong, .ket{color:var(--muted)}
+  .ket{font-size:13px}
+  .kartu{background:var(--panel);border:1px solid var(--line);padding:14px 18px;margin-bottom:16px}
+  .kartu h2{font-size:17px;margin:0 0 6px;color:var(--biru)}
+  .alat{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:8px 0}
+  select, input[type=date], input[type=time], input[type=text]{font:inherit;font-size:14px;padding:4px 6px;border:1px solid var(--line);background:var(--panel);color:var(--ink)}
+  input[type=text].ruang{width:110px}
+  .b{font:inherit;font-size:14px;padding:5px 12px;border:1px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer}
+  .b.utama{background:var(--biru);border-color:var(--biru);color:#fff}
+  .b.bahaya{color:var(--merah);border-color:var(--merah)}
+  .b.kecil{font-size:12.5px;padding:2px 8px}
+  .b.pilih{border-color:var(--biru);color:var(--biru);font-weight:600}
+  .b:disabled{opacity:.5;cursor:default}
+  .pesan{font-size:13.5px;margin:6px 0} .pesan.galat{color:var(--merah)} .pesan.ok{color:var(--hijau)}
+  .periksa{border-left:4px solid var(--merah);background:var(--merah-m3);padding:8px 12px;margin:8px 0;font-size:13.5px}
+  .ringkas{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+  .ringkas div{min-width:120px;padding:6px 10px;border:1px solid var(--line)} .ringkas b{display:block;font-size:20px;line-height:1.1} .ringkas span{font-size:12px;color:var(--muted)}
+  .gulir{overflow-x:auto}
+  table.ds{width:100%;border-collapse:collapse;font-size:13.5px}
+  table.ds th{text-align:left;font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--line);padding:5px 6px}
+  table.ds td{padding:5px 6px;border-bottom:1px solid var(--line-soft);vertical-align:top}
+  tr.bentrok td{background:var(--merah-m3)}
+  .kode{font-family:var(--mono);font-size:12px;color:var(--muted)}
+  .chip{display:inline-block;font-size:12px;padding:1px 7px;border:1px solid var(--line);margin:1px 3px 1px 0;white-space:nowrap}
+  .st{font-size:12px;font-weight:600;padding:1px 7px;border:1px solid var(--line);white-space:nowrap}
+  .st.layak{color:var(--hijau);border-color:var(--hijau)} .st.revisi{color:var(--merah);border-color:var(--merah)} .st.diajukan{color:var(--biru);border-color:var(--biru)}
+  .panel{border:1px solid var(--biru);padding:10px 14px;margin:6px 0;background:var(--panel)}
+  .panel label{display:block;margin:3px 0;font-size:13.5px}
+  .panel label.tidak{color:var(--muted)}
+  .panel .daftar{columns:2 260px;margin:6px 0}
+  .panel textarea{width:100%;min-height:60px;font:inherit;font-size:14px}
+  @media(max-width:700px){.wrap{padding-left:16px;padding-right:16px}}
+</style>
+</head>
+<body>
+<div class="hero" role="region" aria-label="Pembuka halaman"><div class="hero-in">
+  <div class="hero-inst" data-identitas></div>
+  <h1>Ujian dan validasi soal</h1>
+  <div class="sub" id="hSub">Memuat…</div>
+</div></div>
+<main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
+<script src="config.js?v=2026-11-27-7c5f44"></script>
+<script>
+// Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
+addEventListener('error', function (e) {
+  if (document.getElementById('galat-muat')) return;
+  var d = document.createElement('div');
+  d.id = 'galat-muat';
+  d.style.cssText = 'margin:16px;padding:12px 14px;border:1px solid var(--merah);' +
+    'background:var(--merah-m3);color:var(--ink);font:14px/1.5 system-ui,sans-serif';
+  d.textContent = 'Halaman gagal dimuat: ' + (e.message || 'galat skrip') +
+    '. Tekan Ctrl+Shift+R untuk memuat ulang tanpa cache; bila tetap muncul, kirim pesan ini ke admin.';
+  document.body.insertBefore(d, document.body.firstChild);
+});
+</script>
+<script type="module">
+// Ujian dan validasi soal (195, pemilik 2026-11-27). Jadwal UTS/UAS per kelas dan pengawas: admin dan Kaprodi aktif menyusun,
+// semua dosen membaca. Validasi soal: penyusun MK mengajukan setelah soal diunggah di Portofolio; validator = GKM/Kaprodi/admin
+// yang bukan pengampu MK itu (diperiksa basis data). Logika murni: ujian.js.
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
+import { gerbang } from './menu.js?v=2026-11-27-7c5f44';
+import { punya } from './koordinator.js?v=2026-11-27-7c5f44';
+import { semesterKini } from './evaluasi-pembelajaran.js?v=2026-11-27-7c5f44';
+import { tanggalSemester } from './jadwal-berhalangan.js?v=2026-11-27-7c5f44';
+import { JENIS_UJIAN, CEK_SOAL, STATUS_SOAL, jam, bentrok, saranPengawas, cocokAsesmen, csvUjian } from './ujian.js?v=2026-11-27-7c5f44';
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const sb = createClient(window.SB_URL, window.SB_KEY);
+const baca = q => q.then(r => r.error ? [] : (r.data || []), () => []);
+const tglPanjang = t => t ? new Date(t + 'T00:00:00Z').toLocaleDateString('id-ID', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' }) : '';
+
+let SAYA = null, PERIODE = null, JENIS = 'uts', ADA = true;
+let MK = [], DOSEN = [], KELAS = [], KD = [], JK = [], UJIAN = [], BERKAS = [], VAL = [], B = {};
+let BUKA = null, PILIH = new Map(), BUKA_V = null, EDIT = new Map();   // EDIT: isian baris yang belum disimpan
+const PENGATUR = () => SAYA?.peran === 'admin' || punya(SAYA, 'kaprodi');
+const VALIDATOR = () => SAYA?.peran === 'admin' || punya(SAYA, 'kaprodi') || punya(SAYA, 'gkm');
+const namaD = id => { const d = DOSEN.find(x => x.id === id); return d ? (d.nama_gelar || d.nama) : '?'; };
+const mkDari = (kur, kode) => MK.find(m => m.kurikulum === kur && m.kode === kode);
+const pengampuSaya = (kur, kode) => !!SAYA?.nidn && (mkDari(kur, kode)?.pengampu || []).includes(SAYA.nidn);
+function tulis(id, kelas, teks){ const m = $(id); if (m) { m.className = 'pesan ' + kelas; m.textContent = teks; } }
+
+function periodeDaftar(){
+  const k = semesterKini(), [a] = k.ta.split('/').map(Number);
+  const lalu = k.sm === 'Genap' ? { ta: k.ta, sm: 'Ganjil' } : { ta: `${a - 1}/${a}`, sm: 'Genap' };
+  const lanjut = k.sm === 'Ganjil' ? { ta: k.ta, sm: 'Genap' } : { ta: `${a + 1}/${a + 2}`, sm: 'Ganjil' };
+  return [lalu, k, lanjut];
+}
+
+async function muat(){
+  const { ta, sm } = PERIODE, rentang = tanggalSemester(ta, sm);
+  KELAS = await baca(sb.from('kelas_kuliah').select('id,tahun_akademik,semester,kurikulum,kode_mk,kelas').eq('tahun_akademik', ta).eq('semester', sm));
+  const ids = KELAS.map(k => k.id);
+  const uj = ids.length ? await sb.from('ujian_jadwal').select('id,kelas_id,jenis,tanggal,mulai,selesai,ruang,catatan,ujian_pengawas(dosen_id)').in('kelas_id', ids) : { data: [] };
+  ADA = !uj.error;
+  const [kd, jk, berkas, val, slot, mg, tg, rt] = await Promise.all([
+    ids.length ? baca(sb.from('kelas_dosen').select('kelas_id,dosen_id,peran').in('kelas_id', ids)) : [],
+    ids.length ? baca(sb.from('jadwal_kuliah').select('kelas_id,hari,mulai,selesai,ruang').in('kelas_id', ids)) : [],
+    baca(sb.from('portofolio_berkas').select('kurikulum,kode_mk,komponen,asesmen,nama_berkas,url').eq('tahun_akademik', ta).eq('semester', sm)
+      .in('komponen', ['soal', 'kunci', 'rubrik'])),
+    baca(sb.from('soal_validasi').select('*').eq('tahun_akademik', ta).eq('semester', sm)),
+    baca(sb.from('jadwal_slot').select('id,mulai,selesai')),
+    baca(sb.from('dosen_berhalangan').select('dosen_id,hari,slot_id').eq('tahun_akademik', ta).eq('semester', sm)),
+    rentang ? baca(sb.from('dosen_berhalangan_tgl').select('dosen_id,tanggal,slot_id').gte('tanggal', rentang.dari).lte('tanggal', rentang.sampai)) : [],
+    rentang ? baca(sb.from('dosen_berhalangan_rentang').select('dosen_id,mulai,selesai,hari,slot_ids').lte('mulai', rentang.sampai).gte('selesai', rentang.dari)) : []]);
+  KD = kd; JK = jk; BERKAS = berkas; VAL = val;
+  B = { mingguan: mg, tanggalan: tg, rentang: rt, slot: new Map(slot.map(s => [s.id, s])) };
+  UJIAN = (uj.data || []).map(u => ({ ...u, pengawas: (u.ujian_pengawas || []).map(p => p.dosen_id) }));
+}
+
+// Baris ujian untuk jenis terpilih: semua kelas, terisi bila sudah dijadwalkan.
+function baris(){
+  return KELAS.map(k => {
+    const u = UJIAN.find(x => x.kelas_id === k.id && x.jenis === JENIS), m = mkDari(k.kurikulum, k.kode_mk);
+    return { kelas: k, mk: m, u, data: u ? { ...u, kode_mk: k.kode_mk, nama_mk: m?.nama, kelas: k.kelas } : null };
+  }).sort((a, b) => (a.mk?.semester ?? 99) - (b.mk?.semester ?? 99) || a.kelas.kode_mk.localeCompare(b.kelas.kode_mk) || a.kelas.kelas.localeCompare(b.kelas.kelas));
+}
+
+function gambar(){
+  const ps = periodeDaftar();
+  $('isi').innerHTML = `<div class="alat">
+      <label>Periode <select id="pPeriode">${ps.map((p, i) => `<option value="${i}"${p.ta === PERIODE.ta && p.sm === PERIODE.sm ? ' selected' : ''}>${esc(p.ta)} ${esc(p.sm)}</option>`).join('')}</select></label>
+      ${Object.entries(JENIS_UJIAN).map(([k, v]) => `<button type="button" class="b${k === JENIS ? ' pilih' : ''}" data-jenis="${k}">${v}</button>`).join('')}
+      <button type="button" class="b" id="bCsv">Unduh jadwal (CSV)</button></div>
+    ${ADA ? '' : '<p class="periksa">Tabel ujian belum ada: jalankan supabase/195-patch-ujian-validasi-soal.sql.</p>'}
+    <section class="kartu" id="jadwal"></section>
+    <section class="kartu" id="validasi"></section>
+    <section class="kartu" id="saya"></section>`;
+  $('pPeriode').onchange = async e => { PERIODE = ps[+e.target.value]; BUKA = null; BUKA_V = null; EDIT.clear(); PILIH.clear(); await muat(); gambar(); };
+  document.querySelectorAll('[data-jenis]').forEach(b => { b.onclick = () => { JENIS = b.dataset.jenis; BUKA = null; BUKA_V = null; EDIT.clear(); PILIH.clear(); gambar(); }; });
+  $('bCsv').onclick = unduhCsv;
+  gambarJadwal(); gambarValidasi(); gambarSaya();
+  if (location.hash) document.querySelector(location.hash)?.scrollIntoView();
+}
+
+function gambarJadwal(){
+  const xs = baris(), atur = PENGATUR(), terisi = xs.filter(x => x.u);
+  const tabrak = bentrok(terisi.map(x => x.data));
+  const kena = new Set(tabrak.flatMap(t => [t.a.id, t.b.id]));
+  $('jadwal').innerHTML = `<h2>Jadwal ${JENIS_UJIAN[JENIS]} ${esc(PERIODE.ta)} ${esc(PERIODE.sm)}</h2>
+    <p class="ket">Satu baris per kelas (Penyusunan kelas). ${atur ? 'Jam terisi awal dari jadwal kuliah kelas itu; ubah bila perlu, lalu Simpan. Pengawas disarankan dari yang tidak berhalangan (Jadwal berhalangan) dan bebannya paling ringan.' : 'Disusun admin dan Kaprodi.'}</p>
+    <div class="ringkas"><div><b>${xs.length}</b><span>kelas</span></div><div><b>${terisi.length}</b><span>terjadwal</span></div>
+      <div><b>${terisi.filter(x => !x.u.pengawas.length).length}</b><span>tanpa pengawas</span></div><div><b>${tabrak.length}</b><span>bentrok</span></div></div>
+    ${tabrak.length ? `<div class="periksa"><b>Bentrok:</b><ul>${tabrak.map(t => `<li>${t.jenis === 'ruang' ? `Ruang ${esc(t.a.ruang)}` : `Pengawas ${esc(namaD(t.dosen_id))}`}:
+      ${esc(t.a.nama_mk || t.a.kode_mk)} (${esc(t.a.kelas)}) dan ${esc(t.b.nama_mk || t.b.kode_mk)} (${esc(t.b.kelas)}), ${esc(tglPanjang(t.a.tanggal))}</li>`).join('')}</ul></div>` : ''}
+    <span class="pesan" id="mJadwal" role="status"></span>
+    ${xs.length ? `<div class="gulir"><table class="ds"><thead><tr><th>Mata kuliah</th><th>Kelas</th><th>Tanggal</th><th>Mulai</th><th>Selesai</th><th>Ruang</th><th>Pengawas</th><th></th></tr></thead><tbody>
+      ${xs.map(x => barisJadwal(x, atur, kena)).join('')}</tbody></table></div>` : '<p class="kosong">Belum ada kelas untuk periode ini (Penyusunan kelas).</p>'}`;
+  if (!atur) return;
+  $('jadwal').querySelectorAll('[data-simpan]').forEach(b => { b.onclick = () => simpan(+b.dataset.simpan); });
+  $('jadwal').querySelectorAll('[data-hapus]').forEach(b => { b.onclick = () => hapus(+b.dataset.hapus); });
+  $('jadwal').querySelectorAll('[data-awas]').forEach(b => { b.onclick = () => {
+    const k = +b.dataset.awas; BUKA = BUKA === k ? null : k;
+    for (const x of KELAS) if ($(`t_${x.id}`)) EDIT.set(x.id, { tanggal: $(`t_${x.id}`).value, mulai: $(`m_${x.id}`).value, selesai: $(`s_${x.id}`).value, ruang: $(`r_${x.id}`).value });
+    if (BUKA !== null && !PILIH.has(k)) PILIH.set(k, new Set(UJIAN.find(u => u.kelas_id === k && u.jenis === JENIS)?.pengawas || []));
+    gambarJadwal(); }; });
+  $('jadwal').querySelectorAll('[data-pengawas]').forEach(c => { c.onchange = () => {
+    const s = PILIH.get(BUKA); c.checked ? s.add(c.value) : s.delete(c.value); }; });
+}
+
+function barisJadwal(x, atur, kena){
+  const k = x.kelas, u = x.u, jk = JK.find(j => j.kelas_id === k.id);
+  const nilai = EDIT.get(k.id) || { tanggal: u?.tanggal || '', mulai: jam(u?.mulai || jk?.mulai || ''), selesai: jam(u?.selesai || jk?.selesai || ''), ruang: u?.ruang ?? jk?.ruang ?? '' };
+  const pengawas = (atur && PILIH.has(k.id) ? [...PILIH.get(k.id)] : u?.pengawas || []);
+  const nama = `${esc(x.mk?.nama || k.kode_mk)} <span class="kode">${esc(k.kode_mk)}</span>`;
+  if (!atur) return `<tr${u && kena.has(u.id) ? ' class="bentrok"' : ''}><td>${nama}</td><td>${esc(k.kelas)}</td><td>${esc(tglPanjang(nilai.tanggal)) || '<span class="ket">belum</span>'}</td>
+    <td>${esc(u ? nilai.mulai : '')}</td><td>${esc(u ? nilai.selesai : '')}</td><td>${esc(u ? nilai.ruang : '')}</td><td>${pengawas.map(d => `<span class="chip">${esc(namaD(d))}</span>`).join('')}</td><td></td></tr>`;
+  const panel = BUKA === k.id ? `<tr><td colspan="8"><div class="panel"><b>Pengawas ${esc(x.mk?.nama || k.kode_mk)} (${esc(k.kelas)})</b>
+      <span class="ket">Yang tidak tersedia digelapkan beserta alasannya; tetap bisa dipilih bila memang disepakati. Klik Simpan pada barisnya.</span>
+      <div class="daftar">${saranPengawas({ id: u?.id, tanggal: nilai.tanggal, mulai: nilai.mulai, selesai: nilai.selesai },
+        DOSEN, UJIAN, B, KD.filter(d => d.kelas_id === k.id).map(d => d.dosen_id)).map(d =>
+        `<label class="${d.alasan ? 'tidak' : ''}"><input type="checkbox" data-pengawas value="${esc(d.id)}"${PILIH.get(k.id).has(d.id) ? ' checked' : ''}>
+          ${esc(d.nama)} <span class="ket">(${d.beban} jadwal${d.pengampu ? ', pengampu' : ''}${d.alasan ? `; ${esc(d.alasan)}` : ''})</span></label>`).join('')}</div></div></td></tr>` : '';
+  return `<tr${u && kena.has(u.id) ? ' class="bentrok"' : ''}><td>${nama}</td><td>${esc(k.kelas)}</td>
+    <td><input type="date" id="t_${k.id}" value="${esc(nilai.tanggal)}" aria-label="Tanggal"></td>
+    <td><input type="time" id="m_${k.id}" value="${esc(nilai.mulai)}" aria-label="Mulai"></td>
+    <td><input type="time" id="s_${k.id}" value="${esc(nilai.selesai)}" aria-label="Selesai"></td>
+    <td><input type="text" class="ruang" id="r_${k.id}" value="${esc(nilai.ruang)}" maxlength="60" aria-label="Ruang"></td>
+    <td>${pengawas.map(d => `<span class="chip">${esc(namaD(d))}</span>`).join('')}<button type="button" class="b kecil" data-awas="${k.id}">${BUKA === k.id ? 'Tutup' : 'Atur'}</button></td>
+    <td><button type="button" class="b kecil utama" data-simpan="${k.id}">Simpan</button>${u ? ` <button type="button" class="b kecil bahaya" data-hapus="${k.id}">Hapus</button>` : ''}</td></tr>${panel}`;
+}
+
+async function simpan(kelasId){
+  const tanggal = $(`t_${kelasId}`).value, mulai = $(`m_${kelasId}`).value, selesai = $(`s_${kelasId}`).value, ruang = $(`r_${kelasId}`).value.trim() || null;
+  if (!tanggal || !mulai || !selesai) return tulis('mJadwal', 'galat', 'Isi tanggal, jam mulai, dan jam selesai.');
+  if (selesai <= mulai) return tulis('mJadwal', 'galat', 'Jam selesai harus setelah jam mulai.');
+  const { data, error } = await sb.from('ujian_jadwal').upsert({ kelas_id: kelasId, jenis: JENIS, tanggal, mulai, selesai, ruang, oleh: SAYA.email,
+    diperbarui: new Date().toISOString() }, { onConflict: 'kelas_id,jenis' }).select('id').single();
+  if (error) return tulis('mJadwal', 'galat', 'Gagal menyimpan: ' + error.message);
+  if (PILIH.has(kelasId)) {
+    const pilih = [...PILIH.get(kelasId)];
+    const h = await sb.from('ujian_pengawas').delete().eq('ujian_id', data.id);
+    if (h.error) return tulis('mJadwal', 'galat', 'Gagal mengubah pengawas: ' + h.error.message);
+    if (pilih.length) {
+      const t = await sb.from('ujian_pengawas').insert(pilih.map(d => ({ ujian_id: data.id, dosen_id: d })));
+      if (t.error) return tulis('mJadwal', 'galat', 'Gagal menyimpan pengawas: ' + t.error.message);
+    }
+    PILIH.delete(kelasId);
+  }
+  EDIT.delete(kelasId); BUKA = null; await muat(); gambar(); tulis('mJadwal', 'ok', 'Jadwal tersimpan.');
+}
+
+async function hapus(kelasId){
+  const u = UJIAN.find(x => x.kelas_id === kelasId && x.jenis === JENIS);
+  if (!u || !confirm('Hapus jadwal ujian kelas ini beserta pengawasnya?')) return;
+  const { error } = await sb.from('ujian_jadwal').delete().eq('id', u.id);
+  if (error) return tulis('mJadwal', 'galat', 'Gagal menghapus: ' + error.message);
+  PILIH.delete(kelasId); EDIT.delete(kelasId); BUKA = null; await muat(); gambar(); tulis('mJadwal', 'ok', 'Jadwal dihapus.');
+}
+
+function unduhCsv(){
+  const xs = baris().filter(x => x.u).map(x => x.data);
+  if (!xs.length) return alert('Belum ada jadwal untuk diunduh.');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csvUjian(xs, namaD)], { type: 'text/csv;charset=utf-8' }));
+  a.download = `jadwal-${JENIS}-${PERIODE.ta.replace('/', '-')}-${PERIODE.sm.toLowerCase()}.csv`;
+  a.click(); URL.revokeObjectURL(a.href);
+}
+
+// ---------------------------------------------------------------- validasi soal
+function gambarValidasi(){
+  const mks = [...new Map(KELAS.map(k => [`${k.kurikulum}|${k.kode_mk}`, k])).values()]
+    .map(k => ({ kur: k.kurikulum, kode: k.kode_mk, mk: mkDari(k.kurikulum, k.kode_mk) }))
+    .sort((a, b) => (a.mk?.semester ?? 99) - (b.mk?.semester ?? 99) || a.kode.localeCompare(b.kode));
+  const tautan = xs => xs.map(b => `<a href="${esc(b.url)}" target="_blank" rel="noopener">${esc(b.nama_berkas || b.komponen)}</a>`).join(', ');
+  const rows = mks.map(x => {
+    const soal = BERKAS.filter(b => b.kurikulum === x.kur && b.kode_mk === x.kode && b.komponen === 'soal' && cocokAsesmen(b.asesmen, JENIS));
+    const kunci = BERKAS.filter(b => b.kurikulum === x.kur && b.kode_mk === x.kode && b.komponen !== 'soal' && (!b.asesmen || cocokAsesmen(b.asesmen, JENIS)));
+    const v = VAL.find(y => y.kurikulum === x.kur && y.kode_mk === x.kode && cocokAsesmen(y.asesmen, JENIS));
+    const st = v?.status || 'belum', penyusun = pengampuSaya(x.kur, x.kode) || SAYA.peran === 'admin';
+    const kunciId = `${x.kur}|${x.kode}`;
+    const aksi = [
+      penyusun && soal.length && st !== 'layak' && st !== 'diajukan' ? `<button type="button" class="b kecil utama" data-ajukan="${esc(kunciId)}" data-asesmen="${esc(soal[0].asesmen)}">Ajukan validasi</button>` : '',
+      v && st === 'diajukan' && VALIDATOR() && !pengampuSaya(x.kur, x.kode) ? `<button type="button" class="b kecil" data-nilai="${v.id}">${BUKA_V === v.id ? 'Tutup' : 'Validasi'}</button>` : ''].join(' ');
+    const panel = v && BUKA_V === v.id ? `<tr><td colspan="5"><div class="panel"><b>Validasi soal ${esc(v.asesmen)} ${esc(x.mk?.nama || x.kode)}</b>
+        <span class="ket">Buka berkas soal dan kunci/rubrik, bandingkan dengan RPS (Sub-CPMK, Bloom, bobot).</span>
+        ${CEK_SOAL.map(([k, l]) => `<label><input type="checkbox" data-cek="${k}"${v.cek?.[k] ? ' checked' : ''}> ${esc(l)}</label>`).join('')}
+        <textarea id="vCat" maxlength="2000" placeholder="Catatan (wajib bila revisi): nomor soal dan perbaikan yang diminta">${esc(v.catatan || '')}</textarea>
+        <button type="button" class="b utama" data-putus="layak">Layak</button> <button type="button" class="b bahaya" data-putus="revisi">Perlu revisi</button>
+        <span class="pesan" id="mPutus" role="status"></span></div></td></tr>` : '';
+    return `<tr><td>${esc(x.mk?.nama || x.kode)} <span class="kode">${esc(x.kode)}</span></td>
+      <td>${soal.length ? tautan(soal) : '<span class="ket">belum diunggah</span>'}</td><td>${kunci.length ? tautan(kunci) : '<span class="ket">—</span>'}</td>
+      <td><span class="st ${esc(st)}">${esc(STATUS_SOAL[st])}</span>${v?.status === 'revisi' && v.catatan ? `<div class="ket">${esc(v.catatan)}</div>` : ''}
+        ${v?.status === 'layak' && v.validator_id ? `<div class="ket">oleh ${esc(namaD(v.validator_id))}</div>` : ''}</td>
+      <td>${aksi}</td></tr>${panel}`;
+  });
+  const nLayak = mks.filter(x => VAL.some(y => y.kurikulum === x.kur && y.kode_mk === x.kode && cocokAsesmen(y.asesmen, JENIS) && y.status === 'layak')).length;
+  $('validasi').innerHTML = `<h2>Validasi soal ${JENIS_UJIAN[JENIS]}</h2>
+    <p class="ket">Penyusun mengunggah soal dan kunci/rubrik di <a href="portofolio.html">Portofolio mata kuliah</a> (asesmen bernama ${JENIS_UJIAN[JENIS]}),
+      lalu menekan <b>Ajukan validasi</b>. Validator: GKM, Kaprodi, atau admin yang <b>bukan</b> pengampu MK itu. Layak bila keenam butir
+      daftar periksa terpenuhi; bila perlu revisi, tulis catatannya. Bukti butir 15–16 dan 55 (penjaminan mutu asesmen).</p>
+    <div class="ringkas"><div><b>${mks.length}</b><span>mata kuliah</span></div><div><b>${nLayak}</b><span>soal layak</span></div>
+      <div><b>${VAL.filter(y => y.status === 'diajukan' && cocokAsesmen(y.asesmen, JENIS)).length}</b><span>menunggu validasi</span></div></div>
+    <span class="pesan" id="mVal" role="status"></span>
+    ${rows.length ? `<div class="gulir"><table class="ds"><thead><tr><th>Mata kuliah</th><th>Soal</th><th>Kunci/rubrik</th><th>Status</th><th></th></tr></thead>
+      <tbody>${rows.join('')}</tbody></table></div>` : '<p class="kosong">Belum ada kelas untuk periode ini.</p>'}`;
+  $('validasi').querySelectorAll('[data-ajukan]').forEach(b => { b.onclick = () => ajukan(b.dataset.ajukan, b.dataset.asesmen); });
+  $('validasi').querySelectorAll('[data-nilai]').forEach(b => { b.onclick = () => { BUKA_V = BUKA_V === +b.dataset.nilai ? null : +b.dataset.nilai; gambarValidasi(); }; });
+  $('validasi').querySelectorAll('[data-putus]').forEach(b => { b.onclick = () => putuskan(b.dataset.putus); });
+}
+
+async function ajukan(kunci, asesmen){
+  const [kur, kode] = kunci.split('|');
+  const { error } = await sb.rpc('soal_ajukan', { p_ta: PERIODE.ta, p_sm: PERIODE.sm, p_kurikulum: kur, p_kode: kode, p_asesmen: asesmen });
+  if (error) return tulis('mVal', 'galat', error.message);
+  await muat(); gambar(); tulis('mVal', 'ok', `Soal ${asesmen} diajukan untuk validasi.`);
+}
+
+async function putuskan(status){
+  const cek = Object.fromEntries([...document.querySelectorAll('[data-cek]')].map(c => [c.dataset.cek, c.checked]));
+  const { error } = await sb.rpc('soal_putuskan', { p_id: BUKA_V, p_status: status, p_cek: cek, p_catatan: $('vCat').value.trim() || null });
+  if (error) return tulis('mPutus', 'galat', error.message);
+  BUKA_V = null; await muat(); gambar(); tulis('mVal', 'ok', status === 'layak' ? 'Soal dinyatakan layak.' : 'Catatan revisi terkirim ke penyusun (Tugas saya).');
+}
+
+// ---------------------------------------------------------------- jadwal saya
+function gambarSaya(){
+  const kelasSaya = new Set(KD.filter(d => d.dosen_id === SAYA.id).map(d => d.kelas_id));
+  const xs = UJIAN.filter(u => u.pengawas.includes(SAYA.id) || kelasSaya.has(u.kelas_id))
+    .map(u => ({ u, k: KELAS.find(k => k.id === u.kelas_id) })).filter(x => x.k)
+    .sort((a, b) => String(a.u.tanggal).localeCompare(String(b.u.tanggal)) || String(a.u.mulai).localeCompare(String(b.u.mulai)));
+  $('saya').innerHTML = `<h2>Jadwal ujian saya</h2>
+    <p class="ket">Ujian yang Anda awasi dan ujian kelas yang Anda ajar, ${esc(PERIODE.ta)} ${esc(PERIODE.sm)}. Tugas mengawas juga tampil di Tugas saya 14 hari sebelumnya.</p>
+    ${xs.length ? `<div class="gulir"><table class="ds"><thead><tr><th>Tanggal</th><th>Jam</th><th>Ujian</th><th>Ruang</th><th>Peran Anda</th><th>Pengawas</th></tr></thead><tbody>
+      ${xs.map(({ u, k }) => `<tr><td>${esc(tglPanjang(u.tanggal))}</td><td>${esc(jam(u.mulai))}–${esc(jam(u.selesai))}</td>
+        <td>${JENIS_UJIAN[u.jenis]} ${esc(mkDari(k.kurikulum, k.kode_mk)?.nama || k.kode_mk)} (${esc(k.kelas)})</td><td>${esc(u.ruang || '')}</td>
+        <td>${[u.pengawas.includes(SAYA.id) ? 'pengawas' : '', kelasSaya.has(u.kelas_id) ? 'pengampu' : ''].filter(Boolean).join(', ')}</td>
+        <td>${u.pengawas.map(d => `<span class="chip">${esc(namaD(d))}</span>`).join('')}</td></tr>`).join('')}</tbody></table></div>`
+      : '<p class="kosong">Belum ada jadwal ujian untuk Anda di periode ini.</p>'}`;
+}
+
+async function mulai(){
+  SAYA = await gerbang(sb);
+  if (!SAYA) return;
+  $('hSub').textContent = `Masuk sebagai ${SAYA.nama}`;
+  PERIODE = periodeDaftar()[1];
+  [MK, DOSEN] = await Promise.all([
+    baca(sb.from('ref_mata_kuliah').select('kurikulum,kode,nama,semester,pengampu')),
+    baca(sb.from('dosen').select('id,nidn,nama,nama_gelar,aktif,peran').order('nama'))]);
+  DOSEN = DOSEN.filter(d => d.aktif !== false && !['asesor', 'pimpinan'].includes(d.peran));
+  await muat();
+  gambar();
+}
+mulai().catch(e => { $('isi').innerHTML = `<p class="kosong">Gagal memuat: ${esc(e.message)}</p>`; });
+</script>
+</body>
+</html>
