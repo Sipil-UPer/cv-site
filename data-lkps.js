@@ -4,8 +4,27 @@
    ===================================================================== */
 // Data Data prodi yang dipakai LKPS dan draf LED (hanya di browser pemakai yang login;
 // tabel yang belum boleh dibaca atau belum ada cukup kosong).
-import { integrasiDisahkan, kunciIntegrasi } from './rps-integrasi.js?v=2026-11-27-8426d4';
-import { bacaAmpu } from './dosen-hitung.js?v=2026-11-27-8426d4';
+import { integrasiDisahkan, kunciIntegrasi } from './rps-integrasi.js?v=2026-11-27-c0ada6';
+import { bacaAmpu } from './dosen-hitung.js?v=2026-11-27-c0ada6';
+async function ambilModul(sb){
+  const r = q => q.then(x => (x.error ? null : x.data), () => null);
+  const [masukanRekap, nilaiRekap, kelas, ujian, validasi, sdm, lab, alat, perawatan, induksi, pinjam, pemangku, masukan] = await Promise.all([
+    r(sb.rpc('rekap_masukan_publik')), r(sb.rpc('rekap_nilai_layanan_publik')),
+    r(sb.from('kelas_kuliah').select('id,tahun_akademik,semester,kurikulum,kode_mk')),
+    r(sb.from('ujian_jadwal').select('kelas_id,jenis,ujian_pengawas(dosen_id)')),
+    r(sb.from('soal_validasi').select('tahun_akademik,semester,asesmen,status,riwayat')),
+    r(sb.from('sdm_rencana').select('jenis,tahun_target,status')),
+    r(sb.from('laboratorium').select('id,nama')), r(sb.from('lab_alat').select('*')),
+    r(sb.from('lab_perawatan').select('alat_id,tanggal,jenis')), r(sb.from('lab_induksi_k3').select('laboratorium_id,tanggal,peserta_nim,jumlah_lain')),
+    r(sb.from('lab_pinjam').select('alat_id,tanggal_pinjam')),
+    r(sb.from('pemangku').select('id,kategori,anggota_forum,aktif')),
+    r(sb.from('pemangku_masukan').select('tanggal,pemangku_id,sumber_kategori,topik,isi,status,tindak_lanjut'))]);
+  return { masukanRekap, nilaiRekap, sdm: sdm || [],
+    ujian: kelas && ujian && validasi ? { kelas, validasi, ujian: ujian.map(u => ({ ...u, pengawas: (u.ujian_pengawas || []).map(p => p.dosen_id) })) } : null,
+    lab: lab && alat ? { lab, alat, perawatan: perawatan || [], induksi: induksi || [], pinjam: pinjam || [] } : null,
+    pemangku: masukan ? { pemangku: pemangku || [], masukan } : null };
+}
+
 export async function ambilDaftarLKPS(sb){
   // Tahap 2: lembar daftar (lkps.js petaDaftar). Tabel yang belum ada
   // (patch belum dijalankan) cukup kosong.
@@ -119,7 +138,9 @@ export async function ambilDaftarLKPS(sb){
     ambil(sb.from('lkps_keuangan').select('*')),
     ambil(sb.from('lkps_mahasiswa_angkatan').select('*')),
   ]);
-  return { dosen, karya, kerjasama, bkd, prestasi, luaranMhs, mk, tema, mhs, tracer,
+  // Bukti modul operasional 193-200 untuk draf LED (led-modul.js, pemilik 2026-11-27). Bagian yang gagal dibaca = null.
+  const modul = await ambilModul(sb);
+  return { modul, dosen, karya, kerjasama, bkd, prestasi, luaranMhs, mk, tema, mhs, tracer,
            vmts, prodiUpps, dana, tendik, buktiVmts, prasarana, dokK3l, fasK3l, dokumen, ppepp, buktiBaris, buktiKarya, target, tim,
            standar, capaianStandar, revisiStandar, temuan, rekapEval, integrasiRps, ampu, cpl, mkCpl, saranaStd, bimbinganUtama, keuangan, angkatan };
 }

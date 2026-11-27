@@ -9,11 +9,12 @@
    Tautan di dalam teks memakai token ⟦url|label⟧; auto() di led.js
    mengubahnya menjadi hyperlink Word.
    ===================================================================== */
-import { versiUntukTS } from './pustaka-dokumen.js?v=2026-11-27-8426d4';
-import { infoJenis, JENIS_DOKUMEN, kelompokDokumen, buktiButir, saranDokumen } from './rencana-bukti.js?v=2026-11-27-8426d4';
-import { teksPendidikan, nidnNuptk } from './profil-dosen.js?v=2026-11-27-8426d4';
-import { karya4i } from './sitasi.js?v=2026-11-27-8426d4';
-import { ampuPerTA, dosenTS } from './dosen-hitung.js?v=2026-11-27-8426d4';
+import { versiUntukTS } from './pustaka-dokumen.js?v=2026-11-27-c0ada6';
+import { infoJenis, JENIS_DOKUMEN, kelompokDokumen, buktiButir, saranDokumen } from './rencana-bukti.js?v=2026-11-27-c0ada6';
+import { teksPendidikan, nidnNuptk } from './profil-dosen.js?v=2026-11-27-c0ada6';
+import { karya4i } from './sitasi.js?v=2026-11-27-c0ada6';
+import { ampuPerTA, dosenTS } from './dosen-hitung.js?v=2026-11-27-c0ada6';
+import { tabelModul } from './led-modul.js?v=2026-11-27-c0ada6';
 
 export const tokenTautan = (url, label) => `⟦${url}|${String(label).replace(/[⟦⟧|]/g, ' ')}⟧`;
 const isi = t => `[isi: ${t}]`;
@@ -246,7 +247,12 @@ const potong = (baris, maks, ket) => baris.length <= maks ? { baris, catatan: ''
   : { baris: baris.slice(0, maks), catatan: `Ditampilkan ${maks} dari ${baris.length} baris; selengkapnya ${ket}.` };
 
 // Tabel pendukung penjelasan per butir, [{judul, baris, catatan}]; kosong bila datanya belum ada.
+// Tabel dasar (LKPS, Data prodi) ditambah bukti modul operasional 193-200 (led-modul.js, pemilik 2026-11-27).
 export function tabelPenjelas(no, C){
+  return [...tabelPenjelasDasar(no, C), ...tabelModul(no, C.daftar || {}, C.ts)];
+}
+
+function tabelPenjelasDasar(no, C){
   const X = C.daftar || {}, ts = C.ts, dok = C.dokumen || [];
   // DTPS pada TS (pemilik 2026-11-22): sama dengan LKPS 4.a.
   const dtpsTS = () => dosenTS(X.dosen || [], `${ts - 1}/${ts}`, ampuPerTA(X.ampu || {})).dtps;
