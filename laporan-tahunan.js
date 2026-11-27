@@ -3,10 +3,10 @@
 // Satu model isi (daftar blok) dirender ke Word (.docx, disusun sendiri tanpa templat) dan ke HTML (laporan-tahunan.html).
 // Sumber: data.json publik, rekap survei yang sudah diterbitkan (survei_rekap), dan, khusus admin, capaian IKU/IKT,
 // perkiraan status akreditasi, serta Temuan AMI. Versi publik (publik: true) tidak memuat bagian khusus admin.
-import { hitungSumber } from './iku-otomatis.js?v=2026-11-27-2a0acd';
-import { SDGS } from './form-karya.js?v=2026-11-27-2a0acd';
-import { run, para, judul, teks, tabel, buatDocx } from './docx-dasar.js?v=2026-11-27-2a0acd';
-import { rekapSurvei, aspekTindakLanjut, kesenjanganCPL, labelKelompok, labelAspek, lengkapiCPL } from './survei-kepuasan.js?v=2026-11-27-2a0acd';
+import { hitungSumber } from './iku-otomatis.js?v=2026-11-27-e02e4a';
+import { SDGS } from './form-karya.js?v=2026-11-27-e02e4a';
+import { run, para, judul, teks, tabel, buatDocx } from './docx-dasar.js?v=2026-11-27-e02e4a';
+import { rekapSurvei, aspekTindakLanjut, kesenjanganCPL, labelKelompok, labelAspek, lengkapiCPL } from './survei-kepuasan.js?v=2026-11-27-e02e4a';
 
 const angka = v => v == null || v === '' ? '—' : (Math.round(+v * 100) / 100).toLocaleString('id-ID');
 const diTS = (xs, ts) => (xs || []).filter(x => +x.tahun_ts === +ts);
@@ -34,34 +34,40 @@ function statusIKU(tg, cp, arah){
  * opsi.publik: tanpa IKU/IKT, kesiapan akreditasi, dan tindak lanjut internal.
  * Hasil: [{sampul: [baris]}, {h: 1|2, t}, {p, i}, {tabel: [[kepala], ...baris]}].
  */
-export function susunLaporan(C, { publik = false } = {}){
+export function susunLaporan(C, { publik = false, kalender = false } = {}){
   const { D, ts } = C, out = [];
+  // Periode (pemilik 2026-11-27): tahun akademik TS (1 Sep – 31 Agu) atau tahun kalender (1 Jan – 31 Des). Pada tahun
+  // kalender, data yang hanya ada per TS (mahasiswa aktif, kerja sama, kepuasan pengguna, IKU/IKT, temuan) memakai TS
+  // yang berakhir pada tahun itu dan diberi label TS-nya.
+  const kal = !!kalender, PER = kal ? `tahun ${ts}` : `TS ${ta(ts)}`, catTS = kal ? `TS ${ta(ts)}` : '';
+  const diPer = xs => (xs || []).filter(x => kal ? +x.tahun === +ts : +x.tahun_ts === +ts);
+  const thTgl = s => +String(s || '').slice(0, 4);
   let no = 0;
   const h1 = t => out.push({ h: 1, t: `${++no}. ${t}` }), h2 = t => out.push({ h: 2, t });
   const p = (t, i = false) => out.push({ p: t, i }), tb = rows => out.push({ tabel: rows });
   const A = D.akreditasi || {};
   out.push({ sampul: ['LAPORAN KINERJA TAHUNAN PROGRAM STUDI',[D.prodi, D.institusi].filter(Boolean).join(' '),
-    `Tahun akademik ${ta(ts)}`, `Disusun otomatis dari situs kinerja prodi pada ${new Date().toLocaleDateString('id-ID',
+    kal ? `Tahun ${ts} (1 Januari – 31 Desember)` : `Tahun akademik ${ta(ts)}`, `Disusun otomatis dari situs kinerja prodi pada ${new Date().toLocaleDateString('id-ID',
       { day: 'numeric', month: 'long', year: 'numeric' })}; data yang sudah diverifikasi prodi${publik ? ', versi publik' : ''}.`] });
 
   // Bahan bersama
-  const pub = diTS(D.publikasi, ts), keg = diTS(D.kegiatan, ts), lua = diTS(D.luaran_dosen, ts), rek = diTS(D.rekognisi, ts);
-  const prestasi = (D.prestasi || []).filter(x => tsDari(x.tahun, x.bulan) === +ts)
+  const pub = diPer(D.publikasi), keg = diPer(D.kegiatan), lua = diPer(D.luaran_dosen), rek = diPer(D.rekognisi);
+  const prestasi = (D.prestasi || []).filter(x => kal ? +x.tahun === +ts : tsDari(x.tahun, x.bulan) === +ts)
     .sort((a, b) => (+a.tahun - +b.tahun) || (+a.bulan || 0) - (+b.bulan || 0));
-  const presAgr = diTS(D.prestasi_agregat, ts).reduce((a, x) => a + (+x.jumlah || 0), 0);
+  const presAgr = diPer(D.prestasi_agregat).reduce((a, x) => a + (+x.jumlah || 0), 0);
   const ks = (A.kerjasama || []).filter(x => +x.tahun === +ts)
     .reduce((a, x) => a + (+x.internasional || 0) + (+x.nasional || 0) + (+x.wilayah || 0) + (+x.tanpa_tingkat || 0), 0);
   const tr = (D.tracer || []).find(t => +t.tahun_lulus === +ts - 1);
   const taRow = (A.ta || []).find(x => +x.tahun_ts === +ts);
-  const baru = (A.kohort || []).find(x => +x.tahun_masuk === +ts - 1);
-  const kabar = (D.kabar || []).filter(k => tsTanggal(k.tanggal) === +ts).sort((a, b) => String(a.tanggal).localeCompare(String(b.tanggal)));
-  const survei = (C.survei || []).filter(s => +s.tahun_ts === +ts && +s.n > 0).map(s => ({ ...s, pertanyaan: lengkapiCPL(s.pertanyaan) }));
+  const baru = (A.kohort || []).find(x => +x.tahun_masuk === (kal ? +ts : +ts - 1));
+  const kabar = (D.kabar || []).filter(k => (kal ? thTgl(k.tanggal) : tsTanggal(k.tanggal)) === +ts).sort((a, b) => String(a.tanggal).localeCompare(String(b.tanggal)));
+  const survei = (C.survei || []).filter(s => (kal ? thTgl(s.mulai) === +ts : +s.tahun_ts === +ts) && +s.n > 0).map(s => ({ ...s, pertanyaan: lengkapiCPL(s.pertanyaan) }));
   const dt = D.dtps || {};
 
   // 1. Ringkasan
   h1('Ringkasan kinerja');
-  tb([['Aspek', `TS ${ta(ts)}`, 'Keterangan'],
-    ['Mahasiswa aktif', angka(taRow?.mahasiswa_aktif), ''],
+  tb([['Aspek', kal ? `Tahun ${ts}` : `TS ${ta(ts)}`, 'Keterangan'],
+    ['Mahasiswa aktif', angka(taRow?.mahasiswa_aktif), catTS],
     ['Mahasiswa baru', angka(baru?.masuk), baru ? `angkatan ${baru.tahun_masuk}` : 'data kohort belum ada'],
     ['Dosen tetap (DTPS)', angka(dt.jumlah), `${angka(dt.doktor)} bergelar doktor (data terkini)`],
     ['Publikasi', angka(pub.length), `${pub.filter(x => /^(scopus|wos)/.test(x.indeksasi || '')).length} terindeks Scopus/WoS`],
@@ -70,7 +76,7 @@ export function susunLaporan(C, { publik = false } = {}){
     ['Luaran/HKI dosen', angka(lua.length), ''],
     ['Rekognisi dosen', angka(rek.length), ''],
     ['Prestasi mahasiswa', angka(Math.max(presAgr, prestasi.length)), ''],
-    ['Kerja sama', angka(ks), 'penelitian, PkM, dan MoU yang tercatat'],
+    ['Kerja sama', angka(ks), `penelitian, PkM, dan MoU yang tercatat${kal ? ` (${catTS})` : ''}`],
     ['Kegiatan prodi (kabar)', angka(kabar.length), 'kuliah tamu, kunjungan, survei lapangan, dan sejenisnya'],
     ['Survei kepuasan', angka(survei.length), survei.length ? `${angka(survei.reduce((a, s) => a + +s.n, 0))} responden (rekap terbit)` : 'belum ada rekap terbit'],
     ['Lulusan terlacak (tracer)', tr ? `${angka(tr.terlacak)} dari ${angka(tr.lulusan)}` : '—',
@@ -78,7 +84,7 @@ export function susunLaporan(C, { publik = false } = {}){
 
   // 2. Mahasiswa dan lulusan
   h1('Mahasiswa dan lulusan');
-  const kohort = (A.kohort || []).filter(x => +x.tahun_masuk <= +ts - 1).sort((a, b) => +b.tahun_masuk - +a.tahun_masuk).slice(0, 7);
+  const kohort = (A.kohort || []).filter(x => +x.tahun_masuk <= (kal ? +ts : +ts - 1)).sort((a, b) => +b.tahun_masuk - +a.tahun_masuk).slice(0, 7);
   if (kohort.length) {
     h2('Kohort mahasiswa');
     tb([['Tahun masuk', 'Mahasiswa baru', 'Lulus', 'Lulus 3,5–4,5 tahun', 'Lulus 4,5–5,5 tahun', 'Lulus > 5,5 tahun'],
@@ -100,11 +106,11 @@ export function susunLaporan(C, { publik = false } = {}){
   h1('Prestasi mahasiswa');
   if (prestasi.length) {
     const per = [...new Set(prestasi.map(x => x.tingkat || 'tanpa tingkat'))].map(t => [t, prestasi.filter(x => (x.tingkat || 'tanpa tingkat') === t).length]);
-    p(`${prestasi.length} prestasi pada TS ${ta(ts)}: ${per.map(([t, n]) => `${n} tingkat ${rapi(t)}`).join(', ')}.`);
+    p(`${prestasi.length} prestasi pada ${PER}: ${per.map(([t, n]) => `${n} tingkat ${rapi(t)}`).join(', ')}.`);
     tb([['Kegiatan', 'Tingkat', 'Capaian', 'Mahasiswa'], ...prestasi.map(x => [
       [x.kegiatan, x.penyelenggara].filter(Boolean).join(' — '), kapital(x.tingkat), x.capaian || '',
       (x.mahasiswa || []).join(', ')])]);
-  } else p(presAgr ? `${presAgr} prestasi tercatat pada TS ${ta(ts)}.` : 'Belum ada prestasi yang tercatat.', true);
+  } else p(presAgr ? `${presAgr} prestasi tercatat pada ${PER}.` : 'Belum ada prestasi yang tercatat.', true);
 
   // 4. Kepuasan
   h1('Kepuasan pemangku kepentingan');
@@ -114,10 +120,10 @@ export function susunLaporan(C, { publik = false } = {}){
       [labelKelompok(s.kelompok), s.judul || '', angka(s.n), angka(rk.rerata), rk.puas == null ? '—' : `${angka(rk.puas)}%`])]);
     const bawah = rks.flatMap(([s, rk]) => aspekTindakLanjut(rk, s).map(a => `${labelKelompok(s.kelompok)}, ${a.label} (${a.alasan.join('; ')})`));
     p(bawah.length ? `Aspek di bawah ambang yang ditindaklanjuti: ${bawah.join('; ')}.` : 'Semua aspek berada di atas ambang (% puas ≥ 75 dan rerata ≥ 3).');
-  } else p(`Belum ada rekap survei kepuasan TS ${ta(ts)} yang diterbitkan.`, true);
+  } else p(`Belum ada rekap survei kepuasan ${PER} yang diterbitkan.`, true);
   const peng = diTS(A.kepuasan, ts);
   if (peng.length) {
-    h2('Kepuasan pengguna lulusan (Tabel 6.g.2)');
+    h2(`Kepuasan pengguna lulusan (Tabel 6.g.2)${kal ? `, ${catTS}` : ''}`);
     tb([['Aspek', 'Sangat baik', 'Baik', 'Cukup', 'Kurang'], ...peng.map(x => [kapital(labelAspek(x.aspek)),
       `${angka(x.sangat_baik)}%`, `${angka(x.baik)}%`, `${angka(x.cukup)}%`, `${angka(x.kurang)}%`])]);
   }
@@ -130,7 +136,7 @@ export function susunLaporan(C, { publik = false } = {}){
     p('Rerata 1–5 tingkat kepentingan dan penguasaan tiap CPL; selisih ≥ 1 menjadi prioritas peninjauan kurikulum.');
     tb([['CPL', 'Kelompok', 'Penting', 'Dikuasai', 'Selisih', 'Prioritas'], ...cpl.map(x => [`CPL-${x.kode}`, x.kelompok,
       angka(x.penting), angka(x.kuasai), angka(x.selisih), x.selisih != null && x.selisih >= 1 ? 'ya' : ''])]);
-  } else p('Belum ada survei dengan pertanyaan CPL yang rekapnya diterbitkan pada TS ini.', true);
+  } else p('Belum ada survei dengan pertanyaan CPL yang rekapnya diterbitkan pada periode ini.', true);
 
   // 6. IKU/IKT (admin)
   if (!publik) {
@@ -162,13 +168,13 @@ export function susunLaporan(C, { publik = false } = {}){
   h1('Kontribusi pada SDGs');
   const karya = [...pub, ...keg, ...lua];
   const sdg = SDGS.map(([n, nama]) => [n, nama, karya.filter(k => (k.sdgs || []).includes(n)).length]).filter(x => x[2]);
-  p(`${karya.filter(k => (k.sdgs || []).length).length} dari ${karya.length} karya TS ${ta(ts)} terkait SDGs.`);
+  p(`${karya.filter(k => (k.sdgs || []).length).length} dari ${karya.length} karya ${PER} terkait SDGs.`);
   if (sdg.length) tb([['SDG', 'Tujuan', 'Jumlah karya'], ...sdg.map(([n, nama, j]) => [String(n), nama, angka(j)])]);
 
   // Kegiatan prodi
   h1('Kegiatan program studi');
   if (kabar.length) tb([['Tanggal', 'Kegiatan', 'Jenis', 'Tempat'], ...kabar.map(k => [tglPendek(k.tanggal), k.judul || '', kapital(k.jenis), k.tempat || ''])]);
-  else p('Belum ada kabar kegiatan yang diterbitkan pada TS ini.', true);
+  else p('Belum ada kabar kegiatan yang diterbitkan pada periode ini.', true);
 
   // Karya
   h1('Publikasi');
@@ -232,6 +238,13 @@ export const isiLaporan = (C, opsi) => docxDariBlok(susunLaporan(C, opsi));
 /** Berkas .docx (Blob). */
 export async function buatLaporanTahunan(C, opsi){
   return buatDocx(isiLaporan(C, opsi));
+}
+/** Pilihan tahun kalender: dari tahun terbaru yang punya data, mundur sampai 5 tahun; tahun ini ditandai berjalan. */
+export function pilihanTahun(D, kini = new Date()){
+  const now = kini.getFullYear();
+  const ada = [...(D.publikasi || []), ...(D.kegiatan || [])].map(x => +x.tahun).filter(Boolean);
+  const atas = Math.min(now, Math.max(now - 1, ...ada));
+  return Array.from({ length: 5 }, (_, i) => atas - i).map(t => ({ ts: t, label: `${t}${t === now ? ' (berjalan)' : ''}` }));
 }
 /** Pilihan TS untuk halaman publik: dari TS terbaru yang punya data, mundur sampai 5 TS. */
 export function pilihanTS(D, kini = new Date()){

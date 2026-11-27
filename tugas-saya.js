@@ -1,18 +1,18 @@
 // "Tugas saya" di Ruang kerja (pemilik 2026-11-12): hal yang menunggu tindakan dosen yang
 // sedang masuk, dari data yang sudah boleh ia baca (RLS). Aturan tenggat sama dengan halaman
 // Pengingat: rapat.js, hibah.js, temuan-ami.js, pengingat-dosen.js.
-import { kurangProfil } from './pengingat-dosen.js?v=2026-11-27-2a0acd';
-import { tindakTerbuka, tglID } from './rapat.js?v=2026-11-27-2a0acd';
-import { tenggatBerikut, teksHari, HARI_LEWAT } from './hibah.js?v=2026-11-27-2a0acd';
-import { hariKeTenggat, labelStatus, HARI_DEKAT } from './temuan-ami.js?v=2026-11-27-2a0acd';
-import { tugasEvaluasi } from './evaluasi-pembelajaran.js?v=2026-11-27-2a0acd';
-import { bolehPengajuan } from './koordinator.js?v=2026-11-27-2a0acd';
-import { tenggatReview, hariKe, teksHari as teksHariRv, tugasTenggatRps, tugasTetapDekan, tanggalPanjang as tglRv } from './pengingat-rps.js?v=2026-11-27-2a0acd';
-import { tugasInsentif } from './insentif.js?v=2026-11-27-2a0acd';
-import { tugasMK } from './tugas-mk.js?v=2026-11-27-2a0acd';
-import { tugasPerwalian } from './perwalian.js?v=2026-11-27-2a0acd';
-import { halamanAktif } from './fitur.js?v=2026-11-27-2a0acd';
-import { masaBerlaku, tanggalPanjang as tglSrt } from './profil-dosen.js?v=2026-11-27-2a0acd';
+import { kurangProfil } from './pengingat-dosen.js?v=2026-11-27-e02e4a';
+import { tindakTerbuka, tglID } from './rapat.js?v=2026-11-27-e02e4a';
+import { tenggatBerikut, teksHari, HARI_LEWAT } from './hibah.js?v=2026-11-27-e02e4a';
+import { hariKeTenggat, labelStatus, HARI_DEKAT } from './temuan-ami.js?v=2026-11-27-e02e4a';
+import { tugasEvaluasi } from './evaluasi-pembelajaran.js?v=2026-11-27-e02e4a';
+import { bolehPengajuan } from './koordinator.js?v=2026-11-27-e02e4a';
+import { tenggatReview, hariKe, teksHari as teksHariRv, tugasTenggatRps, tugasTetapDekan, tanggalPanjang as tglRv } from './pengingat-rps.js?v=2026-11-27-e02e4a';
+import { tugasInsentif } from './insentif.js?v=2026-11-27-e02e4a';
+import { tugasMK } from './tugas-mk.js?v=2026-11-27-e02e4a';
+import { tugasPerwalian } from './perwalian.js?v=2026-11-27-e02e4a';
+import { halamanAktif } from './fitur.js?v=2026-11-27-e02e4a';
+import { masaBerlaku, tanggalPanjang as tglSrt } from './profil-dosen.js?v=2026-11-27-e02e4a';
 
 // Sertifikat dengan masa berlaku (pemilik 2026-11-24): diingatkan sejak 90 hari sebelum habis, dan terus setelah lewat.
 export const HARI_SERTIFIKAT = 90;
@@ -193,6 +193,7 @@ export function tugasSaya(d, kini = new Date()){
   // Agenda tugas berjadwal (191, pemilik 2026-11-27): d.agenda = baris terbuka yang mulai <= hari ini + 14 (ruang kerja,
   // khusus admin/Kaprodi/GKM). Tenggat = tenggat atau mulai; tautan halaman situs, selain itu Data prodi › Agenda tugas.
   for (const a of tugasAgenda(d.agenda, kini)) tambah('agenda', a.judul, a.rinci, a.href, a.hari);
+  for (const a of tugasSurvei(d.surveiBerjalan, kini)) tambah('survei', a.judul, a.rinci, 'kelola-survei.html', a.hari);
 
 
   return out.map((x, i) => [x, i]).sort(([a, i], [b, j]) => URUT[a.tingkat] - URUT[b.tingkat]
@@ -203,6 +204,20 @@ export function tugasSaya(d, kini = new Date()){
  *  HARI_AGENDA hari lagi; hari = sisa hari ke tenggat (atau mulai). Tautan https tidak dipakai sebagai href (Tugas saya
  *  hanya menaut halaman situs), jadi agenda bertautan luar menaut ke Data prodi › Agenda tugas. */
 export const HARI_AGENDA = 14;
+
+/** Survei yang sedang dibuka (pemilik 2026-11-27, admin/GKM): responden dibanding target sampai survei ditutup.
+ *  xs: [{judul, selesai, n, target}] (target null = tanpa target). Survei yang sudah mencapai target tidak diingatkan.
+ *  hari = sisa hari sampai tanggal tutup. */
+export function tugasSurvei(xs = [], kini = new Date()){
+  const fmt = iso => new Date(String(iso).slice(0, 10) + 'T00:00:00Z').toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
+  return (xs || []).filter(s => !(s.target && s.n >= s.target)).map(s => {
+    const p = s.target ? Math.round(s.n / s.target * 100) : null;
+    return { judul: `Survei berjalan: ${s.judul}`,
+      rinci: `${s.target ? `${s.n} dari ${s.target} responden (${p}%)` : `${s.n} responden`} · ditutup ${fmt(s.selesai)}. `
+        + 'Ingatkan responden lewat rapat, grup, atau dosen wali.',
+      hari: hariKe(s.selesai, kini) };
+  });
+}
 export function tugasAgenda(agenda = [], kini = new Date()){
   const fmt = iso => new Date(String(iso).slice(0, 10) + 'T00:00:00Z').toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
   return (agenda || []).filter(a => a.status === undefined || a.status === 'terbuka')

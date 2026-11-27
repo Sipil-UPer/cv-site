@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-27-2a0acd">
+<link rel="stylesheet" href="tema.css?v=2026-11-27-e02e4a">
 <style>
   /* Laporan kinerja tahunan, versi publik (pemilik 2026-11-27): model isi yang sama dengan laporan Word admin
      (site/laporan-tahunan.js), tanpa IKU/IKT, perkiraan akreditasi, dan temuan internal. */
@@ -60,39 +60,48 @@ addEventListener('error', function (e) {
   <div class="kepala" role="region" aria-label="Pembuka halaman"><div class="kepala-in">
     <div><div class="eyebrow" id="hProdi">Program studi</div>
       <h1>Laporan kinerja tahunan</h1>
-      <p>Ringkasan satu tahun akademik (1 September – 31 Agustus) dari data terverifikasi: mahasiswa dan lulusan, prestasi,
+      <p>Ringkasan satu tahun akademik (1 September – 31 Agustus) atau satu tahun kalender dari data terverifikasi: mahasiswa dan lulusan, prestasi,
         kepuasan pemangku kepentingan, capaian pembelajaran, penelitian, pengabdian, dan publikasi.</p></div>
-    <div class="alat"><label for="pilihTS">Tahun akademik</label><select id="pilihTS"></select>
+    <div class="alat"><label for="pilihPer">Periode</label><select id="pilihPer"><option value="ts">Tahun akademik</option>
+      <option value="kalender">Tahun kalender</option></select><select id="pilihTS" aria-label="Tahun"></select>
       <button type="button" id="unduh">Unduh Word</button></div>
   </div></div>
   <div class="isi" id="isi"><p class="kosong">Memuat…</p></div>
 </main>
-<script src="config.js?v=2026-11-27-2a0acd"></script>
+<script src="config.js?v=2026-11-27-e02e4a"></script>
 <script type="module">
-import { pasangKerangka, isiKerangka } from './kerangka.js?v=2026-11-27-2a0acd';
+import { pasangKerangka, isiKerangka } from './kerangka.js?v=2026-11-27-e02e4a';
 pasangKerangka({ aktif: 'kinerja' });
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { susunLaporan, htmlDariBlok, buatLaporanTahunan, pilihanTS } from './laporan-tahunan.js?v=2026-11-27-2a0acd';
+import { susunLaporan, htmlDariBlok, buatLaporanTahunan, pilihanTS, pilihanTahun } from './laporan-tahunan.js?v=2026-11-27-e02e4a';
 
 const $ = id => document.getElementById(id);
-let D = null, SURVEI = [], TS = null;
+let D = null, SURVEI = [], TS = null, KAL = false;
 const sb = window.SB_URL && window.SB_KEY ? createClient(window.SB_URL, window.SB_KEY) : null;
 
 function gambar(){
   // Versi publik: hanya data publik (data.json) dan rekap survei yang sudah diterbitkan.
-  $('isi').innerHTML = htmlDariBlok(susunLaporan({ D, ts: TS, survei: SURVEI }, { publik: true }))
+  $('isi').innerHTML = htmlDariBlok(susunLaporan({ D, ts: TS, survei: SURVEI }, { publik: true, kalender: KAL }))
     + `<p class="catatan">Grafik lintas tahun: <a href="kinerja.html">Kinerja program studi</a>. Rincian survei:
       <a href="hasil-survei.html">Hasil survei kepuasan</a>. Data diperbarui ${D.diperbarui || ''}.</p>`;
 }
 
-$('pilihTS').onchange = e => { TS = +e.target.value; try { history.replaceState(null, '', `?ts=${TS}`); } catch (_) {} gambar(); };
+const simpanUrl = () => { try { history.replaceState(null, '', KAL ? `?periode=kalender&th=${TS}` : `?ts=${TS}`); } catch (_) {} };
+// Daftar tahun sesuai periode; bawaan = periode terakhir yang sudah selesai (bukan yang berjalan).
+function isiPilihan(minta){
+  const ops = KAL ? pilihanTahun(D) : pilihanTS(D);
+  TS = ops.some(o => o.ts === minta) ? minta : (ops.find(o => !o.label.includes('berjalan')) || ops[0]).ts;
+  $('pilihTS').innerHTML = ops.map(o => `<option value="${o.ts}"${o.ts === TS ? ' selected' : ''}>${o.label}</option>`).join('');
+}
+$('pilihTS').onchange = e => { TS = +e.target.value; simpanUrl(); gambar(); };
+$('pilihPer').onchange = e => { KAL = e.target.value === 'kalender'; isiPilihan(null); simpanUrl(); gambar(); };
 $('unduh').onclick = async () => {
   const b = $('unduh'), asli = b.textContent;
   b.disabled = true; b.textContent = 'Menyusun…';
   try {
-    const blob = await buatLaporanTahunan({ D, ts: TS, survei: SURVEI }, { publik: true });
+    const blob = await buatLaporanTahunan({ D, ts: TS, survei: SURVEI }, { publik: true, kalender: KAL });
     const u = URL.createObjectURL(blob), a = document.createElement('a');
-    a.href = u; a.download = `laporan-kinerja-${TS - 1}-${TS}.docx`; a.click();
+    a.href = u; a.download = KAL ? `laporan-kinerja-tahun-${TS}.docx` : `laporan-kinerja-${TS - 1}-${TS}.docx`; a.click();
     setTimeout(() => URL.revokeObjectURL(u), 5000);
     b.textContent = asli;
   } catch (e) { b.textContent = 'Gagal: ' + e.message; setTimeout(() => { b.textContent = asli; }, 5000); }
@@ -107,10 +116,10 @@ Promise.all([
     isiKerangka(d);
     $('hProdi').textContent = ['Program Studi ' + (d.prodi || ''), d.institusi].filter(Boolean).join(' · ');
     document.title = 'Laporan kinerja tahunan — ' + ['Program Studi ' + d.prodi, d.institusi].filter(Boolean).join(' ');
-    const ops = pilihanTS(d), minta = +new URLSearchParams(location.search).get('ts');
-    // Bawaan: TS terakhir yang sudah selesai (bukan yang berjalan), bila ada.
-    TS = ops.some(o => o.ts === minta) ? minta : (ops.find(o => !o.label.includes('berjalan')) || ops[0]).ts;
-    $('pilihTS').innerHTML = ops.map(o => `<option value="${o.ts}"${o.ts === TS ? ' selected' : ''}>${o.label}</option>`).join('');
+    const q = new URLSearchParams(location.search);
+    KAL = q.get('periode') === 'kalender';
+    $('pilihPer').value = KAL ? 'kalender' : 'ts';
+    isiPilihan(+(KAL ? q.get('th') : q.get('ts')));
     gambar();
   })
   .catch(() => { $('isi').innerHTML = '<p class="kosong">Data sedang diperbarui. Silakan muat ulang beberapa saat lagi.</p>'; });

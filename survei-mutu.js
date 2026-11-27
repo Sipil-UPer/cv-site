@@ -1,7 +1,9 @@
 // Mutu survei (pemilik 2026-11-27): tingkat respons terhadap target yang dihitung dari data situs, dan uji instrumen
 // (reliabilitas Cronbach alpha per kelompok pertanyaan dan per aspek; validitas butir = korelasi butir-total terkoreksi).
 // Bahan butir 57 (instrumen sahih, cakupan responden) dan analisis Juli (Agenda tugas). Fungsi murni; halaman: kelola-survei.html.
-import { sedangTB } from './dosen-hitung.js?v=2026-11-27-2a0acd';
+import { sedangTB } from './dosen-hitung.js?v=2026-11-27-e02e4a';
+import { susunDaftar } from './daftar-mahasiswa.js?v=2026-11-27-e02e4a';
+import { punya } from './koordinator.js?v=2026-11-27-e02e4a';
 
 const t = s => String(s ?? '').trim();
 const ya = v => v === true || ['ya', 'y', 'true', '1'].includes(String(v ?? '').toLowerCase());
@@ -58,6 +60,34 @@ export function targetResponden(kelompok, data = {}, { tahunTs, hari } = {}){
   else n = new Set(xs.filter(k => t(k.mitra) && kerjasamaBerlaku(k, hari)).map(k => t(k.mitra).toLowerCase().replace(/\s+/g, ' '))).size;
   return n ? { target: n, aturan, catatan: '' } : { target: null, aturan, catatan: KOSONG[kelompok] };
 }
+
+async function ambilSemua(buat){
+  const out = [];
+  for (let dari = 0; ; dari += 1000) {
+    const { data, error } = await buat().range(dari, dari + 999);
+    if (error) throw new Error(error.message);
+    out.push(...(data || []));
+    if (!data || data.length < 1000) return out;
+  }
+}
+/**
+ * Data populasi untuk targetResponden (Kelola survei dan Tugas saya). null = tidak terbaca dengan hak akses ini:
+ * mahasiswa hanya admin dan Kaprodi (RLS 186), tendik hanya admin (RLS 27).
+ */
+export async function muatPopulasi(sb, saya){
+  const atau = p => p.catch(() => null);
+  const semuaMhs = saya?.peran === 'admin' || punya(saya, 'kaprodi');
+  const [dosen, tendik, mhs, sem, kerjasama] = await Promise.all([
+    atau(ambilSemua(() => sb.from('dosen').select('id,peran,dtps,aktif,tugas_belajar,tugas_belajar_mulai,tugas_belajar_selesai').order('id'))),
+    saya?.peran === 'admin' ? atau(ambilSemua(() => sb.from('lkps_tendik').select('id,aktif,status_kerja').order('id'))) : null,
+    semuaMhs ? atau(ambilSemua(() => sb.from('mahasiswa').select('nim,lulus_periode').order('nim'))) : null,
+    semuaMhs ? atau(ambilSemua(() => sb.from('mahasiswa_semester').select('nim,ts,semester').order('nim'))) : null,
+    atau(ambilSemua(() => sb.from('lkps_kerjasama').select('id,mitra,tahun_mulai,tahun_selesai,tanggal_mulai,tanggal_selesai').order('id')))]);
+  return { dosen, tendik, kerjasama, mahasiswa: mhs && sem ? susunDaftar({ mahasiswa: mhs, semester: sem }) : null };
+}
+/** Target satu baris survei (tanggal acuan = tanggal mulai survei). */
+export const targetSurvei = (s, pop, hariIni) => targetResponden(s.kelompok, pop,
+  { tahunTs: s.tahun_ts, hari: String(s.mulai || '').slice(0, 10) || hariIni });
 
 /** Persentase responden terhadap target (dua desimal); null bila target tidak ada. */
 export const persenRespons = (n, target) => target ? r2(n / target * 100) : null;

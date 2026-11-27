@@ -3,7 +3,7 @@
 // Masukan M = { karya, karyaBukti, karyaPenulis, dosen, mk, kerjasama, tracer, rps, rpsTtd }.
 // Tiap pemeriksaan -> { id, judul, tingkat: 'penting'|'periksa'|'info', ket, ke, temuan: [{teks}] }.
 
-import { BUTIR_LAM_TEKNIK } from './bobot.js?v=2026-11-27-2a0acd';
+import { BUTIR_LAM_TEKNIK } from './bobot.js?v=2026-11-27-e02e4a';
 // Rujukan butir LAM Teknik di pesan hanya untuk instrumen itu (2026-11-25).
 const B15 = (lam, lain) => BUTIR_LAM_TEKNIK ? lam : lain;
 const BATAS_MIRIP = 0.85;     // kemiripan kata judul (Jaccard) untuk dugaan entri ganda
@@ -169,8 +169,33 @@ export function periksaMutu(M, kini = new Date()){
      ...tak.map(r => ({ teks: `Lulusan ${r.tahun_lulus}: lulusan ${r.jumlah_lulusan ?? '—'}, terlacak ${r.jumlah_terlacak ?? '—'}, `
        + `waktu tunggu ${(+r.wt_kurang_3 || 0) + (+r.wt_3_18 || 0) + (+r.wt_lebih_18 || 0)}, kesesuaian ${(+r.kesesuaian_rendah || 0) + (+r.kesesuaian_sedang || 0) + (+r.kesesuaian_tinggi || 0)}` }))]);
 
+  // 12 (pemilik 2026-11-27, dari laporan tahunan publik): prestasi mahasiswa. Nama di situs publik hanya tampil bila
+  // mahasiswa setuju (tampil_nama), jadi yang diperiksa adalah isian di tabel, bukan tampilan publik.
+  const prestasi = M.prestasi || [];
+  const labelPr = r => `${r.tahun || '—'}${r.bulan ? '/' + String(r.bulan).padStart(2, '0') : ''} · ${r.nama_kegiatan || '(tanpa nama)'}${r.penyelenggara ? ` — ${r.penyelenggara}` : ''}`;
+  tambah('prestasi_tanpa_mahasiswa', 'Prestasi tanpa nama atau NIM mahasiswa', 'penting',
+    'Tabel prestasi LKPS mencantumkan mahasiswa peraih. Nama tetap tidak tampil di situs publik tanpa persetujuan mahasiswa.',
+    'data-prodi.html?tab=prestasi',
+    prestasi.filter(r => !String(r.nama_mahasiswa || '').trim() && !String(r.nim || '').trim()).map(r => ({ teks: labelPr(r) })));
+  tambah('prestasi_tingkat', 'Tingkat prestasi perlu diperiksa', 'periksa',
+    'Tercatat nasional/internasional, tetapi nama kegiatan atau penyelenggara menyebut tingkat cabang, daerah, atau kampus. '
+      + 'Tingkat mengikuti cakupan peserta, bukan nama lomba; bila memang nasional, abaikan.', 'data-prodi.html?tab=prestasi',
+    prestasi.filter(r => ['nasional', 'internasional'].includes(r.tingkat) && POLA_LOKAL.test(`${r.nama_kegiatan || ''} ${r.penyelenggara || ''}`))
+      .map(r => ({ teks: `${labelPr(r)} (tercatat ${r.tingkat})` })));
+  tambah('prestasi_tanpa_bulan', 'Prestasi tanpa bulan', 'periksa',
+    'Tanpa bulan, prestasi dihitung pada TS yang berakhir di tahun itu (Januari–Agustus); prestasi September–Desember jadi salah TS.',
+    'data-prodi.html?tab=prestasi', prestasi.filter(r => !r.bulan).map(r => ({ teks: labelPr(r) })));
+
+  // 13 (pemilik 2026-11-27): penelitian/PkM berskema "Lainnya": nama skema tidak tampil di situs publik (bangun.py nama_skema_publik).
+  const skemaLain = new Set((M.skema || []).filter(s => /^lain/i.test(String(s.nama || '').trim())).map(s => s.kode));
+  tambah('karya_skema_lainnya', 'Penelitian/PkM berskema "Lainnya"', 'info',
+    'Skema "Lainnya" tidak tampil di situs publik dan laporan tahunan. Pilih skema yang sesuai bila ada di daftar.', 'verifikasi.html',
+    karya.filter(k => ['penelitian', 'pkm'].includes(k.kategori) && skemaLain.has(k.skema_kode)).map(k => ({ teks: labelKarya(k) })));
+
   return hasil;
 }
+// Kata yang menandai cakupan lokal/daerah/kampus pada nama kegiatan atau penyelenggara prestasi.
+export const POLA_LOKAL = /\b(cabang|kejurcab|kejurda|kejurkab|kejurkot|porda|porprov|popda|kabupaten|kota|kecamatan|provinsi|daerah|regional|internal|kampus|fakultas|antar ?kelas|antar ?prodi)\b/i;
 
 export const TINGKAT = { penting: ['Penting', 'var(--merah)'], periksa: ['Periksa', '#B8860B'], info: ['Info', 'var(--muted)'] };
 
