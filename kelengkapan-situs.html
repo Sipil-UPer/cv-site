@@ -11,8 +11,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-27-030f4f">
-<link rel="stylesheet" href="kepala.css?v=2026-11-27-030f4f">
+<link rel="stylesheet" href="tema.css?v=2026-11-27-69f08f">
+<link rel="stylesheet" href="kepala.css?v=2026-11-27-69f08f">
 <style>
   /* Kelengkapan situs publik (pemilik 2026-11-21) */
   *{box-sizing:border-box}
@@ -48,7 +48,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></div>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-27-030f4f"></script>
+<script src="config.js?v=2026-11-27-69f08f"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -66,8 +66,8 @@ addEventListener('error', function (e) {
 // Kelengkapan situs publik (pemilik 2026-11-21): bagian halaman publik yang kosong/sebagian, dari data.json situs ini
 // (sama dengan yang dibaca pengunjung). Logika: kelengkapan-situs.js. Hanya admin (menu Pemantauan).
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-27-030f4f';
-import { periksaKelengkapan, ringkasKelengkapan, STATUS_KS, tautanInternal } from './kelengkapan-situs.js?v=2026-11-27-030f4f';
+import { gerbang } from './menu.js?v=2026-11-27-69f08f';
+import { periksaKelengkapan, ringkasKelengkapan, STATUS_KS, tautanInternal } from './kelengkapan-situs.js?v=2026-11-27-69f08f';
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const sb = createClient(window.SB_URL, window.SB_KEY);
@@ -119,7 +119,7 @@ async function periksaTautan(){
     loc.forEach(u => { if (dasar && u.startsWith(dasar)) awal(akar + (u.slice(dasar.length) || 'index.html'), 'sitemap.xml'); });
   } catch { /* tanpa sitemap: mulai dari beranda dan menu */ }
   try {
-    const { MENU } = await import('./kerangka.js?v=2026-11-27-030f4f');
+    const { MENU } = await import('./kerangka.js?v=2026-11-27-69f08f');
     MENU.flatMap(m => m.isi).map(x => x.href).filter(h => h && !h.startsWith('#'))
       .forEach(h => { const u = new URL(h, akar); u.hash = ''; u.search = ''; awal(u.href, 'menu kepala'); });
   } catch { /* menu tidak terbaca */ }
