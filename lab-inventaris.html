@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="robots" content="noindex, nofollow">
+<title>Inventaris dan K3 laboratorium — Ruang kerja</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tema.css?v=2026-11-27-586a25">
+<link rel="stylesheet" href="kepala.css?v=2026-11-27-586a25">
+<style>
+  /* Inventaris dan K3 laboratorium (199-patch-inventaris-k3-lab.sql, pemilik 2026-11-27) */
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
+  .wrap{max-width:1250px;margin:0 auto;padding:18px 20px 80px}
+  .kosong, .ket{color:var(--muted)}
+  .ket{font-size:13px}
+  .kartu{background:var(--panel);border:1px solid var(--line);padding:14px 18px;margin-bottom:16px}
+  .kartu h2{font-size:17px;margin:0 0 6px;color:var(--biru)}
+  .alat{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:8px 0}
+  select, input[type=text], input[type=number], input[type=date], input[type=url], textarea{font:inherit;font-size:14px;padding:5px 7px;border:1px solid var(--line);background:var(--panel);color:var(--ink)}
+  .form{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px 14px;margin:8px 0;padding:10px;border:1px dashed var(--line)}
+  .form label{display:flex;flex-direction:column;font-size:13px;color:var(--muted);gap:3px}
+  .form label.cek{flex-direction:row;align-items:center;gap:6px}
+  .form .lebar{grid-column:1/-1}
+  .b{font:inherit;font-size:14px;padding:5px 12px;border:1px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer}
+  .b.utama{background:var(--biru);border-color:var(--biru);color:#fff}
+  .b.bahaya{color:var(--merah);border-color:var(--merah)}
+  .b.kecil{font-size:12.5px;padding:2px 8px}
+  .pesan{font-size:13.5px;margin:6px 0} .pesan.galat{color:var(--merah)} .pesan.ok{color:var(--hijau)}
+  .ringkas{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+  .ringkas div{min-width:120px;padding:6px 10px;border:1px solid var(--line)} .ringkas b{display:block;font-size:20px;line-height:1.1} .ringkas span{font-size:12px;color:var(--muted)}
+  .gulir{overflow-x:auto}
+  table.ds{width:100%;border-collapse:collapse;font-size:13.5px}
+  table.ds th{text-align:left;font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--line);padding:5px 6px}
+  table.ds td{padding:5px 6px;border-bottom:1px solid var(--line-soft);vertical-align:top}
+  .st{font-size:12px;font-weight:600;padding:1px 7px;border:1px solid var(--line);white-space:nowrap}
+  .st.baik, .st.tepat{color:var(--hijau);border-color:var(--hijau)} .st.rusak, .st.lewat, .st.belum{color:var(--merah);border-color:var(--merah)}
+  .st.perlu_perbaikan, .st.segera{color:#8A5A00;border-color:#8A5A00}
+  .riwayat{background:var(--line-soft, #f6f6f6);padding:8px 12px}
+  .peringatan{color:#8A5A00;font-size:12.5px}
+  @media(max-width:700px){.wrap{padding-left:16px;padding-right:16px}}
+</style>
+</head>
+<body>
+<div class="hero" role="region" aria-label="Pembuka halaman"><div class="hero-in">
+  <div class="hero-inst" data-identitas></div>
+  <h1>Inventaris dan K3 laboratorium</h1>
+  <div class="sub" id="hSub">Memuat…</div>
+</div></div>
+<main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
+<script src="config.js?v=2026-11-27-586a25"></script>
+<script>
+// Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
+addEventListener('error', function (e) {
+  if (document.getElementById('galat-muat')) return;
+  var d = document.createElement('div');
+  d.id = 'galat-muat';
+  d.style.cssText = 'margin:16px;padding:12px 14px;border:1px solid var(--merah);' +
+    'background:var(--merah-m3);color:var(--ink);font:14px/1.5 system-ui,sans-serif';
+  d.textContent = 'Halaman gagal dimuat: ' + (e.message || 'galat skrip') +
+    '. Tekan Ctrl+Shift+R untuk memuat ulang tanpa cache; bila tetap muncul, kirim pesan ini ke admin.';
+  document.body.insertBefore(d, document.body.firstChild);
+});
+</script>
+<script type="module">
+// Inventaris, perawatan, peminjaman alat, dan induksi K3 laboratorium (199, pemilik 2026-11-27). Kepala lab mengelola labnya;
+// admin dan Kaprodi semua lab; dosen lain membaca inventaris. Induksi dan peminjaman (berisi NIM) hanya pengelola, GKM, pimpinan.
+// Logika murni: lab.js.
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
+import { gerbang } from './menu.js?v=2026-11-27-586a25';
+import { punya } from './koordinator.js?v=2026-11-27-586a25';
+import { KONDISI_ALAT, JENIS_RAWAT, kalibrasiBerikut, statusKalibrasi, sudahInduksi, rekapLab, csvAlat } from './lab.js?v=2026-11-27-586a25';
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const sb = createClient(window.SB_URL, window.SB_KEY);
+const baca = q => q.then(r => r.error ? [] : (r.data || []), () => []);
+const opsi = (o, v) => Object.entries(o).map(([k, l]) => `<option value="${k}"${k === v ? ' selected' : ''}>${esc(l)}</option>`).join('');
+const HARI = new Date(Date.now() + 7 * 3600e3).toISOString().slice(0, 10), TH = +HARI.slice(0, 4);
+const LBL_KAL = { '': '', belum: 'belum tercatat', lewat: 'lewat', segera: 'segera', tepat: 'tepat waktu' };
+
+let SAYA = null, LAB = [], ALAT = [], RAWAT = [], INDUKSI = [], PINJAM = [], PILIH = null, ADA = true;
+let UBAH_ALAT = null, BUKA_RIWAYAT = null;
+const KELOLA = id => SAYA?.peran === 'admin' || punya(SAYA, 'kaprodi') || (SAYA?.koordinatorLab || []).includes(id);
+const BACA_PRIBADI = id => KELOLA(id) || punya(SAYA, 'gkm') || SAYA?.peran === 'pimpinan';
+function tulis(id, k, t){ const m = $(id); if (m) { m.className = 'pesan ' + k; m.textContent = t; } }
+const nilai = id => $(id)?.value?.trim() ?? '';
+
+async function muat(){
+  const a = await sb.from('lab_alat').select('*').order('nama');
+  ADA = !a.error; ALAT = a.data || [];
+  [RAWAT, INDUKSI, PINJAM] = await Promise.all([baca(sb.from('lab_perawatan').select('*').order('tanggal', { ascending: false })),
+    baca(sb.from('lab_induksi_k3').select('*').order('tanggal', { ascending: false })),
+    baca(sb.from('lab_pinjam').select('*').order('tanggal_pinjam', { ascending: false }))]);
+}
+
+function gambar(){
+  if (!ADA) { $('isi').innerHTML = '<p class="kosong">Tabel belum ada: jalankan supabase/199-patch-inventaris-k3-lab.sql.</p>'; return; }
+  if (!LAB.length) { $('isi').innerHTML = '<p class="kosong">Belum ada laboratorium (Pengelolaan › Kelola laboratorium).</p>'; return; }
+  const L = LAB.find(l => l.id === PILIH), kelola = KELOLA(PILIH), pribadi = BACA_PRIBADI(PILIH);
+  const r = rekapLab({ lab: [L], alat: ALAT, perawatan: RAWAT, induksi: INDUKSI, pinjam: PINJAM }, { dari: `${TH}-01-01`, sampai: `${TH}-12-31` })[0];
+  $('isi').innerHTML = `<div class="alat"><label>Laboratorium <select id="pLab">${LAB.map(l => `<option value="${l.id}"${l.id === PILIH ? ' selected' : ''}>${esc(l.nama)}</option>`).join('')}</select></label>
+      <span class="ket">${kelola ? 'Anda dapat mengelola lab ini.' : 'Hanya baca.'}</span></div>
+    <section class="kartu"><h2>Ringkasan ${esc(L.nama)} tahun ${TH}</h2><div class="ringkas">
+      <div><b>${r.jenisAlat}</b><span>jenis alat (${r.unit} unit)</span></div><div><b>${r.persenBaik ?? '–'}${r.persenBaik == null ? '' : '%'}</b><span>unit kondisi baik</span></div>
+      <div><b>${r.kalibrasiTepat} / ${r.perluKalibrasi}</b><span>kalibrasi tepat waktu</span></div><div><b>${r.perawatan}</b><span>perawatan/perbaikan/kalibrasi tercatat</span></div>
+      ${pribadi ? `<div><b>${r.sesiInduksi}</b><span>sesi induksi K3, ${r.pesertaInduksi} peserta</span></div><div><b>${r.pinjam}</b><span>peminjaman</span></div>` : ''}</div></section>
+    <section class="kartu" id="inventaris"></section>
+    ${pribadi ? '<section class="kartu" id="induksi"></section><section class="kartu" id="pinjam"></section>' : ''}
+    <section class="kartu" id="rekap"></section>`;
+  $('pLab').onchange = e => { PILIH = +e.target.value; UBAH_ALAT = null; BUKA_RIWAYAT = null; gambar(); };
+  gambarInventaris(kelola);
+  if (pribadi) { gambarInduksi(kelola); gambarPinjam(kelola); }
+  gambarRekap();
+}
+
+// ---------------------------------------------------------------- inventaris dan riwayat
+function gambarInventaris(kelola){
+  const xs = ALAT.filter(a => a.laboratorium_id === PILIH), x = UBAH_ALAT || { jumlah: 1, kondisi: 'baik' };
+  $('inventaris').innerHTML = `<h2>Inventaris alat</h2>
+    <p class="ket">Satu baris per jenis alat. Riwayat perawatan, perbaikan, dan kalibrasi dicatat per alat; kalibrasi memajukan tanggal kalibrasi,
+      perbaikan boleh mengubah kondisi alat. Bukti butir 38 (sarana dan prasarana).</p>
+    ${kelola ? `<details${UBAH_ALAT ? ' open' : ''}><summary><b>${UBAH_ALAT ? 'Ubah alat' : 'Tambah alat'}</b></summary><div class="form">
+      <label>Nama alat <input type="text" id="aNama" maxlength="200" value="${esc(x.nama || '')}"></label>
+      <label>Merek/tipe <input type="text" id="aMerek" maxlength="200" value="${esc(x.merek_tipe || '')}"></label>
+      <label>Jumlah <input type="number" id="aJumlah" min="0" value="${esc(x.jumlah)}"></label>
+      <label>Kondisi <select id="aKondisi">${opsi(KONDISI_ALAT, x.kondisi)}</select></label>
+      <label>Lokasi <input type="text" id="aLokasi" maxlength="120" value="${esc(x.lokasi || '')}"></label>
+      <label class="cek"><input type="checkbox" id="aKal"${x.kalibrasi_perlu ? ' checked' : ''}> Perlu kalibrasi berkala</label>
+      <label>Kalibrasi terakhir <input type="date" id="aKalT" value="${esc(x.kalibrasi_terakhir || '')}"></label>
+      <label>Interval kalibrasi (bulan) <input type="number" id="aKalB" min="1" max="120" value="${esc(x.kalibrasi_bulan || '')}"></label>
+      <label class="lebar">Catatan <input type="text" id="aCat" maxlength="1000" value="${esc(x.catatan || '')}"></label>
+      <label class="lebar">Bukti (tautan https, mis. foto atau sertifikat kalibrasi) <input type="url" id="aBukti" value="${esc(x.bukti_url || '')}"></label>
+      <div class="lebar"><button type="button" class="b utama" id="bAlat">${UBAH_ALAT ? 'Simpan perubahan' : 'Tambah alat'}</button>
+        ${UBAH_ALAT ? '<button type="button" class="b" id="bAlatBatal">Batal</button>' : ''} <span class="pesan" id="mAlat" role="status"></span></div></div></details>` : ''}
+    ${xs.length ? `<div class="gulir"><table class="ds"><thead><tr><th>Alat</th><th>Jumlah</th><th>Kondisi</th><th>Lokasi</th><th>Kalibrasi</th><th></th></tr></thead><tbody>
+      ${xs.map(a => { const st = statusKalibrasi(a), b = kalibrasiBerikut(a), rw = RAWAT.filter(p => p.alat_id === a.id);
+        return `<tr><td>${esc(a.nama)}${a.merek_tipe ? `<div class="ket">${esc(a.merek_tipe)}</div>` : ''}${a.bukti_url ? ` <a href="${esc(a.bukti_url)}" target="_blank" rel="noopener">bukti</a>` : ''}</td>
+          <td>${a.jumlah}</td><td><span class="st ${esc(a.kondisi)}">${esc(KONDISI_ALAT[a.kondisi])}</span></td><td>${esc(a.lokasi || '')}</td>
+          <td>${st ? `<span class="st ${st}">${esc(LBL_KAL[st])}</span>${b ? `<div class="ket">berikut ${esc(b)}</div>` : ''}` : '<span class="ket">tidak perlu</span>'}</td>
+          <td><button type="button" class="b kecil" data-riwayat="${a.id}">Riwayat (${rw.length})</button>
+            ${kelola ? `<button type="button" class="b kecil" data-ubah-alat="${a.id}">Ubah</button> <button type="button" class="b kecil bahaya" data-hapus-alat="${a.id}">Hapus</button>` : ''}</td></tr>
+          ${BUKA_RIWAYAT === a.id ? `<tr><td colspan="6" class="riwayat">${rw.length ? `<ul>${rw.map(p => `<li>${esc(p.tanggal)} · <b>${esc(JENIS_RAWAT[p.jenis])}</b>: ${esc(p.uraian)}
+              ${p.kondisi_sesudah ? ` (kondisi: ${esc(KONDISI_ALAT[p.kondisi_sesudah])})` : ''}${p.bukti_url ? ` · <a href="${esc(p.bukti_url)}" target="_blank" rel="noopener">bukti</a>` : ''}</li>`).join('')}</ul>`
+              : '<p class="kosong">Belum ada riwayat.</p>'}
+            ${kelola ? `<div class="form"><label>Tanggal <input type="date" id="rTgl" value="${HARI}"></label><label>Jenis <select id="rJenis">${opsi(JENIS_RAWAT, 'perawatan')}</select></label>
+              <label>Kondisi sesudahnya <select id="rKond"><option value="">(tidak berubah)</option>${opsi(KONDISI_ALAT, '')}</select></label>
+              <label class="lebar">Uraian <input type="text" id="rUraian" maxlength="1000" placeholder="mis. Kalibrasi load cell oleh lab terakreditasi KAN"></label>
+              <label class="lebar">Bukti (https) <input type="url" id="rBukti"></label>
+              <div class="lebar"><button type="button" class="b utama" data-rawat="${a.id}">Catat riwayat</button> <span class="pesan" id="mRawat" role="status"></span></div></div>` : ''}</td></tr>` : ''}`; }).join('')}
+      </tbody></table></div>` : '<p class="kosong">Belum ada alat untuk lab ini.</p>'}`;
+  if ($('bAlat')) $('bAlat').onclick = simpanAlat;
+  if ($('bAlatBatal')) $('bAlatBatal').onclick = () => { UBAH_ALAT = null; gambar(); };
+  document.querySelectorAll('[data-riwayat]').forEach(b => { b.onclick = () => { BUKA_RIWAYAT = BUKA_RIWAYAT === +b.dataset.riwayat ? null : +b.dataset.riwayat; gambar(); }; });
+  document.querySelectorAll('[data-ubah-alat]').forEach(b => { b.onclick = () => { UBAH_ALAT = ALAT.find(a => a.id === +b.dataset.ubahAlat); gambar(); }; });
+  document.querySelectorAll('[data-hapus-alat]').forEach(b => { b.onclick = () => hapus('lab_alat', +b.dataset.hapusAlat, 'Hapus alat ini beserta riwayat dan peminjamannya?'); });
+  document.querySelectorAll('[data-rawat]').forEach(b => { b.onclick = () => simpanRawat(+b.dataset.rawat); });
+}
+
+async function simpanAlat(){
+  const isi = { laboratorium_id: PILIH, nama: nilai('aNama'), merek_tipe: nilai('aMerek') || null, jumlah: +nilai('aJumlah') || 0, kondisi: nilai('aKondisi'),
+    lokasi: nilai('aLokasi') || null, kalibrasi_perlu: $('aKal').checked, kalibrasi_terakhir: nilai('aKalT') || null,
+    kalibrasi_bulan: +nilai('aKalB') || null, catatan: nilai('aCat') || null, bukti_url: nilai('aBukti') || null };
+  if (isi.nama.length < 2) return tulis('mAlat', 'galat', 'Tulis nama alat.');
+  if (isi.bukti_url && !/^https:\/\/\S+$/i.test(isi.bukti_url)) return tulis('mAlat', 'galat', 'Bukti harus tautan https://');
+  if (isi.kalibrasi_perlu && !isi.kalibrasi_bulan) return tulis('mAlat', 'galat', 'Isi interval kalibrasi (bulan).');
+  const { error } = UBAH_ALAT ? await sb.from('lab_alat').update(isi).eq('id', UBAH_ALAT.id) : await sb.from('lab_alat').insert(isi);
+  if (error) return tulis('mAlat', 'galat', 'Gagal: ' + error.message);
+  UBAH_ALAT = null; await muat(); gambar();
+}
+
+async function simpanRawat(alatId){
+  const isi = { alat_id: alatId, tanggal: nilai('rTgl'), jenis: nilai('rJenis'), uraian: nilai('rUraian'), kondisi_sesudah: nilai('rKond') || null, bukti_url: nilai('rBukti') || null };
+  if (!isi.tanggal || isi.uraian.length < 3) return tulis('mRawat', 'galat', 'Isi tanggal dan uraian.');
+  if (isi.bukti_url && !/^https:\/\/\S+$/i.test(isi.bukti_url)) return tulis('mRawat', 'galat', 'Bukti harus tautan https://');
+  const { error } = await sb.from('lab_perawatan').insert(isi);
+  if (error) return tulis('mRawat', 'galat', 'Gagal: ' + error.message);
+  await muat(); gambar();
+}
+
+// ---------------------------------------------------------------- induksi K3
+function gambarInduksi(kelola){
+  const xs = INDUKSI.filter(s => s.laboratorium_id === PILIH);
+  $('induksi').innerHTML = `<h2>Induksi K3</h2>
+    <p class="ket">Setiap mahasiswa mengikuti induksi K3 lab sebelum praktikum atau meminjam alat. Catat tiap sesi dengan NIM peserta (satu per baris
+      atau dipisah koma) dan unggah daftar hadir. Bukti butir 39 (K3L). NIM hanya terbaca pengelola lab, GKM, dan pimpinan.</p>
+    ${kelola ? `<details><summary><b>Catat sesi induksi</b></summary><div class="form">
+      <label>Tanggal <input type="date" id="iTgl" value="${HARI}"></label><label>Pemateri <input type="text" id="iPem" maxlength="200"></label>
+      <label>Peserta tanpa NIM (jumlah) <input type="number" id="iLain" min="0" value="0"></label>
+      <label class="lebar">Materi <input type="text" id="iMateri" maxlength="1000" placeholder="mis. APD, prosedur darurat, MSDS bahan, penggunaan UTM"></label>
+      <label class="lebar">NIM peserta <textarea id="iNim" rows="3" placeholder="105219001&#10;105219002"></textarea></label>
+      <label class="lebar">Daftar hadir (https) <input type="url" id="iBukti"></label>
+      <div class="lebar"><button type="button" class="b utama" id="bInduksi">Simpan sesi</button> <span class="pesan" id="mInduksi" role="status"></span></div></div></details>` : ''}
+    ${xs.length ? `<div class="gulir"><table class="ds"><thead><tr><th>Tanggal</th><th>Materi</th><th>Pemateri</th><th>Peserta</th><th>Daftar hadir</th><th></th></tr></thead><tbody>
+      ${xs.map(s => `<tr><td>${esc(s.tanggal)}</td><td>${esc(s.materi)}</td><td>${esc(s.pemateri || '')}</td>
+        <td>${(s.peserta_nim || []).length + (+s.jumlah_lain || 0)}<details><summary class="ket">NIM</summary><span class="ket">${esc((s.peserta_nim || []).join(', ') || '—')}</span></details></td>
+        <td>${s.bukti_url ? `<a href="${esc(s.bukti_url)}" target="_blank" rel="noopener">buka</a>` : ''}</td>
+        <td>${kelola ? `<button type="button" class="b kecil bahaya" data-hapus-induksi="${s.id}">Hapus</button>` : ''}</td></tr>`).join('')}
+      </tbody></table></div>` : '<p class="kosong">Belum ada sesi induksi.</p>'}`;
+  if ($('bInduksi')) $('bInduksi').onclick = async () => {
+    const isi = { laboratorium_id: PILIH, tanggal: nilai('iTgl'), materi: nilai('iMateri'), pemateri: nilai('iPem') || null, jumlah_lain: +nilai('iLain') || 0,
+      peserta_nim: nilai('iNim').split(/[\s,;]+/).filter(Boolean), bukti_url: nilai('iBukti') || null };
+    if (!isi.tanggal || isi.materi.length < 3) return tulis('mInduksi', 'galat', 'Isi tanggal dan materi.');
+    const salah = isi.peserta_nim.filter(n => !/^\d{6,15}$/.test(n));
+    if (salah.length) return tulis('mInduksi', 'galat', `NIM tidak sah: ${salah.join(', ')}`);
+    if (isi.bukti_url && !/^https:\/\/\S+$/i.test(isi.bukti_url)) return tulis('mInduksi', 'galat', 'Daftar hadir harus tautan https://');
+    const { error } = await sb.from('lab_induksi_k3').insert(isi);
+    if (error) return tulis('mInduksi', 'galat', 'Gagal: ' + error.message);
+    await muat(); gambar();
+  };
+  document.querySelectorAll('[data-hapus-induksi]').forEach(b => { b.onclick = () => hapus('lab_induksi_k3', +b.dataset.hapusInduksi, 'Hapus sesi induksi ini?'); });
+}
+
+// ---------------------------------------------------------------- peminjaman
+function gambarPinjam(kelola){
+  const alat = ALAT.filter(a => a.laboratorium_id === PILIH), ids = new Set(alat.map(a => a.id));
+  const xs = PINJAM.filter(p => ids.has(p.alat_id)), nm = id => alat.find(a => a.id === id)?.nama || '?';
+  $('pinjam').innerHTML = `<h2>Peminjaman alat</h2>
+    <p class="ket">Dicatat kepala lab atau admin. Peminjam yang belum tercatat mengikuti induksi K3 lab ini diberi tanda.</p>
+    ${kelola && alat.length ? `<details><summary><b>Catat peminjaman</b></summary><div class="form">
+      <label>Alat <select id="pAlat">${alat.map(a => `<option value="${a.id}">${esc(a.nama)}</option>`).join('')}</select></label>
+      <label>Peminjam <input type="text" id="pNama" maxlength="120"></label><label>NIM (bila mahasiswa) <input type="text" id="pNim" inputmode="numeric" maxlength="15"></label>
+      <label>Jumlah <input type="number" id="pJml" min="1" value="1"></label>
+      <label>Tanggal pinjam <input type="date" id="pTgl" value="${HARI}"></label><label>Rencana kembali <input type="date" id="pKembali"></label>
+      <label class="lebar">Keperluan <input type="text" id="pPerlu" maxlength="300" placeholder="mis. penelitian TA, praktikum, pengujian"></label>
+      <div class="lebar"><button type="button" class="b utama" id="bPinjam">Simpan</button> <span class="pesan" id="mPinjam" role="status"></span></div></div></details>` : ''}
+    ${xs.length ? `<div class="gulir"><table class="ds"><thead><tr><th>Alat</th><th>Peminjam</th><th>Pinjam</th><th>Rencana kembali</th><th>Kembali</th><th></th></tr></thead><tbody>
+      ${xs.map(p => `<tr><td>${esc(nm(p.alat_id))} ×${p.jumlah}${p.keperluan ? `<div class="ket">${esc(p.keperluan)}</div>` : ''}</td>
+        <td>${esc(p.peminjam)}${p.nim ? ` <span class="ket">${esc(p.nim)}</span>` : ''}${p.nim && !sudahInduksi(p.nim, PILIH, INDUKSI) ? '<div class="peringatan">belum tercatat induksi K3 lab ini</div>' : ''}</td>
+        <td>${esc(p.tanggal_pinjam)}</td><td>${esc(p.rencana_kembali || '')}${!p.kembali_pada && p.rencana_kembali && p.rencana_kembali < HARI ? ' <span class="st lewat">lewat</span>' : ''}</td>
+        <td>${p.kembali_pada ? `${esc(p.kembali_pada)}${p.kondisi_kembali ? ` <span class="st ${esc(p.kondisi_kembali)}">${esc(KONDISI_ALAT[p.kondisi_kembali])}</span>` : ''}` : '<span class="ket">belum</span>'}</td>
+        <td>${kelola && !p.kembali_pada ? `<select data-kond="${p.id}" aria-label="Kondisi saat kembali">${opsi(KONDISI_ALAT, 'baik')}</select>
+          <button type="button" class="b kecil" data-kembali="${p.id}">Tandai kembali</button>` : ''}</td></tr>`).join('')}
+      </tbody></table></div>` : '<p class="kosong">Belum ada peminjaman.</p>'}`;
+  if ($('bPinjam')) $('bPinjam').onclick = async () => {
+    const isi = { alat_id: +nilai('pAlat'), peminjam: nilai('pNama'), nim: nilai('pNim') || null, jumlah: +nilai('pJml') || 1, tanggal_pinjam: nilai('pTgl'),
+      rencana_kembali: nilai('pKembali') || null, keperluan: nilai('pPerlu') || null };
+    if (isi.peminjam.length < 2 || !isi.tanggal_pinjam) return tulis('mPinjam', 'galat', 'Isi peminjam dan tanggal pinjam.');
+    if (isi.nim && !/^\d{6,15}$/.test(isi.nim)) return tulis('mPinjam', 'galat', 'NIM harus angka 6–15 digit.');
+    if (isi.nim && !sudahInduksi(isi.nim, PILIH, INDUKSI)
+        && !confirm(`NIM ${isi.nim} belum tercatat mengikuti induksi K3 lab ini. Tetap catat peminjaman?`)) return;
+    const { error } = await sb.from('lab_pinjam').insert(isi);
+    if (error) return tulis('mPinjam', 'galat', 'Gagal: ' + error.message);
+    await muat(); gambar();
+  };
+  document.querySelectorAll('[data-kembali]').forEach(b => { b.onclick = async () => {
+    const id = +b.dataset.kembali, kond = document.querySelector(`[data-kond="${id}"]`).value;
+    const { error } = await sb.from('lab_pinjam').update({ kembali_pada: HARI, kondisi_kembali: kond }).eq('id', id);
+    if (error) return alert('Gagal: ' + error.message);
+    await muat(); gambar();
+  }; });
+}
+
+// ---------------------------------------------------------------- rekap semua lab
+function gambarRekap(){
+  const rk = rekapLab({ lab: LAB, alat: ALAT, perawatan: RAWAT, induksi: INDUKSI, pinjam: PINJAM }, { dari: `${TH}-01-01`, sampai: `${TH}-12-31` });
+  $('rekap').innerHTML = `<h2>Rekap semua laboratorium, tahun ${TH}</h2>
+    <p class="ket">Untuk LED butir 38–39 dan Laporan kinerja tahunan. Induksi K3 hanya terhitung bila Anda berhak membaca datanya.</p>
+    <div class="gulir"><table class="ds"><thead><tr><th>Laboratorium</th><th>Jenis alat</th><th>Unit</th><th>Kondisi baik</th><th>Kalibrasi tepat waktu</th><th>Perawatan tercatat</th><th>Sesi induksi</th><th>Peserta induksi</th></tr></thead>
+    <tbody>${rk.map(r => `<tr><td>${esc(r.nama)}</td><td>${r.jenisAlat}</td><td>${r.unit}</td><td>${r.persenBaik == null ? '–' : r.persenBaik + '%'}</td>
+      <td>${r.perluKalibrasi ? `${r.kalibrasiTepat} dari ${r.perluKalibrasi}` : '–'}</td><td>${r.perawatan}</td><td>${r.sesiInduksi}</td><td>${r.pesertaInduksi}</td></tr>`).join('')}</tbody></table></div>
+    <div class="alat"><button type="button" class="b" id="bCsv">Unduh inventaris semua lab (CSV)</button></div>`;
+  $('bCsv').onclick = () => {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([csvAlat(ALAT, LAB)], { type: 'text/csv;charset=utf-8' }));
+    a.download = `inventaris-lab-${HARI}.csv`; a.click(); URL.revokeObjectURL(a.href);
+  };
+}
+
+async function hapus(tabel, id, tanya){
+  if (!confirm(tanya)) return;
+  const { error } = await sb.from(tabel).delete().eq('id', id);
+  if (error) return alert('Gagal menghapus: ' + error.message);
+  await muat(); gambar();
+}
+
+async function mulai(){
+  SAYA = await gerbang(sb);
+  if (!SAYA) return;
+  $('hSub').textContent = `Masuk sebagai ${SAYA.nama}`;
+  LAB = await baca(sb.from('laboratorium').select('id,nama').order('urutan').order('nama'));
+  PILIH = (SAYA.koordinatorLab || []).find(id => LAB.some(l => l.id === id)) ?? LAB[0]?.id ?? null;
+  await muat();
+  gambar();
+}
+mulai().catch(e => { $('isi').innerHTML = `<p class="kosong">Gagal memuat: ${esc(e.message)}</p>`; });
+</script>
+</body>
+</html>

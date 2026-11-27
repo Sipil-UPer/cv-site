@@ -1,5 +1,5 @@
-import { dosenLogin } from './dosen-login.js?v=2026-11-27-b8300c';
-import { aktifPada } from './koordinator.js?v=2026-11-27-b8300c';
+import { dosenLogin } from './dosen-login.js?v=2026-11-27-586a25';
+import { aktifPada } from './koordinator.js?v=2026-11-27-586a25';
 // Menu bersama ruang kerja (pemilik 2026-11-04).
 //
 // Situs dibagi dua:
@@ -43,11 +43,11 @@ const koorTA = s => pengelola(s) || mutu(s) || punyaJ(s, 'koordinator_ta');
 const koorKP = s => pemantau(s) || punyaJ(s, 'koordinator_kp');
 const koorLayanan = s => pengelola(s) || punyaJ(s, 'koordinator_ta', 'koordinator_kp', 'pembina_kemahasiswaan');
 
-import { halamanAktif } from './fitur.js?v=2026-11-27-b8300c';
-import { BUTIR_LAM_TEKNIK } from './bobot.js?v=2026-11-27-b8300c';
-import { pasangPemicuBangun } from './pemicu-bangun.js?v=2026-11-27-b8300c';
+import { halamanAktif } from './fitur.js?v=2026-11-27-586a25';
+import { BUTIR_LAM_TEKNIK } from './bobot.js?v=2026-11-27-586a25';
+import { pasangPemicuBangun } from './pemicu-bangun.js?v=2026-11-27-586a25';
 // Tinggi kotak teks mengikuti isi (pemilik 2026-11-25); bentuk "from" agar dicap stamp_versions.py.
-import { pasSemua as pasKotakTeks } from './kotak-teks.js?v=2026-11-27-b8300c';
+import { pasSemua as pasKotakTeks } from './kotak-teks.js?v=2026-11-27-586a25';
 
 export const MODUL = [
   { judul: 'Data saya', ket: 'Profil, karya, target kinerja, jadwal berhalangan, dan kalender Anda.', halaman: [
@@ -235,6 +235,9 @@ export const MODUL = [
     // Laboratorium (82-patch-laboratorium.sql, pemilik 2026-11-16): profil lab untuk situs publik; kepala lab miliknya.
     { href: 'kelola-laboratorium.html', judul: 'Kelola laboratorium', boleh: kalab,
       ket: 'Profil laboratorium untuk situs publik: ringkasan, koordinator, praktikum, layanan pengujian, foto.' },
+    // Inventaris, perawatan, peminjaman alat, dan induksi K3 (199, pemilik 2026-11-27): dosen membaca inventaris.
+    { href: 'lab-inventaris.html', judul: 'Inventaris dan K3 laboratorium', boleh: s => s.peran !== 'asesor', tampil: s => kalab(s) || pengelola(s) || mutu(s),
+      ket: 'Alat per laboratorium (kondisi, kalibrasi), riwayat perawatan, peminjaman, dan induksi K3 mahasiswa; rekap butir 38–39.' },
     { href: 'kelengkapan-situs.html', judul: 'Kelengkapan situs publik', boleh: admin,
       ket: 'Bagian situs publik yang masih kosong atau sebagian (profil, akreditasi, laboratorium, kerja sama, kabar, foto dosen) dan tempat mengisinya.' },
     // Pemakaian ruang kerja (133-patch-pemakaian-halaman.sql, pemilik 2026-11-20): dasar memutuskan fitur yang dipertahankan/dibuang.
@@ -490,7 +493,7 @@ export async function pasangMenu(sb){
   // Pencarian menyeluruh (pemilik 2026-11-12; cari-ui.js, cari.js): dimuat saat pertama dipakai.
   const kotak = nav.querySelector('.rk-cari input');
   let siapCari = null;
-  const muatCari = () => siapCari || (siapCari = import('./cari-ui.js?v=2026-11-27-b8300c').then(m =>
+  const muatCari = () => siapCari || (siapCari = import('./cari-ui.js?v=2026-11-27-586a25').then(m =>
     m.pasangCari(kotak, { sb, saya: u.saya, modul: halamanBoleh(u.saya), boleh: h => bolehBuka(u.saya, h) !== false })));
   kotak.addEventListener('focus', muatCari);
   document.addEventListener('keydown', e => {

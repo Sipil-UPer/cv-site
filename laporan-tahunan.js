@@ -3,11 +3,12 @@
 // Satu model isi (daftar blok) dirender ke Word (.docx, disusun sendiri tanpa templat) dan ke HTML (laporan-tahunan.html).
 // Sumber: data.json publik, rekap survei yang sudah diterbitkan (survei_rekap), dan, khusus admin, capaian IKU/IKT,
 // perkiraan status akreditasi, serta Temuan AMI. Versi publik (publik: true) tidak memuat bagian khusus admin.
-import { hitungSumber } from './iku-otomatis.js?v=2026-11-27-b8300c';
-import { SDGS } from './form-karya.js?v=2026-11-27-b8300c';
-import { run, para, judul, teks, tabel, buatDocx } from './docx-dasar.js?v=2026-11-27-b8300c';
-import { rekapSurvei, aspekTindakLanjut, kesenjanganCPL, labelKelompok, labelAspek, lengkapiCPL } from './survei-kepuasan.js?v=2026-11-27-b8300c';
-import { rekapSdm, JENIS_SDM } from './sdm.js?v=2026-11-27-b8300c';
+import { hitungSumber } from './iku-otomatis.js?v=2026-11-27-586a25';
+import { SDGS } from './form-karya.js?v=2026-11-27-586a25';
+import { run, para, judul, teks, tabel, buatDocx } from './docx-dasar.js?v=2026-11-27-586a25';
+import { rekapSurvei, aspekTindakLanjut, kesenjanganCPL, labelKelompok, labelAspek, lengkapiCPL } from './survei-kepuasan.js?v=2026-11-27-586a25';
+import { rekapLab } from './lab.js?v=2026-11-27-586a25';
+import { rekapSdm, JENIS_SDM } from './sdm.js?v=2026-11-27-586a25';
 
 const angka = v => v == null || v === '' ? '—' : (Math.round(+v * 100) / 100).toLocaleString('id-ID');
 const diTS = (xs, ts) => (xs || []).filter(x => +x.tahun_ts === +ts);
@@ -153,6 +154,17 @@ export function susunLaporan(C, { publik = false, kalender = false } = {}){
       p('Dari Rencana pengembangan (ruang kerja): rencana studi lanjut, sertifikasi, pelatihan, dan kenaikan jabatan dosen dan tendik; '
         + 'target = semua rencana kecuali yang batal.', true);
     } else p(`Belum ada rencana pengembangan bertarget tahun ${thn} (Data saya › Rencana pengembangan).`, true);
+  }
+
+  // Laboratorium (199, pemilik 2026-11-27; butir 38–39): D._lab = {lab, alat, perawatan, induksi, pinjam}; tahun = tahun laporan
+  // (1 Jan–31 Des TS untuk kedua versi, sama dengan Rencana pengembangan); kondisi alat = keadaan saat laporan dibuat.
+  if (!publik && D._lab && Array.isArray(D._lab.lab) && D._lab.lab.length) {
+    h2(`Laboratorium: alat, perawatan, dan induksi K3 tahun ${ts}`);
+    const rk = rekapLab(D._lab, { dari: `${ts}-01-01`, sampai: `${ts}-12-31` });
+    tb([['Laboratorium', 'Jenis alat', 'Unit', 'Kondisi baik', 'Kalibrasi tepat waktu', 'Perawatan tercatat', 'Sesi induksi K3', 'Peserta induksi'],
+      ...rk.map(r => [r.nama, angka(r.jenisAlat), angka(r.unit), r.persenBaik == null ? '–' : `${r.persenBaik}%`,
+        r.perluKalibrasi ? `${angka(r.kalibrasiTepat)} dari ${angka(r.perluKalibrasi)}` : '–', angka(r.perawatan), angka(r.sesiInduksi), angka(r.pesertaInduksi)])]);
+    p('Dari Inventaris dan K3 laboratorium (ruang kerja): kondisi alat per jenis, riwayat perawatan/perbaikan/kalibrasi, dan sesi induksi K3 mahasiswa.', true);
   }
 
   // Ujian dan validasi soal (195, pemilik 2026-11-27; butir 15–16 dan 55): D._ujian = rekapUjian() (ujian.js), hanya pengguna
