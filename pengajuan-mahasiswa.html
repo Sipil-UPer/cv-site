@@ -11,8 +11,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-27-ce245a">
-<link rel="stylesheet" href="kepala.css?v=2026-11-27-ce245a">
+<link rel="stylesheet" href="tema.css?v=2026-11-27-cafd7e">
+<link rel="stylesheet" href="kepala.css?v=2026-11-27-cafd7e">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
@@ -78,7 +78,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></div>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-27-ce245a"></script>
+<script src="config.js?v=2026-11-27-cafd7e"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -98,19 +98,19 @@ addEventListener('error', function (e) {
 // Berkas privat dibuka lewat Apps Script (mhs_buka_prodi); surat pengantar KP diunggah admin (mhs_unggah_prodi);
 // mahasiswa dikabari email saat dikembalikan, ditolak, atau disetujui (mhs_kabari).
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-27-ce245a';
-import { bolehPengajuan, punya, labelJabatan } from './koordinator.js?v=2026-11-27-ce245a';
+import { gerbang } from './menu.js?v=2026-11-27-cafd7e';
+import { bolehPengajuan, punya, labelJabatan } from './koordinator.js?v=2026-11-27-cafd7e';
 import { JENIS, LABEL_BERKAS, LABEL_STATUS, TINGKAT, BIDANG, teksAnggota, judulPengajuan, keB64, bukaIsi, appsScript, labelStatus, JENIS_SURAT, TAHAP_TA, JENIS_PUB, TINGKAT_PUB, INDEKSASI, JENIS_LUARAN, waktuPengajuan, rekapPengajuan, lembarPengajuan, labelProgram, penetapanTA, mkPilihanK26, teksCekMK, pilihanPembimbingTA, kkCocok,
          BERKAS_YUDISIUM_BAWAAN, kelengkapanYudisium, labelBerkas, JENIS_KEGIATAN, bolehBatalProdi, BERKAS_TA_BAWAAN, berkasTahapTA, TAHAP_TA_BERKAS,
-         semesterTA, kunciSemester, teksSemester, BATAS_KEMIRIPAN, persenKemiripan, perluCekKemiripan, teksKemiripan } from './pengajuan-mhs.js?v=2026-11-27-ce245a';
-import { opsiPeriode, cocokPeriode, labelPeriode, taTeks, tsKarya } from './sdgs-unduh.js?v=2026-11-27-ce245a';
-import { SHEETJS } from './nilai-cpl.js?v=2026-11-27-ce245a';
-import { barisKuota, teksPilihanPembimbing } from './rekap-kp.js?v=2026-11-27-ce245a';
-import { siapkan } from './pembimbing.js?v=2026-11-27-ce245a';
-import { usulPenguji, bebanUji, tsDari } from './usulan-penguji.js?v=2026-11-27-ce245a';
-import { calonTA } from './dosen-hitung.js?v=2026-11-27-ce245a';
-import { usulanWaktu } from './cari-waktu.js?v=2026-11-27-ce245a';
-import { bacaJam, formatJam, sibukSidang, gabungSibuk, periksaWaktu } from './jadwal-sidang.js?v=2026-11-27-ce245a';
+         semesterTA, kunciSemester, teksSemester, BATAS_KEMIRIPAN, persenKemiripan, perluCekKemiripan, teksKemiripan } from './pengajuan-mhs.js?v=2026-11-27-cafd7e';
+import { opsiPeriode, cocokPeriode, labelPeriode, taTeks, tsKarya } from './sdgs-unduh.js?v=2026-11-27-cafd7e';
+import { SHEETJS } from './nilai-cpl.js?v=2026-11-27-cafd7e';
+import { barisKuota, teksPilihanPembimbing } from './rekap-kp.js?v=2026-11-27-cafd7e';
+import { siapkan } from './pembimbing.js?v=2026-11-27-cafd7e';
+import { usulPenguji, bebanUji, tsDari } from './usulan-penguji.js?v=2026-11-27-cafd7e';
+import { calonTA } from './dosen-hitung.js?v=2026-11-27-cafd7e';
+import { usulanWaktu } from './cari-waktu.js?v=2026-11-27-cafd7e';
+import { bacaJam, formatJam, sibukSidang, gabungSibuk, periksaWaktu } from './jadwal-sidang.js?v=2026-11-27-cafd7e';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
@@ -223,7 +223,7 @@ function ringkas(p){
        ['Pembimbing 2', nmDosen(d.pembimbing_2)], ['Alasan di luar kelompok keahlian', d.alasan_luar_kk],
        ['Kurikulum', d.kurikulum_ta || 'belum diisi (pengajuan sebelum 2026-11-27)'],
        ...(d.kurikulum_ta === 'K26' ? [['MK pilihan sesuai bidang', (d.mk_pilihan_ta || []).map(k => `${MKP.find(m => m.kode === k)?.nama || k} (${k})`).join('; ')],
-         ['Verifikasi transkrip', teksCekMK(d.mk_pilihan_cek)]] : []),
+         ['Pemeriksaan MK pilihan', teksCekMK(d.mk_pilihan_cek)]] : []),
        (k => ['Berkas wajib', `${k.ada} dari ${k.wajib}${k.kurang.length ? ' · belum: ' + k.kurang.join(', ') : ' (lengkap)'}`])(
          kelengkapanYudisium(berkasTahapTA(BERKAS_TA, 'penetapan_pembimbing'), p.pengajuan_berkas || []))]   // 176
     : p.jenis === 'ta'
@@ -382,21 +382,22 @@ function htmlTetapkanTA(p){
 function htmlVerifMK(p){
   const c = p.data?.mk_pilihan_cek;
   return `<h3>Syarat 2 MK pilihan sesuai bidang (K26)</h3>
-    <p class="ket">Buka transkrip mahasiswa (SIAKAD) dan pastikan kedua mata kuliah di atas sudah diambil dan lulus. Status: <b>${esc(teksCekMK(c))}</b>.
+    <p class="ket">Kedua mata kuliah boleh yang telah, sedang, atau akan diambil. Periksa di SIAKAD: <b>transkrip</b> (telah diambil),
+      <b>KRS</b> semester ini (sedang diambil), atau <b>rencana studi</b> bersama dosen wali (akan diambil). Status: <b>${esc(teksCekMK(c))}</b>.
       Pengajuan baru bisa disahkan setelah dinyatakan sesuai.</p>
     <div class="baris"><label style="flex:1">Catatan (wajib bila tidak sesuai) <input id="vmk_${p.id}" maxlength="600" style="width:100%"
       value="${esc(c && !c.sesuai ? c.catatan || '' : '')}"></label>
-      <button class="b" data-verif-mk="${p.id}" data-sesuai="1">Sesuai transkrip</button>
+      <button class="b" data-verif-mk="${p.id}" data-sesuai="1">Sesuai</button>
       <button class="b awas" data-verif-mk="${p.id}" data-sesuai="0">Tidak sesuai</button></div>`;
 }
 async function verifMK(id, sesuai, b){
   const cat = $('vmk_' + id).value.trim();
-  if (!sesuai && cat.length < 5) return pesan(id, 'buruk', 'Tulis catatan bila tidak sesuai transkrip.');
+  if (!sesuai && cat.length < 5) return pesan(id, 'buruk', 'Tulis catatan bila tidak sesuai transkrip, KRS, atau rencana studi.');
   b.disabled = true;
   const { error } = await sb.rpc('ta_verifikasi_mk_pilihan', { p_id: id, p_sesuai: sesuai, p_catatan: cat || null });
   if (error) { b.disabled = false; return pesan(id, 'buruk', error.message); }
   BUKA.add(id); await muat(); gambar(); gambarRekap();
-  pesan(id, 'ok', sesuai ? 'Tercatat: 2 MK pilihan sesuai transkrip. Tekan Sahkan bila pembimbing sudah sesuai.'
+  pesan(id, 'ok', sesuai ? 'Tercatat: 2 MK pilihan sesuai. Tekan Sahkan bila pembimbing sudah sesuai.'
     : 'Tercatat: tidak sesuai. Kembalikan pengajuan dengan catatan agar mahasiswa memperbaiki pilihannya.');
 }
 

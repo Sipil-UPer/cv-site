@@ -83,7 +83,8 @@ export const TAHAP_TA_AJU = [[TAHAP_PEMBIMBING_TA, 'Pengajuan pembimbing TA'], .
 export const NAMA_TAHAP_PEMBIMBING_TA = ['Isi KK, judul awal, dan usulan pembimbing', 'Dikirim ke koordinator TA',
                                          'Diperiksa koordinator TA; pembimbing ditetapkan', 'Pembimbing TA ditetapkan'];
 export const penetapanTA = p => p?.jenis === 'ta' && p?.data?.tahap_ta === TAHAP_PEMBIMBING_TA;
-// Syarat TA K26 (196, pemilik 2026-11-27): 2 MK pilihan sesuai KK topik TA (peminatan MK = kode KK); K21 belum.
+// Syarat TA K26 (196-197, pemilik 2026-11-27): 2 MK pilihan sesuai KK topik TA (peminatan MK = kode KK) yang telah, sedang,
+// atau akan diambil; koordinator TA memeriksa transkrip/KRS/rencana studi. K21 belum.
 /** MK pilihan K26 dari data.json: [{kode, nama, sks, peminatan}]. */
 export const mkPilihanK26 = D => ((D?.kurikulum || []).find(k => k.kode === 'K26')?.mk || [])
   .filter(m => m.sifat === 'pilihan').map(m => ({ kode: m.kode, nama: m.nama, sks: m.sks, peminatan: m.peminatan }));
@@ -92,7 +93,7 @@ export const mkPilihanBidang = (xs, kk) => (xs || []).filter(m => !!kk && m.pemi
   .sort((a, b) => String(a.nama).localeCompare(String(b.nama), 'id'));
 /** Teks status verifikasi transkrip (data.mk_pilihan_cek). */
 export const teksCekMK = c => !c ? 'belum diverifikasi koordinator TA'
-  : c.sesuai ? `sesuai transkrip (${c.oleh || 'koordinator TA'})` : `TIDAK sesuai transkrip${c.catatan ? ': ' + c.catatan : ''}`;
+  : c.sesuai ? `sesuai (${c.oleh || 'koordinator TA'})` : `TIDAK sesuai${c.catatan ? ': ' + c.catatan : ''}`;
 // Dosen yang boleh jadi pembimbing 1 untuk KK topik TA (pembimbing_pilihan_ta(): kk_cocok = KK sendiri + berdekatan).
 export const pembimbingCocok = (dosen, kk) => (dosen || []).filter(d => !!kk && (d.kk_cocok || []).includes(kk));
 // Sama dengan public.ta_kk_cocok (110): KK sama, atau pasangan ta_kk_dekat {kk_a, kk_b} (dua arah).
@@ -272,7 +273,7 @@ export function periksaIsian(jenis, { nim, nama, pembimbing, data = {} }){
     if (data.tahap_ta === TAHAP_PEMBIMBING_TA && !data.kk_ta) g.push('Pilih kelompok keahlian topik TA.');
     if (data.tahap_ta === TAHAP_PEMBIMBING_TA && !data.kurikulum_ta) g.push('Pilih kurikulum Anda (K21 atau K26).');   // 196
     if (data.tahap_ta === TAHAP_PEMBIMBING_TA && data.kurikulum_ta === 'K26'
-        && new Set((data.mk_pilihan_ta || []).filter(Boolean)).size !== 2) g.push('Pilih 2 mata kuliah pilihan sesuai bidang TA yang sudah Anda ambil.');
+        && new Set((data.mk_pilihan_ta || []).filter(Boolean)).size !== 2) g.push('Pilih 2 mata kuliah pilihan sesuai bidang TA yang telah, sedang, atau akan Anda ambil.');
     if (String(data.judul || '').trim().length < 3) g.push(data.tahap_ta === TAHAP_PEMBIMBING_TA ? 'Tulis judul awal TA.' : 'Tulis judul TA.');
     if (data.pembimbing_2 && data.pembimbing_2 === pembimbing) g.push('Pembimbing 2 harus berbeda dari pembimbing 1.');
     // 185: persen kemiripan laporan akhir (sama dengan mhs_rapikan); batasnya diperiksa saat dikirim.

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<title>Peminatan dan mata kuliah pilihan — Program Studi</title>
+<meta name="description" content="Lima bidang peminatan, mata kuliah pilihan tiap bidang, dan syarat dua mata kuliah pilihan sesuai bidang topik Tugas Akhir (Kurikulum 2026).">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tema.css?v=2026-11-27-cafd7e">
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:960px;margin:0 auto;padding:0 20px 90px}
+  a{color:var(--biru-2)}
+  .hero{position:relative;background:var(--biru);color:#fff;overflow:hidden;border-bottom:4px solid var(--merah)}
+  .hero-in{position:relative;max-width:960px;margin:0 auto;padding:30px 20px 26px}
+  h1{font-family:var(--serif);font-size:clamp(24px,4.2vw,34px);font-weight:600;letter-spacing:-.018em;margin:0;line-height:1.14;color:#fff}
+  .prodi{color:var(--biru-m4);font-size:14.5px;margin-top:7px}
+  h2{font-family:var(--serif);font-size:21px;font-weight:600;margin:30px 0 8px;color:var(--biru)}
+  h3{font-family:var(--serif);font-size:17px;font-weight:600;margin:0 0 4px;color:var(--biru)}
+  .ket{color:var(--muted);font-size:13px}
+  .kosong{color:var(--muted);font-size:13.5px;padding:16px 0}
+  .kartu{background:var(--panel);border:1px solid var(--line);border-radius:2px;padding:14px 18px;margin:12px 0}
+  .aturan{border-left:4px solid var(--biru)}
+  .aturan ul{margin:6px 0 0;padding-left:20px} .aturan li{margin:4px 0}
+  .bidang{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
+  .bidang .kartu{margin:0}
+  .mk{list-style:none;padding:0;margin:8px 0 6px}
+  .mk li{display:flex;gap:8px;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--line-soft);font-size:14px}
+  .mk .sks{font-family:var(--mono);font-size:12px;color:var(--muted);white-space:nowrap}
+  .kode{font-family:var(--mono);font-size:11.5px;color:var(--muted)}
+  .rencana label{display:flex;gap:8px;align-items:flex-start;padding:4px 0;font-size:14px;cursor:pointer}
+  .rencana select{font:inherit;font-size:14px;padding:6px 8px;border:1px solid var(--line);background:var(--panel);color:var(--ink)}
+  .rencana .kolom{columns:2 280px;margin:8px 0}
+  .hasil{margin-top:10px;padding:10px 14px;border:1px solid var(--line);font-size:14px}
+  .hasil.ok{border-color:var(--hijau);background:rgba(30,140,70,.06)} .hasil.kurang{border-color:#8A5A00;background:rgba(138,90,0,.06)}
+  footer{margin-top:50px;padding-top:20px;border-top:3px solid var(--biru);font-size:12.5px;color:var(--muted)}
+  footer a{margin-right:14px}
+</style>
+</head>
+<body>
+<div class="hero" role="region" aria-label="Pembuka halaman"><div class="hero-in">
+  <h1>Peminatan dan mata kuliah pilihan</h1>
+  <div class="prodi" id="hProdi"></div>
+</div></div>
+<main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
+<script src="config.js?v=2026-11-27-cafd7e"></script>
+<script>
+// Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
+addEventListener('error', function (e) {
+  if (document.getElementById('galat-muat')) return;
+  var d = document.createElement('div');
+  d.id = 'galat-muat';
+  d.style.cssText = 'margin:16px;padding:12px 14px;border:1px solid var(--merah);' +
+    'background:var(--merah-m3);color:var(--ink);font:14px/1.5 system-ui,sans-serif';
+  d.textContent = 'Halaman gagal dimuat: ' + (e.message || 'galat skrip') +
+    '. Tekan Ctrl+Shift+R untuk memuat ulang tanpa cache; bila tetap muncul, kirim pesan ini ke admin.';
+  document.body.insertBefore(d, document.body.firstChild);
+});
+</script>
+<script type="module">
+// Peminatan dan MK pilihan K26 (pemilik 2026-11-27). Data dari data.json (kurikulum K26, kelompok keahlian, dosen);
+// aturan dari Dokumen Kurikulum K26 Bab 4 (peminatan.js). Perencana tidak menyimpan apa pun.
+import { pasangKerangka, isiKerangka } from './kerangka.js?v=2026-11-27-cafd7e';
+import { susunPeminatan, cekRencana, SKS_PILIHAN, SEBARAN_PILIHAN, MK_BIDANG_TA } from './peminatan.js?v=2026-11-27-cafd7e';
+pasangKerangka({ aktif: 'akademik' });
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const angka = v => String(+v || 0).replace('.', ',');
+const mkLi = m => `<li><span>${m.berkas ? `<a href="${esc(m.berkas)}">${esc(m.nama)}</a>` : esc(m.nama)} <span class="kode">${esc(m.kode)}</span></span>
+  <span class="sks">${angka(m.sks)} sks</span></li>`;
+
+const D = await fetch('data.json', { cache: 'no-cache' }).then(r => r.ok ? r.json() : {}).catch(() => ({}));
+isiKerangka(D);
+if (D.prodi) document.title = document.title.split(' — ')[0] + ' — ' + ['Program Studi ' + D.prodi, D.institusi].filter(Boolean).join(' ');
+$('hProdi').textContent = [D.prodi && 'Program Studi ' + D.prodi, D.institusi].filter(Boolean).join(' · ');
+const P = susunPeminatan(D);
+
+if (!P.semua.length) {
+  $('isi').innerHTML = '<p class="kosong">Daftar mata kuliah pilihan belum tersedia.</p>';
+} else {
+  $('isi').innerHTML = `
+    <div class="kartu aturan"><h3>Aturan Kurikulum 2026</h3><ul>
+      <li>Mata kuliah pilihan berjumlah <b>${SKS_PILIHAN} sks</b>, diambil menurut kelompok keahlian mulai semester VI
+        (${SEBARAN_PILIHAN.map(([s, n]) => `semester ${s} ${n} sks`).join(', ')}). Jumlah mata kuliahnya bergantung pada sks yang dipilih.</li>
+      <li><b>Syarat Tugas Akhir:</b> setiap mahasiswa wajib mengambil <b>${MK_BIDANG_TA} mata kuliah pilihan sesuai bidang peminatan topik TA</b>.
+        Kedua mata kuliah itu boleh yang <b>telah, sedang, atau akan</b> diambil. Pilih keduanya saat mengisi
+        <a href="pengajuan.html?jenis=ta">Pengajuan pembimbing TA</a>; koordinator TA memeriksanya dengan transkrip, KRS, atau rencana studi Anda.</li>
+      <li>Mata kuliah pilihan <b>Sipil Umum</b> boleh diambil mahasiswa semua bidang, tetapi tidak dihitung untuk syarat dua mata kuliah sebidang.</li>
+      <li>Berlaku untuk mahasiswa Kurikulum 2026 (K26). Mahasiswa K21 mengikuti ketentuan kurikulumnya; lihat juga
+        <a href="ekuivalensi-kurikulum.html">Ekuivalensi kurikulum</a>.</li></ul>
+      <p class="ket">Sumber: Dokumen Kurikulum Program Studi Teknik Sipil 2026, Bab 4 (Mata Kuliah Pilihan dan sebaran sks per semester).</p></div>
+
+    <h2>Lima bidang peminatan</h2>
+    <p class="ket">Bidang mengikuti kelompok keahlian dosen dan rekomendasi asosiasi program studi teknik sipil. Pembimbing 1 TA berasal dari
+      bidang yang sama atau berdekatan.</p>
+    <div class="bidang">${P.bidang.map(b => `<div class="kartu" id="bidang-${esc(b.kode)}">
+      <h3>${esc(b.nama)}</h3>${b.cakupan ? `<div class="ket">${esc(b.cakupan)}</div>` : ''}
+      ${b.mk.length ? `<ul class="mk">${b.mk.map(mkLi).join('')}</ul><div class="ket">${b.mk.length} mata kuliah, ${angka(b.mk.reduce((a, m) => a + (+m.sks || 0), 0))} sks.</div>`
+        : '<p class="kosong">Belum ada mata kuliah pilihan.</p>'}
+      ${b.berkas ? `<div class="ket"><a href="${esc(b.berkas)}">Profil bidang dan ${b.dosen} dosen</a></div>` : ''}</div>`).join('')}</div>
+    ${P.umum.length ? `<div class="kartu"><h3>Sipil Umum</h3><ul class="mk">${P.umum.map(mkLi).join('')}</ul>
+      <div class="ket">Boleh untuk semua bidang; tidak dihitung untuk syarat TA.</div></div>` : ''}
+
+    <h2>Rencanakan mata kuliah pilihan</h2>
+    <div class="kartu rencana">
+      <p class="ket">Pilih bidang topik TA yang Anda minati, lalu centang mata kuliah pilihan yang telah, sedang, atau akan Anda ambil.
+        Perencana ini tidak menyimpan apa pun; untuk pengajuan resmi gunakan Pengajuan pembimbing TA.</p>
+      <label style="display:block">Bidang topik TA <select id="rBidang"><option value="">(pilih bidang)</option>
+        ${P.bidang.map(b => `<option value="${esc(b.kode)}">${esc(b.nama)}</option>`).join('')}</select></label>
+      <div class="kolom">${[...P.bidang.flatMap(b => b.mk.map(m => ({ ...m, bidang: b.nama }))), ...P.umum.map(m => ({ ...m, bidang: 'Sipil Umum' }))].map(m =>
+        `<label><input type="checkbox" data-mk="${esc(m.kode)}"> <span>${esc(m.nama)} <span class="kode">${esc(m.bidang)} · ${angka(m.sks)} sks</span></span></label>`).join('')}</div>
+      <div class="hasil" id="rHasil" role="status"></div>
+    </div>
+    <footer>Pertanyaan tentang peminatan: <a href="layanan-mahasiswa.html#kirim">Tanya prodi</a>
+      · <a href="kurikulum.html">Kurikulum</a> · <a href="layanan-mahasiswa.html#pembimbing">Calon pembimbing TA</a></footer>`;
+  const hitung = () => {
+    const pilih = [...document.querySelectorAll('[data-mk]:checked')].map(c => c.dataset.mk), bidang = $('rBidang').value;
+    const r = cekRencana(pilih, bidang, P.semua), el = $('rHasil'), ok = r.cukupSks && r.syaratTA;
+    el.className = 'hasil ' + (ok ? 'ok' : 'kurang');
+    el.innerHTML = `Terpilih <b>${angka(r.sks)} sks</b> dari ${SKS_PILIHAN} sks${r.cukupSks ? ' ✓' : ` (kurang ${angka(r.kurangSks)} sks)`}.
+      ${bidang ? `Mata kuliah bidang topik TA: <b>${r.nBidang}</b> dari ${MK_BIDANG_TA}${r.syaratTA ? ' ✓ syarat TA terpenuhi' : ` (kurang ${r.kurangBidang})`}.`
+        : 'Pilih bidang topik TA untuk memeriksa syarat dua mata kuliah sebidang.'}`;
+  };
+  document.querySelectorAll('[data-mk]').forEach(c => { c.onchange = hitung; });
+  $('rBidang').onchange = hitung;
+  hitung();
+  if (location.hash) document.querySelector(location.hash)?.scrollIntoView();
+}
+</script>
+</body>
+</html>

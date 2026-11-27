@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-27-ce245a">
+<link rel="stylesheet" href="tema.css?v=2026-11-27-cafd7e">
 <style>
   /* Panduan pengguna ruang kerja (pemilik 2026-11-04). Bagian admin hanya
      tampil untuk peran admin. Perbarui bila tombol atau halaman berubah. */
@@ -43,7 +43,7 @@
   @media(max-width:640px){nav.isi ol{columns:1}.wrap{padding:18px 16px 60px}}
   @media print{nav.isi{display:none}section{break-inside:avoid}}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-27-ce245a">
+<link rel="stylesheet" href="kepala.css?v=2026-11-27-cafd7e">
 </head>
 <body>
 
@@ -68,8 +68,11 @@
       <li><a href="#rps">Menyusun RPS</a> · <a href="#rps-review">review sejawat</a></li>
       <li><a href="#evaluasi">Evaluasi pembelajaran</a></li>
       <li><a href="#kelas">Kelas, beban mengajar, dan ekuivalensi</a></li>
+      <li><a href="#ujian">Ujian dan validasi soal</a></li>
       <li><a href="#berhalangan">Jadwal berhalangan</a></li>
       <li data-fitur="rapat"><a href="#cari-waktu">Mencari waktu rapat</a></li>
+      <li><a href="#layanan-mhs">Layanan mahasiswa: pengaduan, kotak masuk, nilai layanan</a></li>
+      <li><a href="#ta-mk-pilihan">Tugas Akhir: syarat 2 MK pilihan (K26)</a></li>
       <li><a href="#lihat">Monitoring dan skor</a></li>
       <li><a href="#publik">Apa yang tampil untuk umum</a></li>
       <li class="adm" hidden><a href="#verifikasi">Admin: verifikasi dan ajuan</a></li>
@@ -359,8 +362,25 @@
     </ul>
   </section>
 
+  <section id="ujian">
+    <h2>10. Ujian dan validasi soal</h2>
+    <p>Buka <b>Pengajaran ▾ › Ujian dan validasi soal</b>, pilih periode dan <b>UTS</b> atau <b>UAS</b>.</p>
+    <ul>
+      <li><b>Jadwal ujian</b> (Kaprodi dan admin menyusun; semua dosen membaca): satu baris per kelas dari Penyusunan kelas. Jam terisi awal dari
+        jadwal kuliah kelas itu. Isi tanggal, jam, dan ruang, lalu <b>Atur</b> pengawas: yang tidak berhalangan (Jadwal berhalangan) dan bebannya
+        paling ringan tampil di atas, pengampu kelas didahulukan; yang tidak tersedia digelapkan beserta alasannya. Tekan <b>Simpan</b> per baris.
+        Bentrok ruang dan pengawas ditandai merah. <b>Unduh jadwal (CSV)</b> untuk diumumkan.</li>
+      <li><b>Validasi soal</b>: penyusun MK (koordinator dan tim) mengunggah soal serta kunci/rubrik di <b>Portofolio mata kuliah</b> dengan nama
+        asesmen <i>UTS</i> atau <i>UAS</i>, lalu menekan <b>Ajukan validasi</b>. Validator adalah GKM, Kaprodi, atau admin yang <b>bukan</b> pengampu
+        MK itu: buka berkasnya, centang enam butir daftar periksa (Sub-CPMK, tingkat Bloom, bobot, kejelasan, waktu, kunci/rubrik), lalu
+        <b>Layak</b> atau <b>Perlu revisi</b> dengan catatan. Soal yang direvisi diunggah ulang dan diajukan lagi; riwayatnya tersimpan.</li>
+      <li><b>Jadwal ujian saya</b> memuat ujian yang Anda awasi dan ujian kelas yang Anda ajar. <b>Tugas saya</b> mengingatkan tugas mengawas
+        14 hari sebelumnya, soal MK Anda yang belum layak 21 hari sebelum ujian, dan antrean validasi bagi validator.</li>
+    </ul>
+  </section>
+
   <section id="berhalangan">
-    <h2>10. Jadwal berhalangan</h2>
+    <h2>11. Jadwal berhalangan</h2>
     <p>Buka <b>Data saya ▾ › Jadwal berhalangan</b>. Isinya dipakai untuk menyusun jadwal kuliah, mencari waktu sidang, dan mencari waktu rapat.
       Judul atau alasan Anda hanya terlihat admin, Kaprodi, serta koordinator TA dan KP; dosen lain hanya melihat jumlahnya.</p>
     <ol>
@@ -383,15 +403,45 @@
   </section>
 
   <section id="cari-waktu" data-fitur="rapat">
-    <h2>11. Mencari waktu rapat</h2>
+    <h2>12. Mencari waktu rapat</h2>
     <p>Di <b>Kegiatan ▾ › Rapat dan notulen</b>, saat membuat atau mengubah rapat: centang peserta dosen, lalu di bagian <b>Cari waktu</b> isi
       rentang tanggal (paling lama 32 hari) dan durasi, dan klik <b>Cari waktu</b>. Usulan diambil dari jadwal berhalangan dan rapat lain para
       peserta: yang paling sedikit bentrok di atas, paling banyak dua per tanggal, hari libur dilewati. <b>Pakai</b> mengisi tanggal dan jam rapat.
       Nama peserta yang tidak bisa hanya terlihat admin, Kaprodi, serta koordinator TA dan KP. Jadwal kuliah belum ikut dihitung.</p>
   </section>
 
+  <section id="layanan-mhs">
+    <h2>13. Layanan mahasiswa: pengaduan, kotak masuk, dan nilai layanan</h2>
+    <ul>
+      <li><b>Kirim pertanyaan, masukan, atau pengaduan</b> (halaman publik Layanan mahasiswa): mahasiswa boleh tanpa nama. Tiap kiriman mendapat
+        <b>kode lacak</b>; dengan kode itu mahasiswa melihat status dan tindak lanjutnya di <b>Lacak kiriman</b>, tanpa membuka identitas.</li>
+      <li><b>Kotak masuk</b> (<b>Mahasiswa ▾ › Kelola layanan mahasiswa</b>): pertanyaan dan masukan dibaca admin, Kaprodi, dan GKM;
+        <b>pengaduan hanya dibaca Kaprodi dan GKM</b>. Ubah status (Baru, Ditindaklanjuti, Selesai). <b>Catatan internal</b> tidak pernah tampil;
+        <b>Tindak lanjut publik</b> dibaca pengirim lewat kode lacaknya, dan yang sudah Selesai tampil di halaman mahasiswa sebagai
+        <i>Masukan Anda, tindakan kami</i> tanpa isi kiriman. Tulis tindakan tanpa nama orang. Kiriman baru muncul di Tugas saya (target 7 hari).</li>
+      <li><b>Nilai layanan</b>: setelah pengajuan mahasiswa (KP, surat, TA, yudisium, dan lainnya) disahkan atau ditolak, mahasiswa memberi nilai 1–5
+        dan komentar lewat tautan pribadinya (bisa diubah 30 hari). Rata-rata per layanan dan komentarnya ada di kartu <b>Nilai kepuasan
+        layanan</b> pada halaman yang sama; rata-rata tanpa komentar tampil di halaman mahasiswa. Bukti butir 57.</li>
+    </ul>
+  </section>
+
+  <section id="ta-mk-pilihan">
+    <h2>14. Tugas Akhir: syarat 2 mata kuliah pilihan (K26)</h2>
+    <p>Kurikulum 2026: setiap mahasiswa wajib mengambil 2 mata kuliah pilihan sesuai bidang peminatan topik TA; keduanya boleh yang
+      <b>telah, sedang, atau akan</b> diambil. Daftar MK per bidang ada di halaman publik
+      <a href="peminatan.html">Peminatan dan mata kuliah pilihan</a> (dosen wali dapat memakainya saat perwalian).</p>
+    <ol>
+      <li>Saat <b>Pengajuan pembimbing TA</b>, mahasiswa memilih kurikulumnya. Mahasiswa K26 memilih 2 MK pilihan dari kelompok keahlian topik
+        TA; pengajuan tanpa keduanya tidak bisa dikirim. Mahasiswa K21 belum terkena syarat ini.</li>
+      <li>Koordinator TA (atau admin) membuka pengajuan di <b>Pengajuan mahasiswa</b>, memeriksa di SIAKAD: transkrip (telah diambil), KRS
+        semester ini (sedang), atau rencana studi bersama dosen wali (akan), lalu menekan <b>Sesuai</b> atau <b>Tidak sesuai</b> (catatan wajib).</li>
+      <li><b>Sahkan</b> baru bisa ditekan setelah hasilnya Sesuai. Bila mahasiswa mengubah pilihan dan mengirim ulang, pemeriksaan diulang.
+        Semua langkah tercatat di jalur proses.</li>
+    </ol>
+  </section>
+
   <section id="lihat">
-    <h2>12. Monitoring dan skor</h2>
+    <h2>15. Monitoring dan skor</h2>
     <ul>
       <li><b>Pemantauan ▾ › Pemantauan kinerja</b>: rekap per tahun atau TS, per dosen, dan syarat unggul.</li>
       <li><b>Data saya ▾ › Target kinerja dosen</b>: target tahun ini (publikasi, penelitian, PkM, luaran, rekognisi, proposal hibah eksternal) dan capaian Anda. Capaian dihitung dari karya tahun itu yang mencantumkan Anda sebagai penulis atau anggota: yang terverifikasi masuk "Tercapai", yang masih diajukan tampil sebagai "menunggu". Target ditetapkan admin per jabatan akademik (bisa khusus per dosen). Yang belum tercapai juga tampil di <b>Tugas saya</b>. Admin dan pimpinan melihat semua dosen; admin mengisi target baku dan target khusus di halaman yang sama.</li>
@@ -404,7 +454,7 @@
   </section>
 
   <section id="publik">
-    <h2>13. Apa yang tampil untuk umum</h2>
+    <h2>16. Apa yang tampil untuk umum</h2>
     <p>Beranda tanpa masuk akun hanya menampilkan grafik dan angka rekap; daftar dosen, publikasi, penelitian,
       pengabdian, prestasi, dan mitra dibuka dengan mengklik angkanya. Yang tampil hanya karya
       <b>terverifikasi</b>, tanpa tautan bukti, tanpa nominal dana, tanpa beban kerja dosen, dan tanpa
@@ -413,7 +463,7 @@
 
   <div id="bagian-admin" hidden>
   <section id="verifikasi" class="admin">
-    <h2>14. Verifikasi dan ajuan <span class="peran">admin</span></h2>
+    <h2>17. Verifikasi dan ajuan <span class="peran">admin</span></h2>
     <p>Buka halaman <b>Verifikasi</b> (menu Admin prodi, atau tautan <b>Verifikasi</b> di
       Karya dosen). Tab <b>Karya dosen</b>, <b>Profil dosen</b>, <b>BKD</b>, dan <b>Prestasi mahasiswa</b>
       masing-masing menampilkan jumlah yang menunggu; angka total juga tampil di kartu ruang kerja.
@@ -437,7 +487,7 @@
   </section>
 
   <section id="dosen" class="admin">
-    <h2>15. Kelola dosen <span class="peran">admin</span></h2>
+    <h2>18. Kelola dosen <span class="peran">admin</span></h2>
     <ul>
       <li>Tambah dosen: email (untuk masuk), NIDN, nama, peran, pendidikan, jabatan. Staf tanpa NIDN memakai nomor pegawai.</li>
       <li>Peran: <span class="tbl">dosen</span> mengisi karya; <span class="tbl">admin</span> semua halaman;
@@ -448,11 +498,13 @@
         Dosen Industri; kosong untuk staf dan asesor) dan dua penilaian prodi: sesuai kompetensi inti PS, dan
         bidang keahlian sesuai MK yang diampu. Tanda V di LKPS hanya muncul bila dicentang. Isian profil
         lainnya sama dengan milik dosen dan bisa dilengkapi admin langsung.</li>
+      <li><b>Dosen yang belum pernah masuk</b>: <b>Pengingat › Belum pernah masuk ruang kerja</b> mendaftar dosen dan admin aktif yang belum
+        pernah membuka ruang kerja; kirim undangan berisi cara masuk dan tiga hal pertama yang diisi (Profil, Jadwal berhalangan, RPS).</li>
     </ul>
   </section>
 
   <section id="dataprodi" class="admin">
-    <h2>16. Data prodi <span class="peran">admin</span></h2>
+    <h2>19. Data prodi <span class="peran">admin</span></h2>
     <p>Buka <b>Pengelolaan ▾ › Data prodi</b>. Tiap tab satu tabel LKPS; <b>Tambah baris</b>, <b>Ubah</b>,
       <b>Hapus</b>, dan bukti per baris. Tab dikelompokkan: baris atas memilih kelompok (Dokumen,
       Dosen &amp; SDM, Kurikulum &amp; CPL, Penelitian &amp; kerja sama, Mahasiswa &amp; lulusan,
@@ -499,7 +551,7 @@
   </section>
 
   <section id="butir" class="admin">
-    <h2>17. Isian butir dan dokumen <span class="peran">admin</span></h2>
+    <h2>20. Isian butir dan dokumen <span class="peran">admin</span></h2>
     <ul>
       <li>Butir yang dinilai dengan matriks: isi skor 0–4 dan bukti, lalu <b>Simpan perubahan</b>.</li>
       <li><b>Dokumen</b>: pustaka dokumen (statuta, kurikulum, SK, notulen, …). Unggah ulang dengan tahun sama mengganti versi lama; yang lama diarsipkan.</li>
@@ -508,7 +560,7 @@
   </section>
 
   <section id="ppepp" class="admin">
-    <h2>18. Standar SPMI dan siklus PPEPP <span class="peran">admin</span></h2>
+    <h2>21. Standar SPMI dan siklus PPEPP <span class="peran">admin</span></h2>
     <ol>
       <li><b>Impor standar.</b> Buka <b>Data prodi › SPMI › Standar SPMI</b>, pada <b>Impor rekap standar SPM</b> pilih berkas Excel dari SPM
         (mis. "Draft Rekap Standar"). Lembar Pendidikan, Penelitian, PkM, Akreditasi Unggul LAMTEK, dan IKU PT tercentang; lembar unit lain bisa
@@ -539,7 +591,7 @@
   </section>
 
   <section id="skor" class="admin">
-    <h2>19. Skor dan draf LED <span class="peran">admin</span></h2>
+    <h2>22. Skor dan draf LED <span class="peran">admin</span></h2>
     <p><b>Mutu dan akreditasi ▾ › Kelengkapan LED</b> menghitung sendiri yang sudah dan belum terisi: tim, narasi, Data prodi, dokumen, bukti, dan karya, dengan tautan ke tempat mengisinya. "Selesai" berarti datanya ada, bukan isinya sudah benar.</p>
     <p>Di halaman <b>Narasi LED</b>, tombol di atas daftar menyaring bagian yang tampil, dan kotak cari menemukan satu butir. Tombol <b>Identitas</b> memuat isian Identitas Pengusul, kota pada sampul, folder induk, dan narahubung; <b>A</b> dan <b>B</b> sama dengan bagian A dan B pada Bab II. Daftar program studi dan akreditasi diambil dari <b>Data prodi</b>, tab Prodi di UPPS. Buka <b>Tim penyusun dan pembagian bagian</b>, centang yang masuk tim penyusun (dosen yang dicentang bisa menulis narasi tanpa hak admin lainnya), atur urutan dan deskripsi kerjanya, tambahkan orang di luar sistem bila ada (namanya tertulis di LED tanpa akun), lalu pilih penanggung jawab tiap bagian; tombol <b>Bagian saya</b> lalu menampilkan bagian masing-masing. Admin lain tetap boleh menyunting. Bila dua admin mengubah kotak yang sama, yang menyimpan belakangan diberi peringatan sebelum menimpa.</p>
     <p>Tombol unduh ada di panel <b>Unduh dokumen akreditasi</b>, paling atas halaman Skor; pilih TS lebih dulu. Isi narasi di halaman <b>Mutu dan akreditasi ▾ › Narasi LED</b>: tiap kotak tersimpan sendiri dan masuk draf LED saat diunduh, jadi tidak perlu mengetik ulang di Word. Yang masih tertinggal di draf bertanda [isi].</p>
@@ -558,7 +610,7 @@
   </section>
 
   <section id="perbarui" class="admin">
-    <h2>20. Kapan situs diperbarui <span class="peran">admin</span></h2>
+    <h2>23. Kapan situs diperbarui <span class="peran">admin</span></h2>
     <p>Situs dibangun ulang otomatis tiap jam pada menit ke-23 (GitHub Actions). Untuk memperbarui saat itu
       juga, pengelola teknis menjalankan <span class="tbl">bangun-dan-push.bat</span> lalu menjawab
       <b>y</b> pada "Bangun dan terbitkan sekarang?".</p>
@@ -566,7 +618,7 @@
   </div>
 </main>
 
-<script src="config.js?v=2026-11-27-ce245a"></script>
+<script src="config.js?v=2026-11-27-cafd7e"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -583,8 +635,8 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-27-ce245a';
-import { BUTIR_LAM_TEKNIK, NAMA_INSTRUMEN } from './bobot.js?v=2026-11-27-ce245a';
+import { gerbang } from './menu.js?v=2026-11-27-cafd7e';
+import { BUTIR_LAM_TEKNIK, NAMA_INSTRUMEN } from './bobot.js?v=2026-11-27-cafd7e';
 // Panduan ini memakai contoh LAM Teknik (2026-11-25): instrumen lain mendapat catatan perbedaan di atas.
 if (!BUTIR_LAM_TEKNIK) { const c = document.getElementById('catatanInstrumen'); c.hidden = false;
   c.innerHTML = `<b>Instrumen prodi ini: ${NAMA_INSTRUMEN}.</b> Panduan ini ditulis dengan contoh LAM Teknik Sarjana (butir 1–60). Untuk instrumen ini: elemen, bobot, rubrik, dan syarat status mengikuti halaman <a href="skor.html">Skor dan LED</a>; draf LED dan LKPS memakai templat resmi instrumen ini (diunduh dari halaman yang sama); Simulasi PJP, grafik bernomor di draf LED, dan nomor butir di bagian lain panduan ini tidak berlaku.`; }

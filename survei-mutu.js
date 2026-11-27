@@ -1,9 +1,9 @@
 // Mutu survei (pemilik 2026-11-27): tingkat respons terhadap target yang dihitung dari data situs, dan uji instrumen
 // (reliabilitas Cronbach alpha per kelompok pertanyaan dan per aspek; validitas butir = korelasi butir-total terkoreksi).
 // Bahan butir 57 (instrumen sahih, cakupan responden) dan analisis Juli (Agenda tugas). Fungsi murni; halaman: kelola-survei.html.
-import { sedangTB } from './dosen-hitung.js?v=2026-11-27-ce245a';
-import { susunDaftar } from './daftar-mahasiswa.js?v=2026-11-27-ce245a';
-import { punya } from './koordinator.js?v=2026-11-27-ce245a';
+import { sedangTB } from './dosen-hitung.js?v=2026-11-27-cafd7e';
+import { susunDaftar } from './daftar-mahasiswa.js?v=2026-11-27-cafd7e';
+import { punya } from './koordinator.js?v=2026-11-27-cafd7e';
 
 const t = s => String(s ?? '').trim();
 const ya = v => v === true || ['ya', 'y', 'true', '1'].includes(String(v ?? '').toLowerCase());
