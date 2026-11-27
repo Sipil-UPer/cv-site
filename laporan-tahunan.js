@@ -3,10 +3,10 @@
 // Satu model isi (daftar blok) dirender ke Word (.docx, disusun sendiri tanpa templat) dan ke HTML (laporan-tahunan.html).
 // Sumber: data.json publik, rekap survei yang sudah diterbitkan (survei_rekap), dan, khusus admin, capaian IKU/IKT,
 // perkiraan status akreditasi, serta Temuan AMI. Versi publik (publik: true) tidak memuat bagian khusus admin.
-import { hitungSumber } from './iku-otomatis.js?v=2026-11-27-e02e4a';
-import { SDGS } from './form-karya.js?v=2026-11-27-e02e4a';
-import { run, para, judul, teks, tabel, buatDocx } from './docx-dasar.js?v=2026-11-27-e02e4a';
-import { rekapSurvei, aspekTindakLanjut, kesenjanganCPL, labelKelompok, labelAspek, lengkapiCPL } from './survei-kepuasan.js?v=2026-11-27-e02e4a';
+import { hitungSumber } from './iku-otomatis.js?v=2026-11-27-50c79d';
+import { SDGS } from './form-karya.js?v=2026-11-27-50c79d';
+import { run, para, judul, teks, tabel, buatDocx } from './docx-dasar.js?v=2026-11-27-50c79d';
+import { rekapSurvei, aspekTindakLanjut, kesenjanganCPL, labelKelompok, labelAspek, lengkapiCPL } from './survei-kepuasan.js?v=2026-11-27-50c79d';
 
 const angka = v => v == null || v === '' ? '—' : (Math.round(+v * 100) / 100).toLocaleString('id-ID');
 const diTS = (xs, ts) => (xs || []).filter(x => +x.tahun_ts === +ts);
@@ -126,6 +126,18 @@ export function susunLaporan(C, { publik = false, kalender = false } = {}){
     h2(`Kepuasan pengguna lulusan (Tabel 6.g.2)${kal ? `, ${catTS}` : ''}`);
     tb([['Aspek', 'Sangat baik', 'Baik', 'Cukup', 'Kurang'], ...peng.map(x => [kapital(labelAspek(x.aspek)),
       `${angka(x.sangat_baik)}%`, `${angka(x.baik)}%`, `${angka(x.cukup)}%`, `${angka(x.kurang)}%`])]);
+  }
+
+  // EDOM (pemilik 2026-11-27, butir 16): rekap prodi per semester dari rekap_evaluasi() (D._edom, hanya pengguna terdaftar;
+  // tanpa angka per dosen). Tahun akademik: Ganjil + Genap TS; tahun kalender: Genap TS (Feb-Jun) + Ganjil TS+1 (Sep-Jan).
+  if (!publik && Array.isArray(D._edom)) {
+    h2(`Evaluasi dosen oleh mahasiswa (EDOM)${kal ? `, semester yang berjalan pada tahun ${ts}` : ''}`);
+    const smt = kal ? [[ta(ts), 'Genap'], [ta(ts + 1), 'Ganjil']] : [[ta(ts), 'Ganjil'], [ta(ts), 'Genap']];
+    const ed = smt.map(([t, s]) => D._edom.find(r => r.tahun_akademik === t && r.semester === s)).filter(Boolean);
+    if (ed.length) tb([['Semester', 'MK-dosen dievaluasi', 'Rerata EDOM (0–4)', 'Di bawah ambang', 'Sudah ditindaklanjuti', 'Refleksi RPS terisi'],
+      ...ed.map(r => [`${r.semester} ${r.tahun_akademik}`, angka(r.ber_edom), angka(r.rerata_edom), angka(r.di_bawah_ambang),
+        angka(r.bawah_bertindak), `${angka(r.rps_terisi)} dari ${angka(r.jumlah)}`])]);
+    else p('Belum ada rekap EDOM untuk periode ini (Evaluasi pembelajaran › tempel rekap EDOM dari kampus).', true);
   }
 
   // 5. Kesenjangan CPL

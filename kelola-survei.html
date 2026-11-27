@@ -11,8 +11,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-27-e02e4a">
-<link rel="stylesheet" href="kepala.css?v=2026-11-27-e02e4a">
+<link rel="stylesheet" href="tema.css?v=2026-11-27-50c79d">
+<link rel="stylesheet" href="kepala.css?v=2026-11-27-50c79d">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
@@ -54,7 +54,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></div>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-27-e02e4a"></script>
+<script src="config.js?v=2026-11-27-50c79d"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -74,15 +74,16 @@ addEventListener('error', function (e) {
 // membagikan tautan survei.html?t=<token>, menutup, dan membaca hasil.
 // Pertanyaan dikunci setelah ada responden supaya rekap tetap sah.
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-27-e02e4a';
-import { BUTIR_LAM_TEKNIK } from './bobot.js?v=2026-11-27-e02e4a';
-import { bolehMutu } from './koordinator.js?v=2026-11-27-e02e4a';
-import { persenRespons, ujiInstrumen, htmlMutuSurvei, muatPopulasi as muatPopulasiMutu, targetSurvei as targetSurveiMutu } from './survei-mutu.js?v=2026-11-27-e02e4a';
-import { labelAspek } from './survei-kepuasan.js?v=2026-11-27-e02e4a';
+import { gerbang } from './menu.js?v=2026-11-27-50c79d';
+import { BUTIR_LAM_TEKNIK } from './bobot.js?v=2026-11-27-50c79d';
+import { drafDariAgenda } from './survei-agenda.js?v=2026-11-27-50c79d';
+import { bolehMutu } from './koordinator.js?v=2026-11-27-50c79d';
+import { persenRespons, ujiInstrumen, htmlMutuSurvei, muatPopulasi as muatPopulasiMutu, targetSurvei as targetSurveiMutu } from './survei-mutu.js?v=2026-11-27-50c79d';
+import { labelAspek } from './survei-kepuasan.js?v=2026-11-27-50c79d';
 import { KELOMPOK_SURVEI, labelKelompok, templatSurvei, cekPertanyaan, hitungDariJawaban, rekapSurvei,
   komentarSurvei, keTabel62, csvJawaban, htmlRekap, CSS_SURVEI, JENIS_PERTANYAAN, IDENTITAS, teksOpsi, bacaOpsi,
   teksSyarat, bacaSyarat, ringkasLain, htmlLain, aspekTindakLanjut, temuanDariAspek, kodeTemuanSurvei,
-  masukanKurikulum, csvKurikulum, identitasBawaan, keTabelTracer, undanganPengguna, butirSurvei, BAGIAN, labelBagian, ringkasJawaban, pasangCPL, kesenjanganCPL, htmlKesenjangan, SISI_CPL, templatKurikulum, KELOMPOK_KURIKULUM } from './survei-kepuasan.js?v=2026-11-27-e02e4a';
+  masukanKurikulum, csvKurikulum, identitasBawaan, keTabelTracer, undanganPengguna, butirSurvei, BAGIAN, labelBagian, ringkasJawaban, pasangCPL, kesenjanganCPL, htmlKesenjangan, SISI_CPL, templatKurikulum, KELOMPOK_KURIKULUM } from './survei-kepuasan.js?v=2026-11-27-50c79d';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
@@ -100,7 +101,7 @@ let SAYA = null, SURVEI = [], JAWAB = new Map(), UBAH = null, PQ = [], BUKA = nu
 // CPL kurikulum terbaru (ref_cpl) untuk bagian penilaian CPL di templat (pemilik 2026-11-27).
 let CPL = [], KUR_CPL = '';
 // Populasi untuk target responden (survei-mutu.js, pemilik 2026-11-27); null = tidak terbaca dengan hak akses ini.
-let POP = {};
+let POP = {}, AGENDA = [];
 // Target per survei: aturan dan pemuat data bersama di survei-mutu.js (juga dipakai Tugas saya).
 const targetSurvei = s => ({ n: (JAWAB.get(s.id) || []).length, ...targetSurveiMutu(s, POP, iso(new Date())) });
 async function muatPopulasi(){ POP = await muatPopulasiMutu(sb, SAYA); }
@@ -126,6 +127,9 @@ async function muat(){
   if (s.error) throw new Error(/does not exist|schema cache/i.test(s.error.message)
     ? 'Tabel survei belum ada: jalankan supabase/54-patch-survei-kepuasan.sql.' : s.error.message);
   SURVEI = s.data || [];
+  // Agenda survei (191, pemilik 2026-11-27) untuk "Siapkan dari Agenda tugas"; tanpa tabel = kosong.
+  AGENDA = await sb.from('agenda_tugas').select('id,judul,mulai,tenggat,status').eq('status', 'terbuka').order('mulai')
+    .then(r => r.data || [], () => []);
   const tm = await sb.from('ami_temuan').select('kode').then(r => r, e => ({ error: e }));
   TEMUAN_ADA = !tm.error;
   KODE_TEMUAN = new Set((tm.data || []).map(r => r.kode).filter(k => String(k || '').startsWith('SV')));
@@ -149,6 +153,7 @@ function gambar(){
       dengan elemen instrumen prodi.`} Semua teks bisa dwibahasa untuk responden asing. Buat survei, bagikan tautannya, lalu baca hasilnya di sini. Rekap angka tampil publik di
       <a href="hasil-survei.html">Hasil survei kepuasan</a> hanya setelah <b>diterbitkan</b> admin (dan "publik" dicentang): periksa jawaban,
       hapus isian uji coba atau iseng, lalu klik "Terbitkan rekap" di Hasil. Jawaban baru tidak tampil sampai diterbitkan ulang. Isian saran hanya terlihat admin.</p>
+    ${htmlDrafAgenda()}
     <div class="kartu" id="form-survei"></div>
     <div class="kartu"><h2>Daftar survei</h2>${SURVEI.length ? `<div class="gulir"><table class="ds"><thead><tr><th>Survei</th><th>Kelompok</th>
       <th>Periode</th><th>Status</th><th>Responden</th><th></th></tr></thead><tbody>${SURVEI.map(s => {
@@ -168,6 +173,30 @@ function gambar(){
   if ($('kur_csv')) $('kur_csv').onclick = () => unduh(csvKurikulum(masukanKurikulum(SURVEI, JAWAB)), `masukan-kurikulum-${iso(new Date())}.csv`);
   if (BUKA) gambarHasil(SURVEI.find(s => s.id === BUKA));
   pasang();
+}
+
+// Siapkan survei dari Agenda tugas (pemilik 2026-11-27): satu klik membuat survei dengan templat kepuasan atau templat
+// kurikulum ringkas (CPL terbaru terpasang) dan tanggal dari agenda. Survei baru belum dibuka sebelum tanggal mulainya.
+const drafAgenda = () => drafDariAgenda(AGENDA, SURVEI, { hariIni: iso(new Date()), labelKelompok });
+function htmlDrafAgenda(){
+  const xs = drafAgenda();
+  if (!xs.length) return '';
+  return `<div class="kartu"><h2>Siapkan dari Agenda tugas</h2>
+    <p class="ket">Agenda survei yang masih terbuka. "Buat draf" membuat survei dengan templat dan bagian CPL terbaru, tanggal dari agenda.
+      Periksa pertanyaannya (Ubah), lalu bagikan tautannya saat dibuka.</p>
+    <div class="gulir"><table class="ds"><thead><tr><th>Agenda</th><th>Survei</th><th>Periode</th><th></th></tr></thead><tbody>${xs.map((x, i) =>
+      `<tr><td>${esc(x.agenda)}</td><td><b>${esc(x.judul)}</b><br><small class="ket">${esc(labelKelompok(x.kelompok))} · templat ${x.jenis === 'kurikulum' ? 'kurikulum ringkas' : 'kepuasan'}</small></td>
+        <td>${tgl(x.mulai)} – ${tgl(x.selesai)}</td><td>${x.ada_id ? `<span class="ket">sudah ada</span> <button class="b" data-ubah="${x.ada_id}">Ubah</button>`
+          : `<button class="b" data-draf="${i}">Buat draf</button>`}</td></tr>`).join('')}</tbody></table></div>
+    <p class="msg" id="draf_msg"></p></div>`;
+}
+async function buatDrafAgenda(x){
+  const pertanyaan = x.jenis === 'kurikulum' ? templatKurikulum(x.kelompok, CPL) : templat(x.kelompok);
+  const g = cekPertanyaan(pertanyaan);
+  if (g) return g;
+  const { error } = await sb.from('survei').insert({ kelompok: x.kelompok, judul: x.judul, tahun_ts: x.tahun_ts, mulai: x.mulai,
+    selesai: x.selesai, identitas: identitasBawaan(x.kelompok), pertanyaan, oleh: SAYA.email });
+  return error ? error.message : '';
 }
 
 const unduh = (isi, nama) => {
@@ -499,6 +528,16 @@ function pasang(){
     try { await navigator.clipboard.writeText(u); b.textContent = 'Tersalin'; } catch { prompt('Salin tautan ini:', u); }
   });
   document.querySelectorAll('[data-hasil]').forEach(b => b.onclick = () => { BUKA = BUKA === +b.dataset.hasil ? null : +b.dataset.hasil; gambar(); });
+  document.querySelectorAll('[data-draf]').forEach(b => b.onclick = async () => {
+    const x = drafAgenda()[+b.dataset.draf], m = $('draf_msg');
+    if (!x) return;
+    if (x.mulai < iso(new Date()) && !confirm(`Tanggal buka ${tgl(x.mulai)} sudah lewat: survei langsung dibuka begitu dibuat. Lanjutkan?`)) return;
+    b.disabled = true; m.textContent = 'Membuat survei…';
+    const g = await buatDrafAgenda(x);
+    if (g) { b.disabled = false; m.textContent = 'Gagal: ' + g; return; }
+    await muat(); gambar();
+    const m2 = $('draf_msg'); if (m2) m2.textContent = `Survei "${x.judul}" dibuat. Periksa pertanyaannya lewat Ubah di Daftar survei.`;
+  });
   document.querySelectorAll('[data-ubah]').forEach(b => b.onclick = () => {
     UBAH = SURVEI.find(x => x.id === +b.dataset.ubah); PQ = []; gambar(); $('form-survei').scrollIntoView({ behavior: 'smooth' }); });
   document.querySelectorAll('[data-cabut]').forEach(b => b.onclick = async () => {
