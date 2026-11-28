@@ -11,8 +11,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-28-cb6cb1">
-<link rel="stylesheet" href="kepala.css?v=2026-11-28-cb6cb1">
+<link rel="stylesheet" href="tema.css?v=2026-11-28-2b6b3c">
+<link rel="stylesheet" href="kepala.css?v=2026-11-28-2b6b3c">
 <style>
   /* Karier dan rekrutmen asisten (202-patch-karier-asisten.sql, pemilik 2026-11-28) */
   *{box-sizing:border-box}
@@ -57,7 +57,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></div>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-28-cb6cb1"></script>
+<script src="config.js?v=2026-11-28-2b6b3c"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -76,10 +76,10 @@ addEventListener('error', function (e) {
 // alumni/mitra dari karier.html). Asisten: admin/Kaprodi semua; kepala lab untuk lab-nya; PJ dosen memutuskan lamaran
 // rekrutmennya; SK asisten dibuat di Surat dan SK (admin/Kaprodi). Logika: karier.js.
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-28-cb6cb1';
-import { punya } from './koordinator.js?v=2026-11-28-cb6cb1';
+import { gerbang } from './menu.js?v=2026-11-28-2b6b3c';
+import { punya } from './koordinator.js?v=2026-11-28-2b6b3c';
 import { JENIS_LOWONGAN, SUMBER_LOWONGAN, STATUS_LOWONGAN, JENIS_ASISTEN, STATUS_REKRUTMEN, STATUS_LAMARAN, tempatRekrutmen, rekapAsisten, rekapLowongan, kiniWIB }
-  from './karier.js?v=2026-11-28-cb6cb1';
+  from './karier.js?v=2026-11-28-2b6b3c';
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const sb = createClient(window.SB_URL, window.SB_KEY);

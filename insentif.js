@@ -4,7 +4,7 @@
 //   * berkas wajib di bukti karya: artikel ('naskah'), bukti indeksasi, LoA/bukti terbit, surat pernyataan;
 //   * status: diklaim -> (dikembalikan -> diklaim) -> siap -> diajukan -> disetujui | ditolak; disetujui -> cair.
 
-import { urlDoi } from './tautan-publikasi.js?v=2026-11-28-cb6cb1';
+import { urlDoi } from './tautan-publikasi.js?v=2026-11-28-2b6b3c';
 
 export const BERKAS_INSENTIF = [['naskah', 'Artikel (PDF)'], ['indeksasi', 'Bukti indeksasi'], ['loa', 'LoA / bukti terbit'],
   ['pernyataan', 'Surat pernyataan']];

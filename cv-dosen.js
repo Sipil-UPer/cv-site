@@ -2,8 +2,8 @@
 // Karya: hanya yang terverifikasi (data.json publik). Profil (NIDN, jabatan, pendidikan,
 // keahlian, sertifikat, email): tabel dosen di Supabase, dibaca dosen itu sendiri atau admin.
 // Dipakai profil.html (CV sendiri) dan kelola-dosen.html (admin, semua dosen).
-import { run, para, judul, teks, tabel, tautan, buatDocx } from './docx-dasar.js?v=2026-11-28-cb6cb1';
-import { JENJANG, JENIS_SERTIFIKAT, JABATAN, KATEGORI, SKIP, masaBerlaku, tanggalPanjang } from './profil-dosen.js?v=2026-11-28-cb6cb1';
+import { run, para, judul, teks, tabel, tautan, buatDocx } from './docx-dasar.js?v=2026-11-28-2b6b3c';
+import { JENJANG, JENIS_SERTIFIKAT, JABATAN, KATEGORI, SKIP, masaBerlaku, tanggalPanjang } from './profil-dosen.js?v=2026-11-28-2b6b3c';
 
 const label = (xs, k) => (xs.find(x => x[0] === k) || [, k || ''])[1];
 const rapi = s => String(s || '').replace(/_/g, ' ').trim();
@@ -21,7 +21,7 @@ export function urlProfil(kunci, nilai){
 }
 /** URL DOI baku dari '10.x/…', 'doi:10.x/…', atau 'https://(dx.)doi.org/10.x/…'. */
 // DOI dibakukan di tautan-publikasi.js (DOI di dalam alamat penerbit ikut dikenali; pemeriksaan situs 2026-11-28).
-import { urlDoi } from './tautan-publikasi.js?v=2026-11-28-cb6cb1';
+import { urlDoi } from './tautan-publikasi.js?v=2026-11-28-2b6b3c';
 export { urlDoi };
 // Sel tabel berisi tautan (docx-dasar.js tabel: { xml, teks }).
 const selTautan = (url, label) => (url ? { xml: tautan(url, label, { sz: 18 }), teks: label } : label);

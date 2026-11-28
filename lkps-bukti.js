@@ -8,13 +8,13 @@
    Data prodi (lkps_bukti, tautan_bukti), dan dokumen pustaka sesuai tabelnya.
    Pemilihan baris mengikuti lkps.js petaDaftar (jendela TS, kategori karya).
    ===================================================================== */
-import { urlDoi } from './tautan-publikasi.js?v=2026-11-28-cb6cb1';
-import { versiUntukTS } from './pustaka-dokumen.js?v=2026-11-28-cb6cb1';
-import { JSZIP } from './lkps.js?v=2026-11-28-cb6cb1';
-import { labelDokumenLED } from './led-isi.js?v=2026-11-28-cb6cb1';
-import { barisKerjaSama } from './kerjasama-karya.js?v=2026-11-28-cb6cb1';
-import { karya4i, tautanPengutip } from './sitasi.js?v=2026-11-28-cb6cb1';
-import { POS_A5, labelPos } from './keuangan-a5.js?v=2026-11-28-cb6cb1';
+import { urlDoi } from './tautan-publikasi.js?v=2026-11-28-2b6b3c';
+import { versiUntukTS } from './pustaka-dokumen.js?v=2026-11-28-2b6b3c';
+import { JSZIP } from './lkps.js?v=2026-11-28-2b6b3c';
+import { labelDokumenLED } from './led-isi.js?v=2026-11-28-2b6b3c';
+import { barisKerjaSama } from './kerjasama-karya.js?v=2026-11-28-2b6b3c';
+import { karya4i, tautanPengutip } from './sitasi.js?v=2026-11-28-2b6b3c';
+import { POS_A5, labelPos } from './keuangan-a5.js?v=2026-11-28-2b6b3c';
 
 const OUTLINE = 'lkps-outline.json';
 const DOCX = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';

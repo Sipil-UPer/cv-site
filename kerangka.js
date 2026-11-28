@@ -1,15 +1,15 @@
 // Kerangka halaman publik (pemilik 2026-11-16): kepala bergaya situs universitas (deret logo di bilah
 // biru, nama prodi, menu turun) dan kaki halaman yang sama di halaman publik. Pemakaian:
-//   import { pasangKerangka, isiKerangka } from './kerangka.js?v=2026-11-28-cb6cb1';
+//   import { pasangKerangka, isiKerangka } from './kerangka.js?v=2026-11-28-2b6b3c';
 //   pasangKerangka({ aktif: 'profil' });     // segera, sebelum data.json
 //   pasangKerangka({ aktif: 'profil', muat: true });   // atau: kerangka memuat data.json sendiri
 //   isiKerangka(D);                           // setelah data.json: nama prodi, kontak, media sosial
 // Logo: window.LOGO_KEPALA di config.js; tanpa itu logo.png. Menu hanya memuat halaman yang ada
 // dan modul yang menyala (fitur.js). Tautan relatif (situs akan pindah ke subdomain kampus).
-import { halamanAktif, alihkanBilaMati } from './fitur.js?v=2026-11-28-cb6cb1';
-import { catatKunjunganPublik } from './kunjungan-publik.js?v=2026-11-28-cb6cb1';
+import { halamanAktif, alihkanBilaMati } from './fitur.js?v=2026-11-28-2b6b3c';
+import { catatKunjunganPublik } from './kunjungan-publik.js?v=2026-11-28-2b6b3c';
 // Tinggi kotak teks mengikuti isi (pemilik 2026-11-25); bentuk "from" agar dicap stamp_versions.py.
-import { pasSemua as pasKotakTeks } from './kotak-teks.js?v=2026-11-28-cb6cb1';
+import { pasSemua as pasKotakTeks } from './kotak-teks.js?v=2026-11-28-2b6b3c';
 
 // Enam kelompok menu (pemilik 2026-11-19, tahap 2; 2026-11-27 Akademik dipisah dari Profil dan Mahasiswa agar mudah
 // dicari): Profil, Akademik, Dosen dan riset, Mahasiswa, Kinerja, Kontak; Pendaftaran dan Masuk ruang kerja di baris atas.
@@ -168,7 +168,8 @@ const CSS = `
 .kr-sub small{display:block;font-size:12px;color:var(--muted)}
 .kr-subjudul{padding:10px 18px 2px;font-size:11.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
 .kr-subjudul:first-child{padding-top:4px}
-.kr-kaki .kr-subjudul{padding:8px 0 2px;color:inherit;opacity:.7;font-size:11px}
+/* Tanpa opacity (pemeriksaan aksesibilitas 2026-11-28): .7 membuat kontras 3,78 < 4,5 di atas biru; warna kaki = 6,02. */
+.kr-kaki .kr-subjudul{padding:8px 0 2px;color:inherit;font-size:11px}
 .kr-hp{display:none}
 .kr-tautan .kr-cari-buka{background:none;border:0;font:inherit;color:#fff;cursor:pointer;padding:0;display:inline-flex;align-items:center;gap:5px}
 .kr-tautan .kr-cari-buka:hover{color:var(--aksen,#fff)}
@@ -230,7 +231,7 @@ const tanpaSubKosong = xs => xs.filter((x, i) => !x.sub || (xs[i + 1] && !xs[i +
 const menuAda = () => MENU.map(m => ({ ...m, isi: tanpaSubKosong(m.isi.filter(x => x.sub || x.kr || halamanAktif(x.href))) }))
   .filter(m => m.isi.some(x => !x.sub) || m.href).map(m => m.isi.some(x => !x.sub) ? m : { ...m, isi: [] });
 // Butir ber-kr disembunyikan sampai isiKerangka mengisi alamatnya.
-const butir = x => x.sub ? `<li class="kr-subjudul" role="presentation">${esc(x.sub)}</li>`
+const butir = x => x.sub ? `<li class="kr-subjudul">${esc(x.sub)}</li>`
   : `<li${x.kr ? ` data-kr-menu="${x.kr}" hidden` : ''}><a href="${esc(x.href)}">${esc(x.judul)}${x.ket ? `<small>${esc(x.ket)}</small>` : ''}</a></li>`;
 
 function menuAtas(aktif){
@@ -336,7 +337,7 @@ function pasangCariKepala(kp, burger){
         hasil = document.getElementById('krCariHasil'), tombol = [...kp.querySelectorAll('.kr-cari-buka')];
   let siap = null, aktif = -1;
   const muat = () => siap ??= Promise.all([
-    import('./cari.js?v=2026-11-28-cb6cb1'),
+    import('./cari.js?v=2026-11-28-2b6b3c'),
     DATA_KERANGKA ? Promise.resolve(DATA_KERANGKA) : fetch('data.json', {cache: 'no-cache'}).then(r => r.json()),
   ]).then(([m, D]) => ({ m, idx: m.indeksPublik(D, k => !(window.FITUR_MATI || []).includes(k)) }));
   const tampil = async () => {
