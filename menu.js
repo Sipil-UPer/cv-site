@@ -1,5 +1,5 @@
-import { dosenLogin } from './dosen-login.js?v=2026-11-28-777263';
-import { aktifPada } from './koordinator.js?v=2026-11-28-777263';
+import { dosenLogin } from './dosen-login.js?v=2026-11-28-38a701';
+import { aktifPada } from './koordinator.js?v=2026-11-28-38a701';
 // Menu bersama ruang kerja (pemilik 2026-11-04).
 //
 // Situs dibagi dua:
@@ -44,11 +44,11 @@ const koorTA = s => pengelola(s) || mutu(s) || punyaJ(s, 'koordinator_ta');
 const koorKP = s => pemantau(s) || punyaJ(s, 'koordinator_kp');
 const koorLayanan = s => pengelola(s) || punyaJ(s, 'koordinator_ta', 'koordinator_kp', 'pembina_kemahasiswaan');
 
-import { halamanAktif } from './fitur.js?v=2026-11-28-777263';
-import { BUTIR_LAM_TEKNIK } from './bobot.js?v=2026-11-28-777263';
-import { pasangPemicuBangun } from './pemicu-bangun.js?v=2026-11-28-777263';
+import { halamanAktif } from './fitur.js?v=2026-11-28-38a701';
+import { BUTIR_LAM_TEKNIK } from './bobot.js?v=2026-11-28-38a701';
+import { pasangPemicuBangun } from './pemicu-bangun.js?v=2026-11-28-38a701';
 // Tinggi kotak teks mengikuti isi (pemilik 2026-11-25); bentuk "from" agar dicap stamp_versions.py.
-import { pasSemua as pasKotakTeks } from './kotak-teks.js?v=2026-11-28-777263';
+import { pasSemua as pasKotakTeks } from './kotak-teks.js?v=2026-11-28-38a701';
 
 export const MODUL = [
   { judul: 'Data saya', ket: 'Profil, karya, target kinerja, jadwal berhalangan, dan kalender Anda.', halaman: [
@@ -257,6 +257,9 @@ export const MODUL = [
     { href: 'kelengkapan-situs.html', judul: 'Kelengkapan situs publik', boleh: admin,
       ket: 'Bagian situs publik yang masih kosong atau sebagian (profil, akreditasi, laboratorium, kerja sama, kabar, foto dosen) dan tempat mengisinya.' },
     // Pemakaian ruang kerja (133-patch-pemakaian-halaman.sql, pemilik 2026-11-20): dasar memutuskan fitur yang dipertahankan/dibuang.
+    // Kapasitas Supabase (207, pemilik 2026-11-28): rincian kuota basis data/Storage per tabel dan bucket, tren harian.
+    { href: 'kapasitas.html', judul: 'Kapasitas Supabase', boleh: admin,
+      ket: 'Ukuran basis data per skema dan per tabel, Storage per bucket, akun masuk, tren harian dan perkiraan kapan mencapai batas paket.' },
     { href: 'pemakaian.html', judul: 'Pemakaian ruang kerja', boleh: admin,
       ket: 'Halaman mana yang dibuka, oleh berapa pengguna dan peran apa; halaman yang tidak pernah dibuka sebagai calon dibuang.' },
     // Kelengkapan situs publik (pemilik 2026-11-21): bagian publik yang kosong dan tempat mengisinya.
@@ -509,7 +512,7 @@ export async function pasangMenu(sb){
   // Pencarian menyeluruh (pemilik 2026-11-12; cari-ui.js, cari.js): dimuat saat pertama dipakai.
   const kotak = nav.querySelector('.rk-cari input');
   let siapCari = null;
-  const muatCari = () => siapCari || (siapCari = import('./cari-ui.js?v=2026-11-28-777263').then(m =>
+  const muatCari = () => siapCari || (siapCari = import('./cari-ui.js?v=2026-11-28-38a701').then(m =>
     m.pasangCari(kotak, { sb, saya: u.saya, modul: halamanBoleh(u.saya), boleh: h => bolehBuka(u.saya, h) !== false })));
   kotak.addEventListener('focus', muatCari);
   document.addEventListener('keydown', e => {

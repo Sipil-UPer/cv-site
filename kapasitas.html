@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="robots" content="noindex, nofollow">
+<title>Kapasitas Supabase — Ruang kerja</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tema.css?v=2026-11-28-38a701">
+<link rel="stylesheet" href="kepala.css?v=2026-11-28-38a701">
+<style>
+  /* Rincian pemakaian Supabase (207, pemilik 2026-11-28) */
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
+  .wrap{max-width:1100px;margin:0 auto;padding:18px 20px 80px}
+  .kosong, .ket{color:var(--muted)}
+  .ket{font-size:13px}
+  .kartu{background:var(--panel);border:1px solid var(--line);padding:14px 18px;margin-bottom:16px}
+  .kartu h2{font-size:17px;margin:0 0 6px;color:var(--biru)}
+  .ringkas{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
+  .meter{height:12px;background:var(--line-soft);border-radius:6px;overflow:hidden;margin:6px 0 4px}
+  .meter i{display:block;height:100%;background:var(--hijau)}
+  .meter.perlu_dicek i{background:#B7791F} .meter.penuh i{background:var(--merah)}
+  .angka{font-size:22px;font-weight:600}
+  .st{font-size:12px;font-weight:600;padding:1px 7px;border:1px solid var(--line)}
+  .st.baik{color:var(--hijau);border-color:var(--hijau)} .st.perlu_dicek{color:#8A5A00;border-color:#8A5A00} .st.penuh{color:var(--merah);border-color:var(--merah)}
+  .gulir{overflow-x:auto}
+  table.ds{width:100%;border-collapse:collapse;font-size:13.5px}
+  table.ds th{text-align:left;font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--line);padding:5px 6px}
+  table.ds td{padding:5px 6px;border-bottom:1px solid var(--line-soft);vertical-align:top}
+  td.n{text-align:right;font-family:var(--mono);font-size:12.5px;white-space:nowrap}
+  .b{font:inherit;font-size:14px;padding:5px 12px;border:1px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer}
+  @media(max-width:700px){.wrap{padding-left:16px;padding-right:16px}}
+</style>
+</head>
+<body>
+<div class="hero" role="region" aria-label="Pembuka halaman"><div class="hero-in">
+  <div class="hero-inst" data-identitas></div>
+  <h1>Kapasitas Supabase</h1>
+  <div class="sub" id="hSub">Memuat…</div>
+</div></div>
+<main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
+<script src="config.js?v=2026-11-28-38a701"></script>
+<script>
+// Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
+addEventListener('error', function (e) {
+  if (document.getElementById('galat-muat')) return;
+  var d = document.createElement('div');
+  d.id = 'galat-muat';
+  d.style.cssText = 'margin:16px;padding:12px 14px;border:1px solid var(--merah);' +
+    'background:var(--merah-m3);color:var(--ink);font:14px/1.5 system-ui,sans-serif';
+  d.textContent = 'Halaman gagal dimuat: ' + (e.message || 'galat skrip') +
+    '. Tekan Ctrl+Shift+R untuk memuat ulang tanpa cache; bila tetap muncul, kirim pesan ini ke admin.';
+  document.body.insertBefore(d, document.body.firstChild);
+});
+</script>
+<script type="module">
+// Kapasitas Supabase (207, pemilik 2026-11-28): rincian pemakaian dari sistem_pemakaian() (admin); membuka halaman ini mencatat
+// ukuran hari ini (tren). Batas paket dari basis data (170). Egress/MAU tidak terbaca dari SQL: tautan dasbor Usage.
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
+import { gerbang } from './menu.js?v=2026-11-28-38a701';
+import { persenPakai, statusPakai, trenHarian, hariMenuju, ukuran, tautanUsage, HARI_MIN_TREN } from './kapasitas.js?v=2026-11-28-38a701';
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const sb = createClient(window.SB_URL, window.SB_KEY);
+const LABEL = { baik: 'Baik', perlu_dicek: 'Perlu dicek', penuh: 'Penuh', tidak_ada: '—' };
+const angka = n => (n == null ? '—' : Number(n).toLocaleString('id-ID'));
+let SEMUA = false;
+
+function meter(judul, pakai, batas, ambang, riwayat, kunci){
+  const st = statusPakai(pakai, batas, ambang), p = persenPakai(pakai, batas), t = trenHarian(riwayat, kunci);
+  const ke50 = t.cukup ? hariMenuju(pakai, batas * ambang, t.mbPerHari) : null, ke100 = t.cukup ? hariMenuju(pakai, batas, t.mbPerHari) : null;
+  return `<div><div class="ket">${esc(judul)}</div>
+    <div class="angka">${ukuran(pakai)} <span class="ket">dari ${ukuran(batas)}</span> <span class="st ${st}">${LABEL[st]}</span></div>
+    <div class="meter ${st}"><i style="width:${Math.min(100, p || 0)}%"></i></div>
+    <div class="ket">${p == null ? 'tidak terbaca' : `${String(p).replace('.', ',')}% terpakai; perlu dicek mulai ${Math.round(ambang * 100)}%`}</div>
+    <div class="ket">${t.cukup ? `Tren ${t.hari} hari: ${t.mbPerHari >= 0 ? '+' : ''}${String(t.mbPerHari).replace('.', ',')} MB/hari.
+      ${ke50 === 0 ? 'Sudah melewati ambang.' : ke50 ? `Perkiraan mencapai ${Math.round(ambang * 100)}% dalam ±${angka(ke50)} hari` : 'Tidak bertambah.'}
+      ${ke100 ? `; 100% dalam ±${angka(ke100)} hari.` : ''}`
+      : `Tren tersedia setelah ada catatan sedikitnya ${HARI_MIN_TREN} hari (dicatat tiap kali halaman ini dibuka; tercatat ${t.hari} hari).`}</div></div>`;
+}
+
+function gambar(x){
+  const b = x.batas || {}, tabel = SEMUA ? x.tabel : x.tabel.slice(0, 25), usage = tautanUsage(window.SB_URL);
+  const totalTabel = x.tabel.reduce((a, r) => a + (+r.mb || 0), 0);
+  $('isi').innerHTML = `
+    <section class="kartu"><h2>Ringkasan paket</h2>
+      <div class="ringkas">${meter('Basis data (semua skema)', +x.db_mb, +b.db_mb, +b.ambang, x.riwayat, 'db_mb')}
+        ${meter('Storage berkas', x.storage_mb == null ? null : +x.storage_mb, +b.storage_mb, +b.ambang, x.riwayat, 'storage_mb')}</div>
+      <p class="ket">Batas paket gratis sama dengan panel Kesehatan sistem (patch 170; supabase.com/pricing dibaca 2026-11-24). Berkas bukti dosen dan
+        mahasiswa umumnya disimpan di Google Drive prodi, bukan di Storage Supabase.</p></section>
+    ${x.akun ? `<section class="kartu"><h2>Akun masuk</h2><p>${angka(x.akun.pengguna)} akun terdaftar di Supabase Auth; ${angka(x.akun.aktif_30_hari)} masuk dalam 30 hari terakhir.</p>
+      <p class="ket">Mahasiswa memakai tautan pribadi tanpa akun, jadi tidak dihitung di sini.</p></section>` : ''}
+    <section class="kartu"><h2>Basis data per skema</h2>
+      <div class="gulir"><table class="ds"><thead><tr><th>Skema</th><th>Ukuran</th><th>Keterangan</th></tr></thead><tbody>
+      ${(x.skema || []).map(s => `<tr><td>${esc(s.skema)}</td><td class="n">${ukuran(+s.mb)}</td><td class="ket">${esc({ public: 'data situs (tabel di bawah)',
+        auth: 'akun dan sesi masuk', storage: 'catatan berkas Storage', pg_catalog: 'sistem PostgreSQL', extensions: 'ekstensi' }[s.skema] || 'sistem Supabase')}</td></tr>`).join('')}
+      </tbody></table></div>
+      <p class="ket">Jumlah skema bisa sedikit berbeda dari ukuran basis data total (ruang sistem dan log transaksi).</p></section>
+    <section class="kartu"><h2>Tabel data situs (${x.tabel.length} tabel, ${ukuran(totalTabel)})</h2>
+      <div class="gulir"><table class="ds"><thead><tr><th>Tabel</th><th>Baris (perkiraan)</th><th>Data</th><th>Indeks</th><th>Total</th><th>Bagian</th></tr></thead><tbody>
+      ${tabel.map(r => `<tr><td>${esc(r.nama)}</td><td class="n">${angka(r.baris)}</td><td class="n">${ukuran(+r.mb_data)}</td><td class="n">${ukuran(+r.mb_indeks)}</td>
+        <td class="n">${ukuran(+r.mb)}</td><td class="n">${totalTabel ? String(Math.round(+r.mb / totalTabel * 1000) / 10).replace('.', ',') + '%' : '—'}</td></tr>`).join('')}
+      </tbody></table></div>
+      ${x.tabel.length > 25 ? `<button class="b" id="bSemua">${SEMUA ? 'Tampilkan 25 terbesar' : `Tampilkan semua ${x.tabel.length} tabel`}</button>` : ''}
+      <p class="ket">Baris = perkiraan statistik PostgreSQL (diperbarui otomatis), bukan hitungan pasti.</p></section>
+    <section class="kartu"><h2>Storage per bucket</h2>
+      ${(x.bucket || []).length ? `<div class="gulir"><table class="ds"><thead><tr><th>Bucket</th><th>Berkas</th><th>Ukuran</th></tr></thead><tbody>
+        ${x.bucket.map(k => `<tr><td>${esc(k.bucket)}</td><td class="n">${angka(k.berkas)}</td><td class="n">${ukuran(+k.mb)}</td></tr>`).join('')}</tbody></table></div>`
+        : '<p class="kosong">Belum ada berkas di Storage.</p>'}</section>
+    <section class="kartu"><h2>Riwayat harian</h2>
+      ${x.riwayat.length ? `<div class="gulir"><table class="ds"><thead><tr><th>Tanggal</th><th>Basis data</th><th>Storage</th></tr></thead><tbody>
+        ${[...x.riwayat].reverse().slice(0, 30).map(r => `<tr><td>${esc(r.tanggal)}</td><td class="n">${ukuran(+r.db_mb)}</td><td class="n">${ukuran(r.storage_mb == null ? null : +r.storage_mb)}</td></tr>`).join('')}
+        </tbody></table></div>` : ''}
+      <p class="ket">Satu catatan per hari, diambil saat admin membuka halaman ini.</p></section>
+    <section class="kartu"><h2>Kuota yang tidak terbaca dari sini</h2>
+      <p>Lalu lintas keluar (egress), pengguna aktif bulanan (MAU), dan kuota lain hanya tersedia di dasbor Supabase
+        ${usage ? `<a href="${esc(usage)}" target="_blank" rel="noopener">Usage proyek ini</a>` : 'bagian Usage proyek'}; situs tidak menebak angkanya.
+        Paket gratis juga menjeda proyek yang tidak dipakai beberapa waktu; situs mencegahnya dengan pemicu jaga-hidup tiap 3 hari (panel Kesehatan sistem).</p></section>`;
+  if ($('bSemua')) $('bSemua').onclick = () => { SEMUA = !SEMUA; gambar(x); };
+}
+
+async function mulai(){
+  const saya = await gerbang(sb);
+  if (!saya) return;
+  $('hSub').textContent = `Masuk sebagai ${saya.nama}`;
+  const { data, error } = await sb.rpc('sistem_pemakaian');
+  if (error) { $('isi').innerHTML = `<p class="kosong">${/does not exist|schema cache|Could not find/i.test(error.message)
+    ? 'Fungsi belum ada: jalankan supabase/207-patch-rincian-pemakaian.sql.' : esc(error.message)}</p>`; return; }
+  gambar(data);
+}
+mulai().catch(e => { $('isi').innerHTML = `<p class="kosong">Gagal memuat: ${esc(e.message)}</p>`; });
+</script>
+</body>
+</html>
