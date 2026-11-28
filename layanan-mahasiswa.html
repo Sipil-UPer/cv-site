@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-28-c88499">
+<link rel="stylesheet" href="tema.css?v=2026-11-28-2346ab">
 <style>
   /* Layanan mahasiswa, publik (pemilik 2026-11-16; patch 76, 77, 78). Warna dari tema.css. */
   *{box-sizing:border-box}
@@ -209,7 +209,8 @@
 
   <section id="lacak">
     <h2 class="besar">Lacak kiriman</h2>
-    <p class="ket">Tulis kode lacak yang Anda terima saat mengirim pertanyaan, masukan, atau pengaduan.</p>
+    <p class="ket">Tulis kode lacak yang Anda terima saat mengirim pertanyaan, masukan, atau pengaduan, melamar
+      <a href="asisten.html">asisten</a>, atau mengajukan <a href="pinjam-alat.html">peminjaman alat laboratorium</a>.</p>
     <form class="form lacak" id="frmLacak" novalidate>
       <input id="l_kode" maxlength="12" autocomplete="off" placeholder="mis. M7KQ2X9PRT" aria-label="Kode lacak">
       <button type="submit" class="kirim">Lacak</button></form>
@@ -224,7 +225,7 @@
   <footer>Pertanyaan tentang isi berkas: hubungi sekretariat program studi.
     · <a href="kurikulum.html">Kurikulum</a> · <a href="privasi.html">Kebijakan privasi</a></footer>
 </main>
-<script src="config.js?v=2026-11-28-c88499"></script>
+<script src="config.js?v=2026-11-28-2346ab"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -240,7 +241,7 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 // Kepala dan kaki bersama situs umum (pemilik 2026-11-19, tahap 2).
-import { pasangKerangka } from './kerangka.js?v=2026-11-28-c88499';
+import { pasangKerangka } from './kerangka.js?v=2026-11-28-2346ab';
 pasangKerangka({ aktif: 'mahasiswa', muat: true });
 // Layanan mahasiswa, tanpa masuk akun (pemilik 2026-11-16). Alamat tetap layanan-mahasiswa.html supaya tautan lama tidak putus.
 //   Berkas: dipilih admin per dokumen pustaka (Data prodi > Dokumen, centang "Mahasiswa"); dokumen_mahasiswa() (76)
@@ -249,8 +250,9 @@ pasangKerangka({ aktif: 'mahasiswa', muat: true });
 //   Tanya-jawab: tanya_jawab_publik() (78), disusun admin di kelola-layanan-mahasiswa.html.
 //   Kiriman: kirim_masukan_mahasiswa() (78) ke kotak masuk tertutup; kolom k_situs adalah jebakan bot.
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { infoJenis } from './rencana-bukti.js?v=2026-11-28-c88499';
-import { pasangPembimbing } from './pembimbing.js?v=2026-11-28-c88499';
+import { infoJenis } from './rencana-bukti.js?v=2026-11-28-2346ab';
+import { pasangPembimbing } from './pembimbing.js?v=2026-11-28-2346ab';
+import { lacakSemua, htmlLacak } from './lacak.js?v=2026-11-28-2346ab';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
@@ -422,7 +424,6 @@ const tampilJenis = () => {
 document.querySelectorAll('input[name="jenis"]').forEach(r => r.addEventListener('change', tampilJenis));
 
 // ---------------------------------------------------------------- lacak dan rekap tindakan (193)
-const LABEL_STATUS = { baru: 'Diterima, belum ditinjau', ditindaklanjuti: 'Sedang ditindaklanjuti', selesai: 'Selesai' };
 const LABEL_JENIS = { tanya: 'Pertanyaan', masukan: 'Masukan', pengaduan: 'Pengaduan' };
 const LABEL_KAT = { perkuliahan: 'perkuliahan dan penilaian', fasilitas: 'fasilitas dan sarana', layanan: 'layanan administrasi',
   perilaku: 'perilaku atau etika', lain: 'lainnya' };
@@ -432,12 +433,8 @@ $('frmLacak').addEventListener('submit', async e => {
   const kode = $('l_kode').value.trim().toUpperCase(), out = $('l_hasil');
   if (!/^[A-Z0-9]{10}$/.test(kode)) { out.innerHTML = '<p class="msg buruk">Kode lacak terdiri atas 10 huruf/angka.</p>'; return; }
   out.innerHTML = '<p class="ket">Mencari…</p>';
-  const { data: r, error } = await sb.rpc('lacak_masukan', { p_kode: kode });
-  if (error) { out.innerHTML = `<p class="msg buruk">Gagal: ${esc(error.message)}</p>`; return; }
-  out.innerHTML = !r ? '<p class="msg buruk">Kode tidak ditemukan. Periksa lagi penulisannya.</p>'
-    : `<div class="lacak-hasil"><b>${esc(LABEL_JENIS[r.jenis] || r.jenis)}</b>${r.kategori ? ` · ${esc(LABEL_KAT[r.kategori] || r.kategori)}` : ''}
-        · dikirim ${esc(tglId(r.dikirim))}<br>Status: <b>${esc(LABEL_STATUS[r.status] || r.status)}</b>${r.selesai_pada ? ` (${esc(tglId(r.selesai_pada))})` : ''}
-        ${r.tindak_publik ? `<p>Tindak lanjut: ${esc(r.tindak_publik)}</p>` : ''}</div>`;
+  // Satu kotak untuk semua kode lacak (pemilik 2026-11-28): kiriman (193), lamaran asisten (202), peminjaman alat (204).
+  out.innerHTML = htmlLacak(await lacakSemua(sb, kode));
 });
 // Nilai kepuasan layanan (194): rerata per jenis 12 bulan, tanpa komentar; tanpa patch = tidak tampil.
 const NAMA_LAYANAN = { kp: 'Kerja praktik', lomba: 'Laporan lomba', surat: 'Surat', ta: 'Seminar/sidang TA', luaran: 'Publikasi/luaran',

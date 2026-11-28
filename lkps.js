@@ -15,12 +15,12 @@
    angka yang sama dengan halaman skor. Lembar lain dibiarkan untuk diisi
    prodi; kolom yang tidak disimpan situs (mis. pita waktu tunggu) kosong.
    ===================================================================== */
-import { versiUntukTS, daftarProdi, STATUS_PS, tglTeks } from './pustaka-dokumen.js?v=2026-11-28-c88499';
-import { teksPendidikan, nidnNuptk, masaBerlaku } from './profil-dosen.js?v=2026-11-28-c88499';
-import { barisKerjaSama } from './kerjasama-karya.js?v=2026-11-28-c88499';
-import { kunciIntegrasi } from './rps-integrasi.js?v=2026-11-28-c88499';
-import { karya4i } from './sitasi.js?v=2026-11-28-c88499';
-import { ampuPerTA, dosenTS } from './dosen-hitung.js?v=2026-11-28-c88499';
+import { versiUntukTS, daftarProdi, STATUS_PS, tglTeks } from './pustaka-dokumen.js?v=2026-11-28-2346ab';
+import { teksPendidikan, nidnNuptk, masaBerlaku } from './profil-dosen.js?v=2026-11-28-2346ab';
+import { barisKerjaSama } from './kerjasama-karya.js?v=2026-11-28-2346ab';
+import { kunciIntegrasi } from './rps-integrasi.js?v=2026-11-28-2346ab';
+import { karya4i } from './sitasi.js?v=2026-11-28-2346ab';
+import { ampuPerTA, dosenTS } from './dosen-hitung.js?v=2026-11-28-2346ab';
 
 const TEMPLATE = 'lkps-template.xlsx';
 export const JSZIP = 'https://cdn.jsdelivr.net/npm/jszip@3.10.1/+esm';
@@ -213,7 +213,9 @@ export function petaDaftar(C){
     set('4a', `M${r}`, srt.map(s => s.bidang).filter(Boolean).join('; '));
     set('4a', `N${r}`, srt.map(s => s.lembaga).filter(Boolean).join('; '));
     set('4a', `O${r}`, d.skip); set('4a', `P${r}`, d.stri);
-    set('4a', `Q${r}`, mk.filter(m => (m.pengampu || []).includes(d.nidn)).map(m => m.nama).join('; '));
+    // MK universitas/fakultas: koordinator prodi hanya mengkoordinasi RPS/silabus, tidak dihitung mengampu (pemilik 2026-11-28).
+    set('4a', `Q${r}`, mk.filter(m => !['universitas', 'fakultas'].includes(m.unit_penyelenggara) && (m.pengampu || []).includes(d.nidn))
+      .map(m => m.nama).join('; '));
     if (d.sesuai_keahlian_mk === true) set('4a', `R${r}`, 'V');
     set('4a', `S${r}`, d.mk_ps_lain);
   });

@@ -20,11 +20,11 @@
    diputuskan (pemilik 2026-11-24).
    Kolom yang tidak disimpan situs dibiarkan kosong (tanpa tebakan).
    ===================================================================== */
-import { JSZIP, tulisSel, petaLembar, hitungUlangSaatBuka } from './lkps.js?v=2026-11-28-c88499';
-import { daftarProdi, STATUS_PS, tglTeks } from './pustaka-dokumen.js?v=2026-11-28-c88499';
-import { nidnNuptk, masaBerlaku } from './profil-dosen.js?v=2026-11-28-c88499';
-import { ampuPerTA, dosenTS } from './dosen-hitung.js?v=2026-11-28-c88499';
-import { POS_A5 } from './keuangan-a5.js?v=2026-11-28-c88499';
+import { JSZIP, tulisSel, petaLembar, hitungUlangSaatBuka } from './lkps.js?v=2026-11-28-2346ab';
+import { daftarProdi, STATUS_PS, tglTeks } from './pustaka-dokumen.js?v=2026-11-28-2346ab';
+import { nidnNuptk, masaBerlaku } from './profil-dosen.js?v=2026-11-28-2346ab';
+import { ampuPerTA, dosenTS } from './dosen-hitung.js?v=2026-11-28-2346ab';
+import { POS_A5 } from './keuangan-a5.js?v=2026-11-28-2346ab';
 
 const JABATAN = { tenaga_pengajar: 'Tenaga Pengajar', asisten_ahli: 'Asisten Ahli', lektor: 'Lektor',
   lektor_kepala: 'Lektor Kepala', guru_besar: 'Profesor' };
@@ -229,7 +229,8 @@ export function petaLKPSLamdepilar(C){
   const diTS = dosenTS(X.dosen || [], `${ts - 1}/${ts}`, ampuPerTA(X.ampu || {}));
   const urutNama = xs => xs.slice().sort((a, b) => a.nama.localeCompare(b.nama));
   const kategori = k => urutNama(diTS.hitung.filter(d => (d.kategori || 'tetap') === k));
-  const mkDiampu = d => mk.filter(m => (m.pengampu || []).includes(d.nidn));
+  // MK universitas/fakultas: koordinator prodi tidak dihitung mengampu (pemilik 2026-11-28).
+  const mkDiampu = d => mk.filter(m => !['universitas', 'fakultas'].includes(m.unit_penyelenggara) && (m.pengampu || []).includes(d.nidn));
   const srtBerlaku = d => (d.sertifikat || []).filter(s => !masaBerlaku(s, C.kini || new Date())?.lewat)
     .map(s => [s.bidang, s.lembaga].filter(Boolean).join(', ')).filter(Boolean).join('; ');
   const PEND = { S3: 'Doktor', S2: 'Magister' };

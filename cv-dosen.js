@@ -2,8 +2,8 @@
 // Karya: hanya yang terverifikasi (data.json publik). Profil (NIDN, jabatan, pendidikan,
 // keahlian, sertifikat, email): tabel dosen di Supabase, dibaca dosen itu sendiri atau admin.
 // Dipakai profil.html (CV sendiri) dan kelola-dosen.html (admin, semua dosen).
-import { run, para, judul, teks, tabel, tautan, buatDocx } from './docx-dasar.js?v=2026-11-28-c88499';
-import { JENJANG, JENIS_SERTIFIKAT, JABATAN, KATEGORI, SKIP, masaBerlaku, tanggalPanjang } from './profil-dosen.js?v=2026-11-28-c88499';
+import { run, para, judul, teks, tabel, tautan, buatDocx } from './docx-dasar.js?v=2026-11-28-2346ab';
+import { JENJANG, JENIS_SERTIFIKAT, JABATAN, KATEGORI, SKIP, masaBerlaku, tanggalPanjang } from './profil-dosen.js?v=2026-11-28-2346ab';
 
 const label = (xs, k) => (xs.find(x => x[0] === k) || [, k || ''])[1];
 const rapi = s => String(s || '').replace(/_/g, ' ').trim();
@@ -157,11 +157,12 @@ const BUKU = new Set(['buku_isbn', 'book_chapter']);
 const juta = v => v == null || v === '' || !Number.isFinite(+v) ? ISI : (Math.round(+v / 1e5) / 10).toLocaleString('id-ID');
 const kunciKarya = (kategori, judulK, tahun) => `${kategori}|${nm(judulK)}|${tahun}`;
 
-/** Mata kuliah yang diampu: kolom pengampu berisi NIDN (larik, atau teks dipisah koma/titik koma). */
+/** Mata kuliah yang diampu: kolom pengampu berisi NIDN (larik, atau teks dipisah koma/titik koma). MK universitas/fakultas tidak
+ *  dihitung: koordinator prodinya hanya mengkoordinasi RPS dan silabus, tidak wajib mengajar (pemilik 2026-11-28). */
 export function mkDiampu(P, mk){
   const nidn = String(P.nidn || '').trim();
   if (!nidn) return [];
-  return (mk || []).filter(m => m.aktif !== false)
+  return (mk || []).filter(m => m.aktif !== false && !['universitas', 'fakultas'].includes(m.unit_penyelenggara))
     .filter(m => (Array.isArray(m.pengampu) ? m.pengampu : String(m.pengampu || '').split(/[;,]/)).map(x => String(x).trim()).includes(nidn))
     .sort((a, b) => String(a.kode).localeCompare(String(b.kode)));
 }
@@ -247,7 +248,7 @@ export async function unduhCV(P, pilihPeriode = 'semua', gaya = 'cv', sb = null)
   if (gaya === 'hibah') {
     const [k, m] = sb ? await Promise.all([
       sb.from('karya').select('judul,tahun,kategori,besaran_dana,nama_terbitan').eq('status', 'terverifikasi').in('kategori', ['penelitian', 'pkm', 'luaran']),
-      sb.from('ref_mata_kuliah').select('kode,nama,sks,pengampu,aktif')]) : [{}, {}];
+      sb.from('ref_mata_kuliah').select('kode,nama,sks,pengampu,aktif,unit_penyelenggara')]) : [{}, {}];
     blob = await buatBiodataHibah(P, D, { tanggal, dana: k.data || [], mk: m.data || [] });
     nama = namaBerkasCV(P, tanggal).replace(/^CV_/, 'Biodata_hibah_');
   } else {

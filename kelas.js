@@ -28,6 +28,8 @@ export function kelasBerikut(ada = []){
  * dosen = [{ id, nidn }]. Hasil { baris: [{ kurikulum, kode_mk, kelas, dosen: [{dosen_id, peran}] }], tanpaPengampu: [kode] }.
  * MKU (unit_penyelenggara universitas) dan MK fakultas tanpa pengampu prodi tetap dibuat, tanpa dosen (151, pemilik 2026-11-22):
  * jadwalnya ditetapkan universitas/fakultas dan dosennya dari luar prodi.
+ * Pemilik 2026-11-28: koordinator prodi MK universitas/fakultas TIDAK wajib mengajar (hanya mengkoordinasi RPS dan silabus), jadi
+ * usulan kelas MK itu selalu tanpa dosen; siapa yang mengajar dan berapa pertemuan diisi di Penyusunan kelas.
  */
 export const tanpaDosenBoleh = m => ['universitas', 'fakultas'].includes(m?.unit_penyelenggara);
 export function usulanKelasAwal(mk = [], kelasAda = [], dosen = []){
@@ -36,7 +38,7 @@ export function usulanKelasAwal(mk = [], kelasAda = [], dosen = []){
   const baris = [], tanpaPengampu = [];
   for (const m of mk) {
     if (ada.has(`${m.kurikulum}|${m.kode}`)) continue;
-    const ids = [...new Set((m.pengampu || []).map(String).map(n => perNidn.get(n)).filter(Boolean))];
+    const ids = tanpaDosenBoleh(m) ? [] : [...new Set((m.pengampu || []).map(String).map(n => perNidn.get(n)).filter(Boolean))];
     if (!ids.length && !tanpaDosenBoleh(m)) { tanpaPengampu.push(m.kode); continue; }
     baris.push({ kurikulum: m.kurikulum, kode_mk: m.kode, kelas: 'A', dosen: ids.map((id, i) => ({ dosen_id: id, peran: i ? 'anggota' : 'koordinator' })) });
   }
