@@ -1,7 +1,7 @@
 // Surat dan SK prodi (201-patch-surat-sk-prodi.sql, pemilik 2026-11-28). Fungsi murni: label, nomor dari pola (cermin
 // surat_format_nomor untuk pratinjau; nomor sebenarnya diberikan basis data saat disahkan), isi Word umum ber-QR, tugas,
 // rekap. Templat Word per jenis menyusul dari pemilik; sampai itu dipakai bentuk umum di isiSurat.
-import { para, run, teks, tabel, buatDocx, gambar } from './docx-dasar.js?v=2026-11-28-44f629';
+import { para, run, teks, tabel, buatDocx, gambar } from './docx-dasar.js?v=2026-11-28-e24bbe';
 
 export const STATUS_SURAT = { draf: 'Draf', diajukan: 'Menunggu tanda tangan', dikembalikan: 'Dikembalikan', disahkan: 'Disahkan',
   dibatalkan: 'Dibatalkan', arsip: 'Arsip (ditandatangani di luar situs)' };
@@ -101,6 +101,30 @@ export function tugasSurat(xs, { tanda = {}, kelola = false } = {}){
   }
   return out;
 }
+
+// SK sebagai berkas dosen (pemilik 2026-11-28, ide 2026-11-26 "SK bundel"): satu SK menyebut banyak dosen (dosen_ids);
+// tiap dosen melihat, menyaring, dan menyalin tautannya untuk BKD/SISTER, dan SK masuk CV.
+/** Tahun akademik dari tanggal surat (1 September s.d. 31 Agustus): 2026-09-01 -> 2026/2027. */
+export const tahunAkademikSurat = t => { const y = +String(t).slice(0, 4), m = +String(t).slice(5, 7); return m >= 9 ? `${y}/${y + 1}` : `${y - 1}/${y}`; };
+/** SK/surat yang menyebut dosen: disahkan dan arsip (opsional juga dibatalkan), terbaru dulu. */
+export const skDosen = (xs, dosenId, { batal = false } = {}) => (xs || [])
+  .filter(s => (s.dosen_ids || []).includes(dosenId) && (['disahkan', 'arsip'].includes(s.status) || (batal && s.status === 'dibatalkan')))
+  .sort((a, b) => String(b.tanggal || '').localeCompare(String(a.tanggal || '')) || String(b.nomor || '').localeCompare(String(a.nomor || '')));
+/**
+ * Tautan untuk BKD/SISTER: berkas akhir bertanda tangan (arsip_url) bila ada; selain itu halaman verifikasi QR (disahkan);
+ * null bila tidak ada keduanya (arsip tanpa berkas) atau surat dibatalkan.
+ */
+export function tautanSister(s, dasar){
+  if (!s || s.status === 'dibatalkan') return null;
+  if (s.arsip_url) return s.arsip_url;
+  return s.status === 'disahkan' && s.kode_verifikasi ? urlVerifikasi(s.kode_verifikasi, dasar) : null;
+}
+/** Saring daftar SK: ta = tahun akademik ('' semua), jenis ('' semua), cari di nomor/perihal. */
+export const saringSk = (xs, { ta = '', jenis = '', cari = '' } = {}) => {
+  const q = cari.trim().toLowerCase();
+  return (xs || []).filter(s => (!ta || (s.tanggal && tahunAkademikSurat(s.tanggal) === ta)) && (!jenis || s.jenis === jenis)
+    && (!q || `${s.nomor || ''} ${s.perihal || ''}`.toLowerCase().includes(q)));
+};
 
 /** Rekap per tahun x jenis: terbit (disahkan + arsip) dan dibatalkan. */
 export function rekapSurat(xs, jenis = []){

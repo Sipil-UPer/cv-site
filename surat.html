@@ -11,8 +11,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-28-44f629">
-<link rel="stylesheet" href="kepala.css?v=2026-11-28-44f629">
+<link rel="stylesheet" href="tema.css?v=2026-11-28-e24bbe">
+<link rel="stylesheet" href="kepala.css?v=2026-11-28-e24bbe">
 <style>
   /* Surat dan SK prodi (201-patch-surat-sk-prodi.sql, pemilik 2026-11-28) */
   *{box-sizing:border-box}
@@ -58,7 +58,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></div>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-28-44f629"></script>
+<script src="config.js?v=2026-11-28-e24bbe"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -77,19 +77,20 @@ addEventListener('error', function (e) {
 // sendiri (tanpa a.n.); nomor dari pola per jenis diberikan saat disahkan; Word ber-QR ke verifikasi-surat.html.
 // Dosen melihat surat yang menyebut dirinya. Logika murni: surat.js.
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-28-44f629';
-import { punya } from './koordinator.js?v=2026-11-28-44f629';
-import { STATUS_SURAT, PENANDATANGAN, PENANDA_POLA, galatPola, nomorBerikut, hariIniWIB, buatSurat, namaBerkasSurat, urlVerifikasi, rekapSurat, tglPanjang }
-  from './surat.js?v=2026-11-28-44f629';
-import { pngQr } from './rps-word.js?v=2026-11-28-44f629';
-import { drafSkAsisten } from './karier.js?v=2026-11-28-44f629';
+import { gerbang } from './menu.js?v=2026-11-28-e24bbe';
+import { punya } from './koordinator.js?v=2026-11-28-e24bbe';
+import { STATUS_SURAT, PENANDATANGAN, PENANDA_POLA, galatPola, nomorBerikut, hariIniWIB, buatSurat, namaBerkasSurat, urlVerifikasi, rekapSurat, tglPanjang,
+  skDosen, saringSk, tautanSister, tahunAkademikSurat }
+  from './surat.js?v=2026-11-28-e24bbe';
+import { pngQr } from './rps-word.js?v=2026-11-28-e24bbe';
+import { drafSkAsisten } from './karier.js?v=2026-11-28-e24bbe';
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const sb = createClient(window.SB_URL, window.SB_KEY);
 const TH = +hariIniWIB().slice(0, 4);
 
 let SAYA = null, JENIS = [], SURAT = [], URUT = [], DOSEN = [], PRODI = {}, ADA = true, UBAH = null, PENGAJUAN = null;
-let SARING = { tahun: String(TH), jenis: '', status: '', cari: '' };
+let SARING = { tahun: String(TH), jenis: '', status: '', cari: '' }, SARING_SAYA = { ta: '', jenis: '', cari: '' };
 const ADMIN = () => SAYA?.peran === 'admin';
 const KELOLA = () => ADMIN() || punya(SAYA, 'kaprodi');
 const TANDA = () => ({ kaprodi: punya(SAYA, 'kaprodi'), dekan: punya(SAYA, 'dekan') });
@@ -229,16 +230,24 @@ function htmlAgenda(){
       : '<p class="kosong">Belum ada surat terbit.</p>'}</section>`;
 }
 
+// SK sebagai berkas dosen (pemilik 2026-11-28): saring per tahun akademik/jenis, salin tautan untuk BKD/SISTER.
 function htmlSaya(){
-  const xs = SURAT.filter(s => (s.dosen_ids || []).includes(SAYA.id) && ['disahkan', 'arsip', 'dibatalkan'].includes(s.status));
+  const semua = skDosen(SURAT, SAYA.id, { batal: true }), xs = saringSk(semua, SARING_SAYA);
+  const tas = [...new Set(semua.filter(s => s.tanggal).map(s => tahunAkademikSurat(s.tanggal)))].sort().reverse();
   return `<section class="kartu" id="saya"><h2>Surat dan SK untuk saya</h2>
-    <p class="ket">SK prodi dan surat tugas yang menyebut nama Anda; unduh Word bertanda tangan elektronik untuk BKD/SISTER.</p>
+    <p class="ket">SK prodi, SK fakultas yang dicatat prodi, dan surat tugas yang menyebut nama Anda. <b>Salin tautan</b> memberi tautan berkas
+      bertanda tangan (atau halaman verifikasi QR) untuk ditempel di BKD/SISTER tanpa mengunggah ulang; <b>Word</b> mengunduh surat bertanda
+      tangan elektronik.</p>
+    ${semua.length ? `<div class="alat"><label>Tahun akademik <select id="ssTa"><option value="">Semua</option>${tas.map(t => `<option${t === SARING_SAYA.ta ? ' selected' : ''}>${t}</option>`).join('')}</select></label>
+      <label>Jenis <select id="ssJenis"><option value="">Semua</option>${opsiJenis(SARING_SAYA.jenis, true)}</select></label>
+      <input type="search" id="ssCari" placeholder="Cari nomor atau perihal" value="${esc(SARING_SAYA.cari)}"></div>` : ''}
     ${xs.length ? `<div class="gulir"><table class="ds"><thead><tr><th>Nomor</th><th>Tanggal</th><th>Jenis</th><th>Perihal</th><th>Status</th><th></th></tr></thead>
       <tbody>${xs.map(s => `<tr><td><code>${esc(s.nomor)}</code></td><td>${esc(tglPanjang(s.tanggal))}</td><td>${esc(jenisDari(s.jenis).nama)}</td><td>${esc(s.perihal)}</td>
         <td><span class="st ${esc(s.status)}">${esc(STATUS_SURAT[s.status])}</span></td>
-        <td class="aksi">${s.status === 'disahkan' ? `<button type="button" class="b kecil" data-word="${s.id}">Word</button>` : ''}
+        <td class="aksi">${tautanSister(s, location.href) ? `<button type="button" class="b kecil utama" data-salin-sk="${s.id}">Salin tautan</button>` : ''}
+          ${s.status === 'disahkan' ? `<button type="button" class="b kecil" data-word="${s.id}">Word</button>` : ''}
           ${s.arsip_url ? `<a class="b kecil" href="${esc(s.arsip_url)}" target="_blank" rel="noopener">Berkas</a>` : ''}</td></tr>`).join('')}</tbody></table></div>`
-      : '<p class="kosong">Belum ada surat atau SK yang menyebut nama Anda.</p>'}</section>`;
+      : `<p class="kosong">${semua.length ? 'Tidak ada surat untuk saringan ini.' : 'Belum ada surat atau SK yang menyebut nama Anda.'}</p>`}</section>`;
 }
 
 function htmlPengaturan(){
@@ -287,6 +296,15 @@ async function rpc(nama, arg, pesan){
 }
 function pasang(){
   const on = (sel, f) => document.querySelectorAll(sel).forEach(b => { b.onclick = () => f(b); });
+  on('[data-salin-sk]', async b => {
+    const u = tautanSister(cari(b.dataset.salinSk), location.href);
+    try { await navigator.clipboard.writeText(u); b.textContent = 'Tersalin'; } catch { prompt('Salin tautan ini:', u); }
+  });
+  if ($('ssTa')) {
+    $('ssTa').onchange = e => { SARING_SAYA.ta = e.target.value; gambar(); $('saya').scrollIntoView(); };
+    $('ssJenis').onchange = e => { SARING_SAYA.jenis = e.target.value; gambar(); $('saya').scrollIntoView(); };
+    $('ssCari').onchange = e => { SARING_SAYA.cari = e.target.value.trim(); gambar(); $('saya').scrollIntoView(); };
+  }
   on('[data-word]', async b => { b.disabled = true; try { await unduhWord(cari(b.dataset.word)); } catch (e) { alert('Gagal membuat Word: ' + e.message); } b.disabled = false; });
   on('[data-sahkan]', async b => {
     const s = cari(b.dataset.sahkan);

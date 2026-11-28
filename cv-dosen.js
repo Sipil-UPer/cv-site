@@ -2,8 +2,8 @@
 // Karya: hanya yang terverifikasi (data.json publik). Profil (NIDN, jabatan, pendidikan,
 // keahlian, sertifikat, email): tabel dosen di Supabase, dibaca dosen itu sendiri atau admin.
 // Dipakai profil.html (CV sendiri) dan kelola-dosen.html (admin, semua dosen).
-import { run, para, judul, teks, tabel, tautan, buatDocx } from './docx-dasar.js?v=2026-11-28-44f629';
-import { JENJANG, JENIS_SERTIFIKAT, JABATAN, KATEGORI, SKIP, masaBerlaku, tanggalPanjang } from './profil-dosen.js?v=2026-11-28-44f629';
+import { run, para, judul, teks, tabel, tautan, buatDocx } from './docx-dasar.js?v=2026-11-28-e24bbe';
+import { JENJANG, JENIS_SERTIFIKAT, JABATAN, KATEGORI, SKIP, masaBerlaku, tanggalPanjang } from './profil-dosen.js?v=2026-11-28-e24bbe';
 
 const label = (xs, k) => (xs.find(x => x[0] === k) || [, k || ''])[1];
 const rapi = s => String(s || '').replace(/_/g, ' ').trim();
@@ -126,6 +126,14 @@ export function isiCV(P, D, o = {}){
     out.push(judul(`Rekognisi (${K.rekognisi.length})`, 1));
     out.push(tabel([['Tahun', 'Bentuk', 'Kegiatan', 'Tingkat'], ...K.rekognisi.map(r => [r.tahun, rapi(r.bentuk), String(r.nama_kegiatan || '').trim(), rapi(r.tingkat)])]));
   }
+  // Surat keputusan dan penugasan (201, pemilik 2026-11-28): SK/surat tugas yang menyebut dosen ini, dari Surat dan SK; periode
+  // mengikuti pilihan periode karya; tanpa tautan berkas (CV dibagikan ke luar, sama dengan bukti sertifikat).
+  const sk = (o.sk || []).filter(s => !o.dariTahun || +String(s.tanggal || '').slice(0, 4) >= o.dariTahun);
+  if (sk.length) {
+    out.push(judul(`Surat keputusan dan penugasan (${sk.length})`, 1));
+    out.push(tabel([['No', 'Tanggal', 'Nomor', 'Jenis', 'Perihal'], ...sk.map((s, i) => [String(i + 1), tanggalPanjang(String(s.tanggal || '').slice(0, 10)),
+      s.nomor || '', s.jenis_nama || '', s.perihal || ''])]));
+  }
   out.push(para(run(`Disusun otomatis dari situs kinerja program studi pada ${o.tanggal || new Date().toISOString().slice(0, 10)}. `
     + 'Daftar karya hanya memuat karya yang sudah diverifikasi program studi; silakan disunting seperlunya.', { i: true, sz: 18, warna: '555555' }), { before: 240 }));
   return out.join('');
@@ -243,7 +251,10 @@ export async function unduhCV(P, pilihPeriode = 'semua', gaya = 'cv', sb = null)
     blob = await buatBiodataHibah(P, D, { tanggal, dana: k.data || [], mk: m.data || [] });
     nama = namaBerkasCV(P, tanggal).replace(/^CV_/, 'Biodata_hibah_');
   } else {
-    blob = await buatCV(P, D, { dariTahun: tahunAwal(pilihPeriode), tanggal });
+    // SK yang menyebut dosen ini (201): terbaca oleh dosen sendiri, admin, Kaprodi, pimpinan; tanpa patch atau gagal = tanpa bagian SK.
+    const sk = sb ? await sb.from('surat').select('nomor,tanggal,perihal,status,jenis,surat_jenis(nama)').contains('dosen_ids', [P.id])
+      .in('status', ['disahkan', 'arsip']).order('tanggal', { ascending: false }).then(r => (r.error ? [] : r.data || []), () => []) : [];
+    blob = await buatCV(P, D, { dariTahun: tahunAwal(pilihPeriode), tanggal, sk: sk.map(s => ({ ...s, jenis_nama: s.surat_jenis?.nama || s.jenis })) });
     nama = namaBerkasCV(P, tanggal);
   }
   const a = document.createElement('a');

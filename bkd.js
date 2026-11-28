@@ -3,9 +3,10 @@
 // (pasangBkd) dan verifikasi.html (pasangVerifikasiBkd). Dosen lain diisi admin
 // di Data prodi. Berkas LKD privat: lihat unggahLKD dan bukaLKD.
 
-import { ubahan } from './prestasi.js?v=2026-11-28-44f629';
-import { htmlSaran } from './saran-bukti.js?v=2026-11-28-44f629';
-import { htmlTautanButir, tsDariTA } from './tautan-butir.js?v=2026-11-28-44f629';
+import { ubahan } from './prestasi.js?v=2026-11-28-e24bbe';
+import { htmlSaran } from './saran-bukti.js?v=2026-11-28-e24bbe';
+import { htmlTautanButir, tsDariTA } from './tautan-butir.js?v=2026-11-28-e24bbe';
+import { skDosen, tautanSister, tahunAkademikSurat } from './surat.js?v=2026-11-28-e24bbe';
 
 // Bagian C LKD. Pendidikan dipecah per PS untuk Tabel 4.c; SISTER tidak
 // punya kolom prodi, jadi dosen memilahnya menurut kode kelas.
@@ -118,6 +119,28 @@ export function tautanBkd(r, dtps = true){
 
 // ---------- tab dosen ----------
 
+// SK untuk BKD/SISTER (201, pemilik 2026-11-28): SK yang menyebut dosen, per tahun akademik, dengan tautan salin
+// (berkas bertanda tangan atau verifikasi QR). Tanpa patch 201 atau gagal dibaca = panel menjelaskan saja.
+async function muatSkBkd(sb, saya, box){
+  if (!box) return;
+  const { data, error } = await sb.from('surat').select('id,nomor,tanggal,perihal,status,jenis,arsip_url,kode_verifikasi,dosen_ids,surat_jenis(nama)')
+    .contains('dosen_ids', [saya.id]).in('status', ['disahkan', 'arsip']).then(r => r, () => ({ error: true }));
+  if (error) { box.textContent = 'Daftar SK belum tersedia.'; return; }
+  const xs = skDosen(data || [], saya.id);
+  if (!xs.length) { box.textContent = 'Belum ada SK atau surat tugas yang menyebut nama Anda.'; return; }
+  const per = new Map();
+  for (const s of xs) { const k = tahunAkademikSurat(s.tanggal); if (!per.has(k)) per.set(k, []); per.get(k).push(s); }
+  box.className = '';
+  box.innerHTML = [...per].map(([ta, ss]) => `<h3 style="font-size:14px;margin:12px 0 4px">${esc(ta)}</h3>${ss.map(s => {
+    const u = tautanSister(s, location.href);
+    return `<div class="rec"><div class="spine"></div><div class="rec-b"><div class="rec-j">${esc(s.perihal)}</div>
+      ${htmlMeta([s.surat_jenis?.nama || s.jenis, s.nomor, s.tanggal].filter(Boolean))}</div>
+      <div class="rec-a">${u ? `<button class="btn ghost sm" data-salin-sk="${esc(u)}">Salin tautan</button>` : '<span class="tag">tanpa berkas</span>'}</div></div>`;
+  }).join('')}`).join('');
+  box.querySelectorAll('[data-salin-sk]').forEach(b => { b.onclick = async () => {
+    try { await navigator.clipboard.writeText(b.dataset.salinSk); b.textContent = 'Tersalin'; } catch { prompt('Salin tautan ini:', b.dataset.salinSk); } }; });
+}
+
 export async function pasangBkd(wadah, { sb, saya }){
   let SUNTING = null, BARIS = [], AJUAN = new Map();
   const $ = id => wadah.querySelector('#' + id);
@@ -149,7 +172,12 @@ export async function pasangBkd(wadah, { sb, saya }){
     <div class="aksi"><button class="btn" type="submit" id="bk_simpan">Simpan</button>
       <button class="btn ghost" type="button" id="bk_batal" hidden>Batal</button>
       <span class="msg" id="bk_msg"></span><span class="msg" id="bk_total"></span></div></form></div>
-    <div class="panel"><h2>Riwayat BKD saya</h2><div id="bk_daftar" class="kosong">Memuat…</div></div>`;
+    <div class="panel"><h2>Riwayat BKD saya</h2><div id="bk_daftar" class="kosong">Memuat…</div></div>
+    <div class="panel"><h2>SK untuk BKD dan SISTER</h2>
+      <p class="hint">SK dan surat tugas yang menyebut nama Anda (Surat dan SK prodi, termasuk SK fakultas yang dicatat prodi), per tahun akademik.
+      <b>Salin tautan</b> lalu tempel sebagai bukti di BKD/SISTER; tidak perlu mengunggah ulang. Word bertanda tangan elektronik:
+      <a href="surat.html#saya">Surat dan SK saya</a>.</p><div id="bk_sk" class="kosong">Memuat…</div></div>`;
+  muatSkBkd(sb, saya, wadah.querySelector('#bk_sk'));
 
   const tulis = (cls, t) => { const m = $('bk_msg'); m.className = 'msg' + (cls ? ' ' + cls : ''); m.textContent = t; };
   const baca = () => {

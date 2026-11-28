@@ -1,24 +1,24 @@
 // "Tugas saya" di Ruang kerja (pemilik 2026-11-12): hal yang menunggu tindakan dosen yang
 // sedang masuk, dari data yang sudah boleh ia baca (RLS). Aturan tenggat sama dengan halaman
 // Pengingat: rapat.js, hibah.js, temuan-ami.js, pengingat-dosen.js.
-import { kurangProfil } from './pengingat-dosen.js?v=2026-11-28-44f629';
-import { tindakTerbuka, tglID } from './rapat.js?v=2026-11-28-44f629';
-import { tenggatBerikut, teksHari, HARI_LEWAT } from './hibah.js?v=2026-11-28-44f629';
-import { hariKeTenggat, labelStatus, HARI_DEKAT } from './temuan-ami.js?v=2026-11-28-44f629';
-import { tugasEvaluasi } from './evaluasi-pembelajaran.js?v=2026-11-28-44f629';
-import { bolehPengajuan } from './koordinator.js?v=2026-11-28-44f629';
-import { tenggatReview, hariKe, teksHari as teksHariRv, tugasTenggatRps, tugasTetapDekan, tanggalPanjang as tglRv } from './pengingat-rps.js?v=2026-11-28-44f629';
-import { tugasInsentif } from './insentif.js?v=2026-11-28-44f629';
-import { tugasMK } from './tugas-mk.js?v=2026-11-28-44f629';
-import { tugasPerwalian } from './perwalian.js?v=2026-11-28-44f629';
-import { halamanAktif } from './fitur.js?v=2026-11-28-44f629';
-import { tugasKarier } from './karier.js?v=2026-11-28-44f629';
-import { tugasSurat } from './surat.js?v=2026-11-28-44f629';
-import { tugasPemangku } from './pemangku.js?v=2026-11-28-44f629';
-import { tugasLab } from './lab.js?v=2026-11-28-44f629';
-import { tugasSdm } from './sdm.js?v=2026-11-28-44f629';
-import { tugasUjian } from './ujian.js?v=2026-11-28-44f629';
-import { masaBerlaku, tanggalPanjang as tglSrt } from './profil-dosen.js?v=2026-11-28-44f629';
+import { kurangProfil } from './pengingat-dosen.js?v=2026-11-28-e24bbe';
+import { tindakTerbuka, tglID } from './rapat.js?v=2026-11-28-e24bbe';
+import { tenggatBerikut, teksHari, HARI_LEWAT } from './hibah.js?v=2026-11-28-e24bbe';
+import { hariKeTenggat, labelStatus, HARI_DEKAT } from './temuan-ami.js?v=2026-11-28-e24bbe';
+import { tugasEvaluasi } from './evaluasi-pembelajaran.js?v=2026-11-28-e24bbe';
+import { bolehPengajuan } from './koordinator.js?v=2026-11-28-e24bbe';
+import { tenggatReview, hariKe, teksHari as teksHariRv, tugasTenggatRps, tugasTetapDekan, tanggalPanjang as tglRv } from './pengingat-rps.js?v=2026-11-28-e24bbe';
+import { tugasInsentif } from './insentif.js?v=2026-11-28-e24bbe';
+import { tugasMK } from './tugas-mk.js?v=2026-11-28-e24bbe';
+import { tugasPerwalian } from './perwalian.js?v=2026-11-28-e24bbe';
+import { halamanAktif } from './fitur.js?v=2026-11-28-e24bbe';
+import { tugasKarier } from './karier.js?v=2026-11-28-e24bbe';
+import { tugasSurat } from './surat.js?v=2026-11-28-e24bbe';
+import { tugasPemangku } from './pemangku.js?v=2026-11-28-e24bbe';
+import { tugasLab } from './lab.js?v=2026-11-28-e24bbe';
+import { tugasSdm } from './sdm.js?v=2026-11-28-e24bbe';
+import { tugasUjian } from './ujian.js?v=2026-11-28-e24bbe';
+import { masaBerlaku, tanggalPanjang as tglSrt } from './profil-dosen.js?v=2026-11-28-e24bbe';
 
 // Sertifikat dengan masa berlaku (pemilik 2026-11-24): diingatkan sejak 90 hari sebelum habis, dan terus setelah lewat.
 export const HARI_SERTIFIKAT = 90;
