@@ -47,7 +47,8 @@ const uuid = () => '00000000-0000-4000-8000-' + String(baru()).padStart(12, '0')
 const TABEL_UUID = new Set(['karya', 'dosen', 'karya_mitra', 'karya_mahasiswa', 'hibah_ajuan']);
 const KUNCI = { pengaturan: ['kunci'], led_narasi: ['kunci'], led_penugasan: ['kelompok'], hibah_tim: ['ajuan_id', 'dosen_id'] };
 // Relasi anak selain lewat karya_id (58-patch-hibah.sql).
-const FK_ANAK = { hibah_tim: 'ajuan_id', pengajuan_berkas: 'pengajuan_id', pengajuan_riwayat: 'pengajuan_id', asisten_lamaran: 'rekrutmen_id' };   // 202
+// 202: asisten_lamaran; 136, 195 (uji alur semester 2026-11-28): kelas_dosen, ujian_pengawas. Satu baris (dibaca tests/js/mock_sb_relasi.test.mjs).
+const FK_ANAK = { hibah_tim: 'ajuan_id', pengajuan_berkas: 'pengajuan_id', pengajuan_riwayat: 'pengajuan_id', asisten_lamaran: 'rekrutmen_id', kelas_dosen: 'kelas_id', ujian_pengawas: 'ujian_id' };
 
 // Pengajuan mahasiswa (90-patch-pengajuan-mahasiswa.sql), tiruan ringkas: token disimpan apa adanya,
 // tautan "email" dicetak ke konsol. Aturan lengkap diuji di tests/test_pengajuan_mahasiswa.py.
@@ -803,7 +804,8 @@ function urai(s){
     return { nama: m[2], kunci: m[1] || m[2], dalam: !!m[3], anak: urai(m[4]) };
   });
 }
-const KE_INDUK = { dosen: ['dosen_id', 'id'], karya: ['karya_id', 'id'], rapat: ['rapat_id', 'id'] };
+const KE_INDUK = { dosen: ['dosen_id', 'id'], karya: ['karya_id', 'id'], rapat: ['rapat_id', 'id'],
+  kelas_kuliah: ['kelas_id', 'id'], evaluasi_mk: ['evaluasi_id', 'id'], surat_jenis: ['jenis', 'kode'] };   // 195, 68, 201 (uji alur semester 2026-11-28)
 function lengkapi(t, r, rel){
   const o = { ...r };
   for (const x of rel) {
@@ -832,6 +834,7 @@ function q(t){
       saring.push(r => o === 'is' ? (r[c] ?? null) !== v : xs ? !xs.includes(String(r[c])) : r[c] !== v); return f; },
     gte(c, v){ saring.push(r => r[c] >= v); return f; }, lte(c, v){ saring.push(r => r[c] <= v); return f; },
     like(c, v){ const p = String(v); saring.push(r => p.endsWith('%') ? String(r[c] ?? '').startsWith(p.slice(0, -1)) : String(r[c] ?? '') === p); return f; },
+    contains(c, v){ const xs = [].concat(v); saring.push(r => Array.isArray(r[c]) && xs.every(x => r[c].includes(x))); return f; },   // kolom larik (mk-saya: dosen_ids)
     ilike(c, v){ const p = String(v).toLowerCase().replace(/[%*]/g, ''); saring.push(r => String(r[c] ?? '').toLowerCase().includes(p)); return f; },
     or(){ return f; }, order(c, o){ urut.push([c, o?.ascending !== false]); return f; },
     limit(k){ batas = k; return f; }, range(a, b){ mulai = a; batas = b - a + 1; return f; },

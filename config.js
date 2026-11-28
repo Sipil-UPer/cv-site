@@ -72,6 +72,16 @@ window.UPLOAD_EXT    = 'pdf,jpg,jpeg,png,docx,xlsx';
    ===================================================================== */
 window.FITUR_MATI = [];
 /* =====================================================================
+   Kode nama kelas (Penyusunan kelas, kelas.js usulNamaKelas)
+   -------------------------------------------------------------------
+   Nama kelas = <kode><semester MK><huruf bila lebih dari satu kelas>,
+   mis. CV1 (satu kelas), CV1A dan CV1B (dua kelas). Nilai sah: huruf/angka
+   pendek kode program studi; '' = nama lama A, B, C.
+   Asal: pemilik 2026-11-28 ("CV adalah kode sipil, 1 adalah semester, A dan B
+   jika lebih dari satu kelas; kalau cuma 1 kelas cukup CV1").
+   ===================================================================== */
+window.KODE_KELAS = 'CV';
+/* =====================================================================
    Logo di kepala halaman publik (kerangka.js), berurutan dari kiri, seperti
    kepala situs universitas (pemilik 2026-11-16). Tanpa baris ini: logo.png.
    w/h = ukuran asli gambar, agar halaman tidak bergeser saat logo dimuat.

@@ -11,8 +11,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-28-9a8021">
-<link rel="stylesheet" href="kepala.css?v=2026-11-28-9a8021">
+<link rel="stylesheet" href="tema.css?v=2026-11-28-09fd85">
+<link rel="stylesheet" href="kepala.css?v=2026-11-28-09fd85">
 <style>
   /* Penyusunan kelas (136-patch-penyusunan-kelas.sql, pemilik 2026-11-21) */
   *{box-sizing:border-box}
@@ -59,7 +59,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></div>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-28-9a8021"></script>
+<script src="config.js?v=2026-11-28-09fd85"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -78,11 +78,11 @@ addEventListener('error', function (e) {
 // beberapa kelas, team teaching = satu koordinator + anggota), manual atau impor CSV; ekspor CSV untuk optimasi jadwal di luar
 // situs; salin ke daftar kelas nilai CPL. Admin dan Kaprodi aktif menyusun; dosen lain membaca. Logika: kelas.js.
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-28-9a8021';
-import { punya } from './koordinator.js?v=2026-11-28-9a8021';
-import { semesterKini, tsDariTA } from './evaluasi-pembelajaran.js?v=2026-11-28-9a8021';
-import { mkDitawarkan, kelasBerikut, usulanKelasAwal, tanpaDosenBoleh, csvKelas, bacaCsvKelas, rekapBeban, csvBeban, KELOMPOK_LUAR, golonganDosen, tandaGolongan,
-  kelompokPilihan, cekDosenLuar, rekapGolonganTA, csvGolongan } from './kelas.js?v=2026-11-28-9a8021';
+import { gerbang } from './menu.js?v=2026-11-28-09fd85';
+import { punya } from './koordinator.js?v=2026-11-28-09fd85';
+import { semesterKini, tsDariTA } from './evaluasi-pembelajaran.js?v=2026-11-28-09fd85';
+import { mkDitawarkan, usulanKelasAwal, tanpaDosenBoleh, csvKelas, bacaCsvKelas, rekapBeban, csvBeban, KELOMPOK_LUAR, golonganDosen, tandaGolongan,
+  kelompokPilihan, cekDosenLuar, rekapGolonganTA, csvGolongan, usulNamaKelas, rapikanNamaKelas } from './kelas.js?v=2026-11-28-09fd85';
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const sb = createClient(window.SB_URL, window.SB_KEY);
@@ -91,6 +91,8 @@ let BIMBINGAN = [], ADA_BIMBINGAN = true;   // beban_bimbingan(TS), 109
 let KELAS_TA = [], KD_TA = [], MANUAL_TA = [], DOSEN_SEMUA = [];   // rekap DTPS/DT/DTT setahun (Ganjil + Genap)
 let SAYA = null, MK = [], DOSEN = [], KELAS = [], KD = [], ADA = true, PERIODE = null, KUR = '', CARI = '', F_SAYA = false, DRAF = null;
 const PENGATUR = () => SAYA?.peran === 'admin' || punya(SAYA, 'kaprodi');
+// Kode nama kelas (config.js, pemilik 2026-11-28): CV1, CV1A, CV1B; kosong = A, B.
+const KODE = () => String(window.KODE_KELAS || '');
 const namaD = id => { const d = DOSEN.find(x => x.id === id); return d ? (d.nama_gelar || d.nama) : '?'; };
 // Penanda dosen luar DTPS (208): DT prodi lain / DTT / industri.
 const golD = id => { const g = tandaGolongan(DOSEN.find(x => x.id === id) || {}); return g ? `<span class="gol" title="Bukan DTPS">${g}</span>` : ''; };
@@ -226,7 +228,7 @@ function htmlGolongan(){
 const KELOMPOK_LABEL = { dtps: 'DTPS', dt: 'DT prodi lain', tb: 'Tugas belajar', dtt: 'DTT', industri: 'Industri (DTT)', pimpinan: 'Pimpinan', staf: 'Staf', asesor: 'Asesor' };
 
 function htmlAlat(){
-  return `<div class="alat"><button class="b" id="aUsul">Buat kelas A untuk MK yang belum punya kelas</button>
+  return `<div class="alat"><button class="b" id="aUsul">Buat kelas untuk MK yang belum punya kelas</button>${htmlRapikan()}
       <button class="b" id="aUnduh">Unduh CSV</button><button class="b" id="aCpl">Salin ke daftar kelas nilai CPL</button>
       <a class="b" href="surat.html?kelas=${encodeURIComponent(PERIODE.ta)}&amp;semester=${encodeURIComponent(PERIODE.sm)}#form"
         title="Draf SK pengajaran semester ini dari daftar kelas (semua kurikulum), termasuk dosen luar DTPS">Draf SK pengajaran</a></div>
@@ -244,10 +246,13 @@ function htmlEditor(){
   const opsi = v => `<option value="">— pilih dosen —</option>` + kelompokPilihan(DOSEN).map(([l, xs]) => `<optgroup label="${esc(l)}">${
     xs.map(d => `<option value="${d.id}"${d.id === v ? ' selected' : ''}>${esc(d.nama_gelar || d.nama)}</option>`).join('')}</optgroup>`).join('');
   return `<div class="panel"><b>${DRAF.id ? 'Ubah' : 'Tambah'} kelas: <span class="kode">${esc(DRAF.kode_mk)}</span> ${esc(m.nama || '')}</b>
-    <div class="alat"><label>Kelas <input type="text" id="eKelas" maxlength="10" value="${esc(DRAF.kelas)}" style="width:70px"></label>
+    <div class="alat"><label>Kelas <input type="text" id="eKelas" maxlength="10" value="${esc(DRAF.kelas)}" style="width:70px"
+        title="${KODE() ? `Format ${esc(KODE())}<semester><huruf>, mis. ${esc(KODE())}1 (satu kelas), ${esc(KODE())}1A dan ${esc(KODE())}1B (dua kelas)` : 'mis. A'}"></label>
       <label>Kapasitas <input type="number" id="eKap" min="1" max="500" value="${esc(DRAF.kapasitas ?? '')}" style="width:80px"></label>
       <label>Angkatan <input type="text" id="eAng" maxlength="40" value="${esc(DRAF.angkatan || '')}" placeholder="mis. 2025" style="width:110px"></label>
       <label>Catatan <input type="text" id="eCat" maxlength="500" value="${esc(DRAF.catatan || '')}" style="min-width:220px"></label></div>
+    ${(DRAF.ganti || []).length ? `<p class="ket">MK ini kini punya lebih dari satu kelas: saat disimpan, ${DRAF.ganti.map(g => `kelas <b>${esc(g.dari)}</b> menjadi <b>${esc(g.ke)}</b>`).join(', ')}
+      (bila nama kelas baru dibiarkan ${esc(DRAF.usul)}).</p>` : ''}
     <div class="ket">Dosen pengampu (pilih satu koordinator kelas; tambah dosen untuk team teaching; pertemuan opsional)${tanpaDosenBoleh(m)
       ? `. MK ${esc(m.unit_penyelenggara)}: dosen boleh dikosongkan (dosen dari ${esc(m.unit_penyelenggara)}); jadwalnya diisi di Jadwal kuliah` : ''}:</div>
     ${DRAF.dosen.map((d, i) => `<div class="baris-dosen"><select data-dsel="${i}">${opsi(d.dosen_id)}</select>
@@ -272,7 +277,8 @@ function pasang(){
   document.querySelectorAll('[data-tambah]').forEach(b => { b.onclick = () => {
     const m = MK.find(x => x.kurikulum === KUR && x.kode === b.dataset.tambah);
     const ids = (m.pengampu || []).map(n => DOSEN.find(d => String(d.nidn) === String(n))?.id).filter(Boolean);
-    DRAF = { kurikulum: KUR, kode_mk: m.kode, kelas: kelasBerikut(kelasMK(m).map(k => k.kelas)), kapasitas: null, angkatan: '', catatan: '',
+    const usul = usulNamaKelas(kelasMK(m).map(k => ({ id: k.id, kelas: k.kelas })), { kode: KODE(), semester: m.semester });
+    DRAF = { kurikulum: KUR, kode_mk: m.kode, kelas: usul.nama, usul: usul.nama, ganti: usul.ganti, kapasitas: null, angkatan: '', catatan: '',
              dosen: (ids.length ? ids : ['']).map((id, i) => ({ dosen_id: id, peran: i ? 'anggota' : 'koordinator', pertemuan: null })) };
     gambar(); $('eKelas')?.scrollIntoView({ block: 'center' }); }; });
   document.querySelectorAll('[data-ubah]').forEach(b => { b.onclick = () => {
@@ -282,6 +288,7 @@ function pasang(){
     gambar(); $('eKelas')?.scrollIntoView({ block: 'center' }); }; });
   if (DRAF) pasangEditor();
   if ($('aUsul')) $('aUsul').onclick = buatUsulan;
+  if ($('aRapikan')) $('aRapikan').onclick = rapikanNama;
   if ($('aUnduh')) $('aUnduh').onclick = () => {
     const a = document.createElement('a');
     a.href = URL.createObjectURL(new Blob(['﻿' + csvKelas(KELAS, KD, MK, DOSEN)], { type: 'text/csv;charset=utf-8' }));
@@ -356,7 +363,7 @@ function pasangEditor(){
   $('eSimpan').onclick = async () => {
     ambil();
     const ds = DRAF.dosen.filter(d => d.dosen_id);
-    if (!/^[A-Za-z0-9._ -]{1,10}$/.test(DRAF.kelas.trim())) return tulis('mKelas', 'galat', 'Nama kelas 1–10 huruf/angka, mis. A.');
+    if (!/^[A-Za-z0-9._ -]{1,10}$/.test(DRAF.kelas.trim())) return tulis('mKelas', 'galat', `Nama kelas 1–10 huruf/angka, mis. ${KODE() ? KODE() + '1A' : 'A'}.`);
     const mkIni = MK.find(x => x.kurikulum === DRAF.kurikulum && x.kode === DRAF.kode_mk);
     if (!ds.length && !tanpaDosenBoleh(mkIni)) return tulis('mKelas', 'galat', 'Pilih minimal satu dosen.');
     if (ds.length && !ds.some(d => d.peran === 'koordinator')) ds[0].peran = 'koordinator';
@@ -364,7 +371,13 @@ function pasangEditor(){
     $('eSimpan').disabled = true;
     const { error } = await sb.rpc('kelas_simpan', { p: { ...DRAF, kelas: DRAF.kelas.trim(), dosen: ds, tahun_akademik: PERIODE.ta, semester: PERIODE.sm } });
     if (error) { $('eSimpan').disabled = false; return tulis('mKelas', 'galat', /duplicate|unique/i.test(error.message) ? `Kelas ${DRAF.kelas} sudah ada untuk MK ini.` : error.message); }
-    DRAF = null; await segar(); tulis('mKelas', 'ok', 'Kelas tersimpan.');
+    // Kelas tanpa huruf (CV1) mendapat huruf (CV1A) karena MK kini punya dua kelas; hanya bila nama usulan dipakai.
+    const ganti = !DRAF.id && DRAF.usul && DRAF.kelas.trim().toUpperCase() === DRAF.usul.toUpperCase() ? (DRAF.ganti || []) : [];
+    const gagal = [];
+    for (const g of ganti) { const e = await ubahNamaKelas(KELAS.find(x => x.id === g.id), g.ke); if (e) gagal.push(`${g.dari}: ${e}`); }
+    DRAF = null; await segar();
+    tulis('mKelas', gagal.length ? 'galat' : 'ok', 'Kelas tersimpan.' + (ganti.length ? ` Nama kelas lama: ${ganti.map(g => `${g.dari} → ${g.ke}`).join(', ')}.` : '')
+      + (gagal.length ? ` Gagal mengganti nama: ${gagal.join('; ')}` : ''));
   };
   if ($('eHapus')) $('eHapus').onclick = async () => {
     if (!confirm(`Hapus kelas ${DRAF.kode_mk} ${DRAF.kelas}? Daftar dosennya ikut terhapus.`)) return;
@@ -374,11 +387,37 @@ function pasangEditor(){
   };
 }
 
+// Ganti nama satu kelas lewat kelas_simpan (isi lain tetap). -> pesan galat atau ''.
+async function ubahNamaKelas(k, ke){
+  if (!k) return 'kelas tidak ditemukan';
+  const p = { id: k.id, kurikulum: k.kurikulum, kode_mk: k.kode_mk, kelas: ke, kapasitas: k.kapasitas, angkatan: k.angkatan || '', catatan: k.catatan || '',
+    dosen: dosenKelas(k).map(d => ({ dosen_id: d.dosen_id, peran: d.peran, pertemuan: d.pertemuan })), tahun_akademik: PERIODE.ta, semester: PERIODE.sm };
+  const { error } = await sb.rpc('kelas_simpan', { p });
+  return error ? (/duplicate|unique/i.test(error.message) ? `nama ${ke} sudah dipakai` : error.message) : '';
+}
+
+// Rapikan nama kelas periode ini ke format kode (pemilik 2026-11-28); angka dari nama berformat dipertahankan (mis. CV7).
+function htmlRapikan(){
+  const r = rapikanNamaKelas(KELAS, MK, KODE());
+  return r.ubah.length ? ` <button class="b" id="aRapikan" title="${esc(r.ubah.map(x => `${x.kode_mk} ${x.dari} → ${x.ke}`).join('; '))}">Rapikan nama kelas (${r.ubah.length})</button>` : '';
+}
+async function rapikanNama(){
+  const r = rapikanNamaKelas(KELAS, MK, KODE());
+  if (!confirm(`Ganti nama ${r.ubah.length} kelas ${PERIODE.sm} ${PERIODE.ta} ke format ${KODE()}<semester><huruf>?\n\n${r.ubah.map(x => `${x.kode_mk}: ${x.dari} → ${x.ke}`).join('\n')}`
+    + (r.manual.length ? `\n\nTanpa semester MK (ganti manual lewat Ubah): ${r.manual.join(', ')}` : ''))) return;
+  $('aRapikan').disabled = true;
+  const gagal = [];
+  for (const x of r.ubah) { const e = await ubahNamaKelas(KELAS.find(k => k.id === x.id), x.ke); if (e) gagal.push(`${x.kode_mk} ${x.dari}: ${e}`); }
+  await segar();
+  tulis('mKelas', gagal.length ? 'galat' : 'ok', `${r.ubah.length - gagal.length} nama kelas dirapikan.` + (gagal.length ? ` Gagal: ${gagal.join('; ')}` : '')
+    + ' Bila kelas periode ini sudah disalin ke daftar nilai CPL, salin ulang agar namanya sama.');
+}
+
 async function buatUsulan(){
-  const u = usulanKelasAwal(mkDitawarkan(MK, KUR, PERIODE.sm), KELAS, DOSEN);
+  const u = usulanKelasAwal(mkDitawarkan(MK, KUR, PERIODE.sm), KELAS, DOSEN, { kode: KODE() });
   if (!u.baris.length) return tulis('mKelas', 'galat', u.tanpaPengampu.length
     ? `Semua MK sudah punya kelas atau belum punya pengampu di Data prodi (${u.tanpaPengampu.join(', ')}).` : 'Semua MK sudah punya kelas.');
-  if (!confirm(`Buat ${u.baris.length} kelas A (${KUR}, ${PERIODE.sm} ${PERIODE.ta}) dengan dosen dari pengampu MK?`
+  if (!confirm(`Buat ${u.baris.length} kelas (${KUR}, ${PERIODE.sm} ${PERIODE.ta}; ${KODE() ? `nama ${KODE()}<semester MK>, mis. ${KODE()}1` : 'nama A'}) dengan dosen dari pengampu MK?`
     + (u.tanpaPengampu.length ? ` ${u.tanpaPengampu.length} MK tanpa pengampu dilewati: ${u.tanpaPengampu.join(', ')}.` : ''))) return;
   $('aUsul').disabled = true;
   let n = 0; const galat = [];

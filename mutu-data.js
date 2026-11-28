@@ -3,7 +3,7 @@
 // Masukan M = { karya, karyaBukti, karyaPenulis, dosen, mk, kerjasama, tracer, rps, rpsTtd }.
 // Tiap pemeriksaan -> { id, judul, tingkat: 'penting'|'periksa'|'info', ket, ke, temuan: [{teks}] }.
 
-import { BUTIR_LAM_TEKNIK } from './bobot.js?v=2026-11-28-9a8021';
+import { BUTIR_LAM_TEKNIK } from './bobot.js?v=2026-11-28-09fd85';
 // Rujukan butir LAM Teknik di pesan hanya untuk instrumen itu (2026-11-25).
 const B15 = (lam, lain) => BUTIR_LAM_TEKNIK ? lam : lain;
 const BATAS_MIRIP = 0.85;     // kemiripan kata judul (Jaccard) untuk dugaan entri ganda

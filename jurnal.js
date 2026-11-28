@@ -1,10 +1,31 @@
 // Jurnal perkuliahan (206-patch-jurnal-perkuliahan.sql, pemilik 2026-11-28): realisasi materi per pertemuan oleh pengajar kelas;
 // rencana dari materi pekan RPS (versi disahkan bila ada); BAP Word; kelengkapan untuk portofolio (komponen BAP).
-import { rentangPekan } from './rps.js?v=2026-11-28-9a8021';
-import { para, run, teks, tabel, buatDocx } from './docx-dasar.js?v=2026-11-28-9a8021';
+import { rentangPekan } from './rps.js?v=2026-11-28-09fd85';
+import { tglPanjang } from './surat.js?v=2026-11-28-09fd85';
+import { para, run, teks, tabel, buatDocx } from './docx-dasar.js?v=2026-11-28-09fd85';
 
 const LABEL_UJIAN = { uts: 'Ujian Tengah Semester (UTS)', uas: 'Ujian Akhir Semester (UAS)' };
 const bersih = s => String(s ?? '').replace(/\s+/g, ' ').trim();
+
+/** Rentang tanggal semester ['TTTT-BB-HH', 'TTTT-BB-HH'] (aturan situs: Ganjil 1 September–akhir Februari, Genap 1 Maret–31 Agustus;
+ *  sama dengan semester_tanggal SQL 138), atau null bila TA/semester tidak dikenal. */
+export function rentangSemester(ta, sm){
+  const m = /^(\d{4})\/(\d{4})$/.exec(String(ta || ''));
+  if (!m) return null;
+  const y = +m[2], kabisat = (y % 4 === 0 && y % 100 !== 0) || y % 400 === 0;
+  if (sm === 'Ganjil') return [`${m[1]}-09-01`, `${m[2]}-02-${kabisat ? 29 : 28}`];
+  if (sm === 'Genap') return [`${m[2]}-03-01`, `${m[2]}-08-31`];
+  return null;
+}
+/** Galat tanggal pertemuan jurnal (pemilik 2026-11-28, uji alur semester): kosong, belum lewat, atau di luar semester kelas. '' = sah.
+ *  Sama dengan pemeriksaan trigger kelas_pertemuan_rapikan (211). */
+export function galatTanggalJurnal(tgl, ta, sm, hariIni){
+  if (!tgl) return 'Isi tanggal.';
+  if (hariIni && tgl > hariIni) return 'Tanggal belum lewat.';
+  const r = rentangSemester(ta, sm);
+  if (r && (tgl < r[0] || tgl > r[1])) return `Tanggal di luar semester ${sm} ${ta} (${tglPanjang(r[0])} sampai ${tglPanjang(r[1])}).`;
+  return '';
+}
 
 /** Rencana pertemuan dari data RPS: [{ke, materi, jenis}] urut, satu baris per pekan (label "1-2" dipecah). */
 export function rencanaRps(rps){
@@ -46,13 +67,15 @@ export function isiBap(o){
     ['Kelas', String(o.kelas?.kelas || '')], ['Semester', `${o.kelas?.semester || ''} ${o.kelas?.tahun_akademik || ''}`.trim()],
     ['Dosen pengampu', (o.pengampu || []).join(', ') || '—']]));
   const nama = o.namaPengajar || (x => x.pengajar || '');
-  const rows = (o.baris || []).filter(b => b.isi).map(b => [String(b.ke), String(b.isi.tanggal || ''), nama(b.isi), b.isi.materi,
-    sesuaiRps(b.isi.materi, b.isi.materi_rps) ? 'Sesuai' : `Berbeda; RPS: ${bersih(b.isi.materi_rps)}`, b.isi.catatan || '']);
+  // Terhadap RPS: RPS tanpa materi untuk pertemuan itu ditulis apa adanya, bukan 'Sesuai' (uji alur semester 2026-11-28).
+  const rps = x => !bersih(x.materi_rps) ? 'Belum ada di RPS' : sesuaiRps(x.materi, x.materi_rps) ? 'Sesuai' : `Berbeda; RPS: ${bersih(x.materi_rps)}`;
+  const rows = (o.baris || []).filter(b => b.isi).map(b => [String(b.ke), tglPanjang(b.isi.tanggal) || String(b.isi.tanggal || ''), nama(b.isi), b.isi.materi,
+    rps(b.isi), b.isi.catatan || '']);
   out.push(rows.length ? tabel([['Pertemuan', 'Tanggal', 'Pengajar', 'Materi yang diajarkan', 'Terhadap RPS', 'Catatan'], ...rows])
     : teks('Belum ada pertemuan tercatat.'));
   const kosong = (o.baris || []).filter(b => !b.isi && b.rencana).map(b => b.ke);
   if (kosong.length) out.push(teks(`Pertemuan rencana RPS yang belum tercatat: ${kosong.join(', ')}.`));
-  out.push(para(run(`Disusun dari jurnal perkuliahan di situs program studi${o.tanggal ? ` pada ${o.tanggal}` : ''}; materi diisi dosen pengajar tiap pertemuan.`,
+  out.push(para(run(`Disusun dari jurnal perkuliahan di situs program studi${o.tanggal ? ` pada ${tglPanjang(o.tanggal) || o.tanggal}` : ''}; materi diisi dosen pengajar tiap pertemuan.`,
     { i: true, sz: 16, warna: '555555' }), { before: 240 }));
   return out.join('');
 }

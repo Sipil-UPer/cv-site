@@ -1,4 +1,4 @@
-import { KELOMPOK, URUT_KELOMPOK, ampuPerTA, statusTS, hitungTS } from './dosen-hitung.js?v=2026-11-28-9a8021';
+import { KELOMPOK, URUT_KELOMPOK, ampuPerTA, statusTS, hitungTS } from './dosen-hitung.js?v=2026-11-28-09fd85';
 // Penyusunan kelas per semester (136-patch-penyusunan-kelas.sql, pemilik 2026-11-21): logika murni halaman kelas.html,
 // dites di Node (tests/js/kelas.test.mjs). Satu MK boleh beberapa kelas; team teaching = satu koordinator kelas + anggota.
 // CSV (impor/ekspor, untuk optimasi jadwal di luar situs): pemisah ';', dosen dipisah '|' (NIDN atau email; pertama =
@@ -33,7 +33,7 @@ export function kelasBerikut(ada = []){
  * usulan kelas MK itu selalu tanpa dosen; siapa yang mengajar dan berapa pertemuan diisi di Penyusunan kelas.
  */
 export const tanpaDosenBoleh = m => ['universitas', 'fakultas'].includes(m?.unit_penyelenggara);
-export function usulanKelasAwal(mk = [], kelasAda = [], dosen = []){
+export function usulanKelasAwal(mk = [], kelasAda = [], dosen = [], { kode = '' } = {}){
   const ada = new Set(kelasAda.map(k => `${k.kurikulum}|${k.kode_mk}`));
   const perNidn = new Map(dosen.filter(d => d.nidn).map(d => [String(d.nidn), d.id]));
   const baris = [], tanpaPengampu = [];
@@ -41,7 +41,7 @@ export function usulanKelasAwal(mk = [], kelasAda = [], dosen = []){
     if (ada.has(`${m.kurikulum}|${m.kode}`)) continue;
     const ids = tanpaDosenBoleh(m) ? [] : [...new Set((m.pengampu || []).map(String).map(n => perNidn.get(n)).filter(Boolean))];
     if (!ids.length && !tanpaDosenBoleh(m)) { tanpaPengampu.push(m.kode); continue; }
-    baris.push({ kurikulum: m.kurikulum, kode_mk: m.kode, kelas: 'A', dosen: ids.map((id, i) => ({ dosen_id: id, peran: i ? 'anggota' : 'koordinator' })) });
+    baris.push({ kurikulum: m.kurikulum, kode_mk: m.kode, kelas: usulNamaKelas([], { kode, semester: m.semester }).nama, dosen: ids.map((id, i) => ({ dosen_id: id, peran: i ? 'anggota' : 'koordinator' })) });
   }
   return { baris, tanpaPengampu };
 }
@@ -274,3 +274,60 @@ export function csvGolongan(r, ta = ''){
     .map(r => r.map(x => String(x ?? '').replace(/;/g, ',')).join(';')).join('\r\n');
 }
 
+
+// ---------- Nama kelas berformat (pemilik 2026-11-28) ----------
+// <kode prodi><semester><huruf bila MK punya lebih dari satu kelas>: CV1 (satu kelas), CV1A dan CV1B (dua kelas). Kode dari
+// config.js window.KODE_KELAS; kosong = huruf A, B seperti sebelumnya. Angka diambil dari nama yang sudah berformat (pengecualian
+// seperti Literasi Digital CV7 tetap), selain itu dari semester MK di kurikulum. Nama tetap bisa diketik bebas di editor.
+const bersihKode = kode => String(kode || '').replace(/[^A-Za-z0-9]/g, '').toUpperCase();
+const uraiNama = (nama, kode) => {
+  const s = String(nama || '').trim().toUpperCase(), k = bersihKode(kode);
+  const m = k && s.startsWith(k) ? /^(\d{1,2})([A-Z]?)$/.exec(s.slice(k.length)) : null;
+  if (m) return { format: true, angka: +m[1], huruf: m[2] };
+  return { format: false, angka: null, huruf: /^[A-Z]$/.test(s) ? s : '' };   // nama lama 'A', 'B'
+};
+const hurufBebas = pakai => { for (let i = 0; i < 26; i++) { const h = String.fromCharCode(65 + i); if (!pakai.has(h)) return h; } return ''; };
+
+/**
+ * Nama kelas baru untuk satu MK. ada = kelas MK itu pada periode ini [{id, kelas}]; semester = semester MK di kurikulum.
+ * -> { nama, ganti: [{id, dari, ke}] }: kelas tanpa huruf (CV1) mendapat huruf (CV1A) karena MK kini punya lebih dari satu kelas.
+ */
+export function usulNamaKelas(ada = [], { kode = '', semester = null } = {}){
+  const k = bersihKode(kode);
+  if (!k || !semester) return { nama: kelasBerikut(ada.map(x => x.kelas)), ganti: [] };
+  if (!ada.length) return { nama: `${k}${semester}`, ganti: [] };
+  const u = ada.map(x => ({ x, ...uraiNama(x.kelas, k) }));
+  const angka = u.find(y => y.format)?.angka ?? semester;
+  const pakai = new Set(u.map(y => y.huruf).filter(Boolean)), ganti = [];
+  for (const y of u.filter(y => y.format && !y.huruf)) {
+    const h = hurufBebas(pakai); pakai.add(h);
+    ganti.push({ id: y.x.id, dari: y.x.kelas, ke: `${k}${y.angka}${h}` });
+  }
+  return { nama: `${k}${angka}${hurufBebas(pakai)}`, ganti };
+}
+
+/**
+ * Kelas periode ini yang namanya belum mengikuti format. kelas = [{id, kurikulum, kode_mk, kelas}], mk = ref_mata_kuliah.
+ * -> { ubah: [{id, kode_mk, dari, ke}], manual: ['KODE kelas'] (semester MK kosong, isi nama sendiri) }.
+ */
+export function rapikanNamaKelas(kelas = [], mk = [], kode = ''){
+  const k = bersihKode(kode), ubah = [], manual = [];
+  if (!k) return { ubah, manual };
+  const M = new Map(mk.map(m => [`${m.kurikulum}|${m.kode}`, m])), grup = new Map();
+  for (const x of kelas) { const g = `${x.kurikulum}|${x.kode_mk}`; if (!grup.has(g)) grup.set(g, []); grup.get(g).push(x); }
+  for (const [g, xs] of grup) {
+    const u = xs.map(x => ({ x, ...uraiNama(x.kelas, k) }))
+      .sort((a, b) => String(a.x.kelas).localeCompare(String(b.x.kelas), 'id', { numeric: true }));
+    const angka = u.find(y => y.format)?.angka ?? (+M.get(g)?.semester || null);
+    if (!angka) { if (u.some(y => !y.format)) manual.push(...u.filter(y => !y.format).map(y => `${y.x.kode_mk} ${y.x.kelas}`)); continue; }
+    const target = new Map();
+    if (u.length === 1) target.set(u[0].x.id, `${k}${u[0].angka ?? angka}`);
+    else {
+      const pakai = new Set();
+      for (const y of u) if (y.huruf && !pakai.has(y.huruf)) { pakai.add(y.huruf); target.set(y.x.id, `${k}${y.angka ?? angka}${y.huruf}`); }
+      for (const y of u) if (!target.has(y.x.id)) { const h = hurufBebas(pakai); pakai.add(h); target.set(y.x.id, `${k}${y.angka ?? angka}${h}`); }
+    }
+    for (const y of u) { const ke = target.get(y.x.id); if (ke !== String(y.x.kelas).trim()) ubah.push({ id: y.x.id, kode_mk: y.x.kode_mk, dari: y.x.kelas, ke }); }
+  }
+  return { ubah, manual };
+}

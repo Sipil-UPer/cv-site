@@ -1,11 +1,11 @@
 // Tugas saya untuk koordinator MK dan pengampu kelas (pemilik 2026-11-17; OBE O2 dan O3).
 // Hanya yang belum punya pengingat lain: CPMK/RPS (cpmk.html) dan unggahan portofolio (portofolio.html).
 // Berkas nilai CPL dan refleksi evaluasi sudah diingatkan tugas-saya.js / evaluasi-pembelajaran.js.
-import { periksaStruktur } from './templat-cpl.js?v=2026-11-28-9a8021';
-import { cplMK, dataTemplat, statusStruktur } from './cpmk.js?v=2026-11-28-9a8021';
-import { bolehTinjau, cariTinjauan, statusTindak, petaRps, daftarSemester as semesterTinjau, mkSemester as mkTinjau } from './tinjauan-rps.js?v=2026-11-28-9a8021';
-import { kelengkapan, mkSemester, daftarSemester } from './portofolio.js?v=2026-11-28-9a8021';
-import { luarProdi } from './koordinator-mk.js?v=2026-11-28-9a8021';
+import { periksaStruktur } from './templat-cpl.js?v=2026-11-28-09fd85';
+import { cplMK, dataTemplat, statusStruktur } from './cpmk.js?v=2026-11-28-09fd85';
+import { bolehTinjau, cariTinjauan, statusTindak, petaRps, daftarSemester as semesterTinjau, mkSemester as mkTinjau } from './tinjauan-rps.js?v=2026-11-28-09fd85';
+import { kelengkapan, mkSemester, daftarSemester } from './portofolio.js?v=2026-11-28-09fd85';
+import { luarProdi } from './koordinator-mk.js?v=2026-11-28-09fd85';
 
 const kecil = s => String(s || '').trim().toLowerCase();
 // Jurnal perkuliahan (206): d.jurnal = Map `${ta}|${semester}|${KODE}|${kelas}` -> rekapJurnal; lengkap memenuhi komponen BAP.
