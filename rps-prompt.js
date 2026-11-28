@@ -1,7 +1,7 @@
 // Prompt AI untuk membantu dosen mengisi templat Excel RPS (pemilik 2026-11-27): inti = mengisi templat impor
 // (RPS-XLSX-1); materi, bahan, pustaka, tugas, dan asesmen per pekan diberikan dosen, AI tidak mengarang. Data MK, CPL
 // yang dibebankan, dan silabus diisikan otomatis dari situs. Aturan sama dengan periksaRps (rps.js). Fungsi murni.
-import { jenisKuliah, JENIS_MK } from './rps.js?v=2026-11-28-07d8c8';
+import { jenisKuliah, JENIS_MK } from './rps.js?v=2026-11-28-ac1210';
 
 const t = v => String(v ?? '').trim();
 const LABEL_KULIAH = { reguler: 'reguler', praktikum: 'praktikum', kulminasi: 'kulminasi (KP, TA, capstone)' };

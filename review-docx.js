@@ -1,8 +1,8 @@
 // Berkas review sejawat RPS (Word), bukti tinjauan sejawat untuk akreditasi (119, pemilik 2026-11-19): identitas MK, lalu tiap
 // review terkirim: skor per butir, catatan reviewer, tanggapan penyusun, catatan/tanggapan umum, rerata, kesimpulan, waktu
 // yang dicatat sistem. Tanpa DOM: modelBerkasReview -> dokumenReview (XML) -> buatReviewDocx (JSZip). A4 tegak.
-import { tabelK, sel, tanggalPanjang, rn, pg } from './rps-docx.js?v=2026-11-28-07d8c8';
-import { BUTIR_REVIEW, SKALA_REVIEW, KESIMPULAN_REVIEW, STATUS_TANGGAPAN, rerataReview, sudahDitanggapi, jawabanPemandu, ringkasPemandu } from './rps.js?v=2026-11-28-07d8c8';
+import { tabelK, sel, tanggalPanjang, rn, pg } from './rps-docx.js?v=2026-11-28-ac1210';
+import { BUTIR_REVIEW, SKALA_REVIEW, KESIMPULAN_REVIEW, STATUS_TANGGAPAN, rerataReview, sudahDitanggapi, jawabanPemandu, ringkasPemandu } from './rps.js?v=2026-11-28-ac1210';
 
 const teks = v => String(v ?? '').trim();
 const tgl = v => tanggalPanjang(teks(v).slice(0, 10));

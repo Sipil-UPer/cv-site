@@ -4,8 +4,8 @@
    ===================================================================== */
 // Data Data prodi yang dipakai LKPS dan draf LED (hanya di browser pemakai yang login;
 // tabel yang belum boleh dibaca atau belum ada cukup kosong).
-import { integrasiDisahkan, kunciIntegrasi } from './rps-integrasi.js?v=2026-11-28-07d8c8';
-import { bacaAmpu } from './dosen-hitung.js?v=2026-11-28-07d8c8';
+import { integrasiDisahkan, kunciIntegrasi } from './rps-integrasi.js?v=2026-11-28-ac1210';
+import { bacaAmpu } from './dosen-hitung.js?v=2026-11-28-ac1210';
 async function ambilModul(sb){
   const r = q => q.then(x => (x.error ? null : x.data), () => null);
   const [masukanRekap, nilaiRekap, kelas, ujian, validasi, sdm, lab, alat, perawatan, induksi, pinjam, pemangku, masukan] = await Promise.all([
@@ -19,7 +19,12 @@ async function ambilModul(sb){
     r(sb.from('lab_pinjam').select('alat_id,tanggal_pinjam')),
     r(sb.from('pemangku').select('id,kategori,anggota_forum,aktif')),
     r(sb.from('pemangku_masukan').select('tanggal,pemangku_id,sumber_kategori,topik,isi,status,tindak_lanjut'))]);
-  return { masukanRekap, nilaiRekap, sdm: sdm || [],
+  // Karier dan asisten (202), surat dan SK (201): pemilik 2026-11-28 ("kerjakan nomor 5"); tanpa patch = null.
+  const [lowongan, rekrutmen, surat, suratJenis] = await Promise.all([
+    r(sb.from('lowongan').select('jenis,sumber,status,tayang_pada')),
+    r(sb.from('asisten_rekrutmen').select('jenis,tahun_akademik,semester,kuota,status,sk_surat_id,laboratorium_id,lamaran:asisten_lamaran(status)')),
+    r(sb.from('surat').select('jenis,status,tanggal,kode_verifikasi')), r(sb.from('surat_jenis').select('kode,nama'))]);
+  return { masukanRekap, nilaiRekap, sdm: sdm || [], lowongan, rekrutmen, surat: surat ? { surat, jenis: suratJenis || [] } : null,
     ujian: kelas && ujian && validasi ? { kelas, validasi, ujian: ujian.map(u => ({ ...u, pengawas: (u.ujian_pengawas || []).map(p => p.dosen_id) })) } : null,
     lab: lab && alat ? { lab, alat, perawatan: perawatan || [], induksi: induksi || [], pinjam: pinjam || [] } : null,
     pemangku: masukan ? { pemangku: pemangku || [], masukan } : null };
