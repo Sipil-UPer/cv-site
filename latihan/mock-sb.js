@@ -47,7 +47,7 @@ const uuid = () => '00000000-0000-4000-8000-' + String(baru()).padStart(12, '0')
 const TABEL_UUID = new Set(['karya', 'dosen', 'karya_mitra', 'karya_mahasiswa', 'hibah_ajuan']);
 const KUNCI = { pengaturan: ['kunci'], led_narasi: ['kunci'], led_penugasan: ['kelompok'], hibah_tim: ['ajuan_id', 'dosen_id'] };
 // Relasi anak selain lewat karya_id (58-patch-hibah.sql).
-const FK_ANAK = { hibah_tim: 'ajuan_id', pengajuan_berkas: 'pengajuan_id', pengajuan_riwayat: 'pengajuan_id' };
+const FK_ANAK = { hibah_tim: 'ajuan_id', pengajuan_berkas: 'pengajuan_id', pengajuan_riwayat: 'pengajuan_id', asisten_lamaran: 'rekrutmen_id' };   // 202
 
 // Pengajuan mahasiswa (90-patch-pengajuan-mahasiswa.sql), tiruan ringkas: token disimpan apa adanya,
 // tautan "email" dicetak ke konsol. Aturan lengkap diuji di tests/test_pengajuan_mahasiswa.py.
@@ -788,7 +788,8 @@ window.fetch = (u, o) => {
   return new Promise(r => setTimeout(() => r(new Response(JSON.stringify(out))), 500));
 };
 
-// select('a, b, rel!inner(c, rel2(d))') -> pohon relasi.
+// select('a, b, rel!inner(c, rel2(d)), alias:tabel(e)') -> pohon relasi. nama = tabel yang dimuat, kunci = nama di hasil
+// (alias PostgREST bila ada, mis. 'lamaran:asisten_lamaran(status)' di ruang-kerja.html, patch 202).
 function urai(s){
   const out = []; let d = 0, cur = '';
   for (const c of String(s || '*')) {
@@ -797,8 +798,9 @@ function urai(s){
   }
   if (cur.trim()) out.push(cur.trim());
   return out.filter(x => x.includes('(')).map(x => {
-    const m = x.match(/^(\w+)(!inner)?\((.*)\)$/s);
-    return { nama: m[1], dalam: !!m[2], anak: urai(m[3]) };
+    const m = x.match(/^(?:(\w+)\s*:\s*)?(\w+)(!inner)?\((.*)\)$/s);
+    if (!m) throw new Error('mock-sb: select tidak didukung: ' + x);
+    return { nama: m[2], kunci: m[1] || m[2], dalam: !!m[3], anak: urai(m[4]) };
   });
 }
 const KE_INDUK = { dosen: ['dosen_id', 'id'], karya: ['karya_id', 'id'], rapat: ['rapat_id', 'id'] };
@@ -809,9 +811,9 @@ function lengkapi(t, r, rel){
       const [fk0, pk] = KE_INDUK[x.nama];
       const fk = t === 'pengajuan_mahasiswa' && x.nama === 'dosen' ? 'pembimbing_id' : fk0;   // patch 90
       const induk = (DB[x.nama] || []).find(y => y[pk] === r[fk]);
-      o[x.nama] = induk ? lengkapi(x.nama, induk, x.anak) : null;
+      o[x.kunci] = induk ? lengkapi(x.nama, induk, x.anak) : null;
     } else {
-      o[x.nama] = (DB[x.nama] || []).filter(y => y[FK_ANAK[x.nama] || 'karya_id'] === r.id).map(y => lengkapi(x.nama, y, x.anak));
+      o[x.kunci] = (DB[x.nama] || []).filter(y => y[FK_ANAK[x.nama] || 'karya_id'] === r.id).map(y => lengkapi(x.nama, y, x.anak));
     }
   }
   return o;

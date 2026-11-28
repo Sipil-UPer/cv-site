@@ -1,24 +1,24 @@
 // "Tugas saya" di Ruang kerja (pemilik 2026-11-12): hal yang menunggu tindakan dosen yang
 // sedang masuk, dari data yang sudah boleh ia baca (RLS). Aturan tenggat sama dengan halaman
 // Pengingat: rapat.js, hibah.js, temuan-ami.js, pengingat-dosen.js.
-import { kurangProfil } from './pengingat-dosen.js?v=2026-11-28-c36d24';
-import { tindakTerbuka, tglID } from './rapat.js?v=2026-11-28-c36d24';
-import { tenggatBerikut, teksHari, HARI_LEWAT } from './hibah.js?v=2026-11-28-c36d24';
-import { hariKeTenggat, labelStatus, HARI_DEKAT } from './temuan-ami.js?v=2026-11-28-c36d24';
-import { tugasEvaluasi } from './evaluasi-pembelajaran.js?v=2026-11-28-c36d24';
-import { bolehPengajuan } from './koordinator.js?v=2026-11-28-c36d24';
-import { tenggatReview, hariKe, teksHari as teksHariRv, tugasTenggatRps, tugasTetapDekan, tanggalPanjang as tglRv } from './pengingat-rps.js?v=2026-11-28-c36d24';
-import { tugasInsentif } from './insentif.js?v=2026-11-28-c36d24';
-import { tugasMK } from './tugas-mk.js?v=2026-11-28-c36d24';
-import { tugasPerwalian } from './perwalian.js?v=2026-11-28-c36d24';
-import { halamanAktif } from './fitur.js?v=2026-11-28-c36d24';
-import { tugasKarier } from './karier.js?v=2026-11-28-c36d24';
-import { tugasSurat } from './surat.js?v=2026-11-28-c36d24';
-import { tugasPemangku } from './pemangku.js?v=2026-11-28-c36d24';
-import { tugasLab } from './lab.js?v=2026-11-28-c36d24';
-import { tugasSdm } from './sdm.js?v=2026-11-28-c36d24';
-import { tugasUjian } from './ujian.js?v=2026-11-28-c36d24';
-import { masaBerlaku, tanggalPanjang as tglSrt } from './profil-dosen.js?v=2026-11-28-c36d24';
+import { kurangProfil } from './pengingat-dosen.js?v=2026-11-28-bbb354';
+import { tindakTerbuka, tglID } from './rapat.js?v=2026-11-28-bbb354';
+import { tenggatBerikut, teksHari, HARI_LEWAT } from './hibah.js?v=2026-11-28-bbb354';
+import { hariKeTenggat, labelStatus, HARI_DEKAT } from './temuan-ami.js?v=2026-11-28-bbb354';
+import { tugasEvaluasi } from './evaluasi-pembelajaran.js?v=2026-11-28-bbb354';
+import { bolehPengajuan } from './koordinator.js?v=2026-11-28-bbb354';
+import { tenggatReview, hariKe, teksHari as teksHariRv, tugasTenggatRps, tugasTetapDekan, tanggalPanjang as tglRv } from './pengingat-rps.js?v=2026-11-28-bbb354';
+import { tugasInsentif } from './insentif.js?v=2026-11-28-bbb354';
+import { tugasMK } from './tugas-mk.js?v=2026-11-28-bbb354';
+import { tugasPerwalian } from './perwalian.js?v=2026-11-28-bbb354';
+import { halamanAktif } from './fitur.js?v=2026-11-28-bbb354';
+import { tugasKarier } from './karier.js?v=2026-11-28-bbb354';
+import { tugasSurat } from './surat.js?v=2026-11-28-bbb354';
+import { tugasPemangku } from './pemangku.js?v=2026-11-28-bbb354';
+import { tugasLab } from './lab.js?v=2026-11-28-bbb354';
+import { tugasSdm } from './sdm.js?v=2026-11-28-bbb354';
+import { tugasUjian } from './ujian.js?v=2026-11-28-bbb354';
+import { masaBerlaku, tanggalPanjang as tglSrt } from './profil-dosen.js?v=2026-11-28-bbb354';
 
 // Sertifikat dengan masa berlaku (pemilik 2026-11-24): diingatkan sejak 90 hari sebelum habis, dan terus setelah lewat.
 export const HARI_SERTIFIKAT = 90;
@@ -217,12 +217,25 @@ export function tugasSaya(d, kini = new Date()){
   // Karier dan asisten (202): usulan lowongan untuk pengelola; lamaran yang belum diputuskan; SK asisten untuk admin/Kaprodi.
   for (const a of tugasKarier({ lowongan: d.lowonganUsulan || [], rekrutmen: d.rekrutmenAsisten || [],
     surat: s.peran === 'admin' || (s.koordinator || []).includes('kaprodi') })) tambah('karier', a.judul, a.rinci, a.href, a.hari);
+  // Dosen luar DTPS dengan NIDN sementara (208; pemilik 2026-11-28 pilihan b): admin melengkapinya di Kelola dosen.
+  if (s.peran === 'admin') { const n = tugasNidnSementara(d.dosenSementara); if (n) tambah('dosen', n.judul, n.rinci, 'kelola-dosen.html'); }
   const kotak = tugasKotakMasuk(d.kotakMasuk, kini);
   if (kotak) tambah('kotak', kotak.judul, kotak.rinci, 'kelola-layanan-mahasiswa.html#kotak', kotak.hari);
 
 
   return out.map((x, i) => [x, i]).sort(([a, i], [b, j]) => URUT[a.tingkat] - URUT[b.tingkat]
     || (a.hari ?? 1e9) - (b.hari ?? 1e9) || i - j).map(([x]) => x);
+}
+
+/** NIDN sementara (208): dosen aktif ber-NIDN 'LUAR-…' dari Penyusunan kelas. xs: [{nama, nama_gelar, nidn, aktif}].
+ *  Tanpa tenggat; NIDN/NIDK asli dibutuhkan untuk SK pengajaran dan LKPS. -> {judul, rinci} atau null. */
+export function tugasNidnSementara(xs = []){
+  const ys = (xs || []).filter(d => d.aktif !== false && /^LUAR-/i.test(String(d.nidn || '')))
+    .map(d => d.nama_gelar || d.nama || '?').sort((a, b) => a.localeCompare(b, 'id'));
+  if (!ys.length) return null;
+  const nama = ys.slice(0, 5).join(', ') + (ys.length > 5 ? `, dan ${ys.length - 5} lainnya` : '');
+  return { judul: `Lengkapi NIDN/NIDK ${ys.length} dosen luar DTPS`,
+    rinci: `${nama.replace(/\.$/, '')}. Ditulis dari Penyusunan kelas dengan NIDN sementara; isi NIDN/NIDK aslinya di Kelola dosen (dibutuhkan untuk SK pengajaran dan LKPS).` };
 }
 
 /** Agenda tugas (191): [{judul, rinci, href, hari}] dari baris agenda_tugas terbuka. Hanya yang mulai paling lambat

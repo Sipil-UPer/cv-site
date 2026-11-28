@@ -1,4 +1,4 @@
-import { KELOMPOK, URUT_KELOMPOK, ampuPerTA, statusTS, hitungTS } from './dosen-hitung.js?v=2026-11-28-c36d24';
+import { KELOMPOK, URUT_KELOMPOK, ampuPerTA, statusTS, hitungTS } from './dosen-hitung.js?v=2026-11-28-bbb354';
 // Penyusunan kelas per semester (136-patch-penyusunan-kelas.sql, pemilik 2026-11-21): logika murni halaman kelas.html,
 // dites di Node (tests/js/kelas.test.mjs). Satu MK boleh beberapa kelas; team teaching = satu koordinator kelas + anggota.
 // CSV (impor/ekspor, untuk optimasi jadwal di luar situs): pemisah ';', dosen dipisah '|' (NIDN atau email; pertama =
