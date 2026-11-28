@@ -3,13 +3,13 @@
 // Satu model isi (daftar blok) dirender ke Word (.docx, disusun sendiri tanpa templat) dan ke HTML (laporan-tahunan.html).
 // Sumber: data.json publik, rekap survei yang sudah diterbitkan (survei_rekap), dan, khusus admin, capaian IKU/IKT,
 // perkiraan status akreditasi, serta Temuan AMI. Versi publik (publik: true) tidak memuat bagian khusus admin.
-import { hitungSumber } from './iku-otomatis.js?v=2026-11-28-e2efdc';
-import { SDGS } from './form-karya.js?v=2026-11-28-e2efdc';
-import { run, para, judul, teks, tabel, buatDocx } from './docx-dasar.js?v=2026-11-28-e2efdc';
-import { rekapSurvei, aspekTindakLanjut, kesenjanganCPL, labelKelompok, labelAspek, lengkapiCPL } from './survei-kepuasan.js?v=2026-11-28-e2efdc';
-import { rekapMasukan, perKategori, kategoriSumber, TOPIK_MASUKAN, KATEGORI_PEMANGKU } from './pemangku.js?v=2026-11-28-e2efdc';
-import { rekapLab } from './lab.js?v=2026-11-28-e2efdc';
-import { rekapSdm, JENIS_SDM } from './sdm.js?v=2026-11-28-e2efdc';
+import { hitungSumber } from './iku-otomatis.js?v=2026-11-28-9a8021';
+import { SDGS } from './form-karya.js?v=2026-11-28-9a8021';
+import { run, para, judul, teks, tabel, buatDocx } from './docx-dasar.js?v=2026-11-28-9a8021';
+import { rekapSurvei, aspekTindakLanjut, kesenjanganCPL, labelKelompok, labelAspek, lengkapiCPL } from './survei-kepuasan.js?v=2026-11-28-9a8021';
+import { rekapMasukan, perKategori, kategoriSumber, TOPIK_MASUKAN, KATEGORI_PEMANGKU } from './pemangku.js?v=2026-11-28-9a8021';
+import { rekapLab } from './lab.js?v=2026-11-28-9a8021';
+import { rekapSdm, JENIS_SDM } from './sdm.js?v=2026-11-28-9a8021';
 
 const angka = v => v == null || v === '' ? '—' : (Math.round(+v * 100) / 100).toLocaleString('id-ID');
 const diTS = (xs, ts) => (xs || []).filter(x => +x.tahun_ts === +ts);

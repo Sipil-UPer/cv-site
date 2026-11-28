@@ -11,8 +11,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-28-e2efdc">
-<link rel="stylesheet" href="kepala.css?v=2026-11-28-e2efdc">
+<link rel="stylesheet" href="tema.css?v=2026-11-28-9a8021">
+<link rel="stylesheet" href="kepala.css?v=2026-11-28-9a8021">
 <style>
   /* Penyusunan kelas (136-patch-penyusunan-kelas.sql, pemilik 2026-11-21) */
   *{box-sizing:border-box}
@@ -59,7 +59,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></div>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-28-e2efdc"></script>
+<script src="config.js?v=2026-11-28-9a8021"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -78,11 +78,11 @@ addEventListener('error', function (e) {
 // beberapa kelas, team teaching = satu koordinator + anggota), manual atau impor CSV; ekspor CSV untuk optimasi jadwal di luar
 // situs; salin ke daftar kelas nilai CPL. Admin dan Kaprodi aktif menyusun; dosen lain membaca. Logika: kelas.js.
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-28-e2efdc';
-import { punya } from './koordinator.js?v=2026-11-28-e2efdc';
-import { semesterKini, tsDariTA } from './evaluasi-pembelajaran.js?v=2026-11-28-e2efdc';
+import { gerbang } from './menu.js?v=2026-11-28-9a8021';
+import { punya } from './koordinator.js?v=2026-11-28-9a8021';
+import { semesterKini, tsDariTA } from './evaluasi-pembelajaran.js?v=2026-11-28-9a8021';
 import { mkDitawarkan, kelasBerikut, usulanKelasAwal, tanpaDosenBoleh, csvKelas, bacaCsvKelas, rekapBeban, csvBeban, KELOMPOK_LUAR, golonganDosen, tandaGolongan,
-  kelompokPilihan, cekDosenLuar, rekapGolonganTA, csvGolongan } from './kelas.js?v=2026-11-28-e2efdc';
+  kelompokPilihan, cekDosenLuar, rekapGolonganTA, csvGolongan } from './kelas.js?v=2026-11-28-9a8021';
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const sb = createClient(window.SB_URL, window.SB_KEY);
@@ -288,11 +288,12 @@ function pasang(){
     a.download = `kelas_${PERIODE.ta.replace('/', '-')}_${PERIODE.sm}.csv`; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
   };
   if ($('aCpl')) $('aCpl').onclick = async () => {
-    if (!confirm(`Salin kelas ${PERIODE.sm} ${PERIODE.ta} ke daftar kelas nilai CPL? Koordinator kelas menjadi dosen kelas di sana; kelas yang sudah ada diperbarui.`)) return;
+    if (!confirm(`Salin kelas ${PERIODE.sm} ${PERIODE.ta} ke daftar kelas nilai CPL? Koordinator kelas menjadi pengunggah nilai; bila ia dosen luar DTPS yang tidak bisa masuk, pengunggahnya anggota DTPS kelas, lalu Koordinator MK, lalu admin. Kelas yang sudah ada diperbarui.`)) return;
     const { data, error } = await sb.rpc('kelas_ke_cpl', { p_ta: PERIODE.ta, p_semester: PERIODE.sm });
     if (error) return tulis('mKelas', 'galat', error.message);
     tulis('mKelas', 'ok', `${data.disalin} kelas disalin ke daftar kelas nilai CPL.` + (data.bentrok_kurikulum.length ? ` Dilewati (kode MK dan kelas sama di dua kurikulum; ganti nama kelasnya): ${data.bentrok_kurikulum.join(', ')}.` : '')
-      + (data.tanpa_koordinator.length ? ` Tanpa koordinator: ${data.tanpa_koordinator.join(', ')}.` : ''));
+      + ((data.pengganti || []).length ? ` Koordinator kelas tidak bisa masuk (mis. dosen luar DTPS), nilai CPL diunggah oleh: ${data.pengganti.join('; ')}.` : '')
+      + (data.tanpa_koordinator.length ? ` Tidak disalin (belum ada dosen atau pengunggah): ${data.tanpa_koordinator.join(', ')}.` : ''));
   };
   if ($('iImpor')) $('iImpor').onclick = impor;
   if ($('bgUnduh')) $('bgUnduh').onclick = () => {

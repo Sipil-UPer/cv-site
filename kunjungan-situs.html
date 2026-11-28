@@ -11,8 +11,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-28-e2efdc">
-<link rel="stylesheet" href="kepala.css?v=2026-11-28-e2efdc">
+<link rel="stylesheet" href="tema.css?v=2026-11-28-9a8021">
+<link rel="stylesheet" href="kepala.css?v=2026-11-28-9a8021">
 <style>
   /* Kunjungan situs publik (142-patch-kunjungan-publik.sql, pemilik 2026-11-21) */
   *{box-sizing:border-box}
@@ -50,7 +50,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></div>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-28-e2efdc"></script>
+<script src="config.js?v=2026-11-28-9a8021"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -68,8 +68,8 @@ addEventListener('error', function (e) {
 // Kunjungan situs publik (142-patch-kunjungan-publik.sql, pemilik 2026-11-21): jumlah per hari, halaman, asal, peristiwa;
 // tanpa data pengunjung. Logika rekap: kunjungan-publik.js. Hanya admin (menu Pengelolaan).
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-28-e2efdc';
-import { rekapKunjungan } from './kunjungan-publik.js?v=2026-11-28-e2efdc';
+import { gerbang } from './menu.js?v=2026-11-28-9a8021';
+import { rekapKunjungan } from './kunjungan-publik.js?v=2026-11-28-9a8021';
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const sb = createClient(window.SB_URL, window.SB_KEY);
