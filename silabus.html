@@ -11,8 +11,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-28-2b6b3c">
-<link rel="stylesheet" href="kepala.css?v=2026-11-28-2b6b3c">
+<link rel="stylesheet" href="tema.css?v=2026-11-28-433e07">
+<link rel="stylesheet" href="kepala.css?v=2026-11-28-433e07">
 <style>
   /* Silabus mata kuliah (129-patch-silabus.sql, pemilik 2026-11-20) */
   *{box-sizing:border-box}
@@ -64,7 +64,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></div>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-28-2b6b3c"></script>
+<script src="config.js?v=2026-11-28-433e07"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -82,13 +82,13 @@ addEventListener('error', function (e) {
 // Silabus mata kuliah (129-patch-silabus.sql, pemilik 2026-11-20): koordinator MK/pengampu menyusun (dua bahasa, bentuk
 // Lampiran Kurikulum SIAKUP), Kaprodi aktif mengesahkan; lampiran Word dokumen kurikulum dari versi disahkan (silabus.js).
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang, identitas } from './menu.js?v=2026-11-28-2b6b3c';
-import { punya } from './koordinator.js?v=2026-11-28-2b6b3c';
-import { bawaanHanyaSaya, ingatHanyaSaya, pesanKosongSaya, mkMilikSaya } from './mk-saya.js?v=2026-11-28-2b6b3c';
-import { susunanMK } from './rps.js?v=2026-11-28-2b6b3c';
-import { buatDocx } from './docx-dasar.js?v=2026-11-28-2b6b3c';
+import { gerbang, identitas } from './menu.js?v=2026-11-28-433e07';
+import { punya } from './koordinator.js?v=2026-11-28-433e07';
+import { bawaanHanyaSaya, ingatHanyaSaya, pesanKosongSaya, mkMilikSaya } from './mk-saya.js?v=2026-11-28-433e07';
+import { susunanMK } from './rps.js?v=2026-11-28-433e07';
+import { buatDocx } from './docx-dasar.js?v=2026-11-28-433e07';
 import { KOLOM_SILABUS, BATAS, STATUS_SILABUS, rapikanSilabus, kekuranganSilabus, statusSilabus, cplTerkait, rencanaImpor,
-  lampiranSilabus, penyelenggara, dariUniversitas } from './silabus.js?v=2026-11-28-2b6b3c';
+  lampiranSilabus, penyelenggara, dariUniversitas } from './silabus.js?v=2026-11-28-433e07';
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const sb = createClient(window.SB_URL, window.SB_KEY);
@@ -170,7 +170,7 @@ function gambarDaftar(){
       <p class="ket">Berkas JSON hasil olahan Lampiran Kurikulum SIAKUP. Hanya MK yang belum punya silabus yang diisi (status draf, dengan catatan
         impor yang harus diperiksa penyusun). Isian dosen tidak ditimpa. Berkas silabus resmi universitas (bertanda "universitas")
         hanya mengisi MK universitas; berkas lain melewatinya.</p>
-      <div class="alat"><input type="file" id="berkasImpor" accept=".json,application/json"><button class="b" id="impor" disabled>Impor</button></div>
+      <div class="alat"><input type="file" id="berkasImpor" aria-label="Berkas JSON silabus untuk diimpor" accept=".json,application/json"><button class="b" id="impor" disabled>Impor</button></div>
       <div class="pesan" id="pesanImpor"></div>` : ''}
   </div>
   <div class="kartu"><div class="gulir"><table class="ds"><thead><tr><th>Kode</th><th>Mata kuliah</th><th>sks</th><th>Status</th><th></th></tr></thead>

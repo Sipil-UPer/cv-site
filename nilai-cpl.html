@@ -11,9 +11,11 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-28-2b6b3c">
-<link rel="stylesheet" href="kepala.css?v=2026-11-28-2b6b3c">
+<link rel="stylesheet" href="tema.css?v=2026-11-28-433e07">
+<link rel="stylesheet" href="kepala.css?v=2026-11-28-433e07">
 <style>
+  /* Nama folder/berkas panjang boleh patah di layar ponsel (axe/375 px, 2026-11-28). */
+  code{overflow-wrap:anywhere}
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
   .wrap{max-width:1040px;margin:0 auto;padding:18px 20px 80px}
@@ -44,7 +46,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></div>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-28-2b6b3c"></script>
+<script src="config.js?v=2026-11-28-433e07"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -64,10 +66,10 @@ addEventListener('error', function (e) {
 // di Drive prodi lewat Apps Script. Admin mengimpor daftar kelas, memantau yang belum,
 // dan mengirim pengingat. run_cpl.py mengunduh berkas dengan kunci CPL_KUNCI.
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-28-2b6b3c';
-import { bolehMutu } from './koordinator.js?v=2026-11-28-2b6b3c';
-import { tautanBerkas } from './tautan-privat.js?v=2026-11-28-2b6b3c';
-import { SHEETJS, VERSI_TEMPLAT, bacaLembar, periksaBerkas, bacaCSVKelas, statusKelas, periodeKelas, penerimaBelumUnggah } from './nilai-cpl.js?v=2026-11-28-2b6b3c';
+import { gerbang } from './menu.js?v=2026-11-28-433e07';
+import { bolehMutu } from './koordinator.js?v=2026-11-28-433e07';
+import { tautanBerkas } from './tautan-privat.js?v=2026-11-28-433e07';
+import { SHEETJS, VERSI_TEMPLAT, bacaLembar, periksaBerkas, bacaCSVKelas, statusKelas, periodeKelas, penerimaBelumUnggah } from './nilai-cpl.js?v=2026-11-28-433e07';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
@@ -192,7 +194,7 @@ function htmlAdmin(st){
       <p class="ket">Satu baris per kelas yang wajib mengunggah. Kepala kolom: <code>tahun_akademik;semester;kode_mk;nama_mk;kelas;email_dosen</code>
         (pemisah titik koma atau koma). Contoh: <code>2026/2027;Ganjil;41214;Pemrograman dan Aplikasi Komputer;A;dosen@kampus.ac.id</code>.
         Email dosen = email yang dipakai dosen pengampu/koordinator untuk masuk ke situs. Kelas yang sudah ada (TA, semester, kode MK, kelas sama) diperbarui.</p>
-      <p><input type="file" id="csv_berkas" accept=".csv,text/csv"> atau tempel:</p>
+      <p><input type="file" id="csv_berkas" aria-label="Berkas CSV daftar kelas" accept=".csv,text/csv"> atau tempel:</p>
       <textarea id="csv_teks" placeholder="tahun_akademik;semester;kode_mk;nama_mk;kelas;email_dosen"></textarea>
       <p><button class="b" id="csv_periksa">Periksa</button> <button class="b utama" id="csv_simpan" disabled>Simpan</button> <span class="msg" id="csv_msg"></span></p></div>
     <div class="kartu"><h2>Pengingat ke dosen yang belum mengunggah (${belum.length})</h2>

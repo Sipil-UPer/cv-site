@@ -2,11 +2,11 @@
 // ajuan perubahan, klaim penulis, dan publikasi/luaran tanpa payung. Dipindah dari tab Verifikasi di
 // karya.html saat verifikasi dijadikan halaman tersendiri (pemilik 2026-11-08).
 
-import { buangSemua } from './hapus-berkas.js?v=2026-11-28-2b6b3c';
-import { JENIS_BUKTI_KS } from './manfaat-kerjasama.js?v=2026-11-28-2b6b3c';
-import { labelKolom } from './form-karya.js?v=2026-11-28-2b6b3c';
+import { buangSemua } from './hapus-berkas.js?v=2026-11-28-433e07';
+import { JENIS_BUKTI_KS } from './manfaat-kerjasama.js?v=2026-11-28-433e07';
+import { labelKolom } from './form-karya.js?v=2026-11-28-433e07';
 import { esc, rapi, barisKarya, muatBuktiKarya, daftarBuktiKarya, berkasMilikKarya,
-  htmlDaftarBukti } from './karya-tampil.js?v=2026-11-28-2b6b3c';
+  htmlDaftarBukti } from './karya-tampil.js?v=2026-11-28-433e07';
 
 const PILIH = '*, karya_penulis(peran, korespondensi, dosen(nama)), karya_mahasiswa(nim), karya_mitra(institusi)';
 
@@ -269,7 +269,7 @@ export async function pasangVerifikasiKarya(wadah, { sb, dosen }){
         <div class="rec-m"><span>${k.tahun || ''}</span><span>${esc(rapi(k.kategori))}</span>
           <span>${esc((k.karya_penulis || []).map(p => p.dosen?.nama).filter(Boolean).join(' · '))}</span></div>
         ${mitra.length ? `<div class="rec-m"><span>Mitra: ${esc(mitra.join(', '))} (kerja sama tersendiri)</span></div>` : ''}
-        ${ops.length ? `<div class="rec-m"><select data-tp-pilih="${k.id}" style="max-width:100%">
+        ${ops.length ? `<div class="rec-m"><select data-tp-pilih="${k.id}" aria-label="Penelitian atau PkM payung" style="max-width:100%">
             <option value="">— pilih penelitian / PkM payung —</option>${ops.map(g => `<option value="${g.id}">${esc(
               `${g.tahun} · ${g.kategori === 'pkm' ? 'PkM' : 'Penelitian'} · ${judulPendek(g.judul || '')}`
               + (g.status === 'terverifikasi' ? '' : ' (belum terverifikasi)'))}</option>`).join('')}</select></div>`

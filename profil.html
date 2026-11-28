@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-28-2b6b3c">
+<link rel="stylesheet" href="tema.css?v=2026-11-28-433e07">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
@@ -63,7 +63,7 @@
   /* .fld input melebarkan semua input; kotak centang topik tetap kecil dan di kiri teksnya */
   .fld label.pilih-topik input[type=checkbox]{width:auto;padding:0;margin:0;flex:none}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-28-2b6b3c">
+<link rel="stylesheet" href="kepala.css?v=2026-11-28-433e07">
 </head>
 <body>
 
@@ -77,7 +77,7 @@
 
 <main class="wrap" id="isi"></main>
 
-<script src="config.js?v=2026-11-28-2b6b3c"></script>
+<script src="config.js?v=2026-11-28-433e07"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -94,16 +94,16 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { pasangMenu } from './menu.js?v=2026-11-28-2b6b3c';
-import { dosenLogin } from './dosen-login.js?v=2026-11-28-2b6b3c';
-import { unduhCV, htmlTombolCV, mkDiampu } from './cv-dosen.js?v=2026-11-28-2b6b3c';
-import { keBase64 } from './pustaka-dokumen.js?v=2026-11-28-2b6b3c';
-import { tautanBerkas, temuanPakai } from './tautan-privat.js?v=2026-11-28-2b6b3c';
-import { periksaBerkas, sidikBerkas } from './sidik-berkas.js?v=2026-11-28-2b6b3c';
-import { buangBuktiLepas } from './hapus-berkas.js?v=2026-11-28-2b6b3c';
+import { pasangMenu } from './menu.js?v=2026-11-28-433e07';
+import { dosenLogin } from './dosen-login.js?v=2026-11-28-433e07';
+import { unduhCV, htmlTombolCV, mkDiampu } from './cv-dosen.js?v=2026-11-28-433e07';
+import { keBase64 } from './pustaka-dokumen.js?v=2026-11-28-433e07';
+import { tautanBerkas, temuanPakai } from './tautan-privat.js?v=2026-11-28-433e07';
+import { periksaBerkas, sidikBerkas } from './sidik-berkas.js?v=2026-11-28-433e07';
+import { buangBuktiLepas } from './hapus-berkas.js?v=2026-11-28-433e07';
 import { ISIAN_PROFIL, KOLOM_PROFIL, tampil as tampilIsian, sama, formLKPS, bacaFormLKPS, pasangEditor, bacaKataKunci,
   setelNamaTopik, htmlPilihTopik, bacaPilihTopik, MAKS_TOPIK, urlBukti, berkasLepas, bacaTautanLain, teksTautanLain, MAKS_TAUTAN }
-  from './profil-dosen.js?v=2026-11-28-2b6b3c';
+  from './profil-dosen.js?v=2026-11-28-433e07';
 
 /* =====================================================================
    PROFIL SAYA — dosen mengajukan perubahan profilnya sendiri (keputusan
@@ -279,7 +279,7 @@ async function gambar(){
     ${ADA_FOTO ? htmlFoto() : ''}
     ${ADA_GELAR ? `<div class="b"><h2>Nama dengan gelar</h2>
       <p class="ket">Dipakai di lembar pengesahan RPS dan dokumen resmi lain, mis. "Dr. Nama Lengkap, S.T., M.T.". Kosong = nama biasa.</p>
-      <div class="aksi"><input id="namaGelar" maxlength="200" style="flex:1;min-width:240px" value="${esc(SAYA.nama_gelar || '')}">
+      <div class="aksi"><input id="namaGelar" aria-label="Nama dengan gelar" maxlength="200" style="flex:1;min-width:240px" value="${esc(SAYA.nama_gelar || '')}">
         <button class="btn" type="button" id="simpanGelar">Simpan</button><span class="msg" id="gelarMsg"></span></div></div>` : ''}
     ${ADA_NOMOR ? `<div class="b"><h2>NIP dan NUPTK</h2>
       <p class="ket">Langsung tersimpan, tanpa persetujuan admin. NIP tampil di daftar dan halaman dosen untuk keperluan
@@ -402,7 +402,7 @@ function htmlFoto(){
       ditampilkan di situs publik; hapus kapan saja dengan tombol Hapus foto.</p>
     <div class="foto-profil">${id ? `<img src="https://drive.google.com/thumbnail?id=${esc(id)}&sz=w200" alt="Foto profil saat ini">`
       : `<span class="inisial">${esc(inisial || '?')}</span>`}
-      <div><input type="file" id="fotoBerkas" accept=".jpg,.jpeg,.png">
+      <div><input type="file" id="fotoBerkas" aria-label="Pilih foto profil" accept=".jpg,.jpeg,.png">
         <div class="aksi"><button class="btn" type="button" id="fotoUnggah">Unggah foto</button>
           ${id ? '<button class="btn ghost" type="button" id="fotoHapus">Hapus foto</button>' : ''}
           <span class="msg" id="fotoMsg"></span></div></div></div></div>`;

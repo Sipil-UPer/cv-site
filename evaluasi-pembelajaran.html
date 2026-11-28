@@ -11,8 +11,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-28-2b6b3c">
-<link rel="stylesheet" href="kepala.css?v=2026-11-28-2b6b3c">
+<link rel="stylesheet" href="tema.css?v=2026-11-28-433e07">
+<link rel="stylesheet" href="kepala.css?v=2026-11-28-433e07">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
@@ -57,7 +57,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></div>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-28-2b6b3c"></script>
+<script src="config.js?v=2026-11-28-433e07"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -76,11 +76,11 @@ addEventListener('error', function (e) {
 // Admin: rekap EDOM dari kampus, ambang, semua baris. Pimpinan: semua (baca). Dosen: mata kuliahnya
 // sendiri (refleksi RPS dan metode, tindak lanjut). PJ: tindak lanjut yang ditugaskan. Semua: rekap prodi.
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { bolehMutu } from './koordinator.js?v=2026-11-28-2b6b3c';
-import { gerbang } from './menu.js?v=2026-11-28-2b6b3c';
+import { bolehMutu } from './koordinator.js?v=2026-11-28-433e07';
+import { gerbang } from './menu.js?v=2026-11-28-433e07';
 import { SEMESTER, AMBANG_BAWAAN, RPS, STATUS_TINDAK, angka, semesterKini, urutSemester, bacaTempelEDOM, cplPerMK, statusEvaluasi, rekapSemester,
   barisEvaluasiDariKelas }
-  from './evaluasi-pembelajaran.js?v=2026-11-28-2b6b3c';
+  from './evaluasi-pembelajaran.js?v=2026-11-28-433e07';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
@@ -135,7 +135,7 @@ function htmlAdmin(){
     <textarea id="tempel" rows="5" placeholder="SI2101&#9;ani@kampus.ac.id&#9;3,45&#9;40"></textarea>
     <p><button class="b" id="periksa">Periksa</button></p><div id="pratinjau"></div>
     <h3>3. Ambang perlu tindak lanjut</h3>
-    <p>EDOM di bawah <input type="number" id="ambang" min="0" max="4" step="0.05" value="${AMBANG}" style="width:80px">
+    <p>EDOM di bawah <input type="number" id="ambang" aria-label="Ambang EDOM" min="0" max="4" step="0.05" value="${AMBANG}" style="width:80px">
       <button class="b" id="simpanAmbang">Simpan ambang</button><span class="msg" id="mAmbang"></span></p>
     <p class="ket">Selain EDOM, baris juga ditandai bila ada CPL kelas yang belum tercapai (dari ringkasan CPL) atau dosen menilai pelaksanaan tidak sesuai RPS.</p>
   </details></section>`;

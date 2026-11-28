@@ -1,7 +1,7 @@
 // Definisi formulir karya dosen (FORM) dan isiannya. Dipindah dari karya.html
 // supaya verifikasi.html memakai label isian yang sama (pemilik 2026-11-08).
 
-import { htmlContoh, JENIS_BUKTI_KS } from './manfaat-kerjasama.js?v=2026-11-28-2b6b3c';
+import { htmlContoh, JENIS_BUKTI_KS } from './manfaat-kerjasama.js?v=2026-11-28-433e07';
 
 const rapi = s => s ? String(s).replace(/_/g,' ') : '';
 

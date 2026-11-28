@@ -52,7 +52,7 @@
 
   /* Warna data dan status */
   --hijau:#00954E;
-  --emas:#B8860B;
+  --emas:#8A6508;   /* teks di atas putih: kontras 5,32 (dulu #B8860B = 3,25 < 4,5; axe 2026-11-28) */
   --ungu:#6B4E9B;
 
   /* Netral */
