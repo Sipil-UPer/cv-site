@@ -1,11 +1,11 @@
 // Tugas saya untuk koordinator MK dan pengampu kelas (pemilik 2026-11-17; OBE O2 dan O3).
 // Hanya yang belum punya pengingat lain: CPMK/RPS (cpmk.html) dan unggahan portofolio (portofolio.html).
 // Berkas nilai CPL dan refleksi evaluasi sudah diingatkan tugas-saya.js / evaluasi-pembelajaran.js.
-import { periksaStruktur } from './templat-cpl.js?v=2026-11-28-2346ab';
-import { cplMK, dataTemplat, statusStruktur } from './cpmk.js?v=2026-11-28-2346ab';
-import { bolehTinjau, cariTinjauan, statusTindak, petaRps, daftarSemester as semesterTinjau, mkSemester as mkTinjau } from './tinjauan-rps.js?v=2026-11-28-2346ab';
-import { kelengkapan, mkSemester, daftarSemester } from './portofolio.js?v=2026-11-28-2346ab';
-import { luarProdi } from './koordinator-mk.js?v=2026-11-28-2346ab';
+import { periksaStruktur } from './templat-cpl.js?v=2026-11-28-a5de85';
+import { cplMK, dataTemplat, statusStruktur } from './cpmk.js?v=2026-11-28-a5de85';
+import { bolehTinjau, cariTinjauan, statusTindak, petaRps, daftarSemester as semesterTinjau, mkSemester as mkTinjau } from './tinjauan-rps.js?v=2026-11-28-a5de85';
+import { kelengkapan, mkSemester, daftarSemester } from './portofolio.js?v=2026-11-28-a5de85';
+import { luarProdi } from './koordinator-mk.js?v=2026-11-28-a5de85';
 
 const kecil = s => String(s || '').trim().toLowerCase();
 const potong = (xs, n = 6) => xs.slice(0, n).join('; ') + (xs.length > n ? `; dan ${xs.length - n} lagi` : '');
@@ -85,5 +85,25 @@ export function tugasMK(d){
   if (butir.length) out.push({ jenis: 'portofolio', judul: `Portofolio ${sem.ta} ${sem.sm}: ${butir.length} mata kuliah belum lengkap`,
     rinci: potong(butir.map(b => b.teks)) + '. Unggah materi, soal, kunci/rubrik, contoh jawaban, presensi, atau BAP.',
     href: `portofolio.html?ta=${encodeURIComponent(sem.ta)}&sm=${sem.sm}${butir.length === 1 ? `&kode=${encodeURIComponent(butir[0].x.kode)}` : ''}` });
+  // Admin (pemilik 2026-11-28): portofolio kelas yang diampu dosen di luar DTPS (tidak terdaftar atau bukan DTPS) dibantu admin.
+  // d.dtpsEmail = Set email (huruf kecil) dosen DTPS; komponen tingkat kelas saja (tingkat MK milik koordinatornya).
+  if (d.saya?.peran === 'admin' && d.dtpsEmail) {
+    const luar = [];
+    for (const x of mkSemester(d.kelas, d.berkas, mk, sem.ta, sem.sm)) {
+      const kl = x.kelas.filter(c => !d.dtpsEmail.has(kecil(c.dosen_email)));
+      if (!kl.length) continue;
+      const s = str.get(`${x.kurikulum}|${x.kode}`);
+      const berkas = (d.berkas || []).filter(b => b.tahun_akademik === sem.ta && b.semester === sem.sm && b.kurikulum === x.kurikulum && b.kode_mk === x.kode);
+      const k = kelengkapan({ rps: true, cpmkLengkap: true, refleksi: true, asesmen: (s?.asesmen || []).map(a => a.nama), berkas,
+        rubrikRps: d.rubrikRps?.get(`${x.kurikulum}|${x.kode}`), kelas: x.kelas.map(c => ({ kelas: c.kelas, nilai: true })) });
+      for (const c of k.kelas.filter(c => kl.some(z => z.kelas === c.kelas))) {
+        const n = c.item.filter(it => it.komponen && !it.ada).length;
+        if (n) luar.push(`${x.kode} kelas ${c.kelas} (${n} komponen)`);
+      }
+    }
+    if (luar.length) out.push({ jenis: 'portofolio', judul: `Portofolio ${sem.ta} ${sem.sm}: ${luar.length} kelas dosen luar DTPS belum lengkap`,
+      rinci: potong(luar) + '. Bantu unggah contoh jawaban, presensi, atau BAP atas nama dosennya.',
+      href: `portofolio.html?ta=${encodeURIComponent(sem.ta)}&sm=${sem.sm}&luar=1` });
+  }
   return out;
 }

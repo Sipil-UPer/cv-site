@@ -11,8 +11,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-28-2346ab">
-<link rel="stylesheet" href="kepala.css?v=2026-11-28-2346ab">
+<link rel="stylesheet" href="tema.css?v=2026-11-28-a5de85">
+<link rel="stylesheet" href="kepala.css?v=2026-11-28-a5de85">
 <style>
   /* Silabus mata kuliah (129-patch-silabus.sql, pemilik 2026-11-20) */
   *{box-sizing:border-box}
@@ -64,7 +64,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></div>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-28-2346ab"></script>
+<script src="config.js?v=2026-11-28-a5de85"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -82,13 +82,13 @@ addEventListener('error', function (e) {
 // Silabus mata kuliah (129-patch-silabus.sql, pemilik 2026-11-20): koordinator MK/pengampu menyusun (dua bahasa, bentuk
 // Lampiran Kurikulum SIAKUP), Kaprodi aktif mengesahkan; lampiran Word dokumen kurikulum dari versi disahkan (silabus.js).
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang, identitas } from './menu.js?v=2026-11-28-2346ab';
-import { punya } from './koordinator.js?v=2026-11-28-2346ab';
-import { bawaanHanyaSaya, ingatHanyaSaya, pesanKosongSaya, mkMilikSaya } from './mk-saya.js?v=2026-11-28-2346ab';
-import { susunanMK } from './rps.js?v=2026-11-28-2346ab';
-import { buatDocx } from './docx-dasar.js?v=2026-11-28-2346ab';
+import { gerbang, identitas } from './menu.js?v=2026-11-28-a5de85';
+import { punya } from './koordinator.js?v=2026-11-28-a5de85';
+import { bawaanHanyaSaya, ingatHanyaSaya, pesanKosongSaya, mkMilikSaya } from './mk-saya.js?v=2026-11-28-a5de85';
+import { susunanMK } from './rps.js?v=2026-11-28-a5de85';
+import { buatDocx } from './docx-dasar.js?v=2026-11-28-a5de85';
 import { KOLOM_SILABUS, BATAS, STATUS_SILABUS, rapikanSilabus, kekuranganSilabus, statusSilabus, cplTerkait, rencanaImpor,
-  lampiranSilabus, penyelenggara, dariUniversitas } from './silabus.js?v=2026-11-28-2346ab';
+  lampiranSilabus, penyelenggara, dariUniversitas } from './silabus.js?v=2026-11-28-a5de85';
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const sb = createClient(window.SB_URL, window.SB_KEY);
@@ -111,14 +111,16 @@ async function muat(){
     baca(sb.from('ref_mk_cpl').select('kurikulum,kode_mk,cpl')),
     baca(sb.rpc('mk_boleh_saya')),
     identitas()]);
+  const susun = await baca(sb.rpc('rps_boleh_saya'));   // 205: MK yang saya koordinasikan
   const sq = await sb.from('mk_silabus').select('kurikulum,kode_mk,data,status,revisi,sah,sah_pada,sah_oleh,oleh,diperbarui');
   TABEL_ADA = !sq.error;
   MK = mk; CPL = cpl; PETA = peta; IDENT = ident;
   SIL = new Map((sq.data || []).map(s => [kunci(s.kurikulum, s.kode_mk), s]));
   LOG = await baca(sb.from('mk_silabus_log').select('*').order('id'));
-  // 131 (pemilik 2026-11-20): setiap dosen aktif (bukan asesor) boleh mengisi silabus MK mana pun; pengesahan tetap Kaprodi.
-  BOLEH = SAYA && SAYA.peran !== 'asesor' && SAYA.aktif !== false ? new Set(MK.map(m => kunci(m.kurikulum, m.kode)))
-    : new Set(boleh.map(b => kunci(b.kurikulum, b.kode_mk)));
+  // 205 (pemilik 2026-11-28): silabus disusun koordinator MK (menggantikan 131 "setiap dosen aktif"); admin dan Kaprodi aktif
+  // juga boleh. Pengesahan tetap Kaprodi. MK saya (MILIK) tetap memuat MK yang saya ampu/ikuti timnya, untuk dibaca.
+  BOLEH = SAYA?.peran === 'admin' || KAPRODI() ? new Set(MK.map(m => kunci(m.kurikulum, m.kode)))
+    : new Set(susun.map(b => kunci(b.kurikulum, b.kode_mk)));
   MILIK = mkMilikSaya(MK, boleh, SAYA, kunci);
   const kurs = [...new Set(MK.map(m => m.kurikulum).filter(Boolean))].sort().reverse();
   if (!kurs.includes(KUR)) KUR = kurs.includes('K26') ? 'K26' : (kurs[0] || '');
@@ -247,7 +249,7 @@ function gambarEditor(){
       ${boleh ? '<div class="alat"><button class="b" id="hapusCatatan">Sudah saya periksa, hapus catatan ini</button></div>' : ''}</div>` : ''}
     ${st === 'dikembalikan' ? `<div class="peringatan"><b>Dikembalikan Kaprodi:</b> ${esc([...log].reverse().find(l => l.aksi === 'kembalikan')?.catatan || '')}</div>` : ''}
     ${st === 'diajukan' ? '<p class="ket">Sedang diajukan; isian terkunci sampai Kaprodi memutuskan.</p>' : ''}
-    ${!BOLEH.has(k) ? '<p class="ket">Anda melihat saja. Silabus diisi dosen aktif yang terdaftar.</p>' : ''}
+    ${!BOLEH.has(k) ? '<p class="ket">Anda melihat saja. Silabus disusun koordinator mata kuliah ini (Kaprodi dan admin juga dapat mengisi).</p>' : ''}
   </div>
   <div class="kartu"><h2>Isi silabus</h2>
     <div class="dua"><div>${fld({ k: '_nama', l: 'Nama MK', wajib: true, baris: 1 }).replace(/<input[^>]*>/, `<input type="text" value="${esc(m.nama)}" disabled>`)}</div><div>${fld(K.nama_en)}</div></div>
