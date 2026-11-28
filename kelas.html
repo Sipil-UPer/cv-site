@@ -11,8 +11,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-28-cacf29">
-<link rel="stylesheet" href="kepala.css?v=2026-11-28-cacf29">
+<link rel="stylesheet" href="tema.css?v=2026-11-28-c36d24">
+<link rel="stylesheet" href="kepala.css?v=2026-11-28-c36d24">
 <style>
   /* Penyusunan kelas (136-patch-penyusunan-kelas.sql, pemilik 2026-11-21) */
   *{box-sizing:border-box}
@@ -59,7 +59,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></div>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-28-cacf29"></script>
+<script src="config.js?v=2026-11-28-c36d24"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -78,16 +78,17 @@ addEventListener('error', function (e) {
 // beberapa kelas, team teaching = satu koordinator + anggota), manual atau impor CSV; ekspor CSV untuk optimasi jadwal di luar
 // situs; salin ke daftar kelas nilai CPL. Admin dan Kaprodi aktif menyusun; dosen lain membaca. Logika: kelas.js.
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-28-cacf29';
-import { punya } from './koordinator.js?v=2026-11-28-cacf29';
-import { semesterKini, tsDariTA } from './evaluasi-pembelajaran.js?v=2026-11-28-cacf29';
+import { gerbang } from './menu.js?v=2026-11-28-c36d24';
+import { punya } from './koordinator.js?v=2026-11-28-c36d24';
+import { semesterKini, tsDariTA } from './evaluasi-pembelajaran.js?v=2026-11-28-c36d24';
 import { mkDitawarkan, kelasBerikut, usulanKelasAwal, tanpaDosenBoleh, csvKelas, bacaCsvKelas, rekapBeban, csvBeban, KELOMPOK_LUAR, golonganDosen, tandaGolongan,
-  kelompokPilihan, cekDosenLuar } from './kelas.js?v=2026-11-28-cacf29';
+  kelompokPilihan, cekDosenLuar, rekapGolonganTA, csvGolongan } from './kelas.js?v=2026-11-28-c36d24';
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const sb = createClient(window.SB_URL, window.SB_KEY);
 const baca = q => q.then(r => r.error ? [] : (r.data || []), () => []);
 let BIMBINGAN = [], ADA_BIMBINGAN = true;   // beban_bimbingan(TS), 109
+let KELAS_TA = [], KD_TA = [], MANUAL_TA = [], DOSEN_SEMUA = [];   // rekap DTPS/DT/DTT setahun (Ganjil + Genap)
 let SAYA = null, MK = [], DOSEN = [], KELAS = [], KD = [], ADA = true, PERIODE = null, KUR = '', CARI = '', F_SAYA = false, DRAF = null;
 const PENGATUR = () => SAYA?.peran === 'admin' || punya(SAYA, 'kaprodi');
 const namaD = id => { const d = DOSEN.find(x => x.id === id); return d ? (d.nama_gelar || d.nama) : '?'; };
@@ -109,6 +110,10 @@ async function muat(){
   KD = KELAS.length ? await baca(sb.from('kelas_dosen').select('*').in('kelas_id', KELAS.map(x => x.id))) : [];
   const bb = await sb.rpc('beban_bimbingan', { p_ts: tsDariTA(PERIODE.ta) });
   ADA_BIMBINGAN = !bb.error; BIMBINGAN = bb.error ? [] : bb.data || [];
+  KELAS_TA = await baca(sb.from('kelas_kuliah').select('id,semester,kurikulum,kode_mk,kelas').eq('tahun_akademik', PERIODE.ta));
+  [KD_TA, MANUAL_TA] = await Promise.all([
+    KELAS_TA.length ? baca(sb.from('kelas_dosen').select('kelas_id,dosen_id,peran,pertemuan').in('kelas_id', KELAS_TA.map(x => x.id))) : [],
+    baca(sb.from('dosen_ampu_ts').select('dosen_id,tahun_akademik').eq('tahun_akademik', PERIODE.ta))]);
 }
 
 function mkTampil(){
@@ -165,6 +170,7 @@ function gambar(){
         ? `Anda belum punya kelas ${esc(KUR)} pada ${esc(PERIODE.sm)} ${esc(PERIODE.ta)}. Hilangkan centang <b>Hanya kelas saya</b> untuk melihat semua kelas.`
         : 'Tidak ada mata kuliah yang cocok.'}</td></tr>`}</tbody></table></div></div>`;
   $('isi').insertAdjacentHTML('beforeend', htmlBeban());
+  $('isi').insertAdjacentHTML('beforeend', htmlGolongan());
   pasang();
 }
 
@@ -188,6 +194,36 @@ function htmlBeban(){
         <td>${b.sks_penuh || ''}</td><td>${b.tim || ''}</td><td>${b.kp || ''}</td><td>${b.ta || ''}</td><td>${b.uji || ''}</td><td>${b.lomba || ''}</td></tr>`).join('')
         || '<tr><td colspan="10" class="kosong">Belum ada data.</td></tr>'}</tbody></table></div></div>`;
 }
+
+// Rekap DTPS, DT, DTT per semester (pemilik 2026-11-28, pilihan a): dari kelas Ganjil + Genap tahun akademik ini.
+// NDTPS/NDT/NDTT memakai aturan yang sama dengan Kelola dosen dan Skor (dosen-hitung.js), termasuk centang manual admin.
+const rekapGol = () => rekapGolonganTA({ ta: PERIODE.ta, kelas: KELAS_TA, kd: KD_TA, mk: MK, dosen: DOSEN_SEMUA, manual: MANUAL_TA });
+function htmlGolongan(){
+  const r = rekapGol(), h = r.hitung, koma = x => String(x ?? '').replace('.', ',');
+  const sel = x => x.dosen ? `${x.dosen} dosen · ${x.kelas} kelas · ${koma(x.sks)} sks` : '<span class="ket">—</span>';
+  const ss = (b, sm) => b[sm] ? `${b[sm].kelas} kelas · ${koma(b[sm].sks)} sks` : '';
+  const sementara = r.baris.filter(b => b.nidn_sementara).length;
+  return `<div class="kartu"><h2>Rekap DTPS, DT, dan DTT, tahun akademik ${esc(PERIODE.ta)}</h2>
+    <p class="ket">Dari kelas Ganjil dan Genap ${esc(PERIODE.ta)} (semua kurikulum), termasuk dosen luar DTPS yang ditulis manual. Golongan mengikuti
+      Kelola dosen: DT = dosen tetap (termasuk DTPS), DTT = dosen tidak tetap dan industri. <b>Dihitung</b> = masuk NDTPS/NDT/NDTT pada TS ${esc(PERIODE.ta)},
+      sama dengan Kelola dosen dan Skor (dosen aktif, tidak tugas belajar, mengampu MK atau dicentang manual admin).
+      sks = sks MK × bagian dosen di kelas (menurut pertemuan, selain itu dibagi rata).</p>
+    <div class="ringkas"><div><b>${h.ndtps}</b><span>NDTPS</span></div><div><b>${h.ndt}</b><span>NDT</span></div><div><b>${h.ndtt}</b><span>NDTT${h.industri ? ` (${h.industri} industri)` : ''}</span></div>
+      <div><b>${h.porsi_dtt == null ? '—' : koma(h.porsi_dtt) + '%'}</b><span>DTT dari NDT + NDTT</span></div></div>
+    ${h.diterapkan ? '' : `<p class="periksa">Belum ada kelas atau centang mengampu untuk ${esc(PERIODE.ta)}: syarat mengampu belum diterapkan, jadi NDT/NDTT di atas menghitung semua dosen aktif.</p>`}
+    ${r.tanpaKelas ? `<p class="periksa">${r.tanpaKelas} kelas ${esc(PERIODE.ta)} belum punya dosen.</p>` : ''}
+    ${sementara ? `<p class="periksa">${sementara} dosen masih ber-NIDN sementara; admin melengkapinya di <a href="kelola-dosen.html">Kelola dosen</a>.</p>` : ''}
+    <div class="gulir"><table class="ds"><thead><tr><th>Golongan</th><th>Ganjil</th><th>Genap</th><th>Dosen setahun</th></tr></thead><tbody>
+      ${r.golongan.map(g => `<tr><td>${esc(g.label)}</td><td>${sel(g.Ganjil)}</td><td>${sel(g.Genap)}</td><td><b>${g.dosen}</b></td></tr>`).join('')
+        || '<tr><td colspan="4" class="kosong">Belum ada kelas berdosen pada tahun akademik ini.</td></tr>'}</tbody></table></div>
+    ${r.baris.length ? `<details><summary><b>Rincian per dosen</b> (${r.baris.length})</summary>
+      <div class="gulir"><table class="ds"><thead><tr><th>Dosen</th><th>NIDN/NIDK</th><th>Golongan</th><th>Dihitung</th><th>Ganjil</th><th>Genap</th></tr></thead><tbody>
+      ${r.baris.map(b => `<tr><td>${esc(b.nama)}</td><td>${b.nidn_sementara ? '<span class="periksa">sementara</span>' : esc(b.nidn)}</td>
+        <td>${esc((KELOMPOK_LABEL[b.kelompok] || b.kelompok))}</td><td>${b.dihitung ? esc(b.dihitung) : `<span class="ket">tidak (${esc(b.alasan)})</span>`}</td>
+        <td>${ss(b, 'Ganjil')}</td><td>${ss(b, 'Genap')}</td></tr>`).join('')}</tbody></table></div></details>` : ''}
+    <div class="alat"><button class="b" id="bgUnduh">Unduh CSV rekap</button></div></div>`;
+}
+const KELOMPOK_LABEL = { dtps: 'DTPS', dt: 'DT prodi lain', tb: 'Tugas belajar', dtt: 'DTT', industri: 'Industri (DTT)', pimpinan: 'Pimpinan', staf: 'Staf', asesor: 'Asesor' };
 
 function htmlAlat(){
   return `<div class="alat"><button class="b" id="aUsul">Buat kelas A untuk MK yang belum punya kelas</button>
@@ -259,6 +295,11 @@ function pasang(){
       + (data.tanpa_koordinator.length ? ` Tanpa koordinator: ${data.tanpa_koordinator.join(', ')}.` : ''));
   };
   if ($('iImpor')) $('iImpor').onclick = impor;
+  if ($('bgUnduh')) $('bgUnduh').onclick = () => {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob(['﻿' + csvGolongan(rekapGol(), PERIODE.ta)], { type: 'text/csv;charset=utf-8' }));
+    a.download = `rekap_dtps_dt_dtt_${PERIODE.ta.replace('/', '-')}.csv`; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  };
   if ($('bbUnduh')) $('bbUnduh').onclick = () => {
     const r = rekapBeban({ kelas: KELAS, kd: KD, mk: MK, dosen: dosenBeban(), bimbingan: BIMBINGAN });
     const a = document.createElement('a');
@@ -304,6 +345,7 @@ function pasangEditor(){
     if (error) { $('lSimpan').disabled = false; return tulis('mLuar', 'galat', /function|schema cache/i.test(error.message)
       ? 'Fungsi belum ada. Admin menjalankan supabase/208-patch-dosen-luar-kelas.sql di Supabase.' : error.message); }
     DOSEN = [...DOSEN, { id: data.id, nidn: data.nidn, nama: data.nama, kategori: data.kategori, dtps: false, aktif: true, peran: 'dosen' }];
+    DOSEN_SEMUA = [...DOSEN_SEMUA, DOSEN[DOSEN.length - 1]];
     const kosong = DRAF.dosen.find(d => !d.dosen_id);
     if (kosong) kosong.dosen_id = data.id;
     else DRAF.dosen.push({ dosen_id: data.id, peran: DRAF.dosen.some(d => d.peran === 'koordinator') ? 'anggota' : 'koordinator', pertemuan: null });
@@ -373,6 +415,9 @@ async function mulai(){
   [MK, DOSEN] = await Promise.all([
     baca(sb.from('ref_mata_kuliah').select('kurikulum,kode,nama,sks,semester,sifat,aktif,pengampu,unit_penyelenggara')),
     baca(sb.from('dosen').select('id,nidn,nama,nama_gelar,email,aktif,peran,dtps,kategori,tugas_belajar').order('nama'))]);
+  // Tanggal tugas belajar (156) untuk golongan per TS; dibaca terpisah seperti Kelola dosen (kolom bisa belum ada).
+  const tb = new Map((await baca(sb.from('dosen').select('id,tugas_belajar_mulai,tugas_belajar_selesai'))).map(x => [x.id, x]));
+  DOSEN_SEMUA = DOSEN.map(d => ({ ...d, ...(tb.get(d.id) || {}) }));
   DOSEN = DOSEN.filter(d => d.aktif !== false && d.peran !== 'asesor');
   const kurs = [...new Set(MK.map(m => m.kurikulum))].sort().reverse();
   KUR = kurs[0] || '';

@@ -1,3 +1,4 @@
+import { KELOMPOK, URUT_KELOMPOK, ampuPerTA, statusTS, hitungTS } from './dosen-hitung.js?v=2026-11-28-c36d24';
 // Penyusunan kelas per semester (136-patch-penyusunan-kelas.sql, pemilik 2026-11-21): logika murni halaman kelas.html,
 // dites di Node (tests/js/kelas.test.mjs). Satu MK boleh beberapa kelas; team teaching = satu koordinator kelas + anggota.
 // CSV (impor/ekspor, untuk optimasi jadwal di luar situs): pemisah ';', dosen dipisah '|' (NIDN atau email; pertama =
@@ -231,3 +232,45 @@ export function drafSkPengajaran({ ta, semester, kelas = [], kd = [], mk = [], d
     dosen_ids: ids, rincian, nDosen: ids.length, nKelas: urut.length - tanpaDosen.length, tanpaDosen,
   };
 }
+
+// ---------- Rekap DTPS, DT, DTT per semester dari kelas (pemilik 2026-11-28, pilihan a) ----------
+// Golongan dan "dihitung" memakai statusTS/hitungTS (dosen-hitung.js, 154/156) supaya sama dengan Kelola dosen dan Skor;
+// sks per semester memakai porsi rekapBeban (pertemuan, selain itu rata). kelas = semua kelas tahun akademik ta (Ganjil + Genap).
+const SEMESTER_TA = ['Ganjil', 'Genap'];
+export function rekapGolonganTA({ ta, kelas = [], kd = [], mk = [], dosen = [], manual = [] } = {}){
+  const D = new Map(dosen.map(d => [d.id, d]));
+  const ampu = ampuPerTA({ kelas: kelas.map(k => ({ id: k.id, tahun_akademik: ta })), kd, manual });
+  const per = new Map();
+  for (const sm of SEMESTER_TA) {
+    const ks = kelas.filter(k => k.semester === sm), ids = new Set(ks.map(k => k.id));
+    for (const b of rekapBeban({ kelas: ks, kd: kd.filter(x => ids.has(x.kelas_id)), mk }).baris) {
+      if (!per.has(b.dosen_id)) per.set(b.dosen_id, {});
+      per.get(b.dosen_id)[sm] = { kelas: b.kelas, sks: b.sks };
+    }
+  }
+  const urut = g => { const i = URUT_KELOMPOK.indexOf(g); return i < 0 ? 99 : i; };
+  const baris = [...per.keys()].map(id => {
+    const d = D.get(id) || { id, nama: '?' }, st = statusTS(d, ta, ampu);
+    return { dosen_id: id, nama: d.nama_gelar || d.nama || '?', urut_nama: d.nama || '', nidn: nidnSementara(d.nidn) ? '' : (d.nidn || ''),
+      nidn_sementara: nidnSementara(d.nidn), kelompok: st.kelompok, dihitung: st.dtps ? 'DTPS' : st.dt ? 'DT' : st.dtt ? 'DTT' : '', alasan: st.alasan,
+      Ganjil: per.get(id).Ganjil || null, Genap: per.get(id).Genap || null };
+  }).sort((a, b) => urut(a.kelompok) - urut(b.kelompok) || a.urut_nama.localeCompare(b.urut_nama, 'id'));
+  const bulat = x => Math.round(x * 100) / 100;
+  const golongan = [...new Set(baris.map(b => b.kelompok))].sort((a, b) => urut(a) - urut(b)).map(g => {
+    const xs = baris.filter(b => b.kelompok === g);
+    const sem = Object.fromEntries(SEMESTER_TA.map(sm => { const ys = xs.filter(b => b[sm]);
+      return [sm, { dosen: ys.length, kelas: ys.reduce((a, b) => a + b[sm].kelas, 0), sks: bulat(ys.reduce((a, b) => a + b[sm].sks, 0)) }]; }));
+    return { kelompok: g, label: KELOMPOK[g] || g, ...sem, dosen: xs.length };
+  });
+  const h = hitungTS(dosen, ta, ampu), dt = h.ndt + h.ndtt;
+  return { baris, golongan, hitung: { ...h, porsi_dtt: dt ? Math.round(h.ndtt / dt * 1000) / 10 : null },
+    tanpaKelas: kelas.filter(k => !kd.some(x => x.kelas_id === k.id)).length };
+}
+export function csvGolongan(r, ta = ''){
+  const k = ['tahun_akademik', 'dosen', 'nidn', 'golongan', 'dihitung_ts', 'alasan', 'kelas_ganjil', 'sks_ganjil', 'kelas_genap', 'sks_genap'];
+  const v = x => (x == null ? '' : String(x).replace('.', ','));
+  return [k, ...r.baris.map(b => [ta, b.nama, b.nidn_sementara ? 'sementara' : b.nidn, KELOMPOK[b.kelompok] || b.kelompok, b.dihitung, b.alasan,
+    b.Ganjil?.kelas ?? '', v(b.Ganjil?.sks), b.Genap?.kelas ?? '', v(b.Genap?.sks)])]
+    .map(r => r.map(x => String(x ?? '').replace(/;/g, ',')).join(';')).join('\r\n');
+}
+
