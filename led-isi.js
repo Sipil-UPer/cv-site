@@ -9,12 +9,12 @@
    Tautan di dalam teks memakai token ⟦url|label⟧; auto() di led.js
    mengubahnya menjadi hyperlink Word.
    ===================================================================== */
-import { versiUntukTS } from './pustaka-dokumen.js?v=2026-11-28-e24bbe';
-import { infoJenis, JENIS_DOKUMEN, kelompokDokumen, buktiButir, saranDokumen } from './rencana-bukti.js?v=2026-11-28-e24bbe';
-import { teksPendidikan, nidnNuptk } from './profil-dosen.js?v=2026-11-28-e24bbe';
-import { karya4i } from './sitasi.js?v=2026-11-28-e24bbe';
-import { ampuPerTA, dosenTS } from './dosen-hitung.js?v=2026-11-28-e24bbe';
-import { tabelModul } from './led-modul.js?v=2026-11-28-e24bbe';
+import { versiUntukTS } from './pustaka-dokumen.js?v=2026-11-28-b0070d';
+import { infoJenis, JENIS_DOKUMEN, kelompokDokumen, buktiButir, saranDokumen } from './rencana-bukti.js?v=2026-11-28-b0070d';
+import { teksPendidikan, nidnNuptk } from './profil-dosen.js?v=2026-11-28-b0070d';
+import { karya4i } from './sitasi.js?v=2026-11-28-b0070d';
+import { ampuPerTA, dosenTS } from './dosen-hitung.js?v=2026-11-28-b0070d';
+import { tabelModul } from './led-modul.js?v=2026-11-28-b0070d';
 
 export const tokenTautan = (url, label) => `⟦${url}|${String(label).replace(/[⟦⟧|]/g, ' ')}⟧`;
 const isi = t => `[isi: ${t}]`;

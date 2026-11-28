@@ -11,8 +11,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-28-e24bbe">
-<link rel="stylesheet" href="kepala.css?v=2026-11-28-e24bbe">
+<link rel="stylesheet" href="tema.css?v=2026-11-28-b0070d">
+<link rel="stylesheet" href="kepala.css?v=2026-11-28-b0070d">
 <style>
   /* Surat dan SK prodi (201-patch-surat-sk-prodi.sql, pemilik 2026-11-28) */
   *{box-sizing:border-box}
@@ -58,7 +58,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></div>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-28-e24bbe"></script>
+<script src="config.js?v=2026-11-28-b0070d"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -77,13 +77,14 @@ addEventListener('error', function (e) {
 // sendiri (tanpa a.n.); nomor dari pola per jenis diberikan saat disahkan; Word ber-QR ke verifikasi-surat.html.
 // Dosen melihat surat yang menyebut dirinya. Logika murni: surat.js.
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-28-e24bbe';
-import { punya } from './koordinator.js?v=2026-11-28-e24bbe';
+import { gerbang } from './menu.js?v=2026-11-28-b0070d';
+import { unggahKePustaka } from './pustaka-dokumen.js?v=2026-11-28-b0070d';
+import { punya } from './koordinator.js?v=2026-11-28-b0070d';
 import { STATUS_SURAT, PENANDATANGAN, PENANDA_POLA, galatPola, nomorBerikut, hariIniWIB, buatSurat, namaBerkasSurat, urlVerifikasi, rekapSurat, tglPanjang,
-  skDosen, saringSk, tautanSister, tahunAkademikSurat }
-  from './surat.js?v=2026-11-28-e24bbe';
-import { pngQr } from './rps-word.js?v=2026-11-28-e24bbe';
-import { drafSkAsisten } from './karier.js?v=2026-11-28-e24bbe';
+  skDosen, saringSk, tautanSister, tahunAkademikSurat, KATEGORI_SK }
+  from './surat.js?v=2026-11-28-b0070d';
+import { pngQr } from './rps-word.js?v=2026-11-28-b0070d';
+import { drafSkAsisten } from './karier.js?v=2026-11-28-b0070d';
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const sb = createClient(window.SB_URL, window.SB_KEY);
@@ -98,6 +99,34 @@ const BACA_SEMUA = () => KELOLA() || punya(SAYA, 'dekan') || SAYA?.peran === 'pi
 const jenisDari = k => JENIS.find(j => j.kode === k) || { kode: k, nama: k, penandatangan: 'kaprodi' };
 const namaDosen = id => { const d = DOSEN.find(x => x.id === id); return d ? (d.nama_gelar || d.nama) : '?'; };
 function tulis(id, k, t){ const m = $(id); if (m) { m.className = 'pesan ' + k; m.textContent = t; } }
+// Unggah berkas SK (pemilik 2026-11-28): pustaka dokumen prodi lewat Apps Script; Apps Script menerima admin (dan koordinator
+// bidangnya), jadi tombol unggah hanya untuk admin. Konfigurasi sama dengan halaman lain (config.js UPLOAD_*).
+const UNGGAH = (() => {
+  const url = String(window.UPLOAD_URL || '').trim();
+  if (!url) return null;
+  const ext = String(window.UPLOAD_EXT || '').toLowerCase().split(',').map(s => s.trim()).filter(Boolean);
+  return { url, ext, maxMb: Number(window.UPLOAD_MAX_MB) || 0, accept: ext.map(x => '.' + x).join(',') };
+})();
+const BOLEH_UNGGAH = () => !!UNGGAH && ADMIN();
+/** Unggah PDF SK ke pustaka (jenis sk, tahun surat, judul = nomor); mengembalikan tautan berkas. */
+async function unggahSk(s, berkas, progres){
+  if (!s.nomor || !s.tanggal) throw new Error('Isi nomor dan tanggal surat dulu.');
+  const d = await unggahKePustaka(sb, UNGGAH, { jenis: 'sk', tahun: String(s.tanggal).slice(0, 4), judul: String(s.nomor).slice(0, 120),
+    berkas, oleh: SAYA.email, nomor: s.nomor, tanggal: String(s.tanggal).slice(0, 10), progres });
+  if (!d?.url) throw new Error('Tautan berkas tidak diterima dari pustaka.');
+  return d.url;
+}
+// Kategori dan semester SK (203). p = awalan id elemen.
+const htmlMeta = (x, p) => `<label>Kategori SK <select id="${p}Kat"><option value="">(belum dikategorikan)</option>${Object.entries(KATEGORI_SK)
+    .map(([k, l]) => `<option value="${k}"${k === x.kategori ? ' selected' : ''}>${esc(l)}</option>`).join('')}</select></label>
+  <label>Tahun akademik (SK per semester) <input type="text" id="${p}Ta" maxlength="9" placeholder="2026/2027" value="${esc(x.tahun_akademik || '')}"></label>
+  <label>Semester <select id="${p}Sem"><option value="">—</option>${['Ganjil', 'Genap', 'Pendek'].map(k => `<option${k === x.semester ? ' selected' : ''}>${k}</option>`).join('')}</select></label>`;
+function bacaMeta(p){
+  const isi = { kategori: $(`${p}Kat`).value || null, tahun_akademik: $(`${p}Ta`).value.trim() || null, semester: $(`${p}Sem`).value || null };
+  if (isi.tahun_akademik && !/^\d{4}\/\d{4}$/.test(isi.tahun_akademik)) return { galat: 'Tahun akademik, mis. 2026/2027.' };
+  if (isi.semester && !isi.tahun_akademik) return { galat: 'Isi tahun akademik untuk semester SK.' };
+  return { isi };
+}
 const opsiJenis = (v, semua = false) => JENIS.filter(j => semua || j.aktif || j.kode === v)
   .map(j => `<option value="${esc(j.kode)}"${j.kode === v ? ' selected' : ''}>${esc(j.nama)}</option>`).join('');
 
@@ -171,12 +200,15 @@ function htmlForm(){
           (x.dosen_ids || []).includes(d.id) ? ' checked' : ''}> ${esc(d.nama_gelar || d.nama)}</label>`).join('')}</div></div>
       <label class="lebar">Lampiran atau konsep (tautan https, mis. Google Drive; opsional)
         <input type="url" id="fLampiran" value="${esc(x.lampiran_url || '')}"></label>
+      ${htmlMeta(x, 'f')}
       <label class="lebar" style="flex-direction:row;gap:8px;align-items:center;color:var(--ink)"><input type="checkbox" id="fArsip"${arsip ? ' checked' : ''}${UBAH && !arsip ? ' disabled' : ''}>
         Surat lama atau sudah ditandatangani di luar situs (dicatat sebagai arsip dengan nomor yang tertulis di surat; tanpa QR)</label>
       <div class="lebar form" id="fArsipIsi" style="${arsip ? '' : 'display:none'}">
         <label>Nomor surat <input type="text" id="fNomor" maxlength="120" value="${esc(x.nomor || '')}"></label>
         <label>Tanggal surat <input type="date" id="fTanggal" value="${esc(x.tanggal || '')}"></label>
         <label class="lebar">Berkas bertanda tangan (tautan https) <input type="url" id="fBerkas" value="${esc(x.arsip_url || '')}"></label>
+        ${BOLEH_UNGGAH() ? `<label class="lebar">atau unggah PDF-nya (disimpan di pustaka dokumen prodi, jenis SK; tautan terisi otomatis)
+          <input type="file" id="fBerkasUnggah" accept="${esc(UNGGAH.accept)}"></label>` : ''}
       </div></div>
     <div class="alat"><button type="button" class="b utama" id="bSimpan">${UBAH ? 'Simpan perubahan' : 'Simpan draf'}</button>
       ${!arsip ? `<button type="button" class="b" id="bSimpanAjukan">Simpan dan ajukan</button>` : ''}
@@ -198,6 +230,7 @@ function aksiAgenda(s){
   if (s.status === 'disahkan') {
     b.push(`<a class="b kecil" href="verifikasi-surat.html?k=${esc(s.kode_verifikasi)}" target="_blank" rel="noopener">Verifikasi</a>`);
     if (k) b.push(`<button type="button" class="b kecil" data-berkas="${s.id}">Berkas akhir</button>`);
+    if (k) b.push(`<button type="button" class="b kecil" data-meta="${s.id}">Kategori</button>`);
     if (k || TANDA()[s.penandatangan]) b.push(`<button type="button" class="b kecil bahaya" data-batal="${s.id}">Batalkan</button>`);
   }
   if (s.status === 'arsip' && k) b.push(`<button type="button" class="b kecil" data-ubah="${s.id}">Ubah</button>`, `<button type="button" class="b kecil bahaya" data-hapus="${s.id}">Hapus</button>`);
@@ -217,7 +250,8 @@ function htmlAgenda(){
     ${xs.length ? `<div class="gulir"><table class="ds"><thead><tr><th>Nomor</th><th>Tanggal</th><th>Jenis</th><th>Perihal</th><th>Status</th><th>Penanda tangan</th><th></th></tr></thead>
       <tbody>${xs.map(s => `<tr><td>${s.nomor ? `<code>${esc(s.nomor)}</code>` : '<span class="ket">—</span>'}</td><td>${esc(s.tanggal ? tglPanjang(s.tanggal) : '')}</td>
         <td>${esc(jenisDari(s.jenis).nama)}</td>
-        <td>${esc(s.perihal)}${s.tujuan ? `<div class="ket">${esc(s.tujuan.split('\n')[0])}</div>` : ''}${s.status === 'dikembalikan' && s.catatan ? `<div class="ket">Catatan: ${esc(s.catatan)}</div>` : ''}
+        <td>${esc(s.perihal)}${s.kategori ? `<div class="ket">${esc(KATEGORI_SK[s.kategori])}${s.semester ? ` · ${esc(s.semester)} ${esc(s.tahun_akademik)}` : ''}</div>` : ''}
+          ${s.tujuan ? `<div class="ket">${esc(s.tujuan.split('\n')[0])}</div>` : ''}${s.status === 'dikembalikan' && s.catatan ? `<div class="ket">Catatan: ${esc(s.catatan)}</div>` : ''}
           ${s.status === 'dibatalkan' && s.alasan_batal ? `<div class="ket">Dibatalkan: ${esc(s.alasan_batal)}</div>` : ''}
           ${s.arsip_url ? `<div class="ket"><a href="${esc(s.arsip_url)}" target="_blank" rel="noopener">berkas bertanda tangan</a></div>` : ''}
           <div id="jj_${s.id}"></div></td>
@@ -328,13 +362,41 @@ function pasang(){
     if (a == null) return;
     if (await rpc('surat_batalkan', { p_id: +b.dataset.batal, p_alasan: a }, 'Gagal membatalkan')) { await muat(); gambar(); }
   });
+  // Berkas akhir: unggah PDF ke pustaka dokumen prodi (jenis sk, judul = nomor; admin) atau tempel tautan (pemilik 2026-11-28).
   on('[data-berkas]', async b => {
-    const s = cari(b.dataset.berkas), u = prompt('Tautan berkas akhir bertanda tangan (https, mis. PDF di Google Drive):', s.arsip_url || '');
+    const s = cari(b.dataset.berkas);
+    const simpanUrl = async u => { const { error } = await sb.from('surat').update({ arsip_url: u || null }).eq('id', s.id);
+      if (error) return alert('Gagal menyimpan: ' + error.message); await muat(); gambar(); };
+    if (BOLEH_UNGGAH() && confirm('Unggah PDF bertanda tangan dari komputer?\n(Batal = tempel tautan yang sudah ada)')) {
+      const inp = Object.assign(document.createElement('input'), { type: 'file', accept: UNGGAH.accept });
+      inp.onchange = async () => {
+        if (!inp.files.length) return;
+        b.disabled = true; b.textContent = 'Mengunggah…';
+        try { await simpanUrl(await unggahSk(s, [...inp.files], t => { b.textContent = t.slice(0, 30); })); }
+        catch (e) { alert('Berkas gagal diunggah: ' + (e.message || e)); b.disabled = false; b.textContent = 'Berkas akhir'; }
+      };
+      inp.click();
+      return;
+    }
+    const u = prompt('Tautan berkas akhir bertanda tangan (https, mis. PDF di Google Drive):', s.arsip_url || '');
     if (u == null) return;
     if (u.trim() && !/^https:\/\/\S+$/i.test(u.trim())) return alert('Tautan harus diawali https://');
-    const { error } = await sb.from('surat').update({ arsip_url: u.trim() || null }).eq('id', s.id);
-    if (error) return alert('Gagal menyimpan: ' + error.message);
-    await muat(); gambar();
+    await simpanUrl(u.trim());
+  });
+  // Kategori dan semester (203): bisa diubah walau surat sudah diajukan/disahkan.
+  on('[data-meta]', b => {
+    const s = cari(b.dataset.meta), el = $(`jj_${s.id}`);
+    if (el.dataset.meta) { el.innerHTML = ''; delete el.dataset.meta; return; }
+    el.dataset.meta = '1';
+    el.innerHTML = `<div class="form" style="margin:6px 0">${htmlMeta(s, `m${s.id}`)}</div>
+      <button type="button" class="b kecil utama" id="m${s.id}Simpan">Simpan kategori</button> <span class="pesan" id="m${s.id}Pesan"></span>`;
+    $(`m${s.id}Simpan`).onclick = async () => {
+      const m = bacaMeta(`m${s.id}`);
+      if (m.galat) return tulis(`m${s.id}Pesan`, 'galat', m.galat);
+      const { error } = await sb.from('surat').update(m.isi).eq('id', s.id);
+      if (error) return tulis(`m${s.id}Pesan`, 'galat', 'Gagal menyimpan: ' + error.message);
+      await muat(); gambar();
+    };
   });
   on('[data-hapus]', async b => {
     if (!confirm('Hapus surat ini? Surat yang sudah disahkan tidak bisa dihapus (gunakan Batalkan).')) return;
@@ -378,10 +440,18 @@ async function simpan(ajukan){
   if (!isi.jenis) return tulis('mForm', 'galat', 'Pilih jenis surat.');
   if (isi.perihal.length < 3) return tulis('mForm', 'galat', 'Tulis perihal surat.');
   if (isi.lampiran_url && !/^https:\/\/\S+$/i.test(isi.lampiran_url)) return tulis('mForm', 'galat', 'Lampiran harus tautan https://');
+  const meta = bacaMeta('f');
+  if (meta.galat) return tulis('mForm', 'galat', meta.galat);
+  Object.assign(isi, meta.isi);
   if (arsip) {
     Object.assign(isi, { status: 'arsip', nomor: v('fNomor'), tanggal: v('fTanggal') || null, arsip_url: v('fBerkas') || null });
     if (!isi.nomor || !isi.tanggal) return tulis('mForm', 'galat', 'Surat arsip perlu nomor dan tanggal surat.');
     if (isi.arsip_url && !/^https:\/\/\S+$/i.test(isi.arsip_url)) return tulis('mForm', 'galat', 'Berkas harus tautan https://');
+    const f = [...($('fBerkasUnggah')?.files || [])];
+    if (f.length) {
+      try { isi.arsip_url = await unggahSk(isi, f, t => tulis('mForm', '', t)); }
+      catch (e) { return tulis('mForm', 'galat', 'Berkas gagal diunggah: ' + (e.message || e)); }
+    }
   }
   if (!UBAH && PENGAJUAN && !PENGAJUAN.asisten) isi.pengajuan_id = PENGAJUAN.id;
   const q = UBAH ? sb.from('surat').update(isi).eq('id', UBAH.id).select('id') : sb.from('surat').insert(isi).select('id');

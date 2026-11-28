@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-28-e24bbe">
+<link rel="stylesheet" href="tema.css?v=2026-11-28-b0070d">
 <style>
   :root{--bg:#EEF0ED; --ink:#161E26; --muted:#616C76; --line:#D8DDD8; --line-soft:#E8EBE7; --accent:var(--biru); --accent-soft:var(--biru-m7); --pending:#8A5A00; --pending-soft:#FAF0DC; --reject:#8C2F2F; --reject-soft:#F7E7E7;}
   *{box-sizing:border-box}
@@ -177,7 +177,7 @@
   .cek-berkas li.ada{color:var(--hijau)} .cek-berkas li.kurang{color:var(--merah)}
   .cek-insentif{font-size:13px;margin-left:8px}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-28-e24bbe">
+<link rel="stylesheet" href="kepala.css?v=2026-11-28-b0070d">
 </head>
 <body>
 
@@ -191,7 +191,7 @@
 
 <div class="wrap" id="app"></div>
 
-<script src="config.js?v=2026-11-28-e24bbe"></script>
+<script src="config.js?v=2026-11-28-b0070d"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -215,29 +215,29 @@ const SUPABASE_URL = window.SB_URL;
 const SUPABASE_ANON_KEY = window.SB_KEY;
 
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { JENIS_BUKTI_KARYA, namaJenisBukti, JENIS_KARYA_PRIVAT, teksAksesBukti } from './rencana-bukti.js?v=2026-11-28-e24bbe';
-import { tautanBerkas, temuanPakai } from './tautan-privat.js?v=2026-11-28-e24bbe';
-import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-28-e24bbe';
-import { periksaBerkas, kolomSidik, teksTemuan } from './sidik-berkas.js?v=2026-11-28-e24bbe';
-import { pasangContoh, durasiKS } from './manfaat-kerjasama.js?v=2026-11-28-e24bbe';
-import { pasangMenu } from './menu.js?v=2026-11-28-e24bbe';
-import { dosenLogin } from './dosen-login.js?v=2026-11-28-e24bbe';
-import { pasangPrestasi } from './prestasi.js?v=2026-11-28-e24bbe';
-import { htmlSaran } from './saran-bukti.js?v=2026-11-28-e24bbe';
-import { pasangBkd } from './bkd.js?v=2026-11-28-e24bbe';
-import { htmlTautanButir } from './tautan-butir.js?v=2026-11-28-e24bbe';
-import { ISIAN_32, ISIAN_25, ISIAN_74, TINGKAT, FORM, SDGS } from './form-karya.js?v=2026-11-28-e24bbe';
+import { JENIS_BUKTI_KARYA, namaJenisBukti, JENIS_KARYA_PRIVAT, teksAksesBukti } from './rencana-bukti.js?v=2026-11-28-b0070d';
+import { tautanBerkas, temuanPakai } from './tautan-privat.js?v=2026-11-28-b0070d';
+import { buangBerkas, buangSemua, PESAN_SAMPAH } from './hapus-berkas.js?v=2026-11-28-b0070d';
+import { periksaBerkas, kolomSidik, teksTemuan } from './sidik-berkas.js?v=2026-11-28-b0070d';
+import { pasangContoh, durasiKS } from './manfaat-kerjasama.js?v=2026-11-28-b0070d';
+import { pasangMenu } from './menu.js?v=2026-11-28-b0070d';
+import { dosenLogin } from './dosen-login.js?v=2026-11-28-b0070d';
+import { pasangPrestasi } from './prestasi.js?v=2026-11-28-b0070d';
+import { htmlSaran } from './saran-bukti.js?v=2026-11-28-b0070d';
+import { pasangBkd } from './bkd.js?v=2026-11-28-b0070d';
+import { htmlTautanButir } from './tautan-butir.js?v=2026-11-28-b0070d';
+import { ISIAN_32, ISIAN_25, ISIAN_74, TINGKAT, FORM, SDGS } from './form-karya.js?v=2026-11-28-b0070d';
 import { barisKarya as htmlBarisKarya, muatBuktiKarya, daftarBuktiKarya as daftarBuktiDari,
   htmlDaftarBukti as htmlDaftarBuktiDari, berkasMilikKarya as berkasMilikDari,
-  pasangHapusBuktiAdmin } from './karya-tampil.js?v=2026-11-28-e24bbe';
-import { saringKarya, daftarNegara, ADA, TANPA } from './saring-karya.js?v=2026-11-28-e24bbe';
+  pasangHapusBuktiAdmin } from './karya-tampil.js?v=2026-11-28-b0070d';
+import { saringKarya, daftarNegara, ADA, TANPA } from './saring-karya.js?v=2026-11-28-b0070d';
 // Klaim insentif publikasi (163, pemilik 2026-11-24): panel di Karya saya + centang saat menyimpan publikasi baru.
-import { BERKAS_INSENTIF, STATUS_INSENTIF, berkasKurang, bolehKlaim, langkahPengklaim, tahunWIB } from './insentif.js?v=2026-11-28-e24bbe';
+import { BERKAS_INSENTIF, STATUS_INSENTIF, berkasKurang, bolehKlaim, langkahPengklaim, tahunWIB } from './insentif.js?v=2026-11-28-b0070d';
 let KLAIM = new Map(), ADA163 = true;   // karya_id -> baris insentif_publikasi
-import { hitungVerifikasi } from './verifikasi-hitung.js?v=2026-11-28-e24bbe';
+import { hitungVerifikasi } from './verifikasi-hitung.js?v=2026-11-28-b0070d';
 import { daftarDoi, ambilDoi, drafDari, rapiDoi, sitasiTahunan, cariJudul, bacaBibtex, judulRapi, pilihCocok,
-  drafDariBib, teksBatas, karyaOrcid, isianFormDari, KOLOM_FORM_DOI } from './impor-karya.js?v=2026-11-28-e24bbe';
-import { SUMBER_SITASI } from './sitasi.js?v=2026-11-28-e24bbe';
+  drafDariBib, teksBatas, karyaOrcid, isianFormDari, KOLOM_FORM_DOI } from './impor-karya.js?v=2026-11-28-b0070d';
+import { SUMBER_SITASI } from './sitasi.js?v=2026-11-28-b0070d';
 
 const app = document.getElementById('app');
 if (!SUPABASE_URL || !SUPABASE_ANON_KEY

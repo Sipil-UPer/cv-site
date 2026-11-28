@@ -1,7 +1,7 @@
 // Surat dan SK prodi (201-patch-surat-sk-prodi.sql, pemilik 2026-11-28). Fungsi murni: label, nomor dari pola (cermin
 // surat_format_nomor untuk pratinjau; nomor sebenarnya diberikan basis data saat disahkan), isi Word umum ber-QR, tugas,
 // rekap. Templat Word per jenis menyusul dari pemilik; sampai itu dipakai bentuk umum di isiSurat.
-import { para, run, teks, tabel, buatDocx, gambar } from './docx-dasar.js?v=2026-11-28-e24bbe';
+import { para, run, teks, tabel, buatDocx, gambar } from './docx-dasar.js?v=2026-11-28-b0070d';
 
 export const STATUS_SURAT = { draf: 'Draf', diajukan: 'Menunggu tanda tangan', dikembalikan: 'Dikembalikan', disahkan: 'Disahkan',
   dibatalkan: 'Dibatalkan', arsip: 'Arsip (ditandatangani di luar situs)' };
@@ -125,6 +125,23 @@ export const saringSk = (xs, { ta = '', jenis = '', cari = '' } = {}) => {
   return (xs || []).filter(s => (!ta || (s.tanggal && tahunAkademikSurat(s.tanggal) === ta)) && (!jenis || s.jenis === jenis)
     && (!q || `${s.nomor || ''} ${s.perihal || ''}`.toLowerCase().includes(q)));
 };
+
+// Kategori dan semester SK (203, pemilik 2026-11-28): SK pengajaran -> Mata kuliah saya; pembimbing/penguji TA -> Bimbingan TA.
+export const KATEGORI_SK = { pengajaran: 'SK pengajaran', pembimbing_ta: 'SK pembimbing TA', penguji_ta: 'SK penguji TA',
+  pembimbing_kp: 'SK pembimbing KP', panitia: 'SK panitia/tim', lainnya: 'Lainnya' };
+/** SK dosen pada kategori tertentu; bila ta/semester diberikan, hanya SK semester itu (SK tanpa semester tidak ikut). */
+export const skKategori = (xs, dosenId, kategori, { ta = null, semester = null } = {}) => skDosen(xs, dosenId)
+  .filter(s => kategori.includes(s.kategori) && (!ta || s.tahun_akademik === ta) && (!semester || s.semester === semester));
+const escH = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+/** Daftar SK ringkas dengan tombol Salin tautan (data-salin-sk); pasang dengan pasangSalinSk. */
+export const htmlDaftarSk = (xs, dasar) => `<ul style="margin:4px 0;padding-left:18px">${xs.map(s => {
+  const u = tautanSister(s, dasar);
+  return `<li><b>${escH(s.perihal)}</b> <span style="color:var(--muted);font-size:13px">${escH([s.nomor, s.tanggal, s.semester && `${s.semester} ${s.tahun_akademik}`].filter(Boolean).join(' · '))}</span>
+    ${u ? ` <button type="button" class="b kecil btn ghost sm" data-salin-sk="${escH(u)}">Salin tautan</button>` : ''}</li>`; }).join('')}</ul>`;
+export function pasangSalinSk(akar){
+  akar.querySelectorAll('[data-salin-sk]').forEach(b => { b.onclick = async () => {
+    try { await navigator.clipboard.writeText(b.dataset.salinSk); b.textContent = 'Tersalin'; } catch { prompt('Salin tautan ini:', b.dataset.salinSk); } }; });
+}
 
 /** Rekap per tahun x jenis: terbit (disahkan + arsip) dan dibatalkan. */
 export function rekapSurat(xs, jenis = []){

@@ -3,7 +3,7 @@
 // butir yang memakainya. Kartu dibuka pada TS isian itu lewat ?ts=, supaya
 // daftar "Data yang dipakai" di kartu memuat baris yang sama.
 
-import { BUTIR_LAM_TEKNIK } from './bobot.js?v=2026-11-28-e24bbe';
+import { BUTIR_LAM_TEKNIK } from './bobot.js?v=2026-11-28-b0070d';
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 

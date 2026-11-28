@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-28-e24bbe">
+<link rel="stylesheet" href="tema.css?v=2026-11-28-b0070d">
 <style>
   /* Panduan pengguna ruang kerja (pemilik 2026-11-04). Bagian admin hanya
      tampil untuk peran admin. Perbarui bila tombol atau halaman berubah. */
@@ -43,7 +43,7 @@
   @media(max-width:640px){nav.isi ol{columns:1}.wrap{padding:18px 16px 60px}}
   @media print{nav.isi{display:none}section{break-inside:avoid}}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-28-e24bbe">
+<link rel="stylesheet" href="kepala.css?v=2026-11-28-b0070d">
 </head>
 <body>
 
@@ -503,7 +503,11 @@
       <li><b>SK untuk banyak dosen</b> (SK pengajaran, pembimbing/penguji TA, panitia, termasuk SK fakultas): catat sekali dan centang semua dosen
         yang disebut. SK otomatis muncul di <b>Surat dan SK saya</b> dan tab <b>BKD saya</b> tiap dosen (dengan tombol <b>Salin tautan</b> untuk
         BKD/SISTER, tanpa unggah ulang) serta di <b>CV</b> dosen (tanpa tautan berkas). Isi <b>Berkas akhir</b> agar tautannya menuju PDF bertanda
-        tangan; tanpa itu, tautan menuju halaman verifikasi QR.</li>
+        tangan; tanpa itu, tautan menuju halaman verifikasi QR. Admin dapat <b>mengunggah PDF</b> langsung (tersimpan di pustaka dokumen prodi,
+        jenis SK); yang lain menempel tautan Drive.</li>
+      <li><b>Kategori dan semester SK</b>: pilih kategori (SK pengajaran, pembimbing TA, penguji TA, pembimbing KP, panitia/tim) dan, untuk SK per
+        semester, tahun akademik dan semesternya. Bisa diisi kapan saja lewat tombol <b>Kategori</b> di agenda, juga setelah disahkan. SK pengajaran
+        lalu tampil di <b>Mata kuliah saya</b> untuk semester itu, dan SK pembimbing/penguji TA di <b>Bimbingan TA</b> dosen yang disebut.</li>
     </ol>
   </section>
 
@@ -703,7 +707,7 @@
   </div>
 </main>
 
-<script src="config.js?v=2026-11-28-e24bbe"></script>
+<script src="config.js?v=2026-11-28-b0070d"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -720,8 +724,8 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-28-e24bbe';
-import { BUTIR_LAM_TEKNIK, NAMA_INSTRUMEN } from './bobot.js?v=2026-11-28-e24bbe';
+import { gerbang } from './menu.js?v=2026-11-28-b0070d';
+import { BUTIR_LAM_TEKNIK, NAMA_INSTRUMEN } from './bobot.js?v=2026-11-28-b0070d';
 // Panduan ini memakai contoh LAM Teknik (2026-11-25): instrumen lain mendapat catatan perbedaan di atas.
 if (!BUTIR_LAM_TEKNIK) { const c = document.getElementById('catatanInstrumen'); c.hidden = false;
   c.innerHTML = `<b>Instrumen prodi ini: ${NAMA_INSTRUMEN}.</b> Panduan ini ditulis dengan contoh LAM Teknik Sarjana (butir 1–60). Untuk instrumen ini: elemen, bobot, rubrik, dan syarat status mengikuti halaman <a href="skor.html">Skor dan LED</a>; draf LED dan LKPS memakai templat resmi instrumen ini (diunduh dari halaman yang sama); Simulasi PJP, grafik bernomor di draf LED, dan nomor butir di bagian lain panduan ini tidak berlaku.`; }

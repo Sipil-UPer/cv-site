@@ -11,8 +11,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-28-e24bbe">
-<link rel="stylesheet" href="kepala.css?v=2026-11-28-e24bbe">
+<link rel="stylesheet" href="tema.css?v=2026-11-28-b0070d">
+<link rel="stylesheet" href="kepala.css?v=2026-11-28-b0070d">
 <style>
   /* Dasar halaman ruang kerja (sama dengan halaman lain) */
   *{box-sizing:border-box}
@@ -44,7 +44,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></div>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-28-e24bbe"></script>
+<script src="config.js?v=2026-11-28-b0070d"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -63,9 +63,10 @@ addEventListener('error', function (e) {
 // silabus/CPMK/RPS dengan tautan langsung, dan kelas semester berjalan (Penyusunan kelas) dengan tautan nilai CPL, portofolio,
 // dan evaluasi. Hanya membaca; tugas yang tertunda tetap diingatkan di Tugas saya.
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-28-e24bbe';
-import { petaStatus, statusMK, mkSaya, luarProdi, LABEL_STATUS } from './koordinator-mk.js?v=2026-11-28-e24bbe';
-import { semesterKini } from './evaluasi-pembelajaran.js?v=2026-11-28-e24bbe';
+import { gerbang } from './menu.js?v=2026-11-28-b0070d';
+import { petaStatus, statusMK, mkSaya, luarProdi, LABEL_STATUS } from './koordinator-mk.js?v=2026-11-28-b0070d';
+import { semesterKini } from './evaluasi-pembelajaran.js?v=2026-11-28-b0070d';
+import { skKategori, htmlDaftarSk, pasangSalinSk } from './surat.js?v=2026-11-28-b0070d';
 
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -122,7 +123,16 @@ async function mulai(){
         <td class="tautan"><a href="nilai-cpl.html">Berkas nilai CPL</a><a href="portofolio.html?ta=${tae}&sm=${sme}&kode=${encodeURIComponent(k.kode_mk)}">Portofolio</a>
           <a href="evaluasi-pembelajaran.html?ta=${tae}&sm=${sme}">Evaluasi</a></td></tr>`).join('')}
       </tbody></table></div>`
-      : `<p class="kosong">Belum ada kelas atas nama Anda untuk ${esc(ta)} ${esc(sm)} di <a href="kelas.html">Penyusunan kelas</a>.</p>`}`;
+      : `<p class="kosong">Belum ada kelas atas nama Anda untuk ${esc(ta)} ${esc(sm)} di <a href="kelas.html">Penyusunan kelas</a>.</p>`}
+    <h2>SK pengajaran ${esc(ta)} ${esc(sm)}</h2><div id="skAjar"><p class="kosong">Memuat…</p></div>`;
+  // SK pengajaran semester ini yang menyebut Anda (201/203, pemilik 2026-11-28): bukti beban mengajar untuk BKD/SISTER.
+  const sk = await sb.from('surat').select('id,nomor,tanggal,perihal,status,kategori,tahun_akademik,semester,arsip_url,kode_verifikasi,dosen_ids')
+    .contains('dosen_ids', [saya.id]).in('status', ['disahkan', 'arsip']).then(r => (r.error ? null : r.data || []), () => null);
+  const ajar = sk ? skKategori(sk, saya.id, ['pengajaran'], { ta, semester: sm }) : [];
+  $('skAjar').innerHTML = sk === null ? '<p class="kosong">Daftar SK belum tersedia.</p>' : ajar.length ? htmlDaftarSk(ajar, location.href)
+    : `<p class="kosong">Belum ada SK pengajaran ${esc(ta)} ${esc(sm)} yang menyebut nama Anda. Admin mencatatnya di Surat dan SK dengan kategori
+      <b>SK pengajaran</b> dan semesternya; semua SK Anda: <a href="surat.html#saya">Surat dan SK saya</a>.</p>`;
+  pasangSalinSk($('skAjar'));
 }
 mulai().catch(e => { $('isi').innerHTML = `<p class="kosong">Gagal memuat: ${esc(e.message)}</p>`; });
 </script>

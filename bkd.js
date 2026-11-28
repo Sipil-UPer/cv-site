@@ -3,10 +3,10 @@
 // (pasangBkd) dan verifikasi.html (pasangVerifikasiBkd). Dosen lain diisi admin
 // di Data prodi. Berkas LKD privat: lihat unggahLKD dan bukaLKD.
 
-import { ubahan } from './prestasi.js?v=2026-11-28-e24bbe';
-import { htmlSaran } from './saran-bukti.js?v=2026-11-28-e24bbe';
-import { htmlTautanButir, tsDariTA } from './tautan-butir.js?v=2026-11-28-e24bbe';
-import { skDosen, tautanSister, tahunAkademikSurat } from './surat.js?v=2026-11-28-e24bbe';
+import { ubahan } from './prestasi.js?v=2026-11-28-b0070d';
+import { htmlSaran } from './saran-bukti.js?v=2026-11-28-b0070d';
+import { htmlTautanButir, tsDariTA } from './tautan-butir.js?v=2026-11-28-b0070d';
+import { skDosen, tautanSister, tahunAkademikSurat, KATEGORI_SK } from './surat.js?v=2026-11-28-b0070d';
 
 // Bagian C LKD. Pendidikan dipecah per PS untuk Tabel 4.c; SISTER tidak
 // punya kolom prodi, jadi dosen memilahnya menurut kode kelas.
@@ -123,7 +123,7 @@ export function tautanBkd(r, dtps = true){
 // (berkas bertanda tangan atau verifikasi QR). Tanpa patch 201 atau gagal dibaca = panel menjelaskan saja.
 async function muatSkBkd(sb, saya, box){
   if (!box) return;
-  const { data, error } = await sb.from('surat').select('id,nomor,tanggal,perihal,status,jenis,arsip_url,kode_verifikasi,dosen_ids,surat_jenis(nama)')
+  const { data, error } = await sb.from('surat').select('*,surat_jenis(nama)')
     .contains('dosen_ids', [saya.id]).in('status', ['disahkan', 'arsip']).then(r => r, () => ({ error: true }));
   if (error) { box.textContent = 'Daftar SK belum tersedia.'; return; }
   const xs = skDosen(data || [], saya.id);
@@ -134,7 +134,7 @@ async function muatSkBkd(sb, saya, box){
   box.innerHTML = [...per].map(([ta, ss]) => `<h3 style="font-size:14px;margin:12px 0 4px">${esc(ta)}</h3>${ss.map(s => {
     const u = tautanSister(s, location.href);
     return `<div class="rec"><div class="spine"></div><div class="rec-b"><div class="rec-j">${esc(s.perihal)}</div>
-      ${htmlMeta([s.surat_jenis?.nama || s.jenis, s.nomor, s.tanggal].filter(Boolean))}</div>
+      ${htmlMeta([KATEGORI_SK[s.kategori] || s.surat_jenis?.nama || s.jenis, s.semester && (s.semester + ' ' + s.tahun_akademik), s.nomor, s.tanggal].filter(Boolean))}</div>
       <div class="rec-a">${u ? `<button class="btn ghost sm" data-salin-sk="${esc(u)}">Salin tautan</button>` : '<span class="tag">tanpa berkas</span>'}</div></div>`;
   }).join('')}`).join('');
   box.querySelectorAll('[data-salin-sk]').forEach(b => { b.onclick = async () => {
