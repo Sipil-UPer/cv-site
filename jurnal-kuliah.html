@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="robots" content="noindex, nofollow">
+<title>Jurnal perkuliahan — Ruang kerja</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tema.css?v=2026-11-28-777263">
+<link rel="stylesheet" href="kepala.css?v=2026-11-28-777263">
+<style>
+  /* Jurnal perkuliahan (206-patch-jurnal-perkuliahan.sql, pemilik 2026-11-28) */
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
+  .wrap{max-width:1200px;margin:0 auto;padding:18px 20px 80px}
+  .kosong, .ket{color:var(--muted)}
+  .ket{font-size:13px}
+  .kartu{background:var(--panel);border:1px solid var(--line);padding:14px 18px;margin-bottom:16px}
+  .kartu h2{font-size:17px;margin:0 0 6px;color:var(--biru)}
+  .alat{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:8px 0}
+  select, input[type=text], input[type=date], textarea{font:inherit;font-size:14px;padding:5px 7px;border:1px solid var(--line);background:var(--panel);color:var(--ink)}
+  textarea{width:100%;min-height:52px}
+  .b{font:inherit;font-size:14px;padding:5px 12px;border:1px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer;text-decoration:none}
+  .b.utama{background:var(--biru);border-color:var(--biru);color:#fff}
+  .b.bahaya{color:var(--merah);border-color:var(--merah)}
+  .b.kecil{font-size:12.5px;padding:2px 8px}
+  .pesan{font-size:13px} .pesan.galat{color:var(--merah)} .pesan.ok{color:var(--hijau)}
+  .gulir{overflow-x:auto}
+  table.ds{width:100%;border-collapse:collapse;font-size:13.5px}
+  table.ds th{text-align:left;font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--line);padding:5px 6px}
+  table.ds td{padding:5px 6px;border-bottom:1px solid var(--line-soft);vertical-align:top}
+  .rps{font-size:12.5px;color:var(--muted);margin-bottom:4px}
+  .beda{color:#8A5A00;font-size:12.5px}
+  .st{font-size:12px;font-weight:600;padding:1px 7px;border:1px solid var(--line);white-space:nowrap}
+  .st.lengkap{color:var(--hijau);border-color:var(--hijau)} .st.kurang{color:#8A5A00;border-color:#8A5A00}
+  tr.kosongbaris td{background:rgba(0,0,0,.015)}
+  @media(max-width:700px){.wrap{padding-left:16px;padding-right:16px}}
+</style>
+</head>
+<body>
+<div class="hero" role="region" aria-label="Pembuka halaman"><div class="hero-in">
+  <div class="hero-inst" data-identitas></div>
+  <h1>Jurnal perkuliahan</h1>
+  <div class="sub" id="hSub">Memuat…</div>
+</div></div>
+<main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
+<script src="config.js?v=2026-11-28-777263"></script>
+<script>
+// Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
+addEventListener('error', function (e) {
+  if (document.getElementById('galat-muat')) return;
+  var d = document.createElement('div');
+  d.id = 'galat-muat';
+  d.style.cssText = 'margin:16px;padding:12px 14px;border:1px solid var(--merah);' +
+    'background:var(--merah-m3);color:var(--ink);font:14px/1.5 system-ui,sans-serif';
+  d.textContent = 'Halaman gagal dimuat: ' + (e.message || 'galat skrip') +
+    '. Tekan Ctrl+Shift+R untuk memuat ulang tanpa cache; bila tetap muncul, kirim pesan ini ke admin.';
+  document.body.insertBefore(d, document.body.firstChild);
+});
+</script>
+<script type="module">
+// Jurnal perkuliahan (206, pemilik 2026-11-28): pengajar kelas mengisi materi yang diajarkan tiap pertemuan; rencana dari materi
+// pekan RPS (versi disahkan bila ada); admin membantu kelas dosen luar DTPS; BAP Word. Logika: jurnal.js.
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
+import { gerbang } from './menu.js?v=2026-11-28-777263';
+import { punya } from './koordinator.js?v=2026-11-28-777263';
+import { semesterKini } from './evaluasi-pembelajaran.js?v=2026-11-28-777263';
+import { rencanaRps, susunJurnal, rekapJurnal, sesuaiRps, buatBap, namaBerkasBap } from './jurnal.js?v=2026-11-28-777263';
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const sb = createClient(window.SB_URL, window.SB_KEY);
+const baca = q => q.then(r => (r.error ? [] : r.data || []), () => []);
+const PARAM = new URLSearchParams(location.search);
+const hariIni = () => new Date(Date.now() + 7 * 3600e3).toISOString().slice(0, 10);
+
+let SAYA = null, SEM = null, SEMUA_SEM = [], KELAS = [], MK = [], DOSEN = [], ISI = [], RPS = new Map(), PILIH = null, PRODI = {}, TABEL_ADA = true;
+const KELOLA = () => SAYA?.peran === 'admin' || punya(SAYA, 'kaprodi');
+const kunciMK = (kur, kode) => `${kur}|${kode}`;
+const mkDari = k => MK.find(m => m.kurikulum === k.kurikulum && m.kode === k.kode_mk) || { kode: k.kode_mk, nama: '' };
+const namaDosen = id => { const d = DOSEN.find(x => x.id === id); return d ? (d.nama_gelar || d.nama) : '?'; };
+const luarDtps = id => { const d = DOSEN.find(x => x.id === id); return !d || d.dtps !== true; };
+const mengajar = k => (k.kelas_dosen || []).some(d => d.dosen_id === SAYA.id);
+const bolehTulis = k => KELOLA() || mengajar(k);
+const rencanaKelas = k => rencanaRps(RPS.get(kunciMK(k.kurikulum, k.kode_mk)));
+function tulis(id, kls, t){ const m = $(id); if (m) { m.className = 'pesan ' + kls; m.textContent = t; } }
+
+async function muatSemester(){
+  const [ta, sm] = SEM.split('|');
+  const kq = sb.from('kelas_kuliah').select('id,tahun_akademik,semester,kurikulum,kode_mk,kelas,kelas_dosen(dosen_id,peran,pertemuan)')
+    .eq('tahun_akademik', ta).eq('semester', sm).order('kode_mk').order('kelas');
+  KELAS = (await baca(kq)).filter(k => KELOLA() || mengajar(k));
+  const ids = KELAS.map(k => k.id);
+  const r = ids.length ? await sb.from('kelas_pertemuan').select('*').in('kelas_id', ids).order('pertemuan_ke') : { data: [] };
+  TABEL_ADA = !r.error; ISI = r.data || [];
+}
+
+function htmlDaftar(){
+  const opsiSem = SEMUA_SEM.map(s => `<option value="${esc(s)}"${s === SEM ? ' selected' : ''}>${esc(s.replace('|', ' '))}</option>`).join('');
+  return `<section class="kartu"><h2>Kelas ${KELOLA() ? 'semester ini' : 'yang saya ajar'}</h2>
+    <p class="ket">Pengajar kelas mencatat <b>materi yang benar-benar diajarkan</b> tiap pertemuan; materi pekan RPS tampil sebagai acuan dan isian awal.
+      Koordinator MK menyusun RPS; pengajar mengisi jurnal kelasnya. ${KELOLA() ? 'Admin membantu mengisi kelas yang diampu dosen di luar DTPS.' : ''}
+      Jurnal yang lengkap (semua pertemuan rencana RPS tercatat) memenuhi komponen BAP di Portofolio.</p>
+    <div class="alat"><label>Semester <select id="sSem">${opsiSem}</select></label></div>
+    ${!TABEL_ADA ? '<p class="kosong">Tabel belum ada: jalankan supabase/206-patch-jurnal-perkuliahan.sql.</p>' : KELAS.length ? `<div class="gulir"><table class="ds">
+      <thead><tr><th>Mata kuliah</th><th>Kelas</th><th>Pengajar</th><th>Jurnal</th><th></th></tr></thead><tbody>
+      ${KELAS.map(k => { const m = mkDari(k), r = rekapJurnal(ISI.filter(x => x.kelas_id === k.id), rencanaKelas(k));
+        const peng = (k.kelas_dosen || []).map(d => `${esc(namaDosen(d.dosen_id))}${d.pertemuan ? ` (${d.pertemuan})` : ''}${luarDtps(d.dosen_id) ? ' <span class="ket">luar DTPS</span>' : ''}`).join(', ');
+        return `<tr><td>${esc(k.kode_mk)} ${esc(m.nama)}</td><td>${esc(k.kelas)}</td><td>${peng || '<span class="ket">belum ditetapkan</span>'}</td>
+          <td><span class="st ${r.lengkap ? 'lengkap' : 'kurang'}">${r.isi}${r.rencana ? ` dari ${r.rencana}` : ''} pertemuan</span>${r.beda ? `<div class="beda">${r.beda} berbeda dari RPS</div>` : ''}
+            ${!r.rencana ? '<div class="ket">RPS belum punya rencana pekan</div>' : ''}</td>
+          <td><a class="b kecil ${bolehTulis(k) ? 'utama' : ''}" href="?kelas=${k.id}">${bolehTulis(k) ? 'Isi' : 'Lihat'}</a></td></tr>`; }).join('')}
+      </tbody></table></div>` : `<p class="kosong">Tidak ada kelas ${KELOLA() ? '' : 'atas nama Anda '}pada semester ini di <a href="kelas.html">Penyusunan kelas</a>.</p>`}</section>`;
+}
+
+function htmlKelas(k){
+  const m = mkDari(k), boleh = bolehTulis(k), rencana = rencanaKelas(k), isi = ISI.filter(x => x.kelas_id === k.id);
+  const baris = susunJurnal(rencana, isi), r = rekapJurnal(isi, rencana);
+  const dosenKelas = (k.kelas_dosen || []).map(d => d.dosen_id);
+  const opsiPengajar = x => `${dosenKelas.map(id => `<option value="${id}"${(x?.dosen_id || (!x && id === SAYA.id && mengajar(k) ? id : '')) === id ? ' selected' : ''}>${esc(namaDosen(id))}</option>`).join('')}
+    <option value=""${x && !x.dosen_id ? ' selected' : ''}>Pengajar lain (tulis nama)</option>`;
+  const baru = PARAM.get('tambah') ? +PARAM.get('tambah') : null;
+  const semua = baru && !baris.some(b => b.ke === baru) ? [...baris, { ke: baru, rencana: null, isi: null }] : baris;
+  return `<p><a href="jurnal-kuliah.html?sem=${encodeURIComponent(SEM)}">&larr; Semua kelas</a></p>
+    <section class="kartu"><h2>${esc(k.kode_mk)} ${esc(m.nama)} · kelas ${esc(k.kelas)} · ${esc(k.semester)} ${esc(k.tahun_akademik)}</h2>
+      <p class="ket">Pengajar: ${(k.kelas_dosen || []).map(d => `${esc(namaDosen(d.dosen_id))}${d.pertemuan ? ` (${d.pertemuan} pertemuan)` : ''}`).join(', ') || 'belum ditetapkan'}.
+        Tercatat <b>${r.isi}</b>${r.rencana ? ` dari ${r.rencana}` : ''} pertemuan${r.beda ? `; ${r.beda} berbeda dari RPS` : ''}.
+        ${rencana.length ? 'Rencana dari materi pekan RPS.' : 'RPS mata kuliah ini belum punya rencana pekan; isi materi langsung.'}</p>
+      <div class="alat"><button type="button" class="b" id="bBap">Unduh BAP (Word)</button>
+        ${boleh ? `<a class="b" href="?kelas=${k.id}&tambah=${Math.max(0, ...semua.map(b => b.ke)) + 1}">Tambah pertemuan</a>` : ''}
+        <span class="pesan" id="mBap" role="status"></span></div>
+      <div class="gulir"><table class="ds"><thead><tr><th>Ke</th><th>Tanggal</th><th>Pengajar</th><th>Materi yang diajarkan</th><th>Catatan</th><th></th></tr></thead><tbody>
+      ${semua.map(b => { const x = b.isi, rm = b.rencana?.materi || '';
+        if (!boleh) return x ? `<tr><td>${b.ke}</td><td>${esc(x.tanggal)}</td><td>${esc(x.dosen_id ? namaDosen(x.dosen_id) : x.pengajar)}</td>
+          <td>${esc(x.materi)}${!sesuaiRps(x.materi, x.materi_rps) ? `<div class="beda">RPS: ${esc(x.materi_rps)}</div>` : ''}</td><td>${esc(x.catatan || '')}</td><td></td></tr>`
+          : `<tr class="kosongbaris"><td>${b.ke}</td><td colspan="5" class="ket">belum tercatat${rm ? ` · rencana: ${esc(rm)}` : ''}</td></tr>`;
+        return `<tr class="${x ? '' : 'kosongbaris'}" data-ke="${b.ke}"><td>${b.ke}</td>
+          <td><input type="date" data-f="tanggal" value="${esc(x?.tanggal || '')}"></td>
+          <td><select data-f="dosen_id">${opsiPengajar(x)}</select>
+            <input type="text" data-f="pengajar" maxlength="120" placeholder="nama pengajar lain" value="${esc(x?.pengajar || '')}" style="margin-top:4px;${x && !x.dosen_id ? '' : 'display:none'}"></td>
+          <td>${rm ? `<div class="rps">RPS: ${esc(rm)}</div>` : ''}<textarea data-f="materi" maxlength="2000">${esc(x?.materi ?? rm)}</textarea>
+            ${x && !sesuaiRps(x.materi, x.materi_rps) ? '<div class="beda">berbeda dari RPS</div>' : ''}</td>
+          <td><textarea data-f="catatan" maxlength="1000" placeholder="opsional">${esc(x?.catatan || '')}</textarea></td>
+          <td style="white-space:nowrap"><button type="button" class="b kecil utama" data-simpan="${b.ke}">${x ? 'Simpan' : 'Catat'}</button>
+            ${x ? `<button type="button" class="b kecil bahaya" data-hapus="${x.id}">Hapus</button>` : ''}<div class="pesan" data-m="${b.ke}"></div></td></tr>`; }).join('')
+        || '<tr><td colspan="6" class="kosong">Belum ada pertemuan. Tekan Tambah pertemuan.</td></tr>'}
+      </tbody></table></div></section>`;
+}
+
+function gambar(){
+  const k = PILIH ? KELAS.find(x => x.id === PILIH) : null;
+  $('isi').innerHTML = k ? htmlKelas(k) : htmlDaftar();
+  if ($('sSem')) $('sSem').onchange = async e => { SEM = e.target.value; history.replaceState(null, '', `?sem=${encodeURIComponent(SEM)}`); await muatSemester(); gambar(); };
+  if (!k) return;
+  document.querySelectorAll('select[data-f="dosen_id"]').forEach(s => { s.onchange = () => { s.parentElement.querySelector('[data-f="pengajar"]').style.display = s.value ? 'none' : ''; }; });
+  document.querySelectorAll('[data-simpan]').forEach(b => { b.onclick = () => simpan(k, +b.dataset.simpan); });
+  document.querySelectorAll('[data-hapus]').forEach(b => { b.onclick = async () => {
+    if (!confirm('Hapus catatan pertemuan ini?')) return;
+    const { error } = await sb.from('kelas_pertemuan').delete().eq('id', +b.dataset.hapus);
+    if (error) return alert('Gagal menghapus: ' + error.message);
+    await muatSemester(); gambar(); }; });
+  $('bBap').onclick = () => unduhBap(k);
+}
+
+async function simpan(k, ke){
+  const tr = document.querySelector(`tr[data-ke="${ke}"]`), f = n => tr.querySelector(`[data-f="${n}"]`).value.trim();
+  const rm = rencanaKelas(k).find(r => r.ke === ke)?.materi || null;
+  const isi = { kelas_id: k.id, pertemuan_ke: ke, tanggal: f('tanggal'), dosen_id: f('dosen_id') || null, pengajar: f('dosen_id') ? null : (f('pengajar') || null),
+    materi: f('materi'), materi_rps: rm, catatan: f('catatan') || null };
+  const m = document.querySelector(`[data-m="${ke}"]`), salah = t => { m.className = 'pesan galat'; m.textContent = t; };
+  if (!isi.tanggal) return salah('Isi tanggal.');
+  if (isi.tanggal > hariIni()) return salah('Tanggal belum lewat.');
+  if (!isi.dosen_id && !isi.pengajar) return salah('Pilih atau tulis pengajar.');
+  if (isi.materi.length < 3) return salah('Tulis materi.');
+  const { error } = await sb.from('kelas_pertemuan').upsert(isi, { onConflict: 'kelas_id,pertemuan_ke' });
+  if (error) return salah('Gagal: ' + error.message);
+  await muatSemester(); gambar();
+  const m2 = document.querySelector(`[data-m="${ke}"]`); if (m2) { m2.className = 'pesan ok'; m2.textContent = 'Tersimpan.'; }
+}
+
+async function unduhBap(k){
+  tulis('mBap', '', 'Menyusun…');
+  try {
+    const m = mkDari(k), rencana = rencanaKelas(k), isi = ISI.filter(x => x.kelas_id === k.id);
+    const blob = await buatBap({ prodi: PRODI.prodi, institusi: PRODI.institusi, mk: m, kelas: k, tanggal: hariIni(),
+      pengampu: (k.kelas_dosen || []).map(d => namaDosen(d.dosen_id)), baris: susunJurnal(rencana, isi),
+      namaPengajar: x => (x.dosen_id ? namaDosen(x.dosen_id) : x.pengajar) });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob); a.download = namaBerkasBap(m, k); a.click(); URL.revokeObjectURL(a.href);
+    tulis('mBap', 'ok', 'Diunduh. Unggah ke Portofolio bila perlu berkas bertanda tangan; jurnal yang lengkap sudah memenuhi komponen BAP.');
+  } catch (e) { tulis('mBap', 'galat', 'Gagal: ' + (e.message || e)); }
+}
+
+async function mulai(){
+  SAYA = await gerbang(sb);
+  if (!SAYA) return;
+  $('hSub').textContent = `Masuk sebagai ${SAYA.nama}`;
+  const [mk, ds, sems, rps, dj] = await Promise.all([
+    baca(sb.from('ref_mata_kuliah').select('kurikulum,kode,nama,sks')),
+    baca(sb.from('dosen').select('id,nama,nama_gelar,dtps,aktif')),
+    baca(sb.from('kelas_kuliah').select('tahun_akademik,semester')),
+    baca(sb.from('mk_rps').select('kurikulum,kode_mk,data,sah')),
+    fetch('data.json', { cache: 'no-cache' }).then(r => (r.ok ? r.json() : {})).catch(() => ({}))]);
+  MK = mk; DOSEN = ds; PRODI = { prodi: dj.prodi || '', institusi: dj.institusi || '' };
+  // RPS versi disahkan bila ada (rencana resmi), selain itu draf terakhir.
+  RPS = new Map(rps.map(r => [kunciMK(r.kurikulum, r.kode_mk), r.sah?.rps || r.data]));
+  const { ta, sm } = semesterKini(), kini = `${ta}|${sm}`;
+  SEMUA_SEM = [...new Set([kini, ...sems.map(s => `${s.tahun_akademik}|${s.semester}`)])].sort().reverse();
+  const minta = PARAM.get('kelas') ? +PARAM.get('kelas') : null;
+  if (minta) {
+    const k = (await baca(sb.from('kelas_kuliah').select('tahun_akademik,semester').eq('id', minta)))[0];
+    if (k) SEM = `${k.tahun_akademik}|${k.semester}`;
+  }
+  SEM = SEM || (SEMUA_SEM.includes(PARAM.get('sem')) ? PARAM.get('sem') : kini);
+  await muatSemester();
+  PILIH = minta && KELAS.some(k => k.id === minta) ? minta : null;
+  gambar();
+}
+mulai().catch(e => { $('isi').innerHTML = `<p class="kosong">Gagal memuat: ${esc(e.message)}</p>`; });
+</script>
+</body>
+</html>

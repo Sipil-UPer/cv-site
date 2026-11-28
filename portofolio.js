@@ -77,7 +77,10 @@ export function kelengkapan(o){
   const kelas = (o.kelas || []).map(k => ({ kelas: k.kelas, item: [
     ...['contoh_tinggi', 'contoh_sedang', 'contoh_rendah'].map(c => ({ label: KOMPONEN[c].label, ada: ada(c, k.kelas), komponen: c })),
     { label: KOMPONEN.presensi.label, ada: ada('presensi', k.kelas), komponen: 'presensi' },
-    { label: KOMPONEN.bap.label, ada: ada('bap', k.kelas), komponen: 'bap' },
+    // Jurnal perkuliahan (206, pemilik 2026-11-28): jurnal yang lengkap (semua pertemuan rencana RPS tercatat) memenuhi BAP;
+    // k.jurnal = {isi, rencana, lengkap} (rekapJurnal) atau tidak ada (berkas unggahan saja).
+    { label: `${KOMPONEN.bap.label}${k.jurnal ? ` (jurnal ${k.jurnal.isi}${k.jurnal.rencana ? `/${k.jurnal.rencana}` : ''} pertemuan)` : ''}`,
+      ada: ada('bap', k.kelas) || !!k.jurnal?.lengkap, komponen: 'bap' },
     { label: 'Berkas nilai CPL', ada: !!k.nilai }] }));
   const semua = [...mk, ...kelas.flatMap(k => k.item)];
   return { mk, kelas, ada: semua.filter(x => x.ada).length, total: semua.length };

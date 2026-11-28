@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-28-a5de85">
+<link rel="stylesheet" href="tema.css?v=2026-11-28-777263">
 <style>
   /* Panduan pengguna ruang kerja (pemilik 2026-11-04). Bagian admin hanya
      tampil untuk peran admin. Perbarui bila tombol atau halaman berubah. */
@@ -43,7 +43,7 @@
   @media(max-width:640px){nav.isi ol{columns:1}.wrap{padding:18px 16px 60px}}
   @media print{nav.isi{display:none}section{break-inside:avoid}}
 </style>
-<link rel="stylesheet" href="kepala.css?v=2026-11-28-a5de85">
+<link rel="stylesheet" href="kepala.css?v=2026-11-28-777263">
 </head>
 <body>
 
@@ -196,7 +196,9 @@
       admin juga dapat mengisi. Tim MK dan dosen pengampu kelas <b>membaca</b> RPS dan silabus, lalu mengisi <b>materi</b> dan portofolio
       kelasnya (pemilik 2026-11-28). Koordinator dapat diganti tiap semester; penggantian tercatat di riwayat per semester, dan RPS
       serta silabus yang sudah ada dilanjutkan koordinator yang baru. Portofolio kelas yang diampu dosen di luar DTPS dibantu admin
-      (Portofolio › <b>Hanya kelas dosen luar DTPS</b>; berkas yang diunggah admin bertanda). Daftar MK Anda beserta status silabus, CPMK, dan RPS ada di
+      (Portofolio › <b>Hanya kelas dosen luar DTPS</b>; berkas yang diunggah admin bertanda). Pengajar kelas mencatat <b>materi yang
+      diajarkan tiap pertemuan</b> di <b>Pengajaran ▾ › Jurnal perkuliahan</b> (materi pekan RPS tampil sebagai acuan dan isian awal; yang
+      berbeda dari RPS ditandai); dari sana tersedia <b>BAP Word</b>, dan jurnal yang lengkap memenuhi komponen BAP di Portofolio. Daftar MK Anda beserta status silabus, CPMK, dan RPS ada di
       <b>Pengajaran ▾ › Mata kuliah saya</b>.
       MK yang diselenggarakan universitas atau fakultas (MKU, Kalkulus, Fisika Dasar, …) tidak punya tim prodi: Kaprodi menunjuk
       satu <b>koordinator prodi</b> dari DTPS (boleh kosong, lalu admin) yang meminta silabus dan RPS resminya ke universitas/fakultas,
@@ -714,7 +716,7 @@
   </div>
 </main>
 
-<script src="config.js?v=2026-11-28-a5de85"></script>
+<script src="config.js?v=2026-11-28-777263"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache bercampur dengan
 // halaman baru) ditampilkan sebagai pesan, bukan halaman kosong.
@@ -731,8 +733,8 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-28-a5de85';
-import { BUTIR_LAM_TEKNIK, NAMA_INSTRUMEN } from './bobot.js?v=2026-11-28-a5de85';
+import { gerbang } from './menu.js?v=2026-11-28-777263';
+import { BUTIR_LAM_TEKNIK, NAMA_INSTRUMEN } from './bobot.js?v=2026-11-28-777263';
 // Panduan ini memakai contoh LAM Teknik (2026-11-25): instrumen lain mendapat catatan perbedaan di atas.
 if (!BUTIR_LAM_TEKNIK) { const c = document.getElementById('catatanInstrumen'); c.hidden = false;
   c.innerHTML = `<b>Instrumen prodi ini: ${NAMA_INSTRUMEN}.</b> Panduan ini ditulis dengan contoh LAM Teknik Sarjana (butir 1–60). Untuk instrumen ini: elemen, bobot, rubrik, dan syarat status mengikuti halaman <a href="skor.html">Skor dan LED</a>; draf LED dan LKPS memakai templat resmi instrumen ini (diunduh dari halaman yang sama); Simulasi PJP, grafik bernomor di draf LED, dan nomor butir di bagian lain panduan ini tidak berlaku.`; }

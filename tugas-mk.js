@@ -1,13 +1,15 @@
 // Tugas saya untuk koordinator MK dan pengampu kelas (pemilik 2026-11-17; OBE O2 dan O3).
 // Hanya yang belum punya pengingat lain: CPMK/RPS (cpmk.html) dan unggahan portofolio (portofolio.html).
 // Berkas nilai CPL dan refleksi evaluasi sudah diingatkan tugas-saya.js / evaluasi-pembelajaran.js.
-import { periksaStruktur } from './templat-cpl.js?v=2026-11-28-a5de85';
-import { cplMK, dataTemplat, statusStruktur } from './cpmk.js?v=2026-11-28-a5de85';
-import { bolehTinjau, cariTinjauan, statusTindak, petaRps, daftarSemester as semesterTinjau, mkSemester as mkTinjau } from './tinjauan-rps.js?v=2026-11-28-a5de85';
-import { kelengkapan, mkSemester, daftarSemester } from './portofolio.js?v=2026-11-28-a5de85';
-import { luarProdi } from './koordinator-mk.js?v=2026-11-28-a5de85';
+import { periksaStruktur } from './templat-cpl.js?v=2026-11-28-777263';
+import { cplMK, dataTemplat, statusStruktur } from './cpmk.js?v=2026-11-28-777263';
+import { bolehTinjau, cariTinjauan, statusTindak, petaRps, daftarSemester as semesterTinjau, mkSemester as mkTinjau } from './tinjauan-rps.js?v=2026-11-28-777263';
+import { kelengkapan, mkSemester, daftarSemester } from './portofolio.js?v=2026-11-28-777263';
+import { luarProdi } from './koordinator-mk.js?v=2026-11-28-777263';
 
 const kecil = s => String(s || '').trim().toLowerCase();
+// Jurnal perkuliahan (206): d.jurnal = Map `${ta}|${semester}|${KODE}|${kelas}` -> rekapJurnal; lengkap memenuhi komponen BAP.
+const jurnalDari = (d, sem, x, kelas) => d.jurnal?.get(`${sem.ta}|${sem.sm}|${String(x.kode).toUpperCase()}|${kelas}`) || null;
 const potong = (xs, n = 6) => xs.slice(0, n).join('; ') + (xs.length > n ? `; dan ${xs.length - n} lagi` : '');
 
 /**
@@ -76,7 +78,7 @@ export function tugasMK(d){
     // Bagian otomatis (RPS, CPMK, refleksi, nilai) dianggap ada: pengingatnya di tempat lain.
     const k = kelengkapan({ rps: true, cpmkLengkap: true, refleksi: true, asesmen: (s?.asesmen || []).map(a => a.nama), berkas,
       rubrikRps: d.rubrikRps?.get(`${x.kurikulum}|${x.kode}`),
-      kelas: x.kelas.map(c => ({ kelas: c.kelas, nilai: true })) });
+      kelas: x.kelas.map(c => ({ kelas: c.kelas, nilai: true, jurnal: jurnalDari(d, sem, x, c.kelas) })) });
     const nMK = (sayaKoor || (!luarProdi(ref) && !koor(ref).length && kelasSaya.length)) ? k.mk.filter(it => it.komponen && !it.ada).length : 0;
     const nKelas = k.kelas.filter(c => kelasSaya.includes(c.kelas)).map(c => [c.kelas, c.item.filter(it => it.komponen && !it.ada).length]).filter(([, n]) => n);
     if (nMK || nKelas.length) butir.push({ x, teks: `${x.kode}${[nMK ? `tingkat MK ${nMK} komponen` : '', ...nKelas.map(([kl, n]) => `kelas ${kl} ${n} komponen`)]
@@ -95,7 +97,7 @@ export function tugasMK(d){
       const s = str.get(`${x.kurikulum}|${x.kode}`);
       const berkas = (d.berkas || []).filter(b => b.tahun_akademik === sem.ta && b.semester === sem.sm && b.kurikulum === x.kurikulum && b.kode_mk === x.kode);
       const k = kelengkapan({ rps: true, cpmkLengkap: true, refleksi: true, asesmen: (s?.asesmen || []).map(a => a.nama), berkas,
-        rubrikRps: d.rubrikRps?.get(`${x.kurikulum}|${x.kode}`), kelas: x.kelas.map(c => ({ kelas: c.kelas, nilai: true })) });
+        rubrikRps: d.rubrikRps?.get(`${x.kurikulum}|${x.kode}`), kelas: x.kelas.map(c => ({ kelas: c.kelas, nilai: true, jurnal: jurnalDari(d, sem, x, c.kelas) })) });
       for (const c of k.kelas.filter(c => kl.some(z => z.kelas === c.kelas))) {
         const n = c.item.filter(it => it.komponen && !it.ada).length;
         if (n) luar.push(`${x.kode} kelas ${c.kelas} (${n} komponen)`);

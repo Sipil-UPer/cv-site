@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-28-a5de85">
+<link rel="stylesheet" href="tema.css?v=2026-11-28-777263">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
@@ -101,7 +101,7 @@
 
 <main class="wrap" id="isi"><p class="hint">Memuat&hellip;</p></main>
 
-<script src="config.js?v=2026-11-28-a5de85"></script>
+<script src="config.js?v=2026-11-28-777263"></script>
 <script>
 // Galat saat memuat skrip (mis. modul lama dari cache) tampil sebagai pesan.
 addEventListener('error', function (e) {
@@ -117,17 +117,18 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { pengguna, pasangMenu, halamanBoleh, bolehBuka, identitas, pasangJudul, pintasanUntuk, denganSub } from './menu.js?v=2026-11-28-a5de85';
-import { kelasMengajarSaya } from './mk-saya.js?v=2026-11-28-a5de85';
-import { hitungVerifikasi } from './verifikasi-hitung.js?v=2026-11-28-a5de85';
-import { rubrikRps } from './rps.js?v=2026-11-28-a5de85';
-import { bacaTinjauan } from './tinjauan-rps.js?v=2026-11-28-a5de85';
-import { isoDari } from './pengingat-rps.js?v=2026-11-28-a5de85';
-import { tugasSaya } from './tugas-saya.js?v=2026-11-28-a5de85';
-import { fiturAktif, halamanAktif } from './fitur.js?v=2026-11-28-a5de85';
+import { pengguna, pasangMenu, halamanBoleh, bolehBuka, identitas, pasangJudul, pintasanUntuk, denganSub } from './menu.js?v=2026-11-28-777263';
+import { kelasMengajarSaya } from './mk-saya.js?v=2026-11-28-777263';
+import { hitungVerifikasi } from './verifikasi-hitung.js?v=2026-11-28-777263';
+import { rubrikRps } from './rps.js?v=2026-11-28-777263';
+import { rencanaRps, rekapJurnal } from './jurnal.js?v=2026-11-28-777263';
+import { bacaTinjauan } from './tinjauan-rps.js?v=2026-11-28-777263';
+import { isoDari } from './pengingat-rps.js?v=2026-11-28-777263';
+import { tugasSaya } from './tugas-saya.js?v=2026-11-28-777263';
+import { fiturAktif, halamanAktif } from './fitur.js?v=2026-11-28-777263';
 // Situs publik mati (templat akreditasi, pemilik 2026-11-23): tanpa tautan ke beranda umum.
 if (!halamanAktif('index.html')) document.querySelector('a.balik[href="index.html"]')?.remove();
-import { barisDosen } from './target-kinerja.js?v=2026-11-28-a5de85';
+import { barisDosen } from './target-kinerja.js?v=2026-11-28-777263';
 
 const sb = createClient(window.SB_URL, window.SB_KEY);
 const $ = id => document.getElementById(id);
@@ -279,10 +280,17 @@ async function muatTugas(saya){
       baca(sb.from('ref_mk_cpl').select('kurikulum,kode_mk,cpl,indikator')),
       sb.rpc('portofolio_ringkas').then(r => r.data?.kelas || [], () => []),
       baca(sb.from('portofolio_berkas').select('tahun_akademik,semester,kurikulum,kode_mk,kelas,komponen,asesmen'))]);
-    const rubrikMK = new Map((await baca(sb.from('mk_rps').select('kurikulum,kode_mk,data,sah'))).map(r => [`${r.kurikulum}|${r.kode_mk}`, rubrikRps(r.sah?.rps || r.data)]));
+    const rpsBaris = await baca(sb.from('mk_rps').select('kurikulum,kode_mk,data,sah'));
+    const rubrikMK = new Map(rpsBaris.map(r => [`${r.kurikulum}|${r.kode_mk}`, rubrikRps(r.sah?.rps || r.data)]));
+    // Jurnal perkuliahan (206): rekap per kelas; jurnal lengkap memenuhi komponen BAP (tanpa patch = kosong).
+    const rencanaMK = new Map(rpsBaris.map(r => [`${r.kurikulum}|${r.kode_mk}`, rencanaRps(r.sah?.rps || r.data)]));
+    const [kk, jr] = await Promise.all([baca(sb.from('kelas_kuliah').select('id,tahun_akademik,semester,kurikulum,kode_mk,kelas')),
+      baca(sb.from('kelas_pertemuan').select('kelas_id,materi,materi_rps'))]);
+    const jurnal = new Map(kk.map(k => [`${k.tahun_akademik}|${k.semester}|${String(k.kode_mk).toUpperCase()}|${k.kelas}`,
+      rekapJurnal(jr.filter(j => j.kelas_id === k.id), rencanaMK.get(`${k.kurikulum}|${k.kode_mk}`) || [])]));
     const dtpsEmail = saya.peran === 'admin' ? new Set((await baca(sb.from('dosen').select('email,dtps,aktif')))
       .filter(x => x.dtps === true && x.aktif !== false && x.email).map(x => String(x.email).toLowerCase())) : null;
-    dataMK = { mk: mkRef, struktur, refCpl, peta, kelas: kelasMK, berkas: berkasPorto, tinjau: await bacaTinjauan(sb), rubrikRps: rubrikMK, tim, dtpsEmail };   // tinjauan RPS (115)
+    dataMK = { mk: mkRef, struktur, refCpl, peta, kelas: kelasMK, berkas: berkasPorto, tinjau: await bacaTinjauan(sb), rubrikRps: rubrikMK, tim, dtpsEmail, jurnal };   // tinjauan RPS (115)
   }
   // Pengajuan mahasiswa (90-patch-pengajuan-mahasiswa.sql); tanpa tabel = tidak tampil.
   const pengajuanMhs = await baca(sb.from('pengajuan_mahasiswa').select('nama,jenis,status,pembimbing_id,diperbarui')
@@ -337,7 +345,7 @@ async function muatTugas(saya){
     const buka = await baca(sb.from('survei').select('id,judul,kelompok,tahun_ts,mulai,selesai,dicabut')
       .lte('mulai', hariIni).gte('selesai', hariIni).eq('dicabut', false));
     if (buka.length) {
-      const { muatPopulasi, targetSurvei } = await import('./survei-mutu.js?v=2026-11-28-a5de85');
+      const { muatPopulasi, targetSurvei } = await import('./survei-mutu.js?v=2026-11-28-777263');
       const [pop, ns] = await Promise.all([muatPopulasi(sb, saya), Promise.all(buka.map(s =>
         sb.from('survei_jawaban').select('id', { count: 'exact', head: true }).eq('survei_id', s.id).then(r => r.count || 0, () => 0)))]);
       surveiBerjalan = buka.map((s, i) => ({ judul: s.judul, selesai: s.selesai, n: ns[i], target: targetSurvei(s, pop, hariIni).target }));
