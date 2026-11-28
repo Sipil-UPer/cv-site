@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<title>Peminjaman alat laboratorium — Program Studi</title>
+<meta name="description" content="Peminjaman alat laboratorium oleh mahasiswa: daftar alat, syarat induksi K3, pengajuan daring, dan lacak keputusan kepala laboratorium.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tema.css?v=2026-11-28-c88499">
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:960px;margin:0 auto;padding:0 20px 90px}
+  a{color:var(--biru-2)}
+  .hero{position:relative;background:var(--biru);color:#fff;overflow:hidden;border-bottom:4px solid var(--merah)}
+  .hero-in{position:relative;max-width:960px;margin:0 auto;padding:30px 20px 26px}
+  h1{font-family:var(--serif);font-size:clamp(24px,4.2vw,34px);font-weight:600;letter-spacing:-.018em;margin:0;line-height:1.14;color:#fff}
+  .prodi{color:var(--biru-m4);font-size:14.5px;margin-top:7px}
+  h2{font-family:var(--serif);font-size:21px;font-weight:600;margin:30px 0 8px;color:var(--biru)}
+  h3{font-family:var(--serif);font-size:17px;font-weight:600;margin:0 0 4px;color:var(--biru)}
+  .ket{color:var(--muted);font-size:13px}
+  .kosong{color:var(--muted);font-size:13.5px;padding:16px 0}
+  .kartu{background:var(--panel);border:1px solid var(--line);border-radius:2px;padding:14px 18px;margin:12px 0}
+  .kartu .isi{white-space:pre-wrap;font-size:14px;margin:6px 0}
+  .lencana{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;border:1px solid var(--line);padding:1px 6px;margin-right:6px;color:var(--muted)}
+  .lencana.tegas{color:var(--biru);border-color:var(--biru)}
+  .alat{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:8px 0}
+  .form{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:8px 14px;margin:8px 0}
+  .form label{display:flex;flex-direction:column;font-size:13px;color:var(--muted);gap:3px}
+  .form .lebar{grid-column:1/-1}
+  input, select, textarea{font:inherit;font-size:14px;padding:6px 8px;border:1px solid var(--line);background:var(--panel);color:var(--ink)}
+  textarea{width:100%}
+  .b{font:inherit;font-size:14px;padding:6px 14px;border:1px solid var(--biru);background:var(--biru);color:#fff;cursor:pointer;text-decoration:none}
+  .b.lain{background:var(--panel);color:var(--biru)}
+  .b:disabled{opacity:.6;cursor:default}
+  .pesan{font-size:13.5px;margin:6px 0} .pesan.galat{color:var(--merah)} .pesan.ok{color:var(--hijau)}
+  .jebakan{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+  code{font-family:var(--mono);font-size:13px}
+  footer{margin-top:50px;padding-top:20px;border-top:3px solid var(--biru);font-size:12.5px;color:var(--muted)}
+  footer a{margin-right:14px}
+</style>
+</head>
+<body>
+<div class="hero" role="region" aria-label="Pembuka halaman"><div class="hero-in">
+  <h1>Peminjaman alat laboratorium</h1>
+  <div class="prodi" id="hProdi"></div>
+</div></div>
+<main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
+<script src="config.js?v=2026-11-28-c88499"></script>
+<script>
+// Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
+addEventListener('error', function (e) {
+  if (document.getElementById('galat-muat')) return;
+  var d = document.createElement('div');
+  d.id = 'galat-muat';
+  d.style.cssText = 'margin:16px;padding:12px 14px;border:1px solid var(--merah);' +
+    'background:var(--merah-m3);color:var(--ink);font:14px/1.5 system-ui,sans-serif';
+  d.textContent = 'Halaman gagal dimuat: ' + (e.message || 'galat skrip') +
+    '. Tekan Ctrl+Shift+R untuk memuat ulang tanpa cache; bila tetap muncul, kirim pesan ini ke admin.';
+  document.body.insertBefore(d, document.body.firstChild);
+});
+</script>
+<script type="module">
+// Peminjaman alat laboratorium (204, pemilik 2026-11-28: cukup persetujuan kepala lab): lab_alat_pinjam_publik() (alat yang
+// boleh dipinjam, tanpa data peminjam), ajukan_pinjam_alat (syarat induksi K3 lab itu dan unit tersedia; kode lacak), lacak_pinjam.
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
+import { pasangKerangka, isiKerangka } from './kerangka.js?v=2026-11-28-c88499';
+pasangKerangka({ aktif: 'mahasiswa' });
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const sb = createClient(window.SB_URL, window.SB_KEY);
+function tulis(id, k, t){ const m = $(id); if (m) { m.className = 'pesan ' + k; m.textContent = t; } }
+const D = await fetch('data.json', { cache: 'no-cache' }).then(r => r.ok ? r.json() : {}).catch(() => ({}));
+isiKerangka(D);
+if (D.prodi) document.title = document.title.split(' — ')[0] + ' — ' + ['Program Studi ' + D.prodi, D.institusi].filter(Boolean).join(' ');
+$('hProdi').textContent = [D.prodi && 'Program Studi ' + D.prodi, D.institusi].filter(Boolean).join(' · ');
+const pesanGalat = e => String(e?.message || e || '') || 'Gagal mengirim.';
+const tgl = iso => (iso ? new Date(String(iso).slice(0, 10) + 'T00:00:00').toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : '');
+import { STATUS_PINJAM } from './lab.js?v=2026-11-28-c88499';
+const { data, error } = await sb.rpc('lab_alat_pinjam_publik');
+const A = error ? null : (data || []);
+const besok = (() => { const d = new Date(Date.now() + 7 * 3600e3); return d.toISOString().slice(0, 10); })();
+const perLab = new Map();
+for (const a of A || []) { if (!perLab.has(a.laboratorium)) perLab.set(a.laboratorium, []); perLab.get(a.laboratorium).push(a); }
+
+$('isi').innerHTML = `
+  <p>Mahasiswa dapat meminjam alat laboratorium untuk praktikum, tugas, atau tugas akhir. Syaratnya sudah mengikuti <b>induksi K3</b>
+    di laboratorium yang bersangkutan; sistem memeriksa NIM Anda pada daftar hadir induksi. Pengajuan diputuskan kepala laboratorium.
+    Simpan <b>kode lacak</b> untuk melihat keputusannya, lalu ambil alat di laboratorium pada tanggal pinjam.</p>
+  <h2>Alat yang dapat dipinjam</h2>
+  <div id="daftar">${A === null ? '<p class="kosong">Daftar alat belum tersedia.</p>' : A.length ? [...perLab].map(([lab, xs]) => `<div class="kartu"><h3>${esc(lab)}</h3>
+      <ul style="margin:6px 0;padding-left:18px">${xs.map(a => `<li>${esc(a.nama)}${a.merek_tipe ? ` <span class="ket">(${esc(a.merek_tipe)})</span>` : ''}
+        <span class="ket"> · ${esc(a.jumlah)} unit${a.terpakai_hari_ini ? `, ${esc(a.terpakai_hari_ini)} sedang dipakai hari ini` : ''}</span>
+        <button type="button" class="b lain" style="padding:2px 10px;font-size:13px" data-pinjam="${a.id}">Ajukan pinjam</button></li>`).join('')}</ul></div>`).join('')
+    : '<p class="kosong">Belum ada alat yang dibuka untuk dipinjam mahasiswa. Hubungi kepala laboratorium.</p>'}</div>
+  <div id="wadahForm"></div>
+  <h2 id="lacak">Lacak pengajuan</h2>
+  <div class="kartu"><div class="alat"><input type="text" id="kKode" maxlength="12" placeholder="Kode lacak, mis. M7KQ2X9PRT">
+    <button type="button" class="b lain" id="bLacak">Lihat</button><span class="pesan" id="mLacak" role="status"></span></div></div>
+  <p class="ket">Profil laboratorium, layanan pengujian, dan kepala laboratorium: <a href="laboratorium.html">Laboratorium</a>.</p>`;
+
+function bukaForm(id){
+  const a = (A || []).find(x => String(x.id) === String(id));
+  if (!a) return;
+  $('wadahForm').innerHTML = `<div class="kartu" id="formPinjam"><h3>Ajukan pinjam: ${esc(a.nama)}</h3>
+    <p class="ket">${esc(a.laboratorium)} · ${esc(a.jumlah)} unit. Data Anda hanya dibaca kepala laboratorium dan pengelola prodi.</p>
+    <div class="form">
+      <label>NIM <input type="text" id="pNim" inputmode="numeric" maxlength="15"></label>
+      <label>Nama lengkap <input type="text" id="pNama" maxlength="120"></label>
+      <label>Email <input type="email" id="pEmail" maxlength="200"></label>
+      <label>Jumlah <input type="number" id="pJml" min="1" max="${esc(a.jumlah)}" value="1"></label>
+      <label>Tanggal pinjam <input type="date" id="pTgl" min="${besok}" value="${besok}"></label>
+      <label>Rencana kembali <input type="date" id="pKembali" min="${besok}"></label>
+      <label class="lebar">Keperluan (praktikum/tugas/TA dan mata kuliahnya) <textarea id="pPerlu" rows="3" maxlength="300"></textarea></label>
+      <label class="jebakan" aria-hidden="true">Situs <input type="text" id="pSitus" tabindex="-1" autocomplete="off"></label></div>
+    <div class="alat"><button type="button" class="b" id="bAjukan" data-alat="${a.id}">Kirim pengajuan</button><span class="pesan" id="mPinjam" role="status"></span></div></div>`;
+  $('formPinjam').scrollIntoView({ behavior: 'smooth' });
+  $('bAjukan').onclick = kirim;
+}
+document.querySelectorAll('[data-pinjam]').forEach(b => { b.onclick = () => bukaForm(b.dataset.pinjam); });
+
+async function kirim(){
+  const v = id => $(id).value.trim();
+  if (!/^[0-9]{6,15}$/.test(v('pNim'))) return tulis('mPinjam', 'galat', 'NIM tidak sah.');
+  if (v('pNama').length < 2) return tulis('mPinjam', 'galat', 'Tulis nama lengkap.');
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v('pEmail'))) return tulis('mPinjam', 'galat', 'Alamat email tidak sah.');
+  if (!v('pTgl') || !v('pKembali') || v('pKembali') < v('pTgl')) return tulis('mPinjam', 'galat', 'Isi tanggal pinjam dan rencana kembali (tidak sebelum tanggal pinjam).');
+  if (v('pPerlu').length < 10) return tulis('mPinjam', 'galat', 'Tulis keperluan (minimal 10 huruf).');
+  $('bAjukan').disabled = true;
+  const { data: kode, error: e } = await sb.rpc('ajukan_pinjam_alat', { p_alat: +$('bAjukan').dataset.alat, p_nim: v('pNim'), p_nama: v('pNama'),
+    p_email: v('pEmail'), p_jumlah: +v('pJml') || 1, p_keperluan: v('pPerlu'), p_tanggal_pinjam: v('pTgl'), p_rencana_kembali: v('pKembali'),
+    p_jebakan: v('pSitus') || null });
+  if (e) { $('bAjukan').disabled = false; return tulis('mPinjam', 'galat', pesanGalat(e)); }
+  $('wadahForm').innerHTML = `<div class="kartu"><h3>Pengajuan terkirim</h3><p>Kode lacak Anda: <code style="font-size:18px">${esc(kode)}</code></p>
+    <p class="ket">Simpan kode ini (tangkapan layar) untuk melihat keputusan kepala laboratorium di bagian Lacak pengajuan.</p></div>`;
+}
+$('bLacak').onclick = async () => {
+  const k = $('kKode').value.trim();
+  if (k.length < 6) return tulis('mLacak', 'galat', 'Tulis kode lacak.');
+  const { data: x, error: e } = await sb.rpc('lacak_pinjam', { p_kode: k });
+  if (e) return tulis('mLacak', 'galat', pesanGalat(e));
+  if (!x) return tulis('mLacak', 'galat', 'Kode tidak ditemukan.');
+  tulis('mLacak', ['disetujui', 'dipinjam', 'kembali'].includes(x.status) ? 'ok' : x.status === 'ditolak' ? 'galat' : '',
+    `${x.alat} (${x.laboratorium}) ×${x.jumlah}, ${tgl(x.tanggal_pinjam)} s.d. ${tgl(x.rencana_kembali)}: ${STATUS_PINJAM[x.status] || x.status}`
+    + (x.catatan ? `. Alasan: ${x.catatan}` : '') + '.');
+};
+</script>
+</body>
+</html>

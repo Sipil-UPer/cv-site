@@ -27,6 +27,7 @@ const HALAMAN = {
   'berkas-mahasiswa.html': 'kemahasiswaan', 'kp.html': 'kemahasiswaan', 'kerja-praktik.html': 'kemahasiswaan',
   'layanan-mahasiswa.html': 'kemahasiswaan',
   'asisten.html': 'kemahasiswaan', 'kelola-karier.html': 'kemahasiswaan',   // 202: rekrutmen asisten (pemilik 2026-11-28)
+  'pinjam-alat.html': 'kemahasiswaan',   // 204: peminjaman alat lab daring (pemilik 2026-11-28)
   'penilaian-ta.html': 'kemahasiswaan', 'bimbingan-ta.html': 'kemahasiswaan',   // 173, 175: penilaian dan bimbingan TA
   'perwalian.html': 'kemahasiswaan',   // 186: perwalian dosen wali (pemilik 2026-11-26)
   'daftar-mahasiswa.html': 'kemahasiswaan',   // daftar mahasiswa aktif + lulusan (pemilik 2026-11-26)

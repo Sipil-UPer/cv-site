@@ -1,7 +1,7 @@
 // Usulan penguji seminar/sidang TA (pemilik 2026-11-17): judul TA dicocokkan dengan keahlian, publikasi, dan
 // penelitian/PkM dosen memakai mesin "Cari calon pembimbing TA" (pembimbing.js), pembimbing dikeluarkan, dan beban
 // menguji pada TS berjalan ditampilkan untuk pemerataan. Saran saja: penetapan tetap oleh admin.
-import { cariPembimbing } from './pembimbing.js?v=2026-11-28-b0070d';
+import { cariPembimbing } from './pembimbing.js?v=2026-11-28-c88499';
 
 // TS berjalan (1 September s.d. 31 Agustus; ditulis tahun ujung), sama dengan sdgs-unduh.js tsBerjalan.
 export const tsDari = tgl => { const m = String(tgl || '').match(/^(\d{4})-(\d{2})/); return m ? (+m[2] >= 9 ? +m[1] + 1 : +m[1]) : 0; };

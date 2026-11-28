@@ -1,15 +1,15 @@
 // Kerangka halaman publik (pemilik 2026-11-16): kepala bergaya situs universitas (deret logo di bilah
 // biru, nama prodi, menu turun) dan kaki halaman yang sama di halaman publik. Pemakaian:
-//   import { pasangKerangka, isiKerangka } from './kerangka.js?v=2026-11-28-b0070d';
+//   import { pasangKerangka, isiKerangka } from './kerangka.js?v=2026-11-28-c88499';
 //   pasangKerangka({ aktif: 'profil' });     // segera, sebelum data.json
 //   pasangKerangka({ aktif: 'profil', muat: true });   // atau: kerangka memuat data.json sendiri
 //   isiKerangka(D);                           // setelah data.json: nama prodi, kontak, media sosial
 // Logo: window.LOGO_KEPALA di config.js; tanpa itu logo.png. Menu hanya memuat halaman yang ada
 // dan modul yang menyala (fitur.js). Tautan relatif (situs akan pindah ke subdomain kampus).
-import { halamanAktif, alihkanBilaMati } from './fitur.js?v=2026-11-28-b0070d';
-import { catatKunjunganPublik } from './kunjungan-publik.js?v=2026-11-28-b0070d';
+import { halamanAktif, alihkanBilaMati } from './fitur.js?v=2026-11-28-c88499';
+import { catatKunjunganPublik } from './kunjungan-publik.js?v=2026-11-28-c88499';
 // Tinggi kotak teks mengikuti isi (pemilik 2026-11-25); bentuk "from" agar dicap stamp_versions.py.
-import { pasSemua as pasKotakTeks } from './kotak-teks.js?v=2026-11-28-b0070d';
+import { pasSemua as pasKotakTeks } from './kotak-teks.js?v=2026-11-28-c88499';
 
 // Enam kelompok menu (pemilik 2026-11-19, tahap 2; 2026-11-27 Akademik dipisah dari Profil dan Mahasiswa agar mudah
 // dicari): Profil, Akademik, Dosen dan riset, Mahasiswa, Kinerja, Kontak; Pendaftaran dan Masuk ruang kerja di baris atas.
@@ -63,6 +63,8 @@ export const MENU = [
     { judul: 'Kerja praktik dan magang', href: 'kerja-praktik.html' },
     // Rekrutmen asisten (202, pemilik 2026-11-28).
     { judul: 'Rekrutmen asisten', ket: 'asisten praktikum dan mata kuliah', href: 'asisten.html' },
+    // Peminjaman alat lab daring (204, pemilik 2026-11-28).
+    { judul: 'Peminjaman alat laboratorium', ket: 'syarat induksi K3, lacak keputusan', href: 'pinjam-alat.html' },
     { judul: 'Calon pembimbing TA', href: 'layanan-mahasiswa.html#pembimbing' },
     { judul: 'Tanya prodi', href: 'layanan-mahasiswa.html#kirim' },
     { sub: 'Prestasi dan alumni' },
@@ -332,7 +334,7 @@ function pasangCariKepala(kp, burger){
         hasil = document.getElementById('krCariHasil'), tombol = [...kp.querySelectorAll('.kr-cari-buka')];
   let siap = null, aktif = -1;
   const muat = () => siap ??= Promise.all([
-    import('./cari.js?v=2026-11-28-b0070d'),
+    import('./cari.js?v=2026-11-28-c88499'),
     DATA_KERANGKA ? Promise.resolve(DATA_KERANGKA) : fetch('data.json', {cache: 'no-cache'}).then(r => r.json()),
   ]).then(([m, D]) => ({ m, idx: m.indeksPublik(D, k => !(window.FITUR_MATI || []).includes(k)) }));
   const tampil = async () => {

@@ -2,7 +2,7 @@
 // Logika tanpa peramban: tenggat, penerima pengingat, rekap Monitoring, dan
 // isi draf karya dari proposal yang didanai. Dipakai hibah.html, pengingat.html,
 // dan monitoring.html.
-import { selisihHari, tglID } from './masa-berlaku.js?v=2026-11-28-b0070d';
+import { selisihHari, tglID } from './masa-berlaku.js?v=2026-11-28-c88499';
 
 export const STATUS = { rencana: 'Rencana', diajukan: 'Diajukan', didanai: 'Didanai', ditolak: 'Ditolak', batal: 'Batal' };
 export const KATEGORI = { penelitian: 'Penelitian', pkm: 'PkM', keduanya: 'Penelitian dan PkM' };

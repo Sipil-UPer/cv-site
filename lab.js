@@ -4,6 +4,18 @@
 export const KONDISI_ALAT = { baik: 'Baik', perlu_perbaikan: 'Perlu perbaikan', rusak: 'Rusak' };
 export const JENIS_RAWAT = { perawatan: 'Perawatan', perbaikan: 'Perbaikan', kalibrasi: 'Kalibrasi' };
 export const HARI_KALIBRASI = 30;   // kalibrasi diingatkan 30 hari sebelum jatuh tempo
+// Peminjaman daring (204, pemilik 2026-11-28: cukup persetujuan kepala lab).
+export const STATUS_PINJAM = { diajukan: 'Diajukan', disetujui: 'Disetujui', ditolak: 'Ditolak', dipinjam: 'Dipinjam', kembali: 'Kembali', batal: 'Batal' };
+/** Pinjaman yang benar terjadi (bukan pengajuan/ditolak/batal); baris lama tanpa status dihitung. */
+export const pinjamTerjadi = p => !p.status || ['dipinjam', 'kembali'].includes(p.status);
+/** Unit tersedia untuk alat pada [dari, sampai]: jumlah dikurangi pinjaman disetujui/dipinjam yang tumpang tindih (sama dengan
+ *  lab_alat_terpakai di SQL); kecuali = id pinjaman yang sedang diputuskan. */
+export function sisaUnit(alat, pinjam = [], dari, sampai = dari, kecuali = null){
+  const pakai = pinjam.filter(p => p.alat_id === alat.id && p.id !== kecuali && ['disetujui', 'dipinjam'].includes(p.status || 'dipinjam')
+    && !(p.status == null && p.kembali_pada) && p.tanggal_pinjam <= sampai && (p.kembali_pada || p.rencana_kembali || p.tanggal_pinjam) >= dari)
+    .reduce((s, p) => s + (+p.jumlah || 0), 0);
+  return Math.max(0, (+alat.jumlah || 0) - pakai);
+}
 
 const hariIni = kini => new Date(kini.getTime() + 7 * 3600e3).toISOString().slice(0, 10);
 const selisih = (a, b) => Math.round((Date.parse(a) - Date.parse(b)) / 864e5);
@@ -44,7 +56,7 @@ export function rekapLab({ lab = [], alat = [], perawatan = [], induksi = [], pi
       kalibrasiLewat: st.filter(s => s === 'lewat' || s === 'belum').length,
       perawatan: rw.length, kalibrasiDilakukan: rw.filter(p => p.jenis === 'kalibrasi').length,
       sesiInduksi: ind.length, pesertaInduksi: new Set(ind.flatMap(s => s.peserta_nim || [])).size + ind.reduce((s, x) => s + (+x.jumlah_lain || 0), 0),
-      pinjam: pinjam.filter(p => ids.has(p.alat_id) && dalam(p.tanggal_pinjam)).length };
+      pinjam: pinjam.filter(p => ids.has(p.alat_id) && pinjamTerjadi(p) && dalam(p.tanggal_pinjam)).length };
   });
 }
 
@@ -63,10 +75,15 @@ export function tugasLab({ alat = [], pinjam = [], lab = [], labSaya = null } = 
     rinci: rusak.map(a => `${a.nama} (${nmLab(a.laboratorium_id)}, ${KONDISI_ALAT[a.kondisi].toLowerCase()})`).join('; ')
       + '. Catat perbaikan di riwayat alat; kondisi ikut diperbarui.', hari: null });
   const ids = new Set(alat.filter(milik).map(a => a.id));
-  const telat = pinjam.filter(p => ids.has(p.alat_id) && !p.kembali_pada && p.rencana_kembali && p.rencana_kembali < t);
+  const telat = pinjam.filter(p => ids.has(p.alat_id) && (p.status || 'dipinjam') === 'dipinjam' && !p.kembali_pada && p.rencana_kembali && p.rencana_kembali < t);
   if (telat.length) out.push({ judul: `Pinjaman alat lewat tanggal kembali: ${telat.length}`,
     rinci: telat.map(p => `${alat.find(a => a.id === p.alat_id)?.nama || 'alat'} oleh ${p.peminjam} (rencana ${p.rencana_kembali})`).join('; '),
     hari: Math.min(...telat.map(p => selisih(p.rencana_kembali, t))) });
+  // Pengajuan pinjam daring (204) menunggu keputusan; tenggat = tanggal pinjam terdekat.
+  const ajuan = pinjam.filter(p => ids.has(p.alat_id) && p.status === 'diajukan');
+  if (ajuan.length) out.push({ judul: `Pengajuan pinjam alat menunggu: ${ajuan.length}`,
+    rinci: ajuan.map(p => `${alat.find(a => a.id === p.alat_id)?.nama || 'alat'} oleh ${p.peminjam} (${p.tanggal_pinjam})`).join('; ') + '. Setujui atau tolak.',
+    hari: Math.min(...ajuan.map(p => selisih(p.tanggal_pinjam, t))) });
   return out;
 }
 

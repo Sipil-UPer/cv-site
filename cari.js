@@ -100,6 +100,7 @@ export function indeksPublik(D, aktif = () => true){
      'pendaftaran pmb daftar kuliah calon mahasiswa baru karier'],
     ['layanan-mahasiswa.html', 'Layanan mahasiswa', 'pengumuman, jadwal, berkas, tanya-jawab', 'pengumuman jadwal formulir tanya'],
     ['karier.html', 'Lowongan kerja dan magang', 'lowongan kerja dan magang dari mitra, alumni, pemangku; usulkan lowongan', 'lowongan kerja magang karier loker alumni perusahaan pekerjaan'],
+    ['pinjam-alat.html', 'Peminjaman alat laboratorium', 'pinjam alat laboratorium, syarat induksi K3, lacak keputusan kepala lab', 'pinjam alat laboratorium lab peminjaman K3 induksi'],
     ['asisten.html', 'Rekrutmen asisten', 'asisten praktikum laboratorium dan asisten mata kuliah, lamaran, lacak hasil', 'asisten aslab praktikum laboratorium lamaran rekrutmen'],
     ['peminatan.html', 'Peminatan dan mata kuliah pilihan', 'lima bidang peminatan, MK pilihan, syarat 2 MK sesuai bidang TA', 'peminatan pilihan bidang kelompok keahlian syarat TA elektif'],
     ['ekuivalensi-kurikulum.html', 'Ekuivalensi kurikulum', 'padanan mata kuliah kurikulum lama ke baru', 'konversi padanan transisi'],
