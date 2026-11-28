@@ -1,7 +1,7 @@
 // Surat dan SK prodi (201-patch-surat-sk-prodi.sql, pemilik 2026-11-28). Fungsi murni: label, nomor dari pola (cermin
 // surat_format_nomor untuk pratinjau; nomor sebenarnya diberikan basis data saat disahkan), isi Word umum ber-QR, tugas,
 // rekap. Templat Word per jenis menyusul dari pemilik; sampai itu dipakai bentuk umum di isiSurat.
-import { para, run, teks, tabel, buatDocx, gambar } from './docx-dasar.js?v=2026-11-28-ac1210';
+import { para, run, teks, tabel, buatDocx, gambar } from './docx-dasar.js?v=2026-11-28-44f629';
 
 export const STATUS_SURAT = { draf: 'Draf', diajukan: 'Menunggu tanda tangan', dikembalikan: 'Dikembalikan', disahkan: 'Disahkan',
   dibatalkan: 'Dibatalkan', arsip: 'Arsip (ditandatangani di luar situs)' };

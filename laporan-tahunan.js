@@ -3,13 +3,13 @@
 // Satu model isi (daftar blok) dirender ke Word (.docx, disusun sendiri tanpa templat) dan ke HTML (laporan-tahunan.html).
 // Sumber: data.json publik, rekap survei yang sudah diterbitkan (survei_rekap), dan, khusus admin, capaian IKU/IKT,
 // perkiraan status akreditasi, serta Temuan AMI. Versi publik (publik: true) tidak memuat bagian khusus admin.
-import { hitungSumber } from './iku-otomatis.js?v=2026-11-28-ac1210';
-import { SDGS } from './form-karya.js?v=2026-11-28-ac1210';
-import { run, para, judul, teks, tabel, buatDocx } from './docx-dasar.js?v=2026-11-28-ac1210';
-import { rekapSurvei, aspekTindakLanjut, kesenjanganCPL, labelKelompok, labelAspek, lengkapiCPL } from './survei-kepuasan.js?v=2026-11-28-ac1210';
-import { rekapMasukan, perKategori, kategoriSumber, TOPIK_MASUKAN, KATEGORI_PEMANGKU } from './pemangku.js?v=2026-11-28-ac1210';
-import { rekapLab } from './lab.js?v=2026-11-28-ac1210';
-import { rekapSdm, JENIS_SDM } from './sdm.js?v=2026-11-28-ac1210';
+import { hitungSumber } from './iku-otomatis.js?v=2026-11-28-44f629';
+import { SDGS } from './form-karya.js?v=2026-11-28-44f629';
+import { run, para, judul, teks, tabel, buatDocx } from './docx-dasar.js?v=2026-11-28-44f629';
+import { rekapSurvei, aspekTindakLanjut, kesenjanganCPL, labelKelompok, labelAspek, lengkapiCPL } from './survei-kepuasan.js?v=2026-11-28-44f629';
+import { rekapMasukan, perKategori, kategoriSumber, TOPIK_MASUKAN, KATEGORI_PEMANGKU } from './pemangku.js?v=2026-11-28-44f629';
+import { rekapLab } from './lab.js?v=2026-11-28-44f629';
+import { rekapSdm, JENIS_SDM } from './sdm.js?v=2026-11-28-44f629';
 
 const angka = v => v == null || v === '' ? '—' : (Math.round(+v * 100) / 100).toLocaleString('id-ID');
 const diTS = (xs, ts) => (xs || []).filter(x => +x.tahun_ts === +ts);
@@ -183,6 +183,44 @@ export function susunLaporan(C, { publik = false, kalender = false } = {}){
       ...rk.map(r => [r.nama, angka(r.jenisAlat), angka(r.unit), r.persenBaik == null ? '–' : `${r.persenBaik}%`,
         r.perluKalibrasi ? `${angka(r.kalibrasiTepat)} dari ${angka(r.perluKalibrasi)}` : '–', angka(r.perawatan), angka(r.sesiInduksi), angka(r.pesertaInduksi)])]);
     p('Dari Inventaris dan K3 laboratorium (ruang kerja): kondisi alat per jenis, riwayat perawatan/perbaikan/kalibrasi, dan sesi induksi K3 mahasiswa.', true);
+  }
+
+  // Surat dan SK prodi (201, pemilik 2026-11-28): D._surat = {surat, jenis}; tahun = tahun kalender laporan (tanggal surat); tanpa isi.
+  if (!publik && D._surat && Array.isArray(D._surat.surat)) {
+    h2(`Surat dan SK program studi tahun ${ts}`);
+    const nama = k => (D._surat.jenis || []).find(j => j.kode === k)?.nama || k, per = {};
+    for (const s of D._surat.surat.filter(s => String(s.tanggal || '').startsWith(String(ts)) && ['disahkan', 'arsip', 'dibatalkan'].includes(s.status))) {
+      const x = per[s.jenis] ||= { terbit: 0, qr: 0, batal: 0 };
+      if (s.status === 'dibatalkan') x.batal += 1; else x.terbit += 1;
+      if (s.status === 'disahkan') x.qr += 1;
+    }
+    const rows = Object.entries(per).sort(([a], [b]) => nama(a).localeCompare(nama(b), 'id'));
+    if (rows.length) {
+      tb([['Jenis', 'Terbit', 'Bertanda tangan elektronik (QR)', 'Dibatalkan'], ...rows.map(([k, x]) => [nama(k), angka(x.terbit), angka(x.qr), angka(x.batal)])]);
+      p('Dari Surat dan SK (ruang kerja): nomor otomatis per jenis; SK prodi ditandatangani Dekan, surat lain Kaprodi, dengan kode QR verifikasi. '
+        + 'Terbit = disahkan dan surat lama yang dicatat sebagai arsip.', true);
+    } else p(`Belum ada surat atau SK bernomor tahun ${ts} (Pengelolaan › Surat dan SK).`, true);
+  }
+
+  // Layanan karier dan rekrutmen asisten (202, pemilik 2026-11-28): D._karier = {lowongan, rekrutmen}; lowongan menurut tanggal tayang,
+  // rekrutmen menurut tanggal buka, dalam tahun kalender laporan; tanpa nama pelamar atau pengusul.
+  if (!publik && D._karier && (Array.isArray(D._karier.lowongan) || Array.isArray(D._karier.rekrutmen))) {
+    h2(`Layanan karier dan rekrutmen asisten tahun ${ts}`);
+    const JL = { kerja: 'Kerja', magang: 'Magang', lainnya: 'Lainnya' }, JA = { praktikum: 'Asisten praktikum', mk: 'Asisten mata kuliah' };
+    const low = (D._karier.lowongan || []).filter(l => l.status !== 'ditolak' && String(l.tayang_pada || '').startsWith(String(ts)));
+    if (low.length) {
+      const per = {};
+      for (const l of low) { const x = per[l.jenis] ||= { n: 0, mitra: 0, alumni: 0, lain: 0 }; x.n += 1; x[l.sumber === 'mitra' ? 'mitra' : l.sumber === 'alumni' ? 'alumni' : 'lain'] += 1; }
+      tb([['Lowongan', 'Ditayangkan', 'Dari mitra', 'Dari alumni', 'Sumber lain'], ...Object.entries(per).map(([k, x]) => [JL[k] || k, angka(x.n), angka(x.mitra), angka(x.alumni), angka(x.lain)])]);
+    } else p(`Belum ada lowongan yang ditayangkan tahun ${ts}.`, true);
+    const rek = (D._karier.rekrutmen || []).filter(r => r.status !== 'draf' && String(r.buka || '').startsWith(String(ts)));
+    if (rek.length) {
+      tb([['Rekrutmen', 'Semester', 'Kuota', 'Pelamar', 'Diterima', 'SK'], ...rek.map(r => { const ls = r.lamaran || [];
+        return [`${JA[r.jenis] || r.jenis}: ${r.judul}`, `${r.semester} ${r.tahun_akademik}`, angka(r.kuota), angka(ls.length),
+          angka(ls.filter(l => l.status === 'diterima').length), r.sk_surat_id ? 'ada' : 'belum']; })]);
+    } else p(`Belum ada rekrutmen asisten yang dibuka tahun ${ts}.`, true);
+    p('Dari Kelola karier dan asisten (ruang kerja): lowongan dari mitra, alumni, dan pemangku tayang di halaman publik setelah diperiksa prodi; '
+      + 'rekrutmen asisten dibuka terbuka, pelamar dicocokkan dengan IPK data akademik, dan yang diterima ditetapkan dengan SK.', true);
   }
 
   // Ujian dan validasi soal (195, pemilik 2026-11-27; butir 15–16 dan 55): D._ujian = rekapUjian() (ujian.js), hanya pengguna
