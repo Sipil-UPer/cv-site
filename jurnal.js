@@ -1,7 +1,7 @@
 // Jurnal perkuliahan (206-patch-jurnal-perkuliahan.sql, pemilik 2026-11-28): realisasi materi per pertemuan oleh pengajar kelas;
 // rencana dari materi pekan RPS (versi disahkan bila ada); BAP Word; kelengkapan untuk portofolio (komponen BAP).
-import { rentangPekan } from './rps.js?v=2026-11-28-6ddc2b';
-import { para, run, teks, tabel, buatDocx } from './docx-dasar.js?v=2026-11-28-6ddc2b';
+import { rentangPekan } from './rps.js?v=2026-11-28-cacf29';
+import { para, run, teks, tabel, buatDocx } from './docx-dasar.js?v=2026-11-28-cacf29';
 
 const LABEL_UJIAN = { uts: 'Ujian Tengah Semester (UTS)', uas: 'Ujian Akhir Semester (UAS)' };
 const bersih = s => String(s ?? '').replace(/\s+/g, ' ').trim();

@@ -1,6 +1,6 @@
 // Ruang KP (105-patch-ruang-kp.sql, pemilik 2026-11-18): nama instansi baku, mitra kerja sama, beban bimbingan,
 // dan bukti KP selesai untuk asesor. Fungsi murni; dipakai rekap-kp.html, pengajuan.html, kerja-praktik.html, data-prodi.html.
-import { keadaanKP, waktuPengajuan } from './pengajuan-mhs.js?v=2026-11-28-6ddc2b';
+import { keadaanKP, waktuPengajuan } from './pengajuan-mhs.js?v=2026-11-28-cacf29';
 
 // Sama dengan public.nama_instansi_kunci(): rapikan tepi, buang titik/koma, spasi tunggal, huruf kecil.
 export const kunciInstansi = s => String(s ?? '').trim().replace(/[.,]/g, '').replace(/\s+/g, ' ').toLowerCase();

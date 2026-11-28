@@ -1,7 +1,7 @@
 // Surat dan SK prodi (201-patch-surat-sk-prodi.sql, pemilik 2026-11-28). Fungsi murni: label, nomor dari pola (cermin
 // surat_format_nomor untuk pratinjau; nomor sebenarnya diberikan basis data saat disahkan), isi Word umum ber-QR, tugas,
 // rekap. Templat Word per jenis menyusul dari pemilik; sampai itu dipakai bentuk umum di isiSurat.
-import { para, run, teks, tabel, buatDocx, gambar } from './docx-dasar.js?v=2026-11-28-6ddc2b';
+import { para, run, teks, tabel, buatDocx, gambar } from './docx-dasar.js?v=2026-11-28-cacf29';
 
 export const STATUS_SURAT = { draf: 'Draf', diajukan: 'Menunggu tanda tangan', dikembalikan: 'Dikembalikan', disahkan: 'Disahkan',
   dibatalkan: 'Dibatalkan', arsip: 'Arsip (ditandatangani di luar situs)' };
@@ -39,6 +39,24 @@ export const nomorBerikut = (j, urutTerakhir = 0, tanggal = hariIniWIB()) =>
   formatNomor(j.pola, (+urutTerakhir || 0) + 1, j.lebar_urut, j.kode_nomor || '[kode belum diatur]', tanggal);
 
 /**
+ * Baris tabel lampiran SK dari surat.rincian (209): satu baris per dosen per kelas; No, nama, NIDN, dan status hanya di baris
+ * pertama tiap dosen. Jumlah sks per dosen sengaja tidak dihitung (team teaching membagi pertemuan, bukan sks).
+ */
+export function barisLampiran(rincian = []){
+  const out = [['No', 'Nama dosen', 'NIDN/NIDK', 'Status', 'Mata kuliah', 'Kelas', 'sks', 'Keterangan']];
+  let n = 0, akhir = null;
+  for (const r of rincian) {
+    const baru = r.dosen_id !== akhir; akhir = r.dosen_id; if (baru) n++;
+    out.push([baru ? String(n) : '', baru ? r.nama || '' : '', baru ? r.nidn || '' : '', baru ? r.status || '' : '',
+      [r.kode_mk, r.mk].filter(Boolean).join(' '), r.kelas || '', r.sks == null ? '' : String(r.sks), r.ket || '']);
+  }
+  return out;
+}
+/** Ringkasan lampiran: { dosen, kelas } (kelas = baris dosen-kelas yang berbeda). */
+export const ringkasRincian = (rincian = []) => ({ dosen: new Set(rincian.map(r => r.dosen_id)).size,
+  kelas: new Set(rincian.map(r => `${r.kode_mk}|${r.kelas}`)).size });
+
+/**
  * Isi <w:body> surat. S = versi disahkan (surat.sah) atau draf {jenis, jenis_nama, perihal, tujuan, isi, dosen:[{nama,nidn}]}.
  * o = { prodi, institusi, url (alamat verifikasi), qr (true bila gambar rIdQR disertakan), konsep (belum disahkan),
  *       penandatangan: {jabatan, nama, nip, sebutan} untuk konsep }.
@@ -65,8 +83,8 @@ export function isiSurat(S, o = {}){
     }
   }
   String(S.isi || '').split('\n').forEach(b => out.push(teks(b)));
-  const dosen = S.dosen || [];
-  if (dosen.length) {
+  const dosen = S.dosen || [], rincian = Array.isArray(S.rincian) ? S.rincian : [];
+  if (dosen.length && !rincian.length) {
     out.push(para(run(sk ? 'Lampiran: daftar nama' : 'Daftar nama', { b: true }), { jc: 'left', before: 200, after: 80 }));
     out.push(tabel([['No', 'Nama', 'NIDN'], ...dosen.map((d, i) => [String(i + 1), d.nama || '', d.nidn || ''])]));
   }
@@ -79,6 +97,23 @@ export function isiSurat(S, o = {}){
   if (pt.nip) out.push(kanan(run(`NIP ${pt.nip}`)));
   if (o.url && o.qr) out.push(para(run(`Ditandatangani secara elektronik melalui situs program studi. Periksa keaslian dengan memindai kode QR atau membuka ${o.url}`,
     { i: true, sz: 16, warna: '555555' }), { before: 300 }));
+  // 209: lampiran bertabel di halaman baru (SK pengajaran dari Penyusunan kelas); ikut terverifikasi karena bagian dari surat.sah.
+  if (rincian.length) {
+    const t = (x, o = {}) => para(run(x, { b: true, ...o }), { jc: 'left', before: 0, after: 0 });
+    out.push('<w:p><w:r><w:br w:type="page"/></w:r></w:p>');
+    out.push(t('LAMPIRAN'));
+    out.push(t(sk ? `KEPUTUSAN ${(pt.sebutan || PENANDATANGAN.dekan).toUpperCase()}` : 'SURAT'));
+    out.push(t(`NOMOR ${nomor}`));
+    out.push(t(sk ? `TENTANG ${String(S.perihal || '').toUpperCase()}` : `PERIHAL ${S.perihal || ''}`, {}));
+    out.push(para('', { after: 120 }));
+    out.push(tabel(barisLampiran(rincian), [4, 21, 12, 7, 22, 6, 6, 20]));
+    const r = ringkasRincian(rincian);
+    out.push(para(run(`Jumlah: ${r.dosen} dosen, ${r.kelas} kelas.`, { sz: 18 }), { jc: 'left', before: 0, after: 0 }));
+    out.push(kanan(run(pt.sebutan || PENANDATANGAN[pt.jabatan] || ''), { before: 360 }));
+    out.push(kanan(run(''), { after: 600 }));
+    out.push(kanan(run(pt.nama || '(……………………………)', { b: true })));
+    if (pt.nip) out.push(kanan(run(`NIP ${pt.nip}`)));
+  }
   return out.join('');
 }
 /** Word surat (Blob). qrPng = Uint8Array PNG kode QR alamat verifikasi, atau null. */

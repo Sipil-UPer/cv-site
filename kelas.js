@@ -207,23 +207,27 @@ export function drafSkPengajaran({ ta, semester, kelas = [], kd = [], mk = [], d
     const m = M.get(`${k.kurikulum}|${k.kode_mk}`) || {};
     for (const x of ds) {
       if (!per.has(x.dosen_id)) per.set(x.dosen_id, []);
-      per.get(x.dosen_id).push(`${k.kode_mk} ${m.nama || ''} kelas ${k.kelas}${m.sks ? ` (${m.sks} sks)` : ''}${ds.length > 1
-        ? `, team teaching${x.peran === 'koordinator' ? ' (koordinator kelas)' : ''}${x.pertemuan ? `, ${x.pertemuan} pertemuan` : ''}` : ''}`.replace(/\s+/g, ' '));
+      const ket = ds.length > 1 ? ['Team teaching', x.peran === 'koordinator' ? 'koordinator kelas' : '', x.pertemuan ? `${x.pertemuan} pertemuan` : '']
+        .filter(Boolean).join(', ') : '';
+      per.get(x.dosen_id).push({ kode_mk: k.kode_mk, mk: m.nama || '', kelas: k.kelas, sks: m.sks ?? null, ket });
     }
   }
   const nm = id => { const d = D.get(id); return d ? (d.nama_gelar || d.nama) : '?'; };
-  const ids = [...per.keys()].sort((a, b) => nm(a).localeCompare(nm(b), 'id'));
+  const nmUrut = id => D.get(id)?.nama || nm(id);   // urut nama tanpa gelar depan (Dr., Ir.)
+  const ids = [...per.keys()].sort((a, b) => nmUrut(a).localeCompare(nmUrut(b), 'id'));
   const periode = `Semester ${semester} Tahun Akademik ${ta}`;
-  const butir = ids.map((id, i) => {
-    const d = D.get(id) || {}, g = tandaGolongan(d), n = d.nidn && !nidnSementara(d.nidn) ? `NIDN/NIDK ${d.nidn}` : 'NIDN/NIDK belum diisi';
-    return [`${i + 1}. ${nm(id)} (${n}${g ? `; ${g}` : ''}):`, ...per.get(id).map(t => `   - ${t}`)].join('\n');
+  // 209: lampiran terstruktur (surat.rincian), dibekukan ke surat.sah saat disahkan; Word menulisnya sebagai tabel lampiran.
+  const rincian = ids.flatMap(id => {
+    const d = D.get(id) || {};
+    return per.get(id).map(r => ({ dosen_id: id, nama: nm(id), nidn: d.nidn && !nidnSementara(d.nidn) ? d.nidn : '',
+      status: tandaGolongan(d) || 'DTPS', ...r }));
   });
   return {
     jenis: 'sk', kategori: 'pengajaran', tahun_akademik: ta, semester,
     perihal: `Dosen Pengampu Mata Kuliah ${periode}`,
     isi: ['Menimbang: (tulis pertimbangan)', 'Mengingat: (tulis dasar)', 'MEMUTUSKAN',
-      `Menetapkan: dosen berikut sebagai pengampu mata kuliah ${periode}:`, ...butir,
+      `Menetapkan: dosen pengampu mata kuliah ${periode} sebagaimana tercantum dalam Lampiran Keputusan ini.`,
       'Keputusan ini berlaku sejak tanggal ditetapkan sampai akhir semester tersebut.'].join('\n'),
-    dosen_ids: ids, nDosen: ids.length, nKelas: urut.length - tanpaDosen.length, tanpaDosen,
+    dosen_ids: ids, rincian, nDosen: ids.length, nKelas: urut.length - tanpaDosen.length, tanpaDosen,
   };
 }

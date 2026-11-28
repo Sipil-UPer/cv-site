@@ -22,10 +22,12 @@ export const tautan = (url, t, o = {}) => `<w:r><w:fldChar w:fldCharType="begin"
 // Sel tabel berisi XML jadi (mis. beberapa tautan): { xml, teks } dengan teks untuk menaksir lebar kolom.
 const selTeks = c => (c && typeof c === 'object') ? String(c.teks ?? '') : String(c ?? '');
 
-export function tabel(baris){
+// bobot (opsional, 209): bobot lebar per kolom, mis. [4, 22, 12]; tanpa bobot lebar dihitung dari panjang isi.
+export function tabel(baris, bobot = null){
   const n = Math.max(...baris.map(r => r.length));
   const pj = Array(n).fill(10);   // kolom sempit tidak memotong kata seperti "Penelitian"
-  baris.forEach(r => r.forEach((c, k) => { pj[k] = Math.max(pj[k], Math.min(45, selTeks(c).length)); }));
+  if (bobot?.length === n) bobot.forEach((b, k) => { pj[k] = b; });
+  else baris.forEach(r => r.forEach((c, k) => { pj[k] = Math.max(pj[k], Math.min(45, selTeks(c).length)); }));
   const tot = pj.reduce((a, b) => a + b, 0);
   const w = pj.map(x => Math.floor(LEBAR * x / tot));
   w[n - 1] += LEBAR - w.reduce((a, b) => a + b, 0);
