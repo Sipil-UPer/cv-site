@@ -11,8 +11,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-28-bbb354">
-<link rel="stylesheet" href="kepala.css?v=2026-11-28-bbb354">
+<link rel="stylesheet" href="tema.css?v=2026-11-28-e2efdc">
+<link rel="stylesheet" href="kepala.css?v=2026-11-28-e2efdc">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
@@ -57,7 +57,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></div>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-28-bbb354"></script>
+<script src="config.js?v=2026-11-28-e2efdc"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -76,10 +76,11 @@ addEventListener('error', function (e) {
 // Admin: rekap EDOM dari kampus, ambang, semua baris. Pimpinan: semua (baca). Dosen: mata kuliahnya
 // sendiri (refleksi RPS dan metode, tindak lanjut). PJ: tindak lanjut yang ditugaskan. Semua: rekap prodi.
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { bolehMutu } from './koordinator.js?v=2026-11-28-bbb354';
-import { gerbang } from './menu.js?v=2026-11-28-bbb354';
-import { SEMESTER, AMBANG_BAWAAN, RPS, STATUS_TINDAK, angka, semesterKini, urutSemester, bacaTempelEDOM, cplPerMK, statusEvaluasi, rekapSemester }
-  from './evaluasi-pembelajaran.js?v=2026-11-28-bbb354';
+import { bolehMutu } from './koordinator.js?v=2026-11-28-e2efdc';
+import { gerbang } from './menu.js?v=2026-11-28-e2efdc';
+import { SEMESTER, AMBANG_BAWAAN, RPS, STATUS_TINDAK, angka, semesterKini, urutSemester, bacaTempelEDOM, cplPerMK, statusEvaluasi, rekapSemester,
+  barisEvaluasiDariKelas }
+  from './evaluasi-pembelajaran.js?v=2026-11-28-e2efdc';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
@@ -122,9 +123,10 @@ function htmlAdmin(){
   const buka = ALAT_BUKA ?? !D.evaluasi.some(e => e.tahun_akademik === PILIH.ta && e.semester === PILIH.sm);
   return `<section class="kartu"><details class="alat-admin" id="alatAdmin"${buka ? ' open' : ''}>
     <summary>Alat admin: siapkan baris, tempel rekap EDOM, ambang</summary>
-    <h3>1. Siapkan baris dari daftar kelas CPL</h3>
-    <p class="ket">Satu baris per mata kuliah dan dosen pengampu dari <b>Berkas nilai CPL › daftar kelas</b> ${esc(PILIH.ta)} ${esc(PILIH.sm)}, supaya dosen bisa
-      mengisi refleksi sebelum rekap EDOM datang. Baris yang sudah ada tidak berubah.</p>
+    <h3>1. Siapkan baris dari Penyusunan kelas</h3>
+    <p class="ket">Satu baris per mata kuliah dan dosen dari <b>Penyusunan kelas</b> ${esc(PILIH.ta)} ${esc(PILIH.sm)}: semua dosen kelas, termasuk anggota
+      team teaching dan dosen luar DTPS (DT/DTT), supaya dosen bisa mengisi refleksi sebelum rekap EDOM datang. Semester yang belum punya kelas di
+      Penyusunan kelas memakai <b>Berkas nilai CPL › daftar kelas</b> (dosen dikenali dari email). Baris yang sudah ada tidak berubah.</p>
     <p><button class="b" id="siapkan">Siapkan dari daftar kelas</button><span class="msg" id="mSiapkan"></span></p>
     <h3>2. Tempel rekap EDOM dari kampus</h3>
     <p class="ket">Salin tabel dari Excel lalu tempel di sini. Kolom: <b>kode MK</b>, <b>dosen</b> (email, NIDN, atau nama persis seperti di Kelola dosen),
@@ -290,6 +292,23 @@ async function simpanTempel(){
 async function siapkanBaris(){
   ALAT_BUKA = true;
   tulis('mSiapkan', '', 'Membaca daftar kelas…');
+  const ada = new Set(D.evaluasi.filter(e => e.tahun_akademik === PILIH.ta && e.semester === PILIH.sm).map(e => `${String(e.kode_mk).toUpperCase()}|${e.dosen_id}`));
+  // Penyusunan kelas (136) lebih dulu: semua dosen kelas lewat dosen_id, termasuk dosen luar DTPS tanpa email (208).
+  const kk = await sb.from('kelas_kuliah').select('id,kurikulum,kode_mk,kelas').eq('tahun_akademik', PILIH.ta).eq('semester', PILIH.sm);
+  if (!kk.error && (kk.data || []).length) {
+    const [kd, mk] = await Promise.all([sb.from('kelas_dosen').select('kelas_id,dosen_id').in('kelas_id', kk.data.map(k => k.id)),
+      sb.from('ref_mata_kuliah').select('kurikulum,kode,nama')]);
+    const e = kd.error || mk.error;
+    if (e) return tulis('mSiapkan', 'buruk', 'Penyusunan kelas tidak terbaca: ' + e.message);
+    const r = barisEvaluasiDariKelas({ ta: PILIH.ta, sm: PILIH.sm, kelas: kk.data, kd: kd.data || [], mk: mk.data || [], ada });
+    const catatan = r.tanpaDosen.length ? `; ${r.tanpaDosen.length} kelas belum punya dosen di Penyusunan kelas (${r.tanpaDosen.join(', ')})` : '';
+    if (!r.baru.length) return tulis('mSiapkan', '', `Tidak ada baris baru dari ${r.kelas} kelas di Penyusunan kelas${catatan}.`);
+    const { error: e2 } = await sb.from('evaluasi_mk').insert(r.baru.map(x => ({ ...x, ...jejak() })));
+    if (e2) return tulis('mSiapkan', 'buruk', 'Gagal: ' + e2.message);
+    await muat();
+    return tulis('mSiapkan', 'ok', `${r.baru.length} baris disiapkan dari Penyusunan kelas${catatan}.`);
+  }
+  // Semester tanpa kelas di Penyusunan kelas: daftar kelas nilai CPL (dosen dikenali dari email), seperti sebelumnya.
   const { data, error } = await sb.from('cpl_kelas').select('kode_mk,nama_mk,dosen_email').eq('tahun_akademik', PILIH.ta).eq('semester', PILIH.sm);
   if (error) return tulis('mSiapkan', 'buruk', 'Daftar kelas tidak terbaca: ' + error.message);
   const per = new Map(), tak = new Set();
@@ -298,7 +317,6 @@ async function siapkanBaris(){
     if (!d) { tak.add(k.dosen_email); continue; }
     per.set(`${k.kode_mk}|${d.id}`, { tahun_akademik: PILIH.ta, semester: PILIH.sm, kode_mk: String(k.kode_mk).toUpperCase(), nama_mk: k.nama_mk || null, dosen_id: d.id, ...jejak() });
   }
-  const ada = new Set(D.evaluasi.filter(e => e.tahun_akademik === PILIH.ta && e.semester === PILIH.sm).map(e => `${e.kode_mk}|${e.dosen_id}`));
   const baru = [...per.values()].filter(r => !ada.has(`${r.kode_mk}|${r.dosen_id}`));
   if (!baru.length) return tulis('mSiapkan', '', `Tidak ada baris baru dari ${data?.length || 0} kelas${tak.size ? `; email tak dikenal: ${[...tak].join(', ')}` : ''}.`);
   const { error: e2 } = await sb.from('evaluasi_mk').insert(baru);

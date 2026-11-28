@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-28-bbb354">
+<link rel="stylesheet" href="tema.css?v=2026-11-28-e2efdc">
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
@@ -51,7 +51,7 @@
   <div class="prodi" id="hProdi"></div>
 </div></div>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-28-bbb354"></script>
+<script src="config.js?v=2026-11-28-e2efdc"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -69,7 +69,7 @@ addEventListener('error', function (e) {
 // Peminjaman alat laboratorium (204, pemilik 2026-11-28: cukup persetujuan kepala lab): lab_alat_pinjam_publik() (alat yang
 // boleh dipinjam, tanpa data peminjam), ajukan_pinjam_alat (syarat induksi K3 lab itu dan unit tersedia; kode lacak), lacak_pinjam.
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { pasangKerangka, isiKerangka } from './kerangka.js?v=2026-11-28-bbb354';
+import { pasangKerangka, isiKerangka } from './kerangka.js?v=2026-11-28-e2efdc';
 pasangKerangka({ aktif: 'mahasiswa' });
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -81,7 +81,7 @@ if (D.prodi) document.title = document.title.split(' — ')[0] + ' — ' + ['Pro
 $('hProdi').textContent = [D.prodi && 'Program Studi ' + D.prodi, D.institusi].filter(Boolean).join(' · ');
 const pesanGalat = e => String(e?.message || e || '') || 'Gagal mengirim.';
 const tgl = iso => (iso ? new Date(String(iso).slice(0, 10) + 'T00:00:00').toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : '');
-import { STATUS_PINJAM } from './lab.js?v=2026-11-28-bbb354';
+import { STATUS_PINJAM } from './lab.js?v=2026-11-28-e2efdc';
 const { data, error } = await sb.rpc('lab_alat_pinjam_publik');
 const A = error ? null : (data || []);
 const besok = (() => { const d = new Date(Date.now() + 7 * 3600e3); return d.toISOString().slice(0, 10); })();

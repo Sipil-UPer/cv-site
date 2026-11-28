@@ -1,8 +1,8 @@
 // Satu kotak "Lacak kiriman" untuk semua layanan berkode lacak (pemilik 2026-11-28): pertanyaan/masukan/pengaduan (193),
 // lamaran asisten (202), peminjaman alat lab (204). Ketiga kode dibuat masukan_kode (10 huruf/angka) di tabel masing-masing;
 // kode dicari di ketiganya sekaligus, fungsi yang gagal (patch belum ada) dilewati. Dipakai layanan-mahasiswa.html.
-import { STATUS_LAMARAN } from './karier.js?v=2026-11-28-bbb354';
-import { STATUS_PINJAM } from './lab.js?v=2026-11-28-bbb354';
+import { STATUS_LAMARAN } from './karier.js?v=2026-11-28-e2efdc';
+import { STATUS_PINJAM } from './lab.js?v=2026-11-28-e2efdc';
 
 export const POLA_KODE = /^[A-Z0-9]{10}$/;
 const LABEL_STATUS = { baru: 'Diterima, belum ditinjau', ditindaklanjuti: 'Sedang ditindaklanjuti', selesai: 'Selesai' };

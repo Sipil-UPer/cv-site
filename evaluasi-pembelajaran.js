@@ -188,3 +188,24 @@ export function penerimaTindakEval(dosen, tindak, kini = new Date()){
   }
   return { penerima: [...per.values()].map(({ b, ...p }) => ({ ...p, rinci: b.join('\n') })), tanpaPJ };
 }
+
+/**
+ * Baris evaluasi dari Penyusunan kelas (pemilik 2026-11-28): satu baris per MK dan dosen untuk semua dosen kelas
+ * (koordinator, anggota team teaching, dan dosen luar DTPS tanpa email), dikenali lewat dosen_id.
+ * kelas: kelas_kuliah semester itu; kd: kelas_dosen; mk: ref_mata_kuliah; ada: Set 'KODE|dosen_id' yang sudah punya baris.
+ * -> { baru: [{tahun_akademik, semester, kode_mk, nama_mk, dosen_id}], kelas, tanpaDosen: ['KODE kelas'] }
+ */
+export function barisEvaluasiDariKelas({ ta, sm, kelas = [], kd = [], mk = [], ada = new Set() } = {}){
+  const M = new Map(mk.map(m => [`${m.kurikulum}|${m.kode}`, m])), per = new Map(), tanpaDosen = [];
+  for (const k of kelas) {
+    const ds = kd.filter(x => x.kelas_id === k.id && x.dosen_id);
+    if (!ds.length) { tanpaDosen.push(`${k.kode_mk} ${k.kelas}`); continue; }
+    const kode = String(k.kode_mk).toUpperCase();
+    for (const x of ds) {
+      const kunci = `${kode}|${x.dosen_id}`;
+      if (ada.has(kunci) || per.has(kunci)) continue;
+      per.set(kunci, { tahun_akademik: ta, semester: sm, kode_mk: kode, nama_mk: M.get(`${k.kurikulum}|${k.kode_mk}`)?.nama || null, dosen_id: x.dosen_id });
+    }
+  }
+  return { baru: [...per.values()], kelas: kelas.length, tanpaDosen };
+}
