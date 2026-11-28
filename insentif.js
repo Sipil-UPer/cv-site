@@ -4,6 +4,8 @@
 //   * berkas wajib di bukti karya: artikel ('naskah'), bukti indeksasi, LoA/bukti terbit, surat pernyataan;
 //   * status: diklaim -> (dikembalikan -> diklaim) -> siap -> diajukan -> disetujui | ditolak; disetujui -> cair.
 
+import { urlDoi } from './tautan-publikasi.js?v=2026-11-28-cb6cb1';
+
 export const BERKAS_INSENTIF = [['naskah', 'Artikel (PDF)'], ['indeksasi', 'Bukti indeksasi'], ['loa', 'LoA / bukti terbit'],
   ['pernyataan', 'Surat pernyataan']];
 export const STATUS_INSENTIF = {
@@ -71,10 +73,9 @@ export function barisExcel(klaim = [], karya = new Map(), bukti = new Map(), dos
     ...BERKAS_INSENTIF.map(b => b[1]), 'Status'];
   return [kepala, ...klaim.map((k, i) => {
     const p = karya.get(k.karya_id) || {}, bs = bukti.get(k.karya_id) || [], d = dosen.get(k.pengklaim_id) || {};
-    const doi = String(p.doi || '').trim().replace(/^https?:\/\/(dx\.)?doi\.org\//i, '');
     return [i + 1, d.nama || '', d.nidn || '', p.judul || '', (p.penulis || []).join(', '), p.nama_terbitan || '',
       [p.volume && 'Vol. ' + p.volume, p.nomor && 'No. ' + p.nomor, p.halaman && 'hlm. ' + p.halaman].filter(Boolean).join(' '),
-      p.tahun || '', p.indeksasi || '', doi ? 'https://doi.org/' + doi : (p.url || ''),
+      p.tahun || '', p.indeksasi || '', urlDoi(p.doi) || p.url || '',
       ...BERKAS_INSENTIF.map(([j]) => url(bs.filter(b => b.jenis === j))), STATUS_INSENTIF[k.status] || k.status];
   })];
 }

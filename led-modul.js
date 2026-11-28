@@ -1,10 +1,10 @@
 // Bukti dari modul operasional 193–200 untuk draf LED (pemilik 2026-11-27): tabel per butir, dipakai tabelPenjelas
 // (led-isi.js). Fungsi murni; X.modul dimuat ambilDaftarLKPS (data-lkps.js). Periode TS-2 s.d. TS = tahun akademik
 // (1 September s.d. 31 Agustus). Pengaduan dan nilai layanan memakai rekap publik (tanpa isi dan identitas).
-import { rekapUjian } from './ujian.js?v=2026-11-28-09fd85';
-import { rekapSdm, JENIS_SDM } from './sdm.js?v=2026-11-28-09fd85';
-import { rekapLab } from './lab.js?v=2026-11-28-09fd85';
-import { rekapMasukan, kategoriSumber, TOPIK_MASUKAN, KATEGORI_PEMANGKU } from './pemangku.js?v=2026-11-28-09fd85';
+import { rekapUjian } from './ujian.js?v=2026-11-28-cb6cb1';
+import { rekapSdm, JENIS_SDM } from './sdm.js?v=2026-11-28-cb6cb1';
+import { rekapLab } from './lab.js?v=2026-11-28-cb6cb1';
+import { rekapMasukan, kategoriSumber, TOPIK_MASUKAN, KATEGORI_PEMANGKU } from './pemangku.js?v=2026-11-28-cb6cb1';
 
 const angka = v => (v == null ? '—' : String(Math.round(+v * 100) / 100).replace('.', ','));
 const ta = t => `${t - 1}/${t}`;

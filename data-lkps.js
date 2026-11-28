@@ -4,8 +4,8 @@
    ===================================================================== */
 // Data Data prodi yang dipakai LKPS dan draf LED (hanya di browser pemakai yang login;
 // tabel yang belum boleh dibaca atau belum ada cukup kosong).
-import { integrasiDisahkan, kunciIntegrasi } from './rps-integrasi.js?v=2026-11-28-09fd85';
-import { bacaAmpu } from './dosen-hitung.js?v=2026-11-28-09fd85';
+import { integrasiDisahkan, kunciIntegrasi } from './rps-integrasi.js?v=2026-11-28-cb6cb1';
+import { bacaAmpu } from './dosen-hitung.js?v=2026-11-28-cb6cb1';
 async function ambilModul(sb){
   const r = q => q.then(x => (x.error ? null : x.data), () => null);
   const [masukanRekap, nilaiRekap, kelas, ujian, validasi, sdm, lab, alat, perawatan, induksi, pinjam, pemangku, masukan] = await Promise.all([

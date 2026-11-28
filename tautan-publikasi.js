@@ -5,7 +5,15 @@
 const escT = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
 /** DOI baku tanpa awalan: '10.1/AB' dari '10.1/AB', 'doi:10.1/AB', 'https://dx.doi.org/10.1/AB'; '' bila kosong. */
-export const doiBaku = d => String(d ?? '').trim().replace(/^https?:\/\/(dx\.)?doi\.org\//i, '').replace(/^doi:\s*/i, '');
+// DOI tanpa awalan; alamat penerbit yang memuat '10.xxxx/...' diambil DOI-nya; '' bila tidak ada (pemeriksaan situs 2026-11-28).
+/** Alamat DOI: 'https://doi.org/<doi>'; isian tanpa DOI berupa alamat http(s) dipakai apa adanya; selain itu ''. */
+export const urlDoi = d => { const b = doiBaku(d), s = String(d ?? '').trim(); return b ? `https://doi.org/${b}` : /^https?:\/\//i.test(s) ? s : ''; };
+export const doiBaku = d => {
+  const s = String(d ?? '').trim().replace(/^https?:\/\/(dx\.)?doi\.org\//i, '').replace(/^doi:\s*/i, '');
+  if (!s || s.startsWith('10.')) return s;
+  const m = /\b10\.\d{4,9}\/[^\s"<>]+/.exec(s);
+  return m ? m[0].replace(/[.,;)]+$/, '') : '';
+};
 
 /** URL tujuan publikasi: DOI lebih dulu, lalu URL http(s) yang bukan Google Drive/Docs; '' bila tidak ada. */
 export function urlPublikasi(p){

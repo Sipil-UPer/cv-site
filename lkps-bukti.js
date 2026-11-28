@@ -8,12 +8,13 @@
    Data prodi (lkps_bukti, tautan_bukti), dan dokumen pustaka sesuai tabelnya.
    Pemilihan baris mengikuti lkps.js petaDaftar (jendela TS, kategori karya).
    ===================================================================== */
-import { versiUntukTS } from './pustaka-dokumen.js?v=2026-11-28-09fd85';
-import { JSZIP } from './lkps.js?v=2026-11-28-09fd85';
-import { labelDokumenLED } from './led-isi.js?v=2026-11-28-09fd85';
-import { barisKerjaSama } from './kerjasama-karya.js?v=2026-11-28-09fd85';
-import { karya4i, tautanPengutip } from './sitasi.js?v=2026-11-28-09fd85';
-import { POS_A5, labelPos } from './keuangan-a5.js?v=2026-11-28-09fd85';
+import { urlDoi } from './tautan-publikasi.js?v=2026-11-28-cb6cb1';
+import { versiUntukTS } from './pustaka-dokumen.js?v=2026-11-28-cb6cb1';
+import { JSZIP } from './lkps.js?v=2026-11-28-cb6cb1';
+import { labelDokumenLED } from './led-isi.js?v=2026-11-28-cb6cb1';
+import { barisKerjaSama } from './kerjasama-karya.js?v=2026-11-28-cb6cb1';
+import { karya4i, tautanPengutip } from './sitasi.js?v=2026-11-28-cb6cb1';
+import { POS_A5, labelPos } from './keuangan-a5.js?v=2026-11-28-cb6cb1';
 
 const OUTLINE = 'lkps-outline.json';
 const DOCX = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
@@ -88,7 +89,7 @@ export function indeksBukti(C, wajib){
   const tautanKarya = k => {
     const kb = (X.buktiKarya || []).filter(b => b.karya_id === k.id).map(b => ({ t: b.judul || 'Bukti', url: b.url }));
     const induk = k.induk_id && perId.get(k.induk_id);
-    return unik([...kb, ...(k.doi ? [{ t: 'DOI', url: `https://doi.org/${String(k.doi).replace(/^https?:\/\/doi\.org\//, '')}` }] : []),
+    return unik([...kb, ...(urlDoi(k.doi) ? [{ t: 'DOI', url: urlDoi(k.doi) }] : []),
       ...(k.url ? [{ t: 'Tautan', url: k.url }] : []), ...(k.bukti_url ? [{ t: 'Bukti', url: k.bukti_url }] : []),
       ...(induk ? (X.buktiKarya || []).filter(b => b.karya_id === induk.id).map(b => ({ t: b.judul || 'Bukti induk', url: b.url })) : [])]);
   };

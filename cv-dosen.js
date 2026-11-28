@@ -2,8 +2,8 @@
 // Karya: hanya yang terverifikasi (data.json publik). Profil (NIDN, jabatan, pendidikan,
 // keahlian, sertifikat, email): tabel dosen di Supabase, dibaca dosen itu sendiri atau admin.
 // Dipakai profil.html (CV sendiri) dan kelola-dosen.html (admin, semua dosen).
-import { run, para, judul, teks, tabel, tautan, buatDocx } from './docx-dasar.js?v=2026-11-28-09fd85';
-import { JENJANG, JENIS_SERTIFIKAT, JABATAN, KATEGORI, SKIP, masaBerlaku, tanggalPanjang } from './profil-dosen.js?v=2026-11-28-09fd85';
+import { run, para, judul, teks, tabel, tautan, buatDocx } from './docx-dasar.js?v=2026-11-28-cb6cb1';
+import { JENJANG, JENIS_SERTIFIKAT, JABATAN, KATEGORI, SKIP, masaBerlaku, tanggalPanjang } from './profil-dosen.js?v=2026-11-28-cb6cb1';
 
 const label = (xs, k) => (xs.find(x => x[0] === k) || [, k || ''])[1];
 const rapi = s => String(s || '').replace(/_/g, ' ').trim();
@@ -20,7 +20,9 @@ export function urlProfil(kunci, nilai){
   return PROFIL_LUAR[kunci] + encodeURIComponent(v.replace(/^orcid\.org\//i, ''));
 }
 /** URL DOI baku dari '10.x/…', 'doi:10.x/…', atau 'https://(dx.)doi.org/10.x/…'. */
-export const urlDoi = d => `https://doi.org/${String(d ?? '').trim().replace(/^https?:\/\/(dx\.)?doi\.org\//i, '').replace(/^doi:\s*/i, '')}`;
+// DOI dibakukan di tautan-publikasi.js (DOI di dalam alamat penerbit ikut dikenali; pemeriksaan situs 2026-11-28).
+import { urlDoi } from './tautan-publikasi.js?v=2026-11-28-cb6cb1';
+export { urlDoi };
 // Sel tabel berisi tautan (docx-dasar.js tabel: { xml, teks }).
 const selTautan = (url, label) => (url ? { xml: tautan(url, label, { sz: 18 }), teks: label } : label);
 const urlIsian = (k, v) => (k === 'email' ? (String(v ?? '').includes('@') ? `mailto:${String(v).trim()}` : '') : urlProfil(k, v));
@@ -105,7 +107,7 @@ export function isiCV(P, D, o = {}){
       .filter(Boolean).join(', ');
     out.push(para(run(`${i + 1}. `) + runPenulis(p.penulis, P) + run(` (${p.tahun}). ${p.judul}. `)
       + run(p.terbitan || '', { i: true }) + run(p.terbitan && p.volume ? `, ${p.volume}` : '', { i: true })
-      + run(p.terbitan && p.nomor ? `(${p.nomor})` : '') + run(p.terbitan && p.halaman ? `, ${p.halaman}` : '') + run(p.terbitan && (p.doi || p.url) ? '. ' : '') + (p.doi ? tautan(urlDoi(p.doi), urlDoi(p.doi)) + run('. ')
+      + run(p.terbitan && p.nomor ? `(${p.nomor})` : '') + run(p.terbitan && p.halaman ? `, ${p.halaman}` : '') + run(p.terbitan && (urlDoi(p.doi) || p.url) ? '. ' : '') + (urlDoi(p.doi) ? tautan(urlDoi(p.doi), urlDoi(p.doi)) + run('. ')
         : p.url ? tautan(p.url, p.url) + run('. ') : run(p.terbitan ? '. ' : ''))
       + run(ket ? `[${ket}]` : '', { sz: 18, warna: '555555' }), { jc: 'left', after: 80 }));
   });

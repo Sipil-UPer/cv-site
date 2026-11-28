@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-28-09fd85">
+<link rel="stylesheet" href="tema.css?v=2026-11-28-cb6cb1">
 <style>
   /* Layanan mahasiswa, publik (pemilik 2026-11-16; patch 76, 77, 78). Warna dari tema.css. */
   *{box-sizing:border-box}
@@ -225,7 +225,7 @@
   <footer>Pertanyaan tentang isi berkas: hubungi sekretariat program studi.
     · <a href="kurikulum.html">Kurikulum</a> · <a href="privasi.html">Kebijakan privasi</a></footer>
 </main>
-<script src="config.js?v=2026-11-28-09fd85"></script>
+<script src="config.js?v=2026-11-28-cb6cb1"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -241,7 +241,7 @@ addEventListener('error', function (e) {
 </script>
 <script type="module">
 // Kepala dan kaki bersama situs umum (pemilik 2026-11-19, tahap 2).
-import { pasangKerangka } from './kerangka.js?v=2026-11-28-09fd85';
+import { pasangKerangka } from './kerangka.js?v=2026-11-28-cb6cb1';
 pasangKerangka({ aktif: 'mahasiswa', muat: true });
 // Layanan mahasiswa, tanpa masuk akun (pemilik 2026-11-16). Alamat tetap layanan-mahasiswa.html supaya tautan lama tidak putus.
 //   Berkas: dipilih admin per dokumen pustaka (Data prodi > Dokumen, centang "Mahasiswa"); dokumen_mahasiswa() (76)
@@ -250,9 +250,9 @@ pasangKerangka({ aktif: 'mahasiswa', muat: true });
 //   Tanya-jawab: tanya_jawab_publik() (78), disusun admin di kelola-layanan-mahasiswa.html.
 //   Kiriman: kirim_masukan_mahasiswa() (78) ke kotak masuk tertutup; kolom k_situs adalah jebakan bot.
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { infoJenis } from './rencana-bukti.js?v=2026-11-28-09fd85';
-import { pasangPembimbing } from './pembimbing.js?v=2026-11-28-09fd85';
-import { lacakSemua, htmlLacak } from './lacak.js?v=2026-11-28-09fd85';
+import { infoJenis } from './rencana-bukti.js?v=2026-11-28-cb6cb1';
+import { pasangPembimbing } from './pembimbing.js?v=2026-11-28-cb6cb1';
+import { lacakSemua, htmlLacak } from './lacak.js?v=2026-11-28-cb6cb1';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
