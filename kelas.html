@@ -11,8 +11,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-28-38a701">
-<link rel="stylesheet" href="kepala.css?v=2026-11-28-38a701">
+<link rel="stylesheet" href="tema.css?v=2026-11-28-6ddc2b">
+<link rel="stylesheet" href="kepala.css?v=2026-11-28-6ddc2b">
 <style>
   /* Penyusunan kelas (136-patch-penyusunan-kelas.sql, pemilik 2026-11-21) */
   *{box-sizing:border-box}
@@ -42,6 +42,8 @@
   .kode{font-family:var(--mono);font-size:12px;color:var(--muted)}
   .chip{display:inline-block;font-size:12px;padding:1px 7px;border:1px solid var(--line);margin:1px 3px 1px 0;white-space:nowrap}
   .chip.koor{border-color:var(--biru);color:var(--biru);font-weight:600}
+  .chip .gol{font-size:10px;font-weight:600;color:var(--ink-2,#555);border:1px solid var(--line);padding:0 3px;margin-left:4px}
+  .panel .luar{border:1px dashed var(--line);padding:8px;margin:6px 0}
   .panel{border:1px solid var(--biru);padding:10px 14px;margin:10px 0;background:var(--panel)}
   .panel .baris-dosen{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:4px 0}
   .panel select{min-width:260px}
@@ -57,7 +59,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></div>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-28-38a701"></script>
+<script src="config.js?v=2026-11-28-6ddc2b"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -76,10 +78,11 @@ addEventListener('error', function (e) {
 // beberapa kelas, team teaching = satu koordinator + anggota), manual atau impor CSV; ekspor CSV untuk optimasi jadwal di luar
 // situs; salin ke daftar kelas nilai CPL. Admin dan Kaprodi aktif menyusun; dosen lain membaca. Logika: kelas.js.
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-28-38a701';
-import { punya } from './koordinator.js?v=2026-11-28-38a701';
-import { semesterKini, tsDariTA } from './evaluasi-pembelajaran.js?v=2026-11-28-38a701';
-import { mkDitawarkan, kelasBerikut, usulanKelasAwal, tanpaDosenBoleh, csvKelas, bacaCsvKelas, rekapBeban, csvBeban } from './kelas.js?v=2026-11-28-38a701';
+import { gerbang } from './menu.js?v=2026-11-28-6ddc2b';
+import { punya } from './koordinator.js?v=2026-11-28-6ddc2b';
+import { semesterKini, tsDariTA } from './evaluasi-pembelajaran.js?v=2026-11-28-6ddc2b';
+import { mkDitawarkan, kelasBerikut, usulanKelasAwal, tanpaDosenBoleh, csvKelas, bacaCsvKelas, rekapBeban, csvBeban, KELOMPOK_LUAR, golonganDosen, tandaGolongan,
+  kelompokPilihan, cekDosenLuar } from './kelas.js?v=2026-11-28-6ddc2b';
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const sb = createClient(window.SB_URL, window.SB_KEY);
@@ -88,6 +91,8 @@ let BIMBINGAN = [], ADA_BIMBINGAN = true;   // beban_bimbingan(TS), 109
 let SAYA = null, MK = [], DOSEN = [], KELAS = [], KD = [], ADA = true, PERIODE = null, KUR = '', CARI = '', F_SAYA = false, DRAF = null;
 const PENGATUR = () => SAYA?.peran === 'admin' || punya(SAYA, 'kaprodi');
 const namaD = id => { const d = DOSEN.find(x => x.id === id); return d ? (d.nama_gelar || d.nama) : '?'; };
+// Penanda dosen luar DTPS (208): DT prodi lain / DTT / industri.
+const golD = id => { const g = tandaGolongan(DOSEN.find(x => x.id === id) || {}); return g ? `<span class="gol" title="Bukan DTPS">${g}</span>` : ''; };
 
 // Semester lalu, ini, dan berikutnya.
 function periodeDaftar(){
@@ -137,7 +142,7 @@ function gambar(){
     return kepala + `<tr class="mk"><td colspan="5"><span class="kode">${esc(m.kode)}</span> <b>${esc(m.nama)}</b> <span class="ket">${esc(m.sks)} sks · ${ks.length} kelas</span></td>
       <td>${PENGATUR() ? `<button class="b kecil" data-tambah="${esc(m.kode)}">+ Kelas</button>` : ''}</td></tr>`
       + (ks.map(k => `<tr><td>Kelas <b>${esc(k.kelas)}</b></td>
-          <td>${dosenKelas(k).map(d => `<span class="chip${d.peran === 'koordinator' ? ' koor' : ''}" title="${d.peran === 'koordinator' ? 'Koordinator kelas' : 'Anggota team teaching'}${d.pertemuan ? `, ${d.pertemuan} pertemuan` : ''}">${esc(namaD(d.dosen_id))}${d.peran === 'koordinator' && dosenKelas(k).length > 1 ? ' (K)' : ''}${d.pertemuan ? ` · ${d.pertemuan}×` : ''}</span>`).join('') || '<span class="ket">belum ada dosen</span>'}</td>
+          <td>${dosenKelas(k).map(d => `<span class="chip${d.peran === 'koordinator' ? ' koor' : ''}" title="${d.peran === 'koordinator' ? 'Koordinator kelas' : 'Anggota team teaching'}${d.pertemuan ? `, ${d.pertemuan} pertemuan` : ''}">${esc(namaD(d.dosen_id))}${golD(d.dosen_id)}${d.peran === 'koordinator' && dosenKelas(k).length > 1 ? ' (K)' : ''}${d.pertemuan ? ` · ${d.pertemuan}×` : ''}</span>`).join('') || '<span class="ket">belum ada dosen</span>'}</td>
           <td>${k.kapasitas ? `${esc(k.kapasitas)} mhs` : ''}</td><td>${esc(k.angkatan || '')}</td><td class="ket">${esc(k.catatan || '')}</td>
           <td>${PENGATUR() ? `<button class="b kecil" data-ubah="${k.id}">Ubah</button>` : ''}</td></tr>`).join('')
         || `<tr><td colspan="6" class="ket">Belum ada kelas.</td></tr>`);
@@ -165,8 +170,10 @@ function gambar(){
 
 // Beban per dosen periode ini, semua kurikulum (pemilik 2026-11-21, usulan nomor 3): sks mengajar dari kelas ini (porsi
 // menurut pertemuan, selain itu rata) + bimbingan per TS (beban_bimbingan, 109). Tanpa batas dan tanpa konversi ke sks.
+// Dosen luar DTPS (208) hanya tampil di beban bila mengajar periode ini.
+const dosenBeban = () => DOSEN.map(d => ({ id: d.id, nama: d.nama_gelar || d.nama, peran: golonganDosen(d) === 'dtps' ? d.peran : 'luar' }));
 function htmlBeban(){
-  const r = rekapBeban({ kelas: KELAS, kd: KD, mk: MK, dosen: DOSEN.map(d => ({ id: d.id, nama: d.nama_gelar || d.nama, peran: d.peran })), bimbingan: BIMBINGAN });
+  const r = rekapBeban({ kelas: KELAS, kd: KD, mk: MK, dosen: dosenBeban(), bimbingan: BIMBINGAN });
   const ts = tsDariTA(PERIODE.ta), maks = r.ringkas.max || 1, koma = x => String(x).replace('.', ',');
   return `<div class="kartu"><h2>Beban per dosen, ${esc(PERIODE.sm)} ${esc(PERIODE.ta)}</h2>
     <p class="ket">Untuk memeratakan beban saat menyusun kelas (semua kurikulum). <b>sks mengajar</b> = sks MK × bagian dosen di kelas itu: menurut
@@ -184,7 +191,9 @@ function htmlBeban(){
 
 function htmlAlat(){
   return `<div class="alat"><button class="b" id="aUsul">Buat kelas A untuk MK yang belum punya kelas</button>
-      <button class="b" id="aUnduh">Unduh CSV</button><button class="b" id="aCpl">Salin ke daftar kelas nilai CPL</button></div>
+      <button class="b" id="aUnduh">Unduh CSV</button><button class="b" id="aCpl">Salin ke daftar kelas nilai CPL</button>
+      <a class="b" href="surat.html?kelas=${encodeURIComponent(PERIODE.ta)}&amp;semester=${encodeURIComponent(PERIODE.sm)}#form"
+        title="Draf SK pengajaran semester ini dari daftar kelas (semua kurikulum), termasuk dosen luar DTPS">Draf SK pengajaran</a></div>
     <details><summary><b>Impor CSV</b></summary>
       <p class="ket">Pemisah titik koma. Kolom wajib <code>kode_mk</code>, <code>kelas</code>, dan <code>dosen</code> (NIDN atau email, dipisah <code>|</code>;
         dosen pertama = koordinator kelas); opsional <code>kurikulum</code> (kosong = ${esc(KUR)}), <code>kapasitas</code>, <code>angkatan</code>, <code>catatan</code>.
@@ -196,7 +205,8 @@ function htmlAlat(){
 
 function htmlEditor(){
   const m = MK.find(x => x.kurikulum === DRAF.kurikulum && x.kode === DRAF.kode_mk) || {};
-  const opsi = v => `<option value="">— pilih dosen —</option>` + DOSEN.map(d => `<option value="${d.id}"${d.id === v ? ' selected' : ''}>${esc(d.nama_gelar || d.nama)}</option>`).join('');
+  const opsi = v => `<option value="">— pilih dosen —</option>` + kelompokPilihan(DOSEN).map(([l, xs]) => `<optgroup label="${esc(l)}">${
+    xs.map(d => `<option value="${d.id}"${d.id === v ? ' selected' : ''}>${esc(d.nama_gelar || d.nama)}</option>`).join('')}</optgroup>`).join('');
   return `<div class="panel"><b>${DRAF.id ? 'Ubah' : 'Tambah'} kelas: <span class="kode">${esc(DRAF.kode_mk)}</span> ${esc(m.nama || '')}</b>
     <div class="alat"><label>Kelas <input type="text" id="eKelas" maxlength="10" value="${esc(DRAF.kelas)}" style="width:70px"></label>
       <label>Kapasitas <input type="number" id="eKap" min="1" max="500" value="${esc(DRAF.kapasitas ?? '')}" style="width:80px"></label>
@@ -208,7 +218,9 @@ function htmlEditor(){
       <label><input type="radio" name="eKoor" data-koor="${i}"${d.peran === 'koordinator' ? ' checked' : ''}> koordinator</label>
       <label class="ket">pertemuan <input type="number" data-pert="${i}" min="1" max="32" value="${esc(d.pertemuan ?? '')}" style="width:64px"></label>
       ${DRAF.dosen.length > 1 ? `<button class="b kecil bahaya" data-buang="${i}">Hapus</button>` : ''}</div>`).join('')}
-    <div class="alat"><button class="b kecil" id="eTambahD">+ Dosen (team teaching)</button></div>
+    <div class="alat"><button class="b kecil" id="eTambahD">+ Dosen (team teaching)</button>
+      <button class="b kecil" id="eLuarBuka">+ Tulis dosen luar DTPS</button></div>
+    ${DRAF.luar ? htmlLuar() : ''}
     <div class="alat"><button class="b utama" id="eSimpan">Simpan kelas</button><button class="b" id="eBatal">Batal</button>
       ${DRAF.id ? '<button class="b bahaya" id="eHapus">Hapus kelas</button>' : ''}</div></div>`;
 }
@@ -248,11 +260,27 @@ function pasang(){
   };
   if ($('iImpor')) $('iImpor').onclick = impor;
   if ($('bbUnduh')) $('bbUnduh').onclick = () => {
-    const r = rekapBeban({ kelas: KELAS, kd: KD, mk: MK, dosen: DOSEN.map(d => ({ id: d.id, nama: d.nama_gelar || d.nama, peran: d.peran })), bimbingan: BIMBINGAN });
+    const r = rekapBeban({ kelas: KELAS, kd: KD, mk: MK, dosen: dosenBeban(), bimbingan: BIMBINGAN });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(new Blob(['﻿' + csvBeban(r, { ta: PERIODE.ta, semester: PERIODE.sm, ts: tsDariTA(PERIODE.ta) })], { type: 'text/csv;charset=utf-8' }));
     a.download = `beban_${PERIODE.ta.replace('/', '-')}_${PERIODE.sm}.csv`; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
   };
+}
+
+// Dosen luar DTPS ditulis manual (208, pemilik 2026-11-28): jadi baris dosen (DT prodi lain / DTT / industri, tanpa akses masuk)
+// supaya dihitung NDT/NDTT dan disebut di SK pengajaran. Data lengkapnya dilengkapi admin di Kelola dosen.
+function htmlLuar(){
+  const x = DRAF.luar;
+  return `<div class="luar"><b>Dosen luar DTPS (belum ada di daftar)</b>
+    <p class="ket">Untuk dosen prodi lain, dosen tidak tetap, atau praktisi. Ia tercatat di Kelola dosen tanpa akses masuk, dihitung sebagai DT atau
+      DTT bila mengampu pada TS, dan disebut di SK pengajaran. NIDN/NIDK boleh dikosongkan dulu; admin melengkapinya di Kelola dosen.</p>
+    <div class="alat"><label>Nama dan gelar <input type="text" id="lNama" maxlength="120" value="${esc(x.nama || '')}" style="min-width:260px"></label>
+      <label>Kelompok <select id="lKel"><option value="">— pilih —</option>${Object.entries(KELOMPOK_LUAR).map(([k, l]) =>
+        `<option value="${k}"${k === x.kelompok ? ' selected' : ''}>${esc(l)}</option>`).join('')}</select></label>
+      <label>NIDN/NIDK <input type="text" id="lNidn" maxlength="30" value="${esc(x.nidn || '')}" style="width:130px"></label>
+      <label>Pendidikan <select id="lPend"><option value="">—</option>${['S2', 'S3'].map(p => `<option${p === x.pendidikan ? ' selected' : ''}>${p}</option>`).join('')}</select></label></div>
+    <div class="alat"><button class="b utama kecil" id="lSimpan">Tambahkan ke kelas ini</button><button class="b kecil" id="lBatal">Batal</button>
+      <span class="pesan" id="mLuar" role="status"></span></div></div>`;
 }
 
 function pasangEditor(){
@@ -263,6 +291,24 @@ function pasangEditor(){
   document.querySelectorAll('[data-buang]').forEach(b => { b.onclick = () => { ambil(); const i = +b.dataset.buang, koor = DRAF.dosen[i].peran === 'koordinator';
     DRAF.dosen.splice(i, 1); if (koor) DRAF.dosen[0].peran = 'koordinator'; gambar(); }; });
   $('eTambahD').onclick = () => { ambil(); DRAF.dosen.push({ dosen_id: '', peran: 'anggota', pertemuan: null }); gambar(); };
+  $('eLuarBuka').onclick = () => { ambil(); DRAF.luar = DRAF.luar || {}; gambar(); $('lNama')?.focus(); };
+  if ($('lBatal')) $('lBatal').onclick = () => { ambil(); DRAF.luar = null; gambar(); };
+  if ($('lSimpan')) $('lSimpan').onclick = async () => {
+    ambil();
+    DRAF.luar = { nama: $('lNama').value, kelompok: $('lKel').value, nidn: $('lNidn').value, pendidikan: $('lPend').value };
+    const c = cekDosenLuar(DRAF.luar, DOSEN);
+    if (c.galat) return tulis('mLuar', 'galat', c.galat);
+    if (c.mirip.length && !confirm(`Nama mirip sudah terdaftar: ${c.mirip.join('; ')}. Bila orangnya sama, pilih dari daftar saja. Tetap tambahkan sebagai dosen baru?`)) return;
+    $('lSimpan').disabled = true;
+    const { data, error } = await sb.rpc('dosen_luar_tambah', { p: c.isi });
+    if (error) { $('lSimpan').disabled = false; return tulis('mLuar', 'galat', /function|schema cache/i.test(error.message)
+      ? 'Fungsi belum ada. Admin menjalankan supabase/208-patch-dosen-luar-kelas.sql di Supabase.' : error.message); }
+    DOSEN = [...DOSEN, { id: data.id, nidn: data.nidn, nama: data.nama, kategori: data.kategori, dtps: false, aktif: true, peran: 'dosen' }];
+    const kosong = DRAF.dosen.find(d => !d.dosen_id);
+    if (kosong) kosong.dosen_id = data.id;
+    else DRAF.dosen.push({ dosen_id: data.id, peran: DRAF.dosen.some(d => d.peran === 'koordinator') ? 'anggota' : 'koordinator', pertemuan: null });
+    DRAF.luar = null; gambar(); tulis('mKelas', 'ok', `${data.nama} ditambahkan ke daftar dosen dan ke kelas ini. Klik Simpan kelas.`);
+  };
   $('eBatal').onclick = () => { DRAF = null; gambar(); };
   $('eSimpan').onclick = async () => {
     ambil();
@@ -326,7 +372,7 @@ async function mulai(){
   F_SAYA = !PENGATUR();
   [MK, DOSEN] = await Promise.all([
     baca(sb.from('ref_mata_kuliah').select('kurikulum,kode,nama,sks,semester,sifat,aktif,pengampu,unit_penyelenggara')),
-    baca(sb.from('dosen').select('id,nidn,nama,nama_gelar,email,aktif,peran').order('nama'))]);
+    baca(sb.from('dosen').select('id,nidn,nama,nama_gelar,email,aktif,peran,dtps,kategori,tugas_belajar').order('nama'))]);
   DOSEN = DOSEN.filter(d => d.aktif !== false && d.peran !== 'asesor');
   const kurs = [...new Set(MK.map(m => m.kurikulum))].sort().reverse();
   KUR = kurs[0] || '';

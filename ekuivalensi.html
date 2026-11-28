@@ -11,8 +11,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-28-38a701">
-<link rel="stylesheet" href="kepala.css?v=2026-11-28-38a701">
+<link rel="stylesheet" href="tema.css?v=2026-11-28-6ddc2b">
+<link rel="stylesheet" href="kepala.css?v=2026-11-28-6ddc2b">
 <style>
   /* Ekuivalensi MK (134-patch-ekuivalensi-sah.sql, pemilik 2026-11-21) */
   *{box-sizing:border-box}
@@ -55,7 +55,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></div>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-28-38a701"></script>
+<script src="config.js?v=2026-11-28-6ddc2b"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -74,9 +74,9 @@ addEventListener('error', function (e) {
 // admin dari CSV). Kaprodi aktif mengesahkan, Dekan aktif menetapkan (Pedoman Penyusunan K26 4.1.1 butir 4); versi yang
 // ditetapkan tampil di ekuivalensi-kurikulum.html. Logika: ekuivalensi.js.
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-28-38a701';
-import { susunEkuivalensi, htmlEkuivalensi, csvEkuivalensi } from './ekuivalensi.js?v=2026-11-28-38a701';
-import { bacaCsvPadanan } from './tinjauan-rps.js?v=2026-11-28-38a701';
+import { gerbang } from './menu.js?v=2026-11-28-6ddc2b';
+import { susunEkuivalensi, htmlEkuivalensi, csvEkuivalensi } from './ekuivalensi.js?v=2026-11-28-6ddc2b';
+import { bacaCsvPadanan } from './tinjauan-rps.js?v=2026-11-28-6ddc2b';
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const sb = createClient(window.SB_URL, window.SB_KEY);

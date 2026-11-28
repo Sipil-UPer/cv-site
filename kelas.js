@@ -150,3 +150,80 @@ export function csvBeban(rekap, { ta = '', semester = '', ts = '' } = {}){
   return [k, ...rekap.baris.map(b => [ta, semester, b.nama, b.kelas, b.mk.join('|'), String(b.sks).replace('.', ','), b.sks_penuh, b.tim, b.kp, b.ta, b.uji, b.lomba])]
     .map(r => r.map(v => String(v ?? '').replace(/;/g, ',')).join(';')).join('\r\n');
 }
+
+// ---------- Dosen luar DTPS ditulis manual + draf SK pengajaran (208, pemilik 2026-11-28) ----------
+// Dosen luar DTPS tetap baris dosen (DT prodi lain / DTT / industri) supaya dihitung NDT/NDTT dan disebut di SK.
+export const KELOMPOK_LUAR = { dt: 'Dosen tetap prodi lain (DT)', dtt: 'Dosen tidak tetap (DTT)', industri: 'Dosen industri/praktisi (dihitung DTT)' };
+const GOLONGAN = [['dtps', 'DTPS'], ['dt', 'Dosen tetap prodi lain (DT)'], ['dtt', 'Dosen tidak tetap (DTT)'], ['industri', 'Dosen industri/praktisi'], ['lain', 'Lainnya']];
+/** Golongan untuk daftar pilihan dosen kelas: dtps | dt | dtt | industri | lain (sama dengan kolom dtps/kategori di Kelola dosen). */
+export function golonganDosen(d = {}){
+  const ya = v => v === true || String(v ?? '').toLowerCase() === 'true';
+  if (ya(d.dtps) || String(d.tugas_belajar || '').trim()) return 'dtps';
+  return { tetap: 'dt', tidak_tetap: 'dtt', industri: 'industri' }[d.kategori] || 'lain';
+}
+/** Label singkat golongan bukan DTPS untuk penanda di daftar kelas ('' untuk DTPS dan lainnya). */
+export const tandaGolongan = d => ({ dt: 'DT', dtt: 'DTT', industri: 'Industri' }[golonganDosen(d)] || '');
+/** Kelompok pilihan [[label, [dosen...]]] urut DTPS, DT, DTT, industri, lainnya; golongan kosong dilewati. */
+export const kelompokPilihan = (dosen = []) => GOLONGAN.map(([g, l]) => [l, dosen.filter(d => golonganDosen(d) === g)]).filter(([, xs]) => xs.length);
+/** NIDN sementara dari dosen_luar_tambah (208) yang perlu dilengkapi admin. */
+export const nidnSementara = n => /^LUAR-/i.test(String(n || ''));
+
+// Inti nama untuk mencari nama yang sama tanpa gelar: buang bagian sesudah koma pertama dan gelar depan.
+const GELAR_DEPAN = new Set(['prof', 'dr', 'ir', 'drs', 'dra', 'h', 'hj']);
+export function intiNama(n){
+  const kata = String(n || '').split(',')[0].toLowerCase().replace(/[^a-z\s.]/g, ' ').split(/[\s.]+/).filter(Boolean);
+  while (kata.length > 1 && GELAR_DEPAN.has(kata[0])) kata.shift();
+  return kata.join(' ');
+}
+/**
+ * Periksa isian dosen luar sebelum dikirim. isi = { nama, kelompok, nidn?, pendidikan? }; dosen = daftar terdaftar.
+ * -> { galat } atau { isi (rapi), mirip: [nama terdaftar yang inti namanya sama] }.
+ */
+export function cekDosenLuar(isi = {}, dosen = []){
+  const nama = String(isi.nama || '').replace(/\s+/g, ' ').trim(), nidn = String(isi.nidn || '').trim();
+  if (nama.length < 3 || nama.length > 120) return { galat: 'Tulis nama dosen (3–120 huruf).' };
+  if (!KELOMPOK_LUAR[isi.kelompok]) return { galat: 'Pilih kelompok dosen.' };
+  if (nidn && !/^[A-Za-z0-9.-]{4,30}$/.test(nidn)) return { galat: 'NIDN/NIDK: 4–30 huruf, angka, titik, atau strip.' };
+  if (isi.pendidikan && !['S2', 'S3'].includes(isi.pendidikan)) return { galat: 'Pendidikan: S2 atau S3.' };
+  const ada = nidn && dosen.find(d => String(d.nidn || '').toLowerCase() === nidn.toLowerCase());
+  if (ada) return { galat: `NIDN ${nidn} sudah terdaftar atas nama ${ada.nama_gelar || ada.nama}; pilih dari daftar.` };
+  const inti = intiNama(nama);
+  const mirip = dosen.filter(d => [d.nama, d.nama_gelar].some(x => x && intiNama(x) === inti)).map(d => d.nama_gelar || d.nama);
+  return { isi: { nama, kelompok: isi.kelompok, nidn: nidn || null, pendidikan: isi.pendidikan || null }, mirip };
+}
+
+/**
+ * Draf SK pengajaran satu semester dari Penyusunan kelas (untuk surat.html?kelas=TA|Semester). Satu butir per dosen, berisi
+ * kelas yang diampunya; dosen luar DTPS ikut. kelas/kd/mk/dosen seperti csvKelas. -> isi formulir surat
+ * { jenis, kategori, tahun_akademik, semester, perihal, isi, dosen_ids } + { nDosen, nKelas, tanpaDosen: ['KODE A'] }.
+ */
+export function drafSkPengajaran({ ta, semester, kelas = [], kd = [], mk = [], dosen = [] } = {}){
+  const M = new Map(mk.map(m => [`${m.kurikulum}|${m.kode}`, m])), D = new Map(dosen.map(d => [d.id, d]));
+  const per = new Map(), tanpaDosen = [];
+  const urut = [...kelas].sort((a, b) => `${a.kode_mk}|${a.kelas}`.localeCompare(`${b.kode_mk}|${b.kelas}`, 'id', { numeric: true }));
+  for (const k of urut) {
+    const ds = kd.filter(x => x.kelas_id === k.id);
+    if (!ds.length) { tanpaDosen.push(`${k.kode_mk} ${k.kelas}`); continue; }
+    const m = M.get(`${k.kurikulum}|${k.kode_mk}`) || {};
+    for (const x of ds) {
+      if (!per.has(x.dosen_id)) per.set(x.dosen_id, []);
+      per.get(x.dosen_id).push(`${k.kode_mk} ${m.nama || ''} kelas ${k.kelas}${m.sks ? ` (${m.sks} sks)` : ''}${ds.length > 1
+        ? `, team teaching${x.peran === 'koordinator' ? ' (koordinator kelas)' : ''}${x.pertemuan ? `, ${x.pertemuan} pertemuan` : ''}` : ''}`.replace(/\s+/g, ' '));
+    }
+  }
+  const nm = id => { const d = D.get(id); return d ? (d.nama_gelar || d.nama) : '?'; };
+  const ids = [...per.keys()].sort((a, b) => nm(a).localeCompare(nm(b), 'id'));
+  const periode = `Semester ${semester} Tahun Akademik ${ta}`;
+  const butir = ids.map((id, i) => {
+    const d = D.get(id) || {}, g = tandaGolongan(d), n = d.nidn && !nidnSementara(d.nidn) ? `NIDN/NIDK ${d.nidn}` : 'NIDN/NIDK belum diisi';
+    return [`${i + 1}. ${nm(id)} (${n}${g ? `; ${g}` : ''}):`, ...per.get(id).map(t => `   - ${t}`)].join('\n');
+  });
+  return {
+    jenis: 'sk', kategori: 'pengajaran', tahun_akademik: ta, semester,
+    perihal: `Dosen Pengampu Mata Kuliah ${periode}`,
+    isi: ['Menimbang: (tulis pertimbangan)', 'Mengingat: (tulis dasar)', 'MEMUTUSKAN',
+      `Menetapkan: dosen berikut sebagai pengampu mata kuliah ${periode}:`, ...butir,
+      'Keputusan ini berlaku sejak tanggal ditetapkan sampai akhir semester tersebut.'].join('\n'),
+    dosen_ids: ids, nDosen: ids.length, nKelas: urut.length - tanpaDosen.length, tanpaDosen,
+  };
+}

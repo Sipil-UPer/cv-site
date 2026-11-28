@@ -11,8 +11,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-28-38a701">
-<link rel="stylesheet" href="kepala.css?v=2026-11-28-38a701">
+<link rel="stylesheet" href="tema.css?v=2026-11-28-6ddc2b">
+<link rel="stylesheet" href="kepala.css?v=2026-11-28-6ddc2b">
 <style>
   /* Surat dan SK prodi (201-patch-surat-sk-prodi.sql, pemilik 2026-11-28) */
   *{box-sizing:border-box}
@@ -58,7 +58,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></div>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-28-38a701"></script>
+<script src="config.js?v=2026-11-28-6ddc2b"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -77,14 +77,15 @@ addEventListener('error', function (e) {
 // sendiri (tanpa a.n.); nomor dari pola per jenis diberikan saat disahkan; Word ber-QR ke verifikasi-surat.html.
 // Dosen melihat surat yang menyebut dirinya. Logika murni: surat.js.
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-28-38a701';
-import { unggahKePustaka } from './pustaka-dokumen.js?v=2026-11-28-38a701';
-import { punya } from './koordinator.js?v=2026-11-28-38a701';
+import { gerbang } from './menu.js?v=2026-11-28-6ddc2b';
+import { unggahKePustaka } from './pustaka-dokumen.js?v=2026-11-28-6ddc2b';
+import { punya } from './koordinator.js?v=2026-11-28-6ddc2b';
 import { STATUS_SURAT, PENANDATANGAN, PENANDA_POLA, galatPola, nomorBerikut, hariIniWIB, buatSurat, namaBerkasSurat, urlVerifikasi, rekapSurat, tglPanjang,
   skDosen, saringSk, tautanSister, tahunAkademikSurat, KATEGORI_SK }
-  from './surat.js?v=2026-11-28-38a701';
-import { pngQr } from './rps-word.js?v=2026-11-28-38a701';
-import { drafSkAsisten } from './karier.js?v=2026-11-28-38a701';
+  from './surat.js?v=2026-11-28-6ddc2b';
+import { pngQr } from './rps-word.js?v=2026-11-28-6ddc2b';
+import { drafSkAsisten } from './karier.js?v=2026-11-28-6ddc2b';
+import { drafSkPengajaran } from './kelas.js?v=2026-11-28-6ddc2b';
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const sb = createClient(window.SB_URL, window.SB_KEY);
@@ -453,7 +454,7 @@ async function simpan(ajukan){
       catch (e) { return tulis('mForm', 'galat', 'Berkas gagal diunggah: ' + (e.message || e)); }
     }
   }
-  if (!UBAH && PENGAJUAN && !PENGAJUAN.asisten) isi.pengajuan_id = PENGAJUAN.id;
+  if (!UBAH && PENGAJUAN && !PENGAJUAN.asisten && !PENGAJUAN.kelas) isi.pengajuan_id = PENGAJUAN.id;
   const q = UBAH ? sb.from('surat').update(isi).eq('id', UBAH.id).select('id') : sb.from('surat').insert(isi).select('id');
   const { data, error } = await q;
   if (error) return tulis('mForm', 'galat', 'Gagal menyimpan: ' + error.message);
@@ -535,6 +536,25 @@ async function dariAsisten(){
     isi: drafSkAsisten(r.data, l.data || [], { labNama: lab, mkNama: mk }) };
 }
 
+// SK pengajaran dari Penyusunan kelas (kelas.html, 208): ?kelas=<TA>&semester=<Ganjil|Genap> mengisi SK dengan semua dosen
+// kelas semester itu (semua kurikulum), termasuk dosen luar DTPS. SK pengajaran semester yang sama yang masih draf dibuka.
+async function dariKelas(){
+  const q = new URLSearchParams(location.search), ta = q.get('kelas'), sm = q.get('semester');
+  if (!ta || !/^\d{4}\/\d{4}$/.test(ta) || !['Ganjil', 'Genap'].includes(sm) || !KELOLA()) return;
+  const ada = SURAT.find(s => s.kategori === 'pengajaran' && s.tahun_akademik === ta && s.semester === sm && s.status !== 'dibatalkan');
+  if (ada) { UBAH = ['draf', 'dikembalikan'].includes(ada.status) ? ada : null;
+    if (!UBAH) alert(`Semester ini sudah punya SK pengajaran (${STATUS_SURAT[ada.status]}${ada.nomor ? ', ' + ada.nomor : ''}).`); return; }
+  const k = await sb.from('kelas_kuliah').select('id,kurikulum,kode_mk,kelas').eq('tahun_akademik', ta).eq('semester', sm);
+  const kelas = k.data || [];
+  if (!kelas.length) { alert(`Belum ada kelas ${sm} ${ta} di Penyusunan kelas.`); return; }
+  const [kd, mk, ds] = await Promise.all([sb.from('kelas_dosen').select('kelas_id,dosen_id,peran,pertemuan,urutan').in('kelas_id', kelas.map(x => x.id)),
+    sb.from('ref_mata_kuliah').select('kurikulum,kode,nama,sks'), sb.from('dosen').select('id,nidn,nama,nama_gelar,dtps,kategori,tugas_belajar')]);
+  const d = drafSkPengajaran({ ta, semester: sm, kelas, kd: kd.data || [], mk: mk.data || [], dosen: ds.data || [] });
+  const { nDosen, nKelas, tanpaDosen, ...isi } = d;
+  PENGAJUAN = { id: null, kelas: true, isi, label: `SK pengajaran dari Penyusunan kelas ${sm} ${ta}: ${nDosen} dosen, ${nKelas} kelas`
+    + (tanpaDosen.length ? `; ${tanpaDosen.length} kelas belum punya dosen (${tanpaDosen.join(', ')}), lengkapi di Penyusunan kelas bila perlu.` : '.') };
+}
+
 async function mulai(){
   SAYA = await gerbang(sb);
   if (!SAYA) return;
@@ -546,6 +566,7 @@ async function mulai(){
   await muat();
   await dariPengajuan();
   await dariAsisten();
+  await dariKelas();
   gambar();
   if (location.hash && $(location.hash.slice(1))) $(location.hash.slice(1)).scrollIntoView();
 }

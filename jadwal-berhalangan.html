@@ -11,8 +11,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tema.css?v=2026-11-28-38a701">
-<link rel="stylesheet" href="kepala.css?v=2026-11-28-38a701">
+<link rel="stylesheet" href="tema.css?v=2026-11-28-6ddc2b">
+<link rel="stylesheet" href="kepala.css?v=2026-11-28-6ddc2b">
 <style>
   /* Jadwal berhalangan dosen (132-patch-jadwal-berhalangan.sql, pemilik 2026-11-20) */
   *{box-sizing:border-box}
@@ -83,7 +83,7 @@
   <div class="sub" id="hSub">Memuat…</div>
 </div></div>
 <main class="wrap" id="isi"><p class="kosong">Memuat…</p></main>
-<script src="config.js?v=2026-11-28-38a701"></script>
+<script src="config.js?v=2026-11-28-6ddc2b"></script>
 <script>
 // Galat saat memuat skrip ditampilkan sebagai pesan, bukan halaman kosong.
 addEventListener('error', function (e) {
@@ -102,14 +102,14 @@ addEventListener('error', function (e) {
 // bisa (mingguan per semester dan tanggal tertentu, termasuk jadwal di luar prodi); pengatur jadwal (admin, Kaprodi,
 // koordinator TA/KP) melihat semua dan mencari slot kosong; dosen lain hanya jumlah per slot. Logika: jadwal-berhalangan.js.
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm';
-import { gerbang } from './menu.js?v=2026-11-28-38a701';
-import { punya } from './koordinator.js?v=2026-11-28-38a701';
-import { semesterKini } from './evaluasi-pembelajaran.js?v=2026-11-28-38a701';
+import { gerbang } from './menu.js?v=2026-11-28-6ddc2b';
+import { punya } from './koordinator.js?v=2026-11-28-6ddc2b';
+import { semesterKini } from './evaluasi-pembelajaran.js?v=2026-11-28-6ddc2b';
 import { HARI, namaHari, JENIS_HALANGAN, namaJenis, labelSlot, cekSlot, perSel, cariSlotKosong, hariISO,
   cekRentang, labelRentang, rentangPadaTanggal, buatSlot, tambahHari, mingguDari, slotAntara, blokBaru, isiKalender, barisEkspor, EKSPOR_MAKS_HARI, ringkasBlok,
-  kelengkapanBerhalangan, LABEL_KELENGKAPAN } from './jadwal-berhalangan.js?v=2026-11-28-38a701';
-import { SHEETJS } from './nilai-cpl.js?v=2026-11-28-38a701';
-import { petaLibur } from './hari-libur.js?v=2026-11-28-38a701';
+  kelengkapanBerhalangan, LABEL_KELENGKAPAN } from './jadwal-berhalangan.js?v=2026-11-28-6ddc2b';
+import { SHEETJS } from './nilai-cpl.js?v=2026-11-28-6ddc2b';
+import { petaLibur } from './hari-libur.js?v=2026-11-28-6ddc2b';
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const sb = createClient(window.SB_URL, window.SB_KEY);
